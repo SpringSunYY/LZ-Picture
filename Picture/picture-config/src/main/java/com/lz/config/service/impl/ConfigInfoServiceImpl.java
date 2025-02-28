@@ -3,6 +3,7 @@ package com.lz.config.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.exception.sql.SQLDuplicateKeyException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
@@ -12,6 +13,7 @@ import com.lz.config.model.dto.configInfo.ConfigInfoQuery;
 import com.lz.config.model.vo.configInfo.ConfigInfoVo;
 import com.lz.config.service.IConfigInfoService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +27,7 @@ import static com.lz.common.constant.redis.ConfigRedisConstants.CONFIG_CONFIG_IN
  * @author YY
  * @date 2025-02-28
  */
+@Slf4j
 @Service
 public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigInfo> implements IConfigInfoService {
     @Resource
@@ -67,7 +70,13 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     public int insertConfigInfo(ConfigInfo configInfo) {
         configInfo.setCreateBy(SecurityUtils.getUsername());
         configInfo.setCreateTime(DateUtils.getNowDate());
-        int i = configInfoMapper.insertConfigInfo(configInfo);
+        int i = 0;
+        try {
+            i = configInfoMapper.insertConfigInfo(configInfo);
+        } catch (Exception e) {
+            log.error("插入配置信息失败：{}", e.getMessage());
+            throw new SQLDuplicateKeyException(e.getMessage(),e.getCause());
+        }
         //存入缓存
         redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
         return i;
@@ -83,7 +92,13 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     public int updateConfigInfo(ConfigInfo configInfo) {
         configInfo.setUpdateBy(SecurityUtils.getUsername());
         configInfo.setUpdateTime(DateUtils.getNowDate());
-        int i = configInfoMapper.updateConfigInfo(configInfo);
+        int i = 0;
+        try {
+            i = configInfoMapper.updateConfigInfo(configInfo);
+        } catch (Exception e) {
+            log.error("修改配置信息失败：{}", e.getMessage());
+            throw new SQLDuplicateKeyException(e.getMessage(),e.getCause());
+        }
         //存入缓存
         redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
         return i;

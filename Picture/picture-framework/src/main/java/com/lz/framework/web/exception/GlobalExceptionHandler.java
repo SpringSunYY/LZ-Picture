@@ -1,5 +1,6 @@
 package com.lz.framework.web.exception;
 
+import com.lz.common.exception.sql.SQLDuplicateKeyException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,8 @@ import com.lz.common.exception.DemoModeException;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.html.EscapeUtil;
+
+import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * 全局异常处理器
@@ -141,5 +144,21 @@ public class GlobalExceptionHandler
     public AjaxResult handleDemoModeException(DemoModeException e)
     {
         return AjaxResult.error("演示模式，不允许操作");
+    }
+
+    /**
+     * sql唯一键异常
+     */
+    @ExceptionHandler(SQLDuplicateKeyException.class)
+    public AjaxResult handleSQLDuplicateKeyException(SQLDuplicateKeyException e)
+    {
+        String message = e.getCause().toString();
+        if (StringUtils.containsIgnoreCase(message, "Duplicate entry"))
+        {
+            String[] msgs = message.split(" ");
+            String msg = msgs[3] + "已存在";
+            return AjaxResult.error(msg);
+        }
+        return AjaxResult.error(e.getMessage());
     }
 }
