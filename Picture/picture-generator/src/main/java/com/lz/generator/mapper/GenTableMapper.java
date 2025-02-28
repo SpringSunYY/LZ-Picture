@@ -1,7 +1,7 @@
 package com.lz.generator.mapper;
 
 import java.util.List;
-import com.lz.generator.domain.GenTable;
+import com.lz.generator.model.domain.GenTable;
 
 /**
  * 业务 数据层

@@ -1,7 +1,7 @@
 package com.lz.system.service;
 
 import java.util.List;
-import com.lz.system.domain.SysNotice;
+import com.lz.system.model.domain.SysNotice;
 
 /**
  * 公告 服务层

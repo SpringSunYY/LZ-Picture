@@ -1,4 +1,4 @@
-package com.lz.system.domain;
+package com.lz.system.model.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;

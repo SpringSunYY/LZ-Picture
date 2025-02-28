@@ -1,20 +1,20 @@
-package com.lz.system.domain;
+package com.lz.system.model.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 角色和部门关联 sys_role_dept
+ * 角色和菜单关联 sys_role_menu
  * 
  * @author ruoyi
  */
-public class SysRoleDept
+public class SysRoleMenu
 {
     /** 角色ID */
     private Long roleId;
     
-    /** 部门ID */
-    private Long deptId;
+    /** 菜单ID */
+    private Long menuId;
 
     public Long getRoleId()
     {
@@ -26,21 +26,21 @@ public class SysRoleDept
         this.roleId = roleId;
     }
 
-    public Long getDeptId()
+    public Long getMenuId()
     {
-        return deptId;
+        return menuId;
     }
 
-    public void setDeptId(Long deptId)
+    public void setMenuId(Long menuId)
     {
-        this.deptId = deptId;
+        this.menuId = menuId;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("roleId", getRoleId())
-            .append("deptId", getDeptId())
+            .append("menuId", getMenuId())
             .toString();
     }
 }

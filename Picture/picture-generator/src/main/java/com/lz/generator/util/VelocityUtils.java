@@ -10,8 +10,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.lz.common.constant.GenConstants;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.generator.domain.GenTable;
-import com.lz.generator.domain.GenTableColumn;
+import com.lz.generator.model.domain.GenTable;
+import com.lz.generator.model.domain.GenTableColumn;
 
 /**
  * 模板处理工具类

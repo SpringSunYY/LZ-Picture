@@ -20,7 +20,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.StringUtils;
-import com.lz.system.domain.SysUserOnline;
+import com.lz.system.model.domain.SysUserOnline;
 import com.lz.system.service.ISysUserOnlineService;
 
 /**

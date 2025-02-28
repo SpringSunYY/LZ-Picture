@@ -1,7 +1,7 @@
 package com.lz.system.mapper;
 
 import java.util.List;
-import com.lz.system.domain.SysLogininfor;
+import com.lz.system.model.domain.SysLogininfor;
 
 /**
  * 系统访问日志情况信息 数据层

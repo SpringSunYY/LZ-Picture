@@ -1,4 +1,4 @@
-package com.lz.system.domain;
+package com.lz.system.model.domain;
 
 /**
  * 当前在线会话

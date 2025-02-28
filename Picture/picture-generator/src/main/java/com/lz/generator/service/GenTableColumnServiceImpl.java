@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.lz.common.core.text.Convert;
-import com.lz.generator.domain.GenTableColumn;
+import com.lz.generator.model.domain.GenTableColumn;
 import com.lz.generator.mapper.GenTableColumnMapper;
 
 /**

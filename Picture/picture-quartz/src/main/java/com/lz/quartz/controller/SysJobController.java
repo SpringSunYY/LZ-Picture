@@ -22,7 +22,7 @@ import com.lz.common.enums.BusinessType;
 import com.lz.common.exception.job.TaskException;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.poi.ExcelUtil;
-import com.lz.quartz.domain.SysJob;
+import com.lz.quartz.model.domain.SysJob;
 import com.lz.quartz.service.ISysJobService;
 import com.lz.quartz.util.CronUtils;
 import com.lz.quartz.util.ScheduleUtils;

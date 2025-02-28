@@ -26,7 +26,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.framework.web.service.SysPermissionService;
 import com.lz.framework.web.service.TokenService;
-import com.lz.system.domain.SysUserRole;
+import com.lz.system.model.domain.SysUserRole;
 import com.lz.system.service.ISysDeptService;
 import com.lz.system.service.ISysRoleService;
 import com.lz.system.service.ISysUserService;

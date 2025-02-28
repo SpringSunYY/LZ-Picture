@@ -1,7 +1,7 @@
 package com.lz.system.mapper;
 
 import java.util.List;
-import com.lz.system.domain.SysNotice;
+import com.lz.system.model.domain.SysNotice;
 
 /**
  * 通知公告表 数据层

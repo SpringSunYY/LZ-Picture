@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.lz.common.constant.UserConstants;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
-import com.lz.system.domain.SysPost;
+import com.lz.system.model.domain.SysPost;
 import com.lz.system.mapper.SysPostMapper;
 import com.lz.system.mapper.SysUserPostMapper;
 import com.lz.system.service.ISysPostService;

@@ -12,8 +12,8 @@ import com.lz.common.utils.ExceptionUtil;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.spring.SpringUtils;
-import com.lz.quartz.domain.SysJob;
-import com.lz.quartz.domain.SysJobLog;
+import com.lz.quartz.model.domain.SysJob;
+import com.lz.quartz.model.domain.SysJobLog;
 import com.lz.quartz.service.ISysJobLogService;
 
 /**

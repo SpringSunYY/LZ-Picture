@@ -3,7 +3,7 @@ package com.lz.quartz.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.lz.quartz.domain.SysJobLog;
+import com.lz.quartz.model.domain.SysJobLog;
 import com.lz.quartz.mapper.SysJobLogMapper;
 import com.lz.quartz.service.ISysJobLogService;
 

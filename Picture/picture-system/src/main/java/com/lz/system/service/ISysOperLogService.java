@@ -1,7 +1,7 @@
 package com.lz.system.service;
 
 import java.util.List;
-import com.lz.system.domain.SysOperLog;
+import com.lz.system.model.domain.SysOperLog;
 
 /**
  * 操作日志 服务层

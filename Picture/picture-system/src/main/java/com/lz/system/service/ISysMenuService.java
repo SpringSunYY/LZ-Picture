@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 import com.lz.common.core.domain.TreeSelect;
 import com.lz.common.core.domain.entity.SysMenu;
-import com.lz.system.domain.vo.RouterVo;
+import com.lz.system.model.domain.vo.RouterVo;
 
 /**
  * 菜单 业务层

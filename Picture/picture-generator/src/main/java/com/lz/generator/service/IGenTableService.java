@@ -2,7 +2,7 @@ package com.lz.generator.service;
 
 import java.util.List;
 import java.util.Map;
-import com.lz.generator.domain.GenTable;
+import com.lz.generator.model.domain.GenTable;
 
 /**
  * 业务 服务层

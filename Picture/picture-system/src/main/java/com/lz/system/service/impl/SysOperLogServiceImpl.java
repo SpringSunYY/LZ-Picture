@@ -3,7 +3,7 @@ package com.lz.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.lz.system.domain.SysOperLog;
+import com.lz.system.model.domain.SysOperLog;
 import com.lz.system.mapper.SysOperLogMapper;
 import com.lz.system.service.ISysOperLogService;
 

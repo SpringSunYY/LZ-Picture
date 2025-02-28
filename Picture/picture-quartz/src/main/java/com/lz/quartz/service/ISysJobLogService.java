@@ -1,7 +1,7 @@
 package com.lz.quartz.service;
 
 import java.util.List;
-import com.lz.quartz.domain.SysJobLog;
+import com.lz.quartz.model.domain.SysJobLog;
 
 /**
  * 定时任务调度日志信息信息 服务层

@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.spring.SpringUtils;
-import com.lz.quartz.domain.SysJob;
+import com.lz.quartz.model.domain.SysJob;
 
 /**
  * 任务执行工具

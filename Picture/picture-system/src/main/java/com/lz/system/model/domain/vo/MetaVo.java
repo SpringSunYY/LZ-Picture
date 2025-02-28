@@ -1,4 +1,4 @@
-package com.lz.system.domain.vo;
+package com.lz.system.model.domain.vo;
 
 import com.lz.common.utils.StringUtils;
 

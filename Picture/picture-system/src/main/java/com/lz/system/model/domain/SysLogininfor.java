@@ -1,4 +1,4 @@
-package com.lz.system.domain;
+package com.lz.system.model.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;

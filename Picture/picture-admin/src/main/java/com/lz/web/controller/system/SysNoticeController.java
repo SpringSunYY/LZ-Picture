@@ -17,7 +17,7 @@ import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
-import com.lz.system.domain.SysNotice;
+import com.lz.system.model.domain.SysNotice;
 import com.lz.system.service.ISysNoticeService;
 
 /**

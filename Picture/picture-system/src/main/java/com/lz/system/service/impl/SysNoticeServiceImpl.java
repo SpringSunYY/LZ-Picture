@@ -3,7 +3,7 @@ package com.lz.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.lz.system.domain.SysNotice;
+import com.lz.system.model.domain.SysNotice;
 import com.lz.system.mapper.SysNoticeMapper;
 import com.lz.system.service.ISysNoticeService;
 

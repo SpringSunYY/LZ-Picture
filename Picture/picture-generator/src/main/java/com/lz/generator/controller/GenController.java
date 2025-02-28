@@ -31,8 +31,8 @@ import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.sql.SqlUtil;
 import com.lz.generator.config.GenConfig;
-import com.lz.generator.domain.GenTable;
-import com.lz.generator.domain.GenTableColumn;
+import com.lz.generator.model.domain.GenTable;
+import com.lz.generator.model.domain.GenTableColumn;
 import com.lz.generator.service.IGenTableColumnService;
 import com.lz.generator.service.IGenTableService;
 

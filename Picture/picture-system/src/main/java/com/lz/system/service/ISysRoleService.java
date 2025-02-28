@@ -3,7 +3,7 @@ package com.lz.system.service;
 import java.util.List;
 import java.util.Set;
 import com.lz.common.core.domain.entity.SysRole;
-import com.lz.system.domain.SysUserRole;
+import com.lz.system.model.domain.SysUserRole;
 
 /**
  * 角色业务层

@@ -1,4 +1,4 @@
-package com.lz.system.domain;
+package com.lz.system.model.domain;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

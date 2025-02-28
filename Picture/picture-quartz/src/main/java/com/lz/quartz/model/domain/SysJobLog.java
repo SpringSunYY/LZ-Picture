@@ -1,4 +1,4 @@
-package com.lz.quartz.domain;
+package com.lz.quartz.model.domain;
 
 import java.util.Date;
 import org.apache.commons.lang3.builder.ToStringBuilder;

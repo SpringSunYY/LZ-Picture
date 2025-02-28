@@ -1,7 +1,7 @@
 package com.lz.system.service;
 
 import java.util.List;
-import com.lz.system.domain.SysPost;
+import com.lz.system.model.domain.SysPost;
 
 /**
  * 岗位信息 服务层

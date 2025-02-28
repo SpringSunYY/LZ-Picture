@@ -5,8 +5,8 @@ import org.apache.commons.lang3.RegExUtils;
 import com.lz.common.constant.GenConstants;
 import com.lz.common.utils.StringUtils;
 import com.lz.generator.config.GenConfig;
-import com.lz.generator.domain.GenTable;
-import com.lz.generator.domain.GenTableColumn;
+import com.lz.generator.model.domain.GenTable;
+import com.lz.generator.model.domain.GenTableColumn;
 
 /**
  * 代码生成器 工具类

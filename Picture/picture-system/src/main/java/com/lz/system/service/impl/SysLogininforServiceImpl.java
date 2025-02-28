@@ -3,7 +3,7 @@ package com.lz.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.lz.system.domain.SysLogininfor;
+import com.lz.system.model.domain.SysLogininfor;
 import com.lz.system.mapper.SysLogininforMapper;
 import com.lz.system.service.ISysLogininforService;
 

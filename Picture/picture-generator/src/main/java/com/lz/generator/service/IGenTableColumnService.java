@@ -1,7 +1,7 @@
 package com.lz.generator.service;
 
 import java.util.List;
-import com.lz.generator.domain.GenTableColumn;
+import com.lz.generator.model.domain.GenTableColumn;
 
 /**
  * 业务字段 服务层

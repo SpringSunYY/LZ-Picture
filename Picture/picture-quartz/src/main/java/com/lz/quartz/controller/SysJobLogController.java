@@ -16,7 +16,7 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.poi.ExcelUtil;
-import com.lz.quartz.domain.SysJobLog;
+import com.lz.quartz.model.domain.SysJobLog;
 import com.lz.quartz.service.ISysJobLogService;
 
 /**

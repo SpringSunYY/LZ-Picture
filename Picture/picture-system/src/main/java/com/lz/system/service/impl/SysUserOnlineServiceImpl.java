@@ -3,7 +3,7 @@ package com.lz.system.service.impl;
 import org.springframework.stereotype.Service;
 import com.lz.common.core.domain.model.LoginUser;
 import com.lz.common.utils.StringUtils;
-import com.lz.system.domain.SysUserOnline;
+import com.lz.system.model.domain.SysUserOnline;
 import com.lz.system.service.ISysUserOnlineService;
 
 /**

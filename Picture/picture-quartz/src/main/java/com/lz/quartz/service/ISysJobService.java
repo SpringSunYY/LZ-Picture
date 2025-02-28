@@ -3,7 +3,7 @@ package com.lz.quartz.service;
 import java.util.List;
 import org.quartz.SchedulerException;
 import com.lz.common.exception.job.TaskException;
-import com.lz.quartz.domain.SysJob;
+import com.lz.quartz.model.domain.SysJob;
 
 /**
  * 定时任务调度信息信息 服务层

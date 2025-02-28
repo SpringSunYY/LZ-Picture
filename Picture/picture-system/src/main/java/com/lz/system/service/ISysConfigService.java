@@ -1,7 +1,7 @@
 package com.lz.system.service;
 
 import java.util.List;
-import com.lz.system.domain.SysConfig;
+import com.lz.system.model.domain.SysConfig;
 
 /**
  * 参数配置 服务层

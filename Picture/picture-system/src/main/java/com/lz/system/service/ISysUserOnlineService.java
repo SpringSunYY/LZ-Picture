@@ -1,7 +1,7 @@
 package com.lz.system.service;
 
 import com.lz.common.core.domain.model.LoginUser;
-import com.lz.system.domain.SysUserOnline;
+import com.lz.system.model.domain.SysUserOnline;
 
 /**
  * 在线用户 服务层

@@ -16,7 +16,7 @@ import com.lz.common.exception.job.TaskException;
 import com.lz.common.exception.job.TaskException.Code;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.spring.SpringUtils;
-import com.lz.quartz.domain.SysJob;
+import com.lz.quartz.model.domain.SysJob;
 
 /**
  * 定时任务工具类

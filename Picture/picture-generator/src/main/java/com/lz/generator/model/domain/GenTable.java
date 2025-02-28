@@ -1,4 +1,4 @@
-package com.lz.generator.domain;
+package com.lz.generator.model.domain;
 
 import java.util.List;
 import jakarta.validation.Valid;

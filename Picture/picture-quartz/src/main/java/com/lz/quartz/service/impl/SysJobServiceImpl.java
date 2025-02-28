@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.lz.common.constant.ScheduleConstants;
 import com.lz.common.exception.job.TaskException;
-import com.lz.quartz.domain.SysJob;
+import com.lz.quartz.model.domain.SysJob;
 import com.lz.quartz.mapper.SysJobMapper;
 import com.lz.quartz.service.ISysJobService;
 import com.lz.quartz.util.CronUtils;

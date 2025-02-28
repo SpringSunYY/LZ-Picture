@@ -13,7 +13,7 @@ import com.lz.common.core.text.Convert;
 import com.lz.common.enums.DataSourceType;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
-import com.lz.system.domain.SysConfig;
+import com.lz.system.model.domain.SysConfig;
 import com.lz.system.mapper.SysConfigMapper;
 import com.lz.system.service.ISysConfigService;
 

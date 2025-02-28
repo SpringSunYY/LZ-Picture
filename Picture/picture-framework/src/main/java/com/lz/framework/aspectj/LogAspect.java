@@ -29,7 +29,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
-import com.lz.system.domain.SysOperLog;
+import com.lz.system.model.domain.SysOperLog;
 
 /**
  * 操作日志记录处理

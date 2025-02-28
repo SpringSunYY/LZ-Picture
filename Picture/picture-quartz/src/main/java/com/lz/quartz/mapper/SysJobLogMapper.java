@@ -1,7 +1,7 @@
 package com.lz.quartz.mapper;
 
 import java.util.List;
-import com.lz.quartz.domain.SysJobLog;
+import com.lz.quartz.model.domain.SysJobLog;
 
 /**
  * 调度任务日志信息 数据层

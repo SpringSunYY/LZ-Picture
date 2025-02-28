@@ -1,7 +1,7 @@
 package com.lz.system.mapper;
 
 import java.util.List;
-import com.lz.system.domain.SysRoleMenu;
+import com.lz.system.model.domain.SysRoleMenu;
 
 /**
  * 角色与菜单关联表 数据层
