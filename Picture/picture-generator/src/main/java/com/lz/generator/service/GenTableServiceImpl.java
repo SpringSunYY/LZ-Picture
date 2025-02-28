@@ -11,6 +11,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import com.lz.common.utils.uuid.IdUtils;
+import com.lz.generator.model.domain.GenInfo;
+import jakarta.annotation.Resource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
@@ -46,10 +50,10 @@ public class GenTableServiceImpl implements IGenTableService
 {
     private static final Logger log = LoggerFactory.getLogger(GenTableServiceImpl.class);
 
-    @Autowired
+    @Resource
     private GenTableMapper genTableMapper;
 
-    @Autowired
+    @Resource
     private GenTableColumnMapper genTableColumnMapper;
 
     /**
@@ -527,5 +531,71 @@ public class GenTableServiceImpl implements IGenTableService
             return System.getProperty("user.dir") + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
         }
         return genPath + File.separator + VelocityUtils.getFileName(template, table);
+    }
+
+    @Override
+    public int genValue(GenInfo genInfo) {
+        Long genNumbers = genInfo.getGenNumbers();
+        List<GenInfo.Column> tableColumnValues = genInfo.getTableColumnValues();
+        String tableName = genInfo.getTableName();
+        StringBuilder sql = new StringBuilder();
+        StringBuilder columns = new StringBuilder();
+
+        // 构建列名部分
+        sql.append("INSERT INTO ").append(tableName).append(" (");
+        for (int i = 0; i < tableColumnValues.size(); i++) {
+            GenInfo.Column column = tableColumnValues.get(i);
+            columns.append(column.getColumnName());
+            if (i < tableColumnValues.size() - 1) {
+                columns.append(", ");
+            }
+        }
+        sql.append(columns).append(") VALUES ");
+
+        // 构建值部分
+        for (int i = 0; i < genNumbers; i++) {
+            StringBuilder values = new StringBuilder();
+            values.append("(");
+            for (int j = 0; j < tableColumnValues.size(); j++) {
+                GenInfo.Column column = tableColumnValues.get(j);
+                String value = column.getValue();
+
+                //如果是主键
+                if (column.isPk()) {
+                    value = String.valueOf(IdUtils.snowflakeId());
+                }
+
+                // 如果字段是唯一的，添加去重逻辑（如加上当前遍历的 i）
+                if (column.getIsSole() == 1) {
+                    value = value + "_" + i; // 加上当前遍历的 i 来防止重复
+                }
+                //添加数据
+                if (StringUtils.isNotEmpty(value)) {
+                    values.append("'").append(value).append("'");
+                }else {
+                    values.append(value);
+                }
+
+                if (j < tableColumnValues.size() - 1) {
+                    values.append(", ");
+                }
+            }
+            values.append(")");
+
+            if (i < genNumbers - 1) {
+                values.append(", ");
+            }
+
+            sql.append(values);
+        }
+
+        sql.append(";");
+        String sqlString = sql.toString();
+        try {
+            return genTableMapper.createTable(sqlString);
+        } catch (Exception e) {
+            System.out.println( e.getMessage());
+            throw new RuntimeException("生成数据失败，请检查数据是否符合数据库内容！！！");
+        }
     }
 }

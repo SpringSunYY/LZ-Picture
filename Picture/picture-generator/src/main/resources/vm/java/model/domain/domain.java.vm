@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @author ${author}
  * @date ${datetime}
  */
-    #if($table.crud || $table.sub)
-        #set($Entity="BaseEntity")
-    #elseif($table.tree)
-        #set($Entity="TreeEntity")
-    #end
-        @TableName("${tableName}")
-        @Data
+#if($table.crud || $table.sub)
+#set($Entity="BaseEntity")
+#elseif($table.tree)
+#set($Entity="TreeEntity")
+#end
+@TableName("${tableName}")
+@Data
 public class ${ClassName} implements Serializable
 {
     private static final long serialVersionUID = 1L;
