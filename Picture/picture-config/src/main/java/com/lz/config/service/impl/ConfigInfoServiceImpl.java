@@ -1,23 +1,23 @@
 package com.lz.config.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.core.redis.RedisCache;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lz.config.mapper.ConfigInfoMapper;
 import com.lz.config.model.domain.ConfigInfo;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.config.model.dto.configInfo.ConfigInfoQuery;
 import com.lz.config.model.vo.configInfo.ConfigInfoVo;
+import com.lz.config.service.IConfigInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.lz.common.constant.redis.ConfigRedisConstants.CONFIG_CONFIG_INFO_KEY;
 
 /**
  * 配置信息Service业务层处理
@@ -29,6 +29,9 @@ import com.lz.config.model.vo.configInfo.ConfigInfoVo;
 public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigInfo> implements IConfigInfoService {
     @Resource
     private ConfigInfoMapper configInfoMapper;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -64,7 +67,10 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     public int insertConfigInfo(ConfigInfo configInfo) {
         configInfo.setCreateBy(SecurityUtils.getUsername());
         configInfo.setCreateTime(DateUtils.getNowDate());
-        return configInfoMapper.insertConfigInfo(configInfo);
+        int i = configInfoMapper.insertConfigInfo(configInfo);
+        //存入缓存
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
+        return i;
     }
 
     /**
@@ -77,7 +83,10 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     public int updateConfigInfo(ConfigInfo configInfo) {
         configInfo.setUpdateBy(SecurityUtils.getUsername());
         configInfo.setUpdateTime(DateUtils.getNowDate());
-        return configInfoMapper.updateConfigInfo(configInfo);
+        int i = configInfoMapper.updateConfigInfo(configInfo);
+        //存入缓存
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
+        return i;
     }
 
     /**
@@ -146,4 +155,22 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
         return configInfoList.stream().map(ConfigInfoVo::objToVo).collect(Collectors.toList());
     }
 
+
+    @Override
+    public String getConfigInfoCache(String configName) {
+        //先根据名称获取缓存
+        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + configName);
+        if (StringUtils.isNotEmpty(cacheObject)) {
+            return cacheObject;
+        }
+        //如果没有则查数据库
+        ConfigInfo configInfo = configInfoMapper.selectOne(new QueryWrapper<ConfigInfo>().eq("config_name", configName));
+        if (StringUtils.isNull(configInfo)) {
+            //如果没有则返回空
+            return "";
+        }
+        //数据库如果有则存缓存
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configName, configInfo.getConfigValue());
+        return configInfo.getConfigValue();
+    }
 }

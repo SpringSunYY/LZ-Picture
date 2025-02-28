@@ -1,21 +1,23 @@
 package com.lz.config.service;
 
 import java.util.List;
+
 import com.lz.config.model.domain.ConfigInfo;
 import com.lz.config.model.vo.configInfo.ConfigInfoVo;
 import com.lz.config.model.dto.configInfo.ConfigInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 配置信息Service接口
  *
  * @author YY
  * @date 2025-02-28
  */
-public interface IConfigInfoService extends IService<ConfigInfo>
-{
+public interface IConfigInfoService extends IService<ConfigInfo> {
     //region mybatis代码
+
     /**
      * 查询配置信息
      *
@@ -64,6 +66,7 @@ public interface IConfigInfoService extends IService<ConfigInfo>
      */
     public int deleteConfigInfoByConfigId(Long configId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,15 @@ public interface IConfigInfoService extends IService<ConfigInfo>
      * @return ConfigInfoVO集合
      */
     List<ConfigInfoVo> convertVoList(List<ConfigInfo> configInfoList);
+
+    /**
+     * description: 根据配置名称获取配置值
+     * author: YY
+     * method: getConfigInfoCache
+     * date: 2025/2/28 21:44
+     * param:
+     * param: configName
+     * return: java.lang.String
+     **/
+    public String getConfigInfoCache(String configName);
 }

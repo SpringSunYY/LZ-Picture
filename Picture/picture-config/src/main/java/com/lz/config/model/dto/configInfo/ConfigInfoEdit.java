@@ -1,5 +1,6 @@
 package com.lz.config.model.dto.configInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +16,8 @@ import com.lz.config.model.domain.ConfigInfo;
  */
 @Data
 public class ConfigInfoEdit implements Serializable {
+    //序列化注解
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
