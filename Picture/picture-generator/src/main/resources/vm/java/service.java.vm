@@ -1,19 +1,24 @@
 package ${packageName}.service;
 
 import java.util.List;
-import ${packageName}.domain.${ClassName};
+import ${packageName}.model.domain.${ClassName};
+import ${packageName}.model.vo.${className}.${ClassName}Vo;
+import ${packageName}.model.dto.${className}.${ClassName}Query;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * ${functionName}Service接口
- * 
+ *
  * @author ${author}
  * @date ${datetime}
  */
-public interface I${ClassName}Service 
+public interface I${ClassName}Service extends IService<${ClassName}>
 {
+    //region mybatis代码
     /**
      * 查询${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField} ${functionName}主键
      * @return ${functionName}
      */
@@ -21,7 +26,7 @@ public interface I${ClassName}Service
 
     /**
      * 查询${functionName}列表
-     * 
+     *
      * @param ${className} ${functionName}
      * @return ${functionName}集合
      */
@@ -29,7 +34,7 @@ public interface I${ClassName}Service
 
     /**
      * 新增${functionName}
-     * 
+     *
      * @param ${className} ${functionName}
      * @return 结果
      */
@@ -37,7 +42,7 @@ public interface I${ClassName}Service
 
     /**
      * 修改${functionName}
-     * 
+     *
      * @param ${className} ${functionName}
      * @return 结果
      */
@@ -45,7 +50,7 @@ public interface I${ClassName}Service
 
     /**
      * 批量删除${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField}s 需要删除的${functionName}主键集合
      * @return 结果
      */
@@ -53,9 +58,25 @@ public interface I${ClassName}Service
 
     /**
      * 删除${functionName}信息
-     * 
+     *
      * @param ${pkColumn.javaField} ${functionName}主键
      * @return 结果
      */
     public int delete${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaType} ${pkColumn.javaField});
+    //endregion
+    /**
+     * 获取查询条件
+     *
+     * @param ${className}Query 查询条件对象
+     * @return 查询条件
+     */
+    QueryWrapper<${ClassName}> getQueryWrapper(${ClassName}Query ${className}Query);
+
+    /**
+     * 转换vo
+     *
+     * @param ${className}List ${ClassName}集合
+     * @return ${ClassName}VO集合
+     */
+    List<${ClassName}Vo> convertVoList(List<${ClassName}> ${className}List);
 }

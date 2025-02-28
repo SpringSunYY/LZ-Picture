@@ -1,0 +1,72 @@
+package ${packageName}.model.vo.${className};
+
+import java.io.Serializable;
+import java.util.Date;
+#foreach ($import in $importList)
+import ${import};
+#end
+import lombok.Data;
+import com.lz.common.annotation.Excel;
+import org.springframework.beans.BeanUtils;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import ${packageName}.model.domain.${ClassName};
+/**
+ * ${functionName}Vo对象 ${tableName}
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+#if($table.crud || $table.sub)
+#set($Entity="BaseEntity")
+#elseif($table.tree)
+#set($Entity="TreeEntity")
+#end
+@Data
+public class ${ClassName}Vo implements Serializable
+{
+    private static final long serialVersionUID = 1L;
+
+#foreach ($column in $columns)
+#if($column.isList.equals("1"))
+    /** $column.columnComment */
+#if($column.list)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($parentheseIndex != -1)
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+#elseif($column.javaType == 'Date')
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "${comment}", width = 30, dateFormat = "yyyy-MM-dd")
+#else
+    @Excel(name = "${comment}")
+#end
+#end
+    private $column.javaType $column.javaField;
+
+#end
+#end
+#if($table.sub)
+    /** $table.subTable.functionName信息 */
+    private List<${subClassName}> ${subclassName}List;
+
+#end
+
+     /**
+     * 对象转封装类
+     *
+     * @param ${className} ${ClassName}实体对象
+     * @return ${ClassName}Vo
+     */
+    public static ${ClassName}Vo objToVo(${ClassName} ${className}) {
+        if (${className} == null) {
+            return null;
+        }
+        ${ClassName}Vo ${className}Vo = new ${ClassName}Vo();
+        BeanUtils.copyProperties(${className}, ${className}Vo);
+        return ${className}Vo;
+    }
+}

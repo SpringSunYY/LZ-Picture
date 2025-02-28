@@ -15,7 +15,7 @@ import com.lz.generator.model.domain.GenTableColumn;
 
 /**
  * 模板处理工具类
- * 
+ *
  * @author ruoyi
  */
 public class VelocityUtils
@@ -135,7 +135,11 @@ public class VelocityUtils
             useWebType = "vm/vue/v3";
         }
         List<String> templates = new ArrayList<String>();
-        templates.add("vm/java/domain.java.vm");
+        templates.add("vm/java/model/domain/domain.java.vm");
+        templates.add("vm/java/model/vo/domainVo.java.vm");
+        templates.add("vm/java/model/dto/domainQuery.java.vm");
+        templates.add("vm/java/model/dto/domainInsert.java.vm");
+        templates.add("vm/java/model/dto/domainEdit.java.vm");
         templates.add("vm/java/mapper.java.vm");
         templates.add("vm/java/service.java.vm");
         templates.add("vm/java/serviceImpl.java.vm");
@@ -172,6 +176,8 @@ public class VelocityUtils
         String moduleName = genTable.getModuleName();
         // 大写类名
         String className = genTable.getClassName();
+        //类名首字母小写
+        String classnameLower = StringUtils.uncapitalize(className);
         // 业务名称
         String businessName = genTable.getBusinessName();
 
@@ -179,9 +185,20 @@ public class VelocityUtils
         String mybatisPath = MYBATIS_PATH + "/" + moduleName;
         String vuePath = "vue";
 
-        if (template.contains("domain.java.vm"))
-        {
-            fileName = StringUtils.format("{}/domain/{}.java", javaPath, className);
+        if (template.contains("domain.java.vm")) {
+            fileName = StringUtils.format("{}/model/domain/{}.java", javaPath, className);
+        }
+        if (template.contains("domainVo.java.vm")) {
+            fileName = StringUtils.format("{}/model/vo/{}/{}.java", javaPath, classnameLower, className + "Vo");
+        }
+        if (template.contains("domainQuery.java.vm")) {
+            fileName = StringUtils.format("{}/model/dto/{}/{}.java", javaPath, classnameLower, className + "Query");
+        }
+        if (template.contains("domainEdit.java.vm")) {
+            fileName = StringUtils.format("{}/model/dto/{}/{}.java", javaPath, classnameLower, className + "Edit");
+        }
+        if (template.contains("domainInsert.java.vm")) {
+            fileName = StringUtils.format("{}/model/dto/{}/{}.java", javaPath, classnameLower, className + "Insert");
         }
         if (template.contains("sub-domain.java.vm") && StringUtils.equals(GenConstants.TPL_SUB, genTable.getTplCategory()))
         {
@@ -240,7 +257,7 @@ public class VelocityUtils
 
     /**
      * 根据列类型获取导入包
-     * 
+     *
      * @param genTable 业务表对象
      * @return 返回需要导入的包列表
      */
@@ -270,7 +287,7 @@ public class VelocityUtils
 
     /**
      * 根据列类型获取字典组
-     * 
+     *
      * @param genTable 业务表对象
      * @return 返回字典组
      */
@@ -289,7 +306,7 @@ public class VelocityUtils
 
     /**
      * 添加字典列表
-     * 
+     *
      * @param dicts 字典列表
      * @param columns 列集合
      */

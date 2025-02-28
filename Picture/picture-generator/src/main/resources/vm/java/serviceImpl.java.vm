@@ -1,39 +1,52 @@
 package ${packageName}.service.impl;
 
+import java.util.*;
 import java.util.List;
-#foreach ($column in $columns)
-#if($column.javaField == 'createTime' || $column.javaField == 'updateTime')
-import com.lz.common.utils.DateUtils;
-#break
-#end
-#end
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-#if($table.sub)
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 import com.lz.common.utils.StringUtils;
+    #foreach ($import in $importList)
+import ${import};
+    #end
+    #foreach ($column in $columns)
+        #if($column.javaField == 'createTime' || $column.javaField == 'updateTime')
+import com.lz.common.utils.DateUtils;
+            #break
+        #end
+    #end
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+    #if($table.sub)
+import java.util.ArrayList;
+import com.ruoyi.common.utils.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import ${packageName}.domain.${subClassName};
-#end
+    #end
 import ${packageName}.mapper.${ClassName}Mapper;
-import ${packageName}.domain.${ClassName};
+import ${packageName}.model.domain.${ClassName};
 import ${packageName}.service.I${ClassName}Service;
+import ${packageName}.model.dto.${className}.${ClassName}Query;
+import ${packageName}.model.vo.${className}.${ClassName}Vo;
 
 /**
  * ${functionName}Service业务层处理
- * 
+ *
  * @author ${author}
  * @date ${datetime}
  */
 @Service
-public class ${ClassName}ServiceImpl implements I${ClassName}Service 
+public class ${ClassName}ServiceImpl extends ServiceImpl<${ClassName}Mapper, ${ClassName}> implements I${ClassName}Service
 {
-    @Autowired
+    @Resource
     private ${ClassName}Mapper ${className}Mapper;
 
+    //region mybatis代码
     /**
      * 查询${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField} ${functionName}主键
      * @return ${functionName}
      */
@@ -45,7 +58,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
 
     /**
      * 查询${functionName}列表
-     * 
+     *
      * @param ${className} ${functionName}
      * @return ${functionName}
      */
@@ -57,63 +70,63 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
 
     /**
      * 新增${functionName}
-     * 
+     *
      * @param ${className} ${functionName}
      * @return 结果
      */
-#if($table.sub)
-    @Transactional
-#end
+        #if($table.sub)
+        @Transactional
+        #end
     @Override
     public int insert${ClassName}(${ClassName} ${className})
     {
 #foreach ($column in $columns)
-#if($column.javaField == 'createTime')
+    #if($column.javaField == 'createTime')
         ${className}.setCreateTime(DateUtils.getNowDate());
+    #end
 #end
-#end
-#if($table.sub)
+    #if($table.sub)
         int rows = ${className}Mapper.insert${ClassName}(${className});
         insert${subClassName}(${className});
         return rows;
-#else
+    #else
         return ${className}Mapper.insert${ClassName}(${className});
-#end
+    #end
     }
 
     /**
      * 修改${functionName}
-     * 
+     *
      * @param ${className} ${functionName}
      * @return 结果
      */
-#if($table.sub)
-    @Transactional
-#end
+        #if($table.sub)
+        @Transactional
+        #end
     @Override
     public int update${ClassName}(${ClassName} ${className})
     {
 #foreach ($column in $columns)
 #if($column.javaField == 'updateTime')
-        ${className}.setUpdateTime(DateUtils.getNowDate());
+      ${className}.setUpdateTime(DateUtils.getNowDate());
 #end
 #end
 #if($table.sub)
-        ${className}Mapper.delete${subClassName}By${subTableFkClassName}(${className}.get${pkColumn.capJavaField}());
-        insert${subClassName}(${className});
+    ${className}Mapper.delete${subClassName}By${subTableFkClassName}(${className}.get${pkColumn.capJavaField}());
+insert${subClassName}(${className});
 #end
         return ${className}Mapper.update${ClassName}(${className});
     }
 
     /**
      * 批量删除${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField}s 需要删除的${functionName}主键
      * @return 结果
      */
-#if($table.sub)
-    @Transactional
-#end
+        #if($table.sub)
+        @Transactional
+        #end
     @Override
     public int delete${ClassName}By${pkColumn.capJavaField}s(${pkColumn.javaType}[] ${pkColumn.javaField}s)
     {
@@ -125,13 +138,13 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
 
     /**
      * 删除${functionName}信息
-     * 
+     *
      * @param ${pkColumn.javaField} ${functionName}主键
      * @return 结果
      */
-#if($table.sub)
-    @Transactional
-#end
+        #if($table.sub)
+        @Transactional
+        #end
     @Override
     public int delete${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaType} ${pkColumn.javaField})
     {
@@ -140,11 +153,11 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
 #end
         return ${className}Mapper.delete${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaField});
     }
-#if($table.sub)
+    #if($table.sub)
 
     /**
      * 新增${subTable.functionName}信息
-     * 
+     *
      * @param ${className} ${functionName}对象
      */
     public void insert${subClassName}(${ClassName} ${className})
@@ -161,9 +174,57 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
             }
             if (list.size() > 0)
             {
-                ${className}Mapper.batch${subClassName}(list);
+                    ${className}Mapper.batch${subClassName}(list);
             }
         }
     }
 #end
+    //endregion
+    @Override
+    public QueryWrapper<${ClassName}> getQueryWrapper(${ClassName}Query ${className}Query){
+        QueryWrapper<${ClassName}> queryWrapper = new QueryWrapper<>();
+        //如果不使用params可以删除
+        Map<String, Object> params = ${className}Query.getParams();
+        if (StringUtils.isNull(params)) {
+            params = new HashMap<>();
+        }
+#foreach($column in $columns)
+#set($queryType=$column.queryType)
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#if($column.query)
+    ${javaType} ${javaField} = ${className}Query.get${AttrName}();
+    #if(${queryType} == "EQ")
+        queryWrapper.eq(#if($javaType == 'String' )StringUtils.isNotEmpty(${javaField}) #else StringUtils.isNotNull(${javaField})#end,"${columnName}",${javaField});
+    #elseif(${queryType} == "LIKE")
+        queryWrapper.like(#if($javaType == 'String' )StringUtils.isNotEmpty(${javaField}) #else StringUtils.isNotNull(${javaField})#end,"${columnName}",${javaField});
+    #elseif(${queryType} == "GTE")
+        queryWrapper.gte(#if($javaType == 'String' )StringUtils.isNotEmpty(${javaField}) #else StringUtils.isNotNull(${javaField})#end,"${columnName}",${javaField});
+    #elseif(${queryType} == "GT")
+        queryWrapper.gt(#if($javaType == 'String' )StringUtils.isNotEmpty(${javaField}) #else StringUtils.isNotNull(${javaField})#end,"${columnName}",${javaField});
+    #elseif(${queryType} == "LTE")
+        queryWrapper.gte("${columnName}",${javaField});
+    #elseif(${queryType} == "LT")
+        queryWrapper.lt(#if($javaType == 'String' )StringUtils.isNotEmpty(${javaField}) #else StringUtils.isNotNull(${javaField})#end,"${columnName}",${javaField});
+    #elseif(${queryType} == "NE")
+        queryWrapper.ne("${columnName}",${javaField});
+    #elseif(${queryType} == "BETWEEN")
+        queryWrapper.between(StringUtils.isNotNull(params.get("begin$AttrName"))&&StringUtils.isNotNull(params.get("end$AttrName")),"${columnName}",params.get("begin$AttrName"),params.get("end$AttrName"));
+    #end
+
+#end
+#end
+        return queryWrapper;
+    }
+
+    @Override
+    public List<${ClassName}Vo> convertVoList(List<${ClassName}> ${className}List) {
+        if (StringUtils.isEmpty(${className}List)) {
+            return Collections.emptyList();
+        }
+        return ${className}List.stream().map(${ClassName}Vo::objToVo).collect(Collectors.toList());
+    }
+
 }

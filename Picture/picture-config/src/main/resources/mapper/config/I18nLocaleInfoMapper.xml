@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.config.mapper.I18nLocaleInfoMapper">
+    
+    <resultMap type="I18nLocaleInfo" id="I18nLocaleInfoResult">
+        <result property="localeId"    column="locale_id"    />
+        <result property="localeName"    column="locale_name"    />
+        <result property="locale"    column="locale"    />
+        <result property="localeStatus"    column="locale_status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectI18nLocaleInfoVo">
+        select locale_id, locale_name, locale, locale_status, create_by, create_time, update_by, update_time, remark from c_i18n_locale_info
+    </sql>
+
+    <select id="selectI18nLocaleInfoList" parameterType="I18nLocaleInfo" resultMap="I18nLocaleInfoResult">
+        <include refid="selectI18nLocaleInfoVo"/>
+        <where>  
+            <if test="localeName != null  and localeName != ''"> and locale_name like concat('%', #{localeName}, '%')</if>
+            <if test="locale != null  and locale != ''"> and locale = #{locale}</if>
+            <if test="localeStatus != null  and localeStatus != ''"> and locale_status = #{localeStatus}</if>
+            <if test="createBy != null  and createBy != ''"> and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="updateBy != null  and updateBy != ''"> and update_by like concat('%', #{updateBy}, '%')</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectI18nLocaleInfoByLocaleId" parameterType="Long" resultMap="I18nLocaleInfoResult">
+        <include refid="selectI18nLocaleInfoVo"/>
+        where locale_id = #{localeId}
+    </select>
+
+    <insert id="insertI18nLocaleInfo" parameterType="I18nLocaleInfo" useGeneratedKeys="true" keyProperty="localeId">
+        insert into c_i18n_locale_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="localeName != null and localeName != ''">locale_name,</if>
+            <if test="locale != null and locale != ''">locale,</if>
+            <if test="localeStatus != null and localeStatus != ''">locale_status,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="localeName != null and localeName != ''">#{localeName},</if>
+            <if test="locale != null and locale != ''">#{locale},</if>
+            <if test="localeStatus != null and localeStatus != ''">#{localeStatus},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateI18nLocaleInfo" parameterType="I18nLocaleInfo">
+        update c_i18n_locale_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="localeName != null and localeName != ''">locale_name = #{localeName},</if>
+            <if test="locale != null and locale != ''">locale = #{locale},</if>
+            <if test="localeStatus != null and localeStatus != ''">locale_status = #{localeStatus},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where locale_id = #{localeId}
+    </update>
+
+    <delete id="deleteI18nLocaleInfoByLocaleId" parameterType="Long">
+        delete from c_i18n_locale_info where locale_id = #{localeId}
+    </delete>
+
+    <delete id="deleteI18nLocaleInfoByLocaleIds" parameterType="String">
+        delete from c_i18n_locale_info where locale_id in 
+        <foreach item="localeId" collection="array" open="(" separator="," close=")">
+            #{localeId}
+        </foreach>
+    </delete>
+</mapper>
