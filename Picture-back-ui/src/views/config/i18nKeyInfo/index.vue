@@ -158,7 +158,7 @@
           <el-input v-model="form.keyName" placeholder="请输入键"/>
         </el-form-item>
         <el-form-item label="显示顺序" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入显示顺序"/>
+          <el-input-number :min="0" style="width: 50%"  v-model="form.orderNum" placeholder="请输入显示顺序"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -222,14 +222,14 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '编号', visible: true},
+    {key: 0, label: '编号', visible: false},
     {key: 1, label: '键', visible: true},
     {key: 2, label: '显示顺序', visible: true},
     {key: 3, label: '创建人', visible: true},
     {key: 4, label: '创建时间', visible: true},
-    {key: 5, label: '更新人', visible: true},
-    {key: 6, label: '更新时间', visible: true},
-    {key: 7, label: '备注', visible: true},
+    {key: 5, label: '更新人', visible: false},
+    {key: 6, label: '更新时间', visible: false },
+    {key: 7, label: '备注', visible: false},
   ],
 });
 
