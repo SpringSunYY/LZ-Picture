@@ -1,6 +1,8 @@
 package com.lz.config.model.dto.configInfo;
 
 import java.io.Serializable;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.config.model.domain.ConfigInfo;
@@ -19,15 +21,19 @@ public class ConfigInfoInsert implements Serializable
     private Long configId;
 
     /** 配置名称 */
+    @NotBlank(message = "配置名称不能为空")
     private String configName;
 
     /** 配置键名 */
+    @NotBlank(message = "配置键名不能为空")
     private String configKey;
 
     /** 配置键值 */
+    @NotBlank(message = "配置键值不能为空")
     private String configValue;
 
     /** 配置类型（1值 2文件） */
+    @NotBlank(message = "配置类型不能为空")
     private String configType;
 
     /** 配置排序 */

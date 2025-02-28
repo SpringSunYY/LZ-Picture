@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -86,7 +87,7 @@ public class ConfigInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:configInfo:add')")
     @Log(title = "配置信息", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody ConfigInfoInsert configInfoInsert)
+    public AjaxResult add(@RequestBody @Validated ConfigInfoInsert configInfoInsert)
     {
         ConfigInfo configInfo = ConfigInfoInsert.insertToObj(configInfoInsert);
         return toAjax(configInfoService.insertConfigInfo(configInfo));

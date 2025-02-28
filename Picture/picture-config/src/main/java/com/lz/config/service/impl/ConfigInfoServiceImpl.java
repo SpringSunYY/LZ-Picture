@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
@@ -61,6 +62,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
      */
     @Override
     public int insertConfigInfo(ConfigInfo configInfo) {
+        configInfo.setCreateBy(SecurityUtils.getUsername());
         configInfo.setCreateTime(DateUtils.getNowDate());
         return configInfoMapper.insertConfigInfo(configInfo);
     }
@@ -73,6 +75,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
      */
     @Override
     public int updateConfigInfo(ConfigInfo configInfo) {
+        configInfo.setUpdateBy(SecurityUtils.getUsername());
         configInfo.setUpdateTime(DateUtils.getNowDate());
         return configInfoMapper.updateConfigInfo(configInfo);
     }
