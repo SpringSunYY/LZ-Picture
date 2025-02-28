@@ -12,6 +12,7 @@ import com.lz.config.model.domain.ConfigInfo;
 import com.lz.config.model.dto.configInfo.ConfigInfoQuery;
 import com.lz.config.model.vo.configInfo.ConfigInfoVo;
 import com.lz.config.service.IConfigInfoService;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,16 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     @Resource
     private RedisCache redisCache;
 
-    //region mybatis代码
 
+    @PostConstruct
+    public void init() {
+        //初始化缓存
+        List<ConfigInfo> configInfoList = configInfoMapper.selectList(null);
+        for (ConfigInfo configInfo : configInfoList) {
+            redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
+        }
+    }
+    //region mybatis代码
     /**
      * 查询配置信息
      *
