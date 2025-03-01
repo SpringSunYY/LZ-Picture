@@ -13,4 +13,9 @@ public class ConfigRedisConstants {
      * 配置信息缓存key
      */
     public static final String CONFIG_CONFIG_INFO_KEY = "config:config:info:";
+
+    /**
+     * Localization 国际化
+     */
+    public static final String CONFIG_LOCALIZATION = "config:localization:";
 }

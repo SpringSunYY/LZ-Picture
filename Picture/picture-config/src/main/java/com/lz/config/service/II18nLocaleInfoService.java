@@ -16,6 +16,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 public interface II18nLocaleInfoService extends IService<I18nLocaleInfo>
 {
     //region mybatis代码
+
+    void loadingLocaleInfo();
+
     /**
      * 查询国际化国家
      *
