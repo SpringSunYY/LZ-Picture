@@ -310,15 +310,15 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '主键', visible: true},
+    {key: 0, label: '主键', visible: false},
     {key: 1, label: '键', visible: true},
     {key: 2, label: '简称', visible: true},
     {key: 3, label: '消息', visible: true},
     {key: 4, label: '创建人', visible: true},
-    {key: 5, label: '创建时间', visible: true},
-    {key: 6, label: '更新人', visible: true},
-    {key: 7, label: '更新时间', visible: true},
-    {key: 8, label: '备注', visible: true},
+    {key: 5, label: '创建时间', visible: false},
+    {key: 6, label: '更新人', visible: false},
+    {key: 7, label: '更新时间', visible: false},
+    {key: 8, label: '备注', visible: false},
   ],
 });
 
