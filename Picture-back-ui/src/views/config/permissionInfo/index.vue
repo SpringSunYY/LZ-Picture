@@ -162,7 +162,7 @@
           />
         </el-form-item>
         <el-form-item label="显示顺序" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入显示顺序"/>
+          <el-input-number :min="0" v-model="form.orderNum" placeholder="请输入显示顺序"/>
         </el-form-item>
         <el-form-item label="权限标识" prop="permission">
           <el-input v-model="form.permission" placeholder="请输入权限标识"/>
@@ -232,6 +232,9 @@ const data = reactive({
     status: [
       {required: true, message: "是否使用不能为空", trigger: "change"}
     ],
+    permission: [
+      {required: true, message: "权限标识不能为空", trigger: "blur"}
+    ],
     createBy: [
       {required: true, message: "创建人不能为空", trigger: "blur"}
     ],
@@ -249,9 +252,9 @@ const data = reactive({
     {key: 5, label: '是否使用', visible: true},
     {key: 6, label: '创建人', visible: true},
     {key: 7, label: '创建时间', visible: true},
-    {key: 8, label: '更新人', visible: true},
-    {key: 9, label: '更新时间', visible: true},
-    {key: 10, label: '备注', visible: true},
+    {key: 8, label: '更新人', visible: false},
+    {key: 9, label: '更新时间', visible: false},
+    {key: 10, label: '备注', visible: false},
   ],
 });
 

@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.lz.common.exception.sql.SQLDuplicateKeyException;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -25,6 +27,7 @@ import com.lz.config.model.vo.permissionInfo.PermissionInfoVo;
  * @author ruoyi
  * @date 2025-02-28
  */
+@Slf4j
 @Service
 public class PermissionInfoServiceImpl extends ServiceImpl<PermissionInfoMapper, PermissionInfo> implements IPermissionInfoService {
     @Resource
@@ -64,7 +67,12 @@ public class PermissionInfoServiceImpl extends ServiceImpl<PermissionInfoMapper,
     public int insertPermissionInfo(PermissionInfo permissionInfo) {
         permissionInfo.setCreateBy(SecurityUtils.getUsername());
         permissionInfo.setCreateTime(DateUtils.getNowDate());
-        return permissionInfoMapper.insertPermissionInfo(permissionInfo);
+        try {
+            return permissionInfoMapper.insertPermissionInfo(permissionInfo);
+        } catch (Exception e) {
+            log.error("添加权限信息失败：{}", e.getMessage(), e.getCause());
+            throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
+        }
     }
 
     /**
@@ -75,8 +83,14 @@ public class PermissionInfoServiceImpl extends ServiceImpl<PermissionInfoMapper,
      */
     @Override
     public int updatePermissionInfo(PermissionInfo permissionInfo) {
+        permissionInfo.setUpdateBy(SecurityUtils.getUsername());
         permissionInfo.setUpdateTime(DateUtils.getNowDate());
-        return permissionInfoMapper.updatePermissionInfo(permissionInfo);
+        try {
+            return permissionInfoMapper.updatePermissionInfo(permissionInfo);
+        } catch (Exception e) {
+            log.error("修改权限信息失败：{}", e.getMessage(), e.getCause());
+            throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
+        }
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.lz.config.model.dto.permissionInfo;
 
 import java.io.Serializable;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.config.model.domain.PermissionInfo;
@@ -19,6 +21,7 @@ public class PermissionInfoInsert implements Serializable
     private Long permissionId;
 
     /** 权限名称 */
+    @NotBlank(message = "权限名称不能为空")
     private String permissionName;
 
     /** 父菜单 */
@@ -28,6 +31,7 @@ public class PermissionInfoInsert implements Serializable
     private Long orderNum;
 
     /** 权限标识 */
+    @NotBlank(message = "权限标识不能为空")
     private String permission;
 
     /** 是否使用（0正常 1关闭） */
