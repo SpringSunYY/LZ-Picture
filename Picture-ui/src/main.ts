@@ -12,3 +12,5 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+app.config.globalProperties.__VUE_PROD_DEVTOOLS__ = false
