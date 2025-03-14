@@ -242,8 +242,7 @@ CREATE TABLE c_i18n_message_info (
 | content        | text     |      |                                   | 否   | 内容                                                         |
 | variables      | text     |      |                                   | 是   | 变量列表  如 ["user_name", "order_id"]                       |
 | template_image | varchar  | 1024 |                                   | 是   | 模版样式图                                                   |
-| status         | char     | 1    |                                   | 否   | 状态 0=待审核，1=已启用，2=已禁用，3=审核失败                |
-| audit_comment  | varchar  | 256  |                                   | 是   | 审核意见                                                     |
+| status         | char     | 1    |                                   | 否   | 状态 0已启用，1=已禁用                                       |
 | create_by      | varchar  | 64   |                                   | 否   | 创建人                                                       |
 | create_time    | datetime |      |                                   | 否   | 创建时间                                                     |
 | update_by      | varchar  | 64   |                                   | 是   | 更新人                                                       |
@@ -260,9 +259,9 @@ CREATE TABLE c_inform_template_info (
     template_type CHAR(1) NOT NULL COMMENT '模版类型（1=短信 2=邮件 3=站内通知 4=APP推送 5=微信模板）',
     channel VARCHAR(32) COMMENT '渠道',
     content TEXT NOT NULL COMMENT '内容',
+    example TEXT  COMMENT '事例',
     variables TEXT COMMENT '变量列表',    template_image VARCHAR(1024) COMMENT '模版样式图',
-    status CHAR(1) NOT NULL COMMENT '状态（0=待审核 1=已启用 2=已禁用 3=审核失败）',
-    audit_comment VARCHAR(256)  DEFAULT '' COMMENT '审核意见', -- 默认值处理
+    status CHAR(1) NOT NULL COMMENT '状态 0已启用，1=已禁用',
     create_by VARCHAR(64) NOT NULL COMMENT '创建人',
     create_time DATETIME NOT NULL COMMENT '创建时间',
     update_by VARCHAR(64) COMMENT '更新人',
@@ -464,27 +463,26 @@ CREATE TABLE u_user_relation_info (
 -- 删除已存在的表（如果存在）
 DROP TABLE IF EXISTS u_user_friend_info;
 
--- 创建用户好友关系表（优化版）
-CREATE TABLE u_user_friend_info (
-    relation_id VARCHAR(128) NOT NULL COMMENT '关系ID',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户ID',
+CREATE TABLE u_user_friend_info
+(
+    relation_id    VARCHAR(128) NOT NULL COMMENT '关系ID',
+    user_id        VARCHAR(128) NOT NULL COMMENT '用户ID',
     friend_user_id VARCHAR(128) NOT NULL COMMENT '好友用户ID',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (relation_id),
-    UNIQUE KEY uniq_user_friend (user_id, friend_user_id), -- 防止重复添加
-    INDEX idx_friend_user (friend_user_id), -- 好友维度查询优化
-    CONSTRAINT fk_friend_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id) 
-        ON UPDATE CASCADE 
-        ON DELETE CASCADE, -- 级联删除
-    CONSTRAINT fk_friend_target_user 
-        FOREIGN KEY (friend_user_id) 
-        REFERENCES u_user_info(user_id) 
-        ON UPDATE CASCADE,
-    -- 数据完整性校验
-    CONSTRAINT chk_self_relation CHECK (user_id != friend_user_id) -- 禁止自我关联
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户好友关系表';
+    UNIQUE KEY uniq_user_friend (user_id, friend_user_id),         -- 防止重复添加
+    INDEX idx_friend_user (friend_user_id),                        -- 好友维度查询优化
+    CONSTRAINT fk_friend_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,                                     -- 级联删除
+    CONSTRAINT fk_friend_target_user
+        FOREIGN KEY (friend_user_id)
+            REFERENCES u_user_info (user_id)
+            ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户好友关系表';
 ```
 
 
