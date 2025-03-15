@@ -25,6 +25,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="渠道" prop="channel">
+        <el-select v-model="queryParams.channel" style="width: 200px" placeholder="请选择渠道" clearable>
+          <el-option
+              v-for="dict in c_template_channel"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="模版类型" prop="templateType">
         <el-select v-model="queryParams.templateType" style="width: 200px" placeholder="请选择模版类型" clearable>
           <el-option
@@ -35,15 +45,21 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="渠道" prop="channel">
-        <el-select v-model="queryParams.channel" style="width: 200px" placeholder="请选择渠道" clearable>
-          <el-option
-              v-for="dict in c_template_channel"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-          />
-        </el-select>
+      <el-form-item label="模版ID" prop="serviceTemplateId">
+        <el-input
+            v-model="queryParams.serviceTemplateId"
+            placeholder="请输入服务商模版ID"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="签名" prop="serviceSignName">
+        <el-input
+            v-model="queryParams.serviceSignName"
+            placeholder="请输入服务商签名"
+            clearable
+            @keyup.enter="handleQuery"
+        />
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" style="width: 200px" placeholder="请选择状态" clearable>
@@ -151,49 +167,59 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="语言" align="center" prop="locale" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="模版类型" align="center" prop="templateType" v-if="columns[3].visible">
-        <template #default="scope">
-          <dict-tag :options="c_template_type" :value="scope.row.templateType"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="渠道" align="center" prop="channel" v-if="columns[4].visible">
+      <el-table-column label="渠道" align="center" prop="channel" v-if="columns[3].visible">
         <template #default="scope">
           <dict-tag :options="c_template_channel" :value="scope.row.channel"/>
         </template>
       </el-table-column>
-      <el-table-column label="内容" align="center" prop="content" v-if="columns[5].visible"
+      <el-table-column label="模版类型" align="center" prop="templateType" v-if="columns[4].visible">
+        <template #default="scope">
+          <dict-tag :options="c_template_type" :value="scope.row.templateType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="服务商模版ID" align="center" prop="serviceTemplateId" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="事例" align="center" prop="example" v-if="columns[6].visible"
+      <el-table-column label="服务商签名" align="center" prop="serviceSignName" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="变量列表" align="center" prop="variables" v-if="columns[7].visible"
+      <el-table-column label="扩展配置" align="center" prop="extendConfig" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="模版样式图" align="center" prop="templateImage" width="100" v-if="columns[8].visible">
+      <el-table-column label="版本" align="center" prop="templateVersion" v-if="columns[8].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="历史版本" align="center" prop="templateVersionHistory" v-if="columns[9].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="内容" align="center" prop="content" v-if="columns[10].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="事例" align="center" prop="example" v-if="columns[11].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="变量列表" align="center" prop="variables" v-if="columns[12].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="模版样式图" align="center" prop="templateImage" width="100" v-if="columns[13].visible">
         <template #default="scope">
           <image-preview :src="scope.row.templateImage" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" v-if="columns[9].visible">
+      <el-table-column label="状态" align="center" prop="status" v-if="columns[14].visible">
         <template #default="scope">
           <dict-tag :options="c_template_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[10].visible"
+      <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[12].visible"
+      <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[18].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[14].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -215,6 +241,7 @@
         @pagination="getList"
     />
 
+    <!-- 添加或修改通知模版对话框 -->
     <!-- 添加或修改通知模版对话框 -->
     <el-dialog :title="title" v-model="open" width="1000px" append-to-body>
       <el-form ref="informTemplateInfoRef" :model="form" :rules="rules" label-width="80px">
@@ -266,6 +293,16 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="模版ID" prop="serviceTemplateId">
+              <el-input v-model="form.serviceTemplateId" placeholder="请输入服务商模版ID"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="签名" prop="serviceSignName">
+              <el-input v-model="form.serviceSignName" placeholder="请输入服务商签名"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="内容">
               <el-input type="textarea" :rows="5" v-model="form.content" :min-height="192"/>
             </el-form-item>
@@ -304,10 +341,10 @@
 
 <script setup name="InformTemplateInfo">
 import {
-  listInformTemplateInfo,
-  getInformTemplateInfo,
-  delInformTemplateInfo,
   addInformTemplateInfo,
+  delInformTemplateInfo,
+  getInformTemplateInfo,
+  listInformTemplateInfo,
   updateInformTemplateInfo
 } from "@/api/config/informTemplateInfo";
 
@@ -338,8 +375,10 @@ const data = reactive({
     templateId: null,
     templateName: null,
     locale: null,
-    templateType: null,
     channel: null,
+    templateType: null,
+    serviceTemplateId: null,
+    serviceSignName: null,
     status: null,
     createBy: null,
     createTime: null,
@@ -355,6 +394,12 @@ const data = reactive({
     ],
     templateType: [
       {required: true, message: "模版类型不能为空", trigger: "change"}
+    ],
+    templateVersion: [
+      {required: true, message: "版本不能为空", trigger: "blur"}
+    ],
+    templateVersionHistory: [
+      {required: true, message: "历史版本不能为空", trigger: "blur"}
     ],
     content: [
       {required: true, message: "内容不能为空", trigger: "blur"}
@@ -374,18 +419,23 @@ const data = reactive({
     {key: 0, label: '主键', visible: false},
     {key: 1, label: '模版名称', visible: true},
     {key: 2, label: '语言', visible: true},
-    {key: 3, label: '模版类型', visible: true},
-    {key: 4, label: '渠道', visible: true},
-    {key: 5, label: '内容', visible: false},
-    {key: 6, label: '事例', visible: true},
-    {key: 7, label: '变量列表', visible: false},
-    {key: 8, label: '模版样式图', visible: true},
-    {key: 9, label: '状态', visible: true},
-    {key: 10, label: '创建人', visible: true},
-    {key: 11, label: '创建时间', visible: false},
-    {key: 12, label: '更新人', visible: false},
-    {key: 13, label: '更新时间', visible: false},
-    {key: 14, label: '备注', visible: false},
+    {key: 3, label: '渠道', visible: true},
+    {key: 4, label: '模版类型', visible: true},
+    {key: 5, label: '服务商模版ID', visible: true},
+    {key: 6, label: '服务商签名', visible: true},
+    {key: 7, label: '扩展配置', visible: false},
+    {key: 8, label: '版本', visible: true},
+    {key: 9, label: '历史版本', visible: false},
+    {key: 10, label: '内容', visible: false},
+    {key: 11, label: '事例', visible: false},
+    {key: 12, label: '变量列表', visible: false},
+    {key: 13, label: '模版样式图', visible: true},
+    {key: 14, label: '状态', visible: true},
+    {key: 15, label: '创建人', visible: false},
+    {key: 16, label: '创建时间', visible: false},
+    {key: 17, label: '更新人', visible: false},
+    {key: 18, label: '更新时间', visible: false},
+    {key: 19, label: '备注', visible: false},
   ],
 });
 
@@ -422,8 +472,13 @@ function reset() {
     templateId: null,
     templateName: null,
     locale: null,
-    templateType: null,
     channel: null,
+    templateType: null,
+    serviceTemplateId: null,
+    serviceSignName: null,
+    extendConfig: null,
+    templateVersion: null,
+    templateVersionHistory: null,
     content: null,
     example: null,
     variables: null,

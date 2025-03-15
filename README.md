@@ -232,56 +232,70 @@ CREATE TABLE c_i18n_message_info (
 
 #### 通知模版表:c_inform_template_info
 
-| 字段           | 类型     | 长度 | 键类型                            | null | 描述                                                         |
-| :------------- | -------- | ---- | --------------------------------- | ---- | ------------------------------------------------------------ |
-| template_id    | bigint   |      | 主键                              | 否   | 主键 自增                                                    |
-| template_name  | varchar  | 128  |                                   | 否   | 模版名称                                                     |
-| locale         | varchar  | 8    | 外键（c_i18n_locale_info:locale） | 否   | 语言 默认zh-CN                                               |
-| template_type  | char     | 2    |                                   | 否   | 模版类型 1=短信，2=邮件，3=站内通知，4=APP推送，5=微信模板消息 |
-| channel        | varchar  | 32   |                                   | 是   | 渠道                                                         |
-| content        | text     |      |                                   | 否   | 内容                                                         |
-| variables      | text     |      |                                   | 是   | 变量列表  如 ["user_name", "order_id"]                       |
-| template_image | varchar  | 1024 |                                   | 是   | 模版样式图                                                   |
-| status         | char     | 1    |                                   | 否   | 状态 0已启用，1=已禁用                                       |
-| create_by      | varchar  | 64   |                                   | 否   | 创建人                                                       |
-| create_time    | datetime |      |                                   | 否   | 创建时间                                                     |
-| update_by      | varchar  | 64   |                                   | 是   | 更新人                                                       |
-| update_time    | datetime |      |                                   | 是   | 更新时间                                                     |
-| remark         | varchar  | 500  |                                   | 是   | 备注                                                         |
+| 字段                    | 类型     | 长度 | 键类型                            | null | 描述                                                         |
+| :---------------------- | -------- | ---- | --------------------------------- | ---- | ------------------------------------------------------------ |
+| template_id             | bigint   |      | 主键                              | 否   | 主键 自增                                                    |
+| template_name           | varchar  | 128  |                                   | 否   | 模版名称                                                     |
+| locale                  | varchar  | 8    | 外键（c_i18n_locale_info:locale） | 否   | 语言 默认zh-CN                                               |
+| template_type           | char     | 2    |                                   | 否   | 模版类型 1=短信，2=邮件，3=站内通知，4=APP推送，5=微信模板消息 |
+| service_template_id     | varchar  | 64   |                                   | 是   | 服务商模版ID                                                 |
+| service_sign_name       | varchar  | 64   |                                   | 是   | 服务商签名                                                   |
+| extend_config           | varchar  | 1024 |                                   | 是   | 扩展配置                                                     |
+| templat_version         | int      |      |                                   | 否   | 版本                                                         |
+| templat_version_history | text     |      |                                   | 否   | 历史版本                                                     |
+| channel                 | varchar  | 32   |                                   | 是   | 渠道                                                         |
+| content                 | text     |      |                                   | 否   | 内容                                                         |
+| variables               | text     |      |                                   | 是   | 变量列表  如 ["user_name", "order_id"]                       |
+| template_image          | varchar  | 1024 |                                   | 是   | 模版样式图                                                   |
+| status                  | char     | 1    |                                   | 否   | 状态 0已启用，1=已禁用                                       |
+| create_by               | varchar  | 64   |                                   | 否   | 创建人                                                       |
+| create_time             | datetime |      |                                   | 否   | 创建时间                                                     |
+| update_by               | varchar  | 64   |                                   | 是   | 更新人                                                       |
+| update_time             | datetime |      |                                   | 是   | 更新时间                                                     |
+| remark                  | varchar  | 500  |                                   | 是   | 备注                                                         |
 
 根据用户偏好语言发送模版，如果用户没有偏好语言发送默认语言模版zh-CN，如果用户的偏好语言里模版没有此语言，则也发送默认的zh-CN模版
 
+历史版本可用于回退版本  用于记录版本，存入一个map，每个版本的详细信息 key版本-value版本信息
+
+扩展配置 灵活兼容不同平台的配置
+
+渠道：比如阿里云、腾讯云
+
 ```sql
-CREATE TABLE c_inform_template_info (
-    template_id BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
-    template_name VARCHAR(128) NOT NULL COMMENT '模版名称',
-    locale VARCHAR(8) NOT NULL COMMENT '语言（默认zh-CN）',
-    template_type CHAR(1) NOT NULL COMMENT '模版类型（1=短信 2=邮件 3=站内通知 4=APP推送 5=微信模板）',
-    channel VARCHAR(32) COMMENT '渠道',
-    content TEXT NOT NULL COMMENT '内容',
-    example TEXT  COMMENT '事例',
-    variables TEXT COMMENT '变量列表',    template_image VARCHAR(1024) COMMENT '模版样式图',
-    status CHAR(1) NOT NULL COMMENT '状态 0已启用，1=已禁用',
-    create_by VARCHAR(64) NOT NULL COMMENT '创建人',
-    create_time DATETIME NOT NULL COMMENT '创建时间',
-    update_by VARCHAR(64) COMMENT '更新人',
-    update_time DATETIME COMMENT '更新时间',
-    remark VARCHAR(500) COMMENT '备注',
-    PRIMARY KEY (template_id),
-    UNIQUE KEY uk_template_name_locale (template_name, locale), -- 名称+语言唯一约束
-    CONSTRAINT fk_inform_template_locale 
-        FOREIGN KEY (locale) 
-        REFERENCES c_i18n_locale_info (locale) 
-        ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='通知模版表';
-
--- 添加状态索引
-ALTER TABLE c_inform_template_info 
-ADD INDEX idx_template_status (status);
-
--- 添加类型索引
-ALTER TABLE c_inform_template_info 
-ADD INDEX idx_template_type (template_type);
+create table c_inform_template_info
+(
+    template_id              bigint auto_increment comment '主键'
+        primary key,
+    template_name            varchar(128)  not null comment '模版名称',
+    locale                   varchar(8)    not null comment '语言（默认zh-CN）',
+    channel                  varchar(32)   null comment '渠道',
+    template_type            char          not null comment '模版类型（1=短信 2=邮件 3=站内通知 4=APP推送 5=微信模板）',
+    service_template_id      varchar(64)   null comment '服务商模版ID',
+    service_sign_name        varchar(64)   null comment '服务商签名',
+    extend_config            varchar(1024) null comment '扩展配置',
+    template_version         int           not null comment '版本',
+    template_version_history text          not null comment '历史版本',
+    content                  text          not null comment '内容',
+    example                  text          null comment '事例',
+    variables                text          null comment '变量列表',
+    template_image           varchar(1024) null comment '模版样式图',
+    status                   char          not null comment '状态（0=待审核 1=已启用 2=已禁用 3=审核失败）',
+    create_by                varchar(64)   not null comment '创建人',
+    create_time              datetime      not null comment '创建时间',
+    update_by                varchar(64)   null comment '更新人',
+    update_time              datetime      null comment '更新时间',
+    remark                   varchar(500)  null comment '备注',
+    constraint uk_template_name_locale
+        unique (template_name, locale),
+    constraint fk_inform_template_locale
+        foreign key (locale) references c_i18n_locale_info (locale)
+            on update cascade
+)comment '通知模版表';
+create index idx_template_status
+    on c_inform_template_info (status);
+create index idx_template_type
+    on c_inform_template_info (template_type);
 ```
 
 
@@ -576,4 +590,6 @@ CREATE TABLE u_inform_info (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户通知记录表';
 ```
+
+
 

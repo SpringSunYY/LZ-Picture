@@ -1,59 +1,102 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.config.mapper.InformTemplateInfoMapper">
-    
+
     <resultMap type="InformTemplateInfo" id="InformTemplateInfoResult">
-        <result property="templateId"    column="template_id"    />
-        <result property="templateName"    column="template_name"    />
-        <result property="locale"    column="locale"    />
-        <result property="templateType"    column="template_type"    />
-        <result property="channel"    column="channel"    />
-        <result property="content"    column="content"    />
-        <result property="example"    column="example"    />
-        <result property="variables"    column="variables"    />
-        <result property="templateImage"    column="template_image"    />
-        <result property="status"    column="status"    />
-        <result property="createBy"    column="create_by"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="remark"    column="remark"    />
+        <result property="templateId" column="template_id"/>
+        <result property="templateName" column="template_name"/>
+        <result property="locale" column="locale"/>
+        <result property="channel" column="channel"/>
+        <result property="templateType" column="template_type"/>
+        <result property="serviceTemplateId" column="service_template_id"/>
+        <result property="serviceSignName" column="service_sign_name"/>
+        <result property="extendConfig" column="extend_config"/>
+        <result property="templateVersion" column="template_version"/>
+        <result property="templateVersionHistory" column="template_version_history"/>
+        <result property="content" column="content"/>
+        <result property="example" column="example"/>
+        <result property="variables" column="variables"/>
+        <result property="templateImage" column="template_image"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <sql id="selectInformTemplateInfoVo">
-        select template_id, template_name, locale, template_type, channel, content, example, variables, template_image, status, create_by, create_time, update_by, update_time, remark from c_inform_template_info
+        select template_id,
+               template_name,
+               locale,
+               channel,
+               template_type,
+               service_template_id,
+               service_sign_name,
+               extend_config,
+               template_version,
+               template_version_history,
+               content,
+               example,
+               variables,
+               template_image,
+               status,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               remark
+        from c_inform_template_info
     </sql>
 
     <select id="selectInformTemplateInfoList" parameterType="InformTemplateInfo" resultMap="InformTemplateInfoResult">
         <include refid="selectInformTemplateInfoVo"/>
-        <where>  
-            <if test="templateId != null "> and template_id = #{templateId}</if>
-            <if test="templateName != null  and templateName != ''"> and template_name like concat('%', #{templateName}, '%')</if>
-            <if test="locale != null  and locale != ''"> and locale = #{locale}</if>
-            <if test="templateType != null  and templateType != ''"> and template_type = #{templateType}</if>
-            <if test="channel != null  and channel != ''"> and channel = #{channel}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-            <if test="createBy != null  and createBy != ''"> and create_by like concat('%', #{createBy}, '%')</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="updateBy != null  and updateBy != ''"> and update_by like concat('%', #{updateBy}, '%')</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+        <where>
+            <if test="templateId != null ">and template_id = #{templateId}</if>
+            <if test="templateName != null  and templateName != ''">and template_name like concat('%', #{templateName},
+                '%')
+            </if>
+            <if test="locale != null  and locale != ''">and locale = #{locale}</if>
+            <if test="channel != null  and channel != ''">and channel = #{channel}</if>
+            <if test="templateType != null  and templateType != ''">and template_type = #{templateType}</if>
+            <if test="serviceTemplateId != null  and serviceTemplateId != ''">and service_template_id like concat('%',
+                #{serviceTemplateId}, '%')
+            </if>
+            <if test="serviceSignName != null  and serviceSignName != ''">and service_sign_name like concat('%',
+                #{serviceSignName}, '%')
+            </if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="createBy != null  and createBy != ''">and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and create_time between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="updateBy != null  and updateBy != ''">and update_by like concat('%', #{updateBy}, '%')</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
         </where>
     </select>
-    
+
     <select id="selectInformTemplateInfoByTemplateId" parameterType="Long" resultMap="InformTemplateInfoResult">
         <include refid="selectInformTemplateInfoVo"/>
         where template_id = #{templateId}
     </select>
 
-    <insert id="insertInformTemplateInfo" parameterType="InformTemplateInfo" useGeneratedKeys="true" keyProperty="templateId">
+    <insert id="insertInformTemplateInfo" parameterType="InformTemplateInfo" useGeneratedKeys="true"
+            keyProperty="templateId">
         insert into c_inform_template_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="templateName != null and templateName != ''">template_name,</if>
             <if test="locale != null and locale != ''">locale,</if>
-            <if test="templateType != null and templateType != ''">template_type,</if>
             <if test="channel != null">channel,</if>
+            <if test="templateType != null and templateType != ''">template_type,</if>
+            <if test="serviceTemplateId != null">service_template_id,</if>
+            <if test="serviceSignName != null">service_sign_name,</if>
+            <if test="extendConfig != null">extend_config,</if>
+            <if test="templateVersion != null">template_version,</if>
+            <if test="templateVersionHistory != null and templateVersionHistory != ''">template_version_history,</if>
             <if test="content != null and content != ''">content,</if>
             <if test="example != null">example,</if>
             <if test="variables != null">variables,</if>
@@ -64,12 +107,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="templateName != null and templateName != ''">#{templateName},</if>
             <if test="locale != null and locale != ''">#{locale},</if>
-            <if test="templateType != null and templateType != ''">#{templateType},</if>
             <if test="channel != null">#{channel},</if>
+            <if test="templateType != null and templateType != ''">#{templateType},</if>
+            <if test="serviceTemplateId != null">#{serviceTemplateId},</if>
+            <if test="serviceSignName != null">#{serviceSignName},</if>
+            <if test="extendConfig != null">#{extendConfig},</if>
+            <if test="templateVersion != null">#{templateVersion},</if>
+            <if test="templateVersionHistory != null and templateVersionHistory != ''">#{templateVersionHistory},</if>
             <if test="content != null and content != ''">#{content},</if>
             <if test="example != null">#{example},</if>
             <if test="variables != null">#{variables},</if>
@@ -80,7 +128,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateInformTemplateInfo" parameterType="InformTemplateInfo">
@@ -88,8 +136,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="templateName != null and templateName != ''">template_name = #{templateName},</if>
             <if test="locale != null and locale != ''">locale = #{locale},</if>
-            <if test="templateType != null and templateType != ''">template_type = #{templateType},</if>
             <if test="channel != null">channel = #{channel},</if>
+            <if test="templateType != null and templateType != ''">template_type = #{templateType},</if>
+            <if test="serviceTemplateId != null">service_template_id = #{serviceTemplateId},</if>
+            <if test="serviceSignName != null">service_sign_name = #{serviceSignName},</if>
+            <if test="extendConfig != null">extend_config = #{extendConfig},</if>
+            <if test="templateVersion != null">template_version = #{templateVersion},</if>
+            <if test="templateVersionHistory != null and templateVersionHistory != ''">template_version_history =
+                #{templateVersionHistory},
+            </if>
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="example != null">example = #{example},</if>
             <if test="variables != null">variables = #{variables},</if>
@@ -105,11 +160,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteInformTemplateInfoByTemplateId" parameterType="Long">
-        delete from c_inform_template_info where template_id = #{templateId}
+        delete
+        from c_inform_template_info
+        where template_id = #{templateId}
     </delete>
 
     <delete id="deleteInformTemplateInfoByTemplateIds" parameterType="String">
-        delete from c_inform_template_info where template_id in 
+        delete from c_inform_template_info where template_id in
         <foreach item="templateId" collection="array" open="(" separator="," close=")">
             #{templateId}
         </foreach>
