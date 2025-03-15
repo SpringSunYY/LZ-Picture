@@ -38,6 +38,7 @@
         <!--新的集成-->
         <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
         <lombok.version>1.18.30</lombok.version>
+        <hutool.version>5.8.18</hutool.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -180,6 +181,14 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <optional>true</optional>
+            </dependency>
+
+            <!--hutool-->
+            <!--https://doc.hutool.cn/pages/index/#%F0%9F%93%9D%E5%85%B6%E5%AE%83%E6%96%87%E6%A1%A3-->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-core</artifactId>
+                <version>${hutool.version}</version>
             </dependency>
 
             <!--框架代码-->

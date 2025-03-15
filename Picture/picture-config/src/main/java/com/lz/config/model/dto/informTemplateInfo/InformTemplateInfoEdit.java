@@ -96,6 +96,12 @@ public class InformTemplateInfoEdit implements Serializable {
      */
     private String remark;
 
+
+    /**
+     * 保存版本
+     */
+    private Boolean saveVersion;
+
     /**
      * 对象转封装类
      *

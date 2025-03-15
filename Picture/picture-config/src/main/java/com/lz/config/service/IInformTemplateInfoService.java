@@ -64,6 +64,9 @@ public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
      */
     public int deleteInformTemplateInfoByTemplateId(Long templateId);
     //endregion
+
+    String getExample(InformTemplateInfo informTemplateInfo);
+
     /**
      * 获取查询条件
      *

@@ -1,9 +1,11 @@
 package com.lz.config.model.dto.i18nMessageInfo;
 
 import java.io.Serializable;
+
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.config.model.domain.I18nMessageInfo;
+
 /**
  * 国际化信息Vo对象 c_i18n_message_info
  *
@@ -11,23 +13,32 @@ import com.lz.config.model.domain.I18nMessageInfo;
  * @date 2025-02-28
  */
 @Data
-public class I18nMessageInfoEdit implements Serializable
-{
+public class I18nMessageInfoEdit implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 主键 */
+    /**
+     * 主键
+     */
     private Long messageId;
 
-    /** 键 */
+    /**
+     * 键
+     */
     private String messageKey;
 
-    /** 简称 */
+    /**
+     * 简称
+     */
     private String locale;
 
-    /** 消息 */
+    /**
+     * 消息
+     */
     private String message;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
     /**

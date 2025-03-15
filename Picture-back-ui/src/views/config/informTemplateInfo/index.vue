@@ -18,12 +18,24 @@
         />
       </el-form-item>
       <el-form-item label="语言" prop="locale">
-        <el-input
+        <el-select
             v-model="queryParams.locale"
-            placeholder="请输入语言"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入语言简称"
+            remote-show-suffix
+            :remote-method="remoteGetLocaleList"
+            :loading="localeLoading"
+            style="width: 200px"
+        >
+          <el-option
+              v-for="item in localeList"
+              :key="item.localeId"
+              :label="item.locale"
+              :value="item.locale"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="渠道" prop="channel">
         <el-select v-model="queryParams.channel" style="width: 200px" placeholder="请选择渠道" clearable>
@@ -242,7 +254,6 @@
     />
 
     <!-- 添加或修改通知模版对话框 -->
-    <!-- 添加或修改通知模版对话框 -->
     <el-dialog :title="title" v-model="open" width="1000px" append-to-body>
       <el-form ref="informTemplateInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-row :gutter="40">
@@ -253,7 +264,24 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="语言" prop="locale">
-              <el-input v-model="form.locale" placeholder="请输入语言"/>
+              <el-select
+                  v-model="form.locale"
+                  filterable
+                  remote
+                  reserve-keyword
+                  placeholder="请输入语言简称"
+                  remote-show-suffix
+                  :remote-method="remoteGetLocaleList"
+                  :loading="localeLoading"
+                  style="width: 240px"
+              >
+                <el-option
+                    v-for="item in localeList"
+                    :key="item.localeId"
+                    :label="item.locale"
+                    :value="item.locale"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -303,26 +331,34 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="内容">
-              <el-input type="textarea" :rows="5" v-model="form.content" :min-height="192"/>
+            <el-form-item label="内容" prop="content">
+              <el-input type="textarea" placeholder="请输入内容，例：例：你好我是${userName},我想对你说${tell}" :rows="5"
+                        v-model="form.content" :min-height="192"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="变量列表" prop="variables">
-              <el-input v-model="form.variables" :rows="5" type="textarea" placeholder="请输入内容"/>
+              <el-input v-model="form.variables" :rows="5" type="textarea"
+                        placeholder="请输入变量列表,例：{&quot;userName&quot;: &quot;YY&quot;, &quot;tell&quot;: &quot;你好&quot;}"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="事例" prop="example">
-              <el-input :readonly="true" :rows="5" v-model="form.example" type="textarea" placeholder="请输入内容"/>
+              <el-input :readonly="true" :rows="5" v-model="form.example" type="textarea" placeholder="请生成事例"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="扩展配置" prop="extendConfig">
+              <el-input v-model="form.extendConfig" type="textarea" :rows="5"
+                        placeholder="请输入内容，请根据实际内容填写json对象"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="备注" prop="remark">
-              <el-input v-model="form.remark" :rows="5" type="textarea" placeholder="请输入内容"/>
+              <el-input v-model="form.remark" :rows="5" type="textarea" placeholder="请输入备注"/>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="模版样式图" prop="templateImage">
               <image-upload v-model="form.templateImage"/>
             </el-form-item>
@@ -331,6 +367,13 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
+          <el-switch
+              v-model="form.saveVersion"
+              size="large"
+              active-text="保存版本"
+              inactive-text="不保存"
+          />
+          <el-button @click="getTemplateExample">获取事例</el-button>
           <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
@@ -342,11 +385,12 @@
 <script setup name="InformTemplateInfo">
 import {
   addInformTemplateInfo,
-  delInformTemplateInfo,
+  delInformTemplateInfo, getExample,
   getInformTemplateInfo,
   listInformTemplateInfo,
   updateInformTemplateInfo
 } from "@/api/config/informTemplateInfo";
+import {listI18nLocaleInfo} from "@/api/config/i18nLocaleInfo.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -368,6 +412,14 @@ const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
 const data = reactive({
+  localeList: [],
+  localeLoading: false,
+  localeQueryParams: {
+    pageNum: 1,
+    pageSize: 10,
+    locale: '',
+    localeStatus: '0',
+  },
   form: {},
   queryParams: {
     pageNum: 1,
@@ -439,7 +491,21 @@ const data = reactive({
   ],
 });
 
-const {queryParams, form, rules, columns} = toRefs(data);
+const {
+  queryParams,
+  form,
+  rules,
+  columns,
+  localeQueryParams,
+  localeList,
+  localeLoading,
+} = toRefs(data);
+
+function getTemplateExample() {
+  getExample(form.value).then(res => {
+    form.value.example = res.msg;
+  })
+}
 
 /** 查询通知模版列表 */
 function getList() {
@@ -488,7 +554,8 @@ function reset() {
     createTime: null,
     updateBy: null,
     updateTime: null,
-    remark: null
+    remark: null,
+    saveVersion: false
   };
   proxy.resetForm("informTemplateInfoRef");
 }
@@ -572,5 +639,38 @@ function handleExport() {
   }, `informTemplateInfo_${new Date().getTime()}.xlsx`)
 }
 
+/**
+ * 远程获取国际化简称
+ * @param query
+ */
+const remoteGetLocaleList = (query) => {
+  if (query) {
+    localeLoading.value = true;
+    localeQueryParams.value.locale = query;
+    setTimeout(() => {
+      getLocaleList()
+    }, 200)
+  } else {
+    if (form.value.locale) {
+      localeQueryParams.value.locale = form.value.locale;
+    } else {
+      localeQueryParams.value.locale = ''
+    }
+    getLocaleList()
+  }
+}
+
+/**
+ * 获取国际化简称列表
+ */
+function getLocaleList() {
+  localeList.value = []; // 直接清空
+  listI18nLocaleInfo(localeQueryParams.value).then(response => {
+    localeList.value = response.rows;
+    localeLoading.value = false;
+  });
+}
+
+getLocaleList();
 getList();
 </script>

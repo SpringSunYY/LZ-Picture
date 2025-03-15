@@ -1,7 +1,17 @@
 package com.lz.config.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.spring.SpringUtils;
+import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -34,8 +44,7 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/config/informTemplateInfo")
-public class InformTemplateInfoController extends BaseController
-{
+public class InformTemplateInfoController extends BaseController {
     @Resource
     private IInformTemplateInfoService informTemplateInfoService;
 
@@ -44,12 +53,11 @@ public class InformTemplateInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(InformTemplateInfoQuery informTemplateInfoQuery)
-    {
+    public TableDataInfo list(InformTemplateInfoQuery informTemplateInfoQuery) {
         InformTemplateInfo informTemplateInfo = InformTemplateInfoQuery.queryToObj(informTemplateInfoQuery);
         startPage();
         List<InformTemplateInfo> list = informTemplateInfoService.selectInformTemplateInfoList(informTemplateInfo);
-        List<InformTemplateInfoVo> listVo= list.stream().map(InformTemplateInfoVo::objToVo).collect(Collectors.toList());
+        List<InformTemplateInfoVo> listVo = list.stream().map(InformTemplateInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
@@ -61,8 +69,7 @@ public class InformTemplateInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:export')")
     @Log(title = "通知模版", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, InformTemplateInfoQuery informTemplateInfoQuery)
-    {
+    public void export(HttpServletResponse response, InformTemplateInfoQuery informTemplateInfoQuery) {
         InformTemplateInfo informTemplateInfo = InformTemplateInfoQuery.queryToObj(informTemplateInfoQuery);
         List<InformTemplateInfo> list = informTemplateInfoService.selectInformTemplateInfoList(informTemplateInfo);
         ExcelUtil<InformTemplateInfo> util = new ExcelUtil<InformTemplateInfo>(InformTemplateInfo.class);
@@ -74,8 +81,7 @@ public class InformTemplateInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:query')")
     @GetMapping(value = "/{templateId}")
-    public AjaxResult getInfo(@PathVariable("templateId") Long templateId)
-    {
+    public AjaxResult getInfo(@PathVariable("templateId") Long templateId) {
         InformTemplateInfo informTemplateInfo = informTemplateInfoService.selectInformTemplateInfoByTemplateId(templateId);
         return success(InformTemplateInfoVo.objToVo(informTemplateInfo));
     }
@@ -86,10 +92,18 @@ public class InformTemplateInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:add')")
     @Log(title = "通知模版", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody InformTemplateInfoInsert informTemplateInfoInsert)
-    {
+    public AjaxResult add(@RequestBody InformTemplateInfoInsert informTemplateInfoInsert) {
         InformTemplateInfo informTemplateInfo = InformTemplateInfoInsert.insertToObj(informTemplateInfoInsert);
+        String example = informTemplateInfoService.getExample(informTemplateInfo);
+        informTemplateInfo.setExample(example);
         return toAjax(informTemplateInfoService.insertInformTemplateInfo(informTemplateInfo));
+    }
+
+    @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:add')")
+    @PostMapping("/getExample")
+    public AjaxResult getExample(@RequestBody InformTemplateInfoInsert informTemplateInfoInsert) {
+        InformTemplateInfo informTemplateInfo = InformTemplateInfoInsert.insertToObj(informTemplateInfoInsert);
+        return success(informTemplateInfoService.getExample(informTemplateInfo));
     }
 
     /**
@@ -98,9 +112,23 @@ public class InformTemplateInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:edit')")
     @Log(title = "通知模版", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody InformTemplateInfoEdit informTemplateInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody InformTemplateInfoEdit informTemplateInfoEdit) {
+        //判断是否需要更新版本
         InformTemplateInfo informTemplateInfo = InformTemplateInfoEdit.editToObj(informTemplateInfoEdit);
+        informTemplateInfo.setExample(informTemplateInfoService.getExample(informTemplateInfo));
+        informTemplateInfo.setUpdateBy(SecurityUtils.getUsername());
+        informTemplateInfo.setUpdateTime(DateUtils.getNowDate());
+        if (informTemplateInfoEdit.getSaveVersion()) {
+            InformTemplateInfo info = informTemplateInfoService.selectInformTemplateInfoByTemplateId(informTemplateInfoEdit.getTemplateId());
+            informTemplateInfo.setTemplateVersion(info.getTemplateVersion() + 1);
+            //获取到历史记录转化为map
+            String templateVersionHistory = info.getTemplateVersionHistory();
+            if (StringUtils.isNotEmpty(templateVersionHistory)) {
+                HashMap<Long, String> parse = (HashMap<Long, String>) JSONObject.parseObject(templateVersionHistory, HashMap.class);
+                parse.put(informTemplateInfo.getTemplateVersion(), InformTemplateInfoHistory.objToHistory(informTemplateInfo).toString());
+                informTemplateInfo.setTemplateVersionHistory(JSONObject.toJSONString(parse));
+            }
+        }
         return toAjax(informTemplateInfoService.updateInformTemplateInfo(informTemplateInfo));
     }
 
@@ -110,8 +138,7 @@ public class InformTemplateInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:remove')")
     @Log(title = "通知模版", businessType = BusinessType.DELETE)
     @DeleteMapping("/{templateIds}")
-    public AjaxResult remove(@PathVariable Long[] templateIds)
-    {
+    public AjaxResult remove(@PathVariable Long[] templateIds) {
         return toAjax(informTemplateInfoService.deleteInformTemplateInfoByTemplateIds(templateIds));
     }
 }
