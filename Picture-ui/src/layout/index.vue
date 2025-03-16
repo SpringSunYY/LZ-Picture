@@ -1,6 +1,10 @@
 <template>
-  <div id="layout">
+  <!-- 当路由meta包含fullPage时跳过布局 -->
+  <router-view v-if="$route.meta.fullPage" />
+
+  <div v-else id="layout">
     <a-layout style="min-height: 100vh">
+      <!-- 原有布局内容 -->
       <a-layout-header class="header">
         <GlobalHeader />
       </a-layout-header>

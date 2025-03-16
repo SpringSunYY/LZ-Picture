@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
 import Layout from '@/layout/index.vue'
 </script>
 
@@ -7,7 +6,6 @@ import Layout from '@/layout/index.vue'
   <div id="app">
     <Layout></Layout>
   </div>
-  <RouterView />
 </template>
 
 <style scoped>

@@ -1,11 +1,3 @@
-<script setup lang="ts">
-
-</script>
-
-<template>
-
-</template>
-
-<style scoped>
-
-</style>
+<template></template>
+<script setup name="HomeView"></script>
+<style scoped></style>

@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import UserLogin from '@/views/user/userLogin/index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,7 +6,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('@/views/HomeView.vue'),
     },
     {
       path: '/about',
@@ -25,7 +23,8 @@ const router = createRouter({
         {
           path: 'login',
           name: 'userLogin',
-          component: UserLogin,
+          component: () => import('@/views/user/userLogin/index.vue'),
+          meta: { fullPage: true }, // 添加全屏标识
         },
       ],
     },
