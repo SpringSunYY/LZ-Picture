@@ -287,11 +287,12 @@ create table c_inform_template_info
     update_time              datetime      null comment '更新时间',
     remark                   varchar(500)  null comment '备注',
     constraint uk_template_name_locale
-        unique (template_name, locale),
+        unique (template_name, locale, template_type),
     constraint fk_inform_template_locale
         foreign key (locale) references c_i18n_locale_info (locale)
             on update cascade
-)comment '通知模版表';
+)
+    comment '通知模版表';
 create index idx_template_status
     on c_inform_template_info (status);
 create index idx_template_type

@@ -8,11 +8,14 @@ import java.util.stream.Collectors;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.alibaba.fastjson2.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
+import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoVersionQuery;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -66,17 +69,27 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
      */
     @Override
     public int insertInformTemplateInfo(InformTemplateInfo informTemplateInfo) {
+        //获取存在数据库内的数据
+        InformTemplateInfo old = getInformTemplateInfoByNameLocaleType(informTemplateInfo);
+        if (StringUtils.isNotNull(old)) {
+            throw new ServiceException("此语言通知模版名称已存在");
+        }
         informTemplateInfo.setTemplateVersion(1L);
+        informTemplateInfo.setCreateBy(SecurityUtils.getUsername());
+        informTemplateInfo.setCreateTime(DateUtils.getNowDate());
+        //先空对象防止空指针
+        informTemplateInfo.setTemplateVersionHistory("{}");
+        int i = informTemplateInfoMapper.insertInformTemplateInfo(informTemplateInfo);
+
         //存储历史记录
         InformTemplateInfoHistory informTemplateInfoHistory = InformTemplateInfoHistory.objToHistory(informTemplateInfo);
         HashMap<Long, String> historyMap = new HashMap<>();
-        historyMap.put(informTemplateInfo.getTemplateVersion(),informTemplateInfoHistory.toString());
+        historyMap.put(informTemplateInfo.getTemplateVersion(), JSONObject.toJSONString(informTemplateInfoHistory));
         //转换为String，后续好装换回历史记录对象
         String history = JSONObject.toJSONString(historyMap);
         informTemplateInfo.setTemplateVersionHistory(history);
-        informTemplateInfo.setCreateBy(SecurityUtils.getUsername());
-        informTemplateInfo.setCreateTime(DateUtils.getNowDate());
-        return informTemplateInfoMapper.insertInformTemplateInfo(informTemplateInfo);
+        informTemplateInfoMapper.updateInformTemplateInfo(informTemplateInfo);
+        return i;
     }
 
     /**
@@ -87,8 +100,27 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
      */
     @Override
     public int updateInformTemplateInfo(InformTemplateInfo informTemplateInfo) {
+        //获取自己老的此数据
+        InformTemplateInfo myOld = informTemplateInfoMapper.selectInformTemplateInfoByTemplateId(informTemplateInfo.getTemplateId());
+        //获取存在数据库内的数据
+        InformTemplateInfo old = getInformTemplateInfoByNameLocaleType(informTemplateInfo);
+        //判断如果我的老的存在数据库内的不相同并且和传过来的名称不同于旧数据
+        if (StringUtils.isNotNull(old)
+                && !myOld.getTemplateName().equals(old.getTemplateName()) &&
+                !myOld.getTemplateName().equals(informTemplateInfo.getTemplateName())) {
+            //说明更新的名称存在
+            throw new ServiceException("此语言此类型通知模版名称已存在");
+        }
         informTemplateInfo.setUpdateTime(DateUtils.getNowDate());
         return informTemplateInfoMapper.updateInformTemplateInfo(informTemplateInfo);
+    }
+
+
+    @Override
+    public InformTemplateInfo getInformTemplateInfoByNameLocaleType(InformTemplateInfo informTemplateInfo) {
+        return this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateName, informTemplateInfo.getTemplateName())
+                .eq(InformTemplateInfo::getLocale, informTemplateInfo.getLocale())
+                .eq(InformTemplateInfo::getTemplateType, informTemplateInfo.getTemplateType()));
     }
 
     /**
@@ -194,6 +226,33 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
             return Collections.emptyList();
         }
         return informTemplateInfoList.stream().map(InformTemplateInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public InformTemplateInfo getInformTemplateInfoByVersion(InformTemplateInfoVersionQuery informTemplateInfoVersionQuery) {
+        InformTemplateInfo info = informTemplateInfoMapper.selectInformTemplateInfoByTemplateId(informTemplateInfoVersionQuery.getTemplateId());
+        if (StringUtils.isNull(info)) {
+            throw new ServiceException("通知模版不存在");
+        }
+        // 使用 TypeReference 明确指定键为 Long 类型
+        HashMap<Long, String> parse = JSON.parseObject(
+                info.getTemplateVersionHistory(),
+                new TypeReference<HashMap<Long, String>>() {
+                }
+        );
+        Long templateVersion = informTemplateInfoVersionQuery.getTemplateVersion();
+//        System.out.println("templateVersion = " + templateVersion);
+        if (!parse.containsKey(templateVersion)) {
+            throw new ServiceException("指定的通知模版版本不存在");
+        }
+//        for (Map.Entry<Long, String> longStringEntry : parse.entrySet()) {
+//            System.out.println("Key type: " + longStringEntry.getKey().getClass().getName());
+//            System.out.println(longStringEntry.getKey());
+//            System.out.println("parse = " + parse.get(longStringEntry.getKey()));
+//        }
+        String informTemplateInfoHistory = parse.get(templateVersion);
+//        System.out.println("informTemplateInfoHistory = " + informTemplateInfoHistory);
+        return InformTemplateInfoHistory.getInformTemplateInfoByVersion(informTemplateInfoHistory);
     }
 
 }

@@ -7,11 +7,12 @@ import java.util.stream.Collectors;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.spring.SpringUtils;
-import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
+import com.lz.config.model.dto.informTemplateInfo.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -29,9 +30,6 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.enums.BusinessType;
 import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoVo;
-import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoQuery;
-import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoInsert;
-import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoEdit;
 import com.lz.config.service.IInformTemplateInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
@@ -86,6 +84,17 @@ public class InformTemplateInfoController extends BaseController {
         return success(InformTemplateInfoVo.objToVo(informTemplateInfo));
     }
 
+
+    /**
+     * 查询通知模版版本
+     */
+    @PreAuthorize("@ss.hasPermi('config:informTemplateInfo:list')")
+    @GetMapping("/version")
+    public AjaxResult getInformTemplateInfoByVersion(InformTemplateInfoVersionQuery informTemplateInfoVersionQuery) {
+        InformTemplateInfo informTemplateInfo = informTemplateInfoService.getInformTemplateInfoByVersion(informTemplateInfoVersionQuery);
+        return success(informTemplateInfo);
+    }
+
     /**
      * 新增通知模版
      */
@@ -118,14 +127,19 @@ public class InformTemplateInfoController extends BaseController {
         informTemplateInfo.setExample(informTemplateInfoService.getExample(informTemplateInfo));
         informTemplateInfo.setUpdateBy(SecurityUtils.getUsername());
         informTemplateInfo.setUpdateTime(DateUtils.getNowDate());
-        if (informTemplateInfoEdit.getSaveVersion()) {
+        if (StringUtils.isNotNull(informTemplateInfoEdit.getSaveVersion()) && informTemplateInfoEdit.getSaveVersion()) {
             InformTemplateInfo info = informTemplateInfoService.selectInformTemplateInfoByTemplateId(informTemplateInfoEdit.getTemplateId());
             informTemplateInfo.setTemplateVersion(info.getTemplateVersion() + 1);
             //获取到历史记录转化为map
             String templateVersionHistory = info.getTemplateVersionHistory();
             if (StringUtils.isNotEmpty(templateVersionHistory)) {
-                HashMap<Long, String> parse = (HashMap<Long, String>) JSONObject.parseObject(templateVersionHistory, HashMap.class);
-                parse.put(informTemplateInfo.getTemplateVersion(), InformTemplateInfoHistory.objToHistory(informTemplateInfo).toString());
+                // 使用 TypeReference 明确指定键为 Long 类型
+                HashMap<Long, String> parse = JSON.parseObject(
+                        info.getTemplateVersionHistory(),
+                        new TypeReference<HashMap<Long, String>>() {
+                        }
+                );
+                parse.put(informTemplateInfo.getTemplateVersion(), JSONObject.toJSONString(InformTemplateInfoHistory.objToHistory(informTemplateInfo)));
                 informTemplateInfo.setTemplateVersionHistory(JSONObject.toJSONString(parse));
             }
         }

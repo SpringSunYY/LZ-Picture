@@ -1,21 +1,24 @@
 package com.lz.config.service;
 
 import java.util.List;
+
 import com.lz.config.model.domain.InformTemplateInfo;
+import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoVersionQuery;
 import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoVo;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 通知模版Service接口
  *
  * @author ruoyi
  * @date 2025-03-14
  */
-public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
-{
+public interface IInformTemplateInfoService extends IService<InformTemplateInfo> {
     //region mybatis代码
+
     /**
      * 查询通知模版
      *
@@ -47,6 +50,17 @@ public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
      * @return 结果
      */
     public int updateInformTemplateInfo(InformTemplateInfo informTemplateInfo);
+
+    /**
+     * description: 根据名称、语言、类型查询通知模版
+     * author: YY
+     * method: getInformTemplateInfoByNameLocaleType
+     * date: 2025/3/16 15:21
+     * param:
+     * param: informTemplateInfo
+     * return: com.lz.config.model.domain.InformTemplateInfo
+     **/
+    InformTemplateInfo getInformTemplateInfoByNameLocaleType(InformTemplateInfo informTemplateInfo);
 
     /**
      * 批量删除通知模版
@@ -82,4 +96,16 @@ public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
      * @return InformTemplateInfoVO集合
      */
     List<InformTemplateInfoVo> convertVoList(List<InformTemplateInfo> informTemplateInfoList);
+
+    /**
+     * description: 获取消息模版根据版本信息
+     * author: YY
+     * method: getInformTemplateInfoByVersion
+     * date: 2025/3/16 14:09
+     * param:
+     * param: informTemplateInfoVersionQuery
+     * return: com.lz.config.model.domain.InformTemplateInfo
+     **/
+    InformTemplateInfo getInformTemplateInfoByVersion(InformTemplateInfoVersionQuery informTemplateInfoVersionQuery);
+
 }

@@ -9,6 +9,15 @@ export function listInformTemplateInfo(query) {
     })
 }
 
+// 根据版本查询通知模版
+export function getInformTemplateInfoByVersion(query) {
+    return request({
+        url: '/config/informTemplateInfo/version',
+        method: 'get',
+        params: query
+    })
+}
+
 // 查询通知模版详细
 export function getInformTemplateInfo(templateId) {
     return request({

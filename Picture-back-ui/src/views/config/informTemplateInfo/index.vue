@@ -367,6 +367,20 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
+          <el-select
+              placeholder="请选择版本"
+              size="large"
+              style="width: 240px;margin-right: 10px"
+              v-model="templateVersion"
+              @change="changeTemplateVersion"
+          >
+            <el-option
+                v-for="item in filteredTemplateVersions"
+                :key="item"
+                :label="item"
+                :value="item"
+            />
+          </el-select>
           <el-switch
               v-model="form.saveVersion"
               size="large"
@@ -386,7 +400,7 @@
 import {
   addInformTemplateInfo,
   delInformTemplateInfo, getExample,
-  getInformTemplateInfo,
+  getInformTemplateInfo, getInformTemplateInfoByVersion,
   listInformTemplateInfo,
   updateInformTemplateInfo
 } from "@/api/config/informTemplateInfo";
@@ -412,6 +426,9 @@ const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
 const data = reactive({
+  //版本
+  templateVersion: null,
+  currentVersion: null,
   localeList: [],
   localeLoading: false,
   localeQueryParams: {
@@ -499,7 +516,33 @@ const {
   localeQueryParams,
   localeList,
   localeLoading,
+  templateVersion
 } = toRefs(data);
+
+// 计算属性，过滤小于最大版本的选项
+const filteredTemplateVersions = computed(() => {
+  var versions = [];
+  if (form.value.templateVersion) {
+    var maxVersion = parseInt(form.value.templateVersion);
+    for (var i = 1; i <= maxVersion; i++) {
+      versions.push(i);
+    }
+  }
+  return versions;
+})
+
+function changeTemplateVersion() {
+  const query = {
+    templateId: form.value.templateId,
+    templateVersion: templateVersion.value
+  }
+  getInformTemplateInfoByVersion(query).then(res => {
+    const version = form.value.templateVersion;
+    form.value = res.data;
+    form.value.templateVersion = version;
+    saveVersion.value = false;
+  })
+}
 
 function getTemplateExample() {
   getExample(form.value).then(res => {
@@ -543,7 +586,7 @@ function reset() {
     serviceTemplateId: null,
     serviceSignName: null,
     extendConfig: null,
-    templateVersion: null,
+    templateVersion: 1,
     templateVersionHistory: null,
     content: null,
     example: null,
@@ -594,6 +637,8 @@ function handleUpdate(row) {
   const _templateId = row.templateId || ids.value
   getInformTemplateInfo(_templateId).then(response => {
     form.value = response.data;
+    templateVersion.value = response.data.templateVersion;
+    currentVersion.value = response.data.templateVersion;
     open.value = true;
     title.value = "修改通知模版";
   });

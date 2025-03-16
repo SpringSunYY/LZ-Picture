@@ -1,5 +1,7 @@
 package com.lz.config.model.dto.informTemplateInfo;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.annotation.Excel;
 import com.lz.common.utils.StringUtils;
@@ -22,6 +24,12 @@ import java.util.Date;
 @Data
 public class InformTemplateInfoHistory implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键
+     */
+    private Long templateId;
+
     /**
      * 模版名称
      */
@@ -133,5 +141,22 @@ public class InformTemplateInfoHistory implements Serializable {
         InformTemplateInfo informTemplateInfo = new InformTemplateInfo();
         BeanUtils.copyProperties(informTemplateInfoHistory, informTemplateInfo);
         return informTemplateInfo;
+    }
+
+    /**
+     * description:  根据历史记录获取模版信息
+     * author: YY
+     * method: getInformTemplateInfoByVersion
+     * date: 2025/3/16 14:15
+     * param:
+     * param: informTemplateInfoHistory 历史版本json
+     * return: com.lz.config.model.domain.InformTemplateInfo
+     **/
+    public static InformTemplateInfo getInformTemplateInfoByVersion(String informTemplateInfoHistory) {
+        if (StringUtils.isEmpty(informTemplateInfoHistory)) {
+            return new InformTemplateInfo();
+        }
+        InformTemplateInfoHistory history = JSONObject.parseObject(informTemplateInfoHistory, InformTemplateInfoHistory.class);
+        return historyToObj(history);
     }
 }
