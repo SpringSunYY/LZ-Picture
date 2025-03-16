@@ -19,7 +19,7 @@ const router = createRouter({
       children: [
         {
           path: 'login',
-          name: 'userLogin',
+          name: 'UserLogin',
           component: () => import('@/views/user/userLogin/index.vue'),
           meta: { fullPage: true }, // 添加全屏标识
         },

@@ -5,7 +5,7 @@
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.png" alt="logo" />
-            <div class="title">鱼皮云图库</div>
+            <div class="title">荔枝云图库</div>
           </div>
         </RouterLink>
       </a-col>
@@ -19,19 +19,57 @@
       </a-col>
       <a-col flex="120px">
         <div class="user-login-status">
-          <a-button type="primary" href="/user/login">登录</a-button>
+          <div v-if="user?.userName">
+            <a-dropdown>
+              <ASpace>
+                <a-avatar :src="user?.avatar" />
+                {{ user?.userName ?? '未知' }}
+              </ASpace>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item @click="doLogout">
+                    <LogoutOutlined />
+                    退出登录
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
+          <div v-else>
+            <a-button type="primary" href="/user/login">登录</a-button>
+          </div>
         </div>
       </a-col>
     </a-row>
   </div>
 </template>
-<script lang="ts" setup>
+<script setup lang="ts">
 import { h, ref } from 'vue'
-import { HomeOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import { MenuProps } from 'ant-design-vue'
-
 import { useRouter } from 'vue-router'
+import useUserStore from '@/stores/modules/user.js'
+import type { UserInfo } from '@/types/common'
 
+const userStore = useUserStore()
+const user = ref<UserInfo>({
+  userName: '',
+  password: '',
+})
+
+function getUserInfo() {
+  userStore.getInfo().then((res) => {
+    user.value = res?.user
+    console.log('userStore.getInfo', res)
+  })
+}
+
+getUserInfo()
+
+// 用户注销
+const doLogout = async () => {
+  await userStore.logOut()
+}
 const router = useRouter()
 // 当前选中菜单
 const current = ref<string[]>([])
@@ -78,6 +116,7 @@ const items = ref<MenuProps['items']>([
 #globalHeader {
   max-width: 1440px;
   margin: 0 auto;
+
   .title-bar {
     display: flex;
     align-items: center;

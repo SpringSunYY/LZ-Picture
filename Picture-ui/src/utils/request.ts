@@ -2,6 +2,7 @@ import axios from 'axios'
 import { getToken } from '@/utils/token'
 import { lz } from '@/utils'
 import { message } from 'ant-design-vue'
+import router from '@/router'
 // 创建 axios 实例
 const http = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
@@ -119,6 +120,7 @@ http.interceptors.response.use(
       if (!isRelogin.show) {
         isRelogin.show = true
         message.success('登录状态已过期，您可以继续留在该页面，或者重新登录', 5000)
+        router.push('/user/login')
       }
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     }

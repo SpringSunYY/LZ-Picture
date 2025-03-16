@@ -1,3 +1,5 @@
 <template></template>
-<script setup name="HomeView"></script>
+<script setup name="HomeView">
+
+</script>
 <style scoped></style>

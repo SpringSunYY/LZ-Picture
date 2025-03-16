@@ -15,13 +15,13 @@
       </div>
 
       <a-form
-        :model="formState"
+        :model="loginForm"
         :rules="rules"
         @finish="handleSubmit"
         @finishFailed="handleFinishFailed"
       >
         <a-form-item name="username">
-          <a-input v-model:value="formState.username" placeholder="用户名" size="large">
+          <a-input v-model:value="loginForm.username" placeholder="用户名" size="large">
             <template #prefix>
               <user-outlined />
             </template>
@@ -29,7 +29,7 @@
         </a-form-item>
 
         <a-form-item name="password">
-          <a-input-password v-model:value="formState.password" placeholder="密码" size="large">
+          <a-input-password v-model:value="loginForm.password" placeholder="密码" size="large">
             <template #prefix>
               <lock-outlined />
             </template>
@@ -45,26 +45,33 @@
 
       <div class="login-footer">
         <a-checkbox v-model:checked="rememberMe">记住我</a-checkbox>
-        <router-link to="/forgot-password">忘记密码？</router-link>
+        <router-link to="/">忘记密码？</router-link>
       </div>
     </a-card>
   </div>
 </template>
 
 <script setup name="UserLogin">
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { LockOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { login } from '@/api/test.js'
+import useUserStore from '@/stores/modules/user.ts'
+import Cookies from 'js-cookie'
+import { encrypt } from '@/utils/jsencrypt.js'
 
+const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const rememberMe = ref(false)
 
-const formState = reactive({
+const loginForm = ref({
   username: 'admin',
   password: 'admin123',
+  rememberMe: false,
+  code: '',
+  uuid: '',
 })
 
 const rules = {
@@ -81,14 +88,43 @@ const rules = {
   ],
 }
 
+const redirect = ref(undefined)
+
+watch(
+  route,
+  (newRoute) => {
+    redirect.value = newRoute.query && newRoute.query.redirect
+  },
+  { immediate: true },
+)
+
 const handleSubmit = async () => {
+  // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
+  if (loginForm.value.rememberMe) {
+    Cookies.set('username', loginForm.value.username, { expires: 30 })
+    Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
+    Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 })
+  } else {
+    // 否则移除
+    Cookies.remove('username')
+    Cookies.remove('password')
+    Cookies.remove('rememberMe')
+  }
   try {
     loading.value = true
-    // 模拟API请求
-    await login(formState)
-    message.success('登录成功')
-    router.push('/dashboard')
-  } catch (error) {
+    // 调用action的登录方法
+    userStore.login(loginForm.value).then(() => {
+      const query = route.query
+      const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
+        if (cur !== 'redirect') {
+          acc[cur] = query[cur]
+        }
+        return acc
+      }, {})
+      router.push({ path: redirect.value || '/', query: otherQueryParams })
+    })
+  } catch (e) {
+    console.log(e)
     message.error('登录失败')
   } finally {
     loading.value = false
