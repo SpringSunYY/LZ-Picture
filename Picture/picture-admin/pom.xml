@@ -59,6 +59,13 @@
             <groupId>com.lz</groupId>
             <artifactId>picture-config</artifactId>
         </dependency>
+
+        <!--C端用户模块-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-user</artifactId>
+        </dependency>
+        <!--新增-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

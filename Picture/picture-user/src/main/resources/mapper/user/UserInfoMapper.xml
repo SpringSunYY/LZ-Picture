@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.user.mapper.UserInfoMapper">
+    
+    <resultMap type="UserInfo" id="UserInfoResult">
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="phone"    column="phone"    />
+        <result property="countryCode"    column="country_code"    />
+        <result property="nickName"    column="nick_name"    />
+        <result property="avatarUrl"    column="avatar_url"    />
+        <result property="password"    column="password"    />
+        <result property="status"    column="status"    />
+        <result property="salt"    column="salt"    />
+        <result property="sex"    column="sex"    />
+        <result property="birthday"    column="birthday"    />
+        <result property="occupation"    column="occupation"    />
+        <result property="preferredLanguageLocale"    column="preferred_language_locale"    />
+        <result property="introductory"    column="introductory"    />
+        <result property="ipAddress"    column="ip_address"    />
+        <result property="lastLoginTime"    column="last_login_time"    />
+        <result property="lastLoginIp"    column="last_login_ip"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDelete"    column="is_delete"    />
+    </resultMap>
+
+    <sql id="selectUserInfoVo">
+        select user_id, user_name, phone, country_code, nick_name, avatar_url, password, status, salt, sex, birthday, occupation, preferred_language_locale, introductory, ip_address, last_login_time, last_login_ip, create_time, update_time, is_delete from u_user_info
+    </sql>
+
+    <select id="selectUserInfoList" parameterType="UserInfo" resultMap="UserInfoResult">
+        <include refid="selectUserInfoVo"/>
+        <where>  
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="countryCode != null  and countryCode != ''"> and country_code = #{countryCode}</if>
+            <if test="nickName != null  and nickName != ''"> and nick_name like concat('%', #{nickName}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="salt != null  and salt != ''"> and salt = #{salt}</if>
+            <if test="sex != null  and sex != ''"> and sex = #{sex}</if>
+            <if test="params.beginBirthday != null and params.beginBirthday != '' and params.endBirthday != null and params.endBirthday != ''"> and birthday between #{params.beginBirthday} and #{params.endBirthday}</if>
+            <if test="occupation != null  and occupation != ''"> and occupation like concat('%', #{occupation}, '%')</if>
+            <if test="preferredLanguageLocale != null  and preferredLanguageLocale != ''"> and preferred_language_locale = #{preferredLanguageLocale}</if>
+            <if test="ipAddress != null  and ipAddress != ''"> and ip_address like concat('%', #{ipAddress}, '%')</if>
+            <if test="params.beginLastLoginTime != null and params.beginLastLoginTime != '' and params.endLastLoginTime != null and params.endLastLoginTime != ''"> and last_login_time between #{params.beginLastLoginTime} and #{params.endLastLoginTime}</if>
+            <if test="lastLoginIp != null  and lastLoginIp != ''"> and last_login_ip like concat('%', #{lastLoginIp}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserInfoByUserId" parameterType="String" resultMap="UserInfoResult">
+        <include refid="selectUserInfoVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertUserInfo" parameterType="UserInfo">
+        insert into u_user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="countryCode != null and countryCode != ''">country_code,</if>
+            <if test="nickName != null and nickName != ''">nick_name,</if>
+            <if test="avatarUrl != null">avatar_url,</if>
+            <if test="password != null">password,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="salt != null">salt,</if>
+            <if test="sex != null">sex,</if>
+            <if test="birthday != null">birthday,</if>
+            <if test="occupation != null">occupation,</if>
+            <if test="preferredLanguageLocale != null">preferred_language_locale,</if>
+            <if test="introductory != null">introductory,</if>
+            <if test="ipAddress != null">ip_address,</if>
+            <if test="lastLoginTime != null">last_login_time,</if>
+            <if test="lastLoginIp != null">last_login_ip,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="countryCode != null and countryCode != ''">#{countryCode},</if>
+            <if test="nickName != null and nickName != ''">#{nickName},</if>
+            <if test="avatarUrl != null">#{avatarUrl},</if>
+            <if test="password != null">#{password},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="salt != null">#{salt},</if>
+            <if test="sex != null">#{sex},</if>
+            <if test="birthday != null">#{birthday},</if>
+            <if test="occupation != null">#{occupation},</if>
+            <if test="preferredLanguageLocale != null">#{preferredLanguageLocale},</if>
+            <if test="introductory != null">#{introductory},</if>
+            <if test="ipAddress != null">#{ipAddress},</if>
+            <if test="lastLoginTime != null">#{lastLoginTime},</if>
+            <if test="lastLoginIp != null">#{lastLoginIp},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserInfo" parameterType="UserInfo">
+        update u_user_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="countryCode != null and countryCode != ''">country_code = #{countryCode},</if>
+            <if test="nickName != null and nickName != ''">nick_name = #{nickName},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="salt != null">salt = #{salt},</if>
+            <if test="sex != null">sex = #{sex},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="occupation != null">occupation = #{occupation},</if>
+            <if test="preferredLanguageLocale != null">preferred_language_locale = #{preferredLanguageLocale},</if>
+            <if test="introductory != null">introductory = #{introductory},</if>
+            <if test="ipAddress != null">ip_address = #{ipAddress},</if>
+            <if test="lastLoginTime != null">last_login_time = #{lastLoginTime},</if>
+            <if test="lastLoginIp != null">last_login_ip = #{lastLoginIp},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteUserInfoByUserId" parameterType="String">
+        delete from u_user_info where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteUserInfoByUserIds" parameterType="String">
+        delete from u_user_info where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>

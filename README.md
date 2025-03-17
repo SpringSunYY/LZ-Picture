@@ -504,13 +504,14 @@ CREATE TABLE u_user_friend_info
 
 #### 用户绑定表：u_user_binding_info
 
-| 字段         | 类型     | 长度 | 键类型                     | null | 描述       |
-| ------------ | -------- | ---- | -------------------------- | ---- | ---------- |
-| binding_id   | varchar  | 128  | 主键                       | 否   | 编号       |
-| user_id      | varchar  | 128  | 外键(u_user_info：user_id) | 否   | 用户       |
-| binding_type | char     | 2    |                            | 否   | 绑定类型   |
-| identifier   | varchar  | 128  |                            | 否   | 第三方标识 |
-| binding_time | datetime |      |                            | 否   | 绑定时间   |
+| 字段          | 类型     | 长度 | 键类型                     | null | 描述       |
+| ------------- | -------- | ---- | -------------------------- | ---- | ---------- |
+| binding_id    | varchar  | 128  | 主键                       | 否   | 编号       |
+| user_id       | varchar  | 128  | 外键(u_user_info：user_id) | 否   | 用户       |
+| binding_type  | char     | 2    |                            | 否   | 绑定类型   |
+| identifier    | varchar  | 128  |                            | 否   | 第三方标识 |
+| extend_config | varchar  | 1024 |                            | 是   | 扩展配置   |
+| binding_time  | datetime |      |                            | 否   | 绑定时间   |
 
 ```sql
 -- 删除已存在的表（如果存在）
@@ -522,6 +523,7 @@ CREATE TABLE u_user_binding_info (
     user_id VARCHAR(128) NOT NULL COMMENT '用户ID',
     binding_type CHAR(2) NOT NULL COMMENT '绑定类型（01=微信 02=支付宝 03=Apple）',
     identifier VARCHAR(128) NOT NULL COMMENT '第三方唯一标识',
+    extend_config            varchar(1024) null comment '扩展配置',
     binding_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '绑定时间',
     PRIMARY KEY (binding_id),
     UNIQUE KEY uniq_user_binding (user_id, binding_type),  -- 同类型唯一绑定
@@ -546,11 +548,11 @@ ALTER TABLE u_user_binding_info
 
 | 字段名      | 类型         | 长度 | 键类型/索引                                | Null | 描述                                              |
 | ----------- | ------------ | ---- | ------------------------------------------ | ---- | ------------------------------------------------- |
-| record_id   | bigint       |      | 主键                                       | 否   | 编号                                              |
+| record_id   | varchar      | 128  | 主键                                       | 否   | 编号                                              |
 | template_id | bigint       |      | 外键（c_inform_template_info:template_id） | 否   | 关联的模板ID                                      |
 | user_id     | varchar(128) | 128  | 外键(u_user_info：user_id)                 | 否   | 用户                                              |
 | content     | text         |      |                                            | 否   | 实际发送内容 （含动态变量替换后的完整文本）       |
-| channel     | varchar(32)  | 32   |                                            | 否   | 发送渠道                                          |
+| inform_type | varchar(32)  | 32   |                                            | 否   | 通知类型                                          |
 | status      | tinyint      | 1    |                                            | 否   | 发送状态 0=待发送，1=已发送，2=发送失败，3=已撤回 |
 | is_read     | tinyint      | 1    |                                            | 否   | 是否已读 0=未读，1=已读（默认0）                  |
 | read_time   | datetime     |      |                                            | 是   | 读取时间                                          |
@@ -565,11 +567,11 @@ DROP TABLE IF EXISTS u_inform_info;
 
 -- 创建用户通知表（优化版）
 CREATE TABLE u_inform_info (
-    record_id BIGINT NOT NULL AUTO_INCREMENT COMMENT '通知记录ID',
+    record_id VARCHAR(128) NOT NULL COMMENT '通知记录ID',
     template_id BIGINT NOT NULL COMMENT '模板ID',
     user_id VARCHAR(128) NOT NULL COMMENT '用户ID',
     content TEXT NOT NULL COMMENT '实际发送内容',
-    channel VARCHAR(32) NOT NULL COMMENT '发送渠道',
+    inform_type VARCHAR(32) NOT NULL COMMENT '通知类型',
     status TINYINT(1) NOT NULL DEFAULT 0 COMMENT '发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回）',
     is_read TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否已读（0=未读 1=已读）',
     read_time DATETIME COMMENT '读取时间',
@@ -592,5 +594,52 @@ CREATE TABLE u_inform_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户通知记录表';
 ```
 
+#### 用户登录日志表：u_login_log_info
 
+| 字段英文名     | 类型     | 长度 | 键类型                    | null | 描述                                          |
+| -------------- | -------- | ---- | ------------------------- | ---- | --------------------------------------------- |
+| info_id        | bigint   | 20   | 主键                      | 否   | 日志ID（自增）                                |
+| user_id        | varchar  | 128  | 外键(u_user_info:user_id) | 是   | 用户ID（登录失败时可为空）                    |
+| user_name      | varchar  | 36   |                           | 是   | 用户名                                        |
+| login_type     | varchar  | 20   |                           | 否   | 登录方式                                      |
+| identifier     | varchar  | 128  |                           | 是   | 匿名标识                                      |
+| ipaddr         | varchar  | 50   |                           | 否   | 登录IP地址                                    |
+| login_location | varchar  | 255  |                           | 是   | 登录地点（如“中国-北京”）                     |
+| browser        | varchar  | 50   |                           | 是   | 浏览器类型（Chrome 105.0）                    |
+| os             | varchar  | 50   |                           | 是   | 操作系统                                      |
+| platform       | varchar  | 20   |                           | 是   | 登录平台                                      |
+| device_id      | varchar  | 255  |                           | 是   | 设备唯一标识（加密存储，如IMEI/IDFA）         |
+| status         | char     | 1    |                           | 否   | 状态（0成功 1失败）                           |
+| error_code     | varchar  | 64   |                           | 是   | 错误码（如`PASSWORD_ERROR`/`CAPTCHA_FAILED`） |
+| msg            | varchar  | 255  |                           | 否   | 提示消息（如“登录成功”/“验证码错误”）         |
+| login_time     | datetime |      | 索引                      | 否   | 登录时间                                      |
+
+匿名标识：比如手机号等等
+
+```sql
+DROP TABLE IF EXISTS u_login_log_info;
+CREATE TABLE u_login_log_info (
+    info_id VARCHAR(128) NOT NULL  COMMENT '编号',
+    user_id VARCHAR(128) COMMENT '用户ID',
+    user_name VARCHAR(36) COMMENT '用户名',
+    login_type VARCHAR(20) NOT NULL COMMENT '登录方式',
+    identifier VARCHAR(128) COMMENT '匿名标识',
+    ipaddr VARCHAR(50) NOT NULL COMMENT '登录IP地址',
+    login_location VARCHAR(255) COMMENT '登录地点',
+    browser VARCHAR(50) COMMENT '浏览器类型',
+    os VARCHAR(50) COMMENT '操作系统',
+    platform VARCHAR(20) COMMENT '登录平台',
+    device_id VARCHAR(255) COMMENT '设备唯一标识',
+    status CHAR(1) NOT NULL DEFAULT '0' COMMENT '状态（0成功 1失败）',
+    error_code VARCHAR(64) COMMENT '错误码',
+    msg VARCHAR(255) NOT NULL COMMENT '提示消息',
+    login_time DATETIME NOT NULL COMMENT '登录时间',
+    PRIMARY KEY (info_id),
+    INDEX idx_login_time (login_time),
+    INDEX idx_platform_device (platform, device_id(64)),
+    INDEX idx_user_status (user_id, status),
+    -- 外键约束
+    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户登录日志表';
+```
 

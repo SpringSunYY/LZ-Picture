@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.user.mapper.UserRelationInfoMapper">
+    
+    <resultMap type="UserRelationInfo" id="UserRelationInfoResult">
+        <result property="relationId"    column="relation_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="relationUserId"    column="relation_user_id"    />
+        <result property="relationType"    column="relation_type"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectUserRelationInfoVo">
+        select relation_id, user_id, relation_user_id, relation_type, create_time from u_user_relation_info
+    </sql>
+
+    <select id="selectUserRelationInfoList" parameterType="UserRelationInfo" resultMap="UserRelationInfoResult">
+        <include refid="selectUserRelationInfoVo"/>
+        <where>  
+            <if test="relationId != null  and relationId != ''"> and relation_id = #{relationId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="relationUserId != null  and relationUserId != ''"> and relation_user_id = #{relationUserId}</if>
+            <if test="relationType != null  and relationType != ''"> and relation_type = #{relationType}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserRelationInfoByRelationId" parameterType="String" resultMap="UserRelationInfoResult">
+        <include refid="selectUserRelationInfoVo"/>
+        where relation_id = #{relationId}
+    </select>
+
+    <insert id="insertUserRelationInfo" parameterType="UserRelationInfo">
+        insert into u_user_relation_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="relationId != null">relation_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="relationUserId != null and relationUserId != ''">relation_user_id,</if>
+            <if test="relationType != null and relationType != ''">relation_type,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="relationId != null">#{relationId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="relationUserId != null and relationUserId != ''">#{relationUserId},</if>
+            <if test="relationType != null and relationType != ''">#{relationType},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserRelationInfo" parameterType="UserRelationInfo">
+        update u_user_relation_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="relationUserId != null and relationUserId != ''">relation_user_id = #{relationUserId},</if>
+            <if test="relationType != null and relationType != ''">relation_type = #{relationType},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where relation_id = #{relationId}
+    </update>
+
+    <delete id="deleteUserRelationInfoByRelationId" parameterType="String">
+        delete from u_user_relation_info where relation_id = #{relationId}
+    </delete>
+
+    <delete id="deleteUserRelationInfoByRelationIds" parameterType="String">
+        delete from u_user_relation_info where relation_id in 
+        <foreach item="relationId" collection="array" open="(" separator="," close=")">
+            #{relationId}
+        </foreach>
+    </delete>
+</mapper>

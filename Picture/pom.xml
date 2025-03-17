@@ -234,6 +234,13 @@
                 <version>${picture.version}</version>
             </dependency>
 
+            <!--C端用户模块-->
+            <dependency>
+                <groupId>com.lz</groupId>
+                <artifactId>picture-user</artifactId>
+                <version>${picture.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -245,6 +252,7 @@
         <module>picture-generator</module>
         <module>picture-common</module>
         <module>picture-config</module>
+        <module>picture-user</module>
     </modules>
     <packaging>pom</packaging>
 

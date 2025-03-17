@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.user.mapper.LoginLogInfoMapper">
+    
+    <resultMap type="LoginLogInfo" id="LoginLogInfoResult">
+        <result property="infoId"    column="info_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="loginType"    column="login_type"    />
+        <result property="identifier"    column="identifier"    />
+        <result property="ipaddr"    column="ipaddr"    />
+        <result property="loginLocation"    column="login_location"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="status"    column="status"    />
+        <result property="errorCode"    column="error_code"    />
+        <result property="msg"    column="msg"    />
+        <result property="loginTime"    column="login_time"    />
+    </resultMap>
+
+    <sql id="selectLoginLogInfoVo">
+        select info_id, user_id, user_name, login_type, identifier, ipaddr, login_location, browser, os, platform, device_id, status, error_code, msg, login_time from u_login_log_info
+    </sql>
+
+    <select id="selectLoginLogInfoList" parameterType="LoginLogInfo" resultMap="LoginLogInfoResult">
+        <include refid="selectLoginLogInfoVo"/>
+        <where>  
+            <if test="infoId != null  and infoId != ''"> and info_id = #{infoId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="loginType != null  and loginType != ''"> and login_type = #{loginType}</if>
+            <if test="ipaddr != null  and ipaddr != ''"> and ipaddr like concat('%', #{ipaddr}, '%')</if>
+            <if test="loginLocation != null  and loginLocation != ''"> and login_location like concat('%', #{loginLocation}, '%')</if>
+            <if test="browser != null  and browser != ''"> and browser like concat('%', #{browser}, '%')</if>
+            <if test="os != null  and os != ''"> and os like concat('%', #{os}, '%')</if>
+            <if test="platform != null  and platform != ''"> and platform like concat('%', #{platform}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="errorCode != null  and errorCode != ''"> and error_code = #{errorCode}</if>
+            <if test="msg != null  and msg != ''"> and msg = #{msg}</if>
+            <if test="params.beginLoginTime != null and params.beginLoginTime != '' and params.endLoginTime != null and params.endLoginTime != ''"> and login_time between #{params.beginLoginTime} and #{params.endLoginTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectLoginLogInfoByInfoId" parameterType="String" resultMap="LoginLogInfoResult">
+        <include refid="selectLoginLogInfoVo"/>
+        where info_id = #{infoId}
+    </select>
+
+    <insert id="insertLoginLogInfo" parameterType="LoginLogInfo">
+        insert into u_login_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="infoId != null">info_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="loginType != null and loginType != ''">login_type,</if>
+            <if test="identifier != null">identifier,</if>
+            <if test="ipaddr != null and ipaddr != ''">ipaddr,</if>
+            <if test="loginLocation != null">login_location,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="errorCode != null">error_code,</if>
+            <if test="msg != null and msg != ''">msg,</if>
+            <if test="loginTime != null">login_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="infoId != null">#{infoId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="loginType != null and loginType != ''">#{loginType},</if>
+            <if test="identifier != null">#{identifier},</if>
+            <if test="ipaddr != null and ipaddr != ''">#{ipaddr},</if>
+            <if test="loginLocation != null">#{loginLocation},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="errorCode != null">#{errorCode},</if>
+            <if test="msg != null and msg != ''">#{msg},</if>
+            <if test="loginTime != null">#{loginTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLoginLogInfo" parameterType="LoginLogInfo">
+        update u_login_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="loginType != null and loginType != ''">login_type = #{loginType},</if>
+            <if test="identifier != null">identifier = #{identifier},</if>
+            <if test="ipaddr != null and ipaddr != ''">ipaddr = #{ipaddr},</if>
+            <if test="loginLocation != null">login_location = #{loginLocation},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="errorCode != null">error_code = #{errorCode},</if>
+            <if test="msg != null and msg != ''">msg = #{msg},</if>
+            <if test="loginTime != null">login_time = #{loginTime},</if>
+        </trim>
+        where info_id = #{infoId}
+    </update>
+
+    <delete id="deleteLoginLogInfoByInfoId" parameterType="String">
+        delete from u_login_log_info where info_id = #{infoId}
+    </delete>
+
+    <delete id="deleteLoginLogInfoByInfoIds" parameterType="String">
+        delete from u_login_log_info where info_id in 
+        <foreach item="infoId" collection="array" open="(" separator="," close=")">
+            #{infoId}
+        </foreach>
+    </delete>
+</mapper>

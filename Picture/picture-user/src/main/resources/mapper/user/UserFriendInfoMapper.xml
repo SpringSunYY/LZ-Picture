@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.user.mapper.UserFriendInfoMapper">
+    
+    <resultMap type="UserFriendInfo" id="UserFriendInfoResult">
+        <result property="relationId"    column="relation_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="friendUserId"    column="friend_user_id"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectUserFriendInfoVo">
+        select relation_id, user_id, friend_user_id, create_time from u_user_friend_info
+    </sql>
+
+    <select id="selectUserFriendInfoList" parameterType="UserFriendInfo" resultMap="UserFriendInfoResult">
+        <include refid="selectUserFriendInfoVo"/>
+        <where>  
+            <if test="relationId != null  and relationId != ''"> and relation_id = #{relationId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="friendUserId != null  and friendUserId != ''"> and friend_user_id = #{friendUserId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserFriendInfoByRelationId" parameterType="String" resultMap="UserFriendInfoResult">
+        <include refid="selectUserFriendInfoVo"/>
+        where relation_id = #{relationId}
+    </select>
+
+    <insert id="insertUserFriendInfo" parameterType="UserFriendInfo">
+        insert into u_user_friend_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="relationId != null">relation_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="friendUserId != null and friendUserId != ''">friend_user_id,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="relationId != null">#{relationId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="friendUserId != null and friendUserId != ''">#{friendUserId},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserFriendInfo" parameterType="UserFriendInfo">
+        update u_user_friend_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="friendUserId != null and friendUserId != ''">friend_user_id = #{friendUserId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where relation_id = #{relationId}
+    </update>
+
+    <delete id="deleteUserFriendInfoByRelationId" parameterType="String">
+        delete from u_user_friend_info where relation_id = #{relationId}
+    </delete>
+
+    <delete id="deleteUserFriendInfoByRelationIds" parameterType="String">
+        delete from u_user_friend_info where relation_id in 
+        <foreach item="relationId" collection="array" open="(" separator="," close=")">
+            #{relationId}
+        </foreach>
+    </delete>
+</mapper>
