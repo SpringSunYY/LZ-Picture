@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.user.mapper.UserBindingInfoMapper">
+    
+    <resultMap type="UserBindingInfo" id="UserBindingInfoResult">
+        <result property="bindingId"    column="binding_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="bindingType"    column="binding_type"    />
+        <result property="identifier"    column="identifier"    />
+        <result property="extendConfig"    column="extend_config"    />
+        <result property="bindingTime"    column="binding_time"    />
+    </resultMap>
+
+    <sql id="selectUserBindingInfoVo">
+        select binding_id, user_id, binding_type, identifier, extend_config, binding_time from u_user_binding_info
+    </sql>
+
+    <select id="selectUserBindingInfoList" parameterType="UserBindingInfo" resultMap="UserBindingInfoResult">
+        <include refid="selectUserBindingInfoVo"/>
+        <where>  
+            <if test="bindingId != null  and bindingId != ''"> and binding_id = #{bindingId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="bindingType != null  and bindingType != ''"> and binding_type = #{bindingType}</if>
+            <if test="params.beginBindingTime != null and params.beginBindingTime != '' and params.endBindingTime != null and params.endBindingTime != ''"> and binding_time between #{params.beginBindingTime} and #{params.endBindingTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserBindingInfoByBindingId" parameterType="String" resultMap="UserBindingInfoResult">
+        <include refid="selectUserBindingInfoVo"/>
+        where binding_id = #{bindingId}
+    </select>
+
+    <insert id="insertUserBindingInfo" parameterType="UserBindingInfo">
+        insert into u_user_binding_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bindingId != null">binding_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="bindingType != null">binding_type,</if>
+            <if test="identifier != null and identifier != ''">identifier,</if>
+            <if test="extendConfig != null">extend_config,</if>
+            <if test="bindingTime != null">binding_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bindingId != null">#{bindingId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="bindingType != null">#{bindingType},</if>
+            <if test="identifier != null and identifier != ''">#{identifier},</if>
+            <if test="extendConfig != null">#{extendConfig},</if>
+            <if test="bindingTime != null">#{bindingTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserBindingInfo" parameterType="UserBindingInfo">
+        update u_user_binding_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="bindingType != null">binding_type = #{bindingType},</if>
+            <if test="identifier != null and identifier != ''">identifier = #{identifier},</if>
+            <if test="extendConfig != null">extend_config = #{extendConfig},</if>
+            <if test="bindingTime != null">binding_time = #{bindingTime},</if>
+        </trim>
+        where binding_id = #{bindingId}
+    </update>
+
+    <delete id="deleteUserBindingInfoByBindingId" parameterType="String">
+        delete from u_user_binding_info where binding_id = #{bindingId}
+    </delete>
+
+    <delete id="deleteUserBindingInfoByBindingIds" parameterType="String">
+        delete from u_user_binding_info where binding_id in 
+        <foreach item="bindingId" collection="array" open="(" separator="," close=")">
+            #{bindingId}
+        </foreach>
+    </delete>
+</mapper>

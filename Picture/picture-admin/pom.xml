@@ -65,6 +65,15 @@
             <groupId>com.lz</groupId>
             <artifactId>picture-user</artifactId>
         </dependency>
+
+
+        <!--C端用户权限模块-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-user-auth</artifactId>
+            <version>${picture.version}</version>
+        </dependency>
+
         <!--新增-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -241,6 +241,13 @@
                 <version>${picture.version}</version>
             </dependency>
 
+            <!--C端用户权限模块-->
+            <dependency>
+                <groupId>com.lz</groupId>
+                <artifactId>picture-user-auth</artifactId>
+                <version>${picture.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -253,6 +260,7 @@
         <module>picture-common</module>
         <module>picture-config</module>
         <module>picture-user</module>
+        <module>picture-user-auth</module>
     </modules>
     <packaging>pom</packaging>
 
