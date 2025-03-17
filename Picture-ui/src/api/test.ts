@@ -24,7 +24,7 @@ export function login(
     uuid,
   }
   return http({
-    url: '/login',
+    url: '/user/auth/login',
     headers: {
       isToken: false,
       repeatSubmit: false,

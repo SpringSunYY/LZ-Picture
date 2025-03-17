@@ -5,7 +5,7 @@ import com.lz.common.utils.StringUtils;
 /**
  * 字符串格式化
  * 
- * @author ruoyi
+ * @author YY
  */
 public class StrFormatter
 {

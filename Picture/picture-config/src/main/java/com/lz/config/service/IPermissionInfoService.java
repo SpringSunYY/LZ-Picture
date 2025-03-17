@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * 权限信息Service接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 public interface IPermissionInfoService extends IService<PermissionInfo>

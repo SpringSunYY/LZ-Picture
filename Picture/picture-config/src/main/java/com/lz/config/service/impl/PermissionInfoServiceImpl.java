@@ -24,7 +24,7 @@ import com.lz.config.model.vo.permissionInfo.PermissionInfoVo;
 /**
  * 权限信息Service业务层处理
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @Slf4j

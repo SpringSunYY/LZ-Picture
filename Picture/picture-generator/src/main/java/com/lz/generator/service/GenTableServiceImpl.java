@@ -43,7 +43,7 @@ import com.lz.generator.util.VelocityUtils;
 /**
  * 业务 服务层实现
  * 
- * @author ruoyi
+ * @author YY
  */
 @Service
 public class GenTableServiceImpl implements IGenTableService

@@ -6,7 +6,7 @@ import com.lz.system.model.domain.SysConfig;
 /**
  * 参数配置 数据层
  * 
- * @author ruoyi
+ * @author YY
  */
 public interface SysConfigMapper
 {

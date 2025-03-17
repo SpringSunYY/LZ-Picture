@@ -37,7 +37,7 @@ import com.lz.common.core.page.TableDataInfo;
 /**
  * 通知模版Controller
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-03-14
  */
 @RestController

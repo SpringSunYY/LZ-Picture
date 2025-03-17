@@ -12,7 +12,7 @@ import com.lz.config.model.domain.I18nLocaleInfo;
 /**
  * 国际化国家Query对象 c_i18n_locale_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @Data

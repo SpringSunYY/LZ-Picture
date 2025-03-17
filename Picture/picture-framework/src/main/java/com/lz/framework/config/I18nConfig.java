@@ -12,7 +12,7 @@ import com.lz.common.constant.Constants;
 /**
  * 资源文件配置加载
  * 
- * @author ruoyi
+ * @author YY
  */
 @Configuration
 public class I18nConfig implements WebMvcConfigurer

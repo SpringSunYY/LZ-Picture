@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * 通知模版Mapper接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-03-14
  */
 public interface InformTemplateInfoMapper extends BaseMapper<InformTemplateInfo>

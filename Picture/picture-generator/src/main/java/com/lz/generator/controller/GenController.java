@@ -41,7 +41,7 @@ import com.lz.generator.service.IGenTableService;
 /**
  * 代码生成 操作处理
  * 
- * @author ruoyi
+ * @author YY
  */
 @RestController
 @RequestMapping("/tool/gen")

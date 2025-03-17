@@ -25,7 +25,7 @@ import com.lz.config.model.vo.i18nKeyInfo.I18nKeyInfoVo;
 /**
  * 国际化键名Service业务层处理
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @Slf4j

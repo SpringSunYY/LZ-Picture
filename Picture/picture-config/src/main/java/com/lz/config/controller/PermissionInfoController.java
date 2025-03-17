@@ -30,7 +30,7 @@ import com.lz.common.utils.poi.ExcelUtil;
 /**
  * 权限信息Controller
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @RestController

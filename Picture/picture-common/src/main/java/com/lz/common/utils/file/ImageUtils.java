@@ -16,7 +16,7 @@ import com.lz.common.utils.StringUtils;
 /**
  * 图片处理工具类
  *
- * @author ruoyi
+ * @author YY
  */
 public class ImageUtils
 {

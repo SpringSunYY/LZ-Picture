@@ -10,7 +10,7 @@ import com.lz.system.service.ISysNoticeService;
 /**
  * 公告 服务层实现
  * 
- * @author ruoyi
+ * @author YY
  */
 @Service
 public class SysNoticeServiceImpl implements ISysNoticeService

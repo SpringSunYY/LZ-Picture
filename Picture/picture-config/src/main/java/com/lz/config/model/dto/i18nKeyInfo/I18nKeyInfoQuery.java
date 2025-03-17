@@ -12,7 +12,7 @@ import com.lz.config.model.domain.I18nKeyInfo;
 /**
  * 国际化键名Query对象 c_i18n_key_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @Data

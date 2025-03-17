@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * 通知模版Query对象 c_inform_template_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-03-15
  */
 @Data

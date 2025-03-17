@@ -3,6 +3,7 @@ package com.lz.framework.web.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,8 +19,9 @@ import com.lz.system.service.ISysUserService;
 /**
  * 用户验证处理
  *
- * @author ruoyi
+ * @author YY
  */
+@Primary
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService
 {
@@ -37,6 +39,7 @@ public class UserDetailsServiceImpl implements UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
     {
+        System.out.println("42 username = " + username);
         SysUser user = userService.selectUserByUserName(username);
         if (StringUtils.isNull(user))
         {

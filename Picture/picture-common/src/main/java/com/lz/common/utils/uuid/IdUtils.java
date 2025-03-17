@@ -3,7 +3,7 @@ package com.lz.common.utils.uuid;
 /**
  * ID生成器工具类
  *
- * @author ruoyi
+ * @author YY
  */
 public class IdUtils {
     private static final long WORKER_ID = 1; // 工作节点ID

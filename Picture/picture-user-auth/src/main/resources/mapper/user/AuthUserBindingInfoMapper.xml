@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.userauth.mapper.AuthUserBindingInfoMapper">
+    
+    <resultMap type="AuthUserBindingInfo" id="AuthUserBindingInfoResult">
+        <result property="bindingId"    column="binding_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="bindingType"    column="binding_type"    />
+        <result property="identifier"    column="identifier"    />
+        <result property="extendConfig"    column="extend_config"    />
+        <result property="bindingTime"    column="binding_time"    />
+    </resultMap>
+
+    <sql id="selectUserBindingInfoVo">
+        select binding_id, user_id, binding_type, identifier, extend_config, binding_time from u_user_binding_info
+    </sql>
+
+</mapper>

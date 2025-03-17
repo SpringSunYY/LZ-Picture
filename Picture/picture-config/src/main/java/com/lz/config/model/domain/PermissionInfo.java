@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * 权限信息对象 c_permission_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @TableName("c_permission_info")

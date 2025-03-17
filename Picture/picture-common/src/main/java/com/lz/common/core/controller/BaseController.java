@@ -24,7 +24,7 @@ import com.lz.common.utils.sql.SqlUtil;
 /**
  * web层通用数据处理
  * 
- * @author ruoyi
+ * @author YY
  */
 public class BaseController
 {

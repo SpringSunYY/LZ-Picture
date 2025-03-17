@@ -29,7 +29,7 @@ import com.lz.common.core.page.TableDataInfo;
 /**
  * 国际化信息Controller
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @RestController

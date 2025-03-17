@@ -2,6 +2,7 @@ package com.lz.framework.web.service;
 
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +33,7 @@ import com.lz.system.service.ISysUserService;
 /**
  * 登录校验方法
  * 
- * @author ruoyi
+ * @author YY
  */
 @Component
 public class SysLoginService
@@ -41,6 +42,7 @@ public class SysLoginService
     private TokenService tokenService;
 
     @Resource
+    @Qualifier("authenticationManager")
     private AuthenticationManager authenticationManager;
 
     @Autowired

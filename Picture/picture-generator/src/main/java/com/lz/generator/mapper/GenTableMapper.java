@@ -6,7 +6,7 @@ import com.lz.generator.model.domain.GenTable;
 /**
  * 业务 数据层
  * 
- * @author ruoyi
+ * @author YY
  */
 public interface GenTableMapper
 {

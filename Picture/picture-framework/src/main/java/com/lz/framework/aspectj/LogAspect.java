@@ -34,7 +34,7 @@ import com.lz.system.model.domain.SysOperLog;
 /**
  * 操作日志记录处理
  * 
- * @author ruoyi
+ * @author YY
  */
 @Aspect
 @Component

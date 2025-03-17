@@ -16,7 +16,7 @@ import com.lz.generator.model.domain.GenTableColumn;
 /**
  * 模板处理工具类
  *
- * @author ruoyi
+ * @author YY
  */
 public class VelocityUtils
 {

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * 国际化信息Mapper接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 public interface I18nMessageInfoMapper extends BaseMapper<I18nMessageInfo>

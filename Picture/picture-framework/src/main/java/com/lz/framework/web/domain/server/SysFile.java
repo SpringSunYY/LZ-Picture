@@ -3,7 +3,7 @@ package com.lz.framework.web.domain.server;
 /**
  * 系统文件相关信息
  * 
- * @author ruoyi
+ * @author YY
  */
 public class SysFile
 {

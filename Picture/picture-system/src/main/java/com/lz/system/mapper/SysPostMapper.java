@@ -6,7 +6,7 @@ import com.lz.system.model.domain.SysPost;
 /**
  * 岗位信息 数据层
  * 
- * @author ruoyi
+ * @author YY
  */
 public interface SysPostMapper
 {

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * 国际化键名Mapper接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 public interface I18nKeyInfoMapper extends BaseMapper<I18nKeyInfo>

@@ -22,7 +22,7 @@ import com.lz.common.utils.ip.IpUtils;
 /**
  * 限流处理
  *
- * @author ruoyi
+ * @author YY
  */
 @Aspect
 @Component

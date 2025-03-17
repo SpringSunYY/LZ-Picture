@@ -7,7 +7,7 @@ import com.lz.system.model.domain.SysUserRole;
 /**
  * 用户与角色关联表 数据层
  * 
- * @author ruoyi
+ * @author YY
  */
 public interface SysUserRoleMapper
 {

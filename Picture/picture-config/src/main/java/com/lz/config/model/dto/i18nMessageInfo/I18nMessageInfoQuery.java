@@ -12,7 +12,7 @@ import com.lz.config.model.domain.I18nMessageInfo;
 /**
  * 国际化信息Query对象 c_i18n_message_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @Data

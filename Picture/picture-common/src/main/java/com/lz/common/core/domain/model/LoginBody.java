@@ -3,7 +3,7 @@ package com.lz.common.core.domain.model;
 /**
  * 用户登录对象
  * 
- * @author ruoyi
+ * @author YY
  */
 public class LoginBody
 {

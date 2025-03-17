@@ -22,7 +22,7 @@ import com.lz.system.service.ISysMenuService;
 /**
  * 登录验证
  * 
- * @author ruoyi
+ * @author YY
  */
 @RestController
 public class SysLoginController

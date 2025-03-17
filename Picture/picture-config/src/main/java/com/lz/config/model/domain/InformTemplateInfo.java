@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * 通知模版对象 c_inform_template_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-03-15
  */
 @TableName("c_inform_template_info")

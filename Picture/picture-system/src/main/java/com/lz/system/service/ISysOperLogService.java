@@ -6,7 +6,7 @@ import com.lz.system.model.domain.SysOperLog;
 /**
  * 操作日志 服务层
  * 
- * @author ruoyi
+ * @author YY
  */
 public interface ISysOperLogService
 {

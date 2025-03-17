@@ -28,7 +28,7 @@ import com.lz.system.service.ISysRoleService;
 /**
  * 角色 业务层处理
  * 
- * @author ruoyi
+ * @author YY
  */
 @Service
 public class SysRoleServiceImpl implements ISysRoleService

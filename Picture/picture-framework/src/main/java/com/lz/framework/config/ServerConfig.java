@@ -7,7 +7,7 @@ import com.lz.common.utils.ServletUtils;
 /**
  * 服务相关配置
  * 
- * @author ruoyi
+ * @author YY
  */
 @Component
 public class ServerConfig

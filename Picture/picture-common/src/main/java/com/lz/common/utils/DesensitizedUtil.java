@@ -3,7 +3,7 @@ package com.lz.common.utils;
 /**
  * 脱敏工具类
  *
- * @author ruoyi
+ * @author YY
  */
 public class DesensitizedUtil
 {

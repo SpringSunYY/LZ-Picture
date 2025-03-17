@@ -25,7 +25,7 @@ import com.lz.system.service.ISysDictTypeService;
 /**
  * 数据字典信息
  * 
- * @author ruoyi
+ * @author YY
  */
 @RestController
 @RequestMapping("/system/dict/type")

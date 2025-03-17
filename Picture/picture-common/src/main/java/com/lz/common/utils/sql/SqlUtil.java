@@ -6,7 +6,7 @@ import com.lz.common.utils.StringUtils;
 /**
  * sql操作工具类
  * 
- * @author ruoyi
+ * @author YY
  */
 public class SqlUtil
 {

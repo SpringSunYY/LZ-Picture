@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * 国际化国家对象 c_i18n_locale_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @TableName("c_i18n_locale_info")

@@ -5,7 +5,7 @@ import com.lz.common.utils.StringUtils;
 /**
  * 缓存信息
  * 
- * @author ruoyi
+ * @author YY
  */
 public class SysCache
 {

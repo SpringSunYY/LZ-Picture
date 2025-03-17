@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * 国际化键名Service接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 public interface II18nKeyInfoService extends IService<I18nKeyInfo>

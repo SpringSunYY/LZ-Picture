@@ -6,7 +6,7 @@ import com.lz.system.model.domain.SysUserOnline;
 /**
  * 在线用户 服务层
  * 
- * @author ruoyi
+ * @author YY
  */
 public interface ISysUserOnlineService
 {

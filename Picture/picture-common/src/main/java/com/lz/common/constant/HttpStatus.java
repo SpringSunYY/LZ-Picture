@@ -3,7 +3,7 @@ package com.lz.common.constant;
 /**
  * 返回状态码
  * 
- * @author ruoyi
+ * @author YY
  */
 public class HttpStatus
 {

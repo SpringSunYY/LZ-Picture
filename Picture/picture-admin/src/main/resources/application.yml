@@ -97,6 +97,7 @@ token:
   secret: abcdefghijklmnopqrstuvwxyz
   # 令牌有效期（默认30分钟）
   expireTime: 30
+  soloLogin: false
 
 # PageHelper分页插件
 pagehelper:
@@ -117,6 +118,7 @@ springdoc:
       display-name: '测试模块'
       paths-to-match: '/**'
       packages-to-scan: com.lz.web.controller.tool
+
 
 # 防止XSS攻击
 xss:

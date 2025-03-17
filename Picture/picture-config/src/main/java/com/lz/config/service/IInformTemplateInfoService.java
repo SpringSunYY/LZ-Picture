@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * 通知模版Service接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-03-14
  */
 public interface IInformTemplateInfoService extends IService<InformTemplateInfo> {

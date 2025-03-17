@@ -21,7 +21,7 @@ import com.lz.system.service.ISysUserService;
 /**
  * 注册校验方法
  * 
- * @author ruoyi
+ * @author YY
  */
 @Component
 public class SysRegisterService

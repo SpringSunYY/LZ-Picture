@@ -9,7 +9,7 @@ import com.lz.config.model.domain.PermissionInfo;
 /**
  * 权限信息Vo对象 c_permission_info
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 @Data

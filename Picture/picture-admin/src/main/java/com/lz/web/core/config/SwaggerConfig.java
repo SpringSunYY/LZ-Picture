@@ -14,7 +14,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 /**
  * Swagger2的接口配置
  * 
- * @author ruoyi
+ * @author YY
  */
 @Configuration
 public class SwaggerConfig

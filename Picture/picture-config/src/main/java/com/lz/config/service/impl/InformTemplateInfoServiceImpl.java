@@ -29,7 +29,7 @@ import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoVo;
 /**
  * 通知模版Service业务层处理
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-03-14
  */
 @Service

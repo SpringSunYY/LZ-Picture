@@ -15,7 +15,7 @@ import com.lz.common.utils.StringUtils;
 /**
  * Filter配置
  *
- * @author ruoyi
+ * @author YY
  */
 @Configuration
 public class FilterConfig

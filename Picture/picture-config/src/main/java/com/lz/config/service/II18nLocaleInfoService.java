@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * 国际化国家Service接口
  *
- * @author ruoyi
+ * @author YY
  * @date 2025-02-28
  */
 public interface II18nLocaleInfoService extends IService<I18nLocaleInfo>

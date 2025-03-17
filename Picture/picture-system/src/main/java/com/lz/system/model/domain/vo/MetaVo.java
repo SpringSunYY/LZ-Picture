@@ -5,7 +5,7 @@ import com.lz.common.utils.StringUtils;
 /**
  * 路由显示信息
  * 
- * @author ruoyi
+ * @author YY
  */
 public class MetaVo
 {

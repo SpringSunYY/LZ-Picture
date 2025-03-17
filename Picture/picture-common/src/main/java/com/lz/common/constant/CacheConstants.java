@@ -3,7 +3,7 @@ package com.lz.common.constant;
 /**
  * 缓存的key 常量
  * 
- * @author ruoyi
+ * @author YY
  */
 public class CacheConstants
 {
