@@ -9,6 +9,7 @@ import com.lz.common.utils.ip.AddressUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.framework.web.domain.LoginUserInfo;
+import com.lz.userauth.model.domain.AuthUserInfo;
 import eu.bitwalker.useragentutils.UserAgent;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -35,15 +36,15 @@ public class UserInfoTokenService
     private static final Logger log = LoggerFactory.getLogger(UserInfoTokenService.class);
 
     // 令牌自定义标识
-    @Value("${token.header}")
+    @Value("${token.user.header}")
     private String header;
 
     // 令牌秘钥
-    @Value("${token.secret}")
+    @Value("${token.user.secret}")
     private String secret;
 
     // 令牌有效期（默认30分钟）
-    @Value("${token.expireTime}")
+    @Value("${token.user.expireTime}")
     private int expireTime;
 
     protected static final long MILLIS_SECOND = 1000;
@@ -51,6 +52,13 @@ public class UserInfoTokenService
     protected static final long MILLIS_MINUTE = 60 * MILLIS_SECOND;
 
     private static final Long MILLIS_MINUTE_TEN = 20 * 60 * 1000L;
+
+    protected static final String LOGIN_USER_KEY = "user:login:";
+
+    /**
+     * 令牌前缀
+     */
+    public static final String TOKEN_PREFIX = "UserBearer ";
 
     @Resource
     private RedisCache redisCache;
@@ -70,7 +78,7 @@ public class UserInfoTokenService
             {
                 Claims claims = parseToken(token);
                 // 解析对应的权限以及用户信息
-                String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
+                String uuid = (String) claims.get(LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 LoginUserInfo user = redisCache.getCacheObject(userKey);
                 return user;
@@ -118,9 +126,8 @@ public class UserInfoTokenService
         loginUser.setToken(token);
         setUserAgent(loginUser);
         refreshToken(loginUser);
-
         Map<String, Object> claims = new HashMap<>();
-        claims.put(Constants.LOGIN_USER_KEY, token);
+        claims.put(LOGIN_USER_KEY, token);
         return createToken(claims);
     }
 
@@ -147,6 +154,10 @@ public class UserInfoTokenService
      */
     public void refreshToken(LoginUserInfo loginUser)
     {
+        AuthUserInfo user = loginUser.getUser();
+        user.setPassword(null);
+        user.setSalt(null);
+        loginUser.setUser(user);
         loginUser.setLoginTime(System.currentTimeMillis());
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
         // 根据uuid将loginUser缓存
@@ -218,15 +229,15 @@ public class UserInfoTokenService
     private String getToken(HttpServletRequest request)
     {
         String token = request.getHeader(header);
-        if (StringUtils.isNotEmpty(token) && token.startsWith(Constants.TOKEN_PREFIX))
+        if (StringUtils.isNotEmpty(token) && token.startsWith(TOKEN_PREFIX))
         {
-            token = token.replace(Constants.TOKEN_PREFIX, "");
+            token = token.replace(TOKEN_PREFIX, "");
         }
         return token;
     }
 
     private String getTokenKey(String uuid)
     {
-        return CacheConstants.LOGIN_TOKEN_KEY + uuid;
+        return LOGIN_USER_KEY + uuid;
     }
 }

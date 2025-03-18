@@ -41,7 +41,7 @@ http.interceptors.request.use(
 
     // 添加 token
     if (!isToken && getToken()) {
-      config.headers['Authorization'] = 'Bearer ' + getToken()
+      config.headers['Authorization'] = 'UserBearer ' + getToken()
     }
 
     // get请求映射params参数

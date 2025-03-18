@@ -98,7 +98,12 @@ token:
   # 令牌有效期（默认30分钟）
   expireTime: 30
   soloLogin: false
-
+  user:
+    # 令牌有效期（默认30分钟）
+    expireTime: 300
+    header: Authorization
+    secret: abcdefghijklmnopqrstuvwxyz
+    soloLogin: 30
 # PageHelper分页插件
 pagehelper:
   helperDialect: mysql

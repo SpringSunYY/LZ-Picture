@@ -26,15 +26,12 @@ import java.util.Set;
 @Slf4j
 @Service("userInfoDetailsService")
 public class UserInfoDetailsServiceImpl implements UserDetailsService {
-    @Resource
-    private UserInfoTokenService userTokenService;
 
     @Resource
     private IAuthUserInfoService authUserInfoService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.err.println("userInfo userName" + username);
         AuthUserInfo user = authUserInfoService.selectUserInfoByUserName(username);
         if (StringUtils.isNull(user)) {
             log.info("登录用户：{} 不存在.", username);
@@ -43,9 +40,6 @@ public class UserInfoDetailsServiceImpl implements UserDetailsService {
             log.info("登录用户：{} 已被禁用.", username);
             throw new ServiceException(MessageUtils.message("user.password.delete"));
         }
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        System.out.println("user = " + user);
-        //        customerPasswordService.validate(user);
         Set<String> userPermission = authUserInfoService.getUserPermission(user);
         return createLoginUser(user, userPermission);
     }
