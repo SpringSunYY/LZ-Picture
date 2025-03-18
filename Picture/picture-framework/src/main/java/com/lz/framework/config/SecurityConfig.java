@@ -1,5 +1,6 @@
 package com.lz.framework.config;
 
+import com.lz.framework.security.auth.MultiAuthProvider;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,6 +25,8 @@ import com.lz.framework.security.filter.JwtAuthenticationTokenFilter;
 import com.lz.framework.security.handle.AuthenticationEntryPointImpl;
 import com.lz.framework.security.handle.LogoutSuccessHandlerImpl;
 
+import java.util.Collections;
+
 /**
  * spring security配置
  *
@@ -42,6 +45,9 @@ public class SecurityConfig {
     @Resource
     @Qualifier("userInfoDetailsService")
     private UserDetailsService userInfoDetailsService;
+
+    @Resource
+    private MultiAuthProvider multiAuthProvider;
 
     /**
      * 认证失败处理类
@@ -88,12 +94,8 @@ public class SecurityConfig {
 
 
     @Bean(name = "userInfoAuthenticationManager")
-    @Primary
-    public AuthenticationManager userInfoAuthenticationManager()   {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userInfoDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());// 加密密码存储
-        return new ProviderManager(daoAuthenticationProvider);
+    public AuthenticationManager userInfoAuthenticationManager() {
+        return new ProviderManager(Collections.singletonList(multiAuthProvider));
     }
 
     /**
