@@ -21,8 +21,7 @@ import com.lz.system.service.ISysUserService;
  *
  * @author YY
  */
-@Primary
-@Service
+@Service("userDetailsService")
 public class UserDetailsServiceImpl implements UserDetailsService
 {
     private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
@@ -39,7 +38,7 @@ public class UserDetailsServiceImpl implements UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
     {
-        System.out.println("42 username = " + username);
+        System.err.println("user userName");
         SysUser user = userService.selectUserByUserName(username);
         if (StringUtils.isNull(user))
         {

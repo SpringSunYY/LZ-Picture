@@ -1,5 +1,6 @@
 package com.lz.framework.config;
 
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -34,9 +35,13 @@ public class SecurityConfig {
     /**
      * 自定义用户认证逻辑
      */
-    @Autowired
-    @Qualifier("userDetailsServiceImpl")
+    @Resource
+    @Qualifier("userDetailsService")
     private UserDetailsService userDetailsService;
+
+    @Resource
+    @Qualifier("userInfoDetailsService")
+    private UserDetailsService userInfoDetailsService;
 
     /**
      * 认证失败处理类
@@ -73,11 +78,21 @@ public class SecurityConfig {
     /**
      * 身份验证实现
      */
-    @Bean("authenticationManager")
+    @Bean(name = "authenticationManager")
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
+        return new ProviderManager(daoAuthenticationProvider);
+    }
+
+
+    @Bean(name = "userInfoAuthenticationManager")
+    @Primary
+    public AuthenticationManager userInfoAuthenticationManager()   {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userInfoDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());// 加密密码存储
         return new ProviderManager(daoAuthenticationProvider);
     }
 

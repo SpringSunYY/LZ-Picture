@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -46,9 +47,11 @@ public class UserInfoLoginService {
     private IAuthUserInfoService authUserInfoService;
 
 
-
     @Resource
     private UserInfoTokenService userTokenService;
+
+    @Resource(name = "userInfoAuthenticationManager")
+    private AuthenticationManager authenticationManager;
 
 
     /**
@@ -61,8 +64,39 @@ public class UserInfoLoginService {
     public String userInfoLogin(String username, String password) {
         // 登录前置校验
         loginPreCheck(username, password);
+        // 用户验证
+        Authentication authentication = null;
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+            AuthenticationContextHolder.setContext(authenticationToken);
+            // 该方法会去调用userInfoDetailsService.loadUserByUsername
+            authentication = authenticationManager.authenticate(authenticationToken);
+            authentication.getPrincipal();
+        } catch (Exception e) {
+            if (e instanceof BadCredentialsException) {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
+                throw new UserPasswordNotMatchException();
+            } else {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, e.getMessage()));
+                throw new ServiceException(e.getMessage());
+            }
+        } finally {
+            AuthenticationContextHolder.clearContext();
+        }
+        AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
+        LoginUserInfo loginUser = (LoginUserInfo) authentication.getPrincipal();
+//        recordLoginInfo(loginUser.getUserId());
+        if (!soloLogin) {
+            // 如果用户不允许多终端同时登录，清除缓存信息
+//            String userIdKey = Constants.LOGIN_USERID_KEY + loginUser.getCustomerUser().getUserId();
+//            String userKey = redisCache.getCacheObject(userIdKey);
+//            if (StringUtils.isNotEmpty(userKey)) {
+//                redisCache.deleteObject(userIdKey);
+//                redisCache.deleteObject(userKey);
+//            }
+        }
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByUserName(username);
-        if (SecurityUtils.matchesPassword(password, authUserInfo.getPassword())) {
+        if (!SecurityUtils.matchesPassword(password, authUserInfo.getPassword())) {
             throw new ServiceException("用户名或密码错误");
         }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);

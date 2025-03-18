@@ -41,8 +41,7 @@ public class SysLoginService
     @Autowired
     private TokenService tokenService;
 
-    @Resource
-    @Qualifier("authenticationManager")
+    @Resource(name = "authenticationManager")
     private AuthenticationManager authenticationManager;
 
     @Autowired
