@@ -3,8 +3,13 @@ package com.lz.web.controller.common;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import com.lz.common.constant.redis.ConfigRedisConstants;
+import com.lz.config.service.IConfigInfoService;
 import jakarta.annotation.Resource;
+
 import javax.imageio.ImageIO;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -40,12 +45,16 @@ public class CaptchaController {
     @Autowired
     private ISysConfigService configService;
 
+    @Resource
+    private IConfigInfoService configInfoService;
+
     /**
      * 生成验证码
      */
     @GetMapping("/admin/captchaImage")
     public AjaxResult getAdminCode(HttpServletResponse response) throws IOException {
-        return getCode();
+        boolean captchaEnabled = configService.selectCaptchaEnabled();
+        return getCode(captchaEnabled);
     }
 
     /**
@@ -53,12 +62,13 @@ public class CaptchaController {
      */
     @GetMapping("/user/captchaImage")
     public AjaxResult getUserInfoCode(HttpServletResponse response) throws IOException {
-        return getCode();
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        boolean captchaEnabled = "true".equals(configInfoCache);
+        return getCode(captchaEnabled);
     }
 
-    private AjaxResult getCode() {
+    private AjaxResult getCode(boolean captchaEnabled) {
         AjaxResult ajax = AjaxResult.success();
-        boolean captchaEnabled = configService.selectCaptchaEnabled();
         ajax.put("captchaEnabled", captchaEnabled);
         if (!captchaEnabled) {
             return ajax;

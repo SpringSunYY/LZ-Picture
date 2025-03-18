@@ -18,4 +18,9 @@ public class ConfigRedisConstants {
      * Localization 国际化
      */
     public static final String CONFIG_LOCALIZATION = "config:localization:";
+
+    /**
+     * 是否需要验证码
+     */
+    public static final String USER_LOGIN_CAPTCHA_ENABLED = "user:login:captchaEnabled";
 }

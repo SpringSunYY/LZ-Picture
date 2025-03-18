@@ -84,13 +84,13 @@ public interface IConfigInfoService extends IService<ConfigInfo> {
     List<ConfigInfoVo> convertVoList(List<ConfigInfo> configInfoList);
 
     /**
-     * description: 根据配置名称获取配置值
+     * description: 根据配置key获取配置值
      * author: YY
      * method: getConfigInfoCache
      * date: 2025/2/28 21:44
      * param:
-     * param: configName
+     * param: configKey key
      * return: java.lang.String
      **/
-    public String getConfigInfoCache(String configName);
+    public String getConfigInfoCache(String configKey);
 }

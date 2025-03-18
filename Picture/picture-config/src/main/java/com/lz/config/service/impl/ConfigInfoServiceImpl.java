@@ -1,5 +1,6 @@
 package com.lz.config.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.redis.RedisCache;
@@ -181,20 +182,20 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
 
 
     @Override
-    public String getConfigInfoCache(String configName) {
+    public String getConfigInfoCache(String configKey) {
         //先根据名称获取缓存
-        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + configName);
+        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + configKey);
         if (StringUtils.isNotEmpty(cacheObject)) {
             return cacheObject;
         }
         //如果没有则查数据库
-        ConfigInfo configInfo = configInfoMapper.selectOne(new QueryWrapper<ConfigInfo>().eq("config_name", configName));
+        ConfigInfo configInfo = configInfoMapper.selectOne(new LambdaQueryWrapper<ConfigInfo>().eq(ConfigInfo::getConfigKey, configKey));
         if (StringUtils.isNull(configInfo)) {
             //如果没有则返回空
             return "";
         }
         //数据库如果有则存缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configName, configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configKey, configInfo.getConfigValue());
         return configInfo.getConfigValue();
     }
 }

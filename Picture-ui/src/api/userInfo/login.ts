@@ -1,8 +1,8 @@
-import { http } from '@/utils'
+import { http as request } from '@/utils'
 import type { API } from '@/types/common'
 
 export function getCodeImage(): Promise<API.ResponseInfo> {
-  return http({
+  return request({
     url: '/captchaImage',
     headers: {
       isToken: false,
@@ -23,7 +23,7 @@ export function login(
     code,
     uuid,
   }
-  return http({
+  return request({
     url: '/login',
     headers: {
       isToken: false,
@@ -36,14 +36,14 @@ export function login(
 
 // 获取用户详细信息
 export function getInfo(): Promise<API.ResponseUserInfo> {
-  return http({
+  return request({
     url: '/getInfo',
     method: 'get',
   })
 }
 
 export function listUser(): Promise<API.ResponseInfo> {
-  return http({
+  return request({
     url: '/system/user/list',
     method: 'get',
   })
@@ -51,8 +51,20 @@ export function listUser(): Promise<API.ResponseInfo> {
 
 // 退出方法
 export function logout() {
-  return http({
+  return request({
     url: '/logout',
     method: 'post',
+  })
+}
+
+// 获取验证码
+export function getCodeImg() {
+  return request({
+    url: '/captchaImage',
+    headers: {
+      isToken: false,
+    },
+    method: 'get',
+    timeout: 20000,
   })
 }

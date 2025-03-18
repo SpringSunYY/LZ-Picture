@@ -1,4 +1,4 @@
-import { getInfo, login, logout } from '@/api/test'
+import { getInfo, login, logout } from '@/api/userInfo/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
 import { isEmpty, isHttp } from '@/utils/validate'
 import defAva from '@/assets/images/profile.jpg'
