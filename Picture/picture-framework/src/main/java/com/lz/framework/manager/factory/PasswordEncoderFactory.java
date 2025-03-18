@@ -9,6 +9,9 @@ import org.springframework.util.DigestUtils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 自定义解密
+ */
 @Component
 public class PasswordEncoderFactory {
     private final Map<String, PasswordEncoderStrategy> strategies = new ConcurrentHashMap<>();
