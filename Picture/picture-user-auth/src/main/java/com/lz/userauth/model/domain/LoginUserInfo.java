@@ -1,7 +1,6 @@
-package com.lz.framework.web.domain;
+package com.lz.userauth.model.domain;
 
 import com.alibaba.fastjson2.annotation.JSONField;
-import com.lz.userauth.model.domain.AuthUserInfo;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

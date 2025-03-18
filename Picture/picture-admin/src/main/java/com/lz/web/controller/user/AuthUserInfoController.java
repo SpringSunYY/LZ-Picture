@@ -3,13 +3,17 @@ package com.lz.web.controller.user;
 import com.lz.common.constant.Constants;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.framework.web.domain.UserInfoLoginBody;
+import com.lz.common.core.domain.entity.SysUser;
+import com.lz.common.core.domain.model.LoginUser;
+import com.lz.userauth.controller.BaseUserInfoController;
+import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.userauth.model.domain.LoginUserInfo;
+import com.lz.userauth.model.domain.UserInfoLoginBody;
 import com.lz.framework.web.service.UserInfoLoginService;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 /**
  * 用户信息Controller
@@ -19,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/user")
-public class AuthUserInfoController extends BaseController {
+public class AuthUserInfoController extends BaseUserInfoController {
     @Resource
     private UserInfoLoginService loginService;
 
@@ -38,4 +42,14 @@ public class AuthUserInfoController extends BaseController {
         return ajax;
     }
 
+    @GetMapping("/getInfo")
+    public AjaxResult getInfo() {
+        LoginUserInfo loginUser = getLoginUser();
+        Set<String> permissions = loginUser.getPermissions();
+        AuthUserInfo user = loginUser.getUser();
+        AjaxResult ajaxResult = new AjaxResult();
+        ajaxResult.put("user", user);
+        ajaxResult.put("permissions", permissions);
+        return ajaxResult;
+    }
 }

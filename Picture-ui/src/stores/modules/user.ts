@@ -27,16 +27,14 @@ interface IUserInfoResponse {
   user: {
     userId: string
     userName: string
-    avatar?: string
+    avatarUrl?: string
   }
-  roles?: string[]
   permissions?: string[]
 }
 
 const useUserStore = defineStore('user', {
   state: (): {
     permissions: any[]
-    roles: any[]
     name: string
     id: string
     avatar: string
@@ -46,7 +44,6 @@ const useUserStore = defineStore('user', {
     id: '',
     name: '',
     avatar: '',
-    roles: [],
     permissions: [],
   }),
 
@@ -70,17 +67,9 @@ const useUserStore = defineStore('user', {
         const user = res.user
 
         // 处理头像路径
-        let avatar = user.avatar || ''
+        let avatar = user.avatarUrl || ''
         if (!isHttp(avatar)) {
           avatar = isEmpty(avatar) ? defAva : `${import.meta.env.VITE_APP_BASE_API}${avatar}`
-        }
-
-        // 处理角色和权限
-        if (res.roles?.length) {
-          this.roles = res.roles
-          this.permissions = res.permissions || []
-        } else {
-          this.roles = ['ROLE_DEFAULT']
         }
 
         // 更新用户信息
@@ -99,7 +88,6 @@ const useUserStore = defineStore('user', {
       try {
         await logout()
         this.token = ''
-        this.roles = []
         this.permissions = []
         removeToken()
       } catch (error) {

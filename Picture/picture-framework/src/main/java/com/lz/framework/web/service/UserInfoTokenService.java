@@ -1,14 +1,12 @@
 package com.lz.framework.web.service;
 
-import com.lz.common.constant.CacheConstants;
-import com.lz.common.constant.Constants;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.ServletUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.AddressUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
-import com.lz.framework.web.domain.LoginUserInfo;
+import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
 import eu.bitwalker.useragentutils.UserAgent;
 import io.jsonwebtoken.Claims;

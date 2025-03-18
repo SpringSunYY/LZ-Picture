@@ -1,10 +1,9 @@
 package com.lz.framework.web.service;
 
-import cn.hutool.core.lang.Assert;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.MessageUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.framework.web.domain.LoginUserInfo;
+import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
 import com.lz.userauth.model.enmus.UUserStatusEnum;
 import com.lz.userauth.service.IAuthUserInfoService;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
