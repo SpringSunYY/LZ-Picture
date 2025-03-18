@@ -30,7 +30,7 @@ import com.lz.system.service.ISysUserService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/user/profile")
+@RequestMapping("/admin/system/user/profile")
 public class SysProfileController extends BaseController
 {
     @Autowired

@@ -28,7 +28,7 @@ import com.lz.system.service.ISysDeptService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/dept")
+@RequestMapping("/admin/system/dept")
 public class SysDeptController extends BaseController
 {
     @Autowired

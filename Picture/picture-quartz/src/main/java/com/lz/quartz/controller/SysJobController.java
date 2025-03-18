@@ -33,7 +33,7 @@ import com.lz.quartz.util.ScheduleUtils;
  * @author YY
  */
 @RestController
-@RequestMapping("/monitor/job")
+@RequestMapping("/admin/monitor/job")
 public class SysJobController extends BaseController
 {
     @Autowired

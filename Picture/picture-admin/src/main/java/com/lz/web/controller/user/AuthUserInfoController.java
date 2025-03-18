@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2025-03-17
  */
 @RestController
-@RequestMapping("/user/auth")
+@RequestMapping("/user")
 public class AuthUserInfoController extends BaseController {
     @Resource
     private UserInfoLoginService loginService;

@@ -1,4 +1,4 @@
-package com.lz.user.controller;
+package com.lz.user.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +33,7 @@ import com.lz.common.core.page.TableDataInfo;
  * @date 2025-03-17
  */
 @RestController
-@RequestMapping("/user/userFriendInfo")
+@RequestMapping("/admin/user/userFriendInfo")
 public class UserFriendInfoController extends BaseController
 {
     @Resource

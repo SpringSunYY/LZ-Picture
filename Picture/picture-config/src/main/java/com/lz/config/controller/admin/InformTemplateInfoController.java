@@ -1,8 +1,7 @@
-package com.lz.config.controller;
+package com.lz.config.controller.admin;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson2.JSON;
@@ -11,7 +10,6 @@ import com.alibaba.fastjson2.TypeReference;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.spring.SpringUtils;
 import com.lz.config.model.dto.informTemplateInfo.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +39,7 @@ import com.lz.common.core.page.TableDataInfo;
  * @date 2025-03-14
  */
 @RestController
-@RequestMapping("/config/informTemplateInfo")
+@RequestMapping("/admin/config/informTemplateInfo")
 public class InformTemplateInfoController extends BaseController {
     @Resource
     private IInformTemplateInfoService informTemplateInfoService;

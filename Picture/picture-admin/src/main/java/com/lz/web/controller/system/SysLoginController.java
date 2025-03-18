@@ -3,10 +3,7 @@ package com.lz.web.controller.system;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.lz.common.constant.Constants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.domain.entity.SysMenu;
@@ -25,6 +22,7 @@ import com.lz.system.service.ISysMenuService;
  * @author YY
  */
 @RestController
+@RequestMapping("/admin")
 public class SysLoginController
 {
     @Autowired

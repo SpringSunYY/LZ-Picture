@@ -28,7 +28,7 @@ import com.lz.system.service.ISysPostService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/post")
+@RequestMapping("/admin/system/post")
 public class SysPostController extends BaseController
 {
     @Autowired

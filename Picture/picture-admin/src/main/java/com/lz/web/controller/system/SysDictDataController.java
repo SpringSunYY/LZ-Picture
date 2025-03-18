@@ -31,7 +31,7 @@ import com.lz.system.service.ISysDictTypeService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/dict/data")
+@RequestMapping("/admin/system/dict/data")
 public class SysDictDataController extends BaseController
 {
     @Autowired

@@ -29,7 +29,7 @@ import com.lz.system.service.ISysUserOnlineService;
  * @author YY
  */
 @RestController
-@RequestMapping("/monitor/online")
+@RequestMapping("/admin/monitor/online")
 public class SysUserOnlineController extends BaseController
 {
     @Autowired

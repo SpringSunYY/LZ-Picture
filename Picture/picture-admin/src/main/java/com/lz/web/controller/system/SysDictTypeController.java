@@ -28,7 +28,7 @@ import com.lz.system.service.ISysDictTypeService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/dict/type")
+@RequestMapping("/admin/system/dict/type")
 public class SysDictTypeController extends BaseController
 {
     @Autowired

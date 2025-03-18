@@ -26,7 +26,7 @@ import com.lz.system.service.ISysNoticeService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/notice")
+@RequestMapping("/admin/system/notice")
 public class SysNoticeController extends BaseController
 {
     @Autowired

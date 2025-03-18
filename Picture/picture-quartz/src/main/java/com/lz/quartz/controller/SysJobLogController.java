@@ -25,7 +25,7 @@ import com.lz.quartz.service.ISysJobLogService;
  * @author YY
  */
 @RestController
-@RequestMapping("/monitor/jobLog")
+@RequestMapping("/admin/monitor/jobLog")
 public class SysJobLogController extends BaseController
 {
     @Autowired

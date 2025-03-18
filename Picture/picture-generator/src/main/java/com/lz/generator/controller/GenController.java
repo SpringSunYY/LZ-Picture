@@ -44,7 +44,7 @@ import com.lz.generator.service.IGenTableService;
  * @author YY
  */
 @RestController
-@RequestMapping("/tool/gen")
+@RequestMapping("/admin/tool/gen")
 public class GenController extends BaseController
 {
     @Autowired

@@ -28,7 +28,7 @@ import com.lz.system.service.ISysConfigService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/config")
+@RequestMapping("/admin/system/config")
 public class SysConfigController extends BaseController
 {
     @Autowired

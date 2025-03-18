@@ -1,4 +1,4 @@
-package com.lz.config.controller;
+package com.lz.config.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +34,7 @@ import com.lz.common.utils.poi.ExcelUtil;
  * @date 2025-02-28
  */
 @RestController
-@RequestMapping("/config/permissionInfo")
+@RequestMapping("/admin/config/permissionInfo")
 public class PermissionInfoController extends BaseController {
     @Resource
     private IPermissionInfoService permissionInfoService;

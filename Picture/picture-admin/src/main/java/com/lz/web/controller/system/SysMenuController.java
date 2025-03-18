@@ -27,7 +27,7 @@ import com.lz.system.service.ISysMenuService;
  * @author YY
  */
 @RestController
-@RequestMapping("/system/menu")
+@RequestMapping("/admin/system/menu")
 public class SysMenuController extends BaseController
 {
     @Autowired

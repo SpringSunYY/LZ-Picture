@@ -27,7 +27,7 @@ import com.lz.framework.config.ServerConfig;
  * @author YY
  */
 @RestController
-@RequestMapping("/common")
+@RequestMapping("/admin/common")
 public class CommonController
 {
     private static final Logger log = LoggerFactory.getLogger(CommonController.class);

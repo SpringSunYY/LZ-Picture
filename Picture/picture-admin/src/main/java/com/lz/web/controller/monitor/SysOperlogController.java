@@ -25,7 +25,7 @@ import com.lz.system.service.ISysOperLogService;
  * @author YY
  */
 @RestController
-@RequestMapping("/monitor/operlog")
+@RequestMapping("/admin/monitor/operlog")
 public class SysOperlogController extends BaseController
 {
     @Autowired

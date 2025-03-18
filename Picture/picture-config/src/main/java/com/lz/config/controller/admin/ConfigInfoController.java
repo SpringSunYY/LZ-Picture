@@ -1,4 +1,4 @@
-package com.lz.config.controller;
+package com.lz.config.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +34,7 @@ import com.lz.common.core.page.TableDataInfo;
  * @date 2025-02-28
  */
 @RestController
-@RequestMapping("/config/configInfo")
+@RequestMapping("/admin/config/configInfo")
 public class ConfigInfoController extends BaseController
 {
     @Resource
