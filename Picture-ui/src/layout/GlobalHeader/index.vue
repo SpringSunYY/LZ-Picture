@@ -60,7 +60,6 @@ const user = ref<UserInfo>({
 function getUserInfo() {
   userStore.getInfo().then((res) => {
     user.value = res?.user
-    console.log('userStore.getInfo', res)
   })
 }
 

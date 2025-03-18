@@ -27,7 +27,6 @@ import com.lz.system.service.ISysConfigService;
  * @author YY
  */
 @RestController
-@RequestMapping("/admin")
 public class CaptchaController {
     @Resource(name = "captchaProducer")
     private Producer captchaProducer;
@@ -44,8 +43,20 @@ public class CaptchaController {
     /**
      * 生成验证码
      */
-    @GetMapping("/captchaImage")
-    public AjaxResult getCode(HttpServletResponse response) throws IOException {
+    @GetMapping("/admin/captchaImage")
+    public AjaxResult getAdminCode(HttpServletResponse response) throws IOException {
+        return getCode();
+    }
+
+    /**
+     * 生成验证码
+     */
+    @GetMapping("/user/captchaImage")
+    public AjaxResult getUserInfoCode(HttpServletResponse response) throws IOException {
+        return getCode();
+    }
+
+    private AjaxResult getCode() {
         AjaxResult ajax = AjaxResult.success();
         boolean captchaEnabled = configService.selectCaptchaEnabled();
         ajax.put("captchaEnabled", captchaEnabled);

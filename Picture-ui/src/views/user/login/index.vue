@@ -45,14 +45,20 @@
 
       <div class="login-footer">
         <a-checkbox v-model:checked="rememberMe">记住我</a-checkbox>
-        <router-link to="/">忘记密码？</router-link>
+        <div class="footer-links" @mouseover="showMenu = true" @mouseleave="showMenu = false">
+          <div v-if="!showMenu" class="more-text">更多</div>
+          <div v-else class="menu-links">
+            <router-link to="/user/forgetPassword">忘记密码</router-link>
+            <router-link to="/user/smsLogin">短信登录</router-link>
+            <router-link to="/user/register">注册账号</router-link>
+          </div>
+        </div>
       </div>
     </a-card>
   </div>
 </template>
 
-<script setup name="UserLogin">
-import { LockOutlined, UserOutlined } from '@ant-design/icons-vue'
+<script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
@@ -65,13 +71,13 @@ const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
 const rememberMe = ref(false)
+const showMenu = ref(false)
 
 const loginForm = ref({
   username: 'admin',
   password: 'admin123',
   rememberMe: false,
   code: '',
-  uuid: '',
 })
 
 const rules = {
@@ -84,6 +90,7 @@ const rules = {
     {
       pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
       message: '至少8位且包含字母和数字',
+      trigger: 'blur',
     },
   ],
 }
@@ -99,20 +106,17 @@ watch(
 )
 
 const handleSubmit = async () => {
-  // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
   if (loginForm.value.rememberMe) {
     Cookies.set('username', loginForm.value.username, { expires: 30 })
     Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
     Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 })
   } else {
-    // 否则移除
     Cookies.remove('username')
     Cookies.remove('password')
     Cookies.remove('rememberMe')
   }
   try {
     loading.value = true
-    // 调用action的登录方法
     userStore.login(loginForm.value).then(() => {
       const query = route.query
       const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
@@ -165,6 +169,32 @@ const handleFinishFailed = (errors) => {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .more-text {
+      padding: 0 8px;
+    }
+
+    .menu-links {
+      height: 100px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px 10px;
+      border-radius: 4px;
+      position: absolute;
+      top: -50px; /* 根据实际需求调整 */
+      right: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+    }
   }
 }
 </style>

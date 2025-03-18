@@ -1,6 +1,7 @@
 package com.lz.framework.config;
 
 import com.lz.framework.security.auth.MultiAuthProvider;
+import com.lz.framework.security.handle.UserInfoLogoutSuccessHandlerImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,8 +59,11 @@ public class SecurityConfig {
     /**
      * 退出处理类
      */
-    @Autowired
+    @Resource
     private LogoutSuccessHandlerImpl logoutSuccessHandler;
+
+    @Resource
+    private UserInfoLogoutSuccessHandlerImpl userInfoLogoutSuccessHandler;
 
     /**
      * token认证过滤器
@@ -131,7 +135,7 @@ public class SecurityConfig {
                     permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                     // 对于登录login 注册register 验证码captchaImage 允许匿名访问
                     requests.requestMatchers("/admin/login", "/admin/register", "/admin/captchaImage").permitAll()
-                            .requestMatchers("/user/login").permitAll()
+                            .requestMatchers("/user/login","user/captchaImage").permitAll()
                             // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/druid/**").permitAll()
@@ -139,7 +143,8 @@ public class SecurityConfig {
                             .anyRequest().authenticated();
                 })
                 // 添加Logout filter
-                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler))
+                .logout(logout -> logout.logoutUrl("/admin/logout").logoutSuccessHandler(logoutSuccessHandler))
+                .logout(logout -> logout.logoutUrl("/user/logout").logoutSuccessHandler(userInfoLogoutSuccessHandler))
                 // 添加JWT filter
                 .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 // 添加CORS filter

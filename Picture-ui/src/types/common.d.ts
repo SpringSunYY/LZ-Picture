@@ -6,7 +6,7 @@ export type LoginUser = {
 
 export type UserInfo = {
   userName: string
-  password: string
+  password?: string
   avatar?: string
 }
 /* eslint-disable */
