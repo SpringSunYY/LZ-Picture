@@ -119,24 +119,24 @@ http.interceptors.response.use(
     if (code === 401) {
       if (!isRelogin.show) {
         isRelogin.show = true
-        message.success('登录状态已过期，您可以继续留在该页面，或者重新登录', 5000)
+        message.warn('登录状态已过期，您可以继续留在该页面，或者重新登录', 5)
         router.push('/user/login')
       }
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     }
     // 处理 500 错误
     else if (code === 500) {
-      message.error(msg, 3000)
+      message.error(msg, 3)
       return Promise.reject(new Error(msg))
     }
     // 处理 601 错误
     else if (code === 601) {
-      message.warning(msg, 3000)
+      message.warning(msg, 3)
       return Promise.reject(new Error(msg))
     }
     // 处理其他错误
     else if (code !== 200) {
-      message.error(msg, 3000)
+      message.error(msg, 3)
       return Promise.reject('error')
     }
     // 如果没有错误，返回数据
@@ -154,7 +154,7 @@ http.interceptors.response.use(
     } else if (msg.includes('Request failed with status code')) {
       msg = '系统接口' + msg.substr(msg.length - 3) + '异常'
     }
-    message.error(msg, 3000)
+    message.error(msg, 3)
     return Promise.reject(error)
   },
 )
