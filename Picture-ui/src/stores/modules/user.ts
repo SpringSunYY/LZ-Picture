@@ -1,36 +1,10 @@
-import { getInfo, login, logout } from '@/api/userInfo/login.ts'
+import { getInfo, login, logout, smsLogin } from '@/api/userInfo/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
 import { isEmpty, isHttp } from '@/utils/validate'
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
-
-// 定义状态类型
-interface IUserState {
-  token: string
-  id: string
-  name: string
-  avatar: string
-  roles: string[]
-  permissions: string[]
-}
-
-// 定义用户登录参数类型
-interface ILoginParams {
-  username: string
-  password: string
-  code: string
-  uuid: string
-}
-
-// 定义用户信息响应类型
-interface IUserInfoResponse {
-  user: {
-    userId: string
-    userName: string
-    avatarUrl?: string
-  }
-  permissions?: string[]
-}
+import type { USER } from '@/types/user'
+import router from '@/router'
 
 const useUserStore = defineStore('user', {
   state: (): {
@@ -49,21 +23,32 @@ const useUserStore = defineStore('user', {
 
   actions: {
     // 登录操作
-    async login(userInfo: ILoginParams): Promise<void> {
-      const { username, password, code, uuid } = userInfo
+    async login(userInfo: USER.LoginParams): Promise<void> {
       try {
-        const res = await login(username, password, code, uuid)
+        const res = await login(userInfo)
         setToken(res.token)
         this.token = res.token
+        router.push('/')
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+
+    async smsLogin(userInfo: USER.SmsLoginParams): Promise<void> {
+      try {
+        const res = await smsLogin(userInfo)
+        setToken(res.token)
+        this.token = res.token
+        router.push('/')
       } catch (error) {
         return Promise.reject(error)
       }
     },
 
     // 获取用户信息
-    async getInfo(): Promise<IUserInfoResponse> {
+    async getInfo(): Promise<USER.UserInfoResponse> {
       try {
-        const res = (await getInfo()) as IUserInfoResponse
+        const res = (await getInfo()) as USER.UserInfoResponse
         const user = res.user
 
         // 处理头像路径
@@ -79,6 +64,7 @@ const useUserStore = defineStore('user', {
 
         return res
       } catch (error) {
+        router.push('/user/login')
         return Promise.reject(error)
       }
     },

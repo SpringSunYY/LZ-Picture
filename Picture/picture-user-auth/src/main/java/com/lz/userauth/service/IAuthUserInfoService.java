@@ -26,4 +26,16 @@ public interface IAuthUserInfoService extends IService<AuthUserInfo> {
     AuthUserInfo selectUserInfoByUserName(String username);
 
     Set<String> getUserPermission(AuthUserInfo user);
+
+    /**
+     * description:  根据手机号查询用户信息
+     * author: YY
+     * method: selectUserInfoByPhone
+     * date: 2025/3/19 10:00
+     * param:
+     * param: phone 手机号码
+     * param: countryCode 国家码
+     * return: com.lz.userauth.model.domain.AuthUserInfo
+     **/
+    AuthUserInfo selectUserInfoByPhone(String phone, String countryCode);
 }

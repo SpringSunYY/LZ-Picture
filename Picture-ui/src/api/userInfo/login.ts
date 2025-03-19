@@ -1,28 +1,9 @@
 import { http as request } from '@/utils'
 import type { API } from '@/types/common'
-
-export function getCodeImage(): Promise<API.ResponseInfo> {
-  return request({
-    url: '/captchaImage',
-    headers: {
-      isToken: false,
-    },
-  })
-}
+import type { USER } from '@/types/user'
 
 // 登录方法
-export function login(
-  username: string,
-  password: string,
-  code: string,
-  uuid: string,
-): Promise<API.UserResponseInfo> {
-  const data = {
-    username,
-    password,
-    code,
-    uuid,
-  }
+export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
   return request({
     url: '/login',
     headers: {
@@ -35,16 +16,9 @@ export function login(
 }
 
 // 获取用户详细信息
-export function getInfo(): Promise<API.ResponseUserInfo> {
+export function getInfo(): Promise<USER.ResponseUserInfo> {
   return request({
     url: '/getInfo',
-    method: 'get',
-  })
-}
-
-export function listUser(): Promise<API.ResponseInfo> {
-  return request({
-    url: '/system/user/list',
     method: 'get',
   })
 }
@@ -70,8 +44,7 @@ export function getCodeImg() {
 }
 
 // 获取验证码
-export function getSmsLoginCode(query: API.SmsLoginCodeQuery): Promise<API.ResponseInfo> {
-  console.log(query)
+export function getSmsLoginCode(query: USER.SmsLoginParams): Promise<API.ResponseInfo> {
   return request({
     url: '/getSmsLoginCode',
     headers: {
@@ -79,6 +52,18 @@ export function getSmsLoginCode(query: API.SmsLoginCodeQuery): Promise<API.Respo
     },
     method: 'get',
     params: query,
+    timeout: 20000,
+  })
+}
+
+export function smsLogin(query: USER.SmsLoginParams): Promise<USER.LoginResponse> {
+  return request({
+    url: '/smsLogin',
+    headers: {
+      isToken: false,
+    },
+    method: 'post',
+    data: query,
     timeout: 20000,
   })
 }

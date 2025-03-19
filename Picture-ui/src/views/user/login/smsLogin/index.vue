@@ -39,7 +39,7 @@
           <a-col :span="24">
             <a-form-item name="code">
               <div class="login-code">
-                <img :src="codeUrl" @click="getCode" class="login-code-img" alt="验证码" />
+                <img :src="codeUrl" @click="getCode" class="login-code-img" alt="图形验证码" />
               </div>
               <a-input
                 v-model:value="smsLoginForm.code"
@@ -115,7 +115,7 @@ const rules = {
     },
   ],
   smsCode: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }],
-  code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
   countryCode: [{ required: true, message: '请选择国家代码', trigger: 'change' }],
 }
 
@@ -155,7 +155,7 @@ const sendSmsCode = () => {
   // 原有发送逻辑保持不变
   getSmsLoginCode(smsLoginForm.value).then((res) => {
     if (res.code === 200) {
-      message.success('验证码已发送')
+      message.success('短信验证码已发送')
       countdown.value = 60
     } else {
       getCode()
@@ -175,7 +175,7 @@ const handleSubmit = async () => {
     // 组合国际号码
     const internationalNumber = {
       countryCode: smsLoginForm.value.countryCode,
-      phoneNumber: smsLoginForm.value.phone,
+      phone: smsLoginForm.value.phone,
       code: smsLoginForm.value.code,
       smsCode: smsLoginForm.value.smsCode,
       uuid: smsLoginForm.value.uuid,
@@ -184,8 +184,6 @@ const handleSubmit = async () => {
     await useUserStore().smsLogin(internationalNumber)
     message.success('登录成功')
   } catch (error) {
-    console.log(error)
-    message.error('登录失败')
   } finally {
     loading.value = false
   }

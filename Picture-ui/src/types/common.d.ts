@@ -16,25 +16,4 @@ declare namespace API {
     data?: object
     msg?: string
   }
-
-  interface UserResponseInfo {
-    token: string
-    rows?: Array<any>
-    data?: object
-    msg?: string
-  }
-
-  interface ResponseUserInfo {
-    user?: object
-    roles?: Array<string>
-    permissions?: Array<string>
-  }
-
-  interface SmsLoginCodeQuery {
-    countryCode?: string,
-    phone?: string,
-    smsCode?: string,
-    code?: string,
-    uuid?: string,
-  }
 }

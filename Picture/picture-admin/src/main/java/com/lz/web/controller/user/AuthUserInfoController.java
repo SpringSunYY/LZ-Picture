@@ -68,4 +68,14 @@ public class AuthUserInfoController extends BaseUserInfoController {
         System.err.println(smsLoginCode);
         return AjaxResult.success("验证码发送成功");
     }
+
+    @PostMapping("/smsLogin")
+    public AjaxResult smsLogin(@RequestBody SmsLoginBody smsLoginBody) {
+        AjaxResult ajax = AjaxResult.success();
+        System.out.println("ajax = " + smsLoginBody);
+        // 生成令牌
+        String token = loginService.smsLogin(smsLoginBody.getPhone(), smsLoginBody.getCountryCode(), smsLoginBody.getSmsCode());
+        ajax.put(Constants.TOKEN, token);
+        return ajax;
+    }
 }

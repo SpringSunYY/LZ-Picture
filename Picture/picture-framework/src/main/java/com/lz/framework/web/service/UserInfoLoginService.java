@@ -147,7 +147,7 @@ public class UserInfoLoginService {
         //校验成功发送验证码
         //随机6位数验证码
         String code = StringUtils.generateCode();
-        redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + smsLoginBody.getPhone(), code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + smsLoginBody.getCountryCode() + ":" + smsLoginBody.getPhone(), code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         // TODO 发送真正验证码
         return code;
     }
@@ -175,5 +175,31 @@ public class UserInfoLoginService {
                 throw new CaptchaException();
             }
         }
+    }
+
+    public String smsLogin(String phone, String countryCode, String smsCode) {
+        //不能为空
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(smsCode)) {
+            throw new ServiceException("号码、国家码、短信验证码不能为空");
+        }
+        //校验验证码
+        String redisKey = UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone;
+        String code = redisCache.getCacheObject(redisKey);
+        if (StringUtils.isEmpty(code)) {
+            throw new ServiceException("短信验证码已过期");
+        }
+        if (!smsCode.equalsIgnoreCase(code)) {
+            throw new ServiceException("短信验证码不正确");
+        }
+        redisCache.deleteObject(redisKey);
+        //根据国家号码编号和号码获取用户
+        AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(phone, countryCode);
+        if (StringUtils.isNull(authUserInfo)) {
+            throw new ServiceException("号码未注册");
+        }
+        Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
+        LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
+        // 生成token
+        return userTokenService.createToken(loginUserInfo);
     }
 }

@@ -37,8 +37,6 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
     private IAuthBannedPermissionInfoService bannedPermissionInfoService;
 
 
-
-
     @Override
     public AuthUserInfo selectUserInfoByUserName(String username) {
         return this.getOne(new LambdaQueryWrapper<AuthUserInfo>().eq(AuthUserInfo::getUserName, username));
@@ -62,6 +60,11 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
             }
         }
         return permissionInfos.stream().map(PermissionInfo::getPermissionName).collect(Collectors.toSet());
+    }
+
+    @Override
+    public AuthUserInfo selectUserInfoByPhone(String phone, String countryCode) {
+        return this.getOne(new LambdaQueryWrapper<AuthUserInfo>().eq(AuthUserInfo::getPhone, phone).eq(AuthUserInfo::getCountryCode, countryCode));
     }
 
 }

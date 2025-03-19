@@ -24,10 +24,17 @@ public class SmsLoginBody {
     private String phone;
 
     /**
+     * smsCode
+     */
+    private String smsCode;
+    /**
      * 验证码
      */
     private String code;
 
+    /**
+     * 是否需要验证码
+     */
     private boolean captchaEnabled;
 
     /**
