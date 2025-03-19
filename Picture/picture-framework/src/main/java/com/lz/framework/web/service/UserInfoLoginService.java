@@ -11,15 +11,15 @@ import com.lz.common.exception.user.CaptchaExpireException;
 import com.lz.common.exception.user.UserNotExistsException;
 import com.lz.common.exception.user.UserPasswordNotMatchException;
 import com.lz.common.utils.MessageUtils;
-import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.framework.security.context.AuthenticationContextHolder;
-import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.service.IAuthUserInfoService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.lz.common.utils.SecurityUtils.getLoginUser;
 import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
 
 
@@ -253,5 +254,9 @@ public class UserInfoLoginService {
             throw new ServiceException("短信验证码不正确");
         }
         redisCache.deleteObject(redisKey);
+    }
+
+    public void logout(HttpServletRequest request) {
+        userTokenService.delLoginUser(userTokenService.getToken(request));
     }
 }

@@ -23,7 +23,7 @@
         <a-form-item name="username">
           <a-input v-model:value="loginForm.username" placeholder="用户名" size="large">
             <template #prefix>
-              <user-outlined />
+              <UserSwitchOutlined />
             </template>
           </a-input>
         </a-form-item>
@@ -31,7 +31,7 @@
         <a-form-item name="password">
           <a-input-password v-model:value="loginForm.password" placeholder="密码" size="large">
             <template #prefix>
-              <lock-outlined />
+              <LockOutlined />
             </template>
           </a-input-password>
         </a-form-item>
@@ -59,6 +59,7 @@
 </template>
 
 <script setup>
+import { UserSwitchOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
@@ -80,7 +81,7 @@ const loginForm = ref({
   code: '',
 })
 // 注册开关
-const register = ref(true);
+const register = ref(true)
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },

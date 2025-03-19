@@ -1,6 +1,6 @@
 import { http as request } from '@/utils'
 import type { API } from '@/types/common'
-import type { RegisterParams, USER } from '@/types/user'
+import type { USER } from '@/types/user'
 
 // 登录方法
 export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
@@ -54,16 +54,16 @@ export function getSmsLoginCode(query: USER.SmsLoginParams): Promise<API.Respons
     params: query,
     timeout: 20000,
   })
-}// 获取短信注册验证码
+} // 获取短信注册验证码
 export function getRegisterCode(query: USER.RegisterParams): Promise<API.ResponseInfo> {
   return request({
     url: '/getRegisterCode',
     headers: {
-      isToken: false
+      isToken: false,
     },
     method: 'get',
     params: query,
-    timeout: 20000
+    timeout: 20000,
   })
 }
 

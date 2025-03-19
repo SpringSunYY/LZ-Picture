@@ -224,7 +224,7 @@ public class UserInfoTokenService
      * @param request
      * @return token
      */
-    private String getToken(HttpServletRequest request)
+    protected String getToken(HttpServletRequest request)
     {
         String token = request.getHeader(header);
         if (StringUtils.isNotEmpty(token) && token.startsWith(TOKEN_PREFIX))

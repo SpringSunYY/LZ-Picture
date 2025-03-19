@@ -14,6 +14,7 @@ import com.lz.userauth.model.register.RegisterLoginBody;
 import com.lz.userauth.model.sms.SmsLoginBody;
 import com.lz.userauth.service.IAuthUserInfoService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -139,5 +140,11 @@ public class AuthUserInfoController extends BaseUserInfoController {
         String token = loginService.userInfoLogin(userInfo.getUserName(), registerLoginBody.getPassword());
         ajax.put(Constants.TOKEN, token);
         return ajax;
+    }
+
+    @PostMapping("/logout")
+    public AjaxResult logout(HttpServletRequest request) {
+        loginService.logout(request);
+        return AjaxResult.success();
     }
 }
