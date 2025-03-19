@@ -41,7 +41,7 @@ nbdist/
 *.log
 *.xml.versionsBackup
 *.swp
-
+/picture-admin/src/main/resources/application-config.properties
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml

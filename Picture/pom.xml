@@ -39,6 +39,8 @@
         <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
         <lombok.version>1.18.30</lombok.version>
         <hutool.version>5.8.18</hutool.version>
+        <aliyun.core.version>4.0.6</aliyun.core.version>
+        <aliyun.sdk.version>2.0.0</aliyun.sdk.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -189,6 +191,16 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-core</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-core</artifactId>
+                <version>${aliyun.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+                <version>${aliyun.sdk.version}</version>
             </dependency>
 
             <!--框架代码-->
