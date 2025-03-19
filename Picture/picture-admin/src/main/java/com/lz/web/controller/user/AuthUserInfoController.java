@@ -1,9 +1,12 @@
 package com.lz.web.controller.user;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.lz.common.constant.Constants;
 import com.lz.common.constant.redis.ConfigRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ip.IpUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import com.lz.userauth.model.domain.AuthUserInfo;
@@ -13,10 +16,12 @@ import com.lz.framework.web.service.UserInfoLoginService;
 import com.lz.userauth.model.register.RegisterLoginBody;
 import com.lz.userauth.model.sms.SmsLoginBody;
 import com.lz.userauth.service.IAuthUserInfoService;
+import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -144,6 +149,15 @@ public class AuthUserInfoController extends BaseUserInfoController {
 
     @PostMapping("/logout")
     public AjaxResult logout(HttpServletRequest request) {
+        LoginUserInfo loginUser = UserInfoSecurityUtils.getLoginUser();
+        LambdaUpdateWrapper<AuthUserInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(AuthUserInfo::getLastLoginTime, new Date())
+                .set(AuthUserInfo::getLastLoginIp, IpUtils.getIpAddr(request))
+                .eq(AuthUserInfo::getUserId, loginUser.getUser().getUserId());
+        boolean update = authUserInfoService.update(null, updateWrapper);// 传入wrapper
+        if (!update) {
+            return AjaxResult.error("退出失败");
+        }
         loginService.logout(request);
         return AjaxResult.success();
     }
