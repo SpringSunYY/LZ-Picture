@@ -17,13 +17,22 @@
       <a-form :model="smsLoginForm" :rules="rules" @finish="handleSubmit">
         <a-row :gutter="16">
           <a-col :span="8">
-            <!-- 新增国家代码选择 -->
             <a-form-item name="countryCode">
-              <a-select v-model:value="smsLoginForm.countryCode" size="large" placeholder="+86">
-                <a-select-option value="+86">+86</a-select-option>
-                <a-select-option value="+1">+1</a-select-option>
-                <a-select-option value="+44">+44</a-select-option>
-                <!-- 更多国家... -->
+              <a-select
+                v-model:value="smsLoginForm.countryCode"
+                size="large"
+                placeholder="+86"
+                show-search
+                option-filter-prop="label"
+              >
+                <a-select-option
+                  v-for="country in countryList"
+                  :key="country.dialCode"
+                  :value="country.dialCode"
+                  :label="`${country.name} ${country.dialCode}`"
+                >
+                  {{ country.flag }} {{ country.dialCode }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -36,18 +45,20 @@
               </a-input>
             </a-form-item>
           </a-col>
-          <a-col :span="24">
+          <a-col :span="8">
             <a-form-item name="code">
               <div class="login-code">
                 <img :src="codeUrl" @click="getCode" class="login-code-img" alt="图形验证码" />
               </div>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item name="code">
               <a-input
                 v-model:value="smsLoginForm.code"
-                placeholder="验证码"
+                placeholder="图形验证码"
                 size="large"
-                style="width: 65%; margin-left: 20px"
-              >
-              </a-input>
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -102,6 +113,14 @@ const captchaEnabled = ref(true)
 const register = ref(true)
 let timer = null
 
+// 国家码数据
+const countryList = ref([
+  { code: 'CN', name: '中国', dialCode: '+86', flag: '🇨🇳' },
+  { code: 'US', name: '美国', dialCode: '+1', flag: '🇺🇸' },
+  { code: 'GB', name: '英国', dialCode: '+44', flag: '🇬🇧' },
+  // 添加更多国家...
+])
+
 // 修改验证规则
 const rules = {
   phone: [
@@ -148,7 +167,7 @@ const sendSmsCode = () => {
   }
 
   if (!smsLoginForm.value.code) {
-    message.error('请先输入短信验证码')
+    message.error('请先输入图形验证码')
     return
   }
 
@@ -213,18 +232,11 @@ getCode()
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
     .login-code {
-      width: 30%;
-      height: 20px;
-      float: left;
+      align-items: center;
 
-      img {
-        cursor: pointer;
-        vertical-align: middle;
-      }
-
-      .login-code-img {
+      &-img {
         height: 40px;
-        padding-right: 13px;
+        cursor: pointer;
       }
     }
   }
@@ -243,7 +255,7 @@ getCode()
   .login-footer {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    //margin-top: 20px;
   }
 }
 </style>

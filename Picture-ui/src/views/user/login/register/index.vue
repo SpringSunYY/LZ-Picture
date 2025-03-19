@@ -9,68 +9,106 @@
             </div>
           </a-col>
           <a-col :span="12" style="align-content: center">
-            <h2>注册</h2>
+            <h2>荔枝云图库注册</h2>
           </a-col>
         </a-row>
       </div>
-
-      <a-form
-        :model="registerForm"
-        :rules="rules"
-        @finish="handleSubmit"
-        @finishFailed="handleFinishFailed"
-      >
-        <a-form-item name="username">
-          <a-input v-model:value="registerForm.username" placeholder="用户名" size="large">
-            <template #prefix>
-              <UserOutlined />
-            </template>
-          </a-input>
-        </a-form-item>
-
-        <a-form-item name="phone">
-          <a-input v-model:value="registerForm.phone" placeholder="手机号" size="large">
-            <template #prefix>
-              <PhoneOutlined />
-            </template>
-          </a-input>
-        </a-form-item>
-
-        <a-form-item name="smsCode">
-          <a-input v-model:value="registerForm.smsCode" placeholder="验证码" size="large">
-            <template #suffix>
-              <a-button type="primary" :disabled="countdown > 0" @click="sendSmsCode">
-                {{ countdown > 0 ? countdown + '秒' : '发送验证码' }}
+      <a-form :model="registerForm" :rules="rules" @finish="handleSubmit">
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <!-- 国家码 + 手机号 -->
+            <a-form-item name="countryCode">
+              <a-select
+                v-model:value="registerForm.countryCode"
+                size="large"
+                placeholder="+86"
+                show-search
+                option-filter-prop="label"
+              >
+                <a-select-option
+                  v-for="country in countryList"
+                  :key="country.dialCode"
+                  :value="country.dialCode"
+                  :label="`${country.name} ${country.dialCode}`"
+                >
+                  {{ country.flag }} {{ country.dialCode }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item name="phone">
+              <a-input v-model:value="registerForm.phone" placeholder="手机号" size="large">
+                <template #prefix>
+                  <PhoneOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <!-- 图形验证码 -->
+            <a-form-item name="code">
+              <div class="login-code">
+                <img :src="codeUrl" @click="getCode" class="login-code-img" alt="图形验证码" />
+              </div>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item name="code">
+              <a-input v-model:value="registerForm.code" placeholder="图形验证码" size="large" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <!-- 短信验证码 -->
+            <a-form-item name="smsCode">
+              <a-input v-model:value="registerForm.smsCode" placeholder="短信验证码" size="large">
+                <template #suffix>
+                  <a-button type="primary" :disabled="countdown > 0" @click="sendSmsCode">
+                    {{ countdown > 0 ? countdown + '秒' : '发送验证码' }}
+                  </a-button>
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <!-- 密码 -->
+            <a-form-item name="password">
+              <a-input-password
+                v-model:value="registerForm.password"
+                placeholder="密码"
+                size="large"
+              >
+                <template #prefix>
+                  <LockOutlined />
+                </template>
+              </a-input-password>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <!-- 确认密码 -->
+            <a-form-item name="confirmPassword">
+              <a-col :span="24">
+                <a-input-password
+                  v-model:value="registerForm.confirmPassword"
+                  placeholder="确认密码"
+                  size="large"
+                >
+                  <template #prefix>
+                    <LockOutlined />
+                  </template>
+                </a-input-password>
+              </a-col>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <!-- 提交按钮 -->
+            <a-form-item>
+              <a-button type="primary" html-type="submit" block size="large" :loading="loading">
+                注册
               </a-button>
-            </template>
-          </a-input>
-        </a-form-item>
-
-        <a-form-item name="password">
-          <a-input-password v-model:value="registerForm.password" placeholder="密码" size="large">
-            <template #prefix>
-              <LockOutlined />
-            </template>
-          </a-input-password>
-        </a-form-item>
-
-        <a-form-item name="confirmPassword">
-          <a-input-password
-            v-model:value="registerForm.confirmPassword"
-            placeholder="确认密码"
-            size="large"
-          >
-            <template #prefix>
-              <LockOutlined />
-            </template>
-          </a-input-password>
-        </a-form-item>
-
-        <a-form-item>
-          <a-button type="primary" html-type="submit" block size="large" :loading="loading">
-            注册
-          </a-button>
-        </a-form-item>
+            </a-form-item>
+          </a-col>
+        </a-row>
       </a-form>
 
       <div class="login-footer">
@@ -82,25 +120,41 @@
 </template>
 
 <script setup name="UserRegister">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
-import { UserOutlined, PhoneOutlined, LockOutlined } from '@ant-design/icons-vue'
+import { PhoneOutlined, LockOutlined } from '@ant-design/icons-vue'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user.ts'
+import { getCodeImg } from '@/api/userInfo/login.js'
 
 const router = useRouter()
 const loading = ref(false)
 const countdown = ref(0)
+const codeUrl = ref('')
+const captchaEnabled = ref(true)
 let timer = null
 
+// 国家码数据
+const countryList = ref([
+  { code: 'CN', name: '中国', dialCode: '+86', flag: '🇨🇳' },
+  { code: 'US', name: '美国', dialCode: '+1', flag: '🇺🇸' },
+  { code: 'GB', name: '英国', dialCode: '+44', flag: '🇬🇧' },
+  // 添加更多国家...
+])
+
+// 表单数据
 const registerForm = ref({
-  username: '',
+  countryCode: '+86',
   phone: '',
   smsCode: '',
   password: '',
   confirmPassword: '',
+  code: '',
+  uuid: '',
 })
 
+// 验证规则
 const validateConfirmPassword = (rule, value) => {
   if (value !== registerForm.value.password) {
     return Promise.reject('两次密码不一致')
@@ -109,15 +163,18 @@ const validateConfirmPassword = (rule, value) => {
 }
 
 const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 16, message: '长度4-16个字符', trigger: 'blur' },
-  ],
+  countryCode: [{ required: true, message: '请选择国家码', trigger: 'change' }],
   phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+    {
+      validator: (_, value) => {
+        const fullNumber = registerForm.value.countryCode + value
+        const phoneNumber = parsePhoneNumberFromString(fullNumber)
+        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('无效的国际手机号')
+      },
+      trigger: 'blur',
+    },
   ],
-  smsCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  smsCode: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
@@ -130,42 +187,69 @@ const rules = {
     { required: true, message: '请确认密码', trigger: 'blur' },
     { validator: validateConfirmPassword, trigger: 'blur' },
   ],
+  code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
 }
 
+// 图形验证码
+const getCode = () => {
+  if (!captchaEnabled.value) return
+  getCodeImg().then((res) => {
+    captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
+    if (captchaEnabled.value) {
+      codeUrl.value = 'data:image/gif;base64,' + res.img
+      registerForm.value.uuid = res.uuid
+    }
+  })
+}
+
+// 发送短信验证码
 const sendSmsCode = () => {
-  if (!registerForm.value.phone) {
-    message.error('请先输入手机号')
+  // 验证国际号码
+  const fullNumber = registerForm.value.countryCode + registerForm.value.phone
+  const phoneNumber = parsePhoneNumberFromString(fullNumber)
+
+  if (!phoneNumber?.isValid()) {
+    message.error('手机号格式错误')
     return
   }
-  // 调用发送短信验证码的接口，这里示例用 message 提示
+
+  if (!registerForm.value.code) {
+    message.error('请先输入图形验证码')
+    return
+  }
+
+  // 调用发送接口
   message.success('验证码已发送')
   countdown.value = 60
   timer = setInterval(() => {
     countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(timer)
-    }
+    if (countdown.value <= 0) clearInterval(timer)
   }, 1000)
 }
 
+// 提交注册
 const handleSubmit = async () => {
   loading.value = true
   try {
-    // 调用注册接口，可在 userStore 中实现具体逻辑
-    await useUserStore().register(registerForm.value)
+    // 组合国际号码
+    const internationalNumber = {
+      ...registerForm.value,
+      phone: registerForm.value.countryCode + registerForm.value.phone,
+    }
+
+    await useUserStore().register(internationalNumber)
     message.success('注册成功')
     router.push('/login')
   } catch (error) {
-    console.log(error)
+    console.error(error)
     message.error('注册失败')
   } finally {
     loading.value = false
   }
 }
 
-const handleFinishFailed = (errors) => {
-  console.log('验证失败:', errors)
-}
+// 初始化获取图形验证码
+onMounted(getCode)
 </script>
 
 <style scoped lang="scss">
@@ -180,23 +264,36 @@ const handleFinishFailed = (errors) => {
     width: 500px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .login-code {
+      align-items: center;
+
+      &-img {
+        height: 40px;
+        cursor: pointer;
+      }
+    }
   }
 
   .login-header {
     text-align: center;
-    margin-bottom: 30px;
-  }
+    margin-bottom: 10px;
 
-  .logo img {
-    width: 50px;
-    height: auto;
-    margin: 15px 0;
+    .logo img {
+      width: 50px;
+      height: auto;
+      margin: 15px 0;
+    }
   }
 
   .login-footer {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    //margin-top: 20px;
+  }
+
+  .ant-select {
+    width: 100%;
   }
 }
 </style>
