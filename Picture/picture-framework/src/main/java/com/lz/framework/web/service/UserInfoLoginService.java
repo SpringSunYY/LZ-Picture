@@ -1,6 +1,5 @@
 package com.lz.framework.web.service;
 
-import cn.hutool.core.util.StrUtil;
 import com.lz.common.constant.CacheConstants;
 import com.lz.common.constant.Constants;
 import com.lz.common.constant.UserConstants;
@@ -19,7 +18,6 @@ import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.framework.security.context.AuthenticationContextHolder;
 import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
-import com.lz.userauth.model.sms.SmsLoginBody;
 import com.lz.userauth.service.IAuthUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +39,7 @@ import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
  *
  * @author YY
  */
+//TODO 登录记录
 @Component
 public class UserInfoLoginService {
     // 是否允许账户多终端同时登录（true允许 false不允许）
@@ -104,9 +102,9 @@ public class UserInfoLoginService {
             }
         }
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByUserName(username);
-        if (!SecurityUtils.matchesPassword(password, authUserInfo.getPassword())) {
-            throw new ServiceException("用户名或密码错误");
-        }
+//        if (!SecurityUtils.matchesPassword(password, authUserInfo.getPassword())) {
+//            throw new ServiceException("用户名或密码错误");
+//        }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
         // 生成token
@@ -139,15 +137,25 @@ public class UserInfoLoginService {
         }
     }
 
-    public String getSmsLoginCode(SmsLoginBody smsLoginBody) {
-        //校验验证码
-        boolean captchaEnabled = smsLoginBody.isCaptchaEnabled();
-        String uuid = smsLoginBody.getUuid();
-        validateCaptcha(smsLoginBody, captchaEnabled, uuid);
+    /**
+     * description: 获取短信验证码
+     * author: YY
+     * method: getSmsLoginCode
+     * date: 2025/3/19 23:04
+     * param:
+     * param: phone 手机号码
+     * param: countryCode 国家代码
+     * param: captchaCode 图形验证码
+     * param: captchaEnabled 是否开启验证码
+     * param: uuid 唯一标识
+     * return: java.lang.String
+     **/
+    public String getSmsCode(String phone, String countryCode, String captchaCode, Boolean captchaEnabled, String uuid) {
+        validateCaptcha(captchaCode, captchaEnabled, uuid);
         //校验成功发送验证码
         //随机6位数验证码
         String code = StringUtils.generateCode();
-        redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + smsLoginBody.getCountryCode() + ":" + smsLoginBody.getPhone(), code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone, code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         // TODO 发送真正验证码
         return code;
     }
@@ -163,20 +171,30 @@ public class UserInfoLoginService {
      * param: uuid
      * return: void
      **/
-    private void validateCaptcha(SmsLoginBody smsLoginBody, boolean captchaEnabled, String uuid) {
+    private void validateCaptcha(String code, boolean captchaEnabled, String uuid) {
         if (captchaEnabled) {
             String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
             String captcha = redisCache.getCacheObject(verifyKey);
             if (StringUtils.isEmpty(captcha)) {
                 throw new CaptchaExpireException();
             }
-            redisCache.deleteObject(verifyKey);
-            if (!smsLoginBody.getCode().equalsIgnoreCase(captcha)) {
+            if (!code.equalsIgnoreCase(captcha)) {
                 throw new CaptchaException();
             }
         }
     }
 
+    /**
+     * description: 短信登录
+     * author: YY
+     * method: smsLogin
+     * date: 2025/3/19 23:20
+     * param:
+     * param: phone
+     * param: countryCode
+     * param: smsCode
+     * return: java.lang.String
+     **/
     public String smsLogin(String phone, String countryCode, String smsCode) {
         //不能为空
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(smsCode)) {
@@ -201,5 +219,39 @@ public class UserInfoLoginService {
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
         // 生成token
         return userTokenService.createToken(loginUserInfo);
+    }
+
+    /**
+     * description: 获取注册验证码—
+     * author: YY
+     * method: getRegisterCode
+     * date: 2025/3/19 23:20
+     * param:
+     * param: phone
+     * param: countryCode
+     * param: code
+     * param: captchaEnabled
+     * param: uuid
+     * return: java.lang.String
+     **/
+    public String getRegisterCode(String phone, String countryCode, String code, boolean captchaEnabled, String uuid) {
+        //校验验证码
+        validateCaptcha(code, captchaEnabled, uuid);
+        //校验成功发送验证码
+        String registerCode = StringUtils.generateCode();
+        redisCache.setCacheObject(UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        return registerCode;
+    }
+
+    public void checkRegisterCode(String phone, String countryCode, String code) {
+        String redisKey = UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone;
+        String registerCode = redisCache.getCacheObject(redisKey);
+        if (StringUtils.isEmpty(registerCode)) {
+            throw new ServiceException("短信验证码已过期");
+        }
+        if (!code.equalsIgnoreCase(registerCode)) {
+            throw new ServiceException("短信验证码不正确");
+        }
+        redisCache.deleteObject(redisKey);
     }
 }

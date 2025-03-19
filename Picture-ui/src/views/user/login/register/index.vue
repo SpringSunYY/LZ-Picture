@@ -45,7 +45,7 @@
               </a-input>
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="8" v-if="captchaEnabled">
             <!-- 图形验证码 -->
             <a-form-item name="code">
               <div class="login-code">
@@ -53,7 +53,7 @@
               </div>
             </a-form-item>
           </a-col>
-          <a-col :span="16">
+          <a-col :span="16" v-if="captchaEnabled">
             <a-form-item name="code">
               <a-input v-model:value="registerForm.code" placeholder="图形验证码" size="large" />
             </a-form-item>
@@ -120,13 +120,13 @@
 </template>
 
 <script setup name="UserRegister">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
-import { PhoneOutlined, LockOutlined } from '@ant-design/icons-vue'
+import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user.ts'
-import { getCodeImg } from '@/api/userInfo/login.js'
+import { getCodeImg, getRegisterCode } from '@/api/userInfo/login.js'
 
 const router = useRouter()
 const loading = ref(false)
@@ -143,14 +143,13 @@ const countryList = ref([
   // 添加更多国家...
 ])
 
-// 表单数据
+// 注册页面
 const registerForm = ref({
   countryCode: '+86',
   phone: '',
   smsCode: '',
-  password: '',
-  confirmPassword: '',
-  code: '',
+  password: '', // 移除 confirmPassword
+  code: '', // 根据业务需要决定是否保留
   uuid: '',
 })
 
@@ -218,9 +217,16 @@ const sendSmsCode = () => {
     return
   }
 
-  // 调用发送接口
-  message.success('验证码已发送')
-  countdown.value = 60
+  // 原有发送逻辑保持不变
+  getRegisterCode(registerForm.value).then((res) => {
+    if (res.code === 200) {
+      message.success('短信验证码已发送')
+      countdown.value = 60
+    } else {
+      getCode()
+      message.error(res.msg)
+    }
+  })
   timer = setInterval(() => {
     countdown.value--
     if (countdown.value <= 0) clearInterval(timer)
@@ -231,17 +237,17 @@ const sendSmsCode = () => {
 const handleSubmit = async () => {
   loading.value = true
   try {
-    // 组合国际号码
-    const internationalNumber = {
-      ...registerForm.value,
-      phone: registerForm.value.countryCode + registerForm.value.phone,
+    const form = {
+      password: registerForm.value.password,
+      countryCode: registerForm.value.countryCode,
+      phone: registerForm.value.phone,
+      smsCode: registerForm.value.smsCode,
+      confirmPassword: registerForm.value.confirmPassword,
     }
-
-    await useUserStore().register(internationalNumber)
+    await useUserStore().register(form)
     message.success('注册成功')
-    router.push('/login')
+    router.push('/')
   } catch (error) {
-    console.error(error)
     message.error('注册失败')
   } finally {
     loading.value = false

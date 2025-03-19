@@ -92,7 +92,7 @@ public class UserInfoSecurityUtils {
      * @param encoded md5加密后的密码
      * @return
      */
-    public boolean matchesMd5Password(String raw, String encoded) {
+    public static boolean matchesMd5Password(String raw, String encoded) {
         return DigestUtils.md5DigestAsHex(raw.getBytes()).equals(encoded);
     }
 
@@ -102,7 +102,7 @@ public class UserInfoSecurityUtils {
      * @param raw 真实密码
      * @return
      */
-    public String encodeMd5Password(String raw) {
+    public static String encodeMd5Password(String raw) {
         return DigestUtils.md5DigestAsHex(raw.getBytes());
     }
 

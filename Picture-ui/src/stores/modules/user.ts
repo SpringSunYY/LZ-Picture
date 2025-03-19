@@ -1,4 +1,4 @@
-import { getInfo, login, logout, smsLogin } from '@/api/userInfo/login.ts'
+import { getInfo, login, logout, register, smsLogin } from '@/api/userInfo/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
 import { isEmpty, isHttp } from '@/utils/validate'
 import defAva from '@/assets/images/profile.jpg'
@@ -45,6 +45,18 @@ const useUserStore = defineStore('user', {
       }
     },
 
+    async register(userInfo: USER.RegisterParams): Promise<void> {
+      try {
+        console.log(userInfo)
+        const res = await register(userInfo)
+        setToken(res.token)
+        this.token = res.token
+        router.push('/')
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+
     // 获取用户信息
     async getInfo(): Promise<USER.UserInfoResponse> {
       try {
@@ -75,6 +87,7 @@ const useUserStore = defineStore('user', {
         await logout()
         this.token = ''
         this.permissions = []
+        //TODO 退出登录后续操作
         removeToken()
       } catch (error) {
         return Promise.reject(error)

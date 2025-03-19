@@ -45,14 +45,14 @@
               </a-input>
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="8" v-if="captchaEnabled">
             <a-form-item name="code">
               <div class="login-code">
                 <img :src="codeUrl" @click="getCode" class="login-code-img" alt="图形验证码" />
               </div>
             </a-form-item>
           </a-col>
-          <a-col :span="16">
+          <a-col :span="16" v-if="captchaEnabled">
             <a-form-item name="code">
               <a-input
                 v-model:value="smsLoginForm.code"

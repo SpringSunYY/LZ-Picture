@@ -52,7 +52,7 @@ public class CaptchaController {
      * 生成验证码
      */
     @GetMapping("/admin/captchaImage")
-    public AjaxResult getAdminCode(HttpServletResponse response) throws IOException {
+    public AjaxResult getAdminCaptchaCode(HttpServletResponse response) throws IOException {
         boolean captchaEnabled = configService.selectCaptchaEnabled();
         return getCode(captchaEnabled);
     }
@@ -61,7 +61,7 @@ public class CaptchaController {
      * 生成验证码
      */
     @GetMapping("/user/captchaImage")
-    public AjaxResult getUserInfoCode(HttpServletResponse response) throws IOException {
+    public AjaxResult getUserInfoCaptchaCode(HttpServletResponse response) throws IOException {
         String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         return getCode(captchaEnabled);

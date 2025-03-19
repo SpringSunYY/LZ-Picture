@@ -10,7 +10,7 @@ export type UserInfo = {
   avatar?: string
 }
 /* eslint-disable */
-declare namespace USER {
+export namespace USER {
   interface ResponseInfo {
     data?: object
     msg?: string
@@ -47,6 +47,16 @@ declare namespace USER {
     countryCode: string
     phone: string
     smsCode: string
+    code?: string
+    uuid?: string
+  }
+
+  export interface RegisterParams {
+    countryCode: string
+    phone: string
+    smsCode: string
+    password: string
+    confirmPassword: string
     code?: string
     uuid?: string
   }

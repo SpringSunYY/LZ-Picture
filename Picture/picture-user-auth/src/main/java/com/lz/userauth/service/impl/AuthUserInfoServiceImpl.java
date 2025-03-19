@@ -1,20 +1,28 @@
 package com.lz.userauth.service.impl;
 
+import com.alibaba.fastjson2.internal.asm.ASMUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.domain.PermissionInfo;
 import com.lz.config.service.IPermissionInfoService;
 import com.lz.userauth.mapper.AuthUserInfoMapper;
 import com.lz.userauth.model.domain.AuthBannedPermissionInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
 import com.lz.userauth.model.enmus.UBannedPermissionStatusEnum;
+import com.lz.userauth.model.enmus.UUserStatusEnum;
+import com.lz.userauth.model.register.RegisterLoginBody;
 import com.lz.userauth.service.IAuthBannedPermissionInfoService;
 import com.lz.userauth.service.IAuthUserInfoService;
+import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,6 +73,34 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
     @Override
     public AuthUserInfo selectUserInfoByPhone(String phone, String countryCode) {
         return this.getOne(new LambdaQueryWrapper<AuthUserInfo>().eq(AuthUserInfo::getPhone, phone).eq(AuthUserInfo::getCountryCode, countryCode));
+    }
+
+    @Override
+    public AuthUserInfo register(RegisterLoginBody registerLoginBody) {
+        String countryCode = registerLoginBody.getCountryCode();
+        String phone = registerLoginBody.getPhone();
+        String password = registerLoginBody.getPassword();
+
+        AuthUserInfo authUserInfo = new AuthUserInfo();
+        authUserInfo.setPassword(password);
+        //随机为用户设置加密方式 md5、bcrypt 随机数，如果是1，则使用bcrypt加密，否则使用md5加密
+        if (new Random().nextInt(2) == 1) {
+            authUserInfo.setPassword(UserInfoSecurityUtils.encodeEncryptPassword(password));
+            authUserInfo.setSalt("bcrypt");
+        } else {
+            authUserInfo.setPassword(UserInfoSecurityUtils.encodeMd5Password(password));
+            authUserInfo.setSalt("md5");
+        }
+        authUserInfo.setPhone(phone);
+        authUserInfo.setCountryCode(countryCode);
+        authUserInfo.setUserName("LZ-" + phone);
+        authUserInfo.setNickName("LZ-" + phone);
+        authUserInfo.setStatus(UUserStatusEnum.USER_STATUS_0.getValue());
+        authUserInfo.setCreateTime(DateUtils.getNowDate());
+        authUserInfo.setUserId(IdUtils.fastSimpleUUID());
+        authUserInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        authUserInfoMapper.insert(authUserInfo);
+        return authUserInfo;
     }
 
 }

@@ -10,9 +10,13 @@ package com.lz.common.constant.redis;
  */
 public class UserRedisConstants {
     /**
-     * 登录验证码
+     * 登录短信验证码
      */
     public static final String USER_SMS_LOGIN_CODE = "user:sms:login:code:";
+    /**
+     * 注册短信验证码
+     */
+    public static final String USER_SMS_REGISTER_CODE = "user:sms:register:code:";
 
     /**
      * 登录验证码超时时间

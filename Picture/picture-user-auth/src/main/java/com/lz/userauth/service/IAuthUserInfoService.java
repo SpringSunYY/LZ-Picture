@@ -2,6 +2,7 @@ package com.lz.userauth.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.userauth.model.register.RegisterLoginBody;
 
 import java.util.Set;
 
@@ -38,4 +39,6 @@ public interface IAuthUserInfoService extends IService<AuthUserInfo> {
      * return: com.lz.userauth.model.domain.AuthUserInfo
      **/
     AuthUserInfo selectUserInfoByPhone(String phone, String countryCode);
+
+    AuthUserInfo register(RegisterLoginBody registerLoginBody);
 }
