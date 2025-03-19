@@ -29,4 +29,12 @@ declare namespace API {
     roles?: Array<string>
     permissions?: Array<string>
   }
+
+  interface SmsLoginCodeQuery {
+    countryCode?: string,
+    phone?: string,
+    smsCode?: string,
+    code?: string,
+    uuid?: string,
+  }
 }

@@ -48,7 +48,7 @@
         <div class="footer-links" @mouseover="showMenu = true" @mouseleave="showMenu = false">
           <div v-if="!showMenu" class="more-text">更多</div>
           <div v-else class="menu-links">
-            <span href="/user/forgetPassword">忘记密码</span>
+            <router-link to="/user/forgetPassword">忘记密码</router-link>
             <router-link to="/user/smsLogin">短信登录</router-link>
             <router-link v-if="register" to="/user/register">注册账号</router-link>
           </div>

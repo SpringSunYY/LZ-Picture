@@ -1,11 +1,6 @@
 package com.lz.common.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -611,5 +606,14 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             template = template.replace("${" + key + "}", !value.equals("null") ? value : "${" + key + "}");
         }
         return template;
+    }
+
+    /**
+     * 生成6位随机数
+     *
+     * @return
+     */
+    public static final String generateCode() {
+        return StrUtil.padAfter(String.valueOf(new Random().nextInt(999999)), 6, '0');
     }
 }

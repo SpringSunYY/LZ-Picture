@@ -1,9 +1,14 @@
 package com.lz.framework.web.service;
 
+import cn.hutool.core.util.StrUtil;
+import com.lz.common.constant.CacheConstants;
 import com.lz.common.constant.Constants;
 import com.lz.common.constant.UserConstants;
+import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.exception.ServiceException;
+import com.lz.common.exception.user.CaptchaException;
+import com.lz.common.exception.user.CaptchaExpireException;
 import com.lz.common.exception.user.UserNotExistsException;
 import com.lz.common.exception.user.UserPasswordNotMatchException;
 import com.lz.common.utils.MessageUtils;
@@ -14,6 +19,7 @@ import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.framework.security.context.AuthenticationContextHolder;
 import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.userauth.model.sms.SmsLoginBody;
 import com.lz.userauth.service.IAuthUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +30,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
 
 
 /**
@@ -86,12 +96,12 @@ public class UserInfoLoginService {
 //        recordLoginInfo(loginUser.getUserId());
         if (!soloLogin) {
             // 如果用户不允许多终端同时登录，清除缓存信息
-//            String userIdKey = Constants.LOGIN_USERID_KEY + loginUser.getCustomerUser().getUserId();
-//            String userKey = redisCache.getCacheObject(userIdKey);
-//            if (StringUtils.isNotEmpty(userKey)) {
-//                redisCache.deleteObject(userIdKey);
-//                redisCache.deleteObject(userKey);
-//            }
+            String userIdKey = LOGIN_USER_KEY + loginUser.getUser().getUserId();
+            String userKey = redisCache.getCacheObject(userIdKey);
+            if (StringUtils.isNotEmpty(userKey)) {
+                redisCache.deleteObject(userIdKey);
+                redisCache.deleteObject(userKey);
+            }
         }
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByUserName(username);
         if (!SecurityUtils.matchesPassword(password, authUserInfo.getPassword())) {
@@ -126,6 +136,44 @@ public class UserInfoLoginService {
                 || username.length() > UserConstants.USERNAME_MAX_LENGTH) {
             AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
             throw new UserPasswordNotMatchException();
+        }
+    }
+
+    public String getSmsLoginCode(SmsLoginBody smsLoginBody) {
+        //校验验证码
+        boolean captchaEnabled = smsLoginBody.isCaptchaEnabled();
+        String uuid = smsLoginBody.getUuid();
+        validateCaptcha(smsLoginBody, captchaEnabled, uuid);
+        //校验成功发送验证码
+        //随机6位数验证码
+        String code = StringUtils.generateCode();
+        redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + smsLoginBody.getPhone(), code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        // TODO 发送真正验证码
+        return code;
+    }
+
+    /**
+     * description: 校验验证码
+     * author: YY
+     * method: validateCaptcha
+     * date: 2025/3/19 09:09
+     * param:
+     * param: smsLoginBody
+     * param: captchaEnabled
+     * param: uuid
+     * return: void
+     **/
+    private void validateCaptcha(SmsLoginBody smsLoginBody, boolean captchaEnabled, String uuid) {
+        if (captchaEnabled) {
+            String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
+            String captcha = redisCache.getCacheObject(verifyKey);
+            if (StringUtils.isEmpty(captcha)) {
+                throw new CaptchaExpireException();
+            }
+            redisCache.deleteObject(verifyKey);
+            if (!smsLoginBody.getCode().equalsIgnoreCase(captcha)) {
+                throw new CaptchaException();
+            }
         }
     }
 }

@@ -68,3 +68,17 @@ export function getCodeImg() {
     timeout: 20000,
   })
 }
+
+// 获取验证码
+export function getSmsLoginCode(query: API.SmsLoginCodeQuery): Promise<API.ResponseInfo> {
+  console.log(query)
+  return request({
+    url: '/getSmsLoginCode',
+    headers: {
+      isToken: false,
+    },
+    method: 'get',
+    params: query,
+    timeout: 20000,
+  })
+}

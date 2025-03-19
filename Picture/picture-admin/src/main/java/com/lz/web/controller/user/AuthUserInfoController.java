@@ -1,15 +1,18 @@
 package com.lz.web.controller.user;
 
 import com.lz.common.constant.Constants;
+import com.lz.common.constant.redis.ConfigRedisConstants;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.core.domain.model.LoginUser;
+import com.lz.config.service.IConfigInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import com.lz.userauth.model.domain.AuthUserInfo;
 import com.lz.userauth.model.domain.LoginUserInfo;
 import com.lz.userauth.model.domain.UserInfoLoginBody;
 import com.lz.framework.web.service.UserInfoLoginService;
+import com.lz.userauth.model.sms.SmsLoginBody;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +29,9 @@ import java.util.Set;
 public class AuthUserInfoController extends BaseUserInfoController {
     @Resource
     private UserInfoLoginService loginService;
+
+    @Resource
+    private IConfigInfoService configInfoService;
 
     /**
      * 登录方法
@@ -51,5 +57,15 @@ public class AuthUserInfoController extends BaseUserInfoController {
         ajaxResult.put("user", user);
         ajaxResult.put("permissions", permissions);
         return ajaxResult;
+    }
+
+    @GetMapping("/getSmsLoginCode")
+    public AjaxResult getSmsLoginCode(SmsLoginBody smsLoginBody) {
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        boolean captchaEnabled = "true".equals(configInfoCache);
+        smsLoginBody.setCaptchaEnabled(captchaEnabled);
+        String smsLoginCode = loginService.getSmsLoginCode(smsLoginBody);
+        System.err.println(smsLoginCode);
+        return AjaxResult.success("验证码发送成功");
     }
 }

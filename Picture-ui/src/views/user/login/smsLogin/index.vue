@@ -14,57 +14,54 @@
         </a-row>
       </div>
 
-      <a-form
-        :model="smsLoginForm"
-        :rules="rules"
-        @finish="handleSubmit"
-        @finishFailed="handleFinishFailed"
-      >
-        <!-- 新增国家代码选择 -->
-        <a-form-item name="countryCode">
-          <a-select v-model:value="smsLoginForm.countryCode" size="large" style="width: 25%" placeholder="+86">
-            <a-select-option value="+86">+86</a-select-option>
-            <a-select-option value="+1">+1</a-select-option>
-            <a-select-option value="+44">+44</a-select-option>
-            <!-- 更多国家... -->
-          </a-select>
-          <a-input
-            v-model:value="smsLoginForm.phone"
-            placeholder="手机号"
-            size="large"
-            style="width: 70%; margin-left: 20px"
-          >
-            <template #prefix>
-              <PhoneOutlined />
-            </template>
-          </a-input>
-        </a-form-item>
-
-        <!-- 原有验证码部分保持不变 -->
-        <a-form-item name="code">
-          <div class="login-code">
-            <img :src="codeUrl" @click="getCode" class="login-code-img" alt="验证码" />
-          </div>
-          <a-input
-            v-model:value="smsLoginForm.code"
-            placeholder="验证码"
-            size="large"
-            style="width: 70%"
-          >
-          </a-input>
-        </a-form-item>
-
-        <!-- 原有短信验证码部分保持不变 -->
-        <a-form-item name="smsCode">
-          <a-input v-model:value="smsLoginForm.smsCode" placeholder="短信验证码" size="large">
-            <template #suffix>
-              <a-button type="primary" :disabled="countdown > 0" @click="sendSmsCode">
-                {{ countdown > 0 ? countdown + '秒' : '发送验证码' }}
-              </a-button>
-            </template>
-          </a-input>
-        </a-form-item>
-
+      <a-form :model="smsLoginForm" :rules="rules" @finish="handleSubmit">
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <!-- 新增国家代码选择 -->
+            <a-form-item name="countryCode">
+              <a-select v-model:value="smsLoginForm.countryCode" size="large" placeholder="+86">
+                <a-select-option value="+86">+86</a-select-option>
+                <a-select-option value="+1">+1</a-select-option>
+                <a-select-option value="+44">+44</a-select-option>
+                <!-- 更多国家... -->
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item name="phone">
+              <a-input v-model:value="smsLoginForm.phone" placeholder="手机号" size="large">
+                <template #prefix>
+                  <PhoneOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item name="code">
+              <div class="login-code">
+                <img :src="codeUrl" @click="getCode" class="login-code-img" alt="验证码" />
+              </div>
+              <a-input
+                v-model:value="smsLoginForm.code"
+                placeholder="验证码"
+                size="large"
+                style="width: 65%; margin-left: 20px"
+              >
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item name="smsCode">
+              <a-input v-model:value="smsLoginForm.smsCode" placeholder="短信验证码" size="large">
+                <template #suffix>
+                  <a-button type="primary" :disabled="countdown > 0" @click="sendSmsCode">
+                    {{ countdown > 0 ? countdown + '秒' : '发送验证码' }}
+                  </a-button>
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-form-item>
           <a-button type="primary" html-type="submit" block size="large" :loading="loading">
             登录
@@ -85,7 +82,7 @@ import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { PhoneOutlined } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/modules/user.ts'
-import { getCodeImg } from '@/api/userInfo/login.js'
+import { getCodeImg, getSmsLoginCode } from '@/api/userInfo/login.js'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 
 // 新增状态
@@ -156,8 +153,15 @@ const sendSmsCode = () => {
   }
 
   // 原有发送逻辑保持不变
-  message.success('验证码已发送')
-  countdown.value = 60
+  getSmsLoginCode(smsLoginForm.value).then((res) => {
+    if (res.code === 200) {
+      message.success('验证码已发送')
+      countdown.value = 60
+    } else {
+      getCode()
+      message.error(res.msg)
+    }
+  })
   timer = setInterval(() => {
     countdown.value--
     if (countdown.value <= 0) clearInterval(timer)
