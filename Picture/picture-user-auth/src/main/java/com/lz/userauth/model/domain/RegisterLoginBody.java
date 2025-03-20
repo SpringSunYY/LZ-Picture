@@ -1,4 +1,4 @@
-package com.lz.userauth.model.register;
+package com.lz.userauth.model.domain;
 
 import lombok.Data;
 

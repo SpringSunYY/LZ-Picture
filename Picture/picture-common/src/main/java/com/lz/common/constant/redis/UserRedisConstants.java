@@ -14,12 +14,25 @@ public class UserRedisConstants {
      */
     public static final String USER_SMS_LOGIN_CODE = "user:sms:login:code:";
     /**
+     * 登录短信验证码超时时间
+     */
+    public static final Integer USER_SMS_LOGIN_CODE_EXPIRE_TIME = 5 * 60;
+    /**
      * 注册短信验证码
      */
     public static final String USER_SMS_REGISTER_CODE = "user:sms:register:code:";
 
     /**
-     * 登录验证码超时时间
+     * 注册验证码超时时间
      */
-    public static final Integer USER_SMS_LOGIN_CODE_EXPIRE_TIME = 5 * 60;
+    public static final Integer USER_SMS_REGISTER_CODE_EXPIRE_TIME = 5 * 60;
+    /**
+     * 注册验证码
+     */
+    public static final String USER_SMS_FORGET_PASSWORD_CODE = "user:sms:forgetPassword:code:";
+
+    /**
+     * 忘记密码验证码超时时间
+     */
+    public static final Integer USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME = 5 * 60;
 }

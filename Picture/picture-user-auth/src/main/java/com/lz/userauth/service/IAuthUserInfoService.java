@@ -2,7 +2,8 @@ package com.lz.userauth.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.userauth.model.domain.AuthUserInfo;
-import com.lz.userauth.model.register.RegisterLoginBody;
+import com.lz.userauth.model.domain.ForgetPasswordBody;
+import com.lz.userauth.model.domain.RegisterLoginBody;
 
 import java.util.Set;
 
@@ -41,4 +42,15 @@ public interface IAuthUserInfoService extends IService<AuthUserInfo> {
     AuthUserInfo selectUserInfoByPhone(String phone, String countryCode);
 
     AuthUserInfo register(RegisterLoginBody registerLoginBody);
+
+    /**
+     * description: 忘记密码修改密码
+     * author: YY
+     * method: forgetPassword
+     * date: 2025/3/20 09:12
+     * param:
+     * param: forgetPasswordBody
+     * return: com.lz.userauth.model.domain.AuthUserInfo
+     **/
+    AuthUserInfo forgetPassword(ForgetPasswordBody forgetPasswordBody);
 }

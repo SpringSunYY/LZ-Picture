@@ -54,10 +54,23 @@ export function getSmsLoginCode(query: USER.SmsLoginParams): Promise<API.Respons
     params: query,
     timeout: 20000,
   })
-} // 获取短信注册验证码
+}
+// 获取短信注册验证码
 export function getRegisterCode(query: USER.RegisterParams): Promise<API.ResponseInfo> {
   return request({
     url: '/getRegisterCode',
+    headers: {
+      isToken: false,
+    },
+    method: 'get',
+    params: query,
+    timeout: 20000,
+  })
+}
+// 获取短信注册验证码
+export function getForgetPasswordCode(query: USER.ForgetPasswordParams): Promise<API.ResponseInfo> {
+  return request({
+    url: '/getForgetPasswordCode',
     headers: {
       isToken: false,
     },
@@ -82,6 +95,18 @@ export function smsLogin(data: USER.SmsLoginParams): Promise<USER.LoginResponse>
 export function register(data: USER.RegisterParams): Promise<USER.LoginResponse> {
   return request({
     url: '/register',
+    headers: {
+      isToken: false,
+    },
+    method: 'post',
+    data: data,
+    timeout: 20000,
+  })
+}
+
+export function forgetPassword(data: USER.ForgetPasswordParams): Promise<USER.LoginResponse> {
+  return request({
+    url: '/forgetPassword',
     headers: {
       isToken: false,
     },

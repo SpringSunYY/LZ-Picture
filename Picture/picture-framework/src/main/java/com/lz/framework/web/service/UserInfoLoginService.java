@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.lz.common.utils.SecurityUtils.getLoginUser;
 import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
 
 
@@ -202,15 +201,7 @@ public class UserInfoLoginService {
             throw new ServiceException("号码、国家码、短信验证码不能为空");
         }
         //校验验证码
-        String redisKey = UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone;
-        String code = redisCache.getCacheObject(redisKey);
-        if (StringUtils.isEmpty(code)) {
-            throw new ServiceException("短信验证码已过期");
-        }
-        if (!smsCode.equalsIgnoreCase(code)) {
-            throw new ServiceException("短信验证码不正确");
-        }
-        redisCache.deleteObject(redisKey);
+        checkSmsCode(UserRedisConstants.USER_SMS_LOGIN_CODE, countryCode, phone, smsCode);
         //根据国家号码编号和号码获取用户
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(phone, countryCode);
         if (StringUtils.isNull(authUserInfo)) {
@@ -240,12 +231,15 @@ public class UserInfoLoginService {
         validateCaptcha(code, captchaEnabled, uuid);
         //校验成功发送验证码
         String registerCode = StringUtils.generateCode();
-        redisCache.setCacheObject(UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_REGISTER_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         return registerCode;
     }
 
-    public void checkRegisterCode(String phone, String countryCode, String code) {
-        String redisKey = UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone;
+    public void checkSmsCode(String key, String phone, String countryCode, String code) {
+        if (StringUtils.isEmpty(key) || StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(code)) {
+            throw new ServiceException("参数异常");
+        }
+        String redisKey = key + countryCode + ":" + phone;
         String registerCode = redisCache.getCacheObject(redisKey);
         if (StringUtils.isEmpty(registerCode)) {
             throw new ServiceException("短信验证码已过期");
@@ -258,5 +252,13 @@ public class UserInfoLoginService {
 
     public void logout(HttpServletRequest request) {
         userTokenService.delLoginUser(userTokenService.getToken(request));
+    }
+
+    public String getForgetPasswordCode(String phone, String countryCode, String code, boolean captchaEnabled, String uuid) {
+        validateCaptcha(code, captchaEnabled, uuid);
+        String registerCode = StringUtils.generateCode();
+        redisCache.setCacheObject(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        //TODO 发送验证码
+        return registerCode;
     }
 }

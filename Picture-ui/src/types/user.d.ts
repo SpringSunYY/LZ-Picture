@@ -60,4 +60,13 @@ export namespace USER {
     code?: string
     uuid?: string
   }
+  export interface ForgetPasswordParams {
+    countryCode: string
+    phone: string
+    smsCode: string
+    password: string
+    confirmPassword: string
+    code?: string
+    uuid?: string
+  }
 }

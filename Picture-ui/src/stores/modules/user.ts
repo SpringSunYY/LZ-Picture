@@ -1,4 +1,4 @@
-import { getInfo, login, logout, register, smsLogin } from '@/api/userInfo/login.ts'
+import { forgetPassword, getInfo, login, logout, register, smsLogin } from '@/api/userInfo/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
 import { isEmpty, isHttp } from '@/utils/validate'
 import defAva from '@/assets/images/profile.jpg'
@@ -52,6 +52,15 @@ const useUserStore = defineStore('user', {
         setToken(res.token)
         this.token = res.token
         router.push('/')
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+
+    async resetPassword(userInfo: USER.ForgetPasswordParams): Promise<void> {
+      try {
+        await forgetPassword(userInfo)
+        router.push('/user/login')
       } catch (error) {
         return Promise.reject(error)
       }

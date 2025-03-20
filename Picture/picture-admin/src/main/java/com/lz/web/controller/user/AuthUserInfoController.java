@@ -1,24 +1,22 @@
 package com.lz.web.controller.user;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.lz.common.constant.Constants;
 import com.lz.common.constant.redis.ConfigRedisConstants;
+import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
-import com.lz.userauth.model.domain.AuthUserInfo;
-import com.lz.userauth.model.domain.LoginUserInfo;
-import com.lz.userauth.model.domain.UserInfoLoginBody;
+import com.lz.userauth.model.domain.*;
 import com.lz.framework.web.service.UserInfoLoginService;
-import com.lz.userauth.model.register.RegisterLoginBody;
-import com.lz.userauth.model.sms.SmsLoginBody;
 import com.lz.userauth.service.IAuthUserInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -129,12 +127,9 @@ public class AuthUserInfoController extends BaseUserInfoController {
         if (StringUtils.isEmpty(registerLoginBody.getSmsCode()) || StringUtils.isEmpty(registerLoginBody.getPhone()) || StringUtils.isEmpty(registerLoginBody.getPassword()) || StringUtils.isEmpty(registerLoginBody.getConfirmPassword())) {
             return AjaxResult.error("请输入手机号和密码");
         }
-        //校验两次密码是否正确
-        if (!registerLoginBody.getPassword().equals(registerLoginBody.getConfirmPassword())) {
-            return AjaxResult.error("两次密码不一致");
-        }
+        checkPassword(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword());
         //校验验证码
-        loginService.checkRegisterCode(registerLoginBody.getPhone(), registerLoginBody.getCountryCode(), registerLoginBody.getSmsCode());
+        loginService.checkSmsCode(UserRedisConstants.USER_SMS_REGISTER_CODE, registerLoginBody.getPhone(), registerLoginBody.getCountryCode(), registerLoginBody.getSmsCode());
         //查询此用户是否存在
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(registerLoginBody.getPhone(), registerLoginBody.getCountryCode());
         if (StringUtils.isNotNull(authUserInfo)) {
@@ -145,6 +140,39 @@ public class AuthUserInfoController extends BaseUserInfoController {
         String token = loginService.userInfoLogin(userInfo.getUserName(), registerLoginBody.getPassword());
         ajax.put(Constants.TOKEN, token);
         return ajax;
+    }
+
+    @GetMapping("/getForgetPasswordCode")
+    public AjaxResult getForgetPasswordCode(@Validated ForgetPasswordCode forgetPasswordCode) {
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        boolean captchaEnabled = "true".equals(configInfoCache);
+        String registerCode = loginService.getForgetPasswordCode(forgetPasswordCode.getPhone(), forgetPasswordCode.getCountryCode(), forgetPasswordCode.getCode(), captchaEnabled, forgetPasswordCode.getUuid());
+        System.err.println(registerCode);
+        return AjaxResult.success("验证码发送成功");
+    }
+
+    @PostMapping("/forgetPassword")
+    public AjaxResult forgetPassword(@RequestBody @Validated ForgetPasswordBody forgetPasswordBody) {
+        AjaxResult ajaxResult = new AjaxResult();
+        checkPassword(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword());
+        //校验验证码
+        loginService.checkSmsCode(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE, forgetPasswordBody.getPhone(), forgetPasswordBody.getCountryCode(), forgetPasswordBody.getSmsCode());
+        AuthUserInfo authUserInfo = authUserInfoService.forgetPassword(forgetPasswordBody);
+        return AjaxResult.success("修改成功");
+    }
+
+    private void checkPassword(String password, String confirmPassword) {
+        if (StringUtils.isEmpty(password)|| StringUtils.isEmpty(confirmPassword)) {
+            throw new ServiceException("密码不能为空！！！");
+        }
+        //校验两次密码是否正确
+        if (!password.equals(confirmPassword)) {
+            throw new ServiceException("两次密码不一致");
+        }
+        //校验长度
+        if (password.length() < 6 || password.length() > 20) {
+            throw new ServiceException("密码长度在6~20之间");
+        }
     }
 
     @PostMapping("/logout")
