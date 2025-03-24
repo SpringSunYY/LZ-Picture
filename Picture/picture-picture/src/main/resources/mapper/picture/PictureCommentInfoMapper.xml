@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.PictureCommentInfoMapper">
+    
+    <resultMap type="PictureCommentInfo" id="PictureCommentInfoResult">
+        <result property="commentId"    column="comment_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="pictureId"    column="picture_id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="tags"    column="tags"    />
+        <result property="content"    column="content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="likeCount"    column="like_count"    />
+        <result property="ipAddress"    column="ip_address"    />
+        <result property="pictureUrl"    column="picture_url"    />
+        <result property="commentStatus"    column="comment_status"    />
+    </resultMap>
+
+    <sql id="selectPictureCommentInfoVo">
+        select comment_id, user_id, parent_id, picture_id, category_id, tags, content, create_time, like_count, ip_address, picture_url, comment_status from p_picture_comment_info
+    </sql>
+
+    <select id="selectPictureCommentInfoList" parameterType="PictureCommentInfo" resultMap="PictureCommentInfoResult">
+        <include refid="selectPictureCommentInfoVo"/>
+        <where>  
+            <if test="commentId != null  and commentId != ''"> and comment_id = #{commentId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
+            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
+            <if test="categoryId != null  and categoryId != ''"> and category_id = #{categoryId}</if>
+            <if test="tags != null  and tags != ''"> and tags like concat('%', #{tags}, '%')</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="likeCount != null "> and like_count = #{likeCount}</if>
+            <if test="ipAddress != null  and ipAddress != ''"> and ip_address = #{ipAddress}</if>
+            <if test="commentStatus != null  and commentStatus != ''"> and comment_status = #{commentStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectPictureCommentInfoByCommentId" parameterType="String" resultMap="PictureCommentInfoResult">
+        <include refid="selectPictureCommentInfoVo"/>
+        where comment_id = #{commentId}
+    </select>
+
+    <insert id="insertPictureCommentInfo" parameterType="PictureCommentInfo">
+        insert into p_picture_comment_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="commentId != null">comment_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="pictureId != null and pictureId != ''">picture_id,</if>
+            <if test="categoryId != null and categoryId != ''">category_id,</if>
+            <if test="tags != null">tags,</if>
+            <if test="content != null">content,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="ipAddress != null">ip_address,</if>
+            <if test="pictureUrl != null">picture_url,</if>
+            <if test="commentStatus != null and commentStatus != ''">comment_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="commentId != null">#{commentId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="pictureId != null and pictureId != ''">#{pictureId},</if>
+            <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
+            <if test="tags != null">#{tags},</if>
+            <if test="content != null">#{content},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="ipAddress != null">#{ipAddress},</if>
+            <if test="pictureUrl != null">#{pictureUrl},</if>
+            <if test="commentStatus != null and commentStatus != ''">#{commentStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePictureCommentInfo" parameterType="PictureCommentInfo">
+        update p_picture_comment_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="pictureId != null and pictureId != ''">picture_id = #{pictureId},</if>
+            <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="likeCount != null">like_count = #{likeCount},</if>
+            <if test="ipAddress != null">ip_address = #{ipAddress},</if>
+            <if test="pictureUrl != null">picture_url = #{pictureUrl},</if>
+            <if test="commentStatus != null and commentStatus != ''">comment_status = #{commentStatus},</if>
+        </trim>
+        where comment_id = #{commentId}
+    </update>
+
+    <delete id="deletePictureCommentInfoByCommentId" parameterType="String">
+        delete from p_picture_comment_info where comment_id = #{commentId}
+    </delete>
+
+    <delete id="deletePictureCommentInfoByCommentIds" parameterType="String">
+        delete from p_picture_comment_info where comment_id in 
+        <foreach item="commentId" collection="array" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </delete>
+</mapper>

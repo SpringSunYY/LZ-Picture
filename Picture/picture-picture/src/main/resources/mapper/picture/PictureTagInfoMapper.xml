@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.PictureTagInfoMapper">
+    
+    <resultMap type="PictureTagInfo" id="PictureTagInfoResult">
+        <result property="tagId"    column="tag_id"    />
+        <result property="name"    column="name"    />
+        <result property="tagDesc"    column="tag_desc"    />
+        <result property="usageCount"    column="usage_count"    />
+        <result property="lookCount"    column="look_count"    />
+        <result property="downloadCount"    column="download_count"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPictureTagInfoVo">
+        select tag_id, name, tag_desc, usage_count, look_count, download_count, user_id, create_time, update_time from p_picture_tag_info
+    </sql>
+
+    <select id="selectPictureTagInfoList" parameterType="PictureTagInfo" resultMap="PictureTagInfoResult">
+        <include refid="selectPictureTagInfoVo"/>
+        <where>  
+            <if test="tagId != null  and tagId != ''"> and tag_id = #{tagId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectPictureTagInfoByTagId" parameterType="String" resultMap="PictureTagInfoResult">
+        <include refid="selectPictureTagInfoVo"/>
+        where tag_id = #{tagId}
+    </select>
+
+    <insert id="insertPictureTagInfo" parameterType="PictureTagInfo">
+        insert into p_picture_tag_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tagId != null">tag_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="tagDesc != null">tag_desc,</if>
+            <if test="usageCount != null">usage_count,</if>
+            <if test="lookCount != null">look_count,</if>
+            <if test="downloadCount != null">download_count,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tagId != null">#{tagId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="tagDesc != null">#{tagDesc},</if>
+            <if test="usageCount != null">#{usageCount},</if>
+            <if test="lookCount != null">#{lookCount},</if>
+            <if test="downloadCount != null">#{downloadCount},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePictureTagInfo" parameterType="PictureTagInfo">
+        update p_picture_tag_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="tagDesc != null">tag_desc = #{tagDesc},</if>
+            <if test="usageCount != null">usage_count = #{usageCount},</if>
+            <if test="lookCount != null">look_count = #{lookCount},</if>
+            <if test="downloadCount != null">download_count = #{downloadCount},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where tag_id = #{tagId}
+    </update>
+
+    <delete id="deletePictureTagInfoByTagId" parameterType="String">
+        delete from p_picture_tag_info where tag_id = #{tagId}
+    </delete>
+
+    <delete id="deletePictureTagInfoByTagIds" parameterType="String">
+        delete from p_picture_tag_info where tag_id in 
+        <foreach item="tagId" collection="array" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+</mapper>

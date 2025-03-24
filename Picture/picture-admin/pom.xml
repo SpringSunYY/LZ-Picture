@@ -97,7 +97,11 @@
             <scope>test</scope>
         </dependency>
 
-
+        <!--C端用户图片模块-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-picture</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

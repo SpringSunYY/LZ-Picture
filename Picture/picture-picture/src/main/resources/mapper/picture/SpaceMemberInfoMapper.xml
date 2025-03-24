@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.SpaceMemberInfoMapper">
+    
+    <resultMap type="SpaceMemberInfo" id="SpaceMemberInfoResult">
+        <result property="memberId"    column="member_id"    />
+        <result property="spaceId"    column="space_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="roleType"    column="role_type"    />
+        <result property="lastActiveTime"    column="last_active_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="inviterUserId"    column="inviter_user_id"    />
+        <result property="joinType"    column="join_type"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSpaceMemberInfoVo">
+        select member_id, space_id, user_id, role_type, last_active_time, create_time, update_time, inviter_user_id, join_type, remark from p_space_member_info
+    </sql>
+
+    <select id="selectSpaceMemberInfoList" parameterType="SpaceMemberInfo" resultMap="SpaceMemberInfoResult">
+        <include refid="selectSpaceMemberInfoVo"/>
+        <where>  
+            <if test="memberId != null  and memberId != ''"> and member_id = #{memberId}</if>
+            <if test="spaceId != null  and spaceId != ''"> and space_id = #{spaceId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="roleType != null  and roleType != ''"> and role_type = #{roleType}</if>
+            <if test="params.beginLastActiveTime != null and params.beginLastActiveTime != '' and params.endLastActiveTime != null and params.endLastActiveTime != ''"> and DATE_FORMAT(last_active_time, '%Y-%m-%d') between #{params.beginLastActiveTime} and #{params.endLastActiveTime}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <if test="inviterUserId != null  and inviterUserId != ''"> and inviter_user_id = #{inviterUserId}</if>
+            <if test="joinType != null  and joinType != ''"> and join_type = #{joinType}</if>
+        </where>
+    </select>
+    
+    <select id="selectSpaceMemberInfoByMemberId" parameterType="String" resultMap="SpaceMemberInfoResult">
+        <include refid="selectSpaceMemberInfoVo"/>
+        where member_id = #{memberId}
+    </select>
+
+    <insert id="insertSpaceMemberInfo" parameterType="SpaceMemberInfo">
+        insert into p_space_member_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">member_id,</if>
+            <if test="spaceId != null and spaceId != ''">space_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="roleType != null and roleType != ''">role_type,</if>
+            <if test="lastActiveTime != null">last_active_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="inviterUserId != null">inviter_user_id,</if>
+            <if test="joinType != null and joinType != ''">join_type,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">#{memberId},</if>
+            <if test="spaceId != null and spaceId != ''">#{spaceId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="roleType != null and roleType != ''">#{roleType},</if>
+            <if test="lastActiveTime != null">#{lastActiveTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="inviterUserId != null">#{inviterUserId},</if>
+            <if test="joinType != null and joinType != ''">#{joinType},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSpaceMemberInfo" parameterType="SpaceMemberInfo">
+        update p_space_member_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="spaceId != null and spaceId != ''">space_id = #{spaceId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="roleType != null and roleType != ''">role_type = #{roleType},</if>
+            <if test="lastActiveTime != null">last_active_time = #{lastActiveTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="inviterUserId != null">inviter_user_id = #{inviterUserId},</if>
+            <if test="joinType != null and joinType != ''">join_type = #{joinType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where member_id = #{memberId}
+    </update>
+
+    <delete id="deleteSpaceMemberInfoByMemberId" parameterType="String">
+        delete from p_space_member_info where member_id = #{memberId}
+    </delete>
+
+    <delete id="deleteSpaceMemberInfoByMemberIds" parameterType="String">
+        delete from p_space_member_info where member_id in 
+        <foreach item="memberId" collection="array" open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+    </delete>
+</mapper>

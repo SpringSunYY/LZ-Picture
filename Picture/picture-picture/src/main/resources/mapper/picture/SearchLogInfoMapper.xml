@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.SearchLogInfoMapper">
+    
+    <resultMap type="SearchLogInfo" id="SearchLogInfoResult">
+        <result property="searchId"    column="search_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="keyword"    column="keyword"    />
+        <result property="searchType"    column="search_type"    />
+        <result property="referSource"    column="refer_source"    />
+        <result property="searchStatus"    column="search_status"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="resultCount"    column="result_count"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="searchDuration"    column="search_duration"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="ipAddress"    column="ip_address"    />
+        <result property="clickCount"    column="click_count"    />
+        <result property="favoriteCount"    column="favorite_count"    />
+        <result property="downloadCount"    column="download_count"    />
+    </resultMap>
+
+    <sql id="selectSearchLogInfoVo">
+        select search_id, user_id, keyword, search_type, refer_source, search_status, fail_reason, result_count, create_time, search_duration, device_id, browser, os, platform, ip_address, click_count, favorite_count, download_count from p_search_log_info
+    </sql>
+
+    <select id="selectSearchLogInfoList" parameterType="SearchLogInfo" resultMap="SearchLogInfoResult">
+        <include refid="selectSearchLogInfoVo"/>
+        <where>  
+            <if test="searchId != null  and searchId != ''"> and search_id = #{searchId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="keyword != null  and keyword != ''"> and keyword like concat('%', #{keyword}, '%')</if>
+            <if test="searchType != null  and searchType != ''"> and search_type = #{searchType}</if>
+            <if test="referSource != null  and referSource != ''"> and refer_source = #{referSource}</if>
+            <if test="searchStatus != null  and searchStatus != ''"> and search_status = #{searchStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="ipAddress != null  and ipAddress != ''"> and ip_address = #{ipAddress}</if>
+        </where>
+    </select>
+    
+    <select id="selectSearchLogInfoBySearchId" parameterType="String" resultMap="SearchLogInfoResult">
+        <include refid="selectSearchLogInfoVo"/>
+        where search_id = #{searchId}
+    </select>
+
+    <insert id="insertSearchLogInfo" parameterType="SearchLogInfo">
+        insert into p_search_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="searchId != null">search_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="keyword != null and keyword != ''">keyword,</if>
+            <if test="searchType != null and searchType != ''">search_type,</if>
+            <if test="referSource != null">refer_source,</if>
+            <if test="searchStatus != null and searchStatus != ''">search_status,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="resultCount != null">result_count,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="searchDuration != null">search_duration,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="ipAddress != null">ip_address,</if>
+            <if test="clickCount != null">click_count,</if>
+            <if test="favoriteCount != null">favorite_count,</if>
+            <if test="downloadCount != null">download_count,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="searchId != null">#{searchId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="keyword != null and keyword != ''">#{keyword},</if>
+            <if test="searchType != null and searchType != ''">#{searchType},</if>
+            <if test="referSource != null">#{referSource},</if>
+            <if test="searchStatus != null and searchStatus != ''">#{searchStatus},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="resultCount != null">#{resultCount},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="searchDuration != null">#{searchDuration},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="ipAddress != null">#{ipAddress},</if>
+            <if test="clickCount != null">#{clickCount},</if>
+            <if test="favoriteCount != null">#{favoriteCount},</if>
+            <if test="downloadCount != null">#{downloadCount},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSearchLogInfo" parameterType="SearchLogInfo">
+        update p_search_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="keyword != null and keyword != ''">keyword = #{keyword},</if>
+            <if test="searchType != null and searchType != ''">search_type = #{searchType},</if>
+            <if test="referSource != null">refer_source = #{referSource},</if>
+            <if test="searchStatus != null and searchStatus != ''">search_status = #{searchStatus},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="resultCount != null">result_count = #{resultCount},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="searchDuration != null">search_duration = #{searchDuration},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddress != null">ip_address = #{ipAddress},</if>
+            <if test="clickCount != null">click_count = #{clickCount},</if>
+            <if test="favoriteCount != null">favorite_count = #{favoriteCount},</if>
+            <if test="downloadCount != null">download_count = #{downloadCount},</if>
+        </trim>
+        where search_id = #{searchId}
+    </update>
+
+    <delete id="deleteSearchLogInfoBySearchId" parameterType="String">
+        delete from p_search_log_info where search_id = #{searchId}
+    </delete>
+
+    <delete id="deleteSearchLogInfoBySearchIds" parameterType="String">
+        delete from p_search_log_info where search_id in 
+        <foreach item="searchId" collection="array" open="(" separator="," close=")">
+            #{searchId}
+        </foreach>
+    </delete>
+</mapper>

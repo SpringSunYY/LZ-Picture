@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.PictureCommentLikeInfoMapper">
+    
+    <resultMap type="PictureCommentLikeInfo" id="PictureCommentLikeInfoResult">
+        <result property="likeId"    column="like_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="pictureId"    column="picture_id"    />
+        <result property="targetCover"    column="target_cover"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectPictureCommentLikeInfoVo">
+        select like_id, user_id, picture_id, target_cover, create_time from p_picture_comment_like_info
+    </sql>
+
+    <select id="selectPictureCommentLikeInfoList" parameterType="PictureCommentLikeInfo" resultMap="PictureCommentLikeInfoResult">
+        <include refid="selectPictureCommentLikeInfoVo"/>
+        <where>  
+            <if test="likeId != null  and likeId != ''"> and like_id = #{likeId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
+            <if test="targetCover != null  and targetCover != ''"> and target_cover = #{targetCover}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectPictureCommentLikeInfoByLikeId" parameterType="String" resultMap="PictureCommentLikeInfoResult">
+        <include refid="selectPictureCommentLikeInfoVo"/>
+        where like_id = #{likeId}
+    </select>
+
+    <insert id="insertPictureCommentLikeInfo" parameterType="PictureCommentLikeInfo">
+        insert into p_picture_comment_like_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="likeId != null">like_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="pictureId != null and pictureId != ''">picture_id,</if>
+            <if test="targetCover != null">target_cover,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="likeId != null">#{likeId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="pictureId != null and pictureId != ''">#{pictureId},</if>
+            <if test="targetCover != null">#{targetCover},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePictureCommentLikeInfo" parameterType="PictureCommentLikeInfo">
+        update p_picture_comment_like_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="pictureId != null and pictureId != ''">picture_id = #{pictureId},</if>
+            <if test="targetCover != null">target_cover = #{targetCover},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where like_id = #{likeId}
+    </update>
+
+    <delete id="deletePictureCommentLikeInfoByLikeId" parameterType="String">
+        delete from p_picture_comment_like_info where like_id = #{likeId}
+    </delete>
+
+    <delete id="deletePictureCommentLikeInfoByLikeIds" parameterType="String">
+        delete from p_picture_comment_like_info where like_id in 
+        <foreach item="likeId" collection="array" open="(" separator="," close=")">
+            #{likeId}
+        </foreach>
+    </delete>
+</mapper>

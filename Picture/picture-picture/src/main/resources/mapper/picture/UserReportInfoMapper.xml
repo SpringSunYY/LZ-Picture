@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.UserReportInfoMapper">
+    
+    <resultMap type="UserReportInfo" id="UserReportInfoResult">
+        <result property="reportId"    column="report_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="targetCover"    column="target_cover"    />
+        <result property="reason"    column="reason"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="reviewStatus"    column="review_status"    />
+        <result property="reviewMessage"    column="review_message"    />
+        <result property="reviewUserId"    column="review_user_id"    />
+        <result property="reviewTime"    column="review_time"    />
+    </resultMap>
+
+    <sql id="selectUserReportInfoVo">
+        select report_id, user_id, target_type, target_id, target_cover, reason, create_time, review_status, review_message, review_user_id, review_time from p_user_report_info
+    </sql>
+
+    <select id="selectUserReportInfoList" parameterType="UserReportInfo" resultMap="UserReportInfoResult">
+        <include refid="selectUserReportInfoVo"/>
+        <where>  
+            <if test="reportId != null  and reportId != ''"> and report_id = #{reportId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="targetType != null  and targetType != ''"> and target_type = #{targetType}</if>
+            <if test="targetId != null "> and target_id = #{targetId}</if>
+            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="reviewStatus != null "> and review_status = #{reviewStatus}</if>
+            <if test="reviewUserId != null "> and review_user_id = #{reviewUserId}</if>
+            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''"> and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserReportInfoByReportId" parameterType="String" resultMap="UserReportInfoResult">
+        <include refid="selectUserReportInfoVo"/>
+        where report_id = #{reportId}
+    </select>
+
+    <insert id="insertUserReportInfo" parameterType="UserReportInfo">
+        insert into p_user_report_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="reportId != null">report_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="targetType != null and targetType != ''">target_type,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="targetCover != null">target_cover,</if>
+            <if test="reason != null and reason != ''">reason,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="reviewStatus != null">review_status,</if>
+            <if test="reviewMessage != null">review_message,</if>
+            <if test="reviewUserId != null">review_user_id,</if>
+            <if test="reviewTime != null">review_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="reportId != null">#{reportId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="targetType != null and targetType != ''">#{targetType},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="targetCover != null">#{targetCover},</if>
+            <if test="reason != null and reason != ''">#{reason},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="reviewStatus != null">#{reviewStatus},</if>
+            <if test="reviewMessage != null">#{reviewMessage},</if>
+            <if test="reviewUserId != null">#{reviewUserId},</if>
+            <if test="reviewTime != null">#{reviewTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserReportInfo" parameterType="UserReportInfo">
+        update p_user_report_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="targetType != null and targetType != ''">target_type = #{targetType},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="targetCover != null">target_cover = #{targetCover},</if>
+            <if test="reason != null and reason != ''">reason = #{reason},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="reviewMessage != null">review_message = #{reviewMessage},</if>
+            <if test="reviewUserId != null">review_user_id = #{reviewUserId},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+        </trim>
+        where report_id = #{reportId}
+    </update>
+
+    <delete id="deleteUserReportInfoByReportId" parameterType="String">
+        delete from p_user_report_info where report_id = #{reportId}
+    </delete>
+
+    <delete id="deleteUserReportInfoByReportIds" parameterType="String">
+        delete from p_user_report_info where report_id in 
+        <foreach item="reportId" collection="array" open="(" separator="," close=")">
+            #{reportId}
+        </foreach>
+    </delete>
+</mapper>
