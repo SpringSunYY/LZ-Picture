@@ -653,23 +653,23 @@ CREATE TABLE u_login_log_info (
 
 #### 账户信息表：po_account_info
 
-| 字段名          | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述             |
-| --------------- | -------- | ---- | -------------------------- | ---- | -------- | ---------------- |
-| account_id      | varchar  | 128  | 主键                       | 否   |          | 账户编号         |
-| user_id         | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号         |
-| password        | varchar  | 512  |                            | 否   |          | 支付密码         |
-| salt            | varchar  | 64   |                            | 否   |          | 加密方式         |
-| failed_attempts | int      |      |                            | 否   | 0        | 支付密码错误次数 |
-| points_earned   | int      |      |                            | 否   | 0        | 赚取积分         |
-| points_used     | int      |      |                            | 否   | 0        | 使用积分         |
-| recharge_amount | int      |      |                            | 否   | 0        | 充值金额         |
-| account_status  | char     | 1    |                            | 否   |          | 状态             |
-| intbalance      | int      |      |                            | 否   | 0        | 积分余额         |
-| status          | varchar  | 32   |                            | 否   |          | 账户状态         |
-| create_time     | datetime |      |                            | 否   | 当前时间 | 创建时间         |
-| update_time     | datetime |      |                            | 否   | 当前时间 | 更新时间         |
-| remark          | varchar  | 512  |                            | 是   |          | 备注             |
-| is_delete       | char     | 1    |                            | 否   | 0        | 删除             |
+记录账户的信息，积分，密码，一些基本信息
+
+| 字段名          | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述     |
+| --------------- | -------- | ---- | -------------------------- | ---- | -------- | -------- |
+| account_id      | varchar  | 128  | 主键                       | 否   |          | 账户编号 |
+| user_id         | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号 |
+| password        | varchar  | 512  |                            | 否   |          | 支付密码 |
+| salt            | varchar  | 64   |                            | 否   |          | 加密方式 |
+| points_earned   | int      |      |                            | 否   | 0        | 赚取积分 |
+| points_used     | int      |      |                            | 否   | 0        | 使用积分 |
+| recharge_amount | int      |      |                            | 否   | 0        | 充值金额 |
+| account_status  | char     | 1    |                            | 否   |          | 状态     |
+| intbalance      | int      |      |                            | 否   | 0        | 积分余额 |
+| create_time     | datetime |      |                            | 否   | 当前时间 | 创建时间 |
+| update_time     | datetime |      |                            | 否   | 当前时间 | 更新时间 |
+| remark          | varchar  | 512  |                            | 是   |          | 备注     |
+| is_delete       | char     | 1    |                            | 否   | 0        | 删除     |
 
 加密方式：md5、bcrypt等等
 
@@ -686,7 +686,6 @@ CREATE TABLE po_account_info (
     user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
     password VARCHAR(512) NOT NULL COMMENT '支付密码',
     salt VARCHAR(64) NOT NULL COMMENT '加密方式',
-    failed_attempts INT NOT NULL DEFAULT 0 COMMENT '支付密码错误次数',
     points_earned INT NOT NULL DEFAULT 0 COMMENT '赚取总积分',
     points_used INT NOT NULL DEFAULT 0 COMMENT '使用总积分',
     recharge_amount DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT '充值总金额（元）',
@@ -710,6 +709,8 @@ CREATE TABLE po_account_info (
 
 #### 支付方式表：po_payment_method_info
 
+方便配置支付方式的一些信息
+
 | 字段名              | 类型     | 长度 | 键类型 | Null | 默认值   | 描述         |
 | ------------------- | -------- | ---- | ------ | ---- | -------- | ------------ |
 | method_id           | varchar  | 128  | 主键   | 否   |          | 支付方式编号 |
@@ -721,7 +722,7 @@ CREATE TABLE po_account_info (
 | secret_key          | varchar  | 512  |        | 是   |          | 秘钥         |
 | contact_information | varchar  | 1024 |        | 是   |          | 联系方式     |
 | extend_config       | varchar  | 1024 |        | 是   |          | 扩展配置     |
-| status              | varchar  | 32   |        | 否   | 1        | 状态         |
+| method_status       | varchar  | 32   |        | 否   | 1        | 状态         |
 | create_time         | datetime |      |        | 否   | 当前时间 | 创建时间     |
 | update_time         | datetime |      |        | 否   | 当前时间 | 更新时间     |
 | remark              | varchar  | 512  |        | 是   |          | 备注         |
@@ -746,7 +747,7 @@ CREATE TABLE po_payment_method_info (
     secret_key VARCHAR(512) COMMENT '秘钥',
     contact_information VARCHAR(1024) COMMENT '联系方式',
     extend_config VARCHAR(1024) COMMENT '扩展配置',
-    status VARCHAR(32) NOT NULL DEFAULT '1' COMMENT '状态（0使用 1未使用）',
+    method_status VARCHAR(32) NOT NULL DEFAULT '1' COMMENT '状态（0使用 1未使用）',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     remark VARCHAR(512) COMMENT '备注',
@@ -786,8 +787,6 @@ CREATE TABLE po_payment_method_info (
 
 订单类型：0充值 1消费
 
-支付方式：0支付宝 1微信 2银行卡
-
 支付状态：0待支付 1支付成功 2支付失败 3已取消
 
 ```sql
@@ -824,22 +823,25 @@ CREATE TABLE po_payment_order_info (
 
 #### 充值积分套餐表：po_points_recharge_package_info
 
-| 字段名       | 类型     | 长度 | 键类型 | Null | 默认值   | 描述         |
-| ------------ | -------- | ---- | ------ | ---- | -------- | ------------ |
-| package_id   | varchar  | 128  | 主键   | 否   |          | 套餐编号     |
-| package_name | varchar  | 128  | 唯一   | 否   |          | 套餐名称     |
-| price        | decimal  | 10,2 |        | 否   | 0.00     | 套餐价格     |
-| points       | int      |      |        | 否   | 0        | 套餐积分数量 |
-| points_bonus | int      |      |        | 是   | 0        | 套餐赠送积分 |
-| description  | varchar  | 512  |        | 是   |          | 套餐描述     |
-| is_long_term | char     | 1    |        | 否   | 1        | 是否长期     |
-| start_time   | datetime |      |        | 是   |          | 套餐生效时间 |
-| end_time     | datetime |      |        | 是   |          | 套餐结束时间 |
-| status       | char     | 1    |        | 否   | 0        | 套餐状态     |
-| create_time  | datetime |      |        | 否   | 当前时间 | 创建时间     |
-| update_time  | datetime |      |        | 否   |          | 更新时间     |
+积分套餐，如果不是长期有效，后面会有定时任务在他结束时间之后给他更新未失效，也会更新开始时间
 
-套餐状态：0正常 1失效
+| 字段名         | 类型     | 长度 | 键类型 | Null | 默认值   | 描述         |
+| -------------- | -------- | ---- | ------ | ---- | -------- | ------------ |
+| package_id     | varchar  | 128  | 主键   | 否   |          | 套餐编号     |
+| package_name   | varchar  | 128  | 唯一   | 否   |          | 套餐名称     |
+| price          | decimal  | 10,2 |        | 否   | 0.00     | 套餐价格     |
+| points         | int      |      |        | 否   | 0        | 套餐积分数量 |
+| points_bonus   | int      |      |        | 是   | 0        | 套餐赠送积分 |
+| description    | varchar  | 512  |        | 是   |          | 套餐描述     |
+| is_long_term   | char     | 1    |        | 否   | 1        | 是否长期     |
+| start_time     | datetime |      |        | 是   |          | 套餐生效时间 |
+| end_time       | datetime |      |        | 是   |          | 套餐结束时间 |
+| package_status | char     | 1    |        | 否   | 0        | 套餐状态     |
+| create_time    | datetime |      |        | 否   | 当前时间 | 创建时间     |
+| update_time    | datetime |      |        | 否   |          | 更新时间     |
+| remark         | varchar  | 512  |        | 是   |          | 备注         |
+
+套餐状态：0未开始 1正常 2失效
 
 是否长期：0是 1否，表示固定的充值活动，不会应为套餐结束时间而结束
 
@@ -858,6 +860,7 @@ CREATE TABLE po_points_recharge_package_info (
     status CHAR(1) NOT NULL DEFAULT '0' COMMENT '套餐状态（0正常 1失效）',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark VARCHAR(512) COMMENT '备注',
     PRIMARY KEY (package_id),
     UNIQUE KEY uk_package_name (package_name),
     INDEX idx_status (status),
@@ -869,29 +872,31 @@ CREATE TABLE po_points_recharge_package_info (
 
 #### 充值记录表：po_points_recharge_info
 
-| 字段名         | 类型     | 长度 | 键类型                                           | Null | 默认值   | 描述           |
-| -------------- | -------- | ---- | ------------------------------------------------ | ---- | -------- | -------------- |
-| recharge_id    | varchar  | 128  | 主键                                             | 否   |          | 充值记录编号   |
-| package_id     | varchar  | 128  | 外键(po_points_recharge_package_info:package_id) | 否   |          | 套餐编号       |
-| user_id        | varchar  | 128  | 外键 (u_user_info:user_id)                       | 否   |          | 用户编号       |
-| total_count    | int      |      |                                                  | 否   |          | 总数           |
-| points_count   | int      |      |                                                  | 否   | 0        | 充值积分数量   |
-| bonus_count    | int      |      |                                                  | 是   | 0        | 赠送数量       |
-| price_count    | decimal  | 10,2 |                                                  | 否   | 0.00     | 充值金额       |
-| recharge_count | int      |      |                                                  | 否   | 0        | 数量           |
-| third_party    | varchar  | 128  |                                                  | 否   |          | 第三方支付平台 |
-| trade_no       | varchar  | 128  |                                                  | 是   |          | 第三方单号     |
-| status         | varchar  | 32   |                                                  | 否   |          | 充值状态       |
-| create_time    | datetime |      |                                                  | 否   | 当前时间 | 充值时间       |
-| update_time    | datetime |      |                                                  | 是   |          | 更新时间       |
-| fail_reason    | varchar  | 500  |                                                  | 是   |          | 充值失败原因   |
-| device_id      | varchar  | 255  |                                                  | 是   |          | 设备唯一标识   |
-| browser        | varchar  | 50   |                                                  | 是   |          | 浏览器类型     |
-| os             | varchar  | 50   |                                                  | 是   |          | 操作系统       |
-| platform       | varchar  | 20   |                                                  | 是   |          | 平台           |
-| ip_addr        | varchar  | 50   |                                                  | 否   |          | IP地址         |
-| remark         | varchar  | 512  |                                                  | 是   |          | 备注           |
-| is_delete      | char     | 1    |                                                  | 否   | 0        | 删除           |
+记录用户充值积分记录
+
+| 字段名          | 类型     | 长度 | 键类型                                           | Null | 默认值   | 描述           |
+| --------------- | -------- | ---- | ------------------------------------------------ | ---- | -------- | -------------- |
+| recharge_id     | varchar  | 128  | 主键                                             | 否   |          | 充值记录编号   |
+| package_id      | varchar  | 128  | 外键(po_points_recharge_package_info:package_id) | 否   |          | 套餐编号       |
+| user_id         | varchar  | 128  | 外键 (u_user_info:user_id)                       | 否   |          | 用户编号       |
+| total_count     | int      |      |                                                  | 否   |          | 总数           |
+| points_count    | int      |      |                                                  | 否   | 0        | 充值积分数量   |
+| bonus_count     | int      |      |                                                  | 是   | 0        | 赠送数量       |
+| price_count     | decimal  | 10,2 |                                                  | 否   | 0.00     | 充值金额       |
+| recharge_count  | int      |      |                                                  | 否   | 0        | 数量           |
+| third_party     | varchar  | 128  |                                                  | 否   |          | 第三方支付平台 |
+| trade_no        | varchar  | 128  |                                                  | 是   |          | 第三方单号     |
+| recharge_status | varchar  | 32   |                                                  | 否   |          | 充值状态       |
+| create_time     | datetime |      |                                                  | 否   | 当前时间 | 充值时间       |
+| update_time     | datetime |      |                                                  | 是   |          | 更新时间       |
+| fail_reason     | varchar  | 500  |                                                  | 是   |          | 充值失败原因   |
+| device_id       | varchar  | 255  |                                                  | 是   |          | 设备唯一标识   |
+| browser         | varchar  | 50   |                                                  | 是   |          | 浏览器类型     |
+| os              | varchar  | 50   |                                                  | 是   |          | 操作系统       |
+| platform        | varchar  | 20   |                                                  | 是   |          | 平台           |
+| ip_addr         | varchar  | 50   |                                                  | 否   |          | IP地址         |
+| remark          | varchar  | 512  |                                                  | 是   |          | 备注           |
+| is_delete       | char     | 1    |                                                  | 否   | 0        | 删除           |
 
 充值状态：0成功 1失败 2取消 3超时
 
@@ -908,7 +913,7 @@ CREATE TABLE po_points_recharge_info (
     recharge_count INT NOT NULL DEFAULT 0 COMMENT '数量',
     third_party VARCHAR(128) NOT NULL COMMENT '第三方支付平台',
     trade_no VARCHAR(128) COMMENT '第三方单号',
-    status VARCHAR(32) NOT NULL COMMENT '充值状态（0成功 1失败 2取消 3超时）',
+    recharge_status VARCHAR(32) NOT NULL COMMENT '充值状态（0成功 1失败 2取消 3超时）',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '充值时间',
     update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     fail_reason VARCHAR(500) COMMENT '充值失败原因',
@@ -931,6 +936,8 @@ CREATE TABLE po_points_recharge_info (
 
 
 #### 异常捕获表：po_error_log_info
+
+捕获此模块充值提现使用积分等异常
 
 | 字段名           | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述         |
 | ---------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
@@ -981,6 +988,8 @@ CREATE TABLE po_error_log_info (
 
 
 #### 风控日志表：po_risk_control_log_info
+
+捕获此模块风控
 
 | 字段名           | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述         |
 | ---------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
@@ -1049,6 +1058,7 @@ CREATE TABLE po_risk_control_log_info (
 | approval_time             | datetime |      |                            | 是   |          | 审核时间         |
 | operator_id               | bigint   |      |                            | 是   |          | 审核人           |
 | approval_remark           | varchar  | 512  |                            | 是   |          | 审核建议         |
+| accomplish_time           | datetime |      |                            | 是   |          | 完成时间         |
 | device_id                 | varchar  | 255  |                            | 是   |          | 设备唯一标识     |
 | browser                   | varchar  | 50   |                            | 是   |          | 浏览器类型       |
 | os                        | varchar  | 50   |                            | 是   |          | 操作系统         |
@@ -1084,6 +1094,7 @@ CREATE TABLE po_withdrawal_order_info (
     approval_time DATETIME COMMENT '审核时间',
     operator_id BIGINT COMMENT '审核人编号',
     approval_remark VARCHAR(512) COMMENT '审核建议',
+    accomplish_time DATETIME  COMMENT '完成时间',
     device_id VARCHAR(255) COMMENT '设备唯一标识',
     browser VARCHAR(50) COMMENT '浏览器类型',
     os VARCHAR(50) COMMENT '操作系统',
@@ -1105,6 +1116,8 @@ CREATE TABLE po_withdrawal_order_info (
 
 
 #### 积分使用记录表：po_points_usage_log
+
+记录积分的使用流水，充值消费都会有
 
 | 字段名        | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述         |
 | ------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
