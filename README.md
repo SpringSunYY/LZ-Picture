@@ -561,7 +561,7 @@ CREATE TABLE u_user_binding_info (
 | retry_count | int          |      |                                            | 否   |          | 重试次数            |
 | send_time   | datetime     |      | 索引                                       | 否   | 当前时间 | 发送时间            |
 | remark      | varchar(500) | 500  |                                            | 是   |          | 备注                |
-| is_deleted  | char         | 1    |                                            | 否   |          | 删除(0否 1是) 默认0 |
+| is_delete   | char         | 1    |                                            | 否   |          | 删除(0否 1是) 默认0 |
 
  发送状态： 0=待发送，1=已发送，2=发送失败，3=已撤回
 
@@ -581,7 +581,7 @@ CREATE TABLE u_inform_info (
     retry_count INT NOT NULL DEFAULT 0 COMMENT '重试次数',
     send_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
     remark VARCHAR(500) COMMENT '备注',
-    is_deleted TINYINT(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除（0=正常 1=删除）',
+    is_delete TINYINT(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除（0=正常 1=删除）',
     PRIMARY KEY (record_id),
     INDEX idx_send_time (send_time),  
     INDEX idx_user_status (user_id, status),  
@@ -1482,7 +1482,7 @@ CREATE TABLE ai_conversation_log (
 | create_time      | datetime |      |                           | 否   | 当前时间   | 创建时间                      |
 | last_update_time | datetime |      |                           | 是   | 当前时间   | 最后上传文件时间              |
 | update_time      | datetime |      |                           | 是   | 当前时间   | 最后更新时间                  |
-| is_deleted       | char     | 1    |                           | 否   | 0          | 删除(0否 1是) 默认0           |
+| is_delete        | char     | 1    |                           | 否   | 0          | 删除(0否 1是) 默认0           |
 | deleted_time     | datetime |      |                           | 是   |            | 删除时间                      |
 | space_type       | char     | 1    |                           | 否   | 0          | 空间类型（0个人 1团队 2官方） |
 | member_limit     | int      |      |                           | 是   | 10         | 人数上限                      |
@@ -1532,20 +1532,20 @@ CREATE TABLE p_space_info
     create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     last_update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后上传时间',
     update_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
-    is_deleted       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+    is_delete       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
     deleted_time     DATETIME COMMENT '删除时间',
     PRIMARY KEY (space_id),
     UNIQUE KEY uk_space_name (space_name),
     FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_space_type (space_type),
-    INDEX idx_is_deleted (is_deleted),
+    INDEX idx_is_delete (is_delete),
     index idx_space_status (space_status)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='空间信息表';
 ```
 
 
 
-#### 空间邀请记录表：p_space_invitation
+#### 空间邀请记录表：p_space_invitation_info
 
 记录邀请进入此空间的记录
 
@@ -1571,8 +1571,8 @@ CREATE TABLE p_space_info
 邀请链接：用户可以点击链接访问
 
 ```sql
-DROP TABLE IF EXISTS p_space_invitation;
-CREATE TABLE p_space_invitation
+DROP TABLE IF EXISTS p_space_invitation_info;
+CREATE TABLE p_space_invitation_info
 (
     invitation_id      VARCHAR(128) NOT NULL COMMENT '邀请编号',
     space_id           VARCHAR(128) NOT NULL COMMENT '空间编号',
@@ -1722,7 +1722,7 @@ CREATE TABLE p_space_folder_info
 | download_count  | bigint   |      | 索引                              | 否   | 0        | 下载次数 |
 | create_time     | datetime |      |                                   | 否   | 当前时间 | 创建时间 |
 | update_time     | datetime |      |                                   | 否   | 当前时间 | 更新时间 |
-| is_deleted      | char     | 1    |                                   | 否   | 0        | 删除     |
+| is_delete       | char     | 1    |                                   | 否   | 0        | 删除     |
 
 分类状态：0正常 1关闭，是否可以查询到且使用
 
@@ -1745,7 +1745,7 @@ CREATE TABLE p_picture_category_info
     download_count  BIGINT        NOT NULL DEFAULT 0 COMMENT '下载次数',
     create_time     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_deleted      CHAR(1)       NOT NULL DEFAULT '0' COMMENT '删除标记（0否 1是）',
+    is_delete      CHAR(1)       NOT NULL DEFAULT '0' COMMENT '删除标记（0否 1是）',
     PRIMARY KEY (category_id),
     FOREIGN KEY (parent_id) REFERENCES p_picture_category_info (category_id) ON DELETE CASCADE,
     UNIQUE KEY uk_category_name (name),
@@ -1831,7 +1831,7 @@ CREATE TABLE p_picture_tag_info (
 | space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间 编号           |
 | folder_id      | varchar  | 128  |                                   | 是   |                | 文件夹              |
 | pic_color      | varchar  | 16   |                                   | 是   |                | 图片主色调          |
-| is_deleted     | char     | 1    |                                   | 否   | 0              | 删除(0否 1是) 默认0 |
+| is_delete      | char     | 1    |                                   | 否   | 0              | 删除(0否 1是) 默认0 |
 | deleted_time   | datetime |      |                                   | 是   |                | 删除时间            |
 
 审核状态：0待审核; 1通过; 2拒绝
@@ -1921,28 +1921,30 @@ CREATE TABLE p_picture_tag_rel_info
 
 记录用户下载的日志
 
-| 字段名               | 类型     | 长度 | 键类型                      | Null | 默认值   | 描述         |
-| -------------------- | -------- | ---- | --------------------------- | ---- | -------- | ------------ |
-| download_id          | varchar  | 128  | 主键                        | 否   |          | 下载编号     |
-| user_id              | varchar  | 128  | 外键 (u_user_info:user_id)  | 否   |          | 用户编号     |
-| picture_id           | varchar  | 128  | 外键 (p_picture:picture_id) | 否   |          | 图片编号     |
-| space_id             | varchar  | 128  | 外键 (p_space:space_id)     | 是   |          | 空间编号     |
-| download_ip          | varchar  | 64   |                             | 是   |          | IP 地址      |
-| device_id            | varchar  | 255  |                             | 是   |          | 设备唯一标识 |
-| browser              | varchar  | 50   |                             | 是   |          | 浏览器类型   |
-| os                   | varchar  | 50   |                             | 是   |          | 操作系统     |
-| platform             | varchar  | 20   |                             | 是   |          | 平台         |
-| points_cost          | int      |      |                             | 否   | 0        | 消耗积分     |
-| is_free              | char     | 1    |                             | 否   | 0        | 是否免费     |
-| points_author_gain   | int      |      |                             | 否   | 0        | 作者获得积分 |
-| points_official_gain | int      |      |                             | 否   | 0        | 官方获得积分 |
-| points_space_gain    | int      |      |                             | 是   | 0        | 空间获得积分 |
-| proportion           | double   |      |                             | 是   | 0        | 分成         |
-| create_time          | datetime |      |                             | 否   | 当前时间 | 下载时间     |
-| download_status      | char     | 1    |                             | 否   |          | 下载状态     |
-| fail_reason          | varchar  | 255  |                             | 是   |          | 失败原因     |
-| download_type        | char     | 1    |                             | 否   |          | 下载方式     |
-| refer_source         | char     | 1    |                             | 是   |          | 来源         |
+| 字段名               | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述         |
+| -------------------- | -------- | ---- | --------------------------------- | ---- | -------- | ------------ |
+| download_id          | varchar  | 128  | 主键                              | 否   |          | 下载编号     |
+| user_id              | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号     |
+| picture_id           | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号     |
+| space_id             | varchar  | 128  | 外键 (p_space:space_id)           | 是   |          | 空间编号     |
+| category_id          | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类     |
+| tags                 | varchar  | 256  |                                   | 是   |          | 图片标签     |
+| download_ip          | varchar  | 64   |                                   | 是   |          | IP 地址      |
+| device_id            | varchar  | 255  |                                   | 是   |          | 设备唯一标识 |
+| browser              | varchar  | 50   |                                   | 是   |          | 浏览器类型   |
+| os                   | varchar  | 50   |                                   | 是   |          | 操作系统     |
+| platform             | varchar  | 20   |                                   | 是   |          | 平台         |
+| points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
+| is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
+| points_author_gain   | int      |      |                                   | 否   | 0        | 作者获得积分 |
+| points_official_gain | int      |      |                                   | 否   | 0        | 官方获得积分 |
+| points_space_gain    | int      |      |                                   | 是   | 0        | 空间获得积分 |
+| proportion           | double   |      |                                   | 是   | 0        | 分成         |
+| create_time          | datetime |      |                                   | 否   | 当前时间 | 下载时间     |
+| download_status      | char     | 1    |                                   | 否   |          | 下载状态     |
+| fail_reason          | varchar  | 255  |                                   | 是   |          | 失败原因     |
+| download_type        | char     | 1    |                                   | 否   |          | 下载方式     |
+| refer_source         | char     | 1    |                                   | 是   |          | 来源         |
 
 消耗积分（0 表示免费）
 
@@ -1961,6 +1963,8 @@ CREATE TABLE p_picture_download_log
     download_id          VARCHAR(128) NOT NULL COMMENT '下载编号',
     user_id              VARCHAR(128) NOT NULL COMMENT '用户编号',
     picture_id           VARCHAR(128)       NOT NULL COMMENT '图片编号',
+    category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
+    tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
     space_id             VARCHAR(128) COMMENT '空间编号',
     download_ip          VARCHAR(64)  NOT NULL COMMENT '下载IP地址',
     device_id            VARCHAR(255) COMMENT '设备唯一标识',
@@ -2127,25 +2131,28 @@ CREATE TABLE p_user_action_log_info (
 
 #### 图片评论表：p_picture_comment_info
 
-| 字段名      | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
-| ----------- | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
-| comment_id  | varchar  | 128  | 主键                              | 否   |          | 评论编号 |
-| user_id     | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
-| parent_id   | varchar  | 128  | 外键 (p_picture_comment)          | 是   |          | 父级编号 |
-| picture_id  | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
-| category_id | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
-| tags        | varchar  | 256  |                                   | 是   |          | 图片标签 |
-| content     | varchar  | 256  |                                   | 是   |          | 评论内容 |
-| create_time | datetime |      |                                   | 否   | 当前时间 | 评论时间 |
-| like_count  | int      |      |                                   | 否   | 0        | 点赞数   |
-| ip_address  | varchar  | 64   |                                   | 是   |          | IP属地   |
-| picture_url | varchar  | 500  |                                   | 是   |          | 图片     |
+| 字段名         | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
+| -------------- | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
+| comment_id     | varchar  | 128  | 主键                              | 否   |          | 评论编号 |
+| user_id        | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
+| parent_id      | varchar  | 128  | 外键 (p_picture_comment)          | 是   |          | 父级编号 |
+| picture_id     | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
+| category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
+| tags           | varchar  | 256  |                                   | 是   |          | 图片标签 |
+| content        | varchar  | 256  |                                   | 是   |          | 评论内容 |
+| create_time    | datetime |      |                                   | 否   | 当前时间 | 评论时间 |
+| like_count     | int      |      |                                   | 否   | 0        | 点赞数   |
+| ip_address     | varchar  | 64   |                                   | 是   |          | IP属地   |
+| picture_url    | varchar  | 500  |                                   | 是   |          | 图片     |
+| comment_status | char     | 1    |                                   | 否   |          | 正常     |
 
 图片：评论可以上传一张图片，但是会被压缩
 
 分类：存这个图片的分类，后续可以做推荐算法
 
 标签：直接使用字符串存储，一个图片最多五个标签，存储方式："花","玫瑰花"，每个用引号包裹，，分割
+
+评论状态：0正常 1异常
 
 ```sql
 DROP TABLE IF EXISTS p_picture_comment_info;
@@ -2162,6 +2169,7 @@ CREATE TABLE p_picture_comment_info
     like_count  INT          NOT NULL DEFAULT 0 COMMENT '点赞数',
     ip_address  VARCHAR(64) COMMENT '评论者IP属地',
     picture_url VARCHAR(500) COMMENT '评论图片URL',
+    comment_status CHAR(1)   COMMENT '评论状态（0正常 1异常）'
     PRIMARY KEY (comment_id),
     INDEX idx_comment_user (user_id),
     INDEX idx_comment_picture (picture_id),
@@ -2201,8 +2209,8 @@ CREATE TABLE p_picture_comment_info
 | create_time  | datetime |      |                             | 否   | 当前时间 | 点赞时间     |
 
 ```sql
-DROP TABLE IF EXISTS p_picture_like_info;
-CREATE TABLE p_picture_like_info (
+DROP TABLE IF EXISTS p_picture_comment_like_info;
+CREATE TABLE p_picture_comment_like_info (
     like_id VARCHAR(128) NOT NULL COMMENT '点赞编号',
     user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
     picture_id varchar(128) NOT NULL COMMENT '图片编号',
@@ -2355,14 +2363,16 @@ CREATE TABLE p_picture_favorite_info
 
 #### 用户浏览记录表：p_user_view_log_info
 
-| 字段名       | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述         |
-| ------------ | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
-| view_id      | varchar  | 128  | 主键                       | 否   |          | 浏览记录编号 |
-| user_id      | varchar  | 128  | 外键 (u_user_info:user_id) | 是   |          | 用户编号     |
-| target_type  | char     | 1    |                            | 否   |          | 目标类型     |
-| target_id    | varchar  | 128  |                            | 否   |          | 目标对象     |
-| target_cover | varchar  | 512  |                            | 是   |          | 封面         |
-| create_time  | datetime |      |                            | 否   | 当前时间 | 查看时间     |
+| 字段名       | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述         |
+| ------------ | -------- | ---- | --------------------------------- | ---- | -------- | ------------ |
+| view_id      | varchar  | 128  | 主键                              | 否   |          | 浏览记录编号 |
+| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)        | 是   |          | 用户编号     |
+| target_type  | char     | 1    |                                   | 否   |          | 目标类型     |
+| target_id    | varchar  | 128  |                                   | 否   |          | 目标对象     |
+| category_id  | varchar  | 128  | 外键(p_category_info:category_id) | 是   |          | 图片分类     |
+| tags         | varchar  | 256  |                                   | 是   |          | 图片标签     |
+| target_cover | varchar  | 512  |                                   | 是   |          | 封面         |
+| create_time  | datetime |      |                                   | 否   | 当前时间 | 查看时间     |
 
 目标类型：0图片 1用户 2空间
 
@@ -2375,6 +2385,8 @@ CREATE TABLE p_user_view_log_info (
     user_id VARCHAR(128) COMMENT '用户编号',
     target_type CHAR(1) NOT NULL COMMENT '目标类型（0图片 1用户 2空间）',
     target_id VARCHAR(128) NOT NULL COMMENT '目标对象编号',
+    category_id  VARCHAR(128) COMMENT '图片分类',
+    tags         VARCHAR(256) COMMENT '图片标签',
     target_cover VARCHAR(512) COMMENT '封面URL',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '查看时间',
     PRIMARY KEY (view_id),
