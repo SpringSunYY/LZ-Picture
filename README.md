@@ -1512,34 +1512,35 @@ CREATE TABLE ai_conversation_log (
 
 ```sql
 DROP TABLE IF EXISTS p_space_info;
-CREATE TABLE p_space_info (
-    space_id VARCHAR(128) NOT NULL COMMENT '空间编号',
-    space_name VARCHAR(32) NOT NULL COMMENT '空间名称',
-    space_avatar VARCHAR(512) COMMENT '空间封面URL',
-    oss_type CHAR(1) NOT NULL DEFAULT '1' COMMENT '存储类型（0官方 阿里云）',
-    oss_config VARCHAR(1024) COMMENT '存储配置',
-    max_size BIGINT DEFAULT 1073741824 COMMENT '最大容量（字节）',
-    max_count BIGINT DEFAULT 1000 COMMENT '最大文件数',
-    total_size BIGINT DEFAULT 0 COMMENT '已用容量（字节）',
-    total_count BIGINT DEFAULT 0 COMMENT '文件总数',
-    user_id VARCHAR(128) NOT NULL COMMENT '所属用户',
-    space_desc VARCHAR(512) COMMENT '空间描述',
-    space_status CHAR(1) NOT NULL COMMENT '空间状态',
-    space_type CHAR(1) NOT NULL DEFAULT '0' COMMENT '空间类型（0个人 1团队 2官方）',
-    member_limit INT DEFAULT 10 COMMENT '成员上限',
-    current_members INT DEFAULT 0 COMMENT '当前成员数',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+CREATE TABLE p_space_info
+(
+    space_id         VARCHAR(128) NOT NULL COMMENT '空间编号',
+    space_name       VARCHAR(32)  NOT NULL COMMENT '空间名称',
+    space_avatar     VARCHAR(512) COMMENT '空间封面URL',
+    oss_type         CHAR(1)      NOT NULL DEFAULT '1' COMMENT '存储类型（0官方 阿里云）',
+    oss_config       VARCHAR(1024) COMMENT '存储配置',
+    max_size         BIGINT                DEFAULT 1073741824 COMMENT '最大容量（字节）',
+    max_count        BIGINT                DEFAULT 1000 COMMENT '最大文件数',
+    total_size       BIGINT                DEFAULT 0 COMMENT '已用容量（字节）',
+    total_count      BIGINT                DEFAULT 0 COMMENT '文件总数',
+    user_id          VARCHAR(128) NOT NULL COMMENT '所属用户',
+    space_desc       VARCHAR(512) COMMENT '空间描述',
+    space_status     CHAR(1)      NOT NULL COMMENT '空间状态',
+    space_type       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '空间类型（0个人 1团队 2官方）',
+    member_limit     INT                   DEFAULT 10 COMMENT '成员上限',
+    current_members  INT                   DEFAULT 0 COMMENT '当前成员数',
+    create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     last_update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后上传时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
-    is_deleted CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
-    deleted_time DATETIME COMMENT '删除时间',
+    update_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    is_deleted       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+    deleted_time     DATETIME COMMENT '删除时间',
     PRIMARY KEY (space_id),
     UNIQUE KEY uk_space_name (space_name),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_space_type (space_type),
     INDEX idx_is_deleted (is_deleted),
     index idx_space_status (space_status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='空间信息表';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='空间信息表';
 ```
 
 
@@ -1571,27 +1572,29 @@ CREATE TABLE p_space_info (
 
 ```sql
 DROP TABLE IF EXISTS p_space_invitation;
-CREATE TABLE p_space_invitation (
-    invitation_id VARCHAR(128) NOT NULL COMMENT '邀请编号',
-    space_id VARCHAR(128) NOT NULL COMMENT '空间编号',
-    space_name VARCHAR(32) NOT NULL COMMENT '空间名称',
-    space_avatar VARCHAR(256) COMMENT '空间封面URL',
-    role_type CHAR(1) NOT NULL COMMENT '邀请角色（0创建者 1管理员 2编辑者 3浏览者）',
-    invitation_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '邀请状态（0待同意 1同意 2拒绝 3过期）',
-    invitation_url VARCHAR(256) COMMENT '邀请链接（短链或唯一标识）',
-    invitation TEXT COMMENT '邀请理由',
+CREATE TABLE p_space_invitation
+(
+    invitation_id      VARCHAR(128) NOT NULL COMMENT '邀请编号',
+    space_id           VARCHAR(128) NOT NULL COMMENT '空间编号',
+    space_name         VARCHAR(32)  NOT NULL COMMENT '空间名称',
+    space_avatar       VARCHAR(256) COMMENT '空间封面URL',
+    role_type          CHAR(1)      NOT NULL COMMENT '邀请角色（0创建者 1管理员 2编辑者 3浏览者）',
+    invitation_status  CHAR(1)      NOT NULL DEFAULT '0' COMMENT '邀请状态（0待同意 1同意 2拒绝 3过期）',
+    invitation_url     VARCHAR(256) COMMENT '邀请链接（短链或唯一标识）',
+    invitation         TEXT COMMENT '邀请理由',
     invitation_user_id VARCHAR(128) NOT NULL COMMENT '邀请人编号',
-    expire_time DATETIME NOT NULL COMMENT '过期时间',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    user_id VARCHAR(128) NOT NULL COMMENT '被邀请用户编号',
+    expire_time        DATETIME     NOT NULL COMMENT '过期时间',
+    create_time        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    user_id            VARCHAR(128) NOT NULL COMMENT '被邀请用户编号',
     PRIMARY KEY (invitation_id),
-    FOREIGN KEY (space_id) REFERENCES p_space_info(space_id) ON DELETE CASCADE,
-    FOREIGN KEY (invitation_user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id),
+    FOREIGN KEY (invitation_user_id) REFERENCES u_user_info (user_id),
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     UNIQUE KEY uk_invitation_url (invitation_url),
     INDEX idx_invitation_status (invitation_status),
     INDEX idx_expire_time (expire_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='空间成员邀请记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='空间成员邀请记录表';
 ```
 
 
@@ -1619,25 +1622,27 @@ CREATE TABLE p_space_invitation (
 
 ```sql
 DROP TABLE IF EXISTS p_space_member_info;
-CREATE TABLE p_space_member_info (
-    member_id VARCHAR(128) NOT NULL COMMENT '成员编号',
-    space_id VARCHAR(128) NOT NULL COMMENT '空间编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    role_type CHAR(1) NOT NULL COMMENT '角色（0创建者 1管理员 2编辑者 3浏览者）',
-    last_active_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '最后操作时间',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '加入时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    inviter_user_id VARCHAR(128) COMMENT '邀请人编号',
-    join_type CHAR(1) NOT NULL DEFAULT '0' COMMENT '加入方式（0邀请）',
-    remark VARCHAR(128) COMMENT '备注',
+CREATE TABLE p_space_member_info
+(
+    member_id        VARCHAR(128) NOT NULL COMMENT '成员编号',
+    space_id         VARCHAR(128) NOT NULL COMMENT '空间编号',
+    user_id          VARCHAR(128) NOT NULL COMMENT '用户编号',
+    role_type        CHAR(1)      NOT NULL COMMENT '角色（0创建者 1管理员 2编辑者 3浏览者）',
+    last_active_time DATETIME              DEFAULT CURRENT_TIMESTAMP COMMENT '最后操作时间',
+    create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '加入时间',
+    update_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    inviter_user_id  VARCHAR(128) COMMENT '邀请人编号',
+    join_type        CHAR(1)      NOT NULL DEFAULT '0' COMMENT '加入方式（0邀请）',
+    remark           VARCHAR(128) COMMENT '备注',
     PRIMARY KEY (member_id),
-    FOREIGN KEY (space_id) REFERENCES p_space_info(space_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    FOREIGN KEY (inviter_user_id) REFERENCES u_user_info(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id),
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
+    FOREIGN KEY (inviter_user_id) REFERENCES u_user_info (user_id) ON DELETE SET NULL,
     UNIQUE KEY uk_space_user (space_id, user_id),
     INDEX idx_role_type (role_type),
     INDEX idx_join_type (join_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='空间成员信息表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='空间成员信息表';
 ```
 
 
@@ -1671,27 +1676,29 @@ CREATE TABLE p_space_member_info (
 
 ```sql
 DROP TABLE IF EXISTS p_space_folder_info;
-CREATE TABLE p_space_folder_info (
-    folder_id VARCHAR(128) NOT NULL COMMENT '文件夹编号',
-    space_id VARCHAR(128) NOT NULL COMMENT '空间编号',
-    parent_id VARCHAR(128) NOT NULL DEFAULT '0' COMMENT '父文件夹编号',
-    ancestors VARCHAR(1280) NOT NULL COMMENT '祖级列表',
-    folder_name VARCHAR(32) NOT NULL COMMENT '文件夹名称',
-    full_path VARCHAR(1024) NOT NULL COMMENT '完整路径（格式：/文件夹名1/文件夹名2/）',
+CREATE TABLE p_space_folder_info
+(
+    folder_id    VARCHAR(128)     NOT NULL COMMENT '文件夹编号',
+    space_id     VARCHAR(128)     NOT NULL COMMENT '空间编号',
+    parent_id    VARCHAR(128)     NOT NULL DEFAULT '0' COMMENT '父文件夹编号',
+    ancestors    VARCHAR(1280)    NOT NULL COMMENT '祖级列表',
+    folder_name  VARCHAR(32)      NOT NULL COMMENT '文件夹名称',
+    full_path    VARCHAR(1024)    NOT NULL COMMENT '完整路径（格式：/文件夹名1/文件夹名2/）',
     folder_level TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '层级',
-    user_id VARCHAR(128) NOT NULL COMMENT '创建人',
-    sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序权重',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    remark VARCHAR(128) COMMENT '备注',
+    user_id      VARCHAR(128)     NOT NULL COMMENT '创建人',
+    sort_order   TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序权重',
+    create_time  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time  DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark       VARCHAR(128) COMMENT '备注',
     PRIMARY KEY (folder_id),
-    FOREIGN KEY (space_id) REFERENCES p_space_info(space_id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_id) REFERENCES p_space_folder_info(folder_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    UNIQUE KEY uk_folder_unique (space_id, parent_id, folder_name), 
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES p_space_folder_info (folder_id),
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
+    UNIQUE KEY uk_folder_unique (space_id, parent_id, folder_name),
     INDEX idx_full_path (full_path(200)),
-    INDEX idx_ancestors (ancestors(200)) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='空间文件夹层级表';
+    INDEX idx_ancestors (ancestors(200))
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='空间文件夹表';
 ```
 
 
@@ -1723,29 +1730,30 @@ CREATE TABLE p_space_folder_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_category_info;
-CREATE TABLE p_picture_category_info (
-    category_id VARCHAR(128) NOT NULL COMMENT '分类编号',
-    parent_id VARCHAR(128) NOT NULL DEFAULT '0' COMMENT '父级分类编号）',
-    ancestors VARCHAR(1280) NOT NULL COMMENT '祖级列表',
-    cover_url VARCHAR(512) COMMENT '封面图URL',
-    name VARCHAR(32) NOT NULL COMMENT '分类名称',
-    category_desc VARCHAR(512) COMMENT '分类描述',
-    category_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '分类状态（0正常 1关闭）',
-    query_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '查询状态（0是 1否）',
-    usage_count BIGINT NOT NULL DEFAULT 0 COMMENT '使用次数',
-    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
-    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_deleted CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标记（0否 1是）',
+CREATE TABLE p_picture_category_info
+(
+    category_id     VARCHAR(128)  NOT NULL COMMENT '分类编号',
+    parent_id       VARCHAR(128)  NOT NULL DEFAULT '0' COMMENT '父级分类编号',
+    ancestors       VARCHAR(1280) NOT NULL COMMENT '祖级列表',
+    cover_url       VARCHAR(512) COMMENT '封面图URL',
+    name            VARCHAR(32)   NOT NULL COMMENT '分类名称',
+    category_desc   VARCHAR(512) COMMENT '分类描述',
+    category_status CHAR(1)       NOT NULL DEFAULT '0' COMMENT '分类状态（0正常 1关闭）',
+    query_status    CHAR(1)       NOT NULL DEFAULT '0' COMMENT '查询状态（0是 1否）',
+    usage_count     BIGINT        NOT NULL DEFAULT 0 COMMENT '使用次数',
+    look_count      BIGINT        NOT NULL DEFAULT 0 COMMENT '查看次数',
+    download_count  BIGINT        NOT NULL DEFAULT 0 COMMENT '下载次数',
+    create_time     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_deleted      CHAR(1)       NOT NULL DEFAULT '0' COMMENT '删除标记（0否 1是）',
     PRIMARY KEY (category_id),
-    FOREIGN KEY (parent_id) REFERENCES p_picture_category_info(category_id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES p_picture_category_info (category_id) ON DELETE CASCADE,
     UNIQUE KEY uk_category_name (name),
     INDEX idx_usage_count (usage_count),
     INDEX idx_look_count (look_count),
-    INDEX idx_download_count (download_count),
-    INDEX idx_ancestors (ancestors(255))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片分类信息表';
+    INDEX idx_download_count (download_count)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片分类信息表';
 ```
 
 
@@ -1754,17 +1762,18 @@ CREATE TABLE p_picture_category_info (
 
 图片的标签，统一管理
 
-| 字段名         | 类型     | 长度 | 键类型 | Null | 默认值   | 描述     |
-| -------------- | -------- | ---- | ------ | ---- | -------- | -------- |
-| tag_id         | varchar  | 128  | 主键   | 否   |          | 标签编号 |
-| name           | varchar  | 32   | 唯一键 | 否   |          | 标签名称 |
-| tag_desc       | varchar  | 512  |        | 是   |          | 标签描述 |
-| tag_status     | char     | 1    |        | 否   |          | 标签状态 |
-| usage_count    | bigint   |      | 索引   | 否   | 0        | 使用次数 |
-| look_count     | bigint   |      | 索引   | 否   | 0        | 查看次数 |
-| download_count | bigint   |      | 索引   | 否   | 0        | 下载次数 |
-| create_time    | datetime |      |        | 否   | 当前时间 | 创建时间 |
-| update_time    | datetime |      |        | 否   | 当前时间 | 更新时间 |
+| 字段名         | 类型     | 长度 | 键类型                    | Null | 默认值   | 描述     |
+| -------------- | -------- | ---- | ------------------------- | ---- | -------- | -------- |
+| tag_id         | varchar  | 128  | 主键                      | 否   |          | 标签编号 |
+| name           | varchar  | 32   | 唯一键                    | 否   |          | 标签名称 |
+| tag_desc       | varchar  | 512  |                           | 是   |          | 标签描述 |
+| tag_status     | char     | 1    |                           | 否   |          | 标签状态 |
+| usage_count    | bigint   |      | 索引                      | 否   | 0        | 使用次数 |
+| look_count     | bigint   |      | 索引                      | 否   | 0        | 查看次数 |
+| download_count | bigint   |      | 索引                      | 否   | 0        | 下载次数 |
+| user_id        | varchar  | 128  | 外键(u_user_info:user_id) | 否   |          | 用户     |
+| create_time    | datetime |      |                           | 否   | 当前时间 | 创建时间 |
+| update_time    | datetime |      |                           | 否   | 当前时间 | 更新时间 |
 
 标签状态：0正常 1禁止 记录此标签是否可以添加，如果关闭禁止，则不可以添加，防止有一些恶意标签
 
@@ -1779,9 +1788,11 @@ CREATE TABLE p_picture_tag_info (
     usage_count BIGINT NOT NULL DEFAULT 0 COMMENT '使用次数',
     look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
     download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',
+    user_id          VARCHAR(128) NOT NULL COMMENT '所属用户',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (tag_id),
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     UNIQUE KEY uk_tag_name (name),
     INDEX idx_usage_count (usage_count),
     INDEX idx_look_count (look_count),
@@ -1833,41 +1844,43 @@ CREATE TABLE p_picture_tag_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_info;
-CREATE TABLE p_picture_info (
-    picture_id varchar(128) AUTO_INCREMENT COMMENT '图片编号',
-    picture_url VARCHAR(512) NOT NULL COMMENT '图片URL',
-    name VARCHAR(32) NOT NULL COMMENT '图片名称',
-    introduction VARCHAR(512) COMMENT '简介',
-    category_id VARCHAR(128) NOT NULL COMMENT '分类编号',
-    pic_size BIGINT COMMENT '图片体积（字节）',
-    pic_width INT DEFAULT 0 COMMENT '图片宽度',
-    pic_height INT DEFAULT 0 COMMENT '图片高度',
-    pic_scale DOUBLE DEFAULT 0 COMMENT '宽高比例',
-    pic_format VARCHAR(32) COMMENT '图片格式',
-    user_id VARCHAR(128) NOT NULL COMMENT '上传用户编号',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    edit_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '编辑时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    picture_status CHAR(1) NOT NULL COMMENT '图片状态（0公共 1私有）',
-    review_status INT NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
+CREATE TABLE p_picture_info
+(
+    picture_id     varchar(128) COMMENT '图片编号',
+    picture_url    VARCHAR(512) NOT NULL COMMENT '图片URL',
+    name           VARCHAR(32)  NOT NULL COMMENT '图片名称',
+    introduction   VARCHAR(512) COMMENT '简介',
+    category_id    VARCHAR(128) NOT NULL COMMENT '分类编号',
+    pic_size       BIGINT COMMENT '图片体积（字节）',
+    pic_width      INT                   DEFAULT 0 COMMENT '图片宽度',
+    pic_height     INT                   DEFAULT 0 COMMENT '图片高度',
+    pic_scale      DOUBLE                DEFAULT 0 COMMENT '宽高比例',
+    pic_format     VARCHAR(32) COMMENT '图片格式',
+    user_id        VARCHAR(128) NOT NULL COMMENT '上传用户编号',
+    create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    edit_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '编辑时间',
+    update_time    DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    picture_status CHAR(1)      NOT NULL COMMENT '图片状态（0公共 1私有）',
+    review_status  INT          NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
     review_message VARCHAR(512) COMMENT '审核信息',
     review_user_id BIGINT COMMENT '审核人编号',
-    review_time DATETIME COMMENT '审核时间',
-    thumbnail_url VARCHAR(512) COMMENT '缩略图URL',
-    space_id VARCHAR(128) COMMENT '所属空间编号',
-    folder_id VARCHAR(128) COMMENT '所属文件夹编号',
-    pic_color VARCHAR(16) COMMENT '图片主色调（十六进制代码）',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
-    deleted_time DATETIME COMMENT '删除时间',
+    review_time    DATETIME COMMENT '审核时间',
+    thumbnail_url  VARCHAR(512) COMMENT '缩略图URL',
+    space_id       VARCHAR(128) COMMENT '所属空间编号',
+    folder_id      VARCHAR(128) COMMENT '所属文件夹编号',
+    pic_color      VARCHAR(16) COMMENT '图片主色调（十六进制代码）',
+    is_delete      CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+    deleted_time   DATETIME COMMENT '删除时间',
     PRIMARY KEY (picture_id),
-    FOREIGN KEY (category_id) REFERENCES p_picture_category_info(category_id) ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    FOREIGN KEY (space_id) REFERENCES p_space_info(space_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES p_picture_category_info (category_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id) ON DELETE SET NULL ON UPDATE CASCADE,
     INDEX idx_review_status (review_status),
     INDEX idx_space_folder (space_id, folder_id),
     INDEX idx_pic_color (pic_color),
     INDEX idx_picture_status (picture_status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片详细信息表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片详细信息表';
 ```
 
 
@@ -1883,21 +1896,23 @@ CREATE TABLE p_picture_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_tag_rel_info;
-CREATE TABLE p_picture_tag_rel_info (
+CREATE TABLE p_picture_tag_rel_info
+(
     picture_id varchar(128) NOT NULL COMMENT '图片编号',
-    tag_id VARCHAR(128) NOT NULL COMMENT '标签编号',
+    tag_id     VARCHAR(128) NOT NULL COMMENT '标签编号',
     PRIMARY KEY (picture_id, tag_id),
     INDEX idx_picture_id (picture_id),
     INDEX idx_tag_id (tag_id),
-    CONSTRAINT fk_rel_picture 
-        FOREIGN KEY (picture_id) 
-        REFERENCES p_picture_info(picture_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_rel_tag 
-        FOREIGN KEY (tag_id) 
-        REFERENCES p_tag_info(tag_id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片标签关联表';
+    CONSTRAINT fk_rel_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_rel_tag
+        FOREIGN KEY (tag_id)
+            REFERENCES p_picture_tag_info (tag_id)
+            ON DELETE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片标签关联表';
 ```
 
 
@@ -1940,37 +1955,38 @@ CREATE TABLE p_picture_tag_rel_info (
 下载状态：1失败 0成功
 
 ```sql
--- 图片下载记录表（依赖u_user_info、p_picture_info、p_space_info表）
 DROP TABLE IF EXISTS p_picture_download_log;
-CREATE TABLE p_picture_download_log (
-    download_id VARCHAR(128) NOT NULL COMMENT '下载编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',  
-    picture_id BIGINT NOT NULL COMMENT '图片编号',
-    space_id VARCHAR(128) COMMENT '空间编号',        
-    download_ip VARCHAR(64) NOT NULL COMMENT '下载IP地址',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台（Web/APP）',
-    points_cost INT NOT NULL DEFAULT 0 COMMENT '消耗积分',
-    is_free CHAR(1) NOT NULL DEFAULT '0' COMMENT '是否免费（0是 1否）',
-    points_author_gain INT NOT NULL DEFAULT 0 COMMENT '作者分成积分',
-    points_official_gain INT NOT NULL DEFAULT 0 COMMENT '平台分成积分',
-    points_space_gain INT DEFAULT 0 COMMENT '空间分成积分',
-    proportion DOUBLE COMMENT '分成比例（如0.3表示30%）',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下载时间',
-    download_status CHAR(1) NOT NULL DEFAULT '1' COMMENT '下载状态（1失败 0成功）',
-    fail_reason VARCHAR(255) COMMENT '失败原因',
-    download_type CHAR(1) NOT NULL COMMENT '下载方式（0手动 1API 2批量）',
-    refer_source CHAR(1) COMMENT '来源（0其他 1详情 2分享）',  
+CREATE TABLE p_picture_download_log
+(
+    download_id          VARCHAR(128) NOT NULL COMMENT '下载编号',
+    user_id              VARCHAR(128) NOT NULL COMMENT '用户编号',
+    picture_id           VARCHAR(128)       NOT NULL COMMENT '图片编号',
+    space_id             VARCHAR(128) COMMENT '空间编号',
+    download_ip          VARCHAR(64)  NOT NULL COMMENT '下载IP地址',
+    device_id            VARCHAR(255) COMMENT '设备唯一标识',
+    browser              VARCHAR(50) COMMENT '浏览器类型',
+    os                   VARCHAR(50) COMMENT '操作系统',
+    platform             VARCHAR(20) COMMENT '平台（Web/APP）',
+    points_cost          INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',
+    is_free              CHAR(1)      NOT NULL DEFAULT '0' COMMENT '是否免费（0是 1否）',
+    points_author_gain   INT          NOT NULL DEFAULT 0 COMMENT '作者分成积分',
+    points_official_gain INT          NOT NULL DEFAULT 0 COMMENT '平台分成积分',
+    points_space_gain    INT                   DEFAULT 0 COMMENT '空间分成积分',
+    proportion           DOUBLE COMMENT '分成比例（如0.3表示30%）',
+    create_time          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下载时间',
+    download_status      CHAR(1)      NOT NULL DEFAULT '1' COMMENT '下载状态（1失败 0成功）',
+    fail_reason          VARCHAR(255) COMMENT '失败原因',
+    download_type        CHAR(1)      NOT NULL COMMENT '下载方式（0手动 1API 2批量）',
+    refer_source         CHAR(1) COMMENT '来源（0其他 1详情 2分享）',
     PRIMARY KEY (download_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    FOREIGN KEY (picture_id) REFERENCES p_picture_info(picture_id) ON UPDATE CASCADE,
-    FOREIGN KEY (space_id) REFERENCES p_space_info(space_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
+    FOREIGN KEY (picture_id) REFERENCES p_picture_info (picture_id),
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id) ON DELETE SET NULL,
     INDEX idx_download_time (create_time),
     INDEX idx_download_status (download_status),
     INDEX idx_picture (picture_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片下载记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片下载记录表';
 ```
 
 
@@ -2111,19 +2127,19 @@ CREATE TABLE p_user_action_log_info (
 
 #### 图片评论表：p_picture_comment_info
 
-| 字段名      | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述             |
-| ----------- | -------- | ---- | --------------------------------- | ---- | -------- | ---------------- |
-| comment_id  | varchar  | 128  | 主键                              | 否   |          | 评论编号         |
-| user_id     | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号         |
-| parent_id   | varchar  | 128  | 外键 (p_picture_comment)          | 是   |          | 父级编号         |
-| picture_id  | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号         |
-| category_id | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类         |
-| tags        | varchar  | 256  |                                   | 是   |          | 图片标签         |
-| tagscontent | varchar  | 256  |                                   | 是   |          | 图片标签评论内容 |
-| create_time | datetime |      |                                   | 否   | 当前时间 | 评论时间         |
-| like_count  | int      |      |                                   | 否   | 0        | 点赞数           |
-| ip_address  | varchar  | 64   |                                   | 是   |          | IP属地           |
-| picture_url | varchar  | 500  |                                   | 是   |          | 图片             |
+| 字段名      | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
+| ----------- | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
+| comment_id  | varchar  | 128  | 主键                              | 否   |          | 评论编号 |
+| user_id     | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
+| parent_id   | varchar  | 128  | 外键 (p_picture_comment)          | 是   |          | 父级编号 |
+| picture_id  | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
+| category_id | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
+| tags        | varchar  | 256  |                                   | 是   |          | 图片标签 |
+| content     | varchar  | 256  |                                   | 是   |          | 评论内容 |
+| create_time | datetime |      |                                   | 否   | 当前时间 | 评论时间 |
+| like_count  | int      |      |                                   | 否   | 0        | 点赞数   |
+| ip_address  | varchar  | 64   |                                   | 是   |          | IP属地   |
+| picture_url | varchar  | 500  |                                   | 是   |          | 图片     |
 
 图片：评论可以上传一张图片，但是会被压缩
 
@@ -2133,40 +2149,42 @@ CREATE TABLE p_user_action_log_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_comment_info;
-CREATE TABLE p_picture_comment_info (
-    comment_id VARCHAR(128) NOT NULL COMMENT '评论编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    parent_id VARCHAR(128) COMMENT '父级评论编号',
-    picture_id varchar(128) NOT NULL COMMENT '图片编号',
+CREATE TABLE p_picture_comment_info
+(
+    comment_id  VARCHAR(128) NOT NULL COMMENT '评论编号',
+    user_id     VARCHAR(128) NOT NULL COMMENT '用户编号',
+    parent_id   VARCHAR(128) COMMENT '父级评论编号',
+    picture_id  varchar(128) NOT NULL COMMENT '图片编号',
     category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
-    tagscontent VARCHAR(256) COMMENT '标签关联的评论内容',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
-    like_count INT NOT NULL DEFAULT 0 COMMENT '点赞数',
-    ip_address VARCHAR(64) COMMENT '评论者IP属地',
+    tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
+    content     VARCHAR(256) COMMENT '评论内容',
+    create_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
+    like_count  INT          NOT NULL DEFAULT 0 COMMENT '点赞数',
+    ip_address  VARCHAR(64) COMMENT '评论者IP属地',
     picture_url VARCHAR(500) COMMENT '评论图片URL',
     PRIMARY KEY (comment_id),
     INDEX idx_comment_user (user_id),
     INDEX idx_comment_picture (picture_id),
     INDEX idx_comment_category (category_id),
     INDEX idx_comment_parent (parent_id),
-    CONSTRAINT fk_comment_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_comment_picture 
-        FOREIGN KEY (picture_id) 
-        REFERENCES p_picture(picture_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_comment_category 
-        FOREIGN KEY (category_id) 
-        REFERENCES p_category_info(category_id),
-    CONSTRAINT fk_comment_parent 
-        FOREIGN KEY (parent_id) 
-        REFERENCES p_picture_comment_info(comment_id)
-        ON DELETE SET NULL,
+    CONSTRAINT fk_comment_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_comment_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_comment_category
+        FOREIGN KEY (category_id)
+            REFERENCES p_picture_category_info (category_id),
+    CONSTRAINT fk_comment_parent
+        FOREIGN KEY (parent_id)
+            REFERENCES p_picture_comment_info (comment_id)
+            ON DELETE SET NULL,
     CONSTRAINT chk_like_count CHECK (like_count >= 0)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片评论表（支持层级结构和标签）';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片评论表';
 ```
 
 
@@ -2224,30 +2242,30 @@ CREATE TABLE p_picture_like_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_like_info;
-CREATE TABLE p_picture_like_info (
-    like_id VARCHAR(128) NOT NULL COMMENT '点赞编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id varchar(128) NOT NULL COMMENT '图片编号',
-    category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL', 
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+CREATE TABLE p_picture_like_info
+(
+    like_id      VARCHAR(128) NOT NULL COMMENT '点赞编号',
+    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
+    picture_id   varchar(128) NOT NULL COMMENT '图片编号',
+    category_id  VARCHAR(128) NOT NULL COMMENT '图片分类',
+    tags         VARCHAR(256) COMMENT '图片标签',
+    target_cover VARCHAR(512) COMMENT '封面URL',
+    create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
     PRIMARY KEY (like_id),
     UNIQUE KEY uk_user_picture (user_id, picture_id),
     INDEX idx_like_user (user_id),
     INDEX idx_like_picture (picture_id),
-    CONSTRAINT fk_like_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_like_picture 
-        FOREIGN KEY (picture_id) 
-        REFERENCES p_picture(picture_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_like_category 
-        FOREIGN KEY (category_id) 
-        REFERENCES p_category_info(category_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片点赞记录表';
+    CONSTRAINT fk_like_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id),
+    CONSTRAINT fk_like_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id),
+    CONSTRAINT fk_like_category
+        FOREIGN KEY (category_id)
+            REFERENCES p_picture_category_info (category_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片点赞记录表';
 ```
 
 
@@ -2266,30 +2284,30 @@ CREATE TABLE p_picture_like_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_share_info;
-CREATE TABLE p_picture_share_info (
-    share_id VARCHAR(128) NOT NULL COMMENT '转发编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id varchar(128) NOT NULL COMMENT '图片编号',
-    category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL', 
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
+CREATE TABLE p_picture_share_info
+(
+    share_id     VARCHAR(128) NOT NULL COMMENT '转发编号',
+    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
+    picture_id   varchar(128) NOT NULL COMMENT '图片编号',
+    category_id  VARCHAR(128) NOT NULL COMMENT '图片分类',
+    tags         VARCHAR(256) COMMENT '图片标签',
+    target_cover VARCHAR(512) COMMENT '封面URL',
+    create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
     PRIMARY KEY (share_id),
     INDEX idx_share_user (user_id),
     INDEX idx_share_picture (picture_id),
     INDEX idx_share_category (category_id),
-    CONSTRAINT fk_share_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_share_picture 
-        FOREIGN KEY (picture_id) 
-        REFERENCES p_picture(picture_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_share_category 
-        FOREIGN KEY (category_id) 
-        REFERENCES p_category_info(category_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片转发记录表';
+    CONSTRAINT fk_share_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id),
+    CONSTRAINT fk_share_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id),
+    CONSTRAINT fk_share_category
+        FOREIGN KEY (category_id)
+            REFERENCES p_picture_category_info (category_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片转发记录表';
 ```
 
 
@@ -2308,29 +2326,29 @@ CREATE TABLE p_picture_share_info (
 
 ```sql
 DROP TABLE IF EXISTS p_picture_favorite_info;
-CREATE TABLE p_picture_favorite_info (
-    favorite_id VARCHAR(128) NOT NULL COMMENT '收藏编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id varchar(128) NOT NULL COMMENT '图片编号',
-    category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL',    
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+CREATE TABLE p_picture_favorite_info
+(
+    favorite_id  VARCHAR(128) NOT NULL COMMENT '收藏编号',
+    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
+    picture_id   varchar(128) NOT NULL COMMENT '图片编号',
+    category_id  VARCHAR(128) NOT NULL COMMENT '图片分类',
+    tags         VARCHAR(256) COMMENT '图片标签',
+    target_cover VARCHAR(512) COMMENT '封面URL',
+    create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
     PRIMARY KEY (favorite_id),
     INDEX idx_favorite_user (user_id),
     INDEX idx_favorite_picture (picture_id),
-    CONSTRAINT fk_favorite_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_favorite_picture 
-        FOREIGN KEY (picture_id) 
-        REFERENCES p_picture(picture_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_favorite_category 
-        FOREIGN KEY (category_id) 
-        REFERENCES p_category_info(category_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户图片收藏表';
+    CONSTRAINT fk_favorite_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id),
+    CONSTRAINT fk_favorite_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id),
+    CONSTRAINT fk_favorite_category
+        FOREIGN KEY (category_id)
+            REFERENCES p_picture_category_info (category_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户图片收藏表';
 ```
 
 
@@ -2395,26 +2413,27 @@ CREATE TABLE p_user_view_log_info (
 
 ```sql
 DROP TABLE IF EXISTS p_user_report_info;
-CREATE TABLE p_user_report_info (
-    report_id VARCHAR(128) NOT NULL COMMENT '举报编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    target_type CHAR(1) NOT NULL COMMENT '目标类型（0图片 1用户 2空间）',
-    target_id BIGINT NOT NULL COMMENT '目标对象编号',
-    target_cover VARCHAR(512) COMMENT '封面快照（图片URL/用户头像URL/空间封面URL）',
-    reason VARCHAR(500) NOT NULL COMMENT '举报原因',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '举报时间',
-    review_status INT NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
+CREATE TABLE p_user_report_info
+(
+    report_id      VARCHAR(128) NOT NULL COMMENT '举报编号',
+    user_id        VARCHAR(128) NOT NULL COMMENT '用户编号',
+    target_type    CHAR(1)      NOT NULL COMMENT '目标类型（0图片 1用户 2空间）',
+    target_id      BIGINT       NOT NULL COMMENT '目标对象编号',
+    target_cover   VARCHAR(512) COMMENT '封面快照（图片URL/用户头像URL/空间封面URL）',
+    reason         VARCHAR(500) NOT NULL COMMENT '举报原因',
+    create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '举报时间',
+    review_status  INT          NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
     review_message VARCHAR(512) COMMENT '审核信息',
     review_user_id BIGINT COMMENT '审核人编号',
-    review_time DATETIME COMMENT '审核时间',
+    review_time    DATETIME COMMENT '审核时间',
     PRIMARY KEY (report_id),
     INDEX idx_report_user (user_id),
     INDEX idx_target (target_type, target_id),
     INDEX idx_create_time (create_time),
-    CONSTRAINT fk_report_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户举报信息表';
+    CONSTRAINT fk_report_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户举报信息表';
 ```
 
