@@ -927,7 +927,7 @@ CREATE TABLE po_points_recharge_info (
     PRIMARY KEY (recharge_id),
     FOREIGN KEY (package_id) REFERENCES po_points_recharge_package_info(package_id) ON UPDATE CASCADE,
     FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    INDEX idx_status (status),
+    INDEX idx_status (recharge_status),
     INDEX idx_create_time (create_time),
     INDEX idx_user_package (user_id, package_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='积分充值记录表';
@@ -1191,7 +1191,7 @@ CREATE TABLE p0_points_usage_log (
 | usage_count       | int      |      |                           | 否   | 0        | 使用次数       |
 | ponints_need      | int      |      |                           | 是   | 0        | 积分           |
 | extend_config     | varchar  | 1024 |                           | 是   |          | 扩展配置       |
-| status            | char     | 1    |                           | 否   | 1        | 状态           |
+| params_status     | char     | 1    |                           | 否   | 1        | 状态           |
 | user_id           | bigint   |      | 外键（sys_user：user_id） | 否   |          | 管理员         |
 | create_by         | varchar  | 32   |                           | 否   |          | 创建人         |
 | create_time       | datetime |      |                           | 否   | 当前时间 | 创建时间       |
@@ -1224,7 +1224,7 @@ CREATE TABLE ai_model_params_info (
     usage_count INT NOT NULL DEFAULT 0 COMMENT '使用次数',
     points_need INT DEFAULT 0 COMMENT '积分消耗比例',
     extend_config VARCHAR(1024) COMMENT '扩展配置',
-    status CHAR(1) NOT NULL DEFAULT '1' COMMENT '状态（0开启 1关闭）',
+    params_status CHAR(1) NOT NULL DEFAULT '1' COMMENT '状态（0开启 1关闭）',
     user_id BIGINT NOT NULL COMMENT '管理员编号',
     create_by VARCHAR(32) NOT NULL COMMENT '创建人',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -1235,7 +1235,7 @@ CREATE TABLE ai_model_params_info (
     UNIQUE KEY uk_model_name (model_name),
     FOREIGN KEY (user_id) REFERENCES sys_user(user_id) ON UPDATE CASCADE,
     INDEX idx_model_type (model_type),
-    INDEX idx_status (status)
+    INDEX idx_status (params_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型参数配置表';
 ```
 
@@ -1256,7 +1256,7 @@ CREATE TABLE ai_model_params_info (
 | points_used      | int      |      |                                       | 否   | 0        | 消耗的积分         |
 | usage_type       | varchar  | 50   |                                       | 否   |          | 使用类型           |
 | target_id        | varchar  | 128  |                                       | 是   |          | 目标编号           |
-| status           | char     | 1    |                                       | 否   |          | 状态               |
+| log_status       | char     | 1    |                                       | 否   |          | 状态               |
 | ai_status_code   | varchar  | 16   |                                       | 是   |          | 模型返回码         |
 | fail_reason      | varchar  | 128  |                                       | 是   |          | 失败原因           |
 | ip_addr          | varchar  | 50   |                                       | 否   |          | 用户IP地址         |
@@ -1286,7 +1286,7 @@ CREATE TABLE ai_user_usage_log_info (
     points_used INT NOT NULL DEFAULT 0 COMMENT '消耗积分',
     usage_type VARCHAR(50) NOT NULL COMMENT '使用类型（0AI扩图 1AI编辑 2AI搜索）',
     target_id VARCHAR(128) COMMENT '目标编号',
-    status CHAR(1) NOT NULL COMMENT '状态（0成功 1失败 2超时）',
+    log_status CHAR(1) NOT NULL COMMENT '状态（0成功 1失败 2超时）',
     ai_status_code VARCHAR(16) COMMENT '模型返回码',
     fail_reason VARCHAR(128) COMMENT '失败原因',
     ip_addr VARCHAR(50) NOT NULL COMMENT '用户IP地址',
@@ -1301,7 +1301,7 @@ CREATE TABLE ai_user_usage_log_info (
     FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
     FOREIGN KEY (model_id) REFERENCES ai_model_params_info(model_id) ON UPDATE CASCADE,
     INDEX idx_usage_type (usage_type),
-    INDEX idx_status (status),
+    INDEX idx_status (log_status),
     INDEX idx_user_model (user_id, model_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户AI使用记录表';
 ```
@@ -1321,7 +1321,7 @@ CREATE TABLE ai_user_usage_log_info (
 | request_time     | datetime |      |                                       | 否   |          | 请求时间           |
 | request_duration | bigint   |      |                                       | 是   |          | 请求时长           |
 | tokens_used      | int      |      |                                       | 否   | 0        | 使用的 tokens 数量 |
-| status           | char     | 1    |                                       | 否   | 0        | 状态               |
+| log_status       | char     | 1    |                                       | 否   | 0        | 状态               |
 | ai_status_code   | varchar  | 16   |                                       | 是   |          | 模型返回码         |
 | fail_reason      | varchar  | 128  |                                       | 是   |          | 失败原因           |
 | remark           | varchar  | 512  |                                       | 是   |          | 备注               |
@@ -1343,7 +1343,7 @@ CREATE TABLE ai_official_usage_log_info (
     request_time DATETIME NOT NULL COMMENT '请求时间',
     request_duration BIGINT COMMENT '请求时长（毫秒）',
     tokens_used INT NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
-    status CHAR(1) NOT NULL DEFAULT '0' COMMENT '状态（0=成功 1=失败）',
+    log_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '状态（0=成功 1=失败）',
     ai_status_code VARCHAR(16) COMMENT '模型返回状态码',
     fail_reason VARCHAR(128) COMMENT '失败原因',
     remark VARCHAR(512) COMMENT '备注',
@@ -1355,7 +1355,7 @@ CREATE TABLE ai_official_usage_log_info (
     FOREIGN KEY (model_id) REFERENCES ai_model_params_info(model_id) ON UPDATE CASCADE,
     INDEX idx_operation_type (operation_type),
     INDEX idx_request_time (request_time),
-    INDEX idx_status (status)
+    INDEX idx_status (log_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='官方AI操作日志表';
 ```
 
@@ -1402,29 +1402,31 @@ CREATE TABLE ai_conversation_session (
 
 #### 对话记录表：ai_conversation_log
 
-| 字段名            | 类型     | 长度 | 键类型                                     | Null | 默认值   | 描述               |
-| ----------------- | -------- | ---- | ------------------------------------------ | ---- | -------- | ------------------ |
-| conversation_id   | varchar  | 128  | 主键                                       | 否   |          | 对话记录编号       |
-| session_id        | varchar  | 128  | 外键（ai_conversation_session:session_id） | 否   |          | 会话 编号          |
-| user_id           | varchar  | 128  | 外键（u_user_info:user_id）                | 否   |          | 用户编号           |
-| input_text        | text     |      |                                            | 否   |          | 用户输入文本       |
-| output_text       | text     |      |                                            | 否   |          | AI 返回的文本      |
-| request_time      | datetime |      |                                            | 否   | 当前时间 | 请求时间           |
-| response_time     | datetime |      |                                            | 否   | 当前时间 | AI 返回时间        |
-| tokens_used       | int      |      |                                            | 否   | 0        | 使用的 tokens 数量 |
-| points_used       | int      |      |                                            | 否   | 0        | 消耗的积分         |
-| status            | char     | 1    |                                            | 否   |          | 状态               |
-| ai_status_code    | varchar  | 16   |                                            | 是   |          | 模型返回码         |
-| fail_reason       | varchar  | 128  |                                            | 是   |          | 失败原因           |
-| ip_addr           | varchar  | 50   |                                            | 否   |          | 用户IP地址         |
-| device_id         | varchar  | 255  |                                            | 是   |          | 用户设备唯一标识   |
-| browser           | varchar  | 50   |                                            | 是   |          | 浏览器类型         |
-| os                | varchar  | 50   |                                            | 是   |          | 操作系统           |
-| platform          | varchar  | 20   |                                            | 是   |          | 平台               |
-| conversation_type | varchar  | 50   |                                            | 否   |          | 对话类型           |
-| create_time       | datetime |      |                                            | 否   | 当前时间 | 创建时间           |
+| 字段名              | 类型     | 长度 | 键类型                                     | Null | 默认值   | 描述               |
+| ------------------- | -------- | ---- | ------------------------------------------ | ---- | -------- | ------------------ |
+| conversation_id     | varchar  | 128  | 主键                                       | 否   |          | 对话记录编号       |
+| session_id          | varchar  | 128  | 外键（ai_conversation_session:session_id） | 否   |          | 会话 编号          |
+| user_id             | varchar  | 128  | 外键（u_user_info:user_id）                | 否   |          | 用户编号           |
+| input_text          | text     |      |                                            | 否   |          | 用户输入文本       |
+| output_text         | text     |      |                                            | 否   |          | AI 返回的文本      |
+| request_time        | datetime |      |                                            | 否   | 当前时间 | 请求时间           |
+| response_time       | datetime |      |                                            | 否   | 当前时间 | AI 返回时间        |
+| tokens_used         | int      |      |                                            | 否   | 0        | 使用的 tokens 数量 |
+| points_used         | int      |      |                                            | 否   | 0        | 消耗的积分         |
+| conversation_status | char     | 1    |                                            | 否   |          | 状态               |
+| ai_status_code      | varchar  | 16   |                                            | 是   |          | 模型返回码         |
+| fail_reason         | varchar  | 128  |                                            | 是   |          | 失败原因           |
+| ip_addr             | varchar  | 50   |                                            | 否   |          | 用户IP地址         |
+| device_id           | varchar  | 255  |                                            | 是   |          | 用户设备唯一标识   |
+| browser             | varchar  | 50   |                                            | 是   |          | 浏览器类型         |
+| os                  | varchar  | 50   |                                            | 是   |          | 操作系统           |
+| platform            | varchar  | 20   |                                            | 是   |          | 平台               |
+| conversation_type   | varchar  | 50   |                                            | 否   |          | 对话类型           |
+| create_time         | datetime |      |                                            | 否   | 当前时间 | 创建时间           |
 
 对话类型：0文本、1图片
+
+状态：0成功 1失败 2超时
 
 ```sql
 DROP TABLE IF EXISTS ai_conversation_log;
@@ -1438,7 +1440,7 @@ CREATE TABLE ai_conversation_log (
     response_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '响应时间',
     tokens_used INT NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
     points_used INT NOT NULL DEFAULT 0 COMMENT '消耗积分',
-    status CHAR(1) NOT NULL COMMENT '状态（0=成功 1=失败）',
+    conversation_status CHAR(1) NOT NULL COMMENT '状态（0=成功 1=失败）',
     ai_status_code VARCHAR(16) COMMENT '模型返回码',
     fail_reason VARCHAR(128) COMMENT '失败原因',
     ip_addr VARCHAR(50) NOT NULL COMMENT '用户IP地址',
