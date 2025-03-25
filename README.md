@@ -1184,7 +1184,7 @@ CREATE TABLE p0_points_usage_log (
 | model_type        | varchar  | 50   |                           | 否   |          | 模型类型       |
 | api_key           | varchar  | 256  |                           | 是   |          | 安全密钥       |
 | secret_key        | varchar  | 256  |                           | 是   |          | 安全KEY        |
-| params            | text     |      |                           | 否   |          | 模型参数       |
+| model_params      | text     |      |                           | 否   |          | 模型参数       |
 | model_description | varchar  | 1024 |                           | 是   |          | 模型介绍       |
 | tokens_avg        | int      |      |                           | 否   | 0        | 平均使用tokens |
 | tokens_total      | int      |      |                           | 否   | 0        | 总共消耗Tokens |
@@ -1218,7 +1218,7 @@ CREATE TABLE ai_model_params_info
     model_type        VARCHAR(50)  NOT NULL COMMENT '模型类型',
     api_key           VARCHAR(256) COMMENT '安全密钥',
     secret_key        VARCHAR(256) COMMENT '安全KEY',
-    params            TEXT         NOT NULL COMMENT '模型参数',
+    model_params            TEXT         NOT NULL COMMENT '模型参数',
     model_description VARCHAR(1024) COMMENT '模型介绍',
     tokens_avg        INT          NOT NULL DEFAULT 0 COMMENT '平均使用tokens/次',
     tokens_total      INT          NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
@@ -1348,7 +1348,6 @@ CREATE TABLE ai_official_usage_log_info
     request_time     DATETIME     NOT NULL COMMENT '请求时间',
     request_duration BIGINT COMMENT '请求时长（毫秒）',
     tokens_used      INT          NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
-    log_status       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '状态（0=成功 1=失败）',
     ai_status_code   VARCHAR(16) COMMENT '模型返回状态码',
     fail_reason      VARCHAR(128) COMMENT '失败原因',
     remark           VARCHAR(512) COMMENT '备注',
@@ -1378,6 +1377,11 @@ CREATE TABLE ai_official_usage_log_info
 | tokens_total_used | int      |      |                             | 否   | 0        | 会话中总共使用的 tokens 数量 |
 | points_total_used | int      |      |                             | 否   | 0        | 会话中总共消耗的积分         |
 | remark            | varchar  | 512  |                             | 是   |          | 备注                         |
+| ip_addr           | varchar  | 50   |                             | 否   |          | 用户IP地址                   |
+| device_id         | varchar  | 255  |                             | 是   |          | 用户设备唯一标识             |
+| browser           | varchar  | 50   |                             | 是   |          | 浏览器类型                   |
+| os                | varchar  | 50   |                             | 是   |          | 操作系统                     |
+| platform          | varchar  | 20   |                             | 是   |          | 平台                         |
 | create_time       | datetime |      |                             | 否   | 当前时间 | 创建时间                     |
 | update_time       | datetime |      |                             | 是   | 当前时间 | 更新时间                     |
 | is_delete         | char     | 1    |                             | 否   | 0        | 删除标志                     |
@@ -1385,8 +1389,8 @@ CREATE TABLE ai_official_usage_log_info
 AI会话编号：AI保持长轮训的编号
 
 ```sql
-DROP TABLE IF EXISTS ai_conversation_session;
-CREATE TABLE ai_conversation_session
+DROP TABLE IF EXISTS ai_conversation_session_info;
+CREATE TABLE ai_conversation_session_info
 (
     session_id        VARCHAR(128) NOT NULL COMMENT '会话编号',
     user_id           VARCHAR(128) NOT NULL COMMENT '用户编号',
@@ -1395,6 +1399,11 @@ CREATE TABLE ai_conversation_session
     tokens_total_used INT          NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
     points_total_used INT          NOT NULL DEFAULT 0 COMMENT '累计消耗积分',
     remark            VARCHAR(512) COMMENT '备注',
+    ip_addr           VARCHAR(50)  NOT NULL COMMENT '用户IP地址',
+    device_id         VARCHAR(255) COMMENT '设备唯一标识',
+    browser           VARCHAR(50) COMMENT '浏览器类型',
+    os                VARCHAR(50) COMMENT '操作系统',
+    platform          VARCHAR(20) COMMENT '平台',
     create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     is_delete         CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0正常 1删除）',
@@ -1424,11 +1433,6 @@ CREATE TABLE ai_conversation_session
 | conversation_status | char     | 1    |                                            | 否   |          | 状态               |
 | ai_status_code      | varchar  | 16   |                                            | 是   |          | 模型返回码         |
 | fail_reason         | varchar  | 128  |                                            | 是   |          | 失败原因           |
-| ip_addr             | varchar  | 50   |                                            | 否   |          | 用户IP地址         |
-| device_id           | varchar  | 255  |                                            | 是   |          | 用户设备唯一标识   |
-| browser             | varchar  | 50   |                                            | 是   |          | 浏览器类型         |
-| os                  | varchar  | 50   |                                            | 是   |          | 操作系统           |
-| platform            | varchar  | 20   |                                            | 是   |          | 平台               |
 | conversation_type   | varchar  | 50   |                                            | 否   |          | 对话类型           |
 | create_time         | datetime |      |                                            | 否   | 当前时间 | 创建时间           |
 
@@ -1437,8 +1441,8 @@ CREATE TABLE ai_conversation_session
 状态：0成功 1失败 2超时
 
 ```sql
-DROP TABLE IF EXISTS ai_conversation_log;
-CREATE TABLE ai_conversation_log
+DROP TABLE IF EXISTS ai_conversation_log_info;
+CREATE TABLE ai_conversation_log_info
 (
     conversation_id     VARCHAR(128) NOT NULL COMMENT '对话记录编号',
     session_id          VARCHAR(128) NOT NULL COMMENT '会话编号',
@@ -1452,15 +1456,10 @@ CREATE TABLE ai_conversation_log
     conversation_status CHAR(1)      NOT NULL COMMENT '状态（0=成功 1=失败）',
     ai_status_code      VARCHAR(16) COMMENT '模型返回码',
     fail_reason         VARCHAR(128) COMMENT '失败原因',
-    ip_addr             VARCHAR(50)  NOT NULL COMMENT '用户IP地址',
-    device_id           VARCHAR(255) COMMENT '设备唯一标识',
-    browser             VARCHAR(50) COMMENT '浏览器类型',
-    os                  VARCHAR(50) COMMENT '操作系统',
-    platform            VARCHAR(20) COMMENT '平台',
     conversation_type   VARCHAR(50)  NOT NULL COMMENT '对话类型（0文本 1图片）',
     create_time         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (conversation_id),
-    FOREIGN KEY (session_id) REFERENCES ai_conversation_session (session_id) ON DELETE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES ai_conversation_session_info (session_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_session (session_id),
     INDEX idx_conversation_type (conversation_type),

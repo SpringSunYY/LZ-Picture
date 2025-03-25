@@ -267,6 +267,13 @@
                 <version>${picture.version}</version>
             </dependency>
 
+            <!--C端用户图片模块-->
+            <dependency>
+                <groupId>com.lz</groupId>
+                <artifactId>picture-ai</artifactId>
+                <version>${picture.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -281,6 +288,7 @@
         <module>picture-user</module>
         <module>picture-user-auth</module>
         <module>picture-picture</module>
+        <module>picture-ai</module>
     </modules>
     <packaging>pom</packaging>
 

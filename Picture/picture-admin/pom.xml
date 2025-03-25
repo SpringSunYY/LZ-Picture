@@ -74,6 +74,18 @@
             <version>${picture.version}</version>
         </dependency>
 
+        <!--C端用户图片模块-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-picture</artifactId>
+        </dependency>
+
+        <!--C端用户图片模块-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-ai</artifactId>
+        </dependency>
+
         <!--新增-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -95,12 +107,6 @@
             <artifactId>mockito-inline</artifactId>
             <version>3.12.4</version>
             <scope>test</scope>
-        </dependency>
-
-        <!--C端用户图片模块-->
-        <dependency>
-            <groupId>com.lz</groupId>
-            <artifactId>picture-picture</artifactId>
         </dependency>
     </dependencies>
 

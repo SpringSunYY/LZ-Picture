@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.ai.mapper.ConversationSessionInfoMapper">
+    
+    <resultMap type="ConversationSessionInfo" id="ConversationSessionInfoResult">
+        <result property="sessionId"    column="session_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="conversationId"    column="conversation_id"    />
+        <result property="sessionName"    column="session_name"    />
+        <result property="tokensTotalUsed"    column="tokens_total_used"    />
+        <result property="pointsTotalUsed"    column="points_total_used"    />
+        <result property="remark"    column="remark"    />
+        <result property="ipAddr"    column="ip_addr"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDelete"    column="is_delete"    />
+    </resultMap>
+
+    <sql id="selectConversationSessionInfoVo">
+        select session_id, user_id, conversation_id, session_name, tokens_total_used, points_total_used, remark, ip_addr, device_id, browser, os, platform, create_time, update_time, is_delete from ai_conversation_session_info
+    </sql>
+
+    <select id="selectConversationSessionInfoList" parameterType="ConversationSessionInfo" resultMap="ConversationSessionInfoResult">
+        <include refid="selectConversationSessionInfoVo"/>
+        <where>  
+            <if test="sessionId != null  and sessionId != ''"> and session_id = #{sessionId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="conversationId != null  and conversationId != ''"> and conversation_id = #{conversationId}</if>
+            <if test="sessionName != null  and sessionName != ''"> and session_name like concat('%', #{sessionName}, '%')</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectConversationSessionInfoBySessionId" parameterType="String" resultMap="ConversationSessionInfoResult">
+        <include refid="selectConversationSessionInfoVo"/>
+        where session_id = #{sessionId}
+    </select>
+
+    <insert id="insertConversationSessionInfo" parameterType="ConversationSessionInfo">
+        insert into ai_conversation_session_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sessionId != null">session_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="conversationId != null">conversation_id,</if>
+            <if test="sessionName != null">session_name,</if>
+            <if test="tokensTotalUsed != null">tokens_total_used,</if>
+            <if test="pointsTotalUsed != null">points_total_used,</if>
+            <if test="remark != null">remark,</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sessionId != null">#{sessionId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="conversationId != null">#{conversationId},</if>
+            <if test="sessionName != null">#{sessionName},</if>
+            <if test="tokensTotalUsed != null">#{tokensTotalUsed},</if>
+            <if test="pointsTotalUsed != null">#{pointsTotalUsed},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateConversationSessionInfo" parameterType="ConversationSessionInfo">
+        update ai_conversation_session_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="conversationId != null">conversation_id = #{conversationId},</if>
+            <if test="sessionName != null">session_name = #{sessionName},</if>
+            <if test="tokensTotalUsed != null">tokens_total_used = #{tokensTotalUsed},</if>
+            <if test="pointsTotalUsed != null">points_total_used = #{pointsTotalUsed},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+        </trim>
+        where session_id = #{sessionId}
+    </update>
+
+    <delete id="deleteConversationSessionInfoBySessionId" parameterType="String">
+        delete from ai_conversation_session_info where session_id = #{sessionId}
+    </delete>
+
+    <delete id="deleteConversationSessionInfoBySessionIds" parameterType="String">
+        delete from ai_conversation_session_info where session_id in 
+        <foreach item="sessionId" collection="array" open="(" separator="," close=")">
+            #{sessionId}
+        </foreach>
+    </delete>
+</mapper>

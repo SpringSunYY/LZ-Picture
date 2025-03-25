@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.ai.mapper.ConversationLogInfoMapper">
+    
+    <resultMap type="ConversationLogInfo" id="ConversationLogInfoResult">
+        <result property="conversationId"    column="conversation_id"    />
+        <result property="sessionId"    column="session_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="inputText"    column="input_text"    />
+        <result property="outputText"    column="output_text"    />
+        <result property="requestTime"    column="request_time"    />
+        <result property="responseTime"    column="response_time"    />
+        <result property="tokensUsed"    column="tokens_used"    />
+        <result property="pointsUsed"    column="points_used"    />
+        <result property="conversationStatus"    column="conversation_status"    />
+        <result property="aiStatusCode"    column="ai_status_code"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="conversationType"    column="conversation_type"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectConversationLogInfoVo">
+        select conversation_id, session_id, user_id, input_text, output_text, request_time, response_time, tokens_used, points_used, conversation_status, ai_status_code, fail_reason, conversation_type, create_time from ai_conversation_log_info
+    </sql>
+
+    <select id="selectConversationLogInfoList" parameterType="ConversationLogInfo" resultMap="ConversationLogInfoResult">
+        <include refid="selectConversationLogInfoVo"/>
+        <where>  
+            <if test="conversationId != null  and conversationId != ''"> and conversation_id = #{conversationId}</if>
+            <if test="sessionId != null  and sessionId != ''"> and session_id = #{sessionId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="params.beginRequestTime != null and params.beginRequestTime != '' and params.endRequestTime != null and params.endRequestTime != ''"> and DATE_FORMAT(request_time, '%Y-%m-%d') between #{params.beginRequestTime} and #{params.endRequestTime}</if>
+            <if test="params.beginResponseTime != null and params.beginResponseTime != '' and params.endResponseTime != null and params.endResponseTime != ''"> and DATE_FORMAT(response_time, '%Y-%m-%d') between #{params.beginResponseTime} and #{params.endResponseTime}</if>
+            <if test="conversationStatus != null  and conversationStatus != ''"> and conversation_status = #{conversationStatus}</if>
+            <if test="aiStatusCode != null  and aiStatusCode != ''"> and ai_status_code = #{aiStatusCode}</if>
+            <if test="conversationType != null  and conversationType != ''"> and conversation_type = #{conversationType}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectConversationLogInfoByConversationId" parameterType="String" resultMap="ConversationLogInfoResult">
+        <include refid="selectConversationLogInfoVo"/>
+        where conversation_id = #{conversationId}
+    </select>
+
+    <insert id="insertConversationLogInfo" parameterType="ConversationLogInfo">
+        insert into ai_conversation_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="conversationId != null">conversation_id,</if>
+            <if test="sessionId != null and sessionId != ''">session_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="inputText != null and inputText != ''">input_text,</if>
+            <if test="outputText != null and outputText != ''">output_text,</if>
+            <if test="requestTime != null">request_time,</if>
+            <if test="responseTime != null">response_time,</if>
+            <if test="tokensUsed != null">tokens_used,</if>
+            <if test="pointsUsed != null">points_used,</if>
+            <if test="conversationStatus != null and conversationStatus != ''">conversation_status,</if>
+            <if test="aiStatusCode != null">ai_status_code,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="conversationType != null and conversationType != ''">conversation_type,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="conversationId != null">#{conversationId},</if>
+            <if test="sessionId != null and sessionId != ''">#{sessionId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="inputText != null and inputText != ''">#{inputText},</if>
+            <if test="outputText != null and outputText != ''">#{outputText},</if>
+            <if test="requestTime != null">#{requestTime},</if>
+            <if test="responseTime != null">#{responseTime},</if>
+            <if test="tokensUsed != null">#{tokensUsed},</if>
+            <if test="pointsUsed != null">#{pointsUsed},</if>
+            <if test="conversationStatus != null and conversationStatus != ''">#{conversationStatus},</if>
+            <if test="aiStatusCode != null">#{aiStatusCode},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="conversationType != null and conversationType != ''">#{conversationType},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateConversationLogInfo" parameterType="ConversationLogInfo">
+        update ai_conversation_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sessionId != null and sessionId != ''">session_id = #{sessionId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="inputText != null and inputText != ''">input_text = #{inputText},</if>
+            <if test="outputText != null and outputText != ''">output_text = #{outputText},</if>
+            <if test="requestTime != null">request_time = #{requestTime},</if>
+            <if test="responseTime != null">response_time = #{responseTime},</if>
+            <if test="tokensUsed != null">tokens_used = #{tokensUsed},</if>
+            <if test="pointsUsed != null">points_used = #{pointsUsed},</if>
+            <if test="conversationStatus != null and conversationStatus != ''">conversation_status = #{conversationStatus},</if>
+            <if test="aiStatusCode != null">ai_status_code = #{aiStatusCode},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="conversationType != null and conversationType != ''">conversation_type = #{conversationType},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where conversation_id = #{conversationId}
+    </update>
+
+    <delete id="deleteConversationLogInfoByConversationId" parameterType="String">
+        delete from ai_conversation_log_info where conversation_id = #{conversationId}
+    </delete>
+
+    <delete id="deleteConversationLogInfoByConversationIds" parameterType="String">
+        delete from ai_conversation_log_info where conversation_id in 
+        <foreach item="conversationId" collection="array" open="(" separator="," close=")">
+            #{conversationId}
+        </foreach>
+    </delete>
+</mapper>

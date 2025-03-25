@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.ai.mapper.UserUsageLogInfoMapper">
+    
+    <resultMap type="UserUsageLogInfo" id="UserUsageLogInfoResult">
+        <result property="logId"    column="log_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="modelId"    column="model_id"    />
+        <result property="inputParams"    column="input_params"    />
+        <result property="outputResult"    column="output_result"    />
+        <result property="requestTime"    column="request_time"    />
+        <result property="requestDuration"    column="request_duration"    />
+        <result property="tokensUsed"    column="tokens_used"    />
+        <result property="pointsUsed"    column="points_used"    />
+        <result property="usageType"    column="usage_type"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="logStatus"    column="log_status"    />
+        <result property="aiStatusCode"    column="ai_status_code"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="ipAddr"    column="ip_addr"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDelete"    column="is_delete"    />
+    </resultMap>
+
+    <sql id="selectUserUsageLogInfoVo">
+        select log_id, user_id, model_id, input_params, output_result, request_time, request_duration, tokens_used, points_used, usage_type, target_id, log_status, ai_status_code, fail_reason, ip_addr, device_id, browser, os, platform, create_time, update_time, is_delete from ai_user_usage_log_info
+    </sql>
+
+    <select id="selectUserUsageLogInfoList" parameterType="UserUsageLogInfo" resultMap="UserUsageLogInfoResult">
+        <include refid="selectUserUsageLogInfoVo"/>
+        <where>  
+            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="modelId != null  and modelId != ''"> and model_id = #{modelId}</if>
+            <if test="params.beginRequestTime != null and params.beginRequestTime != '' and params.endRequestTime != null and params.endRequestTime != ''"> and DATE_FORMAT(request_time, '%Y-%m-%d') between #{params.beginRequestTime} and #{params.endRequestTime}</if>
+            <if test="usageType != null  and usageType != ''"> and usage_type = #{usageType}</if>
+            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
+            <if test="logStatus != null  and logStatus != ''"> and log_status = #{logStatus}</if>
+            <if test="aiStatusCode != null  and aiStatusCode != ''"> and ai_status_code = #{aiStatusCode}</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr = #{ipAddr}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserUsageLogInfoByLogId" parameterType="String" resultMap="UserUsageLogInfoResult">
+        <include refid="selectUserUsageLogInfoVo"/>
+        where log_id = #{logId}
+    </select>
+
+    <insert id="insertUserUsageLogInfo" parameterType="UserUsageLogInfo">
+        insert into ai_user_usage_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="logId != null">log_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="modelId != null and modelId != ''">model_id,</if>
+            <if test="inputParams != null">input_params,</if>
+            <if test="outputResult != null">output_result,</if>
+            <if test="requestTime != null">request_time,</if>
+            <if test="requestDuration != null">request_duration,</if>
+            <if test="tokensUsed != null">tokens_used,</if>
+            <if test="pointsUsed != null">points_used,</if>
+            <if test="usageType != null and usageType != ''">usage_type,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="logStatus != null and logStatus != ''">log_status,</if>
+            <if test="aiStatusCode != null">ai_status_code,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="logId != null">#{logId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="modelId != null and modelId != ''">#{modelId},</if>
+            <if test="inputParams != null">#{inputParams},</if>
+            <if test="outputResult != null">#{outputResult},</if>
+            <if test="requestTime != null">#{requestTime},</if>
+            <if test="requestDuration != null">#{requestDuration},</if>
+            <if test="tokensUsed != null">#{tokensUsed},</if>
+            <if test="pointsUsed != null">#{pointsUsed},</if>
+            <if test="usageType != null and usageType != ''">#{usageType},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="logStatus != null and logStatus != ''">#{logStatus},</if>
+            <if test="aiStatusCode != null">#{aiStatusCode},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserUsageLogInfo" parameterType="UserUsageLogInfo">
+        update ai_user_usage_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="modelId != null and modelId != ''">model_id = #{modelId},</if>
+            <if test="inputParams != null">input_params = #{inputParams},</if>
+            <if test="outputResult != null">output_result = #{outputResult},</if>
+            <if test="requestTime != null">request_time = #{requestTime},</if>
+            <if test="requestDuration != null">request_duration = #{requestDuration},</if>
+            <if test="tokensUsed != null">tokens_used = #{tokensUsed},</if>
+            <if test="pointsUsed != null">points_used = #{pointsUsed},</if>
+            <if test="usageType != null and usageType != ''">usage_type = #{usageType},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="logStatus != null and logStatus != ''">log_status = #{logStatus},</if>
+            <if test="aiStatusCode != null">ai_status_code = #{aiStatusCode},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+        </trim>
+        where log_id = #{logId}
+    </update>
+
+    <delete id="deleteUserUsageLogInfoByLogId" parameterType="String">
+        delete from ai_user_usage_log_info where log_id = #{logId}
+    </delete>
+
+    <delete id="deleteUserUsageLogInfoByLogIds" parameterType="String">
+        delete from ai_user_usage_log_info where log_id in 
+        <foreach item="logId" collection="array" open="(" separator="," close=")">
+            #{logId}
+        </foreach>
+    </delete>
+</mapper>

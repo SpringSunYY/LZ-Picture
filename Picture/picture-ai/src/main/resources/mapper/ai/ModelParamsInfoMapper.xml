@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.ai.mapper.ModelParamsInfoMapper">
+
+    <resultMap type="ModelParamsInfo" id="ModelParamsInfoResult">
+        <result property="modelId" column="model_id"/>
+        <result property="modelName" column="model_name"/>
+        <result property="modelType" column="model_type"/>
+        <result property="apiKey" column="api_key"/>
+        <result property="secretKey" column="secret_key"/>
+        <result property="modelParams" column="model_params"/>
+        <result property="modelDescription" column="model_description"/>
+        <result property="tokensAvg" column="tokens_avg"/>
+        <result property="tokensTotal" column="tokens_total"/>
+        <result property="usageCount" column="usage_count"/>
+        <result property="pointsNeed" column="points_need"/>
+        <result property="extendConfig" column="extend_config"/>
+        <result property="paramsStatus" column="params_status"/>
+        <result property="userId" column="user_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectModelParamsInfoVo">
+        select model_id,
+               model_name,
+               model_type,
+               api_key,
+               secret_key,
+               model_params,
+               model_description,
+               tokens_avg,
+               tokens_total,
+               usage_count,
+               points_need,
+               extend_config,
+               params_status,
+               user_id,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               remark
+        from ai_model_params_info
+    </sql>
+
+    <select id="selectModelParamsInfoList" parameterType="ModelParamsInfo" resultMap="ModelParamsInfoResult">
+        <include refid="selectModelParamsInfoVo"/>
+        <where>
+            <if test="modelId != null  and modelId != ''">and model_id = #{modelId}</if>
+            <if test="modelName != null  and modelName != ''">and model_name like concat('%', #{modelName}, '%')</if>
+            <if test="modelType != null  and modelType != ''">and model_type = #{modelType}</if>
+            <if test="paramsStatus != null  and paramsStatus != ''">and params_status = #{paramsStatus}</if>
+            <if test="userId != null ">and user_id = #{userId}</if>
+            <if test="createBy != null  and createBy != ''">and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="updateBy != null  and updateBy != ''">and update_by like concat('%', #{updateBy}, '%')</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectModelParamsInfoByModelId" parameterType="String" resultMap="ModelParamsInfoResult">
+        <include refid="selectModelParamsInfoVo"/>
+        where model_id = #{modelId}
+    </select>
+
+    <insert id="insertModelParamsInfo" parameterType="ModelParamsInfo">
+        insert into ai_model_params_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="modelId != null">model_id,</if>
+            <if test="modelName != null and modelName != ''">model_name,</if>
+            <if test="modelType != null and modelType != ''">model_type,</if>
+            <if test="apiKey != null">api_key,</if>
+            <if test="secretKey != null">secret_key,</if>
+            <if test="modelParams != null and modelParams != ''">model_params,</if>
+            <if test="modelDescription != null">model_description,</if>
+            <if test="tokensAvg != null">tokens_avg,</if>
+            <if test="tokensTotal != null">tokens_total,</if>
+            <if test="usageCount != null">usage_count,</if>
+            <if test="pointsNeed != null">points_need,</if>
+            <if test="extendConfig != null">extend_config,</if>
+            <if test="paramsStatus != null and paramsStatus != ''">params_status,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="modelId != null">#{modelId},</if>
+            <if test="modelName != null and modelName != ''">#{modelName},</if>
+            <if test="modelType != null and modelType != ''">#{modelType},</if>
+            <if test="apiKey != null">#{apiKey},</if>
+            <if test="secretKey != null">#{secretKey},</if>
+            <if test="modelParams != null and modelParams != ''">#{modelParams},</if>
+            <if test="modelDescription != null">#{modelDescription},</if>
+            <if test="tokensAvg != null">#{tokensAvg},</if>
+            <if test="tokensTotal != null">#{tokensTotal},</if>
+            <if test="usageCount != null">#{usageCount},</if>
+            <if test="pointsNeed != null">#{pointsNeed},</if>
+            <if test="extendConfig != null">#{extendConfig},</if>
+            <if test="paramsStatus != null and paramsStatus != ''">#{paramsStatus},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateModelParamsInfo" parameterType="ModelParamsInfo">
+        update ai_model_params_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="modelName != null and modelName != ''">model_name = #{modelName},</if>
+            <if test="modelType != null and modelType != ''">model_type = #{modelType},</if>
+            <if test="apiKey != null">api_key = #{apiKey},</if>
+            <if test="secretKey != null">secret_key = #{secretKey},</if>
+            <if test="modelParams != null and modelParams != ''">model_params = #{modelParams},</if>
+            <if test="modelDescription != null">model_description = #{modelDescription},</if>
+            <if test="tokensAvg != null">tokens_avg = #{tokensAvg},</if>
+            <if test="tokensTotal != null">tokens_total = #{tokensTotal},</if>
+            <if test="usageCount != null">usage_count = #{usageCount},</if>
+            <if test="pointsNeed != null">points_need = #{pointsNeed},</if>
+            <if test="extendConfig != null">extend_config = #{extendConfig},</if>
+            <if test="paramsStatus != null and paramsStatus != ''">params_status = #{paramsStatus},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where model_id = #{modelId}
+    </update>
+
+    <delete id="deleteModelParamsInfoByModelId" parameterType="String">
+        delete
+        from ai_model_params_info
+        where model_id = #{modelId}
+    </delete>
+
+    <delete id="deleteModelParamsInfoByModelIds" parameterType="String">
+        delete from ai_model_params_info where model_id in
+        <foreach item="modelId" collection="array" open="(" separator="," close=")">
+            #{modelId}
+        </foreach>
+    </delete>
+</mapper>

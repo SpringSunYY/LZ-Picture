@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.ai.mapper.OfficialUsageLogInfoMapper">
+    
+    <resultMap type="OfficialUsageLogInfo" id="OfficialUsageLogInfoResult">
+        <result property="logId"    column="log_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="modelId"    column="model_id"    />
+        <result property="operationType"    column="operation_type"    />
+        <result property="inputParams"    column="input_params"    />
+        <result property="outputResult"    column="output_result"    />
+        <result property="requestTime"    column="request_time"    />
+        <result property="requestDuration"    column="request_duration"    />
+        <result property="tokensUsed"    column="tokens_used"    />
+        <result property="logStatus"    column="log_status"    />
+        <result property="aiStatusCode"    column="ai_status_code"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDelete"    column="is_delete"    />
+    </resultMap>
+
+    <sql id="selectOfficialUsageLogInfoVo">
+        select log_id, user_id, model_id, operation_type, input_params, output_result, request_time, request_duration, tokens_used, log_status, ai_status_code, fail_reason, remark, create_time, update_time, is_delete from ai_official_usage_log_info
+    </sql>
+
+    <select id="selectOfficialUsageLogInfoList" parameterType="OfficialUsageLogInfo" resultMap="OfficialUsageLogInfoResult">
+        <include refid="selectOfficialUsageLogInfoVo"/>
+        <where>  
+            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="modelId != null  and modelId != ''"> and model_id = #{modelId}</if>
+            <if test="operationType != null  and operationType != ''"> and operation_type = #{operationType}</if>
+            <if test="inputParams != null  and inputParams != ''"> and input_params = #{inputParams}</if>
+            <if test="outputResult != null  and outputResult != ''"> and output_result = #{outputResult}</if>
+            <if test="params.beginRequestTime != null and params.beginRequestTime != '' and params.endRequestTime != null and params.endRequestTime != ''"> and DATE_FORMAT(request_time, '%Y-%m-%d') between #{params.beginRequestTime} and #{params.endRequestTime}</if>
+            <if test="logStatus != null  and logStatus != ''"> and log_status = #{logStatus}</if>
+            <if test="aiStatusCode != null  and aiStatusCode != ''"> and ai_status_code = #{aiStatusCode}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+            <if test="params.beginIsDelete != null and params.beginIsDelete != '' and params.endIsDelete != null and params.endIsDelete != ''"> and DATE_FORMAT(is_delete, '%Y-%m-%d') between #{params.beginIsDelete} and #{params.endIsDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectOfficialUsageLogInfoByLogId" parameterType="String" resultMap="OfficialUsageLogInfoResult">
+        <include refid="selectOfficialUsageLogInfoVo"/>
+        where log_id = #{logId}
+    </select>
+
+    <insert id="insertOfficialUsageLogInfo" parameterType="OfficialUsageLogInfo">
+        insert into ai_official_usage_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="logId != null">log_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="modelId != null and modelId != ''">model_id,</if>
+            <if test="operationType != null and operationType != ''">operation_type,</if>
+            <if test="inputParams != null">input_params,</if>
+            <if test="outputResult != null">output_result,</if>
+            <if test="requestTime != null">request_time,</if>
+            <if test="requestDuration != null">request_duration,</if>
+            <if test="tokensUsed != null">tokens_used,</if>
+            <if test="logStatus != null and logStatus != ''">log_status,</if>
+            <if test="aiStatusCode != null">ai_status_code,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="logId != null">#{logId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="modelId != null and modelId != ''">#{modelId},</if>
+            <if test="operationType != null and operationType != ''">#{operationType},</if>
+            <if test="inputParams != null">#{inputParams},</if>
+            <if test="outputResult != null">#{outputResult},</if>
+            <if test="requestTime != null">#{requestTime},</if>
+            <if test="requestDuration != null">#{requestDuration},</if>
+            <if test="tokensUsed != null">#{tokensUsed},</if>
+            <if test="logStatus != null and logStatus != ''">#{logStatus},</if>
+            <if test="aiStatusCode != null">#{aiStatusCode},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOfficialUsageLogInfo" parameterType="OfficialUsageLogInfo">
+        update ai_official_usage_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="modelId != null and modelId != ''">model_id = #{modelId},</if>
+            <if test="operationType != null and operationType != ''">operation_type = #{operationType},</if>
+            <if test="inputParams != null">input_params = #{inputParams},</if>
+            <if test="outputResult != null">output_result = #{outputResult},</if>
+            <if test="requestTime != null">request_time = #{requestTime},</if>
+            <if test="requestDuration != null">request_duration = #{requestDuration},</if>
+            <if test="tokensUsed != null">tokens_used = #{tokensUsed},</if>
+            <if test="logStatus != null and logStatus != ''">log_status = #{logStatus},</if>
+            <if test="aiStatusCode != null">ai_status_code = #{aiStatusCode},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+        </trim>
+        where log_id = #{logId}
+    </update>
+
+    <delete id="deleteOfficialUsageLogInfoByLogId" parameterType="String">
+        delete from ai_official_usage_log_info where log_id = #{logId}
+    </delete>
+
+    <delete id="deleteOfficialUsageLogInfoByLogIds" parameterType="String">
+        delete from ai_official_usage_log_info where log_id in 
+        <foreach item="logId" collection="array" open="(" separator="," close=")">
+            #{logId}
+        </foreach>
+    </delete>
+</mapper>
