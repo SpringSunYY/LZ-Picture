@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.points.mapper.ErrorLogInfoMapper">
+    
+    <resultMap type="ErrorLogInfo" id="ErrorLogInfoResult">
+        <result property="errorId"    column="error_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="methodId"    column="method_id"    />
+        <result property="errorType"    column="error_type"    />
+        <result property="errorMessage"    column="error_message"    />
+        <result property="errorDetails"    column="error_details"    />
+        <result property="relatedOrderId"    column="related_order_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="ipAddr"    column="ip_addr"    />
+        <result property="resolveStatus"    column="resolve_status"    />
+        <result property="resolveTime"    column="resolve_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectErrorLogInfoVo">
+        select error_id, user_id, method_id, error_type, error_message, error_details, related_order_id, create_time, device_id, browser, os, platform, ip_addr, resolve_status, resolve_time, remark from po_error_log_info
+    </sql>
+
+    <select id="selectErrorLogInfoList" parameterType="ErrorLogInfo" resultMap="ErrorLogInfoResult">
+        <include refid="selectErrorLogInfoVo"/>
+        <where>  
+            <if test="errorId != null  and errorId != ''"> and error_id = #{errorId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="methodId != null  and methodId != ''"> and method_id = #{methodId}</if>
+            <if test="errorType != null  and errorType != ''"> and error_type = #{errorType}</if>
+            <if test="relatedOrderId != null  and relatedOrderId != ''"> and related_order_id = #{relatedOrderId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="resolveStatus != null  and resolveStatus != ''"> and resolve_status = #{resolveStatus}</if>
+            <if test="params.beginResolveTime != null and params.beginResolveTime != '' and params.endResolveTime != null and params.endResolveTime != ''"> and DATE_FORMAT(resolve_time, '%Y-%m-%d') between #{params.beginResolveTime} and #{params.endResolveTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectErrorLogInfoByErrorId" parameterType="String" resultMap="ErrorLogInfoResult">
+        <include refid="selectErrorLogInfoVo"/>
+        where error_id = #{errorId}
+    </select>
+
+    <insert id="insertErrorLogInfo" parameterType="ErrorLogInfo">
+        insert into po_error_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="errorId != null">error_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="methodId != null and methodId != ''">method_id,</if>
+            <if test="errorType != null and errorType != ''">error_type,</if>
+            <if test="errorMessage != null and errorMessage != ''">error_message,</if>
+            <if test="errorDetails != null">error_details,</if>
+            <if test="relatedOrderId != null">related_order_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="resolveStatus != null and resolveStatus != ''">resolve_status,</if>
+            <if test="resolveTime != null">resolve_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="errorId != null">#{errorId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="methodId != null and methodId != ''">#{methodId},</if>
+            <if test="errorType != null and errorType != ''">#{errorType},</if>
+            <if test="errorMessage != null and errorMessage != ''">#{errorMessage},</if>
+            <if test="errorDetails != null">#{errorDetails},</if>
+            <if test="relatedOrderId != null">#{relatedOrderId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="resolveStatus != null and resolveStatus != ''">#{resolveStatus},</if>
+            <if test="resolveTime != null">#{resolveTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateErrorLogInfo" parameterType="ErrorLogInfo">
+        update po_error_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="methodId != null and methodId != ''">method_id = #{methodId},</if>
+            <if test="errorType != null and errorType != ''">error_type = #{errorType},</if>
+            <if test="errorMessage != null and errorMessage != ''">error_message = #{errorMessage},</if>
+            <if test="errorDetails != null">error_details = #{errorDetails},</if>
+            <if test="relatedOrderId != null">related_order_id = #{relatedOrderId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="resolveStatus != null and resolveStatus != ''">resolve_status = #{resolveStatus},</if>
+            <if test="resolveTime != null">resolve_time = #{resolveTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where error_id = #{errorId}
+    </update>
+
+    <delete id="deleteErrorLogInfoByErrorId" parameterType="String">
+        delete from po_error_log_info where error_id = #{errorId}
+    </delete>
+
+    <delete id="deleteErrorLogInfoByErrorIds" parameterType="String">
+        delete from po_error_log_info where error_id in 
+        <foreach item="errorId" collection="array" open="(" separator="," close=")">
+            #{errorId}
+        </foreach>
+    </delete>
+</mapper>

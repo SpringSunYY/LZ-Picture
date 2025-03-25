@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.points.mapper.WithdrawalOrderInfoMapper">
+    
+    <resultMap type="WithdrawalOrderInfo" id="WithdrawalOrderInfoResult">
+        <result property="withdrawalId"    column="withdrawal_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="pointsWithdrawal"    column="points_withdrawal"    />
+        <result property="amountWithdrawal"    column="amount_withdrawal"    />
+        <result property="platformFee"    column="platform_fee"    />
+        <result property="userReceivedAmount"    column="user_received_amount"    />
+        <result property="withdrawalMethod"    column="withdrawal_method"    />
+        <result property="withdrawalAccount"    column="withdrawal_account"    />
+        <result property="withdrawalStatus"    column="withdrawal_status"    />
+        <result property="withdrawalPlatformOrder"    column="withdrawal_platform_order"    />
+        <result property="transactionId"    column="transaction_id"    />
+        <result property="reviewStatus"    column="review_status"    />
+        <result property="reviewTime"    column="review_time"    />
+        <result property="reviewUserId"    column="review_user_id"    />
+        <result property="reviewRemark"    column="review_remark"    />
+        <result property="accomplishTime"    column="accomplish_time"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="ipAddr"    column="ip_addr"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="isDelete"    column="is_delete"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectWithdrawalOrderInfoVo">
+        select withdrawal_id, user_id, points_withdrawal, amount_withdrawal, platform_fee, user_received_amount, withdrawal_method, withdrawal_account, withdrawal_status, withdrawal_platform_order, transaction_id, review_status, review_time, review_user_id, review_remark, accomplish_time, device_id, browser, os, platform, ip_addr, create_time, update_time, fail_reason, is_delete, remark from po_withdrawal_order_info
+    </sql>
+
+    <select id="selectWithdrawalOrderInfoList" parameterType="WithdrawalOrderInfo" resultMap="WithdrawalOrderInfoResult">
+        <include refid="selectWithdrawalOrderInfoVo"/>
+        <where>  
+            <if test="withdrawalId != null  and withdrawalId != ''"> and withdrawal_id = #{withdrawalId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="withdrawalMethod != null  and withdrawalMethod != ''"> and withdrawal_method = #{withdrawalMethod}</if>
+            <if test="withdrawalAccount != null  and withdrawalAccount != ''"> and withdrawal_account = #{withdrawalAccount}</if>
+            <if test="withdrawalStatus != null  and withdrawalStatus != ''"> and withdrawal_status = #{withdrawalStatus}</if>
+            <if test="withdrawalPlatformOrder != null  and withdrawalPlatformOrder != ''"> and withdrawal_platform_order = #{withdrawalPlatformOrder}</if>
+            <if test="transactionId != null  and transactionId != ''"> and transaction_id = #{transactionId}</if>
+            <if test="reviewStatus != null  and reviewStatus != ''"> and review_status = #{reviewStatus}</if>
+            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''"> and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}</if>
+            <if test="reviewUserId != null "> and review_user_id = #{reviewUserId}</if>
+            <if test="params.beginAccomplishTime != null and params.beginAccomplishTime != '' and params.endAccomplishTime != null and params.endAccomplishTime != ''"> and DATE_FORMAT(accomplish_time, '%Y-%m-%d') between #{params.beginAccomplishTime} and #{params.endAccomplishTime}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectWithdrawalOrderInfoByWithdrawalId" parameterType="String" resultMap="WithdrawalOrderInfoResult">
+        <include refid="selectWithdrawalOrderInfoVo"/>
+        where withdrawal_id = #{withdrawalId}
+    </select>
+
+    <insert id="insertWithdrawalOrderInfo" parameterType="WithdrawalOrderInfo">
+        insert into po_withdrawal_order_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="withdrawalId != null">withdrawal_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="pointsWithdrawal != null">points_withdrawal,</if>
+            <if test="amountWithdrawal != null">amount_withdrawal,</if>
+            <if test="platformFee != null">platform_fee,</if>
+            <if test="userReceivedAmount != null">user_received_amount,</if>
+            <if test="withdrawalMethod != null and withdrawalMethod != ''">withdrawal_method,</if>
+            <if test="withdrawalAccount != null and withdrawalAccount != ''">withdrawal_account,</if>
+            <if test="withdrawalStatus != null and withdrawalStatus != ''">withdrawal_status,</if>
+            <if test="withdrawalPlatformOrder != null">withdrawal_platform_order,</if>
+            <if test="transactionId != null">transaction_id,</if>
+            <if test="reviewStatus != null and reviewStatus != ''">review_status,</if>
+            <if test="reviewTime != null">review_time,</if>
+            <if test="reviewUserId != null">review_user_id,</if>
+            <if test="reviewRemark != null">review_remark,</if>
+            <if test="accomplishTime != null">accomplish_time,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="withdrawalId != null">#{withdrawalId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="pointsWithdrawal != null">#{pointsWithdrawal},</if>
+            <if test="amountWithdrawal != null">#{amountWithdrawal},</if>
+            <if test="platformFee != null">#{platformFee},</if>
+            <if test="userReceivedAmount != null">#{userReceivedAmount},</if>
+            <if test="withdrawalMethod != null and withdrawalMethod != ''">#{withdrawalMethod},</if>
+            <if test="withdrawalAccount != null and withdrawalAccount != ''">#{withdrawalAccount},</if>
+            <if test="withdrawalStatus != null and withdrawalStatus != ''">#{withdrawalStatus},</if>
+            <if test="withdrawalPlatformOrder != null">#{withdrawalPlatformOrder},</if>
+            <if test="transactionId != null">#{transactionId},</if>
+            <if test="reviewStatus != null and reviewStatus != ''">#{reviewStatus},</if>
+            <if test="reviewTime != null">#{reviewTime},</if>
+            <if test="reviewUserId != null">#{reviewUserId},</if>
+            <if test="reviewRemark != null">#{reviewRemark},</if>
+            <if test="accomplishTime != null">#{accomplishTime},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWithdrawalOrderInfo" parameterType="WithdrawalOrderInfo">
+        update po_withdrawal_order_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="pointsWithdrawal != null">points_withdrawal = #{pointsWithdrawal},</if>
+            <if test="amountWithdrawal != null">amount_withdrawal = #{amountWithdrawal},</if>
+            <if test="platformFee != null">platform_fee = #{platformFee},</if>
+            <if test="userReceivedAmount != null">user_received_amount = #{userReceivedAmount},</if>
+            <if test="withdrawalMethod != null and withdrawalMethod != ''">withdrawal_method = #{withdrawalMethod},</if>
+            <if test="withdrawalAccount != null and withdrawalAccount != ''">withdrawal_account = #{withdrawalAccount},</if>
+            <if test="withdrawalStatus != null and withdrawalStatus != ''">withdrawal_status = #{withdrawalStatus},</if>
+            <if test="withdrawalPlatformOrder != null">withdrawal_platform_order = #{withdrawalPlatformOrder},</if>
+            <if test="transactionId != null">transaction_id = #{transactionId},</if>
+            <if test="reviewStatus != null and reviewStatus != ''">review_status = #{reviewStatus},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="reviewUserId != null">review_user_id = #{reviewUserId},</if>
+            <if test="reviewRemark != null">review_remark = #{reviewRemark},</if>
+            <if test="accomplishTime != null">accomplish_time = #{accomplishTime},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where withdrawal_id = #{withdrawalId}
+    </update>
+
+    <delete id="deleteWithdrawalOrderInfoByWithdrawalId" parameterType="String">
+        delete from po_withdrawal_order_info where withdrawal_id = #{withdrawalId}
+    </delete>
+
+    <delete id="deleteWithdrawalOrderInfoByWithdrawalIds" parameterType="String">
+        delete from po_withdrawal_order_info where withdrawal_id in 
+        <foreach item="withdrawalId" collection="array" open="(" separator="," close=")">
+            #{withdrawalId}
+        </foreach>
+    </delete>
+</mapper>

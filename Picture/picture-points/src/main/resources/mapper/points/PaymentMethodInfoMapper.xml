@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.points.mapper.PaymentMethodInfoMapper">
+    
+    <resultMap type="PaymentMethodInfo" id="PaymentMethodInfoResult">
+        <result property="methodId"    column="method_id"    />
+        <result property="methodName"    column="method_name"    />
+        <result property="thirdParty"    column="third_party"    />
+        <result property="methodType"    column="method_type"    />
+        <result property="apiUrl"    column="api_url"    />
+        <result property="merchantId"    column="merchant_id"    />
+        <result property="appId"    column="app_id"    />
+        <result property="secretKey"    column="secret_key"    />
+        <result property="contactInformation"    column="contact_information"    />
+        <result property="extendConfig"    column="extend_config"    />
+        <result property="methodStatus"    column="method_status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectPaymentMethodInfoVo">
+        select method_id, method_name, third_party, method_type, api_url, merchant_id, app_id, secret_key, contact_information, extend_config, method_status, create_time, update_time, remark from po_payment_method_info
+    </sql>
+
+    <select id="selectPaymentMethodInfoList" parameterType="PaymentMethodInfo" resultMap="PaymentMethodInfoResult">
+        <include refid="selectPaymentMethodInfoVo"/>
+        <where>  
+            <if test="methodId != null  and methodId != ''"> and method_id = #{methodId}</if>
+            <if test="methodName != null  and methodName != ''"> and method_name like concat('%', #{methodName}, '%')</if>
+            <if test="thirdParty != null  and thirdParty != ''"> and third_party = #{thirdParty}</if>
+            <if test="methodType != null  and methodType != ''"> and method_type = #{methodType}</if>
+            <if test="apiUrl != null  and apiUrl != ''"> and api_url = #{apiUrl}</if>
+            <if test="merchantId != null  and merchantId != ''"> and merchant_id = #{merchantId}</if>
+            <if test="params.beginMethodStatus != null and params.beginMethodStatus != '' and params.endMethodStatus != null and params.endMethodStatus != ''"> and DATE_FORMAT(method_status, '%Y-%m-%d') between #{params.beginMethodStatus} and #{params.endMethodStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectPaymentMethodInfoByMethodId" parameterType="String" resultMap="PaymentMethodInfoResult">
+        <include refid="selectPaymentMethodInfoVo"/>
+        where method_id = #{methodId}
+    </select>
+
+    <insert id="insertPaymentMethodInfo" parameterType="PaymentMethodInfo">
+        insert into po_payment_method_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="methodId != null">method_id,</if>
+            <if test="methodName != null and methodName != ''">method_name,</if>
+            <if test="thirdParty != null and thirdParty != ''">third_party,</if>
+            <if test="methodType != null and methodType != ''">method_type,</if>
+            <if test="apiUrl != null">api_url,</if>
+            <if test="merchantId != null">merchant_id,</if>
+            <if test="appId != null">app_id,</if>
+            <if test="secretKey != null">secret_key,</if>
+            <if test="contactInformation != null">contact_information,</if>
+            <if test="extendConfig != null">extend_config,</if>
+            <if test="methodStatus != null and methodStatus != ''">method_status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="methodId != null">#{methodId},</if>
+            <if test="methodName != null and methodName != ''">#{methodName},</if>
+            <if test="thirdParty != null and thirdParty != ''">#{thirdParty},</if>
+            <if test="methodType != null and methodType != ''">#{methodType},</if>
+            <if test="apiUrl != null">#{apiUrl},</if>
+            <if test="merchantId != null">#{merchantId},</if>
+            <if test="appId != null">#{appId},</if>
+            <if test="secretKey != null">#{secretKey},</if>
+            <if test="contactInformation != null">#{contactInformation},</if>
+            <if test="extendConfig != null">#{extendConfig},</if>
+            <if test="methodStatus != null and methodStatus != ''">#{methodStatus},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePaymentMethodInfo" parameterType="PaymentMethodInfo">
+        update po_payment_method_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="methodName != null and methodName != ''">method_name = #{methodName},</if>
+            <if test="thirdParty != null and thirdParty != ''">third_party = #{thirdParty},</if>
+            <if test="methodType != null and methodType != ''">method_type = #{methodType},</if>
+            <if test="apiUrl != null">api_url = #{apiUrl},</if>
+            <if test="merchantId != null">merchant_id = #{merchantId},</if>
+            <if test="appId != null">app_id = #{appId},</if>
+            <if test="secretKey != null">secret_key = #{secretKey},</if>
+            <if test="contactInformation != null">contact_information = #{contactInformation},</if>
+            <if test="extendConfig != null">extend_config = #{extendConfig},</if>
+            <if test="methodStatus != null and methodStatus != ''">method_status = #{methodStatus},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where method_id = #{methodId}
+    </update>
+
+    <delete id="deletePaymentMethodInfoByMethodId" parameterType="String">
+        delete from po_payment_method_info where method_id = #{methodId}
+    </delete>
+
+    <delete id="deletePaymentMethodInfoByMethodIds" parameterType="String">
+        delete from po_payment_method_info where method_id in 
+        <foreach item="methodId" collection="array" open="(" separator="," close=")">
+            #{methodId}
+        </foreach>
+    </delete>
+</mapper>

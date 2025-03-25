@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.points.mapper.AccountInfoMapper">
+    
+    <resultMap type="AccountInfo" id="AccountInfoResult">
+        <result property="accountId"    column="account_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="password"    column="password"    />
+        <result property="salt"    column="salt"    />
+        <result property="pointsEarned"    column="points_earned"    />
+        <result property="pointsUsed"    column="points_used"    />
+        <result property="rechargeAmount"    column="recharge_amount"    />
+        <result property="accountStatus"    column="account_status"    />
+        <result property="pointsBalance"    column="points_balance"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="isDelete"    column="is_delete"    />
+    </resultMap>
+
+    <sql id="selectAccountInfoVo">
+        select account_id, user_id, password, salt, points_earned, points_used, recharge_amount, account_status, points_balance, create_time, update_time, remark, is_delete from po_account_info
+    </sql>
+
+    <select id="selectAccountInfoList" parameterType="AccountInfo" resultMap="AccountInfoResult">
+        <include refid="selectAccountInfoVo"/>
+        <where>  
+            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectAccountInfoByAccountId" parameterType="String" resultMap="AccountInfoResult">
+        <include refid="selectAccountInfoVo"/>
+        where account_id = #{accountId}
+    </select>
+
+    <insert id="insertAccountInfo" parameterType="AccountInfo">
+        insert into po_account_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="accountId != null">account_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="password != null and password != ''">password,</if>
+            <if test="salt != null and salt != ''">salt,</if>
+            <if test="pointsEarned != null">points_earned,</if>
+            <if test="pointsUsed != null">points_used,</if>
+            <if test="rechargeAmount != null">recharge_amount,</if>
+            <if test="accountStatus != null and accountStatus != ''">account_status,</if>
+            <if test="pointsBalance != null">points_balance,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="accountId != null">#{accountId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="password != null and password != ''">#{password},</if>
+            <if test="salt != null and salt != ''">#{salt},</if>
+            <if test="pointsEarned != null">#{pointsEarned},</if>
+            <if test="pointsUsed != null">#{pointsUsed},</if>
+            <if test="rechargeAmount != null">#{rechargeAmount},</if>
+            <if test="accountStatus != null and accountStatus != ''">#{accountStatus},</if>
+            <if test="pointsBalance != null">#{pointsBalance},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAccountInfo" parameterType="AccountInfo">
+        update po_account_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="salt != null and salt != ''">salt = #{salt},</if>
+            <if test="pointsEarned != null">points_earned = #{pointsEarned},</if>
+            <if test="pointsUsed != null">points_used = #{pointsUsed},</if>
+            <if test="rechargeAmount != null">recharge_amount = #{rechargeAmount},</if>
+            <if test="accountStatus != null and accountStatus != ''">account_status = #{accountStatus},</if>
+            <if test="pointsBalance != null">points_balance = #{pointsBalance},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+        </trim>
+        where account_id = #{accountId}
+    </update>
+
+    <delete id="deleteAccountInfoByAccountId" parameterType="String">
+        delete from po_account_info where account_id = #{accountId}
+    </delete>
+
+    <delete id="deleteAccountInfoByAccountIds" parameterType="String">
+        delete from po_account_info where account_id in 
+        <foreach item="accountId" collection="array" open="(" separator="," close=")">
+            #{accountId}
+        </foreach>
+    </delete>
+</mapper>

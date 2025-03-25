@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.points.mapper.RiskControlLogInfoMapper">
+    
+    <resultMap type="RiskControlLogInfo" id="RiskControlLogInfoResult">
+        <result property="logId"    column="log_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="methodId"    column="method_id"    />
+        <result property="riskType"    column="risk_type"    />
+        <result property="riskLevel"    column="risk_level"    />
+        <result property="riskDescription"    column="risk_description"    />
+        <result property="actionTaken"    column="action_taken"    />
+        <result property="actionTime"    column="action_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="ipAddr"    column="ip_addr"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectRiskControlLogInfoVo">
+        select log_id, user_id, method_id, risk_type, risk_level, risk_description, action_taken, action_time, create_time, device_id, browser, os, platform, ip_addr, remark from po_risk_control_log_info
+    </sql>
+
+    <select id="selectRiskControlLogInfoList" parameterType="RiskControlLogInfo" resultMap="RiskControlLogInfoResult">
+        <include refid="selectRiskControlLogInfoVo"/>
+        <where>  
+            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="methodId != null  and methodId != ''"> and method_id = #{methodId}</if>
+            <if test="riskType != null  and riskType != ''"> and risk_type = #{riskType}</if>
+            <if test="riskLevel != null  and riskLevel != ''"> and risk_level = #{riskLevel}</if>
+            <if test="params.beginActionTime != null and params.beginActionTime != '' and params.endActionTime != null and params.endActionTime != ''"> and DATE_FORMAT(action_time, '%Y-%m-%d') between #{params.beginActionTime} and #{params.endActionTime}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectRiskControlLogInfoByLogId" parameterType="String" resultMap="RiskControlLogInfoResult">
+        <include refid="selectRiskControlLogInfoVo"/>
+        where log_id = #{logId}
+    </select>
+
+    <insert id="insertRiskControlLogInfo" parameterType="RiskControlLogInfo">
+        insert into po_risk_control_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="logId != null">log_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="methodId != null and methodId != ''">method_id,</if>
+            <if test="riskType != null and riskType != ''">risk_type,</if>
+            <if test="riskLevel != null and riskLevel != ''">risk_level,</if>
+            <if test="riskDescription != null and riskDescription != ''">risk_description,</if>
+            <if test="actionTaken != null and actionTaken != ''">action_taken,</if>
+            <if test="actionTime != null">action_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="logId != null">#{logId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="methodId != null and methodId != ''">#{methodId},</if>
+            <if test="riskType != null and riskType != ''">#{riskType},</if>
+            <if test="riskLevel != null and riskLevel != ''">#{riskLevel},</if>
+            <if test="riskDescription != null and riskDescription != ''">#{riskDescription},</if>
+            <if test="actionTaken != null and actionTaken != ''">#{actionTaken},</if>
+            <if test="actionTime != null">#{actionTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRiskControlLogInfo" parameterType="RiskControlLogInfo">
+        update po_risk_control_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="methodId != null and methodId != ''">method_id = #{methodId},</if>
+            <if test="riskType != null and riskType != ''">risk_type = #{riskType},</if>
+            <if test="riskLevel != null and riskLevel != ''">risk_level = #{riskLevel},</if>
+            <if test="riskDescription != null and riskDescription != ''">risk_description = #{riskDescription},</if>
+            <if test="actionTaken != null and actionTaken != ''">action_taken = #{actionTaken},</if>
+            <if test="actionTime != null">action_time = #{actionTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where log_id = #{logId}
+    </update>
+
+    <delete id="deleteRiskControlLogInfoByLogId" parameterType="String">
+        delete from po_risk_control_log_info where log_id = #{logId}
+    </delete>
+
+    <delete id="deleteRiskControlLogInfoByLogIds" parameterType="String">
+        delete from po_risk_control_log_info where log_id in 
+        <foreach item="logId" collection="array" open="(" separator="," close=")">
+            #{logId}
+        </foreach>
+    </delete>
+</mapper>

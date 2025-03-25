@@ -86,6 +86,11 @@
             <artifactId>picture-ai</artifactId>
         </dependency>
 
+        <!--C端用户积分模块-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-points</artifactId>
+        </dependency>
         <!--新增-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

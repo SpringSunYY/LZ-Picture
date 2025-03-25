@@ -274,6 +274,13 @@
                 <version>${picture.version}</version>
             </dependency>
 
+            <!--C端用户积分模块-->
+            <dependency>
+                <groupId>com.lz</groupId>
+                <artifactId>picture-points</artifactId>
+                <version>${picture.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -289,6 +296,7 @@
         <module>picture-user-auth</module>
         <module>picture-picture</module>
         <module>picture-ai</module>
+        <module>picture-points</module>
     </modules>
     <packaging>pom</packaging>
 

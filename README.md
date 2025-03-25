@@ -447,7 +447,7 @@ CREATE TABLE u_banned_permission_info (
 | relation_type    | char     | 1    |                            | 否   |          | 关系类型(0关注 1互关 2拉黑) |
 | create_time      | datetime |      |                            | 否   | 当前时间 | 创建时间                    |
 
-取消关注就给他的逻辑删除为删除 要是下次关注给他更新回来
+取消关注就给他的删除为删除 要是下次关注给他更新回来
 
 ```sql
 CREATE TABLE u_user_relation_info (
@@ -581,7 +581,7 @@ CREATE TABLE u_inform_info (
     retry_count INT NOT NULL DEFAULT 0 COMMENT '重试次数',
     send_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
     remark VARCHAR(500) COMMENT '备注',
-    is_delete TINYINT(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除（0=正常 1=删除）',
+    is_delete TINYINT(1) NOT NULL DEFAULT 0 COMMENT '删除（0=正常 1=删除）',
     PRIMARY KEY (record_id),
     INDEX idx_send_time (send_time),  
     INDEX idx_user_status (user_id, status),  
@@ -661,11 +661,11 @@ CREATE TABLE u_login_log_info (
 | user_id         | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号 |
 | password        | varchar  | 512  |                            | 否   |          | 支付密码 |
 | salt            | varchar  | 64   |                            | 否   |          | 加密方式 |
-| points_earned   | int      |      |                            | 否   | 0        | 赚取积分 |
-| points_used     | int      |      |                            | 否   | 0        | 使用积分 |
-| recharge_amount | int      |      |                            | 否   | 0        | 充值金额 |
+| points_earned   | bigint   |      |                            | 否   | 0        | 赚取积分 |
+| points_used     | bigint   |      |                            | 否   | 0        | 使用积分 |
+| recharge_amount | decimal  | 10,2 |                            | 否   | 0        | 充值金额 |
 | account_status  | char     | 1    |                            | 否   |          | 状态     |
-| intbalance      | int      |      |                            | 否   | 0        | 积分余额 |
+| points_balance  | int      |      |                            | 否   | 0        | 积分余额 |
 | create_time     | datetime |      |                            | 否   | 当前时间 | 创建时间 |
 | update_time     | datetime |      |                            | 否   | 当前时间 | 更新时间 |
 | remark          | varchar  | 512  |                            | 是   |          | 备注     |
@@ -681,28 +681,29 @@ CREATE TABLE u_login_log_info (
 
 ```sql
 DROP TABLE IF EXISTS po_account_info;
-CREATE TABLE po_account_info (
-    account_id VARCHAR(128) NOT NULL COMMENT '账户编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    password VARCHAR(512) NOT NULL COMMENT '支付密码',
-    salt VARCHAR(64) NOT NULL COMMENT '加密方式',
-    points_earned INT NOT NULL DEFAULT 0 COMMENT '赚取总积分',
-    points_used INT NOT NULL DEFAULT 0 COMMENT '使用总积分',
-    recharge_amount DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT '充值总金额（元）',
-    account_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '账户状态（0正常 1异常 2禁用）',
-    intbalance INT NOT NULL DEFAULT 0 COMMENT '积分余额',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    remark VARCHAR(512) COMMENT '备注',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除（0否 1是）',
+CREATE TABLE po_account_info
+(
+    account_id      VARCHAR(128)   NOT NULL COMMENT '账户编号',
+    user_id         VARCHAR(128)   NOT NULL COMMENT '用户编号',
+    password        VARCHAR(512)   NOT NULL COMMENT '支付密码',
+    salt            VARCHAR(64)    NOT NULL COMMENT '加密方式',
+    points_earned   BIGINT         NOT NULL DEFAULT 0 COMMENT '赚取总积分',
+    points_used     BIGINT         NOT NULL DEFAULT 0 COMMENT '使用总积分',
+    recharge_amount DECIMAL(18, 2) NOT NULL DEFAULT 0 COMMENT '充值总金额（元）',
+    account_status  CHAR(1)        NOT NULL DEFAULT '0' COMMENT '账户状态（0正常 1异常 2禁用）',
+    points_balance  BIGINT         NOT NULL DEFAULT 0 COMMENT '积分余额',
+    create_time     DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time     DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark          VARCHAR(512) COMMENT '备注',
+    is_delete       CHAR(1)        NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
     PRIMARY KEY (account_id),
     UNIQUE KEY uk_po_account_user (user_id),
-    CONSTRAINT fk_po_account_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE,
+    CONSTRAINT fk_po_account_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id),
     INDEX idx_po_account_status (account_status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='积分账户表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='积分账户表';
 ```
 
 
@@ -711,21 +712,22 @@ CREATE TABLE po_account_info (
 
 方便配置支付方式的一些信息
 
-| 字段名              | 类型     | 长度 | 键类型 | Null | 默认值   | 描述         |
-| ------------------- | -------- | ---- | ------ | ---- | -------- | ------------ |
-| method_id           | varchar  | 128  | 主键   | 否   |          | 支付方式编号 |
-| method_name         | varchar  | 32   |        | 否   |          | 名称         |
-| method_type         | varchar  | 32   |        | 否   |          | 类型         |
-| api_url             | varchar  | 256  |        | 是   |          | 支付接口URL  |
-| merchant_id         | varchar  | 128  |        | 是   |          | 商户号       |
-| app_id              | varchar  | 128  |        | 是   |          | 应用编号     |
-| secret_key          | varchar  | 512  |        | 是   |          | 秘钥         |
-| contact_information | varchar  | 1024 |        | 是   |          | 联系方式     |
-| extend_config       | varchar  | 1024 |        | 是   |          | 扩展配置     |
-| method_status       | varchar  | 32   |        | 否   | 1        | 状态         |
-| create_time         | datetime |      |        | 否   | 当前时间 | 创建时间     |
-| update_time         | datetime |      |        | 否   | 当前时间 | 更新时间     |
-| remark              | varchar  | 512  |        | 是   |          | 备注         |
+| 字段名              | 类型     | 长度 | 键类型 | Null | 默认值   | 描述           |
+| ------------------- | -------- | ---- | ------ | ---- | -------- | -------------- |
+| method_id           | varchar  | 128  | 主键   | 否   |          | 支付方式编号   |
+| method_name         | varchar  | 32   |        | 否   |          | 名称           |
+| third_party         | varchar  | 128  |        | 否   |          | 第三方支付平台 |
+| method_type         | varchar  | 32   |        | 否   |          | 类型           |
+| api_url             | varchar  | 256  |        | 是   |          | 支付接口URL    |
+| merchant_id         | varchar  | 128  |        | 是   |          | 商户号         |
+| app_id              | varchar  | 128  |        | 是   |          | 应用编号       |
+| secret_key          | varchar  | 512  |        | 是   |          | 秘钥           |
+| contact_information | varchar  | 1024 |        | 是   |          | 联系方式       |
+| extend_config       | varchar  | 1024 |        | 是   |          | 扩展配置       |
+| method_status       | varchar  | 32   |        | 否   | 1        | 状态           |
+| create_time         | datetime |      |        | 否   | 当前时间 | 创建时间       |
+| update_time         | datetime |      |        | 否   | 当前时间 | 更新时间       |
+| remark              | varchar  | 512  |        | 是   |          | 备注           |
 
 支付方式状态：0使用 1未使用
 
@@ -740,6 +742,7 @@ DROP TABLE IF EXISTS po_payment_method_info;
 CREATE TABLE po_payment_method_info (
     method_id VARCHAR(128) NOT NULL COMMENT '支付方式编号',
     method_name VARCHAR(32) NOT NULL COMMENT '名称',
+    third_party VARCHAR(128)   NOT NULL COMMENT '第三方支付平台',
     method_type VARCHAR(32) NOT NULL COMMENT '类型',
     api_url VARCHAR(256) COMMENT '支付接口URL',
     merchant_id VARCHAR(128) COMMENT '商户号',
@@ -764,10 +767,11 @@ CREATE TABLE po_payment_method_info (
 | ----------------- | -------- | ---- | ---------------------------------------- | ---- | -------- | -------------------- |
 | order_id          | varchar  | 128  | 主键                                     | 否   |          | 订单编号             |
 | user_id           | varchar  | 128  | 外键 (u_user_info:user_id)、唯一         | 否   |          | 用户编号             |
-| order_type        | varchar  | 32   |                                          | 否   |          | 订单类型             |
+| order_type        | char     | 1    |                                          | 否   |          | 订单类型             |
 | order_status      | varchar  | 32   |                                          | 否   | 0        | 订单状态             |
 | amount            | decimal  | 10,2 |                                          | 否   | 0.00     | 订单总金额           |
 | payment_id        | varchar  | 128  | 外键（po_payment_method_info:method_id） | 否   |          | 支付方式             |
+| third_party       | varchar  | 128  |                                          | 否   |          | 第三方支付平台       |
 | third_party_order | varchar  | 128  |                                          | 是   |          | 第三方支付平台订单号 |
 | payment_time      | datetime |      |                                          | 是   | 当前时间 | 支付时间             |
 | payment_status    | varchar  | 32   |                                          | 否   | 0        | 支付状态             |
@@ -791,32 +795,35 @@ CREATE TABLE po_payment_method_info (
 
 ```sql
 DROP TABLE IF EXISTS po_payment_order_info;
-CREATE TABLE po_payment_order_info (
-    order_id VARCHAR(128) NOT NULL COMMENT '订单编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    order_type VARCHAR(32) NOT NULL COMMENT '订单类型',
-    order_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '订单状态（0待支付 1成功 2失败 3退款）',
-    amount DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '订单总金额',
-    payment_id VARCHAR(128) NOT NULL COMMENT '支付方式编号',
+CREATE TABLE po_payment_order_info
+(
+    order_id          VARCHAR(128)   NOT NULL COMMENT '订单编号',
+    user_id           VARCHAR(128)   NOT NULL COMMENT '用户编号',
+    order_type        CHAR(1)    NOT NULL COMMENT '订单类型',
+    order_status      VARCHAR(32)    NOT NULL DEFAULT '0' COMMENT '订单状态（0待支付 1成功 2失败 3退款）',
+    amount            DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '订单总金额',
+    payment_id        VARCHAR(128)   NOT NULL COMMENT '支付方式编号',
+    third_party     VARCHAR(128)   NOT NULL COMMENT '第三方支付平台',
     third_party_order VARCHAR(128) COMMENT '第三方支付平台订单号',
-    payment_time DATETIME COMMENT '支付时间',
-    payment_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '支付状态（0待支付 1成功 2失败 3取消）',
-    transaction_fee DECIMAL(10,2) DEFAULT 0.00 COMMENT '支付手续费',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    fail_reason VARCHAR(500) COMMENT '支付失败原因',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
-    remark VARCHAR(512) COMMENT '备注',
+    payment_time      DATETIME COMMENT '支付时间',
+    payment_status    VARCHAR(32)    NOT NULL DEFAULT '0' COMMENT '支付状态（0待支付 1成功 2失败 3取消）',
+    transaction_fee   DECIMAL(10, 2)          DEFAULT 0.00 COMMENT '支付手续费',
+    create_time       DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time       DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    fail_reason       VARCHAR(500) COMMENT '支付失败原因',
+    device_id         VARCHAR(255) COMMENT '设备唯一标识',
+    browser           VARCHAR(50) COMMENT '浏览器类型',
+    os                VARCHAR(50) COMMENT '操作系统',
+    platform          VARCHAR(20) COMMENT '平台',
+    ip_addr           VARCHAR(50)    NOT NULL COMMENT 'IP地址',
+    is_delete         CHAR(1)        NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+    remark            VARCHAR(512) COMMENT '备注',
     PRIMARY KEY (order_id),
-    FOREIGN KEY (payment_id) REFERENCES po_payment_method_info(method_id) ON UPDATE CASCADE,
+    FOREIGN KEY (payment_id) REFERENCES po_payment_method_info (method_id),
     INDEX idx_payment_status (payment_status),
     INDEX idx_user_order (user_id, order_status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付订单表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='支付订单表';
 ```
 
 
@@ -857,7 +864,7 @@ CREATE TABLE po_points_recharge_package_info (
     is_long_term CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否长期（0是 1否）',
     start_time DATETIME COMMENT '套餐生效时间',
     end_time DATETIME COMMENT '套餐结束时间',
-    status CHAR(1) NOT NULL DEFAULT '0' COMMENT '套餐状态（0正常 1失效）',
+    package_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '套餐状态（0正常 1失效）',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     remark VARCHAR(512) COMMENT '备注',
@@ -874,63 +881,67 @@ CREATE TABLE po_points_recharge_package_info (
 
 记录用户充值积分记录
 
-| 字段名          | 类型     | 长度 | 键类型                                           | Null | 默认值   | 描述           |
-| --------------- | -------- | ---- | ------------------------------------------------ | ---- | -------- | -------------- |
-| recharge_id     | varchar  | 128  | 主键                                             | 否   |          | 充值记录编号   |
-| package_id      | varchar  | 128  | 外键(po_points_recharge_package_info:package_id) | 否   |          | 套餐编号       |
-| user_id         | varchar  | 128  | 外键 (u_user_info:user_id)                       | 否   |          | 用户编号       |
-| total_count     | int      |      |                                                  | 否   |          | 总数           |
-| points_count    | int      |      |                                                  | 否   | 0        | 充值积分数量   |
-| bonus_count     | int      |      |                                                  | 是   | 0        | 赠送数量       |
-| price_count     | decimal  | 10,2 |                                                  | 否   | 0.00     | 充值金额       |
-| recharge_count  | int      |      |                                                  | 否   | 0        | 数量           |
-| third_party     | varchar  | 128  |                                                  | 否   |          | 第三方支付平台 |
-| trade_no        | varchar  | 128  |                                                  | 是   |          | 第三方单号     |
-| recharge_status | varchar  | 32   |                                                  | 否   |          | 充值状态       |
-| create_time     | datetime |      |                                                  | 否   | 当前时间 | 充值时间       |
-| update_time     | datetime |      |                                                  | 是   |          | 更新时间       |
-| fail_reason     | varchar  | 500  |                                                  | 是   |          | 充值失败原因   |
-| device_id       | varchar  | 255  |                                                  | 是   |          | 设备唯一标识   |
-| browser         | varchar  | 50   |                                                  | 是   |          | 浏览器类型     |
-| os              | varchar  | 50   |                                                  | 是   |          | 操作系统       |
-| platform        | varchar  | 20   |                                                  | 是   |          | 平台           |
-| ip_addr         | varchar  | 50   |                                                  | 否   |          | IP地址         |
-| remark          | varchar  | 512  |                                                  | 是   |          | 备注           |
-| is_delete       | char     | 1    |                                                  | 否   | 0        | 删除           |
+| 字段名            | 类型     | 长度 | 键类型                                           | Null | 默认值   | 描述                 |
+| ----------------- | -------- | ---- | ------------------------------------------------ | ---- | -------- | -------------------- |
+| recharge_id       | varchar  | 128  | 主键                                             | 否   |          | 充值记录编号         |
+| package_id        | varchar  | 128  | 外键(po_points_recharge_package_info:package_id) | 否   |          | 套餐编号             |
+| user_id           | varchar  | 128  | 外键 (u_user_info:user_id)                       | 否   |          | 用户编号             |
+| order_id          | varchar  | 128  |                                                  | 否   |          | 订单编号             |
+| total_count       | int      |      |                                                  | 否   |          | 总数                 |
+| points_count      | int      |      |                                                  | 否   | 0        | 充值积分数量         |
+| bonus_count       | int      |      |                                                  | 是   | 0        | 赠送数量             |
+| price_count       | decimal  | 10,2 |                                                  | 否   | 0.00     | 充值金额             |
+| recharge_count    | int      |      |                                                  | 否   | 0        | 数量                 |
+| third_party       | varchar  | 128  |                                                  | 否   |          | 第三方支付平台       |
+| third_party_order | varchar  | 128  |                                                  | 是   |          | 第三方支付平台订单号 |
+| recharge_status   | varchar  | 32   |                                                  | 否   |          | 充值状态             |
+| create_time       | datetime |      |                                                  | 否   | 当前时间 | 充值时间             |
+| update_time       | datetime |      |                                                  | 是   |          | 更新时间             |
+| fail_reason       | varchar  | 500  |                                                  | 是   |          | 充值失败原因         |
+| device_id         | varchar  | 255  |                                                  | 是   |          | 设备唯一标识         |
+| browser           | varchar  | 50   |                                                  | 是   |          | 浏览器类型           |
+| os                | varchar  | 50   |                                                  | 是   |          | 操作系统             |
+| platform          | varchar  | 20   |                                                  | 是   |          | 平台                 |
+| ip_addr           | varchar  | 50   |                                                  | 否   |          | IP地址               |
+| remark            | varchar  | 512  |                                                  | 是   |          | 备注                 |
+| is_delete         | char     | 1    |                                                  | 否   | 0        | 删除                 |
 
 充值状态：0成功 1失败 2取消 3超时
 
 ```sql
 DROP TABLE IF EXISTS po_points_recharge_info;
-CREATE TABLE po_points_recharge_info (
-    recharge_id VARCHAR(128) NOT NULL COMMENT '充值记录编号',
-    package_id VARCHAR(128) NOT NULL COMMENT '套餐编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    total_count INT NOT NULL COMMENT '总数',
-    points_count INT NOT NULL DEFAULT 0 COMMENT '充值积分数量',
-    bonus_count INT DEFAULT 0 COMMENT '赠送数量',
-    price_count DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '充值金额',
-    recharge_count INT NOT NULL DEFAULT 0 COMMENT '数量',
-    third_party VARCHAR(128) NOT NULL COMMENT '第三方支付平台',
-    trade_no VARCHAR(128) COMMENT '第三方单号',
-    recharge_status VARCHAR(32) NOT NULL COMMENT '充值状态（0成功 1失败 2取消 3超时）',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '充值时间',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    fail_reason VARCHAR(500) COMMENT '充值失败原因',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
-    remark VARCHAR(512) COMMENT '备注',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+CREATE TABLE po_points_recharge_info
+(
+    recharge_id     VARCHAR(128)   NOT NULL COMMENT '充值记录编号',
+    package_id      VARCHAR(128)   NOT NULL COMMENT '套餐编号',
+    user_id         VARCHAR(128)   NOT NULL COMMENT '用户编号',
+    order_id          VARCHAR(128)   NOT NULL COMMENT '订单编号',
+    total_count     INT            NOT NULL COMMENT '总数',
+    points_count    INT            NOT NULL DEFAULT 0 COMMENT '充值积分数量',
+    bonus_count     INT                     DEFAULT 0 COMMENT '赠送数量',
+    price_count     DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '充值金额',
+    recharge_count  INT            NOT NULL DEFAULT 0 COMMENT '数量',
+    third_party     VARCHAR(128)   NOT NULL COMMENT '第三方支付平台',
+    third_party_order VARCHAR(128) COMMENT '第三方支付平台订单号',
+    recharge_status VARCHAR(32)    NOT NULL COMMENT '充值状态（0成功 1失败 2取消 3超时）',
+    create_time     DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '充值时间',
+    update_time     DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    fail_reason     VARCHAR(500) COMMENT '充值失败原因',
+    device_id       VARCHAR(255) COMMENT '设备唯一标识',
+    browser         VARCHAR(50) COMMENT '浏览器类型',
+    os              VARCHAR(50) COMMENT '操作系统',
+    platform        VARCHAR(20) COMMENT '平台',
+    ip_addr         VARCHAR(50)    NOT NULL COMMENT 'IP地址',
+    remark          VARCHAR(512) COMMENT '备注',
+    is_delete       CHAR(1)        NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
     PRIMARY KEY (recharge_id),
-    FOREIGN KEY (package_id) REFERENCES po_points_recharge_package_info(package_id) ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (package_id) REFERENCES po_points_recharge_package_info (package_id),
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_status (recharge_status),
     INDEX idx_create_time (create_time),
     INDEX idx_user_package (user_id, package_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='积分充值记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='积分充值记录表';
 ```
 
 
@@ -943,7 +954,7 @@ CREATE TABLE po_points_recharge_info (
 | ---------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
 | error_id         | varchar  | 128  | 主键                       | 否   |          | 异常编号     |
 | user_id          | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号     |
-| payment_method   | varchar  | 32   |                            | 否   |          | 支付方式     |
+| method_id        | varchar  | 128  |                            | 否   |          | 支付方式     |
 | error_type       | varchar  | 32   |                            | 否   |          | 异常类型     |
 | error_message    | text     |      |                            | 否   |          | 异常信息     |
 | error_details    | text     |      |                            | 是   |          | 异常详细信息 |
@@ -958,12 +969,16 @@ CREATE TABLE po_points_recharge_info (
 | resolve_time     | datetime |      |                            | 是   |          | 解决时间     |
 | remark           | varchar  | 512  |                            | 是   |          | 备注         |
 
+解决状态：0未处理 1处理中 2已解决
+
+异常类型：报错原因，简短的
+
 ```sql
 DROP TABLE IF EXISTS po_error_log_info;
 CREATE TABLE po_error_log_info (
     error_id VARCHAR(128) NOT NULL COMMENT '异常编号',
     user_id VARCHAR(128) COMMENT '用户编号',  
-    payment_method VARCHAR(32) NOT NULL COMMENT '支付方式',
+    method_id VARCHAR(128) NOT NULL COMMENT '支付方式',
     error_type VARCHAR(32) NOT NULL COMMENT '异常类型',
     error_message TEXT NOT NULL COMMENT '异常信息',
     error_details TEXT COMMENT '异常详细信息',
@@ -995,7 +1010,7 @@ CREATE TABLE po_error_log_info (
 | ---------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
 | log_id           | varchar  | 128  | 主键                       | 否   |          | 风控日志编号 |
 | user_id          | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号     |
-| payment_method   | varchar  | 32   |                            | 否   |          | 支付方式     |
+| method_id        | varchar  | 32   |                            | 否   |          | 支付方式     |
 | risk_type        | varchar  | 32   |                            | 否   |          | 风险类型     |
 | risk_level       | varchar  | 32   |                            | 否   |          | 风险等级     |
 | risk_description | text     |      |                            | 否   |          | 风险描述     |
@@ -1011,30 +1026,34 @@ CREATE TABLE po_error_log_info (
 
 风险等级：0低 1中 2高
 
+风险原因，简短的
+
 ```sql
 DROP TABLE IF EXISTS po_risk_control_log_info;
-CREATE TABLE po_risk_control_log_info (
-    log_id VARCHAR(128) NOT NULL COMMENT '风控日志编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    payment_method VARCHAR(32) NOT NULL COMMENT '支付方式',
-    risk_type VARCHAR(32) NOT NULL COMMENT '风险类型',
-    risk_level VARCHAR(32) NOT NULL COMMENT '风险等级（0低 1中 2高）',
-    risk_description TEXT NOT NULL COMMENT '风险描述',
-    action_taken VARCHAR(32) NOT NULL COMMENT '采取措施',
-    action_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '措施时间',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录时间',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台（Web/APP）',
-    ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
-    remark VARCHAR(512) COMMENT '备注',
+CREATE TABLE po_risk_control_log_info
+(
+    log_id           VARCHAR(128) NOT NULL COMMENT '风控日志编号',
+    user_id          VARCHAR(128) NOT NULL COMMENT '用户编号',
+    method_id   	 VARCHAR(128)  NOT NULL COMMENT '支付方式',
+    risk_type        VARCHAR(32)  NOT NULL COMMENT '风险类型',
+    risk_level       VARCHAR(32)  NOT NULL COMMENT '风险等级（0低 1中 2高）',
+    risk_description TEXT         NOT NULL COMMENT '风险描述',
+    action_taken     VARCHAR(32)  NOT NULL COMMENT '采取措施',
+    action_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '措施时间',
+    create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录时间',
+    device_id        VARCHAR(255) COMMENT '设备唯一标识',
+    browser          VARCHAR(50) COMMENT '浏览器类型',
+    os               VARCHAR(50) COMMENT '操作系统',
+    platform         VARCHAR(20) COMMENT '平台（Web/APP）',
+    ip_addr          VARCHAR(50)  NOT NULL COMMENT 'IP地址',
+    remark           VARCHAR(512) COMMENT '备注',
     PRIMARY KEY (log_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_risk_level (risk_level),
     INDEX idx_risk_type (risk_type),
     INDEX idx_action_time (action_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='风控日志表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='风控日志表';
 ```
 
 
@@ -1078,39 +1097,41 @@ CREATE TABLE po_risk_control_log_info (
 
 ```sql
 DROP TABLE IF EXISTS po_withdrawal_order_info;
-CREATE TABLE po_withdrawal_order_info (
-    withdrawal_id VARCHAR(128) NOT NULL COMMENT '提现订单编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    points_withdrawal INT NOT NULL DEFAULT 0 COMMENT '提现积分',
-    amount_withdrawal DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '提现金额',
-    platform_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '平台抽成金额',
-    user_received_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '用户实际收到金额',
-    withdrawal_method CHAR(1) NOT NULL DEFAULT '0' COMMENT '提现方式（0支付宝 1微信）',
-    withdrawal_account VARCHAR(64) NOT NULL COMMENT '提现账户',
-    withdrawal_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '提现状态（0待处理 1完成 2失败 3超时）',
+CREATE TABLE po_withdrawal_order_info
+(
+    withdrawal_id             VARCHAR(128)   NOT NULL COMMENT '提现订单编号',
+    user_id                   VARCHAR(128)   COMMENT '用户编号',
+    points_withdrawal         INT            NOT NULL DEFAULT 0 COMMENT '提现积分',
+    amount_withdrawal         DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '提现金额',
+    platform_fee              DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '平台抽成金额',
+    user_received_amount      DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '用户实际收到金额',
+    withdrawal_method         CHAR(1)        NOT NULL DEFAULT '0' COMMENT '提现方式（0支付宝 1微信）',
+    withdrawal_account        VARCHAR(64)    NOT NULL COMMENT '提现账户',
+    withdrawal_status         VARCHAR(32)    NOT NULL DEFAULT '0' COMMENT '提现状态（0待处理 1完成 2失败 3超时）',
     withdrawal_platform_order VARCHAR(64) COMMENT '提现平台订单号',
-    transaction_id VARCHAR(128) COMMENT '交易编号',
-    review_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '审核状态（0待审核 1同意 2拒绝）',
-    review_time DATETIME COMMENT '审核时间',
-    review_user_id BIGINT COMMENT '审核人编号',
-    review_remark VARCHAR(512) COMMENT '审核建议',
-    accomplish_time DATETIME  COMMENT '完成时间',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    fail_reason VARCHAR(500) COMMENT '提现失败原因',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
-    remark VARCHAR(512) COMMENT '备注',
+    transaction_id            VARCHAR(128) COMMENT '交易编号',
+    review_status             CHAR(1)        NOT NULL DEFAULT '0' COMMENT '审核状态（0待审核 1同意 2拒绝）',
+    review_time               DATETIME COMMENT '审核时间',
+    review_user_id            BIGINT COMMENT '审核人编号',
+    review_remark             VARCHAR(512) COMMENT '审核建议',
+    accomplish_time           DATETIME COMMENT '完成时间',
+    device_id                 VARCHAR(255) COMMENT '设备唯一标识',
+    browser                   VARCHAR(50) COMMENT '浏览器类型',
+    os                        VARCHAR(50) COMMENT '操作系统',
+    platform                  VARCHAR(20) COMMENT '平台',
+    ip_addr                   VARCHAR(50)    NOT NULL COMMENT 'IP地址',
+    create_time               DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time               DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    fail_reason               VARCHAR(500) COMMENT '提现失败原因',
+    is_delete                 CHAR(1)        NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+    remark                    VARCHAR(512) COMMENT '备注',
     PRIMARY KEY (withdrawal_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_withdrawal_status (withdrawal_status),
-    INDEX idx_approval_status (approval_status),
+    INDEX idx_review_status (review_status),
     INDEX idx_create_time (create_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户提现记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户提现记录表';
 ```
 
 
@@ -1145,30 +1166,32 @@ CREATE TABLE po_withdrawal_order_info (
 同时，如果用户下载某一张图片，那创作者也会获得积分，会给创作者按照分成添加积分
 
 ```sql
-DROP TABLE IF EXISTS p0_points_usage_log;
-CREATE TABLE p0_points_usage_log (
-    log_id VARCHAR(128) NOT NULL COMMENT '记录编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    usage_type VARCHAR(4) NOT NULL COMMENT '使用类型（0下载图片 1AI服务）',
-    target_id VARCHAR(128) COMMENT '目标编号',
-    points_before INT NOT NULL DEFAULT 0 COMMENT '使用前积分',
-    points_used INT NOT NULL DEFAULT 0 COMMENT '消费积分',
-    points_after INT NOT NULL DEFAULT 0 COMMENT '使用后积分',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
-    remark VARCHAR(512) COMMENT '备注',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+DROP TABLE IF EXISTS po_points_usage_log;
+CREATE TABLE po_points_usage_log
+(
+    log_id        VARCHAR(128) NOT NULL COMMENT '记录编号',
+    user_id       VARCHAR(128) NOT NULL COMMENT '用户编号',
+    usage_type    VARCHAR(4)   NOT NULL COMMENT '使用类型（0下载图片 1AI服务）',
+    target_id     VARCHAR(128) COMMENT '目标编号',
+    points_before INT          NOT NULL DEFAULT 0 COMMENT '使用前积分',
+    points_used   INT          NOT NULL DEFAULT 0 COMMENT '消费积分',
+    points_after  INT          NOT NULL DEFAULT 0 COMMENT '使用后积分',
+    device_id     VARCHAR(255) COMMENT '设备唯一标识',
+    browser       VARCHAR(50) COMMENT '浏览器类型',
+    os            VARCHAR(50) COMMENT '操作系统',
+    platform      VARCHAR(20) COMMENT '平台',
+    ip_addr       VARCHAR(50)  NOT NULL COMMENT 'IP地址',
+    remark        VARCHAR(512) COMMENT '备注',
+    create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete     CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
     PRIMARY KEY (log_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_usage_type (usage_type),
     INDEX idx_user_usage (user_id, usage_type),
     INDEX idx_target (target_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='积分使用记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='积分使用记录表';
 ```
 
 

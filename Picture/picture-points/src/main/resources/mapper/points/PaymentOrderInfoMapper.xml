@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.points.mapper.PaymentOrderInfoMapper">
+    
+    <resultMap type="PaymentOrderInfo" id="PaymentOrderInfoResult">
+        <result property="orderId"    column="order_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="orderType"    column="order_type"    />
+        <result property="orderStatus"    column="order_status"    />
+        <result property="amount"    column="amount"    />
+        <result property="paymentId"    column="payment_id"    />
+        <result property="thirdParty"    column="third_party"    />
+        <result property="thirdPartyOrder"    column="third_party_order"    />
+        <result property="paymentTime"    column="payment_time"    />
+        <result property="paymentStatus"    column="payment_status"    />
+        <result property="transactionFee"    column="transaction_fee"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="browser"    column="browser"    />
+        <result property="os"    column="os"    />
+        <result property="platform"    column="platform"    />
+        <result property="ipAddr"    column="ip_addr"    />
+        <result property="isDelete"    column="is_delete"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectPaymentOrderInfoVo">
+        select order_id, user_id, order_type, order_status, amount, payment_id, third_party, third_party_order, payment_time, payment_status, transaction_fee, create_time, update_time, fail_reason, device_id, browser, os, platform, ip_addr, is_delete, remark from po_payment_order_info
+    </sql>
+
+    <select id="selectPaymentOrderInfoList" parameterType="PaymentOrderInfo" resultMap="PaymentOrderInfoResult">
+        <include refid="selectPaymentOrderInfoVo"/>
+        <where>  
+            <if test="orderId != null  and orderId != ''"> and order_id = #{orderId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="orderType != null  and orderType != ''"> and order_type = #{orderType}</if>
+            <if test="orderStatus != null  and orderStatus != ''"> and order_status = #{orderStatus}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="paymentId != null  and paymentId != ''"> and payment_id = #{paymentId}</if>
+            <if test="thirdParty != null  and thirdParty != ''"> and third_party = #{thirdParty}</if>
+            <if test="thirdPartyOrder != null  and thirdPartyOrder != ''"> and third_party_order = #{thirdPartyOrder}</if>
+            <if test="params.beginPaymentTime != null and params.beginPaymentTime != '' and params.endPaymentTime != null and params.endPaymentTime != ''"> and DATE_FORMAT(payment_time, '%Y-%m-%d') between #{params.beginPaymentTime} and #{params.endPaymentTime}</if>
+            <if test="paymentStatus != null  and paymentStatus != ''"> and payment_status = #{paymentStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="os != null  and os != ''"> and os = #{os}</if>
+            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectPaymentOrderInfoByOrderId" parameterType="String" resultMap="PaymentOrderInfoResult">
+        <include refid="selectPaymentOrderInfoVo"/>
+        where order_id = #{orderId}
+    </select>
+
+    <insert id="insertPaymentOrderInfo" parameterType="PaymentOrderInfo">
+        insert into po_payment_order_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="orderType != null and orderType != ''">order_type,</if>
+            <if test="orderStatus != null and orderStatus != ''">order_status,</if>
+            <if test="amount != null">amount,</if>
+            <if test="paymentId != null and paymentId != ''">payment_id,</if>
+            <if test="thirdParty != null and thirdParty != ''">third_party,</if>
+            <if test="thirdPartyOrder != null">third_party_order,</if>
+            <if test="paymentTime != null">payment_time,</if>
+            <if test="paymentStatus != null and paymentStatus != ''">payment_status,</if>
+            <if test="transactionFee != null">transaction_fee,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="platform != null">platform,</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="orderType != null and orderType != ''">#{orderType},</if>
+            <if test="orderStatus != null and orderStatus != ''">#{orderStatus},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="paymentId != null and paymentId != ''">#{paymentId},</if>
+            <if test="thirdParty != null and thirdParty != ''">#{thirdParty},</if>
+            <if test="thirdPartyOrder != null">#{thirdPartyOrder},</if>
+            <if test="paymentTime != null">#{paymentTime},</if>
+            <if test="paymentStatus != null and paymentStatus != ''">#{paymentStatus},</if>
+            <if test="transactionFee != null">#{transactionFee},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="platform != null">#{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePaymentOrderInfo" parameterType="PaymentOrderInfo">
+        update po_payment_order_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="orderType != null and orderType != ''">order_type = #{orderType},</if>
+            <if test="orderStatus != null and orderStatus != ''">order_status = #{orderStatus},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="paymentId != null and paymentId != ''">payment_id = #{paymentId},</if>
+            <if test="thirdParty != null and thirdParty != ''">third_party = #{thirdParty},</if>
+            <if test="thirdPartyOrder != null">third_party_order = #{thirdPartyOrder},</if>
+            <if test="paymentTime != null">payment_time = #{paymentTime},</if>
+            <if test="paymentStatus != null and paymentStatus != ''">payment_status = #{paymentStatus},</if>
+            <if test="transactionFee != null">transaction_fee = #{transactionFee},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where order_id = #{orderId}
+    </update>
+
+    <delete id="deletePaymentOrderInfoByOrderId" parameterType="String">
+        delete from po_payment_order_info where order_id = #{orderId}
+    </delete>
+
+    <delete id="deletePaymentOrderInfoByOrderIds" parameterType="String">
+        delete from po_payment_order_info where order_id in 
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+</mapper>
