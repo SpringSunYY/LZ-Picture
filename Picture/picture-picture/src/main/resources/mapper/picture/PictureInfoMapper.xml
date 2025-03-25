@@ -1,67 +1,108 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.PictureInfoMapper">
-    
+
     <resultMap type="PictureInfo" id="PictureInfoResult">
-        <result property="pictureId"    column="picture_id"    />
-        <result property="pictureUrl"    column="picture_url"    />
-        <result property="name"    column="name"    />
-        <result property="introduction"    column="introduction"    />
-        <result property="categoryId"    column="category_id"    />
-        <result property="picSize"    column="pic_size"    />
-        <result property="picWidth"    column="pic_width"    />
-        <result property="picHeight"    column="pic_height"    />
-        <result property="picScale"    column="pic_scale"    />
-        <result property="picFormat"    column="pic_format"    />
-        <result property="userId"    column="user_id"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="editTime"    column="edit_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="pictureStatus"    column="picture_status"    />
-        <result property="reviewStatus"    column="review_status"    />
-        <result property="reviewMessage"    column="review_message"    />
-        <result property="reviewUserId"    column="review_user_id"    />
-        <result property="reviewTime"    column="review_time"    />
-        <result property="thumbnailUrl"    column="thumbnail_url"    />
-        <result property="spaceId"    column="space_id"    />
-        <result property="folderId"    column="folder_id"    />
-        <result property="picColor"    column="pic_color"    />
-        <result property="isDelete"    column="is_delete"    />
-        <result property="deletedTime"    column="deleted_time"    />
+        <result property="pictureId" column="picture_id"/>
+        <result property="pictureUrl" column="picture_url"/>
+        <result property="name" column="name"/>
+        <result property="introduction" column="introduction"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="picSize" column="pic_size"/>
+        <result property="picWidth" column="pic_width"/>
+        <result property="picHeight" column="pic_height"/>
+        <result property="picScale" column="pic_scale"/>
+        <result property="picFormat" column="pic_format"/>
+        <result property="pointsNeed" column="points_need"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="editTime" column="edit_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="pictureStatus" column="picture_status"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewMessage" column="review_message"/>
+        <result property="reviewUserId" column="review_user_id"/>
+        <result property="reviewTime" column="review_time"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="spaceId" column="space_id"/>
+        <result property="folderId" column="folder_id"/>
+        <result property="picColor" column="pic_color"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="deletedTime" column="deleted_time"/>
     </resultMap>
 
     <sql id="selectPictureInfoVo">
-        select picture_id, picture_url, name, introduction, category_id, pic_size, pic_width, pic_height, pic_scale, pic_format, user_id, create_time, edit_time, update_time, picture_status, review_status, review_message, review_user_id, review_time, thumbnail_url, space_id, folder_id, pic_color, is_delete, deleted_time from p_picture_info
+        select picture_id,
+               picture_url,
+               name,
+               introduction,
+               category_id,
+               pic_size,
+               pic_width,
+               pic_height,
+               pic_scale,
+               pic_format,
+               points_need,
+               user_id,
+               create_time,
+               edit_time,
+               update_time,
+               picture_status,
+               review_status,
+               review_message,
+               review_user_id,
+               review_time,
+               thumbnail_url,
+               space_id,
+               folder_id,
+               pic_color,
+               is_delete,
+               deleted_time
+        from p_picture_info
     </sql>
 
     <select id="selectPictureInfoList" parameterType="PictureInfo" resultMap="PictureInfoResult">
         <include refid="selectPictureInfoVo"/>
-        <where>  
-            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="categoryId != null  and categoryId != ''"> and category_id = #{categoryId}</if>
-            <if test="picWidth != null "> and pic_width = #{picWidth}</if>
-            <if test="picHeight != null "> and pic_height = #{picHeight}</if>
-            <if test="picScale != null "> and pic_scale = #{picScale}</if>
-            <if test="picFormat != null  and picFormat != ''"> and pic_format = #{picFormat}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginEditTime != null and params.beginEditTime != '' and params.endEditTime != null and params.endEditTime != ''"> and DATE_FORMAT(edit_time, '%Y-%m-%d') between #{params.beginEditTime} and #{params.endEditTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="pictureStatus != null  and pictureStatus != ''"> and picture_status = #{pictureStatus}</if>
-            <if test="reviewStatus != null "> and review_status = #{reviewStatus}</if>
-            <if test="reviewUserId != null "> and review_user_id = #{reviewUserId}</if>
-            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''"> and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}</if>
-            <if test="spaceId != null  and spaceId != ''"> and space_id = #{spaceId}</if>
-            <if test="folderId != null  and folderId != ''"> and folder_id = #{folderId}</if>
-            <if test="picColor != null  and picColor != ''"> and pic_color = #{picColor}</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
-            <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''"> and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and #{params.endDeletedTime}</if>
+        <where>
+            <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="introduction != null  and introduction != ''">and introduction = #{introduction}</if>
+            <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="picWidth != null ">and pic_width = #{picWidth}</if>
+            <if test="picHeight != null ">and pic_height = #{picHeight}</if>
+            <if test="picScale != null ">and pic_scale = #{picScale}</if>
+            <if test="picFormat != null  and picFormat != ''">and pic_format = #{picFormat}</if>
+            <if test="pointsNeed != null ">and points_need = #{pointsNeed}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginEditTime != null and params.beginEditTime != '' and params.endEditTime != null and params.endEditTime != ''">
+                and DATE_FORMAT(edit_time, '%Y-%m-%d') between #{params.beginEditTime} and #{params.endEditTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
+            <if test="reviewStatus != null ">and review_status = #{reviewStatus}</if>
+            <if test="reviewMessage != null  and reviewMessage != ''">and review_message = #{reviewMessage}</if>
+            <if test="reviewUserId != null ">and review_user_id = #{reviewUserId}</if>
+            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''">
+                and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
+            </if>
+            <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="folderId != null  and folderId != ''">and folder_id = #{folderId}</if>
+            <if test="picColor != null  and picColor != ''">and pic_color = #{picColor}</if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
+            <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''">
+                and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and
+                #{params.endDeletedTime}
+            </if>
         </where>
     </select>
-    
+
     <select id="selectPictureInfoByPictureId" parameterType="String" resultMap="PictureInfoResult">
         <include refid="selectPictureInfoVo"/>
         where picture_id = #{pictureId}
@@ -80,6 +121,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="picHeight != null">pic_height,</if>
             <if test="picScale != null">pic_scale,</if>
             <if test="picFormat != null">pic_format,</if>
+            <if test="pointsNeed != null">points_need,</if>
             <if test="userId != null and userId != ''">user_id,</if>
             <if test="createTime != null">create_time,</if>
             <if test="editTime != null">edit_time,</if>
@@ -95,7 +137,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="picColor != null">pic_color,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
             <if test="deletedTime != null">deleted_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">#{pictureId},</if>
             <if test="pictureUrl != null and pictureUrl != ''">#{pictureUrl},</if>
@@ -107,6 +149,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="picHeight != null">#{picHeight},</if>
             <if test="picScale != null">#{picScale},</if>
             <if test="picFormat != null">#{picFormat},</if>
+            <if test="pointsNeed != null">#{pointsNeed},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="editTime != null">#{editTime},</if>
@@ -122,7 +165,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="picColor != null">#{picColor},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
             <if test="deletedTime != null">#{deletedTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePictureInfo" parameterType="PictureInfo">
@@ -137,6 +180,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="picHeight != null">pic_height = #{picHeight},</if>
             <if test="picScale != null">pic_scale = #{picScale},</if>
             <if test="picFormat != null">pic_format = #{picFormat},</if>
+            <if test="pointsNeed != null">points_need = #{pointsNeed},</if>
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="editTime != null">edit_time = #{editTime},</if>
@@ -157,11 +201,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePictureInfoByPictureId" parameterType="String">
-        delete from p_picture_info where picture_id = #{pictureId}
+        delete
+        from p_picture_info
+        where picture_id = #{pictureId}
     </delete>
 
     <delete id="deletePictureInfoByPictureIds" parameterType="String">
-        delete from p_picture_info where picture_id in 
+        delete from p_picture_info where picture_id in
         <foreach item="pictureId" collection="array" open="(" separator="," close=")">
             #{pictureId}
         </foreach>

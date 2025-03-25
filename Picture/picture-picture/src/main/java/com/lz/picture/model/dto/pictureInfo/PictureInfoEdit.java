@@ -1,16 +1,17 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.picture.model.domain.PictureInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.PictureInfo;
+
+import java.io.Serializable;
+import java.util.Date;
 /**
  * 图片信息Vo对象 p_picture_info
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-03-25
  */
 @Data
 public class PictureInfoEdit implements Serializable
@@ -47,6 +48,9 @@ public class PictureInfoEdit implements Serializable
     /** 图片格式 */
     private String picFormat;
 
+    /** 所需积分 */
+    private Long pointsNeed;
+
     /** 上传用户编号 */
     private String userId;
 
@@ -80,10 +84,6 @@ public class PictureInfoEdit implements Serializable
 
     /** 删除（0否 1是） */
     private String isDelete;
-
-    /** 删除时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date deletedTime;
 
     /**
      * 对象转封装类

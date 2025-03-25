@@ -1,4 +1,4 @@
-package com.lz.picture.controller;
+package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
