@@ -1211,32 +1211,34 @@ secret_key:必须加密
 
 ```sql
 DROP TABLE IF EXISTS ai_model_params_info;
-CREATE TABLE ai_model_params_info (
-    model_id VARCHAR(128) NOT NULL COMMENT '模型编号',
-    model_name VARCHAR(128) NOT NULL COMMENT '模型名称',
-    model_type VARCHAR(50) NOT NULL COMMENT '模型类型',
-    api_key VARCHAR(256) COMMENT '安全密钥',
-    secret_key VARCHAR(256) COMMENT '安全KEY',
-    params TEXT NOT NULL COMMENT '模型参数',
+CREATE TABLE ai_model_params_info
+(
+    model_id          VARCHAR(128) NOT NULL COMMENT '模型编号',
+    model_name        VARCHAR(128) NOT NULL COMMENT '模型名称',
+    model_type        VARCHAR(50)  NOT NULL COMMENT '模型类型',
+    api_key           VARCHAR(256) COMMENT '安全密钥',
+    secret_key        VARCHAR(256) COMMENT '安全KEY',
+    params            TEXT         NOT NULL COMMENT '模型参数',
     model_description VARCHAR(1024) COMMENT '模型介绍',
-    tokens_avg INT NOT NULL DEFAULT 0 COMMENT '平均使用tokens/次',
-    tokens_total INT NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
-    usage_count INT NOT NULL DEFAULT 0 COMMENT '使用次数',
-    points_need INT DEFAULT 0 COMMENT '积分消耗比例',
-    extend_config VARCHAR(1024) COMMENT '扩展配置',
-    params_status CHAR(1) NOT NULL DEFAULT '1' COMMENT '状态（0开启 1关闭）',
-    user_id BIGINT NOT NULL COMMENT '管理员编号',
-    create_by VARCHAR(32) NOT NULL COMMENT '创建人',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_by VARCHAR(32) COMMENT '更新人',
-    update_time DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    remark VARCHAR(512) COMMENT '备注',
+    tokens_avg        INT          NOT NULL DEFAULT 0 COMMENT '平均使用tokens/次',
+    tokens_total      INT          NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
+    usage_count       INT          NOT NULL DEFAULT 0 COMMENT '使用次数',
+    points_need       INT                   DEFAULT 0 COMMENT '积分消耗比例',
+    extend_config     VARCHAR(1024) COMMENT '扩展配置',
+    params_status     CHAR(1)      NOT NULL DEFAULT '1' COMMENT '状态（0开启 1关闭）',
+    user_id           BIGINT       NOT NULL COMMENT '管理员编号',
+    create_by         VARCHAR(32)  NOT NULL COMMENT '创建人',
+    create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_by         VARCHAR(32) COMMENT '更新人',
+    update_time       DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark            VARCHAR(512) COMMENT '备注',
     PRIMARY KEY (model_id),
     UNIQUE KEY uk_model_name (model_name),
-    FOREIGN KEY (user_id) REFERENCES sys_user(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES sys_user (user_id) ON DELETE SET NULL ,
     INDEX idx_model_type (model_type),
     INDEX idx_status (params_status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI模型参数配置表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='AI模型参数配置表';
 ```
 
 
@@ -1274,36 +1276,38 @@ CREATE TABLE ai_model_params_info (
 
 ```sql
 DROP TABLE IF EXISTS ai_user_usage_log_info;
-CREATE TABLE ai_user_usage_log_info (
-    log_id VARCHAR(128) NOT NULL COMMENT '记录编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    model_id VARCHAR(128) NOT NULL COMMENT '模型编号',
-    input_params VARCHAR(1024) COMMENT '输入参数',
-    output_result TEXT COMMENT '返回结果',
-    request_time DATETIME NOT NULL COMMENT '请求时间',
+CREATE TABLE ai_user_usage_log_info
+(
+    log_id           VARCHAR(128) NOT NULL COMMENT '记录编号',
+    user_id          VARCHAR(128) NOT NULL COMMENT '用户编号',
+    model_id         VARCHAR(128) NOT NULL COMMENT '模型编号',
+    input_params     VARCHAR(1024) COMMENT '输入参数',
+    output_result    TEXT COMMENT '返回结果',
+    request_time     DATETIME     NOT NULL COMMENT '请求时间',
     request_duration BIGINT COMMENT '请求时长（毫秒）',
-    tokens_used INT NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
-    points_used INT NOT NULL DEFAULT 0 COMMENT '消耗积分',
-    usage_type VARCHAR(50) NOT NULL COMMENT '使用类型（0AI扩图 1AI编辑 2AI搜索）',
-    target_id VARCHAR(128) COMMENT '目标编号',
-    log_status CHAR(1) NOT NULL COMMENT '状态（0成功 1失败 2超时）',
-    ai_status_code VARCHAR(16) COMMENT '模型返回码',
-    fail_reason VARCHAR(128) COMMENT '失败原因',
-    ip_addr VARCHAR(50) NOT NULL COMMENT '用户IP地址',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0正常 1删除）',
+    tokens_used      INT          NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
+    points_used      INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',
+    usage_type       VARCHAR(50)  NOT NULL COMMENT '使用类型（0AI扩图 1AI编辑 2AI搜索）',
+    target_id        VARCHAR(128) COMMENT '目标编号',
+    log_status       CHAR(1)      NOT NULL COMMENT '状态（0成功 1失败 2超时）',
+    ai_status_code   VARCHAR(16) COMMENT '模型返回码',
+    fail_reason      VARCHAR(128) COMMENT '失败原因',
+    ip_addr          VARCHAR(50)  NOT NULL COMMENT '用户IP地址',
+    device_id        VARCHAR(255) COMMENT '设备唯一标识',
+    browser          VARCHAR(50) COMMENT '浏览器类型',
+    os               VARCHAR(50) COMMENT '操作系统',
+    platform         VARCHAR(20) COMMENT '平台',
+    create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete        CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0正常 1删除）',
     PRIMARY KEY (log_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
-    FOREIGN KEY (model_id) REFERENCES ai_model_params_info(model_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
+    FOREIGN KEY (model_id) REFERENCES ai_model_params_info (model_id),
     INDEX idx_usage_type (usage_type),
     INDEX idx_status (log_status),
     INDEX idx_user_model (user_id, model_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户AI使用记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户AI使用记录表';
 ```
 
 
@@ -1333,30 +1337,32 @@ CREATE TABLE ai_user_usage_log_info (
 
 ```sql
 DROP TABLE IF EXISTS ai_official_usage_log_info;
-CREATE TABLE ai_official_usage_log_info (
-    log_id VARCHAR(128) NOT NULL COMMENT '记录编号',
-    admin_id VARCHAR(128) NOT NULL COMMENT '管理员编号',
-    model_id VARCHAR(128) NOT NULL COMMENT '模型编号',
-    operation_type VARCHAR(50) NOT NULL COMMENT '操作类型（如：data_analysis）',
-    input_params VARCHAR(1024) COMMENT '输入参数（JSON格式）',
-    output_result TEXT COMMENT '模型返回结果（JSON/Text格式）',
-    request_time DATETIME NOT NULL COMMENT '请求时间',
+CREATE TABLE ai_official_usage_log_info
+(
+    log_id           VARCHAR(128) NOT NULL COMMENT '记录编号',
+    user_id          bigint COMMENT '管理员编号',
+    model_id         VARCHAR(128) NOT NULL COMMENT '模型编号',
+    operation_type   VARCHAR(50)  NOT NULL COMMENT '操作类型（如：data_analysis）',
+    input_params     VARCHAR(1024) COMMENT '输入参数（JSON格式）',
+    output_result    TEXT COMMENT '模型返回结果（JSON/Text格式）',
+    request_time     DATETIME     NOT NULL COMMENT '请求时间',
     request_duration BIGINT COMMENT '请求时长（毫秒）',
-    tokens_used INT NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
-    log_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '状态（0=成功 1=失败）',
-    ai_status_code VARCHAR(16) COMMENT '模型返回状态码',
-    fail_reason VARCHAR(128) COMMENT '失败原因',
-    remark VARCHAR(512) COMMENT '备注',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0=正常 1=删除）',
+    tokens_used      INT          NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
+    log_status       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '状态（0=成功 1=失败）',
+    ai_status_code   VARCHAR(16) COMMENT '模型返回状态码',
+    fail_reason      VARCHAR(128) COMMENT '失败原因',
+    remark           VARCHAR(512) COMMENT '备注',
+    create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete        CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0正常 1删除）',
     PRIMARY KEY (log_id),
-    FOREIGN KEY (admin_id) REFERENCES sys_user(user_id) ON UPDATE CASCADE,
-    FOREIGN KEY (model_id) REFERENCES ai_model_params_info(model_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES sys_user (user_id),
+    FOREIGN KEY (model_id) REFERENCES ai_model_params_info (model_id),
     INDEX idx_operation_type (operation_type),
     INDEX idx_request_time (request_time),
     INDEX idx_status (log_status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='官方AI操作日志表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='官方AI操作日志表';
 ```
 
 
@@ -1380,22 +1386,24 @@ AI会话编号：AI保持长轮训的编号
 
 ```sql
 DROP TABLE IF EXISTS ai_conversation_session;
-CREATE TABLE ai_conversation_session (
-    session_id VARCHAR(128) NOT NULL COMMENT '会话编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    conversation_id VARCHAR(128) COMMENT 'AI会话编号',
-    session_name VARCHAR(32) COMMENT '对话名称',
-    tokens_total_used INT NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
-    points_total_used INT NOT NULL DEFAULT 0 COMMENT '累计消耗积分',
-    remark VARCHAR(512) COMMENT '备注',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除（0正常 1删除）',
+CREATE TABLE ai_conversation_session
+(
+    session_id        VARCHAR(128) NOT NULL COMMENT '会话编号',
+    user_id           VARCHAR(128) NOT NULL COMMENT '用户编号',
+    conversation_id   VARCHAR(128) COMMENT 'AI会话编号',
+    session_name      VARCHAR(32) COMMENT '对话名称',
+    tokens_total_used INT          NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
+    points_total_used INT          NOT NULL DEFAULT 0 COMMENT '累计消耗积分',
+    remark            VARCHAR(512) COMMENT '备注',
+    create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete         CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0正常 1删除）',
     PRIMARY KEY (session_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_conversation_id (conversation_id),
     INDEX idx_user_session (user_id, session_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI会话管理表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='AI会话管理表';
 ```
 
 
@@ -1430,33 +1438,35 @@ CREATE TABLE ai_conversation_session (
 
 ```sql
 DROP TABLE IF EXISTS ai_conversation_log;
-CREATE TABLE ai_conversation_log (
-    conversation_id VARCHAR(128) NOT NULL COMMENT '对话记录编号',
-    session_id VARCHAR(128) NOT NULL COMMENT '会话编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    input_text TEXT NOT NULL COMMENT '用户输入文本',
-    output_text TEXT NOT NULL COMMENT 'AI返回文本',
-    request_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '请求时间',
-    response_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '响应时间',
-    tokens_used INT NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
-    points_used INT NOT NULL DEFAULT 0 COMMENT '消耗积分',
-    conversation_status CHAR(1) NOT NULL COMMENT '状态（0=成功 1=失败）',
-    ai_status_code VARCHAR(16) COMMENT '模型返回码',
-    fail_reason VARCHAR(128) COMMENT '失败原因',
-    ip_addr VARCHAR(50) NOT NULL COMMENT '用户IP地址',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    conversation_type VARCHAR(50) NOT NULL COMMENT '对话类型（0文本 1图片）',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+CREATE TABLE ai_conversation_log
+(
+    conversation_id     VARCHAR(128) NOT NULL COMMENT '对话记录编号',
+    session_id          VARCHAR(128) NOT NULL COMMENT '会话编号',
+    user_id             VARCHAR(128) NOT NULL COMMENT '用户编号',
+    input_text          TEXT         NOT NULL COMMENT '用户输入文本',
+    output_text         TEXT         NOT NULL COMMENT 'AI返回文本',
+    request_time        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '请求时间',
+    response_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '响应时间',
+    tokens_used         INT          NOT NULL DEFAULT 0 COMMENT '消耗Tokens数量',
+    points_used         INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',
+    conversation_status CHAR(1)      NOT NULL COMMENT '状态（0=成功 1=失败）',
+    ai_status_code      VARCHAR(16) COMMENT '模型返回码',
+    fail_reason         VARCHAR(128) COMMENT '失败原因',
+    ip_addr             VARCHAR(50)  NOT NULL COMMENT '用户IP地址',
+    device_id           VARCHAR(255) COMMENT '设备唯一标识',
+    browser             VARCHAR(50) COMMENT '浏览器类型',
+    os                  VARCHAR(50) COMMENT '操作系统',
+    platform            VARCHAR(20) COMMENT '平台',
+    conversation_type   VARCHAR(50)  NOT NULL COMMENT '对话类型（0文本 1图片）',
+    create_time         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (conversation_id),
-    FOREIGN KEY (session_id) REFERENCES ai_conversation_session(session_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES ai_conversation_session (session_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     INDEX idx_session (session_id),
     INDEX idx_conversation_type (conversation_type),
     INDEX idx_request_time (request_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话明细记录表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='AI对话明细记录表';
 ```
 
 
