@@ -19,11 +19,11 @@
       </a-col>
       <a-col flex="120px">
         <div class="user-login-status">
-          <div v-if="user?.userName">
+          <div v-if="userName">
             <a-dropdown>
               <ASpace>
-                <a-avatar :src="user?.avatar" />
-                {{ user?.userName ?? '未知' }}
+                <a-avatar :src="avatar" />
+                {{ userName ?? '未知' }}
               </ASpace>
               <template #overlay>
                 <a-menu>
@@ -43,37 +43,42 @@
     </a-row>
   </div>
 </template>
+
 <script setup lang="ts">
-import { h, ref } from 'vue'
-import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
-import { MenuProps } from 'ant-design-vue'
+import { h, ref, onMounted } from 'vue'
+import { HomeOutlined, LogoutOutlined, PictureOutlined } from '@ant-design/icons-vue'
+import { MenuProps, message, Modal } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'
-import type { UserInfo } from '@/types/common'
+import { storeToRefs } from 'pinia'
 
 const userStore = useUserStore()
-const user = ref<UserInfo>({
-  userName: '',
-  password: '',
-})
-
-function getUserInfo() {
-  userStore.getInfo().then((res) => {
-    user.value = res?.user
-  })
-}
-
-getUserInfo()
+const { name: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 
 // 用户注销
 const doLogout = async () => {
-  await userStore.logOut()
+  Modal.confirm({
+    title: '确认退出登录',
+    content: '您确定要退出登录吗？',
+    okText: '确定',
+    cancelText: '取消',
+    async onOk() {
+      await userStore.logOut()
+      message.success('退出登录成功')
+    },
+    onCancel() {
+      console.log('取消退出登录')
+    },
+  })
 }
+
 const router = useRouter()
+
 // 当前选中菜单
 const current = ref<string[]>([])
+
 // 监听路由变化，更新当前选中菜单
-router.afterEach((to, from, next) => {
+router.afterEach((to) => {
   current.value = [to.path]
 })
 
@@ -84,12 +89,33 @@ const doMenuClick = ({ key }: { key: string }) => {
   })
 }
 
+// 初始化用户信息
+onMounted(async () => {
+  if (userStore.token) {
+    await userStore.getInfo() // 确保用户信息已加载
+  }
+})
+
 const items = ref<MenuProps['items']>([
   {
     key: '/',
     icon: () => h(HomeOutlined),
     label: '主页',
     title: '主页',
+  },
+  {
+    key: '/picture',
+    label: '图库',
+    title: '图库',
+    icon: () => h(PictureOutlined),
+    children: [
+      {
+        key: '/picture/upload',
+        icon: () => h(PictureOutlined),
+        label: '上传图片',
+        title: '上传图片',
+      },
+    ],
   },
   {
     key: '/about',

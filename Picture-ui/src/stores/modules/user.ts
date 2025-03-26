@@ -47,7 +47,7 @@ const useUserStore = defineStore('user', {
 
     async register(userInfo: USER.RegisterParams): Promise<void> {
       try {
-        console.log(userInfo)
+        // console.log(userInfo)
         const res = await register(userInfo)
         setToken(res.token)
         this.token = res.token
@@ -96,6 +96,9 @@ const useUserStore = defineStore('user', {
         await logout()
         this.token = ''
         this.permissions = []
+        this.id = ''
+        this.name = ''
+        this.avatar = ''
         //TODO 退出登录后续操作
         removeToken()
       } catch (error) {
