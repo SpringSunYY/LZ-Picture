@@ -2,8 +2,8 @@ package com.lz.common;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
-import com.lz.common.manage.sms.SmsManage;
-import com.lz.common.manage.sms.model.LoginCode;
+import com.lz.common.manager.sms.SmsManager;
+import com.lz.common.manager.sms.model.LoginCode;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class CommonTest {
     @Resource
-    private SmsManage smsManage;
+    private SmsManager smsManage;
 
     @Test
     public void testSendSms() {
