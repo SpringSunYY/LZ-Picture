@@ -1,24 +1,31 @@
 package com.lz.common.manager.file;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.common.auth.CredentialsProviderFactory;
 import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
-import com.aliyun.oss.model.GeneratePresignedUrlRequest;
-import com.aliyun.oss.model.PutObjectResult;
+import com.aliyun.oss.model.*;
 import com.aliyuncs.exceptions.ClientException;
 import com.lz.common.config.OssConfig;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.file.FileTypeUtils;
+import com.lz.common.utils.file.FileUtils;
+import com.lz.common.utils.http.HttpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -60,31 +67,77 @@ public class PictureUploadManager {
      * return: java.lang.String
      **/
     public String uploadPicture(String fileName, File file) {
-        //获取文件信息 文件为图片
-        if (StringUtils.isNull(file)) {
-            return "";
+        if (file == null || StringUtils.isEmpty(fileName)) {
+            throw new IllegalArgumentException("文件或文件名不能为空");
         }
-        String[] split = fileName.split("\\.");
-        fileName = split[0] + "-" + IdUtils.snowflakeId() + "." + split[1];
-        OSS ossClient = new OSSClientBuilder().build(ossConfig.getEndpoint(), ossConfig.getAccessKeyId(), ossConfig.getAccessKeySecret());
-        String filePath = ossConfig.getDir() + "/" + fileName;
-        PutObjectResult putObjectResult = ossClient.putObject(ossConfig.getBucket(), filePath, file);
-        System.out.println("putObjectResult = " + JSONObject.toJSONString(putObjectResult));
+
+        // 生成唯一文件名
+        String nameNotSuffix = FileUtils.getNameNotSuffix(file.getName());
+        String suffix = FileUtil.getSuffix(fileName);
+        Long snowflaked = IdUtils.snowflakeId();
+        String newFileName = nameNotSuffix + "-" + snowflaked + "." + suffix;
+        String filePath = ossConfig.getDir() + "/" + newFileName;
+        String compressedFileName = nameNotSuffix + "-" + snowflaked + "-compressed.webp";
+        String compressedFilePath = ossConfig.getDir() + "/" + compressedFileName;
+
+        OSS ossClient = null;
+        InputStream inputStream = null;
         try {
-            EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
-            // 获取图片信息。
-            String style = "image/info";
-            // 指定签名URL过期时间为10分钟。
-            Date expiration = new Date(new Date().getTime() + 1000 * 60 * 10 );
-            GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(ossConfig.getBucket(), fileName, HttpMethod.GET);
+            // 初始化OSS客户端
+            ossClient = new OSSClientBuilder().build(
+                    ossConfig.getEndpoint(),
+                    ossConfig.getAccessKeyId(),
+                    ossConfig.getAccessKeySecret()
+            );
+
+            // 上传原始文件
+            PutObjectResult putObjectResult = ossClient.putObject(ossConfig.getBucket(), filePath, file);
+            System.out.println("原图上传成功：" + filePath);
+            System.out.println("putObjectResult = " + JSONObject.toJSONString(putObjectResult));
+
+            // 设置图片处理参数（转换为 WebP 格式）
+            String process = "image/format,webp";
+            // 创建获取压缩后图片的预签名URL
+            Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
+            GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
+                    ossConfig.getBucket(),
+                    filePath,  // 使用原始文件路径
+                    HttpMethod.GET
+            );
             req.setExpiration(expiration);
-            req.setProcess(style);
-            URL signedUrl = ossClient.generatePresignedUrl(req);
-            System.out.println(signedUrl);
-            System.out.println("req = " + JSONObject.toJSONString(req));
-        } catch (ClientException e) {
-            throw new RuntimeException(e);
+            req.setProcess(process);
+            URL compressedUrl = ossClient.generatePresignedUrl(req);
+            System.out.println("压缩图URL：" + compressedUrl);
+
+            // 获取压缩后的图片输入流
+            HttpURLConnection connection = (HttpURLConnection) compressedUrl.openConnection();
+            connection.setRequestMethod("GET");
+            inputStream = connection.getInputStream();
+
+            // 将压缩图上传到OSS
+            PutObjectResult compressedPutObjectResult = ossClient.putObject(ossConfig.getBucket(), compressedFilePath, inputStream);
+            System.out.println("压缩图上传成功：" + compressedFilePath);
+            System.out.println("compressedPutObjectResult = " + JSONObject.toJSONString(compressedPutObjectResult));
+            // 返回文件访问路径或URL
+            return compressedUrl.toString().split("\\?")[0];
+
+        } catch (Exception e) {
+            // 记录详细日志
+            System.err.println("上传失败：" + e.getMessage());
+            throw new RuntimeException("文件上传异常", e);
+        } finally {
+            // 确保关闭OSSClient
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
-        return "";
     }
+
 }
