@@ -17,6 +17,7 @@ import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,13 +80,12 @@ public class PictureUploadManager {
      * param: fileBytes
      * return: java.lang.String
      **/
-    public PictureResponse uploadPicture(File file) {
-        //校验文件
-        validateFile(file);
-
+    public PictureResponse uploadPicture(MultipartFile multipartFile) {
+        //创建临时文件
+        File file = null;
         // 生成唯一文件名
-        String nameNotSuffix = FileUtils.getNameNotSuffix(file.getName());
-        String suffix = FileUtil.getSuffix(file);
+        String nameNotSuffix = FileUtils.getNameNotSuffix(multipartFile.getOriginalFilename());
+        String suffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
         Long snowflaked = IdUtils.snowflakeId();
         String newFileName = nameNotSuffix + "-" + snowflaked + "." + suffix;
         String dir = ossConfig.getDir();
@@ -94,6 +94,15 @@ public class PictureUploadManager {
         String compressedSuffix = "-compressed.webp";
         String compressedFileName = nameNotSuffix + "-" + snowflaked + compressedSuffix;
         String compressedFilePath = dir + "/" + compressedFileName;
+        try {
+            file = File.createTempFile(newFileName, suffix);
+            multipartFile.transferTo(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //校验文件
+        validateFile(file);
+
 
         OSS ossClient = null;
         InputStream inputStream = null;
@@ -181,6 +190,9 @@ public class PictureUploadManager {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            if (file != null && file.exists()) {
+                boolean delete = file.delete();
             }
         }
     }

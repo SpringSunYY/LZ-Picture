@@ -25,7 +25,7 @@ public class PictureUpload {
     public void uploadPicture() {
         File file = new File("D:\\壁纸\\YY00075T.JPG");
         String name = file.getName();
-        PictureResponse pictureResponse = pictureUploadManager.uploadPicture(file);
-        System.out.println(pictureResponse);
+//        PictureResponse pictureResponse = pictureUploadManager.uploadPicture(file);
+//        System.out.println(pictureResponse);
     }
 }

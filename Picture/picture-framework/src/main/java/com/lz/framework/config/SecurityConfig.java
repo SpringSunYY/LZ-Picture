@@ -135,10 +135,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) -> {
                     permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                     // 对于登录login 注册register 验证码captchaImage 允许匿名访问
-                    requests.requestMatchers("/admin/login", "/admin/logout","/admin/register", "/admin/captchaImage").permitAll()
+                    requests.requestMatchers("/admin/login", "/admin/logout", "/admin/register", "/admin/captchaImage").permitAll()
                             .requestMatchers("/user/login", "user/captchaImage", "user/getSmsLoginCode",
                                     "user/smsLogin", "user/register", "user/getRegisterCode",
-                            "/user/getForgetPasswordCode","/user/forgetPassword").permitAll()
+                                    "/user/getForgetPasswordCode", "/user/forgetPassword",
+                                    "/user/picture/pictureInfo/upload").permitAll()
                             // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/druid/**").permitAll()
@@ -148,7 +149,7 @@ public class SecurityConfig {
                 // 添加Logout filter
                 .logout(logout -> logout.logoutUrl("/admin/logout").logoutSuccessHandler(logoutSuccessHandler))
 //                .logout(logout -> logout.logoutUrl("/user/logout").logoutSuccessHandler(userInfoLogoutSuccessHandler))
-                 // 添加JWT filter
+                // 添加JWT filter
                 .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 // 添加CORS filter
                 .addFilterBefore(corsFilter, JwtAuthenticationTokenFilter.class)
