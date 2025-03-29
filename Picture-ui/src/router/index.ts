@@ -15,6 +15,7 @@ const router = createRouter({
         {
           path: 'upload',
           name: 'PictureUpload',
+
           component: () => import('@/views/picture/upload/index.vue'),
         },
       ],

@@ -68,7 +68,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts" name="PictureUpdate">
 import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload/index.vue'

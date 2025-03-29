@@ -8,6 +8,7 @@
       :accept="acceptFormats"
       :before-upload="beforeUpload"
       :custom-request="handleUpload"
+      :disabled="uploading || maxCount === innerFileList.length"
       @remove="handleRemove"
       list-type="picture-card"
       :show-upload-list="false"
@@ -50,10 +51,10 @@
       >
         <template #title>
           <div class="preview-title">
-            <a-tag color="blue">{{ currentPreview.meta?.format }}</a-tag>
+            <a-tag color="blue">{{ currentPreview.meta.format }}</a-tag>
             <a-tag color="green">{{ currentPreview.meta?.size }}MB</a-tag>
             <a-tag color="red"
-              >{{ currentPreview.meta?.width }}×{{ currentPreview.meta?.height }}
+              >{{ currentPreview.meta.width }}×{{ currentPreview.meta.height }}
             </a-tag>
           </div>
         </template>
@@ -65,12 +66,13 @@
   </div>
 </template>
 
-<script setup name="PictureUpload" lang="ts">
-import { computed, ref, watch } from 'vue'
+<script setup name="PictureUploadComponent" lang="ts">
+import { computed, ref } from 'vue'
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { pictureUpload } from '@/api/common/file.js'
 
+const uploading = ref(false)
 const props = defineProps({
   modelValue: {
     type: [Array, String],
@@ -202,6 +204,8 @@ const beforeUpload = async (file) => {
 
 const handleUpload = async ({ file, onSuccess, onError }) => {
   try {
+    message.loading('图片上传中...', 1.5)
+    uploading.value = true
     const formData = new FormData()
     formData.append('file', file)
 
@@ -229,6 +233,7 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
       console.log(innerFileList.value)
       emit('upload-success', uploadedFile)
       emit('update:modelValue', formatOutput())
+      message.success('图片上传成功')
     } else {
       throw new Error(response.message || '上传失败')
     }
@@ -237,6 +242,8 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
     message.error('上传失败，请检查网络')
     onError(error)
     emit('upload-error', error)
+  } finally {
+    uploading.value = false
   }
 }
 
