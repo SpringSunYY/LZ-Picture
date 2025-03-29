@@ -58,7 +58,7 @@ public class PictureInfoQuery implements Serializable {
     /**
      * 宽高比例
      */
-    private Long picScale;
+    private Double picScale;
 
     /**
      * 图片格式

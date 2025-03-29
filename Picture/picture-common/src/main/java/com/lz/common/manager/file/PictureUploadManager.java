@@ -145,8 +145,9 @@ public class PictureUploadManager {
             pictureResponse.setPicSize(Long.parseLong(exif.getFileSize().getValue()));
             long picWidth = Long.parseLong(exif.getImageWidth().getValue());
             pictureResponse.setPicWidth(picWidth);
-            pictureResponse.setPicHeight(Long.parseLong(exif.getImageHeight().getValue()));
-            pictureResponse.setPicScale(picWidth / Long.parseLong(exif.getImageHeight().getValue()));
+            long pictureHeight = Long.parseLong(exif.getImageHeight().getValue());
+            pictureResponse.setPicHeight(pictureHeight);
+            pictureResponse.setPicScale(((double) picWidth / (double) pictureHeight));
             pictureResponse.setPicFormat(suffix);
             int limit = pictureUrl.lastIndexOf(".");
             pictureResponse.setThumbnailUrl(pictureUrl.substring(0, limit) + compressedSuffix);

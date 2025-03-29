@@ -89,11 +89,13 @@ const categories = ref([])
 const submitting = ref(false)
 
 const handleSuccess = (modelValue) => {
-  console.log(modelValue)
+  console.log('modelValue',modelValue)
   // 提交到后端或处理数据
-  formState.name = modelValue.meta.name
-  formState.width = modelValue.meta.width
-  formState.height = modelValue.meta.height
+  formState.name = modelValue.name
+  formState.picWidth = modelValue.width
+  formState.picHeight = modelValue.height
+  formState.pictureUrl = modelValue.pictureUrl
+  formState.picScale = modelValue.picScale
   // formState.pictureUrl = modelValue.meta.url
 }
 

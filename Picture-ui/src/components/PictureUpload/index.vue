@@ -51,7 +51,7 @@
         <template #title>
           <div class="preview-title">
             <a-tag color="blue">{{ currentPreview.meta?.format }}</a-tag>
-            <a-tag color="green">{{ currentPreview.meta?.sizeMB }}MB</a-tag>
+            <a-tag color="green">{{ currentPreview.meta?.size }}MB</a-tag>
             <a-tag color="red"
               >{{ currentPreview.meta?.width }}×{{ currentPreview.meta?.height }}
             </a-tag>
@@ -65,10 +65,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup name="PictureUpload" lang="ts">
 import { computed, ref, watch } from 'vue'
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
+import { pictureUpload } from '@/api/common/file.js'
 
 const props = defineProps({
   modelValue: {
@@ -83,7 +84,7 @@ const props = defineProps({
   maxCount: { type: Number, default: 10 },
   allowedFormats: {
     type: Array,
-    default: () => ['image/jpeg', 'image/png', 'image/webp'],
+    default: () => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
   },
   maxSizeMB: { type: Number, default: 5 },
   uploadText: { type: String, default: '点击上传' },
@@ -108,7 +109,7 @@ const initializeFileList = () => {
         status: 'done',
         url: url,
         thumbUrl: url,
-        meta: { width: 0, height: 0, format: 'UNKNOWN', sizeMB: 0 },
+        meta: { width: 0, height: 0, format: 'UNKNOWN', size: 0 },
       }))
     } else if (Array.isArray(props.modelValue)) {
       innerFileList.value = props.modelValue.map((url, index) => ({
@@ -117,7 +118,7 @@ const initializeFileList = () => {
         status: 'done',
         url: url,
         thumbUrl: url,
-        meta: { width: 0, height: 0, format: 'UNKNOWN', sizeMB: 0 },
+        meta: { width: 0, height: 0, format: 'UNKNOWN', size: 0 },
       }))
     }
   } catch (error) {
@@ -127,13 +128,13 @@ const initializeFileList = () => {
 }
 
 // 监听props变化
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    initializeFileList()
-  },
-  { immediate: true, deep: true },
-)
+// watch(
+//   () => props.modelValue,
+//   (newVal) => {
+//     initializeFileList()
+//   },
+//   { immediate: true, deep: true },
+// )
 
 // 格式转换方法
 const formatOutput = () => {
@@ -154,13 +155,16 @@ const uploadTriggerStyle = computed(() => ({
 const getImageMeta = (file) => {
   return new Promise((resolve) => {
     const img = new Image()
+    //获取文件名
+    const fileName = file.name.split('.').pop()
+    console.log(fileName)
     img.onload = () => {
       resolve({
         width: img.naturalWidth,
         height: img.naturalHeight,
         ratio: (img.naturalWidth / img.naturalHeight).toFixed(2),
-        format: file.type.split('/')[1].toUpperCase(),
-        sizeMB: (file.size / 1024 / 1024).toFixed(2),
+        format: fileName.toUpperCase(),
+        size: (file.size / 1024 / 1024).toFixed(2),
       })
       URL.revokeObjectURL(img.src)
     }
@@ -168,7 +172,6 @@ const getImageMeta = (file) => {
   })
 }
 
-// 上传前校验
 const beforeUpload = async (file) => {
   try {
     if (innerFileList.value.length >= props.maxCount) {
@@ -186,8 +189,10 @@ const beforeUpload = async (file) => {
       return false
     }
 
+    // 这里确保正确获取并赋值元数据
     file.meta = await getImageMeta(file)
     file.thumbUrl = URL.createObjectURL(file)
+
     return true
   } catch (error) {
     emit('upload-error', error)
@@ -195,29 +200,42 @@ const beforeUpload = async (file) => {
   }
 }
 
-// 文件上传处理
-const handleUpload = async ({ file, onProgress, onSuccess }) => {
+const handleUpload = async ({ file, onSuccess, onError }) => {
   try {
-    let progress = 0
-    const interval = setInterval(() => {
-      progress += Math.random() * 10
-      if (progress >= 100) {
-        clearInterval(interval)
-        const uploadedFile = {
-          ...file,
-          status: 'done',
-          url: URL.createObjectURL(file), // 实际项目替换为服务器返回的URL
-          thumbUrl: URL.createObjectURL(file),
-        }
-        innerFileList.value = [...innerFileList.value, uploadedFile]
-        onSuccess(uploadedFile, file)
-        emit('upload-success', uploadedFile)
-        emit('update:modelValue', formatOutput())
-      } else {
-        onProgress({ percent: progress })
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await pictureUpload(formData)
+    if (response.code === 200) {
+      const uploadedFile = {
+        uid: file.uid,
+        status: 'done',
+        name: response.data.name,
+        url: response.data.pictureUrl, // 确保取 `pictureUrl`
+        thumbUrl: response.data.pictureUrl,
+        pictureUrl: response.data.pictureUrl,
+        meta: {
+          width: response.data.picWidth,
+          height: response.data.picHeight,
+          ratio: (response.data.picWidth / response.data.picHeight).toFixed(2),
+          format: response.data.picFormat,
+          size: (response.data.picSize / 1024 / 1024).toFixed(2),
+        },
       }
-    }, 200)
+
+      // 更新文件列表
+      innerFileList.value = [...innerFileList.value, uploadedFile]
+      onSuccess(uploadedFile, uploadedFile)
+      console.log(innerFileList.value)
+      emit('upload-success', uploadedFile)
+      emit('update:modelValue', formatOutput())
+    } else {
+      throw new Error(response.message || '上传失败')
+    }
   } catch (error) {
+    console.error('上传错误:', error)
+    message.error('上传失败，请检查网络')
+    onError(error)
     emit('upload-error', error)
   }
 }
@@ -299,7 +317,6 @@ const handlePreview = (file) => {
 
       &:hover {
         transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 
         .image-actions {
           opacity: 1;
@@ -320,12 +337,10 @@ const handlePreview = (file) => {
         left: 0;
         right: 0;
         padding: 6px 8px;
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
         color: white;
         font-size: 12px;
         display: flex;
         justify-content: space-between;
-        backdrop-filter: blur(2px);
 
         span {
           padding: 0 4px;
@@ -354,12 +369,10 @@ const handlePreview = (file) => {
           color: rgba(0, 0, 0, 0.85);
           cursor: pointer;
           transition: all 0.2s;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
           &:hover {
             background: white;
             transform: scale(1.1);
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
           }
 
           > svg {
@@ -369,44 +382,29 @@ const handlePreview = (file) => {
       }
     }
   }
+}
 
-  .preview-modal {
-    .ant-modal-content {
-      max-height: 90vh;
-      overflow: hidden;
+.preview-modal {
+  .ant-modal-content {
+    .preview-content {
+      position: relative;
+      width: 100%;
+      //height: 70vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f5f5;
+      //border-radius: 8px;
+      //overflow: auto;
 
-      .preview-title {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .preview-content {
-        position: relative;
-        width: 100%;
-        height: 70vh;
-        min-height: 400px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #f5f5f5;
-        border-radius: 8px;
-        overflow: hidden;
-
-        .full-preview {
-          max-width: 100%;
-          max-height: 100%;
-          width: auto;
-          height: auto;
-          object-fit: contain;
-          border-radius: 6px;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-          transition: transform 0.3s ease;
-
-          &:hover {
-            transform: scale(1.02);
-          }
-        }
+      .full-preview {
+        max-width: 90%;
+        //height: auto;
+        max-height: 70vh;
+        //object-fit: contain;
+        border-radius: 6px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
       }
     }
   }

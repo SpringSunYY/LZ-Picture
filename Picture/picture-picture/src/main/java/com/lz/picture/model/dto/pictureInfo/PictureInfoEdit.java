@@ -43,7 +43,7 @@ public class PictureInfoEdit implements Serializable
     private Long picHeight;
 
     /** 宽高比例 */
-    private Long picScale;
+    private Double picScale;
 
     /** 图片格式 */
     private String picFormat;
