@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 
@@ -40,6 +41,20 @@ public class PictureUploadManager {
     @Resource
     private OssConfig ossConfig;
 
+    /**
+     * 默认50m
+     */
+    public static Long DEFAULT_FONT_SIZE = 1024L * 1024L * 50;
+
+    /**
+     * 默认的文件名最大长度 100
+     */
+    public static final int DEFAULT_FILE_NAME_LENGTH = 100;
+
+    public static final String[] DEFAULT_ALLOWED_EXTENSION = {
+            // 图片
+            "bmp", "gif", "jpg", "jpeg", "png", "webp"
+    };
 
     /**
      * description: 初始化oss客户端
@@ -64,20 +79,21 @@ public class PictureUploadManager {
      * param: fileBytes
      * return: java.lang.String
      **/
-    public String uploadPicture(String fileName, File file) {
-        if (file == null || StringUtils.isEmpty(fileName)) {
-            throw new IllegalArgumentException("文件或文件名不能为空");
-        }
+    public PictureResponse uploadPicture(File file) {
+        //校验文件
+        validateFile(file);
 
         // 生成唯一文件名
         String nameNotSuffix = FileUtils.getNameNotSuffix(file.getName());
-        String suffix = FileUtil.getSuffix(fileName);
+        String suffix = FileUtil.getSuffix(file);
         Long snowflaked = IdUtils.snowflakeId();
         String newFileName = nameNotSuffix + "-" + snowflaked + "." + suffix;
-        String filePath = ossConfig.getDir() + "/" + newFileName;
+        String dir = ossConfig.getDir();
+        String filePath = dir + "/" + newFileName;
+        //压缩文件信息
         String compressedSuffix = "-compressed.webp";
         String compressedFileName = nameNotSuffix + "-" + snowflaked + compressedSuffix;
-        String compressedFilePath = ossConfig.getDir() + "/" + compressedFileName;
+        String compressedFilePath = dir + "/" + compressedFileName;
 
         OSS ossClient = null;
         InputStream inputStream = null;
@@ -91,7 +107,7 @@ public class PictureUploadManager {
 
             // 上传原始文件
             PutObjectResult putObjectResult = ossClient.putObject(ossConfig.getBucket(), filePath, file);
-            System.out.println("原图上传成功：" + filePath);
+//            System.out.println("原图上传成功：" + filePath);
             System.out.println("putObjectResult = " + JSONObject.toJSONString(putObjectResult));
 
             // 生成获取图片信息的预签名URL（包含目录路径）
@@ -105,13 +121,13 @@ public class PictureUploadManager {
             req.setExpiration(expiration);
             req.setProcess(style);
             URL signedUrl = ossClient.generatePresignedUrl(req);
-            System.out.println("图片信息URL：" + signedUrl);
+//            System.out.println("图片信息URL：" + signedUrl);
 
             // 发送HTTP请求获取图片信息
             String imageInfo = HttpUtils.sendGet(signedUrl.toString());
-            System.out.println("图片元数据：" + imageInfo);
+//            System.out.println("图片元数据：" + imageInfo);
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
-            System.out.println("exif = " + exif);
+//            System.out.println("exif = " + exif);
             //设置图片信息
             PictureResponse pictureResponse = new PictureResponse();
             String pictureUrl = signedUrl.toString().split("\\?")[0];
@@ -125,7 +141,7 @@ public class PictureUploadManager {
             pictureResponse.setPicFormat(suffix);
             int limit = pictureUrl.lastIndexOf(".");
             pictureResponse.setThumbnailUrl(pictureUrl.substring(0, limit) + compressedSuffix);
-            System.out.println("limit = " + pictureResponse);
+//            System.out.println("limit = " + pictureResponse);
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
             long fontSize = picWidth / 30;
@@ -136,25 +152,24 @@ public class PictureUploadManager {
                     + ",color_FFFFFF,y_10,type_ZHJvaWRzYW5zZmFsbGJhY2s,g_south";
             // 创建获取压缩后图片的预签名URL
             req.setExpiration(expiration);
-            System.out.println("图片信息URL：" + signedUrl);
+//            System.out.println("图片信息URL：" + signedUrl);
             req.setProcess(process);
             URL compressedUrl = ossClient.generatePresignedUrl(req);
-            System.out.println("压缩图URL：" + compressedUrl);
+//            System.out.println("压缩图URL：" + compressedUrl);
             // 获取压缩后的图片输入流
             HttpURLConnection connection = (HttpURLConnection) compressedUrl.openConnection();
             connection.setRequestMethod("GET");
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
             PutObjectResult compressedPutObjectResult = ossClient.putObject(ossConfig.getBucket(), compressedFilePath, inputStream);
-            System.out.println("压缩图上传成功：" + compressedFilePath);
-            System.out.println("compressedPutObjectResult = " + JSONObject.toJSONString(compressedPutObjectResult));
+//            System.out.println("压缩图上传成功：" + compressedFilePath);
+//            System.out.println("compressedPutObjectResult = " + JSONObject.toJSONString(compressedPutObjectResult));
             // 返回文件访问路径或URL
-            return compressedUrl.toString().split("\\?")[0];
-
+            return pictureResponse;
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
-            throw new RuntimeException("文件上传异常", e);
+            throw new RuntimeException("文件上传异常");
         } finally {
             // 确保关闭OSSClient
             if (ossClient != null) {
@@ -167,6 +182,25 @@ public class PictureUploadManager {
                     throw new RuntimeException(e);
                 }
             }
+        }
+    }
+
+    private void validateFile(File file) {
+        if (StringUtils.isNull(file) || StringUtils.isEmpty(file.getName())) {
+            throw new IllegalArgumentException("文件或文件名不能为空");
+        }
+        //校验文件大小
+        if (file.length() > DEFAULT_FONT_SIZE) {
+            throw new RuntimeException("文件大小不能超过" + DEFAULT_FONT_SIZE / 1024 / 1024 + "MB");
+        }
+        //文件名长度
+        if (file.getName().length() > DEFAULT_FILE_NAME_LENGTH) {
+            throw new RuntimeException("文件名长度不能超过" + DEFAULT_FILE_NAME_LENGTH + "个字符");
+        }
+        //校验文件类型
+        String fileType = FileUtil.getType(file);
+        if (!Arrays.asList(DEFAULT_ALLOWED_EXTENSION).contains(fileType)) {
+            throw new RuntimeException("文件类型不支持");
         }
     }
 

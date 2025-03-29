@@ -1,6 +1,7 @@
 package com.lz.picture;
 
 import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.model.PictureResponse;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +25,7 @@ public class PictureUpload {
     public void uploadPicture() {
         File file = new File("D:\\壁纸\\YY00075T.JPG");
         String name = file.getName();
-        String url = pictureUploadManager.uploadPicture(name, file);
-        System.out.println(url);
+        PictureResponse pictureResponse = pictureUploadManager.uploadPicture(file);
+        System.out.println(pictureResponse);
     }
 }
