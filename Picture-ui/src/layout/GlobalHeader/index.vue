@@ -51,6 +51,7 @@ import { MenuProps, message, Modal } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'
 import { storeToRefs } from 'pinia'
+import SvgIcon from '@/components/SvgIcon/index.vue'
 
 const userStore = useUserStore()
 const { name: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -109,6 +110,16 @@ const items = ref<MenuProps['items']>([
     title: '图库',
     icon: () => h(PictureOutlined),
     children: [
+      {
+        key: '/picture/space',
+        icon: () =>
+          h(SvgIcon, {
+            name: 'space', // 对应 space.svg 文件名
+            className: 'menu-icon', // 可选自定义类名
+          }),
+        label: '我的空间',
+        title: '我的空间',
+      },
       {
         key: '/picture/upload',
         icon: () => h(PictureOutlined),
