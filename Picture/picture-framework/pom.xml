@@ -61,6 +61,11 @@
 
         <dependency>
             <groupId>com.lz</groupId>
+            <artifactId>picture-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lz</groupId>
             <artifactId>picture-user-auth</artifactId>
         </dependency>
 

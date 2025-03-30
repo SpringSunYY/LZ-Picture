@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
@@ -20,6 +21,9 @@ import com.lz.config.service.IMenuInfoService;
 import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
 import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 
+import static com.lz.common.constant.redis.ConfigRedisConstants.CONFIG_MENU_PERMISSION;
+import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_1;
+
 /**
  * 菜单信息Service业务层处理
  *
@@ -30,6 +34,9 @@ import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> implements IMenuInfoService {
     @Resource
     private MenuInfoMapper menuInfoMapper;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -199,6 +206,22 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
             return Collections.emptyList();
         }
         return menuInfoList.stream().map(MenuInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean checkMenu(String permission) {
+        MenuInfo menu = redisCache.getCacheObject(CONFIG_MENU_PERMISSION + permission);
+        if (StringUtils.isNull(menu)) {
+            menu = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, permission));
+            if (StringUtils.isNull(menu)) {
+                return false;
+            }
+            redisCache.setCacheObject(CONFIG_MENU_PERMISSION + permission, menu);
+        }
+        if (menu.getStatus().equals(MENU_VISIBLE_1.getValue())) {
+            return true;
+        }
+        return false;
     }
 
 }

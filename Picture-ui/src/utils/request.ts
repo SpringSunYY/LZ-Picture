@@ -22,6 +22,7 @@ type ErrorCode = {
 }
 const errorCode: ErrorCode = {
   401: '登录状态已过期，请重新登录。',
+  403: '您没有权限访问该资源。',
   500: '服务器错误，请稍后再试。',
   601: '操作失败，请重试。',
   default: '未知错误，请联系管理员。',
@@ -123,6 +124,11 @@ http.interceptors.response.use(
         router.push('/user/login')
       }
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
+    }
+    // 处理 403 错误（没有权限）
+    if (code === 403) {
+      message.error('没有权限访问该资源', 3)
+      return Promise.reject(new Error(msg))
     }
     // 处理 500 错误
     else if (code === 500) {

@@ -14,9 +14,9 @@ import com.lz.userauth.mapper.AuthUserInfoMapper;
 import com.lz.userauth.model.domain.AuthBannedPermissionInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
 import com.lz.userauth.model.domain.ForgetPasswordBody;
+import com.lz.userauth.model.domain.RegisterLoginBody;
 import com.lz.userauth.model.enmus.UBannedPermissionStatusEnum;
 import com.lz.userauth.model.enmus.UUserStatusEnum;
-import com.lz.userauth.model.domain.RegisterLoginBody;
 import com.lz.userauth.service.IAuthBannedPermissionInfoService;
 import com.lz.userauth.service.IAuthUserInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
@@ -41,7 +41,6 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
 
     @Resource
     private IMenuInfoService menuInfoService;
-    ;
 
     @Resource
     private IAuthBannedPermissionInfoService bannedPermissionInfoService;
@@ -71,7 +70,7 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
                 menuInfos.removeIf(permissionInfo -> permissionInfo.getPerms().equals(banned.getPermissionName()));
             }
         }
-        return menuInfos.stream().map(MenuInfo::getPerms).collect(Collectors.toSet());
+        return menuInfos.stream().map(MenuInfo::getPerms).filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
     }
 
     @Override

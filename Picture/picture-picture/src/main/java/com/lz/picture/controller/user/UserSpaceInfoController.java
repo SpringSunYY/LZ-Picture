@@ -30,6 +30,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
     @Resource
     private ISpaceInfoService spaceInfoService;
 
+    @PreAuthorize("@uss.hasPermi('picture:space:add')")
     @PostMapping
     public AjaxResult add(@RequestBody SpaceInfoAdd spaceInfoAdd)
     {

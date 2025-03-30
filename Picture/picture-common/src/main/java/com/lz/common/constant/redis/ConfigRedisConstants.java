@@ -23,4 +23,9 @@ public class ConfigRedisConstants {
      * 是否需要验证码
      */
     public static final String USER_LOGIN_CAPTCHA_ENABLED = "user:login:captchaEnabled";
+
+    /**
+     * 菜单权限
+     */
+    public static final String CONFIG_MENU_PERMISSION = "config:menu:permission:";
 }

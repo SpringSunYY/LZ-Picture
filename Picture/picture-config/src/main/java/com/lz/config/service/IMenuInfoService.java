@@ -79,4 +79,11 @@ public interface IMenuInfoService extends IService<MenuInfo>
      * @return MenuInfoVO集合
      */
     List<MenuInfoVo> convertVoList(List<MenuInfo> menuInfoList);
+
+    /**
+     * 校验菜单
+     * @param permission
+     * @return
+     */
+    boolean checkMenu(String permission);
 }
