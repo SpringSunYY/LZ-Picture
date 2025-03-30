@@ -77,6 +77,7 @@
                 and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
             </if>
         </where>
+        order by order_num asc
     </select>
 
     <select id="selectMenuInfoByMenuId" parameterType="Long" resultMap="MenuInfoResult">

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
@@ -61,6 +63,16 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
      */
     @Override
     public int insertMenuInfo(MenuInfo menuInfo) {
+        //查询是否有此菜单名称
+        MenuInfo one = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getMenuName, menuInfo.getMenuName()));
+        if (StringUtils.isNotNull(one)) {
+            throw new RuntimeException("菜单名称重复");
+        }
+        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
+        if (StringUtils.isNotNull(per)) {
+            throw new RuntimeException("权限标识重复");
+        }
+        menuInfo.setCreateBy(SecurityUtils.getUsername());
         menuInfo.setCreateTime(DateUtils.getNowDate());
         return menuInfoMapper.insertMenuInfo(menuInfo);
     }
@@ -73,6 +85,20 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
      */
     @Override
     public int updateMenuInfo(MenuInfo menuInfo) {
+        //修改名称
+        MenuInfo one = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getMenuName, menuInfo.getMenuName()));
+        if (StringUtils.isNotNull(one) && !one.getMenuId().equals(menuInfo.getMenuId())) {
+            throw new RuntimeException("菜单名称重复");
+        }
+        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
+        if (StringUtils.isNotNull(per) && !per.getMenuId().equals(menuInfo.getMenuId())) {
+            throw new RuntimeException("权限标识重复");
+        }
+        //判断父类是否是自己
+        if (menuInfo.getMenuId().toString().equals(menuInfo.getParentId())) {
+            throw new RuntimeException("父类不能是自己");
+        }
+        menuInfo.setUpdateBy(SecurityUtils.getUsername());
         menuInfo.setUpdateTime(DateUtils.getNowDate());
         return menuInfoMapper.updateMenuInfo(menuInfo);
     }
@@ -85,6 +111,14 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
      */
     @Override
     public int deleteMenuInfoByMenuIds(Long[] menuIds) {
+        //获取所有的数据
+        List<MenuInfo> menuInfos = this.listByIds(Arrays.asList(menuIds));
+        for (MenuInfo menuInfo : menuInfos) {
+            //判断是否有子节点
+            if (menuInfoMapper.selectCount(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getParentId, menuInfo.getMenuId())) > 0) {
+                throw new RuntimeException(menuInfo.getMenuName() + "存在子节点不允许删除");
+            }
+        }
         return menuInfoMapper.deleteMenuInfoByMenuIds(menuIds);
     }
 
