@@ -7,8 +7,9 @@ import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
-import com.lz.config.model.domain.PermissionInfo;
-import com.lz.config.service.IPermissionInfoService;
+import com.lz.config.model.domain.MenuInfo;
+import com.lz.config.model.enmus.CMenuVisible;
+import com.lz.config.service.IMenuInfoService;
 import com.lz.userauth.mapper.AuthUserInfoMapper;
 import com.lz.userauth.model.domain.AuthBannedPermissionInfo;
 import com.lz.userauth.model.domain.AuthUserInfo;
@@ -39,7 +40,7 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
     private AuthUserInfoMapper authUserInfoMapper;
 
     @Resource
-    private IPermissionInfoService permissionInfoService;
+    private IMenuInfoService menuInfoService;
     ;
 
     @Resource
@@ -53,8 +54,10 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
 
     @Override
     public Set<String> getUserPermission(AuthUserInfo user) {
-        //获取所有的权限，用户默认拥有所有权限
-        List<PermissionInfo> permissionInfos = permissionInfoService.selectPermissionInfoList(new PermissionInfo());
+        //获取所有的权限，用户默认拥有所有权限 查询显示的
+        MenuInfo menuInfo = new MenuInfo();
+        menuInfo.setVisible(CMenuVisible.MENU_VISIBLE_1.getValue());
+        List<MenuInfo> menuInfos = menuInfoService.selectMenuInfoList(menuInfo);
         //获取用户被封禁的权限
         AuthBannedPermissionInfo authBannedPermissionInfo = new AuthBannedPermissionInfo();
         authBannedPermissionInfo.setUserId(user.getUserId());
@@ -65,10 +68,10 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
         //判断用户是否有封禁的权限，如果有则在所有权限里面删除
         if (StringUtils.isNotEmpty(authBannedPermissionInfos)) {
             for (AuthBannedPermissionInfo banned : authBannedPermissionInfos) {
-                permissionInfos.removeIf(permissionInfo -> permissionInfo.getPermissionName().equals(banned.getPermissionName()));
+                menuInfos.removeIf(permissionInfo -> permissionInfo.getPerms().equals(banned.getPermissionName()));
             }
         }
-        return permissionInfos.stream().map(PermissionInfo::getPermissionName).collect(Collectors.toSet());
+        return menuInfos.stream().map(MenuInfo::getPerms).collect(Collectors.toSet());
     }
 
     @Override

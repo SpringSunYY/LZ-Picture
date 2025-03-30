@@ -109,43 +109,70 @@ CREATE TABLE c_config_info (
 
 
 
-#### 权限信息表：c_permission_info
+#### 菜单信息表：c_menu_info
 
-| 字段            | 类型     | 长度 | 键类型 | null | 默认值   | 描述                    |
-| --------------- | -------- | ---- | ------ | ---- | -------- | ----------------------- |
-| permission_id   | bigint   |      | 主键   | 否   | 自增     | 编号；                  |
-| permission_name | varchar  | 50   |        | 否   |          | 权限名称；唯一          |
-| parent_id       | varchar  | 128  |        | 是   |          | 父权限；编号            |
-| order_num       | int      |      |        | 是   |          | 显示顺序                |
-| permission      | varchar  | 128  |        | 是   |          | 权限标识；唯一          |
-| status          | char     | 1    |        | 否   |          | 是否使用（0正常 1关闭） |
-| create_by       | varchar  | 64   |        | 否   |          | 创建人                  |
-| create_time     | datetime |      |        | 否   | 当前时间 | 创建时间                |
-| update_by       | varchar  | 64   |        | 是   |          | 更新人                  |
-| update_time     | datetime |      |        | 是   |          | 更新时间                |
-| remark          | varchar  | 512  |        | 是   |          | 备注                    |
+| 字段         | 类型     | 长度 | 键类型 | null | 默认值 | 描述            |
+| ------------ | -------- | ---- | ------ | ---- | ------ | --------------- |
+| menu_id      | bigint   |      | 主键   | 否   | 自增   | 编号；自增      |
+| menu_name    | varchar  | 50   |        | 否   |        | 菜单名称        |
+| parent_id    | varchar  | 128  |        | 是   |        | 父菜单；ID      |
+| order_num    | int      | 4    |        | 是   |        | 显示顺序        |
+| path         | varchar  | 256  |        | 是   |        | 路由地址        |
+| component    | varchar  | 256  |        | 是   |        | 组件路径        |
+| query        | varchar  | 256  |        | 是   |        | 路由参数        |
+| route_name   | varchar  | 256  |        | 是   |        | 路由名称        |
+| menu_address | char     | 1    |        | 否   |        | 显示位置；默认1 |
+| is_frame     | char     | 1    |        | 否   |        | 是否外链；默认1 |
+| is_chache    | char     | 1    |        | 否   |        | 是否缓存；默认1 |
+| menu_type    | char     | 1    |        | 否   |        | 菜单类型        |
+| visible      | char     | 1    |        | 是   |        | 是否显示；默认1 |
+| status       | char     | char |        | 是   |        | 菜单状态；默认1 |
+| perms        | varchar  | 128  |        | 是   |        | 权限标识        |
+| icon         | varchar  | 128  |        | 是   |        | 菜单图标        |
+| create_by    | varchar  | 64   |        | 否   |        | 创建人          |
+| create_time  | datetime |      |        | 否   |        | 创建时间        |
+| update_by    | varchar  | 64   |        | 是   |        | 更新人          |
+| update_time  | datetime |      |        | 是   |        | 更新时间        |
+| remark       | varchar  | 512  |        | 是   |        | 备注            |
 
 本权限信息表参考若依权限表，但他属于配置模块，后续权限需要使用feign调用，如果
 
-权限状态：0：正常，1：关闭 用于关闭接口
+菜单类型：M：目录，C：菜单，B：按钮，F：功能，T：tabs
+
+是否为外链 1：否，0：是
+
+是否为缓存1：不缓存，0：缓存
+
+菜单状态：0：正常，1：隐藏（关闭此接口）
+
+显示位置：1：不显示 2：导航，3侧边，4：页内tabs
 
 ```sql
-CREATE TABLE c_permission_info (
-    permission_id BIGINT NOT NULL AUTO_INCREMENT COMMENT '编号',
-    permission_name VARCHAR(50) NOT NULL COMMENT '权限名称',
-    parent_id VARCHAR(128) COMMENT '父权限',
-    order_num INT COMMENT '显示顺序',
-    permission VARCHAR(128) COMMENT '权限标识',
-    status CHAR(1) NOT NULL COMMENT '是否使用（0正常 1关闭）',
+CREATE TABLE c_menu_info (
+    menu_id BIGINT NOT NULL AUTO_INCREMENT COMMENT '编号',
+    menu_name VARCHAR(50) NOT NULL COMMENT '菜单名称',
+    parent_id VARCHAR(128) DEFAULT NULL COMMENT '父菜单',
+    order_num INT(4) DEFAULT NULL COMMENT '显示顺序',
+    path VARCHAR(256) DEFAULT NULL COMMENT '路由地址',
+    component VARCHAR(256) DEFAULT NULL COMMENT '组件路径',
+    query VARCHAR(256) DEFAULT NULL COMMENT '路由参数',
+    route_name VARCHAR(256) DEFAULT NULL COMMENT '路由名称',
+    menu_address CHAR(1) NOT NULL DEFAULT '1' COMMENT '显示位置',
+    is_frame CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否外链',
+    is_chache CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否缓存',
+    menu_type CHAR(1) NOT NULL COMMENT '菜单类型',
+    visible CHAR(1) DEFAULT '1' COMMENT '是否显示',
+    status CHAR(1) DEFAULT '1' COMMENT '菜单状态',
+    perms VARCHAR(128) DEFAULT NULL COMMENT '权限标识',
+    icon VARCHAR(128) DEFAULT NULL COMMENT '菜单图标',
     create_by VARCHAR(64) NOT NULL COMMENT '创建人',
     create_time DATETIME NOT NULL COMMENT '创建时间',
-    update_by VARCHAR(64) COMMENT '更新人',
-    update_time DATETIME COMMENT '更新时间',
-    remark VARCHAR(512) COMMENT '备注',
-    PRIMARY KEY (permission_id),
-    UNIQUE KEY uk_c_permission_info_permission_name (permission_name),
-    UNIQUE KEY uk_c_permission_info_permission (permission)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='权限信息表';
+    update_by VARCHAR(64) DEFAULT NULL COMMENT '更新人',
+    update_time DATETIME DEFAULT NULL COMMENT '更新时间',
+    remark VARCHAR(512) DEFAULT NULL COMMENT '备注',
+    PRIMARY KEY (menu_id),
+    UNIQUE KEY (menu_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='菜单信息表';
 ```
 
 

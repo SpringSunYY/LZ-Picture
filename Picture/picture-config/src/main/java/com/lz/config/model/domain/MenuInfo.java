@@ -14,28 +14,28 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- * 权限信息对象 c_permission_info
+ * 菜单信息对象 c_menu_info
  *
  * @author YY
- * @date 2025-02-28
+ * @date 2025-03-30
  */
-@TableName("c_permission_info")
+@TableName("c_menu_info")
 @Data
-public class PermissionInfo implements Serializable {
+public class MenuInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
      * 编号
      */
     @Excel(name = "编号")
-    @TableId(value = "permission_id", type = IdType.ASSIGN_ID)
-    private Long permissionId;
+    @TableId(value = "menu_id", type = IdType.ASSIGN_ID)
+    private Long menuId;
 
     /**
-     * 权限名称
+     * 菜单名称
      */
-    @Excel(name = "权限名称")
-    private String permissionName;
+    @Excel(name = "菜单名称")
+    private String menuName;
 
     /**
      * 父菜单
@@ -50,16 +50,76 @@ public class PermissionInfo implements Serializable {
     private Long orderNum;
 
     /**
+     * 路由地址
+     */
+    @Excel(name = "路由地址")
+    private String path;
+
+    /**
+     * 组件路径
+     */
+    @Excel(name = "组件路径")
+    private String component;
+
+    /**
+     * 路由参数
+     */
+    @Excel(name = "路由参数")
+    private String query;
+
+    /**
+     * 路由名称
+     */
+    @Excel(name = "路由名称")
+    private String routeName;
+
+    /**
+     * 显示位置
+     */
+    @Excel(name = "显示位置")
+    private String menuAddress;
+
+    /**
+     * 是否外链
+     */
+    @Excel(name = "是否外链")
+    private String isFrame;
+
+    /**
+     * 是否缓存
+     */
+    @Excel(name = "是否缓存")
+    private String isCache;
+
+    /**
+     * 菜单类型
+     */
+    @Excel(name = "菜单类型")
+    private String menuType;
+
+    /**
+     * 是否显示
+     */
+    @Excel(name = "是否显示")
+    private String visible;
+
+    /**
+     * 菜单状态
+     */
+    @Excel(name = "菜单状态")
+    private String status;
+
+    /**
      * 权限标识
      */
     @Excel(name = "权限标识")
-    private String permission;
+    private String perms;
 
     /**
-     * 是否使用（0正常 1关闭）
+     * 菜单图标
      */
-    @Excel(name = "是否使用", readConverterExp = "0=正常,1=关闭")
-    private String status;
+    @Excel(name = "菜单图标")
+    private String icon;
 
     /**
      * 创建人
