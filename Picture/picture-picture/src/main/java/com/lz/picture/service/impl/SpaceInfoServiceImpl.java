@@ -168,7 +168,11 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         if (StringUtils.isNotNull(old)) {
             throw new ServiceException("空间名称已经存在！！！");
         }
-
+        //查询用户此类型空间创建了多少个
+        long count = this.count(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getUserId, spaceInfo.getUserId()).eq(SpaceInfo::getSpaceType, spaceInfo.getSpaceType()));
+        if (count >= 10) {
+            throw new ServiceException("此类型空间创建了10个，不能再创建了！！！");
+        }
         spaceInfo.setCreateTime(DateUtils.getNowDate());
         spaceInfo.setUpdateTime(DateUtils.getNowDate());
         //TODO 默认内容需要从配置里面拿
