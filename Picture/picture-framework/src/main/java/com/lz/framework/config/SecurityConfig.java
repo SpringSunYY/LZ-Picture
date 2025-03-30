@@ -1,13 +1,11 @@
 package com.lz.framework.config;
 
 import com.lz.framework.security.auth.MultiAuthProvider;
-import com.lz.framework.security.handle.UserInfoLogoutSuccessHandlerImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -20,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.filter.CorsFilter;
 import com.lz.framework.config.properties.PermitAllUrlProperties;
 import com.lz.framework.security.filter.JwtAuthenticationTokenFilter;
@@ -45,10 +42,6 @@ public class SecurityConfig {
     private UserDetailsService userDetailsService;
 
     @Resource
-    @Qualifier("userInfoDetailsService")
-    private UserDetailsService userInfoDetailsService;
-
-    @Resource
     private MultiAuthProvider multiAuthProvider;
 
     /**
@@ -63,8 +56,6 @@ public class SecurityConfig {
     @Resource
     private LogoutSuccessHandlerImpl logoutSuccessHandler;
 
-    @Resource
-    private UserInfoLogoutSuccessHandlerImpl userInfoLogoutSuccessHandler;
 
     /**
      * token认证过滤器

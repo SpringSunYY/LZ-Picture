@@ -29,8 +29,7 @@ import java.util.concurrent.TimeUnit;
  * @author YY
  */
 @Component
-public class UserInfoTokenService
-{
+public class UserInfoTokenService {
     private static final Logger log = LoggerFactory.getLogger(UserInfoTokenService.class);
 
     // 令牌自定义标识
@@ -66,23 +65,18 @@ public class UserInfoTokenService
      *
      * @return 用户信息
      */
-    public LoginUserInfo getLoginUser(HttpServletRequest request)
-    {
+    public LoginUserInfo getLoginUser(HttpServletRequest request) {
         // 获取请求携带的令牌
         String token = getToken(request);
-        if (StringUtils.isNotEmpty(token))
-        {
-            try
-            {
+        if (StringUtils.isNotEmpty(token)) {
+            try {
                 Claims claims = parseToken(token);
                 // 解析对应的权限以及用户信息
                 String uuid = (String) claims.get(LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 LoginUserInfo user = redisCache.getCacheObject(userKey);
                 return user;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.error("获取用户信息异常'{}'", e.getMessage());
             }
         }
@@ -92,10 +86,8 @@ public class UserInfoTokenService
     /**
      * 设置用户身份信息
      */
-    public void setLoginUser(LoginUserInfo loginUser)
-    {
-        if (StringUtils.isNotNull(loginUser) && StringUtils.isNotEmpty(loginUser.getToken()))
-        {
+    public void setLoginUser(LoginUserInfo loginUser) {
+        if (StringUtils.isNotNull(loginUser) && StringUtils.isNotEmpty(loginUser.getToken())) {
             refreshToken(loginUser);
         }
     }
@@ -103,11 +95,13 @@ public class UserInfoTokenService
     /**
      * 删除用户身份信息
      */
-    public void delLoginUser(String token)
-    {
-        if (StringUtils.isNotEmpty(token))
-        {
-            String userKey = getTokenKey(token);
+    public void delLoginUser(String token) {
+        if (StringUtils.isNotEmpty(token)) {
+            Claims claims = parseToken(token);
+            // 解析对应的权限以及用户信息
+            String uuid = (String) claims.get(LOGIN_USER_KEY);
+            String userKey = getTokenKey(uuid);
+            System.out.println("userKey = " + userKey);
             redisCache.deleteObject(userKey);
         }
     }
@@ -118,8 +112,7 @@ public class UserInfoTokenService
      * @param loginUser 用户信息
      * @return 令牌
      */
-    public String createToken(LoginUserInfo loginUser)
-    {
+    public String createToken(LoginUserInfo loginUser) {
         String token = IdUtils.fastUUID();
         loginUser.setToken(token);
         setUserAgent(loginUser);
@@ -135,12 +128,10 @@ public class UserInfoTokenService
      * @param loginUser
      * @return 令牌
      */
-    public void verifyToken(LoginUserInfo loginUser)
-    {
+    public void verifyToken(LoginUserInfo loginUser) {
         long expireTime = loginUser.getExpireTime();
         long currentTime = System.currentTimeMillis();
-        if (expireTime - currentTime <= MILLIS_MINUTE_TEN)
-        {
+        if (expireTime - currentTime <= MILLIS_MINUTE_TEN) {
             refreshToken(loginUser);
         }
     }
@@ -150,8 +141,7 @@ public class UserInfoTokenService
      *
      * @param loginUser 登录信息
      */
-    public void refreshToken(LoginUserInfo loginUser)
-    {
+    public void refreshToken(LoginUserInfo loginUser) {
         AuthUserInfo user = loginUser.getUser();
         user.setPassword(null);
         user.setSalt(null);
@@ -168,8 +158,7 @@ public class UserInfoTokenService
      *
      * @param loginUser 登录信息
      */
-    public void setUserAgent(LoginUserInfo loginUser)
-    {
+    public void setUserAgent(LoginUserInfo loginUser) {
         UserAgent userAgent = UserAgent.parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
         String ip = IpUtils.getIpAddr();
         loginUser.setIpaddr(ip);
@@ -184,8 +173,7 @@ public class UserInfoTokenService
      * @param claims 数据声明
      * @return 令牌
      */
-    private String createToken(Map<String, Object> claims)
-    {
+    private String createToken(Map<String, Object> claims) {
         String token = Jwts.builder()
                 .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
@@ -198,8 +186,7 @@ public class UserInfoTokenService
      * @param token 令牌
      * @return 数据声明
      */
-    private Claims parseToken(String token)
-    {
+    private Claims parseToken(String token) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
@@ -212,8 +199,7 @@ public class UserInfoTokenService
      * @param token 令牌
      * @return 用户名
      */
-    public String getUsernameFromToken(String token)
-    {
+    public String getUsernameFromToken(String token) {
         Claims claims = parseToken(token);
         return claims.getSubject();
     }
@@ -224,18 +210,15 @@ public class UserInfoTokenService
      * @param request
      * @return token
      */
-    protected String getToken(HttpServletRequest request)
-    {
+    protected String getToken(HttpServletRequest request) {
         String token = request.getHeader(header);
-        if (StringUtils.isNotEmpty(token) && token.startsWith(TOKEN_PREFIX))
-        {
+        if (StringUtils.isNotEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
             token = token.replace(TOKEN_PREFIX, "");
         }
         return token;
     }
 
-    private String getTokenKey(String uuid)
-    {
+    private String getTokenKey(String uuid) {
         return LOGIN_USER_KEY + uuid;
     }
 }
