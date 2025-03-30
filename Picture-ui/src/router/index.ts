@@ -13,9 +13,13 @@ const router = createRouter({
       name: 'picture',
       children: [
         {
+          path: 'space',
+          name: 'PictureSpace',
+          component: () => import('@/views/picture/space/index.vue'),
+        },
+        {
           path: 'upload',
           name: 'PictureUpload',
-
           component: () => import('@/views/picture/upload/index.vue'),
         },
       ],
