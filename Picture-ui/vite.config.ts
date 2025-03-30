@@ -30,5 +30,8 @@ export default defineConfig({
   define: {
     __VUE_PROD_DEVTOOLS__: false,
   },
+  build: {
+    sourcemap: false, // 禁用源映射
+  },
 
 })

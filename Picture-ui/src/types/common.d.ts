@@ -16,4 +16,11 @@ declare namespace API {
     data?: object
     msg?: string
   }
+
+  interface AddResponseInfo {
+    rows?: Array<any>
+    data?: object
+    msg?: string
+    code: number
+  }
 }

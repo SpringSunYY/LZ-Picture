@@ -25,7 +25,10 @@
           <p class="ant-upload-hint">支持拖拽文件到此区域</p>
         </div>
       </div>
-
+      <!-- 上传中的加载效果 -->
+      <div v-if="isUploading" class="upload-loading-overlay">
+        <a-spin size="large" />
+      </div>
       <!-- 图片卡片容器 -->
       <div class="image-card-container">
         <div v-for="file in innerFileList" :key="file.uid" class="image-card">
@@ -72,6 +75,7 @@ import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons-v
 import { message } from 'ant-design-vue'
 import { pictureUpload } from '@/api/common/file.js'
 
+const isUploading = ref(false) // 用来追踪上传状态
 const uploading = ref(false)
 const props = defineProps({
   modelValue: {
@@ -95,48 +99,25 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'upload-success', 'upload-error'])
 
-// 核心数据
-const innerFileList = ref([])
-const previewVisible = ref(false)
-const currentPreview = ref({})
-
-// 初始化处理
-const initializeFileList = () => {
-  try {
-    if (typeof props.modelValue === 'string') {
-      const urls = props.modelValue.split(',').filter((url) => url.trim())
-      innerFileList.value = urls.map((url, index) => ({
-        uid: `preset-${index}-${Date.now()}`,
-        name: `preset-image-${index}`,
-        status: 'done',
-        url: url,
-        thumbUrl: url,
-        meta: { width: 0, height: 0, format: 'UNKNOWN', size: 0 },
-      }))
-    } else if (Array.isArray(props.modelValue)) {
-      innerFileList.value = props.modelValue.map((url, index) => ({
-        uid: `preset-${index}-${Date.now()}`,
-        name: `preset-image-${index}`,
-        status: 'done',
-        url: url,
-        thumbUrl: url,
-        meta: { width: 0, height: 0, format: 'UNKNOWN', size: 0 },
-      }))
-    }
-  } catch (error) {
-    message.error('初始化图片列表失败')
-    console.error('初始化错误:', error)
+interface UploadedFile {
+  uid: string
+  status: string
+  name: string
+  url: string
+  thumbUrl: string
+  pictureUrl: string
+  meta: {
+    width: number
+    height: number
+    ratio: string
+    format: string
+    size: string
   }
 }
 
-// 监听props变化
-// watch(
-//   () => props.modelValue,
-//   (newVal) => {
-//     initializeFileList()
-//   },
-//   { immediate: true, deep: true },
-// )
+const innerFileList = ref<UploadedFile[]>([])
+const previewVisible = ref(false)
+const currentPreview = ref({})
 
 // 格式转换方法
 const formatOutput = () => {
@@ -206,11 +187,12 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
   try {
     message.loading('图片上传中...', 1.5)
     uploading.value = true
+    isUploading.value = true; // 开始上传时设置为 true
     const formData = new FormData()
     formData.append('file', file)
 
     const response = await pictureUpload(formData)
-    if (response.code === 200) {
+    if (response?.code === 200) {
       const uploadedFile = {
         uid: file.uid,
         status: 'done',
@@ -235,7 +217,7 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
       emit('update:modelValue', formatOutput())
       message.success('图片上传成功')
     } else {
-      throw new Error(response.message || '上传失败')
+      throw new Error(response?.message || '上传失败')
     }
   } catch (error) {
     console.error('上传错误:', error)
@@ -244,6 +226,7 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
     emit('upload-error', error)
   } finally {
     uploading.value = false
+    isUploading.value = false; // 上传结束后，设置为 false
   }
 }
 
@@ -390,7 +373,18 @@ const handlePreview = (file) => {
     }
   }
 }
-
+.upload-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
 .preview-modal {
   .ant-modal-content {
     .preview-content {
