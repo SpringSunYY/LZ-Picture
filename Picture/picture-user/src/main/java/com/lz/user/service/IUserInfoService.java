@@ -1,21 +1,25 @@
 package com.lz.user.service;
 
 import java.util.List;
+import java.util.Set;
+
+import com.lz.config.model.domain.MenuInfo;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.vo.userInfo.UserInfoVo;
 import com.lz.user.model.dto.userInfo.UserInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 用户信息Service接口
  *
  * @author YY
  * @date 2025-03-17
  */
-public interface IUserInfoService extends IService<UserInfo>
-{
+public interface IUserInfoService extends IService<UserInfo> {
     //region mybatis代码
+
     /**
      * 查询用户信息
      *
@@ -64,6 +68,7 @@ public interface IUserInfoService extends IService<UserInfo>
      */
     public int deleteUserInfoByUserId(String userId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +84,6 @@ public interface IUserInfoService extends IService<UserInfo>
      * @return UserInfoVO集合
      */
     List<UserInfoVo> convertVoList(List<UserInfo> userInfoList);
+
+    List<MenuInfo> getMenu(Set<String> permissions);
 }

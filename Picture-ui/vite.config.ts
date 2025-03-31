@@ -1,14 +1,17 @@
 import { fileURLToPath, URL } from 'node:url'
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), createSvgIconsPlugin({
-    iconDirs: [path.resolve(__dirname, 'src/assets/icons/svg')],
-    symbolId: 'icon-[name]'
-  })],
+  plugins: [
+    vue(),
+    createSvgIconsPlugin({
+      iconDirs: [path.resolve(__dirname, 'src/assets/icons/svg')],
+      symbolId: 'icon-[name]',
+    }),
+  ],
   server: {
     port: 5173,
     host: true,
@@ -25,6 +28,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@/views': path.resolve(__dirname, './src/views'),
     },
   },
   define: {
@@ -33,5 +37,4 @@ export default defineConfig({
   build: {
     sourcemap: false, // 禁用源映射
   },
-
 })

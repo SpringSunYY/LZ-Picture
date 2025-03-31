@@ -131,7 +131,7 @@ CREATE TABLE c_config_info (
 | route_name   | varchar  | 256  |        | 是   |        | 路由名称        |
 | menu_address | char     | 1    |        | 否   |        | 显示位置；默认1 |
 | is_frame     | char     | 1    |        | 否   |        | 是否外链；默认1 |
-| is_chache    | char     | 1    |        | 否   |        | 是否缓存；默认1 |
+| is_cache     | char     | 1    |        | 否   |        | 是否缓存；默认1 |
 | menu_type    | char     | 1    |        | 否   |        | 菜单类型        |
 | visible      | char     | 1    |        | 是   |        | 是否显示；默认1 |
 | status       | char     | char |        | 是   |        | 菜单状态；默认1 |
@@ -151,7 +151,9 @@ CREATE TABLE c_config_info (
 
 是否为缓存1：不缓存，0：缓存
 
-菜单状态：0：正常，1：隐藏（关闭此接口）
+菜单状态：0：正常，1：隐藏（关闭此接口） 隐藏则关闭此接口
+
+是否显示：1显示 2不显示
 
 显示位置：1：不显示 2：导航，3侧边，4：页内tabs
 
@@ -167,7 +169,7 @@ CREATE TABLE c_menu_info (
     route_name VARCHAR(256) DEFAULT NULL COMMENT '路由名称',
     menu_address CHAR(1) NOT NULL DEFAULT '1' COMMENT '显示位置',
     is_frame CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否外链',
-    is_chache CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否缓存',
+    is_cache CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否缓存',
     menu_type CHAR(1) NOT NULL COMMENT '菜单类型',
     visible CHAR(1) DEFAULT '1' COMMENT '是否显示',
     status CHAR(1) DEFAULT '1' COMMENT '菜单状态',

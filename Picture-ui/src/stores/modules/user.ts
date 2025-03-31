@@ -8,7 +8,7 @@ import router from '@/router'
 
 const useUserStore = defineStore('user', {
   state: (): {
-    permissions: any[]
+    permissions: string[]
     name: string
     id: string
     avatar: string

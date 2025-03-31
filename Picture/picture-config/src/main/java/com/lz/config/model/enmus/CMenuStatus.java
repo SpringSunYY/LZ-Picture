@@ -7,17 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 菜单显示状态枚举
+ * 菜单状态枚举
  */
 @Getter
-public enum CMenuVisible {
-    MENU_VISIBLE_1("1", "显示"),
-    MENU_VISIBLE_2("2", "不显示");
+public enum CMenuStatus {
+    MENU_STATUS_0("0", "正常"),
+    MENU_STATUS_1("1", "隐藏");
 
-    private static final Map<String, CMenuVisible> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, CMenuStatus> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (CMenuVisible item : values()) {
+        for (CMenuStatus item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,7 +25,7 @@ public enum CMenuVisible {
     private final String value;
     private final String label;
 
-    CMenuVisible(String value, String label) {
+    CMenuStatus(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -36,7 +36,7 @@ public enum CMenuVisible {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<CMenuVisible> getEnumByValue(String value) {
+    public static Optional<CMenuStatus> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

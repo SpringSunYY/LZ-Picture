@@ -1,5 +1,7 @@
 package com.lz.config.model.enmus;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +9,7 @@ import java.util.Optional;
 /**
  * 配置是否启用枚举
  */
+@Getter
 public enum CConfigIsIn {
     CONFIG_IS_IN_0("0", "是"),
     CONFIG_IS_IN_1("1", "否");
@@ -25,14 +28,6 @@ public enum CConfigIsIn {
     CConfigIsIn(String value, String label) {
         this.value = value;
         this.label = label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     /**
