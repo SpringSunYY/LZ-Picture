@@ -11,6 +11,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.config.mapper.ConfigInfoMapper;
 import com.lz.config.model.domain.ConfigInfo;
 import com.lz.config.model.dto.configInfo.ConfigInfoQuery;
+import com.lz.config.model.enmus.CConfigIsIn;
 import com.lz.config.model.vo.configInfo.ConfigInfoVo;
 import com.lz.config.service.IConfigInfoService;
 import jakarta.annotation.PostConstruct;
@@ -42,12 +43,20 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     @PostConstruct
     public void init() {
         //初始化缓存
+        initConfigInfoCache();
+    }
+
+    @Override
+    public int initConfigInfoCache() {
         List<ConfigInfo> configInfoList = configInfoMapper.selectList(null);
         for (ConfigInfo configInfo : configInfoList) {
-            redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
+            redisCache.deleteObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + ":" + configInfo.getConfigKey());
+            redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + ":" + configInfo.getConfigKey(), configInfo.getConfigValue());
         }
+        return 1;
     }
     //region mybatis代码
+
     /**
      * 查询配置信息
      *
@@ -85,7 +94,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             i = configInfoMapper.insertConfigInfo(configInfo);
         } catch (Exception e) {
             log.error("插入配置信息失败：{}", e.getMessage());
-            throw new SQLDuplicateKeyException(e.getMessage(),e.getCause());
+            throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
         }
         //存入缓存
         redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigKey(), configInfo.getConfigValue());
@@ -107,7 +116,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             i = configInfoMapper.updateConfigInfo(configInfo);
         } catch (Exception e) {
             log.error("修改配置信息失败：{}", e.getMessage());
-            throw new SQLDuplicateKeyException(e.getMessage(),e.getCause());
+            throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
         }
         //存入缓存
         redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigKey(), configInfo.getConfigValue());
@@ -182,9 +191,19 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
 
 
     @Override
-    public String getConfigInfoCache(String configKey) {
+    public String getConfigInfoInCache(String configKey) {
         //先根据名称获取缓存
-        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + configKey);
+        return getCache(CConfigIsIn.CONFIG_IS_IN_0.getValue(), configKey);
+    }
+
+    @Override
+    public String getConfigInfoOutCache(String configKey) {
+        return getCache(CConfigIsIn.CONFIG_IS_IN_1.getValue(), configKey);
+    }
+
+    private String getCache(String isIn, String configKey) {
+        //先根据名称获取缓存
+        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + isIn + ":" + configKey);
         if (StringUtils.isNotEmpty(cacheObject)) {
             return cacheObject;
         }
@@ -195,7 +214,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             return "";
         }
         //数据库如果有则存缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configKey, configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + ":" + configKey, configInfo.getConfigValue());
         return configInfo.getConfigValue();
     }
 }

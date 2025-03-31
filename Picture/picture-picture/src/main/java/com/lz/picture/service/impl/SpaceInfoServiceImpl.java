@@ -175,7 +175,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         spaceInfo.setCreateTime(DateUtils.getNowDate());
         spaceInfo.setUpdateTime(DateUtils.getNowDate());
 
-        String maxCount = configInfoService.getConfigInfoCache(PICTURE_SPACE_MAX_COUNT);
+        String maxCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_COUNT);
         try {
             spaceInfo.setMaxCount(Long.parseLong(maxCount));
         } catch (NumberFormatException e) {
@@ -185,7 +185,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         }
         String maxSize = null;
         try {
-            maxSize = configInfoService.getConfigInfoCache(PICTURE_SPACE_MAX_SIZE);
+            maxSize = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_SIZE);
         } catch (Exception e) {
             log.error("获取最大空间文件数量配置信息出错", e);
             //如果转换异常则默认300M

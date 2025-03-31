@@ -16,6 +16,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
  * @date 2025-02-28
  */
 public interface IConfigInfoService extends IService<ConfigInfo> {
+    /**
+     * description: 初始化配置信息缓存
+     * author: YY
+     * method: initConfigInfoCache
+     * date: 2025/3/31 17:34
+     * param:
+     * return: int
+     **/
+    int initConfigInfoCache();
     //region mybatis代码
 
     /**
@@ -84,7 +93,7 @@ public interface IConfigInfoService extends IService<ConfigInfo> {
     List<ConfigInfoVo> convertVoList(List<ConfigInfo> configInfoList);
 
     /**
-     * description: 根据配置key获取配置值
+     * description: 根据配置key获取配置值 只是内置
      * author: YY
      * method: getConfigInfoCache
      * date: 2025/2/28 21:44
@@ -92,5 +101,16 @@ public interface IConfigInfoService extends IService<ConfigInfo> {
      * param: configKey key
      * return: java.lang.String
      **/
-    public String getConfigInfoCache(String configKey);
+    public String getConfigInfoInCache(String configKey);
+
+    /**
+     * description: 根据配置key获取配置值 外置
+     * author: YY
+     * method: getConfigInfoOutCache
+     * date: 2025/3/31 17:28
+     * param:
+     * param: configKey
+     * return: java.lang.String
+     **/
+    public String getConfigInfoOutCache(String configKey);
 }

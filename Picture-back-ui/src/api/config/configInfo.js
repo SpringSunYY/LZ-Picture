@@ -18,11 +18,17 @@ export function getConfigInfo(configId) {
 }
 
 // 新增配置信息
-export function addConfigInfo(data) {
+export function addConfigInfo() {
   return request({
     url: '/config/configInfo',
-    method: 'post',
-    data: data
+    method: 'delete',
+  })
+}
+
+export function initConfigInfoCache() {
+  return request({
+    url: '/config/configInfo/reset',
+    method: 'delete',
   })
 }
 

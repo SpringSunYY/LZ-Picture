@@ -123,6 +123,16 @@
         >导出
         </el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+            type="danger"
+            plain
+            icon="Refresh"
+            @click="handleRefreshCache"
+            v-hasPermi="['system:config:remove']"
+        >刷新缓存
+        </el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
@@ -251,7 +261,14 @@
 </template>
 
 <script setup name="ConfigInfo">
-import {addConfigInfo, delConfigInfo, getConfigInfo, listConfigInfo, updateConfigInfo} from "@/api/config/configInfo";
+import {
+  addConfigInfo,
+  delConfigInfo,
+  getConfigInfo,
+  initConfigInfoCache,
+  listConfigInfo,
+  updateConfigInfo
+} from "@/api/config/configInfo";
 import {CONFIG_TYPE} from "@/constants/configConstants.js";
 
 const {proxy} = getCurrentInstance();
@@ -428,6 +445,12 @@ function submitForm() {
       }
     }
   });
+}
+
+function handleRefreshCache() {
+  initConfigInfoCache().then(res => {
+    proxy.$modal.msgSuccess("刷新缓存成功");
+  })
 }
 
 /** 删除按钮操作 */

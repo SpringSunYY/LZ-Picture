@@ -2,6 +2,7 @@ package com.lz.config.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -35,25 +36,29 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/admin/config/configInfo")
-public class ConfigInfoController extends BaseController
-{
+public class ConfigInfoController extends BaseController {
     @Resource
     private IConfigInfoService configInfoService;
 
-/**
- * 查询配置信息列表
- */
-@PreAuthorize("@ss.hasPermi('config:configInfo:list')")
-@GetMapping("/list")
-    public TableDataInfo list(ConfigInfoQuery configInfoQuery)
-    {
+    /**
+     * 查询配置信息列表
+     */
+    @PreAuthorize("@ss.hasPermi('config:configInfo:list')")
+    @GetMapping("/list")
+    public TableDataInfo list(ConfigInfoQuery configInfoQuery) {
         ConfigInfo configInfo = ConfigInfoQuery.queryToObj(configInfoQuery);
         startPage();
         List<ConfigInfo> list = configInfoService.selectConfigInfoList(configInfo);
-        List<ConfigInfoVo> listVo= list.stream().map(ConfigInfoVo::objToVo).collect(Collectors.toList());
+        List<ConfigInfoVo> listVo = list.stream().map(ConfigInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
+    }
+
+    @PreAuthorize("@ss.hasPermi('config:configInfo:add')")
+    @DeleteMapping("/reset")
+    public AjaxResult reset() {
+        return toAjax(configInfoService.initConfigInfoCache());
     }
 
     /**
@@ -62,8 +67,7 @@ public class ConfigInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:configInfo:export')")
     @Log(title = "配置信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, ConfigInfoQuery configInfoQuery)
-    {
+    public void export(HttpServletResponse response, ConfigInfoQuery configInfoQuery) {
         ConfigInfo configInfo = ConfigInfoQuery.queryToObj(configInfoQuery);
         List<ConfigInfo> list = configInfoService.selectConfigInfoList(configInfo);
         ExcelUtil<ConfigInfo> util = new ExcelUtil<ConfigInfo>(ConfigInfo.class);
@@ -75,8 +79,7 @@ public class ConfigInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('config:configInfo:query')")
     @GetMapping(value = "/{configId}")
-    public AjaxResult getInfo(@PathVariable("configId") Long configId)
-    {
+    public AjaxResult getInfo(@PathVariable("configId") Long configId) {
         ConfigInfo configInfo = configInfoService.selectConfigInfoByConfigId(configId);
         return success(ConfigInfoVo.objToVo(configInfo));
     }
@@ -87,8 +90,7 @@ public class ConfigInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:configInfo:add')")
     @Log(title = "配置信息", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody @Validated ConfigInfoInsert configInfoInsert)
-    {
+    public AjaxResult add(@RequestBody @Validated ConfigInfoInsert configInfoInsert) {
         ConfigInfo configInfo = ConfigInfoInsert.insertToObj(configInfoInsert);
         return toAjax(configInfoService.insertConfigInfo(configInfo));
     }
@@ -99,8 +101,7 @@ public class ConfigInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:configInfo:edit')")
     @Log(title = "配置信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody ConfigInfoEdit configInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody ConfigInfoEdit configInfoEdit) {
         ConfigInfo configInfo = ConfigInfoEdit.editToObj(configInfoEdit);
         return toAjax(configInfoService.updateConfigInfo(configInfo));
     }
@@ -111,8 +112,7 @@ public class ConfigInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:configInfo:remove')")
     @Log(title = "配置信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{configIds}")
-    public AjaxResult remove(@PathVariable Long[] configIds)
-    {
+    public AjaxResult remove(@PathVariable Long[] configIds) {
         return toAjax(configInfoService.deleteConfigInfoByConfigIds(configIds));
     }
 }

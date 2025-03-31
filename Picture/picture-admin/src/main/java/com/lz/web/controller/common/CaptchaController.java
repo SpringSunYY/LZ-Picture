@@ -61,7 +61,7 @@ public class CaptchaController {
      */
     @GetMapping("/user/captchaImage")
     public AjaxResult getUserInfoCaptchaCode(HttpServletResponse response) throws IOException {
-        String configInfoCache = configInfoService.getConfigInfoCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        String configInfoCache = configInfoService.getConfigInfoInCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         return getCode(captchaEnabled);
     }
