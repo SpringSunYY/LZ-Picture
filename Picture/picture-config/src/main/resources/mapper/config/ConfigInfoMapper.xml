@@ -1,46 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.config.mapper.ConfigInfoMapper">
-    
+
     <resultMap type="ConfigInfo" id="ConfigInfoResult">
-        <result property="configId"    column="config_id"    />
-        <result property="configName"    column="config_name"    />
-        <result property="configKey"    column="config_key"    />
-        <result property="configValue"    column="config_value"    />
-        <result property="configType"    column="config_type"    />
-        <result property="orderNum"    column="order_num"    />
-        <result property="createBy"    column="create_by"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="remark"    column="remark"    />
+        <result property="configId" column="config_id"/>
+        <result property="configName" column="config_name"/>
+        <result property="configKey" column="config_key"/>
+        <result property="configType" column="config_type"/>
+        <result property="configValue" column="config_value"/>
+        <result property="configType" column="config_type"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <sql id="selectConfigInfoVo">
-        select config_id, config_name, config_key, config_value, config_type, order_num, create_by, create_time, update_by, update_time, remark from c_config_info
+        select config_id,
+               config_name,
+               config_key,
+               config_value,
+               config_type,
+               config_is_in,
+               order_num,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               remark
+        from c_config_info
     </sql>
+
 
     <select id="selectConfigInfoList" parameterType="ConfigInfo" resultMap="ConfigInfoResult">
         <include refid="selectConfigInfoVo"/>
-        <where>  
-            <if test="configName != null  and configName != ''"> and config_name like concat('%', #{configName}, '%')</if>
-            <if test="configKey != null  and configKey != ''"> and config_key = #{configKey}</if>
-            <if test="configValue != null  and configValue != ''"> and config_value = #{configValue}</if>
-            <if test="configType != null  and configType != ''"> and config_type = #{configType}</if>
-            <if test="createBy != null  and createBy != ''"> and create_by like concat('%', #{createBy}, '%')</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="updateBy != null  and updateBy != ''"> and update_by like concat('%', #{updateBy}, '%')</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+        <where>
+            <if test="configName != null  and configName != ''">and config_name like concat('%', #{configName}, '%')
+            </if>
+            <if test="configKey != null  and configKey != ''">and config_key = #{configKey}</if>
+            <if test="configValue != null  and configValue != ''">and config_value = #{configValue}</if>
+            <if test="configType != null  and configType != ''">and config_type = #{configType}</if>
+            <if test="configIsIn != null  and configIsIn != ''">and config_is_in = #{configIsIn}</if>
+            <if test="createBy != null  and createBy != ''">and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and create_time between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="updateBy != null  and updateBy != ''">and update_by like concat('%', #{updateBy}, '%')</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
         </where>
         order by order_num asc
     </select>
-    
+
     <select id="selectConfigInfoByConfigId" parameterType="Long" resultMap="ConfigInfoResult">
         <include refid="selectConfigInfoVo"/>
         where config_id = #{configId}
     </select>
+
 
     <insert id="insertConfigInfo" parameterType="ConfigInfo" useGeneratedKeys="true" keyProperty="configId">
         insert into c_config_info
@@ -49,26 +70,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="configKey != null and configKey != ''">config_key,</if>
             <if test="configValue != null and configValue != ''">config_value,</if>
             <if test="configType != null and configType != ''">config_type,</if>
+            <if test="configIsIn != null and configIsIn != ''">config_is_in,</if>
             <if test="orderNum != null">order_num,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
-         </trim>
+        </trim>
+
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="configName != null and configName != ''">#{configName},</if>
             <if test="configKey != null and configKey != ''">#{configKey},</if>
             <if test="configValue != null and configValue != ''">#{configValue},</if>
             <if test="configType != null and configType != ''">#{configType},</if>
-            <if test="orderNum != null">#{orderNum},</if>
+            <if test="configIsIn != null and configIsIn != ''">#{configIsIn},</if>
+         <if test="orderNum != null">#{orderNum},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
-         </trim>
+        </trim>
     </insert>
+
 
     <update id="updateConfigInfo" parameterType="ConfigInfo">
         update c_config_info
@@ -77,6 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="configKey != null and configKey != ''">config_key = #{configKey},</if>
             <if test="configValue != null and configValue != ''">config_value = #{configValue},</if>
             <if test="configType != null and configType != ''">config_type = #{configType},</if>
+            <if test="configIsIn != null and configIsIn != ''">config_is_in = #{configIsIn},</if>
             <if test="orderNum != null">order_num = #{orderNum},</if>
             <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
@@ -88,11 +114,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteConfigInfoByConfigId" parameterType="Long">
-        delete from c_config_info where config_id = #{configId}
+        delete
+        from c_config_info
+        where config_id = #{configId}
     </delete>
 
     <delete id="deleteConfigInfoByConfigIds" parameterType="String">
-        delete from c_config_info where config_id in 
+        delete from c_config_info where config_id in
         <foreach item="configId" collection="array" open="(" separator="," close=")">
             #{configId}
         </foreach>

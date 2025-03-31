@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import com.lz.common.constant.redis.ConfigRedisConstants;
+import com.lz.common.constant.config.ConfigKeyConstants;
 import com.lz.config.service.IConfigInfoService;
 import jakarta.annotation.Resource;
 
@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.code.kaptcha.Producer;
 import com.lz.common.config.RuoYiConfig;
@@ -62,7 +61,7 @@ public class CaptchaController {
      */
     @GetMapping("/user/captchaImage")
     public AjaxResult getUserInfoCaptchaCode(HttpServletResponse response) throws IOException {
-        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         return getCode(captchaEnabled);
     }

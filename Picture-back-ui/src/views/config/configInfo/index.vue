@@ -17,6 +17,17 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="是否内置" prop="configIsIn">
+        <el-select v-model="queryParams.configIsIn" style="width: 200px" placeholder="请选择是否内置" clearable>
+          <el-option
+              v-for="dict in c_config_is_in"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="配置类型" prop="configType">
         <el-select v-model="queryParams.configType" style="width: 200px" placeholder="请选择配置类型" clearable>
           <el-option
@@ -143,25 +154,30 @@
           <dict-tag :options="c_config_type" :value="scope.row.configType"/>
         </template>
       </el-table-column>
-      <el-table-column label="配置排序" align="center" prop="orderNum" v-if="columns[5].visible"
+      <el-table-column label="是否内置" align="center" prop="configIsIn" v-if="columns[5].visible">
+        <template #default="scope">
+          <dict-tag :options="c_config_is_in" :value="scope.row.configIsIn"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="配置排序" align="center" prop="orderNum" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[6].visible"
+      <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[7].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[8].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[8].visible"
+      <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[10].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -202,13 +218,23 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="是否内置" prop="configIsIn">
+          <el-radio-group v-model="form.configIsIn">
+            <el-radio
+                v-for="dict in c_config_is_in"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="配置键值" prop="configValue">
           <file-upload v-if="form.configType===CONFIG_TYPE.FILE" :limit="1"
                        :file-type="['doc','pdf','docx','xls','png','jsp','webp','jpeg']" v-model="form.configValue"/>
           <el-input v-else v-model="form.configValue" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="配置排序" prop="orderNum">
-          <el-input-number :min="0"  style="width: 50%;" v-model="form.orderNum" placeholder="请输入配置排序"/>
+          <el-input-number :min="0" style="width: 50%;" v-model="form.orderNum" placeholder="请输入配置排序"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -225,11 +251,11 @@
 </template>
 
 <script setup name="ConfigInfo">
-import {listConfigInfo, getConfigInfo, delConfigInfo, addConfigInfo, updateConfigInfo} from "@/api/config/configInfo";
+import {addConfigInfo, delConfigInfo, getConfigInfo, listConfigInfo, updateConfigInfo} from "@/api/config/configInfo";
 import {CONFIG_TYPE} from "@/constants/configConstants.js";
 
 const {proxy} = getCurrentInstance();
-const {c_config_type} = proxy.useDict('c_config_type');
+const {c_config_type, c_config_is_in} = proxy.useDict('c_config_type', 'c_config_is_in');
 
 const baseUrl = ref(import.meta.env.VITE_APP_BASE_API)
 const configInfoList = ref([]);
@@ -288,12 +314,13 @@ const data = reactive({
     {key: 2, label: '配置键名', visible: true},
     {key: 3, label: '配置键值', visible: true},
     {key: 4, label: '配置类型', visible: true},
-    {key: 5, label: '配置排序', visible: false},
-    {key: 6, label: '创建人', visible: true},
-    {key: 7, label: '创建时间', visible: false},
-    {key: 8, label: '更新人', visible: false},
-    {key: 9, label: '更新时间', visible: false},
-    {key: 10, label: '备注', visible: false},
+    {key: 5, label: '是否内置', visible: true},
+    {key: 6, label: '配置排序', visible: false},
+    {key: 7, label: '创建人', visible: true},
+    {key: 8, label: '创建时间', visible: false},
+    {key: 9, label: '更新人', visible: false},
+    {key: 10, label: '更新时间', visible: false},
+    {key: 11, label: '备注', visible: false},
   ],
 });
 
@@ -332,6 +359,7 @@ function reset() {
     configKey: null,
     configValue: null,
     configType: null,
+    configIsIn: null,
     orderNum: null,
     createBy: null,
     createTime: null,

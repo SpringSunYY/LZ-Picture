@@ -26,6 +26,8 @@
 
 根据order_num升序
 
+配置信息添加是否内置，如果内置则用户端不可以通过接口获取到数据
+
 ### 国际化
 
 #### 国际化国家
@@ -64,6 +66,8 @@
 >
 > 忘记密码
 
+### 图片模块
+
 ## 数据库设计
 
 ### 配置模块
@@ -79,6 +83,7 @@
 | config_key   | varchar  | 128  |        | 否   | 唯一     | 配置键名；              |
 | config_value | varchar  | 1024 |        | 否   |          | 配置键值                |
 | config_type  | varchar  | 1    |        | 否   | 默认1    | 配置类型（1值 2文件）； |
+| config_is_in | char     | 1    |        | 否   |          | 是否内置                |
 | order_num    | int      |      |        | 否   | 默认10   | 配置排序；              |
 | create_by    | varchar  | 64   |        | 否   |          | 创建人                  |
 | create_time  | datetime |      |        | 否   | 当前时间 | 创建时间                |
@@ -88,6 +93,8 @@
 
 配置类型：1：值，2：文件
 
+是否内置：0是 1否  用于判断是否是系统的内置信息，如果用户端是不可以通过接口获取
+
 ```sql
 CREATE TABLE c_config_info (
     config_id BIGINT(128) NOT NULL AUTO_INCREMENT COMMENT '编号',
@@ -95,6 +102,7 @@ CREATE TABLE c_config_info (
     config_key VARCHAR(128) NOT NULL COMMENT '配置键名',
     config_value VARCHAR(1024) NOT NULL COMMENT '配置键值',
     config_type VARCHAR(1) NOT NULL DEFAULT '1' COMMENT '配置类型（1值 2文件）',
+    config_is_in CHAR(1) NOT NULL DEFAULT '0' COMMENT '是否内置（0是 1否）'
     order_num INT NOT NULL DEFAULT 10 COMMENT '配置排序',
     create_by VARCHAR(64) NOT NULL COMMENT '创建人',
     create_time DATETIME NOT NULL COMMENT '创建时间',

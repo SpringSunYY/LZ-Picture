@@ -21,7 +21,7 @@ import com.lz.config.service.IMenuInfoService;
 import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
 import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 
-import static com.lz.common.constant.redis.ConfigRedisConstants.CONFIG_MENU_PERMISSION;
+import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_MENU_PERMISSION;
 import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_1;
 
 /**

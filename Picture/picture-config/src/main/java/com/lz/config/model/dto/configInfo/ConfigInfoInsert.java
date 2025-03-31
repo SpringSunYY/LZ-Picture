@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.config.model.domain.ConfigInfo;
+
 /**
  * 配置信息Vo对象 c_config_info
  *
@@ -13,33 +14,52 @@ import com.lz.config.model.domain.ConfigInfo;
  * @date 2025-02-28
  */
 @Data
-public class ConfigInfoInsert implements Serializable
-{
+public class ConfigInfoInsert implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 编号 */
+    /**
+     * 编号
+     */
     private Long configId;
 
-    /** 配置名称 */
+    /**
+     * 配置名称
+     */
     @NotBlank(message = "配置名称不能为空")
     private String configName;
 
-    /** 配置键名 */
+    /**
+     * 配置键名
+     */
     @NotBlank(message = "配置键名不能为空")
     private String configKey;
 
-    /** 配置键值 */
+    /**
+     * 配置键值
+     */
     @NotBlank(message = "配置键值不能为空")
     private String configValue;
 
-    /** 配置类型（1值 2文件） */
+    /**
+     * 配置类型（1值 2文件）
+     */
     @NotBlank(message = "配置类型不能为空")
     private String configType;
 
-    /** 配置排序 */
+    /**
+     * 是否内置
+     */
+    @NotBlank(message = "是否内置不能为空")
+    private String configIsIn;
+
+    /**
+     * 配置排序
+     */
     private Long orderNum;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
     /**

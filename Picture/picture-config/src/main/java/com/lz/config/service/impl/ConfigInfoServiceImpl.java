@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.redis.ConfigRedisConstants.CONFIG_CONFIG_INFO_KEY;
+import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_CONFIG_INFO_KEY;
 
 /**
  * 配置信息Service业务层处理
@@ -88,7 +88,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             throw new SQLDuplicateKeyException(e.getMessage(),e.getCause());
         }
         //存入缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigKey(), configInfo.getConfigValue());
         return i;
     }
 
@@ -110,7 +110,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             throw new SQLDuplicateKeyException(e.getMessage(),e.getCause());
         }
         //存入缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigName(), configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigKey(), configInfo.getConfigValue());
         return i;
     }
 

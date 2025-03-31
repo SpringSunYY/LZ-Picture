@@ -56,6 +56,13 @@ public class ConfigInfo implements Serializable {
     private String configType;
 
     /**
+     * 是否内置
+     */
+    @Excel(name = "是否内置", readConverterExp = "0=是,1=否")
+    private String configIsIn;
+
+
+    /**
      * 配置排序
      */
     @Excel(name = "配置排序")

@@ -2,7 +2,7 @@ package com.lz.web.controller.user;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.lz.common.constant.Constants;
-import com.lz.common.constant.redis.ConfigRedisConstants;
+import com.lz.common.constant.config.ConfigKeyConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.exception.ServiceException;
@@ -79,7 +79,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
      */
     @GetMapping("/getSmsLoginCode")
     public AjaxResult getSmsLoginCode(SmsLoginBody smsLoginBody) {
-        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         smsLoginBody.setCaptchaEnabled(captchaEnabled);
         String smsLoginCode = loginService.getSmsCode(smsLoginBody.getPhone(), smsLoginBody.getCountryCode(), smsLoginBody.getCode(), smsLoginBody.isCaptchaEnabled(), smsLoginBody.getUuid());
@@ -108,7 +108,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
      */
     @GetMapping("/getRegisterCode")
     public AjaxResult getRegisterCode(RegisterLoginBody registerLoginBody) {
-        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         String registerCode = loginService.getRegisterCode(registerLoginBody.getPhone(), registerLoginBody.getCountryCode(), registerLoginBody.getCode(), captchaEnabled, registerLoginBody.getUuid());
         System.err.println(registerCode);
@@ -144,7 +144,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
 
     @GetMapping("/getForgetPasswordCode")
     public AjaxResult getForgetPasswordCode(@Validated ForgetPasswordCode forgetPasswordCode) {
-        String configInfoCache = configInfoService.getConfigInfoCache(ConfigRedisConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        String configInfoCache = configInfoService.getConfigInfoCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         String registerCode = loginService.getForgetPasswordCode(forgetPasswordCode.getPhone(), forgetPasswordCode.getCountryCode(), forgetPasswordCode.getCode(), captchaEnabled, forgetPasswordCode.getUuid());
         System.err.println(registerCode);

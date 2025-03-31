@@ -1,31 +1,27 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
-import com.lz.common.utils.StringUtils;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
-import com.lz.common.utils.uuid.IdUtils;
-import com.lz.picture.model.enums.PSpaceOssType;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lz.common.utils.StringUtils;
+import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
-import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
+import com.lz.picture.model.enums.PSpaceOssType;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
+import com.lz.picture.service.ISpaceInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_MAX_COUNT;
+import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_MAX_SIZE;
 
 /**
  * 空间信息Service业务层处理
@@ -37,6 +33,9 @@ import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo> implements ISpaceInfoService {
     @Resource
     private SpaceInfoMapper spaceInfoMapper;
+
+    @Resource
+    private IConfigInfoService configInfoService;
 
     //region mybatis代码
 
@@ -175,8 +174,24 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         }
         spaceInfo.setCreateTime(DateUtils.getNowDate());
         spaceInfo.setUpdateTime(DateUtils.getNowDate());
-        //TODO 默认内容需要从配置里面拿
 
+        String maxCount = configInfoService.getConfigInfoCache(PICTURE_SPACE_MAX_COUNT);
+        try {
+            spaceInfo.setMaxCount(Long.parseLong(maxCount));
+        } catch (NumberFormatException e) {
+            log.error("获取最大空间文件数量配置信息出错", e);
+            //如果转换异常则默认100
+            spaceInfo.setMaxCount(100L);
+        }
+        String maxSize = null;
+        try {
+            maxSize = configInfoService.getConfigInfoCache(PICTURE_SPACE_MAX_SIZE);
+        } catch (Exception e) {
+            log.error("获取最大空间文件数量配置信息出错", e);
+            //如果转换异常则默认300M
+            spaceInfo.setMaxSize(314572800L);
+        }
+        spaceInfo.setMaxSize(Long.parseLong(maxSize));
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         spaceInfo.setOssType(PSpaceOssType.SPACE_OSS_TYPE_0.getValue());
         return this.save(spaceInfo) ? 1 : 0;

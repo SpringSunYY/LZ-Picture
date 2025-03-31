@@ -32,6 +32,11 @@ public class ConfigInfoQuery implements Serializable
     /** 配置类型（1值 2文件） */
     private String configType;
 
+    /**
+     * 是否内置
+     */
+    private String configIsIn;
+
     /** 创建人 */
     private String createBy;
 

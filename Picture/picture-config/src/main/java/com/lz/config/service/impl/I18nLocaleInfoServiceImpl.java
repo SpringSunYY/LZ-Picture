@@ -26,7 +26,7 @@ import com.lz.config.service.II18nLocaleInfoService;
 import com.lz.config.model.dto.i18nLocaleInfo.I18nLocaleInfoQuery;
 import com.lz.config.model.vo.i18nLocaleInfo.I18nLocaleInfoVo;
 
-import static com.lz.common.constant.redis.ConfigRedisConstants.CONFIG_LOCALIZATION;
+import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_LOCALIZATION;
 
 /**
  * 国际化国家Service业务层处理

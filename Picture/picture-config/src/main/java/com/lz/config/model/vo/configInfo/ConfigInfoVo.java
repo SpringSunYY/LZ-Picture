@@ -38,6 +38,12 @@ public class ConfigInfoVo implements Serializable
     @Excel(name = "配置类型", readConverterExp = "1=值,2=文件")
     private String configType;
 
+    /**
+     * 是否内置
+     */
+    @Excel(name = "是否内置", readConverterExp = "0=是,1=否")
+    private String configIsIn;
+
     /** 配置排序 */
     @Excel(name = "配置排序")
     private Long orderNum;

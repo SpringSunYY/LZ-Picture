@@ -3,6 +3,7 @@ package com.lz.config.model.dto.configInfo;
 import java.io.Serial;
 import java.io.Serializable;
 
+import com.lz.common.annotation.Excel;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -48,6 +49,11 @@ public class ConfigInfoEdit implements Serializable {
      */
     @NotBlank(message = "配置类型不能为空")
     private String configType;
+
+    /**
+     * 是否内置
+     */
+    private String configIsIn;
 
     /**
      * 配置排序
