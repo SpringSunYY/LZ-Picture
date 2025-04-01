@@ -56,3 +56,25 @@ export type MenuResponseInfo = {
   msg?: string
   code: number
 }
+
+export enum CMenuType {
+  MENU_TYPE_M = "M",
+  MENU_TYPE_C = "C",
+  MENU_TYPE_B = "B",
+  MENU_TYPE_F = "F",
+  MENU_TYPE_T = "T"
+}
+
+export const CMenuTypeLabel: { [key in CMenuType]: string } = {
+  [CMenuType.MENU_TYPE_M]: "目录",
+  [CMenuType.MENU_TYPE_C]: "菜单",
+  [CMenuType.MENU_TYPE_B]: "按钮",
+  [CMenuType.MENU_TYPE_F]: "功能",
+  [CMenuType.MENU_TYPE_T]: "Tabs"
+};
+
+// 获取对应的枚举值和标签
+export function getMenuTypeLabel(value: CMenuType): string | undefined {
+  return CMenuTypeLabel[value];
+}
+

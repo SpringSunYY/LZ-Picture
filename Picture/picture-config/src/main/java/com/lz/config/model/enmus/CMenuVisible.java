@@ -11,8 +11,8 @@ import java.util.Optional;
  */
 @Getter
 public enum CMenuVisible {
-    MENU_VISIBLE_1("1", "显示"),
-    MENU_VISIBLE_2("2", "不显示");
+    MENU_VISIBLE_0("0", "显示"),
+    MENU_VISIBLE_1("1", "不显示");
 
     private static final Map<String, CMenuVisible> VALUE_TO_ENUM = new HashMap<>();
 

@@ -84,6 +84,11 @@ public class MenuInfoUserVo implements Serializable {
     private String icon;
 
     /**
+     * 菜单类型
+     */
+    private String menuType;
+
+    /**
      * 对象转封装类
      *
      * @param menuInfo MenuInfo实体对象

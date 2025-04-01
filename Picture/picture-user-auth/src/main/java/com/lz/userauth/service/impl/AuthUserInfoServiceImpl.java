@@ -55,7 +55,8 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
     public Set<String> getUserPermission(AuthUserInfo user) {
         //获取所有的权限，用户默认拥有所有权限 查询显示的
         MenuInfo menuInfo = new MenuInfo();
-        menuInfo.setVisible(CMenuVisible.MENU_VISIBLE_1.getValue());
+        menuInfo.setVisible(CMenuVisible.MENU_VISIBLE_0.getValue());
+        menuInfo.setStatus(CMenuVisible.MENU_VISIBLE_0.getValue());
         List<MenuInfo> menuInfos = menuInfoService.selectMenuInfoList(menuInfo);
         //获取用户被封禁的权限
         AuthBannedPermissionInfo authBannedPermissionInfo = new AuthBannedPermissionInfo();

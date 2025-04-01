@@ -6,29 +6,22 @@ export const constantRoutes: RouteRecordRaw[] = [
     path: '/',
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
+    meta: {
+      title: '首a页',
+      cacheKey: 'home',
+      isHidden: false,
+      icon:'space'
+    },
   },
   {
-    path: '/picture',
-    redirect: '/picture/space',
+    path: '/pictureMy',
+    meta:{
+      title:'我da的',
+      cacheKey:'user',
+      isHidden:false
+
+    },
     children: [
-      {
-        path: 'space',
-        name: 'PictureSpace',
-        component: () => import('@/views/picture/space/index.vue'),
-        meta: {
-          title: '图片空间',
-          cacheKey: 'space',
-        },
-      },
-      {
-        path: 'upload',
-        name: 'PictureUpload',
-        component: () => import('@/views/picture/upload/index.vue'),
-        meta: {
-          title: '图片上传',
-          requiresAuth: true,
-        },
-      },
       {
         path: '/about',
         name: 'about',
@@ -42,6 +35,9 @@ export const constantRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/user',
+    meta: {
+      isHidden: true,
+    },
     children: [
       {
         path: 'login',
@@ -51,6 +47,7 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: '用户登录',
           fullPage: true,
           noAuth: true,
+          isHidden: true,
         },
       },
       {
@@ -61,6 +58,7 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: '用户注册',
           fullPage: true,
           noAuth: true,
+          isHidden: true,
         },
       },
       {
@@ -71,6 +69,7 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: '短信登录',
           fullPage: true,
           noAuth: true,
+          isHidden: true,
         },
       },
       {
@@ -81,6 +80,7 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: '密码重置',
           fullPage: true,
           noAuth: true,
+          isHidden: true,
         },
       },
     ],
@@ -91,16 +91,9 @@ export const constantRoutes: RouteRecordRaw[] = [
     name: '404',
     component: () => import('@/views/404.vue'),
     meta: {
-      hidden: true,
+      isHidden: true,
     },
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/404',
-    meta: {
-      hidden: true,
-    },
-  },
+  }
 ]
 
 // 创建路由实例

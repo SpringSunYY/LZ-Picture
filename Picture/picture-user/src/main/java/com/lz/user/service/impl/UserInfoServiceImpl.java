@@ -183,7 +183,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                         .eq(MenuInfo::getMenuType, CMenuType.MENU_TYPE_M.getValue())
                         .or()
                         .eq(MenuInfo::getMenuType, CMenuType.MENU_TYPE_C.getValue())
-                ).eq(MenuInfo::getVisible, CMenuVisible.MENU_VISIBLE_1.getValue())
+                ).eq(MenuInfo::getVisible, CMenuVisible.MENU_VISIBLE_0.getValue())
                 .eq(MenuInfo::getStatus, CMenuStatus.MENU_STATUS_0.getValue()));
         //如果用户没有此权限则不显示此菜单
         if (StringUtils.isNotEmpty(permissions)) {
