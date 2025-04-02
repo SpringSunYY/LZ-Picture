@@ -5,6 +5,7 @@ import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
 import type { USER } from '@/types/user'
 import router from '@/router'
+import usePermissionStore from '@/stores/modules/permission.ts'
 
 const useUserStore = defineStore('user', {
   state: (): {
@@ -101,6 +102,7 @@ const useUserStore = defineStore('user', {
         this.avatar = ''
         //TODO 退出登录后续操作
         removeToken()
+        usePermissionStore().removeRoutes()
       } catch (error) {
         return Promise.reject(error)
       }

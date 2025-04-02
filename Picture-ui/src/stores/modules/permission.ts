@@ -14,7 +14,7 @@ interface PermissionState {
 
 const usePermissionStore = defineStore('permission', {
   state: (): PermissionState => ({
-    routes: router.getRoutes(),
+    routes: constantRoutes,
     addRoutes: [],
   }),
   actions: {
@@ -28,6 +28,9 @@ const usePermissionStore = defineStore('permission', {
     },
     getRoutes() {
       return this.routes
+    },
+    removeRoutes() {
+      this.routes = constantRoutes
     },
     async generateRoutes(): Promise<RouteRecordRaw[]> {
       const res = await getMenuInfo()
