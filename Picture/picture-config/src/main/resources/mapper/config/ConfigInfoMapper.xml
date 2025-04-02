@@ -62,7 +62,6 @@
         where config_id = #{configId}
     </select>
 
-
     <insert id="insertConfigInfo" parameterType="ConfigInfo" useGeneratedKeys="true" keyProperty="configId">
         insert into c_config_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

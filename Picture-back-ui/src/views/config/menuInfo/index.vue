@@ -34,7 +34,7 @@
         />
       </el-form-item>
       <el-form-item label="显示位置" prop="menuAddress">
-        <el-select v-model="queryParams.menuAddress" style="width: 200px"  placeholder="请选择显示位置" clearable>
+        <el-select v-model="queryParams.menuAddress" style="width: 200px" placeholder="请选择显示位置" clearable>
           <el-option
               v-for="dict in c_menu_address"
               :key="dict.value"
@@ -44,7 +44,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="是否外链" prop="isFrame">
-        <el-select v-model="queryParams.isFrame" style="width: 200px"  placeholder="请选择是否外链" clearable>
+        <el-select v-model="queryParams.isFrame" style="width: 200px" placeholder="请选择是否外链" clearable>
           <el-option
               v-for="dict in c_menu_is_frame"
               :key="dict.value"
@@ -54,7 +54,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="是否缓存" prop="isCache">
-        <el-select v-model="queryParams.isCache" style="width: 200px"  placeholder="请选择是否缓存" clearable>
+        <el-select v-model="queryParams.isCache" style="width: 200px" placeholder="请选择是否缓存" clearable>
           <el-option
               v-for="dict in c_menu_is_chache"
               :key="dict.value"
@@ -263,105 +263,139 @@
     </el-table>
 
     <!-- 添加或修改菜单信息对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="650px" append-to-body>
       <el-form ref="menuInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="菜单名称" prop="menuName">
-          <el-input v-model="form.menuName" placeholder="请输入菜单名称"/>
-        </el-form-item>
-        <el-form-item label="父菜单" prop="parentId">
-          <el-tree-select
-              v-model="form.parentId"
-              :data="menuInfoOptions"
-              :props="{ value: 'menuId', label: 'menuName', children: 'children' }"
-              value-key="menuId"
-              placeholder="请选择父菜单"
-              check-strictly
-          />
-        </el-form-item>
-        <el-form-item label="显示顺序" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入显示顺序"/>
-        </el-form-item>
-        <el-form-item label="路由地址" prop="path">
-          <el-input v-model="form.path" placeholder="请输入路由地址"/>
-        </el-form-item>
-        <el-form-item label="组件路径" prop="component">
-          <el-input v-model="form.component" placeholder="请输入组件路径"/>
-        </el-form-item>
-        <el-form-item label="路由参数" prop="query">
-          <el-input v-model="form.query" placeholder="请输入路由参数"/>
-        </el-form-item>
-        <el-form-item label="路由名称" prop="routeName">
-          <el-input v-model="form.routeName" placeholder="请输入路由名称"/>
-        </el-form-item>
-        <el-form-item label="显示位置" prop="menuAddress">
-          <el-select v-model="form.menuAddress" placeholder="请选择显示位置">
-            <el-option
-                v-for="dict in c_menu_address"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="是否外链" prop="isFrame">
-          <el-radio-group v-model="form.isFrame">
-            <el-radio
-                v-for="dict in c_menu_is_frame"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="是否缓存" prop="isCache">
-          <el-radio-group v-model="form.isCache">
-            <el-radio
-                v-for="dict in c_menu_is_chache"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="菜单类型" prop="menuType">
-          <el-select v-model="form.menuType" placeholder="请选择菜单类型">
-            <el-option
-                v-for="dict in c_menu_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="是否显示" prop="visible">
-          <el-radio-group v-model="form.visible">
-            <el-radio
-                v-for="dict in c_menu_visible"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="菜单状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio
-                v-for="dict in sys_show_hide"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="权限标识" prop="perms">
-          <el-input v-model="form.perms" placeholder="请输入权限标识"/>
-        </el-form-item>
-        <el-form-item label="菜单图标" prop="icon">
-          <el-input v-model="form.icon" placeholder="请输入菜单图标"/>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="父菜单" prop="parentId">
+              <el-tree-select
+                  v-model="form.parentId"
+                  :data="menuInfoOptions"
+                  :props="{ value: 'menuId', label: 'menuName', children: 'children' }"
+                  value-key="menuId"
+                  placeholder="请选择父菜单"
+                  check-strictly
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="菜单类型" prop="menuType">
+              <el-radio-group v-model="form.menuType">
+                <el-radio
+                    v-for="dict in c_menu_type"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单名称" prop="menuName">
+              <el-input v-model="form.menuName" placeholder="请输入菜单名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示顺序" prop="orderNum">
+              <el-input-number :min="0" style="width: 100%" v-model="form.orderNum" placeholder="请输入显示顺序"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
+            <el-form-item label="路由地址" prop="path">
+              <el-input v-model="form.path" placeholder="请输入路由地址"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType==='C'">
+            <el-form-item label="组件路径" prop="component">
+              <el-input v-model="form.component" placeholder="请输入组件路径"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType==='C'">
+            <el-form-item label="路由参数" prop="query">
+              <el-input v-model="form.query" placeholder="请输入路由参数"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
+            <el-form-item label="路由名称" prop="routeName">
+              <el-input v-model="form.routeName" placeholder="请输入路由名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示位置" prop="menuAddress">
+              <el-select v-model="form.menuAddress" placeholder="请选择显示位置">
+                <el-option
+                    v-for="dict in c_menu_address"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType==='C'">
+            <el-form-item label="是否外链" prop="isFrame">
+              <el-radio-group v-model="form.isFrame">
+                <el-radio
+                    v-for="dict in c_menu_is_frame"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType==='C'">
+            <el-form-item label="是否缓存" prop="isCache">
+              <el-radio-group v-model="form.isCache">
+                <el-radio
+                    v-for="dict in c_menu_is_chache"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
+            <el-form-item label="是否显示" prop="visible">
+              <el-radio-group v-model="form.visible">
+                <el-radio
+                    v-for="dict in c_menu_visible"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio
+                    v-for="dict in sys_show_hide"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="权限标识" prop="perms">
+              <el-input v-model="form.perms" placeholder="请输入权限标识"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
+            <el-form-item label="菜单图标" prop="icon">
+              <el-input v-model="form.icon" placeholder="请输入菜单图标"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -456,7 +490,7 @@ const data = reactive({
     {key: 11, label: '菜单类型', visible: true},
     {key: 12, label: '是否显示', visible: true},
     {key: 13, label: '菜单状态', visible: true},
-    {key: 14, label: '权限标识', visible: false},
+    {key: 14, label: '权限标识', visible: true},
     {key: 15, label: '菜单图标', visible: false},
     {key: 16, label: '创建人', visible: false},
     {key: 17, label: '创建时间', visible: false},
@@ -516,7 +550,7 @@ function reset() {
     menuAddress: null,
     isFrame: null,
     isCache: null,
-    menuType: null,
+    menuType: 'M',
     visible: null,
     status: null,
     perms: null,
