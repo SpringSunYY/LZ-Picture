@@ -95,15 +95,16 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PictureUpload from '@/components/PictureUpload/index.vue'
-import type { SpaceAdd } from '@/types/picture/space'
-import { addSpace } from '@/api/picture/space.ts'
+import type { Space, SpaceAdd, SpaceQuery } from '@/types/picture/space'
+import { addSpace, mySpace } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)
 const formRef = ref()
-
+const spaceList = ref<Space[]>([])
+const spaceQuery = reactive<SpaceQuery>({})
 // 表单数据结构
 const formState = reactive<SpaceAdd>({
   spaceName: '',
@@ -188,6 +189,17 @@ const handleSubmit = () => {
     }
   })
 }
+const getMySpaceList = () => {
+  // 获取我的空间列表
+  mySpace(spaceQuery).then((res) => {
+    if (res.code === 200) {
+      spaceList.value = res?.rows || []
+    } else {
+      message.error('获取空间列表失败')
+    }
+  })
+}
+getMySpaceList()
 </script>
 
 <style lang="scss" scoped>

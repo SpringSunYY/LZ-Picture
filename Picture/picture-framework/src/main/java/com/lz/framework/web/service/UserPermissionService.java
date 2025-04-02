@@ -39,7 +39,9 @@ public class UserPermissionService {
             return false;
         }
         PermissionContextHolder.setContext(permission);
-        return hasPermissions(loginUserInfo.getPermissions(), permission);
+        Set<String> permissions = loginUserInfo.getPermissions();
+        System.out.println("permissions = " + permissions);
+        return hasPermissions(permissions, permission);
     }
 
     /**

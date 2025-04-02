@@ -51,12 +51,6 @@ export type MenuInfo = {
   children?: MenuInfo[]
 }
 
-export type MenuResponseInfo = {
-  data?: Array<RouteRecordRaw>
-  msg?: string
-  code: number
-}
-
 export enum CMenuType {
   MENU_TYPE_M = "M",
   MENU_TYPE_C = "C",

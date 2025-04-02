@@ -356,7 +356,7 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
+          <el-col :span="12">
             <el-form-item label="是否显示" prop="visible">
               <el-radio-group v-model="form.visible">
                 <el-radio

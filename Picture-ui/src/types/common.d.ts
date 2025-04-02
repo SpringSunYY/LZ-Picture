@@ -11,15 +11,9 @@ export type UserInfo = {
 }
 /* eslint-disable */
 declare namespace API {
-  interface ResponseInfo {
-    rows?: Array<any>
-    data?: object
-    msg?: string
-  }
-
-  interface AddResponseInfo {
-    rows?: Array<any>
-    data?: object
+  interface ResponseInfo<T =any> {
+    rows?: Array<T>
+    data?: T
     msg?: string
     code: number
   }

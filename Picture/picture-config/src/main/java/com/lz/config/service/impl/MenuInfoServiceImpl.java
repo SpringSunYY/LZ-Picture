@@ -22,6 +22,7 @@ import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
 import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 
 import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_MENU_PERMISSION;
+import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_0;
 import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_1;
 
 /**
@@ -218,7 +219,7 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
             }
             redisCache.setCacheObject(CONFIG_MENU_PERMISSION + permission, menu);
         }
-        if (menu.getStatus().equals(MENU_VISIBLE_1.getValue())) {
+        if (menu.getStatus().equals(MENU_VISIBLE_0.getValue())) {
             return true;
         }
         return false;
