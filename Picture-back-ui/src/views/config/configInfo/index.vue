@@ -428,6 +428,7 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
+  console.log(form.value);
   proxy.$refs["configInfoRef"].validate(valid => {
     if (valid) {
       if (form.value.configId != null) {

@@ -5,6 +5,8 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.utils.StringUtils;
+import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoAdd;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoInsert;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+
 /**
  * Project: Picture
  * Package: com.lz.picture.controller.user
@@ -33,6 +37,9 @@ import java.util.stream.Collectors;
 public class UserSpaceInfoController extends BaseUserInfoController {
     @Resource
     private ISpaceInfoService spaceInfoService;
+
+    @Resource
+    private IConfigInfoService configInfoService;
 
     @PreAuthorize("@uss.hasPermi('picture:space:add')")
     @PostMapping
@@ -53,6 +60,13 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         List<SpaceInfo> list = spaceInfoService.selectSpaceInfoList(spaceInfo);
         //转为Vo
         List<UserSpaceInfoVo> listVo = list.stream().map(UserSpaceInfoVo::objToVo).collect(Collectors.toList());
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        listVo.stream()
+                .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
+                .forEach(vo -> {
+                    vo.setSpaceAvatar(vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+                });
         TableDataInfo dataTable = getDataTable(list);
         dataTable.setTotal(list.size());
         dataTable.setRows(listVo);

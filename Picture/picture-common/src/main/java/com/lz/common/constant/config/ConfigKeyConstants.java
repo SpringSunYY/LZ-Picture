@@ -38,4 +38,9 @@ public class ConfigKeyConstants {
      * 空间最大容量
      */
     public static final String PICTURE_SPACE_MAX_SIZE = "picture:space:maxSize";
+
+    /**
+     * 封面图片压缩倍率百分比
+     */
+    public static final String PICTURE_SPACE_AVATAR_P = "picture:space:avatar:p";
 }

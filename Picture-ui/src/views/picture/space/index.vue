@@ -186,6 +186,7 @@ const handleSubmit = () => {
     if (res.code === 200) {
       message.success('创建成功')
       open.value = false
+      getMySpaceList()
     } else {
       message.error('创建失败')
     }
