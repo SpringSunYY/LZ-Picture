@@ -1,7 +1,7 @@
 // 登录方法
 import { http as request } from '@/utils'
 
-export function pictureUpload(file) {
+export function pictureUpload(file: any) {
   return request({
     url: '/picture/pictureInfo/upload',
     headers: {

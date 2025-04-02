@@ -94,13 +94,21 @@
 
 <script setup lang="ts" name="PictureSpace">
 import { PlusOutlined } from '@ant-design/icons-vue'
-import { reactive, ref } from 'vue'
+import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PictureUpload from '@/components/PictureUpload/index.vue'
 import type { Space, SpaceAdd, SpaceQuery } from '@/types/picture/space'
 import { addSpace, mySpace } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 
+const instance = getCurrentInstance()
+const proxy = instance?.proxy
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { common_delete, p_space_status, p_space_type } = proxy?.useDict(
+  'common_delete',
+  'p_space_status',
+  'p_space_type',
+)
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)
