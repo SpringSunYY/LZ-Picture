@@ -76,7 +76,7 @@ const showMenu = ref(false)
 
 const loginForm = ref({
   username: 'admin',
-  password: 'admin123',
+  password: '123456yy',
   rememberMe: false,
   code: '',
 })

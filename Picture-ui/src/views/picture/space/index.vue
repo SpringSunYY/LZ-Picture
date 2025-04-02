@@ -1,7 +1,7 @@
 <template>
   <div class="picture-space">
     <!-- 空状态 -->
-    <div v-if="spaces.length === 0" class="empty-state">
+    <div v-if="spaceList.length == 0" class="empty-state">
       <div class="add-card" style="width: 25%; margin: 0 auto" @click="handleCreate">
         <div class="add-content">
           <plus-outlined class="add-icon" />
@@ -21,6 +21,8 @@
               <span>{{ formatSize(space.totalSize) }}</span>
               <a-divider type="vertical" />
               <span>{{ space.totalCount }}个文件</span>
+              <a-divider type="vertical" />
+              <span>{{ space.spaceType }}</span>
             </div>
           </div>
         </div>
@@ -152,7 +154,7 @@ const formatSize = (bytes) => {
     size /= 1024
     unitIndex++
   }
-  return `${size.toFixed(1)}${units[unitIndex]}`
+  return `${size}${units[unitIndex]}`
 }
 
 // 路由跳转
