@@ -9,7 +9,7 @@ const whiteList = [
   '/user/login',
   '/user/register',
   '/user/smsLogin',
-  '/user/forgetPassword ',
+  '/user/forgetPassword',
   '/ 404',
 ]
 
@@ -43,7 +43,8 @@ router.beforeEach(async (to, from, next) => {
             router.addRoute(route)
           })
           router.replace(router.currentRoute.value.fullPath);
-          return next()
+          // 使用 next 回调函数确保跳转
+          next({ ...to, replace: true })
         })
       } else {
         // 如果用户信息已加载，直接进入目标页面

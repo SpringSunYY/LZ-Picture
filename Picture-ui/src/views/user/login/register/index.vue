@@ -120,9 +120,9 @@
 </template>
 
 <script setup name="UserRegister">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user.ts'
@@ -188,7 +188,15 @@ const rules = {
   ],
   code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
 }
-
+const route = useRoute()
+const redirect = ref(undefined)
+watch(
+  route,
+  (newRoute) => {
+    redirect.value = newRoute.query && newRoute.query.redirect
+  },
+  { immediate: true },
+)
 // 图形验证码
 const getCode = () => {
   if (!captchaEnabled.value) return
@@ -246,7 +254,14 @@ const handleSubmit = async () => {
     }
     await useUserStore().register(form)
     message.success('注册成功')
-    router.push('/')
+    const query = route.query
+    const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
+      if (cur !== 'redirect') {
+        acc[cur] = query[cur]
+      }
+      return acc
+    }, {})
+    router.push({ path: redirect.value || '/', query: otherQueryParams })
   } catch (error) {
     message.error('注册失败')
   } finally {

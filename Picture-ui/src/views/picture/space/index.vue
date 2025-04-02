@@ -12,15 +12,15 @@
 
     <!-- 空间网格列表 -->
     <a-row v-else :gutter="[24, 24]">
-      <a-col v-for="space in spaces" :key="space.space_id" :xs="24" :sm="12" :md="8" :lg="6">
-        <div class="space-card" @click="goDetail(space.space_id)">
+      <a-col v-for="space in spaceList" :key="space.spaceId" :xs="24" :sm="12" :md="8" :lg="6">
+        <div class="space-card" @click="goDetail(space.spaceId)">
           <div class="cover-image" :style="coverStyle(space)"></div>
           <div class="space-info">
-            <h3 class="title">{{ space.space_name }}</h3>
+            <h3 class="title">{{ space.spaceName }}</h3>
             <div class="meta">
-              <span>{{ formatSize(space.total_size) }}</span>
+              <span>{{ formatSize(space.totalSize) }}</span>
               <a-divider type="vertical" />
-              <span>{{ space.total_count }}个文件</span>
+              <span>{{ space.totalCount }}个文件</span>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@ const spaces = ref([...mockSpaces])
 console.log(spaces.value)
 // 封面样式处理
 const coverStyle = (space) => ({
-  backgroundImage: `url(${space.space_avatar || '/default-space-cover.jpg'})`,
+  backgroundImage: `url(${space.spaceAvatar || '/default-space-cover.jpg'})`,
 })
 
 // 容量格式化

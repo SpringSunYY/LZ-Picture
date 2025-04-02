@@ -98,7 +98,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
         AjaxResult ajax = AjaxResult.success();
         System.out.println("ajax = " + smsLoginBody);
         // 生成令牌
-        String token = loginService.smsLogin(smsLoginBody.getPhone(), smsLoginBody.getCountryCode(), smsLoginBody.getSmsCode());
+        String token = loginService.smsLogin(smsLoginBody.getCountryCode(), smsLoginBody.getPhone(), smsLoginBody.getSmsCode());
         ajax.put(Constants.TOKEN, token);
         return ajax;
     }
@@ -129,11 +129,13 @@ public class AuthUserInfoController extends BaseUserInfoController {
         }
         checkPassword(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword());
         //校验验证码
-        loginService.checkSmsCode(UserRedisConstants.USER_SMS_REGISTER_CODE, registerLoginBody.getPhone(), registerLoginBody.getCountryCode(), registerLoginBody.getSmsCode());
+        loginService.checkSmsCode(UserRedisConstants.USER_SMS_REGISTER_CODE, registerLoginBody.getCountryCode(), registerLoginBody.getPhone(), registerLoginBody.getSmsCode());
+        System.out.println("registerLoginBody.getCountryCode() = " + registerLoginBody.getCountryCode());
+        System.out.println("registerLoginBody = " + registerLoginBody.getPhone());
         //查询此用户是否存在
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(registerLoginBody.getPhone(), registerLoginBody.getCountryCode());
         if (StringUtils.isNotNull(authUserInfo)) {
-            AjaxResult.error("用户已存在");
+            throw new RuntimeException("该手机已经注册");
         }
         AuthUserInfo userInfo = authUserInfoService.register(registerLoginBody);
         // 生成令牌
@@ -156,13 +158,13 @@ public class AuthUserInfoController extends BaseUserInfoController {
         AjaxResult ajaxResult = new AjaxResult();
         checkPassword(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword());
         //校验验证码
-        loginService.checkSmsCode(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE, forgetPasswordBody.getPhone(), forgetPasswordBody.getCountryCode(), forgetPasswordBody.getSmsCode());
+        loginService.checkSmsCode(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE, forgetPasswordBody.getCountryCode(), forgetPasswordBody.getPhone(), forgetPasswordBody.getSmsCode());
         AuthUserInfo authUserInfo = authUserInfoService.forgetPassword(forgetPasswordBody);
         return AjaxResult.success("修改成功");
     }
 
     private void checkPassword(String password, String confirmPassword) {
-        if (StringUtils.isEmpty(password)|| StringUtils.isEmpty(confirmPassword)) {
+        if (StringUtils.isEmpty(password) || StringUtils.isEmpty(confirmPassword)) {
             throw new ServiceException("密码不能为空！！！");
         }
         //校验两次密码是否正确

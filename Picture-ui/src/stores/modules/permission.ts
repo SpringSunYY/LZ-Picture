@@ -3,7 +3,6 @@ import { getMenuInfo } from '@/api/userInfo/menu'
 import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
 import { handleTree } from '@/utils/lz.ts'
-import router from '../../router'
 
 const modules = import.meta.glob('@/views/**/*.vue')
 

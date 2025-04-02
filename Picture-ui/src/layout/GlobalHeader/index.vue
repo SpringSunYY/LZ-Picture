@@ -57,7 +57,7 @@ import usePermissionStore from '@/stores/modules/permission.ts'
 
 const userStore = useUserStore()
 const { name: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
-
+const router = useRouter()
 // 用户注销
 const doLogout = async () => {
   Modal.confirm({
@@ -67,6 +67,7 @@ const doLogout = async () => {
     cancelText: '取消',
     async onOk() {
       await userStore.logOut()
+      router.push('/')
       message.success('退出登录成功')
     },
     onCancel() {
@@ -75,7 +76,6 @@ const doLogout = async () => {
   })
 }
 
-const router = useRouter()
 
 // 当前选中菜单
 const current = ref<string[]>([])

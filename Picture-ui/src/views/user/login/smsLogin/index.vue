@@ -89,12 +89,13 @@
 </template>
 
 <script setup name="UserSmsLogin">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { PhoneOutlined } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/modules/user.ts'
 import { getCodeImg, getSmsLoginCode } from '@/api/userInfo/login.js'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import { useRoute, useRouter } from 'vue-router'
 
 // 新增状态
 const smsLoginForm = ref({
@@ -104,7 +105,8 @@ const smsLoginForm = ref({
   code: '',
   uuid: '',
 })
-
+const router = useRouter()
+const route = useRoute()
 // 原有状态保持不变
 const loading = ref(false)
 const countdown = ref(0)
@@ -138,6 +140,14 @@ const rules = {
   countryCode: [{ required: true, message: '请选择国家代码', trigger: 'change' }],
 }
 
+const redirect = ref(undefined)
+watch(
+  route,
+  (newRoute) => {
+    redirect.value = newRoute.query && newRoute.query.redirect
+  },
+  { immediate: true },
+)
 // 原有getCode方法完全保持不变
 const getCode = () => {
   if (!captchaEnabled.value) return
@@ -178,7 +188,7 @@ const sendSmsCode = () => {
       countdown.value = 60
     } else {
       getCode()
-      message.error(res.msg)
+      message.error('图形验证码错误')
     }
   })
   timer = setInterval(() => {
@@ -201,6 +211,14 @@ const handleSubmit = async () => {
     }
 
     await useUserStore().smsLogin(internationalNumber)
+    const query = route.query
+    const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
+      if (cur !== 'redirect') {
+        acc[cur] = query[cur]
+      }
+      return acc
+    }, {})
+    router.push({ path: redirect.value || '/', query: otherQueryParams })
     message.success('登录成功')
   } catch (error) {
   } finally {

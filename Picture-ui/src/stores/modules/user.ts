@@ -6,6 +6,7 @@ import { defineStore } from 'pinia'
 import type { USER } from '@/types/user'
 import router from '@/router'
 import usePermissionStore from '@/stores/modules/permission.ts'
+import { useRouter,useRoute } from 'vue-router'
 
 const useUserStore = defineStore('user', {
   state: (): {
@@ -29,7 +30,6 @@ const useUserStore = defineStore('user', {
         const res = await login(userInfo)
         setToken(res.token)
         this.token = res.token
-        router.push('/')
       } catch (error) {
         return Promise.reject(error)
       }
@@ -40,7 +40,6 @@ const useUserStore = defineStore('user', {
         const res = await smsLogin(userInfo)
         setToken(res.token)
         this.token = res.token
-        router.push('/')
       } catch (error) {
         return Promise.reject(error)
       }
@@ -52,7 +51,6 @@ const useUserStore = defineStore('user', {
         const res = await register(userInfo)
         setToken(res.token)
         this.token = res.token
-        router.push('/')
       } catch (error) {
         return Promise.reject(error)
       }

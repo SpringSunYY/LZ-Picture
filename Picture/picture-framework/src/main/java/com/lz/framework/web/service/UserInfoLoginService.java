@@ -195,13 +195,15 @@ public class UserInfoLoginService {
      * param: smsCode
      * return: java.lang.String
      **/
-    public String smsLogin(String phone, String countryCode, String smsCode) {
+    public String smsLogin(String countryCode, String phone, String smsCode) {
         //不能为空
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(smsCode)) {
             throw new ServiceException("号码、国家码、短信验证码不能为空");
         }
+        System.out.println("countryCode = " + countryCode);
+        System.out.println("phone = " + phone);
         //校验验证码
-        checkSmsCode(UserRedisConstants.USER_SMS_LOGIN_CODE, countryCode, phone, smsCode);
+        checkSmsCode(UserRedisConstants.USER_SMS_LOGIN_CODE,countryCode, phone, smsCode);
         //根据国家号码编号和号码获取用户
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(phone, countryCode);
         if (StringUtils.isNull(authUserInfo)) {
@@ -235,11 +237,12 @@ public class UserInfoLoginService {
         return registerCode;
     }
 
-    public void checkSmsCode(String key, String phone, String countryCode, String code) {
+    public void checkSmsCode(String key,  String countryCode,String phone, String code) {
         if (StringUtils.isEmpty(key) || StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(code)) {
             throw new ServiceException("参数异常");
         }
         String redisKey = key + countryCode + ":" + phone;
+        System.out.println("redisKey = " + redisKey);
         String registerCode = redisCache.getCacheObject(redisKey);
         if (StringUtils.isEmpty(registerCode)) {
             throw new ServiceException("短信验证码已过期");
