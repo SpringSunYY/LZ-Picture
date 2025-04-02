@@ -164,6 +164,16 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+            type="danger"
+            plain
+            icon="Refresh"
+            @click="handleRefreshCache"
+            v-hasPermi="['system:menuInfo:add']"
+        >刷新缓存
+        </el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
             type="info"
             plain
             icon="Sort"
@@ -408,7 +418,15 @@
 </template>
 
 <script setup name="MenuInfo">
-import {listMenuInfo, getMenuInfo, delMenuInfo, addMenuInfo, updateMenuInfo} from "@/api/config/menuInfo";
+import {
+  listMenuInfo,
+  getMenuInfo,
+  delMenuInfo,
+  addMenuInfo,
+  updateMenuInfo,
+  initMenuInfoCache
+} from "@/api/config/menuInfo";
+import {initConfigInfoCache} from "@/api/config/configInfo.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -643,6 +661,12 @@ function handleDelete(row) {
     proxy.$modal.msgSuccess("删除成功");
   }).catch(() => {
   });
+}
+
+function handleRefreshCache() {
+  initMenuInfoCache().then(res => {
+    proxy.$modal.msgSuccess("刷新缓存成功");
+  })
 }
 
 getList();

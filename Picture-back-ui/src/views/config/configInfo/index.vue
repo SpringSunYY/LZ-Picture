@@ -129,7 +129,7 @@
             plain
             icon="Refresh"
             @click="handleRefreshCache"
-            v-hasPermi="['system:config:remove']"
+            v-hasPermi="['system:config:add']"
         >刷新缓存
         </el-button>
       </el-col>

@@ -1,21 +1,33 @@
 package com.lz.config.service;
 
 import java.util.List;
+
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 菜单信息Service接口
  *
  * @author YY
  * @date 2025-03-30
  */
-public interface IMenuInfoService extends IService<MenuInfo>
-{
+public interface IMenuInfoService extends IService<MenuInfo> {
     //region mybatis代码
+
+    /**
+     * description: 重置缓存
+     * author: YY
+     * method: initMenuInfoCache
+     * date: 2025/4/2 10:29
+     * param:
+     * return: int
+     **/
+    int initMenuInfoCache();
+
     /**
      * 查询菜单信息
      *
@@ -64,6 +76,7 @@ public interface IMenuInfoService extends IService<MenuInfo>
      */
     public int deleteMenuInfoByMenuId(Long menuId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -82,6 +95,7 @@ public interface IMenuInfoService extends IService<MenuInfo>
 
     /**
      * 校验菜单
+     *
      * @param permission
      * @return
      */

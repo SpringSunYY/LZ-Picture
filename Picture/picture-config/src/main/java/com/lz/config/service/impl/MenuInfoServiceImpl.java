@@ -11,6 +11,7 @@ import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,7 +24,6 @@ import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 
 import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_MENU_PERMISSION;
 import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_0;
-import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_1;
 
 /**
  * 菜单信息Service业务层处理
@@ -38,6 +38,27 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
 
     @Resource
     private RedisCache redisCache;
+
+
+    /**
+     * 项目启动时，初始化菜单到缓存
+     */
+    @PostConstruct
+    public void init() {
+        initMenuInfoCache();
+    }
+
+    //重置缓存
+    @Override
+    public int initMenuInfoCache() {
+        Collection<String> keys = redisCache.keys(CONFIG_MENU_PERMISSION + "*");
+        redisCache.deleteObject(keys);
+        List<MenuInfo> menuInfos = menuInfoMapper.selectMenuInfoList(new MenuInfo());
+        for (MenuInfo menuInfo : menuInfos) {
+            redisCache.setCacheObject(CONFIG_MENU_PERMISSION + menuInfo.getPerms(), menuInfo);
+        }
+        return 1;
+    }
 
     //region mybatis代码
 
@@ -82,6 +103,8 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         }
         menuInfo.setCreateBy(SecurityUtils.getUsername());
         menuInfo.setCreateTime(DateUtils.getNowDate());
+        //存入缓存
+        redisCache.setCacheObject(CONFIG_MENU_PERMISSION + menuInfo.getPerms(), menuInfo);
         return menuInfoMapper.insertMenuInfo(menuInfo);
     }
 
@@ -108,6 +131,8 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         }
         menuInfo.setUpdateBy(SecurityUtils.getUsername());
         menuInfo.setUpdateTime(DateUtils.getNowDate());
+        //存入缓存
+        redisCache.setCacheObject(CONFIG_MENU_PERMISSION + menuInfo.getPerms(), menuInfo);
         return menuInfoMapper.updateMenuInfo(menuInfo);
     }
 

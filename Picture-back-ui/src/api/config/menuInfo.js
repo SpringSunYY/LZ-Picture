@@ -17,6 +17,14 @@ export function getMenuInfo(menuId) {
     })
 }
 
+// 初始化菜单信息缓存
+export function initMenuInfoCache() {
+    return request({
+        url: '/config/menuInfo/reset',
+        method: 'delete',
+    })
+}
+
 // 新增菜单信息
 export function addMenuInfo(data) {
     return request({
