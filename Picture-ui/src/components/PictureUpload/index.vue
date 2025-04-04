@@ -55,7 +55,9 @@
         <template #title>
           <div class="preview-title">
             <a-tag color="blue">{{ currentPreview.meta.format }}</a-tag>
-            <a-tag color="green">{{ currentPreview.meta?.size }}MB</a-tag>
+            <a-tag color="green" v-if="currentPreview.meta.size > 0"
+              >{{ currentPreview.meta?.size }}MB
+            </a-tag>
             <a-tag color="red"
               >{{ currentPreview.meta.width }}×{{ currentPreview.meta.height }}
             </a-tag>
@@ -70,7 +72,7 @@
 </template>
 
 <script setup name="PictureUploadComponent" lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { pictureUpload } from '@/api/common/file.js'
@@ -119,6 +121,48 @@ const innerFileList = ref<UploadedFile[]>([])
 const previewVisible = ref(false)
 const currentPreview = ref({})
 
+const loadImageMeta = (url: string) => {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const fileName = url.split('.').pop()
+    img.onload = () => {
+      resolve({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        ratio: (img.naturalWidth / img.naturalHeight).toFixed(2),
+        format: fileName.toUpperCase(),
+      })
+    }
+    img.onerror = () => resolve(null) // 容错处理
+    img.src = url
+  })
+}
+const isInit = ref(true)
+// 修改 watch 逻辑
+watch(
+  () => props.modelValue,
+  async (newVal) => {
+    if (isInit.value) {
+      isInit.value = false
+    } else {
+      return
+    }
+    if (typeof newVal === 'string') {
+      const meta = await loadImageMeta(newVal)
+      innerFileList.value = [
+        {
+          uid: 'initial',
+          status: 'done',
+          url: newVal,
+          thumbUrl: newVal,
+          meta: meta || { width: 0, height: 0, format: '未知格式' },
+        },
+      ]
+    }
+  },
+  { immediate: true },
+)
+
 // 格式转换方法
 const formatOutput = () => {
   const urls = innerFileList.value
@@ -140,7 +184,6 @@ const getImageMeta = (file) => {
     const img = new Image()
     //获取文件名
     const fileName = file.name.split('.').pop()
-    console.log(fileName)
     img.onload = () => {
       resolve({
         width: img.naturalWidth,
@@ -187,7 +230,7 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
   try {
     message.loading('图片上传中...', 1.5)
     uploading.value = true
-    isUploading.value = true; // 开始上传时设置为 true
+    isUploading.value = true // 开始上传时设置为 true
     const formData = new FormData()
     formData.append('file', file)
 
@@ -212,7 +255,6 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
       // 更新文件列表
       innerFileList.value = [...innerFileList.value, uploadedFile]
       onSuccess(uploadedFile, uploadedFile)
-      console.log(innerFileList.value)
       emit('upload-success', uploadedFile)
       emit('update:modelValue', formatOutput())
       message.success('图片上传成功')
@@ -226,7 +268,7 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
     emit('upload-error', error)
   } finally {
     uploading.value = false
-    isUploading.value = false; // 上传结束后，设置为 false
+    isUploading.value = false // 上传结束后，设置为 false
   }
 }
 
@@ -373,6 +415,7 @@ const handlePreview = (file) => {
     }
   }
 }
+
 .upload-loading-overlay {
   position: absolute;
   top: 0;
@@ -385,6 +428,7 @@ const handlePreview = (file) => {
   align-items: center;
   z-index: 100;
 }
+
 .preview-modal {
   .ant-modal-content {
     .preview-content {
