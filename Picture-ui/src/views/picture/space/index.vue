@@ -23,6 +23,8 @@
               <span>{{ space.totalCount }}个文件</span>
               <a-divider type="vertical" />
               <span>{{ space.spaceType }}</span>
+              <Tags :values="[getPSpaceStatusLabel(space.spaceStatus)]" :colors="['#1890ff']" />
+              <Tags :values="[getPSpaceTypeLabel(space.spaceType)]" :colors="['#00ff0d']" />
             </div>
           </div>
         </div>
@@ -97,9 +99,16 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PictureUpload from '@/components/PictureUpload/index.vue'
-import type { Space, SpaceAdd, SpaceQuery } from '@/types/picture/space'
+import {
+  getPSpaceStatusLabel,
+  getPSpaceTypeLabel,
+  type Space,
+  type SpaceAdd,
+  type SpaceQuery,
+} from '@/types/picture/space'
 import { addSpace, mySpace } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
+import Tags from '@/components/Tags/index.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

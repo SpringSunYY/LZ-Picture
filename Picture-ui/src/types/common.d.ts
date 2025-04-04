@@ -23,8 +23,6 @@ export type Dict = {
   /** 字典编码 */
   dictCode?: number;
 
-  /** 字典排序 */
-  dictSort?: number;
 
   /** 字典标签 */
   dictLabel: string;

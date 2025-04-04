@@ -25,13 +25,6 @@ public class SysDictDataVo extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
 
-    private Long dictCode;
-
-    /**
-     * 字典排序
-     */
-    private Long dictSort;
-
     /**
      * 字典标签
      */
