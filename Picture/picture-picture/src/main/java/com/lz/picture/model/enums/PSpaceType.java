@@ -1,5 +1,7 @@
 package com.lz.picture.model.enums;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +9,7 @@ import java.util.Optional;
 /**
  * 空间类型枚举
  */
+@Getter
 public enum PSpaceType {
     SPACE_TYPE_0("0", "个人"),
     SPACE_TYPE_1("1", "团队"),

@@ -93,4 +93,15 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * return: int
      **/
     int userInsertSpaceInfo(SpaceInfo spaceInfo);
+
+    /**
+     * description: 用户更新空间信息
+     * author: YY
+     * method: userUpdateSpaceInfo
+     * date: 2025/4/4 22:48
+     * param:
+     * param: spaceInfo
+     * return: int
+     **/
+    int userUpdateSpaceInfo(SpaceInfo spaceInfo);
 }

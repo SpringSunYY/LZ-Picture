@@ -1,20 +1,18 @@
 package com.lz.picture.controller.user;
 
-import com.lz.common.annotation.Log;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
-import com.lz.common.enums.BusinessType;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoAdd;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoInsert;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
+import com.lz.picture.model.dto.spaceInfo.SpaceInfoUpdate;
+import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
-import com.sun.jna.platform.win32.WinNT;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +48,15 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         return toAjax(spaceInfoService.userInsertSpaceInfo(spaceInfo));
     }
 
+    @PreAuthorize("@uss.hasPermi('picture:space:update')")
+    @PutMapping
+    public AjaxResult update(@RequestBody SpaceInfoUpdate spaceInfoUpdate) {
+        SpaceInfo spaceInfo = SpaceInfoUpdate.updateToObj(spaceInfoUpdate);
+        String userId = getLoginUser().getUserId();
+        spaceInfo.setUserId(userId);
+        return toAjax(spaceInfoService.userUpdateSpaceInfo(spaceInfo));
+    }
+
     @PreAuthorize("@uss.hasPermi('picture:space')")
     @GetMapping("/mySpace")
     public TableDataInfo mySpace(SpaceInfoQuery spaceInfoQuery) {
@@ -71,5 +78,12 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         dataTable.setTotal(list.size());
         dataTable.setRows(listVo);
         return dataTable;
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:space')")
+    @GetMapping("/{spaceId}")
+    public AjaxResult getInfo(@PathVariable("spaceId") String spaceId) {
+        SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceId);
+        return success(UserSpaceInfoVo.objToVo(spaceInfo));
     }
 }

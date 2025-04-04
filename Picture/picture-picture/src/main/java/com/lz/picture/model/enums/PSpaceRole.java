@@ -1,5 +1,7 @@
 package com.lz.picture.model.enums;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +9,7 @@ import java.util.Optional;
 /**
  * 空间角色枚举
  */
+@Getter
 public enum PSpaceRole {
     SPACE_ROLE_0("0", "创建者"),
     SPACE_ROLE_1("1", "管理员"),
@@ -27,14 +30,6 @@ public enum PSpaceRole {
     PSpaceRole(String value, String label) {
         this.value = value;
         this.label = label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.spaceInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,6 +16,7 @@ import com.lz.picture.model.domain.SpaceInfo;
 @Data
 public class SpaceInfoInsert implements Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /** 空间编号 */

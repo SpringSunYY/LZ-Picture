@@ -1,5 +1,7 @@
 package com.lz.picture.model.enums;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +9,7 @@ import java.util.Optional;
 /**
  * 存储类型枚举
  */
+@Getter
 public enum PSpaceOssType {
     SPACE_OSS_TYPE_0("0", "官方"),
     SPACE_OSS_TYPE_1("1", "阿里云");
@@ -25,14 +28,6 @@ public enum PSpaceOssType {
     PSpaceOssType(String value, String label) {
         this.value = value;
         this.label = label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     /**

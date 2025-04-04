@@ -13,8 +13,12 @@
     <!-- 空间网格列表 -->
     <a-row v-else :gutter="[24, 24]">
       <a-col v-for="space in spaceList" :key="space.spaceId" :xs="24" :sm="12" :md="8" :lg="6">
-        <div class="space-card" @click="goDetail(space.spaceId)">
-          <div class="cover-image" :style="coverStyle(space)"></div>
+        <div class="space-card">
+          <div
+            class="cover-image"
+            @click="goDetail(space.spaceId)"
+            :style="coverStyle(space)"
+          ></div>
           <div class="space-info">
             <h3 class="title">{{ space.spaceName }}</h3>
             <div class="meta">
@@ -22,9 +26,16 @@
               <a-divider type="vertical" />
               <span>{{ space.totalCount }}个文件</span>
               <a-divider type="vertical" />
-              <span>{{ space.spaceType }}</span>
               <Tags :values="[getPSpaceStatusLabel(space.spaceStatus)]" :colors="['#1890ff']" />
               <Tags :values="[getPSpaceTypeLabel(space.spaceType)]" :colors="['#00ff0d']" />
+              <a-button
+                style="float: right"
+                type="primary"
+                @click="updateSpaceInfo(space.spaceId)"
+                size="small"
+              >
+                修改
+              </a-button>
             </div>
           </div>
         </div>
@@ -40,7 +51,19 @@
     </a-row>
 
     <!--添加空间-->
-    <a-modal v-model:open="open" title="创建新空间" :footer="null" centered destroyOnClose>
+    <a-modal v-model:open="open" :footer="null" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip
+            title="个人公共/私有空间每种状态最多创建10个且不可以转换状态，团队空间最多创建10个"
+          >
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
       <a-form
         :model="formState"
         :rules="rules"
@@ -66,15 +89,28 @@
         <a-row :gutter="[24, 24]">
           <a-col :xs="24" :sm="12" :md="12" :lg="12">
             <a-form-item :label-col="{ span: 10 }" label="空间状态" name="spaceStatus">
-              <a-radio-group v-model:value="formState.spaceStatus" name="radioGroup">
-                <a-radio value="0">公开</a-radio>
-                <a-radio value="1">私有</a-radio>
+              <a-radio-group
+                :disabled="formState.spaceId !== ''"
+                v-model:value="formState.spaceStatus"
+                name="radioGroup"
+              >
+                <a-radio
+                  v-for="dict in p_space_status"
+                  :value="dict.dictValue"
+                  :key="dict.dictValue"
+                >
+                  {{ dict.dictLabel }}
+                </a-radio>
               </a-radio-group>
             </a-form-item>
           </a-col>
           <a-col :xs="24" :sm="12" :md="12" :lg="12">
             <a-form-item label="空间类型" :label-col="{ span: 10 }" name="spaceType">
-              <a-radio-group v-model:value="formState.spaceType" name="radioGroup">
+              <a-radio-group
+                :disabled="formState.spaceId !== ''"
+                v-model:value="formState.spaceType"
+                name="radioGroup"
+              >
                 <a-radio value="0">个人</a-radio>
                 <a-radio value="1">团队</a-radio>
               </a-radio-group>
@@ -87,7 +123,7 @@
 
         <div class="form-footer">
           <a-button @click="open = false">取消</a-button>
-          <a-button type="primary" html-type="submit" :loading="submitting"> 立即创建</a-button>
+          <a-button type="primary" html-type="submit" :loading="submitting"> 提交</a-button>
         </div>
       </a-form>
     </a-modal>
@@ -95,7 +131,7 @@
 </template>
 
 <script setup lang="ts" name="PictureSpace">
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PictureUpload from '@/components/PictureUpload/index.vue'
@@ -103,29 +139,28 @@ import {
   getPSpaceStatusLabel,
   getPSpaceTypeLabel,
   type Space,
-  type SpaceAdd,
+  type SpaceInfo,
   type SpaceQuery,
 } from '@/types/picture/space'
-import { addSpace, mySpace } from '@/api/picture/space.ts'
+import { addSpace, getSpaceInfo, mySpace, updateSpace } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags/index.vue'
+import { formatSize } from '../../../utils/common.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { common_delete, p_space_status, p_space_type } = proxy?.useDict(
-  'common_delete',
-  'p_space_status',
-  'p_space_type',
-)
+const { p_space_status } = proxy?.useDict('p_space_status')
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)
-const formRef = ref()
+
 const spaceList = ref<Space[]>([])
 const spaceQuery = reactive<SpaceQuery>({})
+const title = ref('')
 // 表单数据结构
-const formState = reactive<SpaceAdd>({
+const formState = reactive<SpaceInfo>({
+  spaceId: '',
   spaceName: '',
   spaceAvatar: '',
   spaceDesc: '',
@@ -144,35 +179,10 @@ const rules = {
   spaceStatus: [{ required: true, message: '空间状态不能为空' }],
 }
 
-// 假数据生成
-const mockSpaces = Array.from({ length: 5 }, (_, i) => ({
-  space_id: `space_${i + 1}`,
-  space_name: `项目空间 ${i + 1}`,
-  space_avatar: i % 2 ? 'https://picsum.photos/300/200' : null,
-  total_size: Math.random() * 1073741824,
-  total_count: Math.floor(Math.random() * 500),
-  space_type: i % 3,
-  current_members: i % 2 ? 3 : 0,
-}))
-
-const spaces = ref([...mockSpaces])
-console.log(spaces.value)
 // 封面样式处理
 const coverStyle = (space) => ({
   backgroundImage: `url(${space.spaceAvatar || '/default-space-cover.jpg'})`,
 })
-
-// 容量格式化
-const formatSize = (bytes) => {
-  const units = ['B', 'KB', 'MB', 'GB']
-  let size = bytes
-  let unitIndex = 0
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024
-    unitIndex++
-  }
-  return `${size}${units[unitIndex]}`
-}
 
 // 路由跳转
 const router = useRouter()
@@ -181,11 +191,13 @@ const goDetail = (id) => router.push(`/space/${id}`)
 const handleCreate = () => {
   resetForm()
   open.value = true
+  title.value = '创建空间'
   formRef.value?.resetFields()
 }
 
 const resetForm = () => {
   Object.assign(formState, {
+    spaceId: '',
     spaceName: '',
     spaceAvatar: '',
     spaceDesc: '',
@@ -195,18 +207,32 @@ const resetForm = () => {
 }
 
 const uploadSuccess = (modelValue: any) => {
-  console.log('modelValue', modelValue)
   formState.spaceAvatar = modelValue.pictureUrl
 }
 const handleSubmit = () => {
-  addSpace(formState).then((res) => {
-    if (res.code === 200) {
-      message.success('创建成功')
-      open.value = false
-      getMySpaceList()
-    } else {
-      message.error('创建失败')
-    }
+  if (formState.spaceId !== '') {
+    updateSpace(formState).then((res) => {
+      if (res?.code === 200) {
+        message.success('修改空间成功')
+      }
+    })
+  } else {
+    addSpace(formState).then((res) => {
+      if (res?.code === 200) {
+        message.success('创建空间成功')
+      }
+    })
+  }
+  getMySpaceList()
+  open.value = false
+}
+const updateSpaceInfo = (spaceId: string) => {
+  console.log(spaceId)
+  resetForm()
+  title.value = '修改空间'
+  getSpaceInfo(spaceId).then((res) => {
+    Object.assign(formState, res.data)
+    open.value = true
   })
 }
 const getMySpaceList = () => {
@@ -231,6 +257,23 @@ getMySpaceList()
 
   .ant-btn {
     margin-left: 10px;
+  }
+}
+
+.custom-modal-title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+
+  .title-tip-icon {
+    margin-left: 8px;
+    color: rgba(57, 57, 57, 0.45);
+    cursor: help;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #1890ff;
+    }
   }
 }
 

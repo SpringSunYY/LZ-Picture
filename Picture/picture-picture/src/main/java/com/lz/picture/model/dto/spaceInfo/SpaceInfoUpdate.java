@@ -19,10 +19,15 @@ import java.io.Serializable;
  * Version: 1.0
  */
 @Data
-public class SpaceInfoAdd implements Serializable
-{
+public class SpaceInfoUpdate implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 空间编号
+     */
+    private String spaceId;
+
     /**
      * 空间名称
      */
@@ -37,27 +42,10 @@ public class SpaceInfoAdd implements Serializable
 
 
     /**
-     * 所属用户
-     */
-    private String userId;
-
-    /**
      * 空间描述
      */
     @Size(max = 512, message = "空间描述不能超过512个字符")
     private String spaceDesc;
-
-    /**
-     * 空间状态
-     */
-    @NotEmpty(message = "请选择空间状态")
-    private String spaceStatus;
-
-    /**
-     * 空间类型（0个人 1团队 2官方）
-     */
-    @NotEmpty(message = "请选择空间类型")
-    private String spaceType;
 
 
     /**
@@ -66,7 +54,7 @@ public class SpaceInfoAdd implements Serializable
      * @param spaceInfoEdit 编辑对象
      * @return SpaceInfo
      */
-    public static SpaceInfo addToObj(SpaceInfoAdd spaceInfoEdit) {
+    public static SpaceInfo updateToObj(SpaceInfoUpdate spaceInfoEdit) {
         if (spaceInfoEdit == null) {
             return null;
         }

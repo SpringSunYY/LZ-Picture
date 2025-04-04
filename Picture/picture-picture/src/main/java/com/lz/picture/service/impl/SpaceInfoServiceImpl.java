@@ -181,7 +181,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         } catch (NumberFormatException e) {
             log.error("获取最大空间文件数量配置信息出错", e);
             //如果转换异常则默认100
-            spaceInfo.setMaxCount(100L);
+            maxCount = "100L";
         }
         String maxSize = null;
         try {
@@ -189,12 +189,26 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         } catch (Exception e) {
             log.error("获取最大空间文件数量配置信息出错", e);
             //如果转换异常则默认300M
-            spaceInfo.setMaxSize(314572800L);
+            maxSize = "314572800";
         }
         spaceInfo.setMaxSize(Long.parseLong(maxSize));
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         spaceInfo.setOssType(PSpaceOssType.SPACE_OSS_TYPE_0.getValue());
         return this.save(spaceInfo) ? 1 : 0;
+    }
+
+    @Override
+    public int userUpdateSpaceInfo(SpaceInfo spaceInfo) {
+        //查询空间
+        SpaceInfo old = this.getOne(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getSpaceId, spaceInfo.getSpaceId()));
+        if (StringUtils.isNull(old)) {
+            throw new ServiceException("空间不存在！！！");
+        }
+        if (!old.getUserId().equals(spaceInfo.getUserId())) {
+            throw new ServiceException("空间不存在！！！");
+        }
+        spaceInfo.setUpdateTime(DateUtils.getNowDate());
+        return this.updateById(spaceInfo) ? 1 : 0;
     }
 
 }

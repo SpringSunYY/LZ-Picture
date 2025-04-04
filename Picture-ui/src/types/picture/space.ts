@@ -53,7 +53,9 @@ export type Space = {
   updateTime: string
 }
 
-export type SpaceAdd = {
+export type SpaceInfo = {
+  /** 空间编号 */
+  spaceId?: string
   /** 空间名称 */
   spaceName: string
 

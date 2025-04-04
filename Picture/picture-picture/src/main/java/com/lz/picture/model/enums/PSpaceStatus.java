@@ -1,5 +1,7 @@
 package com.lz.picture.model.enums;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +9,7 @@ import java.util.Optional;
 /**
  * 空间状态枚举
  */
+@Getter
 public enum PSpaceStatus {
     SPACE_STATUS_0("0", "公共"),
     SPACE_STATUS_1("1", "私有");
