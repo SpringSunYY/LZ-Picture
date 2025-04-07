@@ -154,7 +154,7 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo)
-                || spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())
+                || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())
                 || !spaceInfo.getUserId().equals(spaceFolderInfo.getUserId())) {
             throw new ServiceException("空间不存在，或者已被删除");
         }

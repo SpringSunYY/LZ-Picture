@@ -121,7 +121,7 @@ import type {
   SpaceFolderInfoQuery,
   SpaceFolderInfoVo,
 } from '@/types/picture/spaceFolder'
-import { listSpaceFolder } from '@/api/picture/spaceFolder.ts'
+import { addSpaceFolder, listSpaceFolder } from '@/api/picture/spaceFolder.ts'
 import { message } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 
@@ -131,6 +131,8 @@ interface Folder {
   parentId: string
 }
 
+// 当前所在的父文件夹 ID
+const currentParentId = ref('0')
 const open = ref(false)
 const submitting = ref(false)
 const title = ref('')
@@ -140,13 +142,13 @@ const formState = reactive<SpaceFolderInfo>({
   folderName: '',
   sortOrder: 0,
   remark: '',
-  parentId: '0',
+  parentId: currentParentId.value,
 })
 // 获取当前路由信息
 const route = useRoute()
 const folderQuery = ref<SpaceFolderInfoQuery>({
   spaceId: route.query.spaceId as string,
-  parentId: '0',
+  parentId: currentParentId.value,
 })
 const folderList = ref<SpaceFolderInfoVo[]>([])
 // 验证规则
@@ -163,9 +165,6 @@ const rules = {
 // 路径栈
 const folderPathStack = reactive<Folder[]>([])
 
-// 当前所在的父文件夹 ID
-const currentParentId = ref('0')
-
 // 当前子文件夹
 const currentFolders = computed(() =>
   folderData.filter((f) => f.parentId === currentParentId.value),
@@ -175,6 +174,9 @@ const currentFolders = computed(() =>
 function enterFolder(folder: Folder) {
   folderPathStack.push(folder)
   currentParentId.value = folder.folderId
+  console.log(currentParentId.value)
+  folderQuery.value.parentId = folder.folderId
+  getFolderList()
 }
 
 // 返回某一级（点击面包屑）
@@ -187,6 +189,7 @@ function goToLevel(index: number) {
     folderPathStack.splice(index)
     currentParentId.value = target.folderId
   }
+  getFolderList()
 }
 
 const handleDelete = (folderId: string) => {
@@ -206,16 +209,22 @@ function handleAdd() {
 }
 
 const handleSubmit = () => {
-  console.log('formState', formState)
-  open.value = false
+
+  addSpaceFolder(formState).then((res) => {
+    if (res.code === 200) {
+      message.success('添加成功')
+      open.value = false
+      getFolderList()
+    }
+  })
 }
 const resetForm = () => {
   Object.assign(formState, {
-    spaceId: '',
+    spaceId: route.query.spaceId as string,
     folderName: '',
     sortOrder: 0,
     remark: '',
-    parentId: '0',
+    parentId: currentParentId.value,
   })
 }
 
@@ -223,10 +232,12 @@ const resetForm = () => {
 function goBack() {
   folderPathStack.pop()
   currentParentId.value = folderPathStack[folderPathStack.length - 1]?.folderId || '0'
+  getFolderList()
 }
 
 //获取文件夹
 const getFolderList = () => {
+  folderQuery.value.parentId = currentParentId.value
   // 获取文件夹列表
   listSpaceFolder(folderQuery.value).then((res) => {
     folderList.value = res?.rows
