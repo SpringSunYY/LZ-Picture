@@ -79,4 +79,15 @@ public interface ISpaceFolderInfoService extends IService<SpaceFolderInfo>
      * @return SpaceFolderInfoVO集合
      */
     List<SpaceFolderInfoVo> convertVoList(List<SpaceFolderInfo> spaceFolderInfoList);
+
+    /**
+     * description: 用户新增文件夹
+     * author: YY
+     * method: userInsertSpaceFolderInfo
+     * date: 2025/4/7 22:04
+     * param:
+     * param: spaceFolderInfo
+     * return: int
+     **/
+    int userInsertSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo);
 }

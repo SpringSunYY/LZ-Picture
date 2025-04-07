@@ -15,6 +15,7 @@ import com.lz.picture.service.ISpaceInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
 
     @PreAuthorize("@uss.hasPermi('picture:space:add')")
     @PostMapping
-    public AjaxResult add(@RequestBody SpaceInfoAdd spaceInfoAdd) {
+    public AjaxResult add(@RequestBody @Validated SpaceInfoAdd spaceInfoAdd) {
         SpaceInfo spaceInfo = SpaceInfoAdd.addToObj(spaceInfoAdd);
         String userId = getLoginUser().getUserId();
         spaceInfo.setUserId(userId);
@@ -50,7 +51,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
 
     @PreAuthorize("@uss.hasPermi('picture:space:update')")
     @PutMapping
-    public AjaxResult update(@RequestBody SpaceInfoUpdate spaceInfoUpdate) {
+    public AjaxResult update(@RequestBody @Validated SpaceInfoUpdate spaceInfoUpdate) {
         SpaceInfo spaceInfo = SpaceInfoUpdate.updateToObj(spaceInfoUpdate);
         String userId = getLoginUser().getUserId();
         spaceInfo.setUserId(userId);

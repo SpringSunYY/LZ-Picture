@@ -1,5 +1,5 @@
 import { http as request } from '@/utils'
-import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.ts'
+import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.d.ts'
 import type { API } from '@/types/common'
 
 export function addSpace(data: SpaceInfo): Promise<API.ResponseInfo<number>> {

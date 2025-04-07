@@ -141,11 +141,11 @@ import {
   type Space,
   type SpaceInfo,
   type SpaceQuery,
-} from '@/types/picture/space'
+} from '@/types/picture/space.d.ts'
 import { addSpace, getSpaceInfo, mySpace, updateSpace } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags/index.vue'
-import { formatSize } from '../../../utils/common.ts'
+import { formatSize } from '@/utils/common.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -186,7 +186,11 @@ const coverStyle = (space: Space) => ({
 
 // 路由跳转
 const router = useRouter()
-const goDetail = (id: string) => router.push(`/space/${id}`)
+const goDetail = (id: string) =>
+  router.push({
+    path: '/picture/space/spaceFolder',
+    query: { spaceId: id },
+  })
 // 添加空间
 const handleAdd = () => {
   resetForm()

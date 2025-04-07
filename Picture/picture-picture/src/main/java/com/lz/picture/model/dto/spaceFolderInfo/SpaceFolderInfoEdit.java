@@ -40,7 +40,7 @@ public class SpaceFolderInfoEdit implements Serializable
     private String userId;
 
     /** 排序权重 */
-    private String sortOrder;
+    private Integer sortOrder;
 
     /** 备注 */
     private String remark;

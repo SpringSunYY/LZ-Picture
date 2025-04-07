@@ -25,7 +25,7 @@
         :sm="9"
         :md="6"
         :lg="3"
-        v-for="folder in currentFolders"
+        v-for="folder in folderList"
         :key="folder.folderId"
         class="folder-item"
       >
@@ -34,12 +34,12 @@
         <a-row style="margin-top: 10px" :gutter="20">
           <a-col :span="12">
             <a-tooltip title="删除文件夹">
-              <DeleteTwoTone class="folder-footer" @click="handleDelete(folder)" />
+              <DeleteTwoTone class="folder-footer" @click="handleDelete(folder.folderId)" />
             </a-tooltip>
           </a-col>
           <a-col :span="12">
             <a-tooltip title="修改">
-              <EditTwoTone class="folder-footer" @click="handleUpdate(folder)" />
+              <EditTwoTone class="folder-footer" @click="handleUpdate(folder.folderId)" />
             </a-tooltip>
           </a-col>
         </a-row>
@@ -116,7 +116,14 @@ import {
   FolderTwoTone,
   QuestionCircleOutlined,
 } from '@ant-design/icons-vue'
-import type { SpaceInfo } from '@/types/picture/space.ts'
+import type {
+  SpaceFolderInfo,
+  SpaceFolderInfoQuery,
+  SpaceFolderInfoVo,
+} from '@/types/picture/spaceFolder'
+import { listSpaceFolder } from '@/api/picture/spaceFolder.ts'
+import { message } from 'ant-design-vue'
+import { useRoute } from 'vue-router'
 
 interface Folder {
   folderId: string
@@ -128,72 +135,30 @@ const open = ref(false)
 const submitting = ref(false)
 const title = ref('')
 // 表单数据结构
-const formState = reactive<SpaceInfo>({
+const formState = reactive<SpaceFolderInfo>({
   spaceId: '',
-  spaceName: '',
-  spaceAvatar: '',
-  spaceDesc: '',
-  spaceType: '0',
-  spaceStatus: '0',
+  folderName: '',
+  sortOrder: 0,
+  remark: '',
+  parentId: '0',
 })
-
+// 获取当前路由信息
+const route = useRoute()
+const folderQuery = ref<SpaceFolderInfoQuery>({
+  spaceId: route.query.spaceId as string,
+  parentId: '0',
+})
+const folderList = ref<SpaceFolderInfoVo[]>([])
 // 验证规则
 const rules = {
-  spaceName: [
+  folderName: [
     { required: true, message: '名称不能为空' },
-    { min: 2, max: 32, message: '长度需在2-32字符之间' },
+    { min: 1, max: 32, message: '长度需在2-32字符之间' },
   ],
-  spaceType: [{ required: true, message: '空间类型不能为空' }],
-  spaceDesc: [{ max: 512, message: '长度不能超过512字符' }],
-  spaceStatus: [{ required: true, message: '空间状态不能为空' }],
+  remark: [{ max: 512, message: '长度不能超过512字符' }],
+  sortOrder: [{ required: true, message: '排序不能为空' }],
+  parentId: [{ required: true, message: '父文件夹不能为空' }],
 }
-// 模拟数据
-const folderData: Folder[] = [
-  { folderId: '1', folderName: '项目文档', parentId: '0' },
-  { folderId: '2', folderName: '设计稿', parentId: '0' },
-  { folderId: '31', folderName: '设计稿', parentId: '0' },
-  { folderId: '32', folderName: '设计稿', parentId: '0' },
-  { folderId: '33', folderName: '设计稿', parentId: '0' },
-  { folderId: '34', folderName: '设计稿', parentId: '0' },
-  { folderId: '35', folderName: '设计稿', parentId: '0' },
-  { folderId: '36', folderName: '设计稿', parentId: '0' },
-  { folderId: '37', folderName: '设计稿', parentId: '0' },
-  { folderId: '38', folderName: '设计稿', parentId: '0' },
-  { folderId: '39', folderName: '设计稿', parentId: '0' },
-  { folderId: '40', folderName: '设计稿', parentId: '0' },
-  { folderId: '41', folderName: '设计稿', parentId: '0' },
-  { folderId: '42', folderName: '设计稿', parentId: '0' },
-  { folderId: '43', folderName: '设计稿', parentId: '0' },
-  { folderId: '44', folderName: '设计稿', parentId: '0' },
-  { folderId: '45', folderName: '设计稿', parentId: '0' },
-  { folderId: '46', folderName: '设计稿', parentId: '0' },
-  { folderId: '47', folderName: '设计稿', parentId: '0' },
-  { folderId: '48', folderName: '需求文档', parentId: '1' },
-  { folderId: '49', folderName: '流程图', parentId: '1' },
-  { folderId: '50', folderName: '首页设计', parentId: '2' },
-  { folderId: '51', folderName: '交互说明', parentId: '4' },
-  { folderId: '52', folderName: '流程图', parentId: '1' },
-  { folderId: '53', folderName: '首页设计', parentId: '2' },
-  { folderId: '54', folderName: '交互说明', parentId: '4' },
-  { folderId: '55', folderName: '流程图', parentId: '1' },
-  { folderId: '10', folderName: '首页设计', parentId: '2' },
-  { folderId: '56', folderName: '交互说明', parentId: '4' },
-  { folderId: '11', folderName: '流程图', parentId: '1' },
-  { folderId: '11', folderName: '首页设计', parentId: '2' },
-  { folderId: '12', folderName: '交互说明', parentId: '4' },
-  { folderId: '13', folderName: '流程图', parentId: '1' },
-  { folderId: '14', folderName: '首页设计', parentId: '2' },
-  { folderId: '16', folderName: '交互说明', parentId: '4' },
-  { folderId: '17', folderName: '流程图', parentId: '1' },
-  { folderId: '18', folderName: '首页设计', parentId: '2' },
-  { folderId: '19', folderName: '交互说明', parentId: '4' },
-  { folderId: '20', folderName: '流程图', parentId: '1' },
-  { folderId: '21', folderName: '首页设计', parentId: '2' },
-  { folderId: '22', folderName: '交互说明', parentId: '4' },
-  { folderId: '22', folderName: '流程图', parentId: '1' },
-  { folderId: '23', folderName: '首页设计', parentId: '2' },
-  { folderId: '24', folderName: '交互说明', parentId: '4' },
-]
 
 // 路径栈
 const folderPathStack = reactive<Folder[]>([])
@@ -224,10 +189,10 @@ function goToLevel(index: number) {
   }
 }
 
-const handleDelete = () => {
+const handleDelete = (folderId: string) => {
   console.log('handleDelete')
 }
-const handleUpdate = () => {
+const handleUpdate = (folderId: string) => {
   console.log('handleUpdate')
   title.value = '修改文件夹'
   open.value = true
@@ -247,11 +212,10 @@ const handleSubmit = () => {
 const resetForm = () => {
   Object.assign(formState, {
     spaceId: '',
-    spaceName: '',
-    spaceAvatar: '',
-    spaceDesc: '',
-    spaceType: '0',
-    spaceStatus: '0',
+    folderName: '',
+    sortOrder: 0,
+    remark: '',
+    parentId: '0',
   })
 }
 
@@ -260,6 +224,15 @@ function goBack() {
   folderPathStack.pop()
   currentParentId.value = folderPathStack[folderPathStack.length - 1]?.folderId || '0'
 }
+
+//获取文件夹
+const getFolderList = () => {
+  // 获取文件夹列表
+  listSpaceFolder(folderQuery.value).then((res) => {
+    folderList.value = res?.rows
+  })
+}
+getFolderList()
 </script>
 
 <style scoped lang="scss">

@@ -1,17 +1,16 @@
 package com.lz.picture.model.dto.spaceFolderInfo;
 
-import java.util.Map;
-import java.io.Serializable;
-
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
-
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.picture.model.domain.SpaceFolderInfo;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 空间文件夹Query对象 p_space_folder_info
@@ -20,7 +19,7 @@ import com.lz.picture.model.domain.SpaceFolderInfo;
  * @date 2025-03-24
  */
 @Data
-public class SpaceFolderInfoQuery implements Serializable {
+public class SpaceFolderInfoUserQuery implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -31,11 +30,13 @@ public class SpaceFolderInfoQuery implements Serializable {
     /**
      * 空间编号
      */
+    @NotEmpty(message = "空间编号不能为空")
     private String spaceId;
 
     /**
      * 父文件夹编号
      */
+    @NotEmpty(message = "父文件夹编号不能为空")
     private String parentId;
 
     /**
@@ -78,7 +79,7 @@ public class SpaceFolderInfoQuery implements Serializable {
      * @param spaceFolderInfoQuery 查询对象
      * @return SpaceFolderInfo
      */
-    public static SpaceFolderInfo queryToObj(SpaceFolderInfoQuery spaceFolderInfoQuery) {
+    public static SpaceFolderInfo queryToObj(SpaceFolderInfoUserQuery spaceFolderInfoQuery) {
         if (spaceFolderInfoQuery == null) {
             return null;
         }
