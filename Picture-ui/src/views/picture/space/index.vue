@@ -2,7 +2,7 @@
   <div class="picture-space">
     <!-- 空状态 -->
     <div v-if="spaceList.length == 0" class="empty-state">
-      <div class="add-card" style="width: 25%; margin: 0 auto" @click="handleCreate">
+      <div class="add-card" style="width: 25%; margin: 0 auto" @click="handleAdd">
         <div class="add-content">
           <plus-outlined class="add-icon" />
           <div class="add-text">新建空间</div>
@@ -31,7 +31,7 @@
               <a-button
                 style="float: right"
                 type="primary"
-                @click="updateSpaceInfo(space.spaceId)"
+                @click="handleUpdate(space.spaceId)"
                 size="small"
               >
                 修改
@@ -41,7 +41,7 @@
         </div>
       </a-col>
       <a-col :xs="24" :sm="12" :md="8" :lg="6">
-        <div class="add-card" @click="handleCreate">
+        <div class="add-card" @click="handleAdd">
           <div class="add-content">
             <plus-outlined class="add-icon" />
             <div class="add-text">新建空间</div>
@@ -123,7 +123,7 @@
 
         <div class="form-footer">
           <a-button @click="open = false">取消</a-button>
-          <a-button type="primary" html-type="submit" :loading="submitting"> 提交</a-button>
+          <a-button type="primary" html-type="submit" :loading="submitting">提交</a-button>
         </div>
       </a-form>
     </a-modal>
@@ -180,15 +180,15 @@ const rules = {
 }
 
 // 封面样式处理
-const coverStyle = (space) => ({
+const coverStyle = (space: Space) => ({
   backgroundImage: `url(${space.spaceAvatar || '/default-space-cover.jpg'})`,
 })
 
 // 路由跳转
 const router = useRouter()
-const goDetail = (id) => router.push(`/space/${id}`)
+const goDetail = (id: string) => router.push(`/space/${id}`)
 // 添加空间
-const handleCreate = () => {
+const handleAdd = () => {
   resetForm()
   open.value = true
   title.value = '创建空间'
@@ -226,7 +226,7 @@ const handleSubmit = () => {
   getMySpaceList()
   open.value = false
 }
-const updateSpaceInfo = (spaceId: string) => {
+const handleUpdate = (spaceId: string) => {
   console.log(spaceId)
   resetForm()
   title.value = '修改空间'

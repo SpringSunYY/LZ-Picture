@@ -192,8 +192,7 @@ const renderIcon = (iconName: string) => {
 
 <style scoped>
 #globalHeader {
-  max-width: 1440px;
-  margin: 0 auto;
+  margin: 0 5vh;
 
   .title-bar {
     display: flex;

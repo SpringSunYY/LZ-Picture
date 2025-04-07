@@ -30,7 +30,6 @@ import GlobalHeader from '@/layout/GlobalHeader/index.vue'
 #layout {
   .header {
     padding-inline: 20px;
-    //margin-bottom: 16px;
     color: unset;
     background: white;
   }
