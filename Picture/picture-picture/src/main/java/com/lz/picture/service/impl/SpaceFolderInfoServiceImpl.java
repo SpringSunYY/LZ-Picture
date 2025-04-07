@@ -8,10 +8,12 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.SpaceFolderInfoMapper;
+import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceFolderInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoQuery;
 import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
+import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.ISpaceFolderInfoService;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.utils.TreeUtils;
@@ -34,6 +36,9 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
 
     @Resource
     private ISpaceInfoService spaceInfoService;
+
+    @Resource
+    private IPictureInfoService pictureInfoService;
 
     //region mybatis代码
 
@@ -102,6 +107,18 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
      */
     @Override
     public int deleteSpaceFolderInfoByFolderId(String folderId) {
+        //查询是否有下级
+        SpaceFolderInfo spaceFolderInfo = new SpaceFolderInfo();
+        spaceFolderInfo.setParentId(folderId);
+        List<SpaceFolderInfo> spaceFolderInfos = spaceFolderInfoMapper.selectSpaceFolderInfoList(spaceFolderInfo);
+        if (StringUtils.isNotEmpty(spaceFolderInfos)) {
+            throw new ServiceException("存在下级文件夹，不允许删除");
+        }
+        //查询是否有图片
+        List<PictureInfo> list = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getFolderId, folderId));
+        if (StringUtils.isNotEmpty(list)) {
+            throw new ServiceException("存在图片，不允许删除");
+        }
         return spaceFolderInfoMapper.deleteSpaceFolderInfoByFolderId(folderId);
     }
 
@@ -166,6 +183,11 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
         if (StringUtils.isNotNull(old)) {
             throw new ServiceException("该文件夹已存在");
         }
+        initSpaceFolderInfo(spaceFolderInfo);
+        return this.save(spaceFolderInfo) ? 1 : 0;
+    }
+
+    private void initSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo) {
         if (spaceFolderInfo.getParentId().equals("0")) {
             spaceFolderInfo.setFolderLevel("1");
         } else {
@@ -185,7 +207,26 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
         StringBuilder fullPath = TreeUtils.getAncestors(spaceFolderInfo.getFolderId(), new StringBuilder(), spaceFolderInfoMapper::selectSpaceFolderInfoByFolderId, SpaceFolderInfo::getFolderName, SpaceFolderInfo::getParentId, "根目录", "/");
         spaceFolderInfo.setFullPath(fullPath.toString());
         spaceFolderInfo.setCreateTime(DateUtils.getNowDate());
-        return this.save(spaceFolderInfo) ? 1 : 0;
+    }
+
+    @Override
+    public int userUpdateSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo) {
+        //查询文件夹是否已存在
+        SpaceFolderInfo folderInfo = this.selectSpaceFolderInfoByFolderId(spaceFolderInfo.getFolderId());
+        if (StringUtils.isNull(folderInfo)) {
+            throw new ServiceException("该文件夹不存在");
+        }
+        //查询空间+父级目录+文件夹名称是否已存在
+        SpaceFolderInfo old = this.getOne(new LambdaQueryWrapper<SpaceFolderInfo>()
+                .eq(SpaceFolderInfo::getSpaceId, spaceFolderInfo.getSpaceId())
+                .eq(SpaceFolderInfo::getParentId, spaceFolderInfo.getParentId())
+                .eq(SpaceFolderInfo::getFolderName, spaceFolderInfo.getFolderName()));
+        if (StringUtils.isNotNull(old) && !old.getFolderId().equals(spaceFolderInfo.getFolderId())) {
+            throw new ServiceException("该文件夹已存在");
+        }
+        initSpaceFolderInfo(spaceFolderInfo);
+        spaceFolderInfo.setUpdateTime(DateUtils.getNowDate());
+        return spaceFolderInfoMapper.updateSpaceFolderInfo(spaceFolderInfo);
     }
 
 

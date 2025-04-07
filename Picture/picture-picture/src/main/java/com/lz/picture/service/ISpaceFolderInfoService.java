@@ -1,21 +1,23 @@
 package com.lz.picture.service;
 
 import java.util.List;
+
 import com.lz.picture.model.domain.SpaceFolderInfo;
 import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 空间文件夹Service接口
  *
  * @author YY
  * @date 2025-03-24
  */
-public interface ISpaceFolderInfoService extends IService<SpaceFolderInfo>
-{
+public interface ISpaceFolderInfoService extends IService<SpaceFolderInfo> {
     //region mybatis代码
+
     /**
      * 查询空间文件夹
      *
@@ -64,6 +66,7 @@ public interface ISpaceFolderInfoService extends IService<SpaceFolderInfo>
      */
     public int deleteSpaceFolderInfoByFolderId(String folderId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -90,4 +93,15 @@ public interface ISpaceFolderInfoService extends IService<SpaceFolderInfo>
      * return: int
      **/
     int userInsertSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo);
+
+    /**
+     * description: 用户更新空间
+     * author: YY
+     * method: userUpdateSpaceFolderInfo
+     * date: 2025/4/7 23:53
+     * param:
+     * param: spaceFolderInfo
+     * return: int
+     **/
+    int userUpdateSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo);
 }

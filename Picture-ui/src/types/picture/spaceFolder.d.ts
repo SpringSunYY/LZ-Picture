@@ -1,4 +1,5 @@
 export interface SpaceFolderInfo {
+  folderId?: string
   /** 空间编号（不能为空） */
   spaceId: string
 

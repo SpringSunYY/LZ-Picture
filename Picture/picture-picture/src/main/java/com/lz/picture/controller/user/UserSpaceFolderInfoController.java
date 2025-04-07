@@ -8,8 +8,8 @@ import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.SpaceFolderInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoUserAdd;
-import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoQuery;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoUserQuery;
+import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoUserUpdate;
 import com.lz.picture.model.enums.PSpaceStatus;
 import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
 import com.lz.picture.service.ISpaceFolderInfoService;
@@ -20,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +40,12 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
     @Resource
     private ISpaceInfoService spaceInfoService;
 
+    /**
+     * 添加文件夹
+     *
+     * @param spaceFolderInfoUserAdd
+     * @return
+     */
     @PreAuthorize("@uss.hasPermi('picture:space:spaceFolder:add')")
     @PostMapping
     public AjaxResult add(@RequestBody @Validated SpaceFolderInfoUserAdd spaceFolderInfoUserAdd) {
@@ -50,6 +55,37 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
         return toAjax(spaceFolderInfoService.userInsertSpaceFolderInfo(spaceFolderInfo));
     }
 
+    /**
+     * 更新文件夹
+     *
+     * @param spaceFolderInfoUserUpdate
+     * @return
+     */
+    @PreAuthorize("@uss.hasPermi('picture:space:spaceFolder:update')")
+    @PutMapping
+    public AjaxResult update(@RequestBody @Validated SpaceFolderInfoUserUpdate spaceFolderInfoUserUpdate) {
+        SpaceFolderInfo spaceFolderInfo = SpaceFolderInfoUserUpdate.updateToObj(spaceFolderInfoUserUpdate);
+        return toAjax(spaceFolderInfoService.userUpdateSpaceFolderInfo(spaceFolderInfo));
+    }
+
+    /**
+     * 删除文件夹
+     *
+     * @param folderId
+     * @return
+     */
+    @PreAuthorize("@uss.hasPermi('picture:space:spaceFolder:delete')")
+    @DeleteMapping("/{folderId}")
+    public AjaxResult delete(@PathVariable("folderId") String folderId) {
+        return toAjax(spaceFolderInfoService.deleteSpaceFolderInfoByFolderId(folderId));
+    }
+
+    /**
+     * 文件夹列表
+     *
+     * @param spaceFolderInfoQuery
+     * @return
+     */
     @PreAuthorize("@uss.hasPermi('picture:space:spaceFolder')")
     @GetMapping("/list")
     public TableDataInfo list(SpaceFolderInfoUserQuery spaceFolderInfoQuery) {
@@ -72,5 +108,22 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
                 .map(SpaceFolderInfoVo::objToVo)
                 .collect(Collectors.toList());
         return getDataTable(infoVos);
+    }
+
+    /**
+     * 获取文件夹
+     *
+     * @param folderId
+     * @return
+     */
+    @PreAuthorize("@uss.hasPermi('picture:space:spaceFolder')")
+    @GetMapping("/{folderId}")
+    public AjaxResult getFolderListBySpaceId(@PathVariable("folderId") String folderId) {
+        //查询是否有这个文件夹
+        SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectSpaceFolderInfoByFolderId(folderId);
+        if (StringUtils.isNull(spaceFolderInfo) || !spaceFolderInfo.getUserId().equals(getLoginUser().getUserId())) {
+            throw new ServiceException("文件夹不存在");
+        }
+        return AjaxResult.success(SpaceFolderInfoVo.objToVo(spaceFolderInfo));
     }
 }

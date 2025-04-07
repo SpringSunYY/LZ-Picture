@@ -121,8 +121,14 @@ import type {
   SpaceFolderInfoQuery,
   SpaceFolderInfoVo,
 } from '@/types/picture/spaceFolder'
-import { addSpaceFolder, listSpaceFolder } from '@/api/picture/spaceFolder.ts'
-import { message } from 'ant-design-vue'
+import {
+  addSpaceFolder,
+  deleteSpaceFolder,
+  getSpaceFolderInfo,
+  listSpaceFolder,
+  updateSpaceFolder,
+} from '@/api/picture/spaceFolder.ts'
+import { message, Modal } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 
 interface Folder {
@@ -138,6 +144,7 @@ const submitting = ref(false)
 const title = ref('')
 // 表单数据结构
 const formState = reactive<SpaceFolderInfo>({
+  folderId: '',
   spaceId: '',
   folderName: '',
   sortOrder: 0,
@@ -165,11 +172,6 @@ const rules = {
 // 路径栈
 const folderPathStack = reactive<Folder[]>([])
 
-// 当前子文件夹
-const currentFolders = computed(() =>
-  folderData.filter((f) => f.parentId === currentParentId.value),
-)
-
 // 进入子文件夹
 function enterFolder(folder: Folder) {
   folderPathStack.push(folder)
@@ -192,13 +194,29 @@ function goToLevel(index: number) {
   getFolderList()
 }
 
+//删除文件夹
 const handleDelete = (folderId: string) => {
-  console.log('handleDelete')
+  Modal.confirm({
+    title: '确定删除该文件夹吗？',
+    okText: '确定',
+    cancelText: '取消',
+    onOk() {
+      deleteSpaceFolder(folderId).then((res) => {
+        if (res?.code === 200) {
+          message.success('删除成功')
+          getFolderList()
+        }
+      })
+    },
+  })
 }
 const handleUpdate = (folderId: string) => {
-  console.log('handleUpdate')
-  title.value = '修改文件夹'
-  open.value = true
+  resetForm()
+  getSpaceFolderInfo(folderId).then((res) => {
+    Object.assign(formState, res?.data)
+    title.value = '修改文件夹'
+    open.value = true
+  })
 }
 
 // 添加文件夹（模拟）
@@ -209,17 +227,27 @@ function handleAdd() {
 }
 
 const handleSubmit = () => {
-
-  addSpaceFolder(formState).then((res) => {
-    if (res.code === 200) {
-      message.success('添加成功')
-      open.value = false
-      getFolderList()
-    }
-  })
+  if (formState.folderId !== '') {
+    updateSpaceFolder(formState).then((res) => {
+      if (res?.code === 200) {
+        message.success('修改成功')
+        open.value = false
+        getFolderList()
+      }
+    })
+  } else {
+    addSpaceFolder(formState).then((res) => {
+      if (res.code === 200) {
+        message.success('添加成功')
+        open.value = false
+        getFolderList()
+      }
+    })
+  }
 }
 const resetForm = () => {
   Object.assign(formState, {
+    folderId: '',
     spaceId: route.query.spaceId as string,
     folderName: '',
     sortOrder: 0,
