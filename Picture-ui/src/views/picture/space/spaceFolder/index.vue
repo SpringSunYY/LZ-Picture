@@ -29,7 +29,7 @@
         :key="folder.folderId"
         class="folder-item"
       >
-        <folder-filled class="icon" @click="enterFolder(folder)" />
+        <FolderTwoTone class="icon" @click="enterFolder(folder)" />
         <div class="text" @click="enterFolder(folder)">{{ folder.folderName }}</div>
         <a-row style="margin-top: 10px" :gutter="20">
           <a-col :span="12">
@@ -110,12 +110,11 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import {
-  FolderFilled,
-  PlusOutlined,
-  QuestionCircleOutlined,
   DeleteTwoTone,
   EditTwoTone,
   FolderAddTwoTone,
+  FolderTwoTone,
+  QuestionCircleOutlined,
 } from '@ant-design/icons-vue'
 import type { SpaceInfo } from '@/types/picture/space.ts'
 
