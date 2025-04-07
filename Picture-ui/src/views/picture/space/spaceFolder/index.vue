@@ -107,8 +107,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+<script setup lang="ts" name="PictureSpaceFolder">
+import { reactive, ref } from 'vue'
 import {
   DeleteTwoTone,
   EditTwoTone,
@@ -153,6 +153,7 @@ const formState = reactive<SpaceFolderInfo>({
 })
 // 获取当前路由信息
 const route = useRoute()
+
 const folderQuery = ref<SpaceFolderInfoQuery>({
   spaceId: route.query.spaceId as string,
   parentId: currentParentId.value,

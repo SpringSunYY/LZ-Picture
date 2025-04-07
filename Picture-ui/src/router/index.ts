@@ -10,28 +10,9 @@ export const constantRoutes: RouteRecordRaw[] = [
       title: '首a页',
       cacheKey: 'home',
       isHidden: false,
-      icon:'space'
+      isCache: true,
+      icon: 'space',
     },
-  },
-  {
-    path: '/pictureMy',
-    meta:{
-      title:'我da的',
-      cacheKey:'user',
-      isHidden:false
-
-    },
-    children: [
-      {
-        path: '/about',
-        name: 'about',
-        component: () => import('@/views/AboutView.vue'),
-        meta: {
-          title: '关于我们',
-          transition: 'fade',
-        },
-      },
-    ],
   },
   {
     path: '/user',
@@ -93,7 +74,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     meta: {
       isHidden: true,
     },
-  }
+  },
 ]
 
 // 创建路由实例

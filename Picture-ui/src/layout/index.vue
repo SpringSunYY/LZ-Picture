@@ -9,12 +9,14 @@
         <GlobalHeader />
       </a-layout-header>
       <a-layout-content class="content">
-        <router-view v-slot="{ Component }">
-          <keep-alive>
-            <component :is="Component" />
+        <router-view v-slot="{ Component, route }">
+          <keep-alive v-if="route?.meta?.isCache === true">
+            <component :is="Component" :key="route.name"/>
           </keep-alive>
+          <component v-else :is="Component" :key="route.name"/>
         </router-view>
       </a-layout-content>
+
       <a-layout-footer class="footer">
         <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank"> 荔枝云图库 by LZ </a>
       </a-layout-footer>

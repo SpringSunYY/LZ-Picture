@@ -46,11 +46,12 @@ const usePermissionStore = defineStore('permission', {
             name: route.routeName,
             meta: {
               permissions: route.perms ? [route.perms] : undefined,
-              cacheable: route.isChache === '0',
+              isCache: route.isCache === '0',
               title: route.menuName,
               icon: route.icon,
-              isHidden: route.isHidden === '1',
+              isHidden: route.isHidden === '0',
               menuType: route.menuType,
+              menuAddress: route.menuAddress,
             },
             children: route.children ? transformRoutes(route.children) : [],
           }

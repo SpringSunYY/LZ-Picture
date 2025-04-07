@@ -76,7 +76,6 @@ const doLogout = async () => {
   })
 }
 
-
 // 当前选中菜单
 const current = ref<string[]>([])
 
@@ -104,9 +103,13 @@ onMounted(async () => {
 const checkRouteHidden = (route: RouteRecordRaw | undefined): boolean => {
   if (!route) return false // 确保 route 为空时直接返回 false
 
+  // console.log('checkRouteHidden', route)
   // 当前路由标记隐藏
   if (route?.meta?.isHidden) return true
-
+  console.log('checkRouteHidden', route.meta?.isCache)
+  if (route?.meta?.menuAddress !== undefined && route?.meta?.menuAddress !== '2') {
+    return true
+  }
   // 查找父路由路径（确保不会找出空路径）
   const parentPath = route.path.split('/').slice(0, -1).join('/') || '/'
   if (parentPath === route.path) return false // 避免路径相同导致死循环
@@ -135,7 +138,7 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
           })
         },
         title: route?.meta?.title,
-        icon: route?.meta?.icon ? renderIcon(route.meta.icon) : undefined,
+        icon: route?.meta?.icon ? renderIcon(route.meta.icon as string) : undefined,
         children: [] as MenuProps['items'],
       }
 
