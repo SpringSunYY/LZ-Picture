@@ -40,6 +40,16 @@ public class ConfigKeyConstants {
     public static final String PICTURE_SPACE_MAX_SIZE = "picture:space:maxSize";
 
     /**
+     * 用户最大团队空间数
+     */
+    public static final String PICTURE_SPACE_MAX_1 = "picture:space:max:1";
+
+    /**
+     * 用户最大个人空间数
+     */
+    public static final String PICTURE_SPACE_MAX_2 = "picture:space:max:2";
+
+    /**
      * 封面图片压缩倍率百分比
      */
     public static final String PICTURE_SPACE_AVATAR_P = "picture:space:avatar:p";

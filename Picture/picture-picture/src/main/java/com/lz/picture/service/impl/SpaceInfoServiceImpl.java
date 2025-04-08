@@ -22,8 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_MAX_COUNT;
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_MAX_SIZE;
+import static com.lz.common.constant.config.ConfigKeyConstants.*;
 
 /**
  * 空间信息Service业务层处理
@@ -177,9 +176,19 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         if (!spaceTypeList.contains(spaceInfo.getSpaceType())) {
             throw new ServiceException("空间类型错误！！！");
         }
+        //获取用户最大空间数量
+        String maxSpaceCount = "";
+        if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_1.getValue())) {
+            maxSpaceCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_1);
+        } else if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_2.getValue())) {
+            maxSpaceCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_2);
+        }
+        if (StringUtils.isEmpty(maxSpaceCount)) {
+            maxSpaceCount = "10";
+        }
         //查询用户此类型空间创建了多少个
         long count = this.count(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getUserId, spaceInfo.getUserId()).eq(SpaceInfo::getSpaceType, spaceInfo.getSpaceType()));
-        if (count >= 10) {
+        if (count >= Long.parseLong(maxSpaceCount)) {
             throw new ServiceException("此类型空间创建了10个，不能再创建了！！！");
         }
         spaceInfo.setCreateTime(DateUtils.getNowDate());

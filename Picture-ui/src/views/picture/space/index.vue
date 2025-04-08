@@ -218,17 +218,19 @@ const handleSubmit = () => {
     updateSpace(formState).then((res) => {
       if (res?.code === 200) {
         message.success('修改空间成功')
+        getMySpaceList()
+        open.value = false
       }
     })
   } else {
     addSpace(formState).then((res) => {
       if (res?.code === 200) {
         message.success('创建空间成功')
+        getMySpaceList()
+        open.value = false
       }
     })
   }
-  getMySpaceList()
-  open.value = false
 }
 const handleUpdate = (spaceId: string) => {
   console.log(spaceId)

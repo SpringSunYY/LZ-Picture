@@ -147,6 +147,9 @@ watch(
     } else {
       return
     }
+    if (newVal === '') {
+      return
+    }
     if (typeof newVal === 'string') {
       const meta = await loadImageMeta(newVal)
       innerFileList.value = [
