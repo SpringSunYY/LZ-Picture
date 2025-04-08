@@ -9,10 +9,10 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="父级分类编号" prop="parentId">
+      <el-form-item label="父级分类" prop="parentId">
         <el-input
             v-model="queryParams.parentId"
-            placeholder="请输入父级分类编号"
+            placeholder="请输入父级分类"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -122,11 +122,14 @@
         :default-expand-all="isExpandAll"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
-      <el-table-column label="父级分类编号" prop="parentId" v-if="columns[1].visible" :show-overflow-tooltip="true"/>
+      <el-table-column label="父级分类" prop="parentId" v-if="columns[1].visible" :show-overflow-tooltip="true"/>
       <el-table-column label="祖级列表" align="center" prop="ancestors" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="封面图URL" align="center" prop="coverUrl" v-if="columns[3].visible"
-                       :show-overflow-tooltip="true"/>
+      <el-table-column label="封面图" align="center" prop="coverUrl" width="100" v-if="columns[3].visible">
+        <template #default="scope">
+          <image-preview :src="scope.row.coverUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="分类名称" align="center" prop="name" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="分类描述" align="center" prop="categoryDesc" v-if="columns[5].visible"
@@ -187,18 +190,18 @@
     <!-- 添加或修改图片分类信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="pictureCategoryInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="父级分类编号" prop="parentId">
+        <el-form-item label="父级分类" prop="parentId">
           <el-tree-select
               v-model="form.parentId"
               :data="pictureCategoryInfoOptions"
               :props="{ value: 'categoryId', label: 'name', children: 'children' }"
               value-key="categoryId"
-              placeholder="请选择父级分类编号"
+              placeholder="请选择父级分类"
               check-strictly
           />
         </el-form-item>
-        <el-form-item label="封面图URL" prop="coverUrl">
-          <file-upload v-model="form.coverUrl"/>
+        <el-form-item label="封面图" prop="coverUrl">
+          <image-upload v-model="form.coverUrl"/>
         </el-form-item>
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入分类名称"/>
@@ -236,25 +239,25 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="使用次数" prop="usageCount">
-          <el-input v-model="form.usageCount" placeholder="请输入使用次数"/>
-        </el-form-item>
-        <el-form-item label="查看次数" prop="lookCount">
-          <el-input v-model="form.lookCount" placeholder="请输入查看次数"/>
-        </el-form-item>
-        <el-form-item label="下载次数" prop="downloadCount">
-          <el-input v-model="form.downloadCount" placeholder="请输入下载次数"/>
-        </el-form-item>
-        <el-form-item label="删除标记" prop="isDelete">
-          <el-radio-group v-model="form.isDelete">
-            <el-radio
-                v-for="dict in common_delete"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
+<!--        <el-form-item label="使用次数" prop="usageCount">-->
+<!--          <el-input v-model="form.usageCount" placeholder="请输入使用次数"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="查看次数" prop="lookCount">-->
+<!--          <el-input v-model="form.lookCount" placeholder="请输入查看次数"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="下载次数" prop="downloadCount">-->
+<!--          <el-input v-model="form.downloadCount" placeholder="请输入下载次数"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="删除标记" prop="isDelete">-->
+<!--          <el-radio-group v-model="form.isDelete">-->
+<!--            <el-radio-->
+<!--                v-for="dict in common_delete"-->
+<!--                :key="dict.value"-->
+<!--                :value="dict.value"-->
+<!--            >{{ dict.label }}-->
+<!--            </el-radio>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -309,7 +312,7 @@ const data = reactive({
   },
   rules: {
     parentId: [
-      {required: true, message: "父级分类编号不能为空", trigger: "blur"}
+      {required: true, message: "父级分类不能为空", trigger: "blur"}
     ],
     ancestors: [
       {required: true, message: "祖级列表不能为空", trigger: "blur"}
@@ -347,10 +350,10 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '分类编号', visible: true},
-    {key: 1, label: '父级分类编号', visible: true},
-    {key: 2, label: '祖级列表', visible: true},
-    {key: 3, label: '封面图URL', visible: true},
+    {key: 0, label: '分类编号', visible: false},
+    {key: 1, label: '父级分类', visible: false},
+    {key: 2, label: '祖级列表', visible: false},
+    {key: 3, label: '封面图', visible: true},
     {key: 4, label: '分类名称', visible: true},
     {key: 5, label: '分类描述', visible: true},
     {key: 6, label: '分类状态', visible: true},
@@ -359,9 +362,9 @@ const data = reactive({
     {key: 9, label: '使用次数', visible: true},
     {key: 10, label: '查看次数', visible: true},
     {key: 11, label: '下载次数', visible: true},
-    {key: 12, label: '创建时间', visible: true},
-    {key: 13, label: '更新时间', visible: true},
-    {key: 14, label: '删除标记', visible: true},
+    {key: 12, label: '创建时间', visible: false},
+    {key: 13, label: '更新时间', visible: false},
+    {key: 14, label: '删除标记', visible: false},
   ],
 });
 

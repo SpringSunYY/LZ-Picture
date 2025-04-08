@@ -201,10 +201,10 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
             spaceFolderInfo.setFolderLevel(String.valueOf(level));
         }
         //获取祖级列表
-        StringBuilder ancestors = TreeUtils.getAncestors(spaceFolderInfo.getFolderId(), new StringBuilder(), spaceFolderInfoMapper::selectSpaceFolderInfoByFolderId, SpaceFolderInfo::getFolderId, SpaceFolderInfo::getParentId, "0", ",");
+        StringBuilder ancestors = TreeUtils.getAncestors(spaceFolderInfo.getParentId(), new StringBuilder(), spaceFolderInfoMapper::selectSpaceFolderInfoByFolderId, SpaceFolderInfo::getFolderId, SpaceFolderInfo::getParentId, "0", ",");
         spaceFolderInfo.setAncestors(ancestors.toString());
         //获取路径快照
-        StringBuilder fullPath = TreeUtils.getAncestors(spaceFolderInfo.getFolderId(), new StringBuilder(), spaceFolderInfoMapper::selectSpaceFolderInfoByFolderId, SpaceFolderInfo::getFolderName, SpaceFolderInfo::getParentId, "根目录", "/");
+        StringBuilder fullPath = TreeUtils.getAncestors(spaceFolderInfo.getParentId(), new StringBuilder(spaceFolderInfo.getFolderName()), spaceFolderInfoMapper::selectSpaceFolderInfoByFolderId, SpaceFolderInfo::getFolderName, SpaceFolderInfo::getParentId, "根目录", "/");
         spaceFolderInfo.setFullPath(fullPath.toString());
         spaceFolderInfo.setCreateTime(DateUtils.getNowDate());
     }
