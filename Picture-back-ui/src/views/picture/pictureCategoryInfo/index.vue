@@ -9,6 +9,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="父级分类编号" prop="parentId">
+        <el-input
+            v-model="queryParams.parentId"
+            placeholder="请输入父级分类编号"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="分类名称" prop="name">
         <el-input
             v-model="queryParams.name"
@@ -18,7 +26,7 @@
         />
       </el-form-item>
       <el-form-item label="分类状态" prop="categoryStatus">
-        <el-select v-model="queryParams.categoryStatus" style="width: 200px" placeholder="请选择分类状态" clearable>
+        <el-select v-model="queryParams.categoryStatus" placeholder="请选择分类状态" clearable>
           <el-option
               v-for="dict in p_category_status"
               :key="dict.value"
@@ -27,8 +35,18 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="分类类型" prop="categoryType">
+        <el-select v-model="queryParams.categoryType" placeholder="请选择分类类型" clearable>
+          <el-option
+              v-for="dict in p_category_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="查询状态" prop="queryStatus">
-        <el-select v-model="queryParams.queryStatus" style="width: 200px" placeholder="请选择查询状态" clearable>
+        <el-select v-model="queryParams.queryStatus" placeholder="请选择查询状态" clearable>
           <el-option
               v-for="dict in p_category_query_status"
               :key="dict.value"
@@ -58,7 +76,7 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item label="删除标记" prop="isDelete">
-        <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除标记" clearable>
+        <el-select v-model="queryParams.isDelete" placeholder="请选择删除标记" clearable>
           <el-option
               v-for="dict in common_delete"
               :key="dict.value"
@@ -118,30 +136,35 @@
           <dict-tag :options="p_category_status" :value="scope.row.categoryStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="查询状态" align="center" prop="queryStatus" v-if="columns[7].visible">
+      <el-table-column label="分类类型" align="center" prop="categoryType" v-if="columns[7].visible">
+        <template #default="scope">
+          <dict-tag :options="p_category_type" :value="scope.row.categoryType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="查询状态" align="center" prop="queryStatus" v-if="columns[8].visible">
         <template #default="scope">
           <dict-tag :options="p_category_query_status" :value="scope.row.queryStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="使用次数" align="center" prop="usageCount" v-if="columns[8].visible"
+      <el-table-column label="使用次数" align="center" prop="usageCount" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[9].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[10].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[12].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[13].visible">
+      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[14].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -192,6 +215,16 @@
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item label="分类类型" prop="categoryType">
+          <el-select v-model="form.categoryType" placeholder="请选择分类类型">
+            <el-option
+                v-for="dict in p_category_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="查询状态" prop="queryStatus">
           <el-radio-group v-model="form.queryStatus">
@@ -246,8 +279,9 @@ const {proxy} = getCurrentInstance();
 const {
   common_delete,
   p_category_status,
-  p_category_query_status
-} = proxy.useDict('common_delete', 'p_category_status', 'p_category_query_status');
+  p_category_query_status,
+  p_category_type
+} = proxy.useDict('common_delete', 'p_category_status', 'p_category_query_status', 'p_category_type');
 
 const pictureCategoryInfoList = ref([]);
 const pictureCategoryInfoOptions = ref([]);
@@ -264,8 +298,10 @@ const data = reactive({
   form: {},
   queryParams: {
     categoryId: null,
+    parentId: null,
     name: null,
     categoryStatus: null,
+    categoryType: null,
     queryStatus: null,
     createTime: null,
     updateTime: null,
@@ -283,6 +319,9 @@ const data = reactive({
     ],
     categoryStatus: [
       {required: true, message: "分类状态不能为空", trigger: "change"}
+    ],
+    categoryType: [
+      {required: true, message: "分类类型不能为空", trigger: "change"}
     ],
     queryStatus: [
       {required: true, message: "查询状态不能为空", trigger: "change"}
@@ -315,13 +354,14 @@ const data = reactive({
     {key: 4, label: '分类名称', visible: true},
     {key: 5, label: '分类描述', visible: true},
     {key: 6, label: '分类状态', visible: true},
-    {key: 7, label: '查询状态', visible: true},
-    {key: 8, label: '使用次数', visible: true},
-    {key: 9, label: '查看次数', visible: true},
-    {key: 10, label: '下载次数', visible: true},
-    {key: 11, label: '创建时间', visible: true},
-    {key: 12, label: '更新时间', visible: true},
-    {key: 13, label: '删除标记', visible: true},
+    {key: 7, label: '分类类型', visible: true},
+    {key: 8, label: '查询状态', visible: true},
+    {key: 9, label: '使用次数', visible: true},
+    {key: 10, label: '查看次数', visible: true},
+    {key: 11, label: '下载次数', visible: true},
+    {key: 12, label: '创建时间', visible: true},
+    {key: 13, label: '更新时间', visible: true},
+    {key: 14, label: '删除标记', visible: true},
   ],
 });
 
@@ -371,6 +411,7 @@ function reset() {
     name: null,
     categoryDesc: null,
     categoryStatus: null,
+    categoryType: null,
     queryStatus: null,
     usageCount: null,
     lookCount: null,

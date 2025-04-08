@@ -1,43 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.PictureCategoryInfoMapper">
-    
+
     <resultMap type="PictureCategoryInfo" id="PictureCategoryInfoResult">
-        <result property="categoryId"    column="category_id"    />
-        <result property="parentId"    column="parent_id"    />
-        <result property="ancestors"    column="ancestors"    />
-        <result property="coverUrl"    column="cover_url"    />
-        <result property="name"    column="name"    />
-        <result property="categoryDesc"    column="category_desc"    />
-        <result property="categoryStatus"    column="category_status"    />
-        <result property="queryStatus"    column="query_status"    />
-        <result property="usageCount"    column="usage_count"    />
-        <result property="lookCount"    column="look_count"    />
-        <result property="downloadCount"    column="download_count"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="isDelete"    column="is_delete"    />
+        <result property="categoryId" column="category_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="name" column="name"/>
+        <result property="categoryDesc" column="category_desc"/>
+        <result property="categoryStatus" column="category_status"/>
+        <result property="categoryType" column="category_type"/>
+        <result property="queryStatus" column="query_status"/>
+        <result property="usageCount" column="usage_count"/>
+        <result property="lookCount" column="look_count"/>
+        <result property="downloadCount" column="download_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
     </resultMap>
 
     <sql id="selectPictureCategoryInfoVo">
-        select category_id, parent_id, ancestors, cover_url, name, category_desc, category_status, query_status, usage_count, look_count, download_count, create_time, update_time, is_delete from p_picture_category_info
+        select category_id,
+               parent_id,
+               ancestors,
+               cover_url,
+               name,
+               category_desc,
+               category_status,
+               category_type,
+               query_status,
+               usage_count,
+               look_count,
+               download_count,
+               create_time,
+               update_time,
+               is_delete
+        from p_picture_category_info
     </sql>
 
-    <select id="selectPictureCategoryInfoList" parameterType="PictureCategoryInfo" resultMap="PictureCategoryInfoResult">
+    <select id="selectPictureCategoryInfoList" parameterType="PictureCategoryInfo"
+            resultMap="PictureCategoryInfoResult">
         <include refid="selectPictureCategoryInfoVo"/>
-        <where>  
-            <if test="categoryId != null  and categoryId != ''"> and category_id = #{categoryId}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="categoryStatus != null  and categoryStatus != ''"> and category_status = #{categoryStatus}</if>
-            <if test="queryStatus != null  and queryStatus != ''"> and query_status = #{queryStatus}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        <where>
+            <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="parentId != null  and parentId != ''">and parent_id = #{parentId}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="categoryStatus != null  and categoryStatus != ''">and category_status = #{categoryStatus}</if>
+            <if test="categoryType != null  and categoryType != ''">and category_type = #{categoryType}</if>
+            <if test="queryStatus != null  and queryStatus != ''">and query_status = #{queryStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
     </select>
-    
+
     <select id="selectPictureCategoryInfoByCategoryId" parameterType="String" resultMap="PictureCategoryInfoResult">
         <include refid="selectPictureCategoryInfoVo"/>
         where category_id = #{categoryId}
@@ -53,6 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null and name != ''">name,</if>
             <if test="categoryDesc != null">category_desc,</if>
             <if test="categoryStatus != null and categoryStatus != ''">category_status,</if>
+            <if test="categoryType != null and categoryType != ''">category_type,</if>
             <if test="queryStatus != null and queryStatus != ''">query_status,</if>
             <if test="usageCount != null">usage_count,</if>
             <if test="lookCount != null">look_count,</if>
@@ -60,7 +84,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="categoryId != null">#{categoryId},</if>
             <if test="parentId != null and parentId != ''">#{parentId},</if>
@@ -69,6 +93,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null and name != ''">#{name},</if>
             <if test="categoryDesc != null">#{categoryDesc},</if>
             <if test="categoryStatus != null and categoryStatus != ''">#{categoryStatus},</if>
+            <if test="categoryType != null and categoryType != ''">#{categoryType},</if>
             <if test="queryStatus != null and queryStatus != ''">#{queryStatus},</if>
             <if test="usageCount != null">#{usageCount},</if>
             <if test="lookCount != null">#{lookCount},</if>
@@ -76,7 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePictureCategoryInfo" parameterType="PictureCategoryInfo">
@@ -88,6 +113,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="categoryDesc != null">category_desc = #{categoryDesc},</if>
             <if test="categoryStatus != null and categoryStatus != ''">category_status = #{categoryStatus},</if>
+            <if test="categoryType != null and categoryType != ''">category_type = #{categoryType},</if>
             <if test="queryStatus != null and queryStatus != ''">query_status = #{queryStatus},</if>
             <if test="usageCount != null">usage_count = #{usageCount},</if>
             <if test="lookCount != null">look_count = #{lookCount},</if>
@@ -100,11 +126,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePictureCategoryInfoByCategoryId" parameterType="String">
-        delete from p_picture_category_info where category_id = #{categoryId}
+        delete
+        from p_picture_category_info
+        where category_id = #{categoryId}
     </delete>
 
     <delete id="deletePictureCategoryInfoByCategoryIds" parameterType="String">
-        delete from p_picture_category_info where category_id in 
+        delete from p_picture_category_info where category_id in
         <foreach item="categoryId" collection="array" open="(" separator="," close=")">
             #{categoryId}
         </foreach>

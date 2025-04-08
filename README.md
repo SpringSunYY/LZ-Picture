@@ -1801,6 +1801,7 @@ CREATE TABLE p_space_folder_info
 | name            | varchar  | 32   | 唯一键                            | 否   |          | 分类名称 |
 | category_desc   | varchar  | 512  |                                   | 是   |          | 分类描述 |
 | category_status | char     | 1    |                                   | 否   |          | 分类状态 |
+| category_type   | char     | 1    |                                   | 否   |          | 分类类型 |
 | query_status    | char     | 1    |                                   | 否   |          | 查询状态 |
 | usage_count     | bigint   |      | 索引                              | 否   | 0        | 使用次数 |
 | look_count      | bigint   |      | 索引                              | 否   | 0        | 查看次数 |
@@ -1811,34 +1812,43 @@ CREATE TABLE p_space_folder_info
 
 分类状态：0正常 1关闭，是否可以查询到且使用
 
+分类类型：0图片 。。。
+
 查询状态：0是 1否，记录后续图片列表根据图片类别分类的查询条件
 
 ```sql
-DROP TABLE IF EXISTS p_picture_category_info;
-CREATE TABLE p_picture_category_info
+create table p_picture_category_info
 (
-    category_id     VARCHAR(128)  NOT NULL COMMENT '分类编号',
-    parent_id       VARCHAR(128)  NOT NULL DEFAULT '0' COMMENT '父级分类编号',
-    ancestors       VARCHAR(1280) NOT NULL COMMENT '祖级列表',
-    cover_url       VARCHAR(512) COMMENT '封面图URL',
-    name            VARCHAR(32)   NOT NULL COMMENT '分类名称',
-    category_desc   VARCHAR(512) COMMENT '分类描述',
-    category_status CHAR(1)       NOT NULL DEFAULT '0' COMMENT '分类状态（0正常 1关闭）',
-    query_status    CHAR(1)       NOT NULL DEFAULT '0' COMMENT '查询状态（0是 1否）',
-    usage_count     BIGINT        NOT NULL DEFAULT 0 COMMENT '使用次数',
-    look_count      BIGINT        NOT NULL DEFAULT 0 COMMENT '查看次数',
-    download_count  BIGINT        NOT NULL DEFAULT 0 COMMENT '下载次数',
-    create_time     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    is_delete      CHAR(1)       NOT NULL DEFAULT '0' COMMENT '删除标记（0否 1是）',
-    PRIMARY KEY (category_id),
-    FOREIGN KEY (parent_id) REFERENCES p_picture_category_info (category_id) ON DELETE CASCADE,
-    UNIQUE KEY uk_category_name (name),
-    INDEX idx_usage_count (usage_count),
-    INDEX idx_look_count (look_count),
-    INDEX idx_download_count (download_count)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='图片分类信息表';
+    category_id     varchar(128)                           not null comment '分类编号' primary key,
+    parent_id       varchar(128) default '0'               not null comment '父级分类编号',
+    ancestors       varchar(1280)                          not null comment '祖级列表',
+    cover_url       varchar(512)                           null comment '封面图URL',
+    name            varchar(32)                            not null comment '分类名称',
+    category_desc   varchar(512)                           null comment '分类描述',
+    category_status char         default '0'               not null comment '分类状态（0正常 1关闭）',
+    category_type   char         default '0'               not null comment '分类类型',
+    query_status    char         default '0'               not null comment '查询状态（0是 1否）',
+    usage_count     bigint       default 0                 not null comment '使用次数',
+    look_count      bigint       default 0                 not null comment '查看次数',
+    download_count  bigint       default 0                 not null comment '下载次数',
+    create_time     datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time     datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete       char         default '0'               not null comment '删除标记（0否 1是）',
+    constraint uk_category_name
+        unique (name),
+    constraint p_picture_category_info_ibfk_1
+        foreign key (parent_id) references p_picture_category_info (category_id)
+            on delete cascade
+)comment '图片分类信息表';
+create index idx_download_count
+    on p_picture_category_info (download_count);
+create index idx_look_count
+    on p_picture_category_info (look_count);
+create index idx_usage_count
+    on p_picture_category_info (usage_count);
+create index parent_id
+    on p_picture_category_info (parent_id)
+
 ```
 
 

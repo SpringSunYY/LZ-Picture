@@ -1,6 +1,10 @@
 import type { API } from '@/types/common'
 import { http as request } from '@/utils'
-import type { SpaceFolderInfo, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
+import type {
+  SpaceFolderInfo,
+  SpaceFolderInfoQuery,
+  SpaceFolderInfoVo,
+} from '@/types/picture/spaceFolder'
 
 //新增文件夹
 export function addSpaceFolder(data: SpaceFolderInfo): Promise<API.ResponseInfo<number>> {
@@ -22,8 +26,8 @@ export function updateSpaceFolder(data: SpaceFolderInfo): Promise<API.ResponseIn
 
 //查询文件夹
 export function listSpaceFolder(
-  params: SpaceFolderInfo,
-): Promise<API.ResponseInfo<SpaceFolderInfoVo[]>> {
+  params: SpaceFolderInfoQuery,
+): Promise<API.ResponseInfo<SpaceFolderInfoVo>> {
   return request({
     url: '/picture/spaceFolderInfo/list',
     method: 'get',

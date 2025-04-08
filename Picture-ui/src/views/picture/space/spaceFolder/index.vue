@@ -270,7 +270,7 @@ const getFolderList = () => {
   folderQuery.value.parentId = currentParentId.value
   // 获取文件夹列表
   listSpaceFolder(folderQuery.value).then((res) => {
-    folderList.value = res?.rows
+    folderList.value = res?.rows || []
   })
 }
 getFolderList()
