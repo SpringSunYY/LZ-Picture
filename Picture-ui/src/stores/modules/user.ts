@@ -6,19 +6,18 @@ import { defineStore } from 'pinia'
 import type { USER } from '@/types/user'
 import router from '@/router'
 import usePermissionStore from '@/stores/modules/permission.ts'
-import { useRouter,useRoute } from 'vue-router'
 
 const useUserStore = defineStore('user', {
   state: (): {
     permissions: string[]
-    name: string
-    id: string
+    userName: string
+    userId: string
     avatar: string
     token: string | null
   } => ({
     token: getToken(),
-    id: '',
-    name: '',
+    userId: '',
+    userName: '',
     avatar: '',
     permissions: [],
   }),
@@ -78,8 +77,8 @@ const useUserStore = defineStore('user', {
         }
 
         // 更新用户信息
-        this.id = user.userId
-        this.name = user.userName
+        this.userId = user.userId
+        this.userName = user.userName
         this.avatar = avatar
 
         return res
@@ -95,8 +94,8 @@ const useUserStore = defineStore('user', {
         await logout()
         this.token = ''
         this.permissions = []
-        this.id = ''
-        this.name = ''
+        this.userId = ''
+        this.userName = ''
         this.avatar = ''
         //TODO 退出登录后续操作
         removeToken()

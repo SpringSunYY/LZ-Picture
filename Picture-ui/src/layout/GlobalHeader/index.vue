@@ -56,7 +56,7 @@ import SvgIcon from '@/components/SvgIcon/index.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
 
 const userStore = useUserStore()
-const { name: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
+const { userName: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 const router = useRouter()
 // 用户注销
 const doLogout = async () => {
@@ -95,7 +95,7 @@ const permissionStore = usePermissionStore()
 // 初始化用户信息
 onMounted(async () => {
   if (userStore.token) {
-    userName.value = userStore.name
+    userName.value = userStore.userName
     avatar.value = userStore.avatar
   }
 })

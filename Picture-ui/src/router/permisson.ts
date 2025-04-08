@@ -35,7 +35,7 @@ router.beforeEach(async (to, from, next) => {
   } else {
     // 动态路由加载
     try {
-      if (userStore.id === '') {
+      if (userStore.userId === '') {
         await userStore.getInfo()
         await permissionStore.generateRoutes().then((routes) => {
           // 动态添加路由

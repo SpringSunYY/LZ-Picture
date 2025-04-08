@@ -65,26 +65,26 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="最后上传时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeLastUpdateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
-      <el-form-item label="最后更新时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeUpdateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
+<!--      <el-form-item label="最后上传时间" style="width: 308px">-->
+<!--        <el-date-picker-->
+<!--            v-model="daterangeLastUpdateTime"-->
+<!--            value-format="YYYY-MM-DD"-->
+<!--            type="daterange"-->
+<!--            range-separator="-"-->
+<!--            start-placeholder="开始日期"-->
+<!--            end-placeholder="结束日期"-->
+<!--        ></el-date-picker>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="最后更新时间" style="width: 308px">-->
+<!--        <el-date-picker-->
+<!--            v-model="daterangeUpdateTime"-->
+<!--            value-format="YYYY-MM-DD"-->
+<!--            type="daterange"-->
+<!--            range-separator="-"-->
+<!--            start-placeholder="开始日期"-->
+<!--            end-placeholder="结束日期"-->
+<!--        ></el-date-picker>-->
+<!--      </el-form-item>-->
       <el-form-item label="删除" prop="isDelete">
         <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
           <el-option
@@ -256,9 +256,9 @@
         <el-form-item label="空间名称" prop="spaceName">
           <el-input v-model="form.spaceName" placeholder="请输入空间名称"/>
         </el-form-item>
-<!--        <el-form-item label="空间封面" prop="spaceAvatar">-->
-<!--          <image-upload v-model="form.spaceAvatar"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="空间封面" prop="spaceAvatar">-->
+        <!--          <image-upload v-model="form.spaceAvatar"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="存储类型" prop="ossType">
           <el-select v-model="form.ossType" placeholder="请选择存储类型">
             <el-option
@@ -272,18 +272,18 @@
         <el-form-item label="存储配置" prop="ossConfig">
           <el-input v-model="form.ossConfig" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-<!--        <el-form-item label="最大容量" prop="maxSize">-->
-<!--          <el-input v-model="form.maxSize" placeholder="请输入最大容量"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="最大文件数" prop="maxCount">-->
-<!--          <el-input v-model="form.maxCount" placeholder="请输入最大文件数"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="已用容量" prop="totalSize">-->
-<!--          <el-input v-model="form.totalSize" placeholder="请输入已用容量"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="文件总数" prop="totalCount">-->
-<!--          <el-input v-model="form.totalCount" placeholder="请输入文件总数"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="最大容量" prop="maxSize">-->
+        <!--          <el-input v-model="form.maxSize" placeholder="请输入最大容量"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="最大文件数" prop="maxCount">-->
+        <!--          <el-input v-model="form.maxCount" placeholder="请输入最大文件数"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="已用容量" prop="totalSize">-->
+        <!--          <el-input v-model="form.totalSize" placeholder="请输入已用容量"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="文件总数" prop="totalCount">-->
+        <!--          <el-input v-model="form.totalCount" placeholder="请输入文件总数"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="所属用户" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入所属用户"/>
         </el-form-item>
@@ -313,10 +313,10 @@
         <el-form-item label="成员上限" prop="memberLimit">
           <el-input v-model="form.memberLimit" placeholder="请输入成员上限"/>
         </el-form-item>
-<!--        <el-form-item label="当前成员数" prop="currentMembers">-->
-<!--          <el-input v-model="form.currentMembers" placeholder="请输入当前成员数"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="最后上传时间" prop="lastUpdateTime">-->
+        <!--        <el-form-item label="当前成员数" prop="currentMembers">-->
+        <!--          <el-input v-model="form.currentMembers" placeholder="请输入当前成员数"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="最后上传时间" prop="lastUpdateTime">-->
         <!--          <el-date-picker clearable-->
         <!--                          v-model="form.lastUpdateTime"-->
         <!--                          type="date"-->

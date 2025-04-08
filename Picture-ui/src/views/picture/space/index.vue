@@ -9,7 +9,6 @@
         </div>
       </div>
     </div>
-
     <!-- 空间网格列表 -->
     <a-row v-else :gutter="[24, 24]">
       <a-col v-for="space in spaceList" :key="space.spaceId" :xs="24" :sm="12" :md="8" :lg="6">
@@ -29,6 +28,7 @@
               <Tags :values="[getPSpaceStatusLabel(space.spaceStatus)]" :colors="['#1890ff']" />
               <Tags :values="[getPSpaceTypeLabel(space.spaceType)]" :colors="['#00ff0d']" />
               <a-button
+                v-if="space.userId === userId"
                 style="float: right"
                 type="primary"
                 @click="handleUpdate(space.spaceId)"
@@ -146,11 +146,15 @@ import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags/index.vue'
 import { formatSize } from '@/utils/common.ts'
+import useUserStore from '@/stores/modules/user.ts'
+import { storeToRefs } from 'pinia'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { p_space_status } = proxy?.useDict('p_space_status')
+const userStore = useUserStore()
+const { userName: userName, avatar: avatar, userId: userId } = storeToRefs(userStore)
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)
@@ -196,7 +200,6 @@ const handleAdd = () => {
   resetForm()
   open.value = true
   title.value = '创建空间'
-  formRef.value?.resetFields()
 }
 
 const resetForm = () => {
