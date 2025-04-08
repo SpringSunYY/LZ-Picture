@@ -75,6 +75,10 @@ export const constantRoutes: RouteRecordRaw[] = [
       isHidden: true,
     },
   },
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/views/404.vue')
+  }
 ]
 
 // 创建路由实例

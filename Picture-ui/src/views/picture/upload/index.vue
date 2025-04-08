@@ -24,7 +24,13 @@
         <a-form-item label="图片名称" name="name">
           <a-input v-model:value="formState.name" />
         </a-form-item>
-
+        <a-form-item label="图片空间">
+          <a-select
+            v-model:value="formState.spaceId"
+            placeholder="请选择图片空间"
+            :options="[]"
+          />
+        </a-form-item>
         <!-- 分类选择 -->
         <a-form-item label="图片分类" name="categoryId">
           <a-cascader
@@ -37,6 +43,14 @@
               value: 'categoryId',
               children: 'children',
             }"
+          />
+        </a-form-item>
+        <a-form-item label="标签">
+          <a-select
+            v-model:value="formState.tags"
+            mode="tags"
+            placeholder="请输入图片标签"
+            :options="[]"
           />
         </a-form-item>
 
@@ -88,7 +102,7 @@ const formState = reactive({
   pictureUrl: '',
   categoryId: '',
   pointsNeed: 10,
-  pictureStatus: 0,
+  pictureStatus: 0
 })
 const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
 const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
@@ -117,7 +131,7 @@ const handleSubmit = async () => {
     const submitData = {
       ...formState,
       ...fileInfo.value,
-      userId: '当前用户ID', // 从登录状态获取
+      userId: '当前用户ID' // 从登录状态获取
     }
 
     // 这里添加实际的API调用
@@ -142,7 +156,7 @@ const getPictureCategoryList = async () => {
       JSON.parse(JSON.stringify(res?.rows || [])),
       'categoryId',
       'parentId',
-      'children',
+      'children'
     )
     console.log('pictureCategoryList', pictureCategoryList.value)
   })
@@ -155,7 +169,7 @@ onMounted(async () => {
     // categories.value = await api.getCategories();
     categories.value = [
       { label: '自然风景', value: '1' },
-      { label: '城市建筑', value: '2' },
+      { label: '城市建筑', value: '2' }
     ]
   } catch (error) {
     message.error('分类加载失败')
