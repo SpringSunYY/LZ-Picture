@@ -295,24 +295,26 @@ const handlePreview = (file) => {
 <style lang="scss" scoped>
 .picture-upload {
   width: 100%;
-  padding: 16px;
   position: relative;
-
+  :deep(.ant-upload){
+    padding: 0 !important;
+  }
   .custom-upload-trigger {
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    height: 100%;
+    min-height: 160px; // 防止过小
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    //flex-direction: column;
     border: 2px dashed #d9d9d9;
     border-radius: 8px;
-    margin: 0 auto;
     transition: all 0.3s ease;
+    padding: 0 !important;
 
     &:hover {
       border-color: #1890ff;
-      background: rgba(24, 144, 255, 0.1);
+      background: rgba(24, 144, 255, 0.05);
     }
 
     .upload-icon {
@@ -322,14 +324,12 @@ const handlePreview = (file) => {
     }
 
     .ant-upload-text {
-      color: rgba(0, 0, 0, 0.85);
       font-size: 14px;
-      margin: 4px 0;
     }
 
     .ant-upload-hint {
-      color: rgba(0, 0, 0, 0.45);
       font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
     }
   }
 
@@ -338,13 +338,13 @@ const handlePreview = (file) => {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     justify-content: center;
     gap: 16px;
-    margin-top: 16px;
-    padding: 8px 0;
+    //margin-top: 16px;
+    //padding: 8px 0;
 
     .image-card {
       position: relative;
-      width: 120px;
-      height: 120px;
+      width: auto;
+      height: 160px;
       border-radius: 8px;
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.34, 1.61, 0.7, 1);
