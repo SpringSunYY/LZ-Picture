@@ -36,9 +36,9 @@ const realSrc = computed(() => {
   if (!props.src) {
     return;
   }
-  let real_src = props.src.split(",")[0];
+  let real_src = props.src.split(";")[0];
   if (isExternal(real_src)) {
-    return real_src;
+    return props.src;
   }
   return import.meta.env.VITE_APP_BASE_API + real_src;
 });
@@ -47,7 +47,7 @@ const realSrcList = computed(() => {
   if (!props.src) {
     return;
   }
-  let real_src_list = props.src.split(",");
+  let real_src_list = props.src.split(";");
   let srcList = [];
   real_src_list.forEach(item => {
     if (isExternal(item)) {

@@ -198,7 +198,7 @@ function handlePictureCardPreview(file) {
 // 对象转成指定字符串分隔
 function listToString(list, separator) {
   let strs = "";
-  separator = separator || ",";
+  separator = separator || ";";
   for (let i in list) {
     if (undefined !== list[i].url && list[i].url.indexOf("blob:") !== 0) {
       strs += list[i].url.replace(baseUrl, "") + separator;
