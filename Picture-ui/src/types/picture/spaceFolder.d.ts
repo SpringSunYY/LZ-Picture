@@ -62,7 +62,7 @@ export interface SpaceFolderInfoQuery {
   spaceId: string
 
   /** 父文件夹编号（不能为空） */
-  parentId: string
+  parentId?: string
 
   /** 文件夹名称（不能为空，最大长度32） */
   folderName?: string

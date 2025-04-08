@@ -35,8 +35,22 @@
               value: 'spaceId',
             }"
             @search="handleSearchSpace"
+            @select="handleSelectSpace"
             placeholder="请选择图片空间"
             :not-found-content="spaceLoading"
+          />
+        </a-form-item>
+        <a-form-item label="图片文件夹">
+          <a-cascader
+            v-model:value="formState.folderId"
+            :options="folderList"
+            placeholder="请选择图片文件夹"
+            change-on-select
+            :fieldNames="{
+              label: 'folderName',
+              value: 'folderId',
+              children: 'children',
+            }"
           />
         </a-form-item>
         <!-- 分类选择 -->
@@ -98,7 +112,7 @@
 
 <script setup lang="ts" name="PictureUpdate">
 import { reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { type CascaderProps, message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload/index.vue'
 import type { PictureCategoryInfoQuery, PictureCategoryInfoVo } from '@/types/picture/spaceCategory'
 import { listPictureCategoryInfo } from '@/api/picture/spaceCategory.ts'
@@ -106,10 +120,24 @@ import { handleTree } from '@/utils/lz.ts'
 import type { Space, SpaceQuery } from '@/types/picture/space'
 import { mySpaceInfo } from '@/api/picture/space.ts'
 import { debounce } from 'lodash-es'
+import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
+import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 //空间
 const spaceList = ref<Space[]>([])
 const spaceQuery = ref<SpaceQuery>({})
 const spaceLoading = ref(false)
+//分类
+const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
+//文件夹
+const folderQuery = ref<SpaceFolderInfoQuery>({
+  spaceId: '',
+})
+const folderList = ref<SpaceFolderInfoVo[]>([])
+
+const rules = {}
+const fileList = ref([])
+const submitting = ref(false)
 const formState = reactive({
   name: '',
   introduction: '',
@@ -118,13 +146,6 @@ const formState = reactive({
   pointsNeed: 10,
   pictureStatus: 0,
 })
-const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
-const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
-const rules = {}
-
-const fileList = ref([])
-const submitting = ref(false)
-
 const handleSuccess = (modelValue) => {
   // console.log('modelValue', modelValue)
   // 提交到后端或处理数据
@@ -171,8 +192,13 @@ const getPictureCategoryList = async () => {
       'parentId',
       'children',
     )
-    console.log('pictureCategoryList', pictureCategoryList.value)
+    // console.log('pictureCategoryList', pictureCategoryList.value)
   })
+}
+const handleSelectSpace = () => {
+  formState.folderId = ''
+  folderQuery.value.spaceId = formState.spaceId
+  getFolderList()
 }
 const handleSearchSpace = debounce((value: string) => {
   spaceQuery.value.spaceName = value
@@ -188,6 +214,17 @@ const getMySpaceList = () => {
       message.error('获取空间列表失败')
     }
     spaceLoading.value = false
+  })
+}
+const getFolderList = () => {
+  // 获取文件夹列表
+  listSpaceFolderInfo(folderQuery.value).then((res) => {
+    folderList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'folderId',
+      'parentId',
+      'children',
+    )
   })
 }
 getMySpaceList()
