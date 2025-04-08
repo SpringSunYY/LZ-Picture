@@ -129,7 +129,7 @@ import {
   updateSpaceFolder,
 } from '@/api/picture/spaceFolder.ts'
 import { message, Modal } from 'ant-design-vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 interface Folder {
   folderId: string
@@ -153,7 +153,7 @@ const formState = reactive<SpaceFolderInfo>({
 })
 // 获取当前路由信息
 const route = useRoute()
-
+const router = useRouter()
 const folderQuery = ref<SpaceFolderInfoQuery>({
   spaceId: route.query.spaceId as string,
   parentId: currentParentId.value,
@@ -257,11 +257,12 @@ const resetForm = () => {
   })
 }
 
-// 返回上一级
+// 返回图库
 function goBack() {
-  folderPathStack.pop()
-  currentParentId.value = folderPathStack[folderPathStack.length - 1]?.folderId || '0'
-  getFolderList()
+  // folderPathStack.pop()
+  // currentParentId.value = folderPathStack[folderPathStack.length - 1]?.folderId || '0'
+  // getFolderList()
+  router.push({ path: '/picture/space' })
 }
 
 //获取文件夹
