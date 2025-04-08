@@ -106,7 +106,7 @@ const checkRouteHidden = (route: RouteRecordRaw | undefined): boolean => {
   // console.log('checkRouteHidden', route)
   // 当前路由标记隐藏
   if (route?.meta?.isHidden) return true
-  console.log('checkRouteHidden', route.meta?.isCache)
+  // console.log('checkRouteHidden', route.meta?.isCache)
   if (route?.meta?.menuAddress !== undefined && route?.meta?.menuAddress !== '2') {
     return true
   }

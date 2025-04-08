@@ -122,11 +122,11 @@ import type {
   SpaceFolderInfoVo,
 } from '@/types/picture/spaceFolder'
 import {
-  addSpaceFolder,
-  deleteSpaceFolder,
+  addSpaceFolderInfo,
+  deleteSpaceFolderInfo,
   getSpaceFolderInfo,
-  listSpaceFolder,
-  updateSpaceFolder,
+  listSpaceFolderInfo,
+  updateSpaceFolderInfo,
 } from '@/api/picture/spaceFolder.ts'
 import { message, Modal } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -202,7 +202,7 @@ const handleDelete = (folderId: string) => {
     okText: '确定',
     cancelText: '取消',
     onOk() {
-      deleteSpaceFolder(folderId).then((res) => {
+      deleteSpaceFolderInfo(folderId).then((res) => {
         if (res?.code === 200) {
           message.success('删除成功')
           getFolderList()
@@ -229,7 +229,7 @@ function handleAdd() {
 
 const handleSubmit = () => {
   if (formState.folderId !== '') {
-    updateSpaceFolder(formState).then((res) => {
+    updateSpaceFolderInfo(formState).then((res) => {
       if (res?.code === 200) {
         message.success('修改成功')
         open.value = false
@@ -237,7 +237,7 @@ const handleSubmit = () => {
       }
     })
   } else {
-    addSpaceFolder(formState).then((res) => {
+    addSpaceFolderInfo(formState).then((res) => {
       if (res.code === 200) {
         message.success('添加成功')
         open.value = false
@@ -269,7 +269,7 @@ function goBack() {
 const getFolderList = () => {
   folderQuery.value.parentId = currentParentId.value
   // 获取文件夹列表
-  listSpaceFolder(folderQuery.value).then((res) => {
+  listSpaceFolderInfo(folderQuery.value).then((res) => {
     folderList.value = res?.rows || []
   })
 }

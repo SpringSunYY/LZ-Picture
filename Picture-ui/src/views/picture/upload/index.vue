@@ -27,10 +27,16 @@
 
         <!-- 分类选择 -->
         <a-form-item label="图片分类" name="categoryId">
-          <a-select
+          <a-cascader
             v-model:value="formState.categoryId"
-            :options="categories"
-            placeholder="请选择分类"
+            :options="pictureCategoryList"
+            expand-trigger="hover"
+            placeholder="请选择图片分类"
+            :fieldNames="{
+              label: 'name',
+              value: 'categoryId',
+              children: 'children',
+            }"
           />
         </a-form-item>
 
@@ -72,6 +78,9 @@
 import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload/index.vue'
+import type { PictureCategoryInfoQuery, PictureCategoryInfoVo } from '@/types/picture/spaceCategory'
+import { listPictureCategoryInfo } from '@/api/picture/spaceCategory.ts'
+import { handleTree } from '@/utils/lz.ts'
 
 const formState = reactive({
   name: '',
@@ -81,7 +90,8 @@ const formState = reactive({
   pointsNeed: 10,
   pictureStatus: 0,
 })
-
+const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
 const rules = {}
 
 const fileList = ref([])
@@ -89,7 +99,7 @@ const categories = ref([])
 const submitting = ref(false)
 
 const handleSuccess = (modelValue) => {
-  console.log('modelValue',modelValue)
+  // console.log('modelValue', modelValue)
   // 提交到后端或处理数据
   formState.name = modelValue.name
   formState.picWidth = modelValue.width
@@ -126,6 +136,18 @@ const handleSubmit = async () => {
   }
 }
 
+const getPictureCategoryList = async () => {
+  listPictureCategoryInfo(pictureCategoryQuery.value).then((res) => {
+    pictureCategoryList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'categoryId',
+      'parentId',
+      'children',
+    )
+    console.log('pictureCategoryList', pictureCategoryList.value)
+  })
+}
+getPictureCategoryList()
 // 初始化分类数据
 onMounted(async () => {
   try {

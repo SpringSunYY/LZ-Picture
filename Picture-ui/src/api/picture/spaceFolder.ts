@@ -7,7 +7,7 @@ import type {
 } from '@/types/picture/spaceFolder'
 
 //新增文件夹
-export function addSpaceFolder(data: SpaceFolderInfo): Promise<API.ResponseInfo<number>> {
+export function addSpaceFolderInfo(data: SpaceFolderInfo): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/spaceFolderInfo',
     method: 'post',
@@ -16,7 +16,7 @@ export function addSpaceFolder(data: SpaceFolderInfo): Promise<API.ResponseInfo<
 }
 
 //修改文件夹
-export function updateSpaceFolder(data: SpaceFolderInfo): Promise<API.ResponseInfo<number>> {
+export function updateSpaceFolderInfo(data: SpaceFolderInfo): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/spaceFolderInfo',
     method: 'put',
@@ -25,7 +25,7 @@ export function updateSpaceFolder(data: SpaceFolderInfo): Promise<API.ResponseIn
 }
 
 //查询文件夹
-export function listSpaceFolder(
+export function listSpaceFolderInfo(
   params: SpaceFolderInfoQuery,
 ): Promise<API.ResponseInfo<SpaceFolderInfoVo>> {
   return request({
@@ -36,7 +36,7 @@ export function listSpaceFolder(
 }
 
 //删除文件夹
-export function deleteSpaceFolder(folderId: string): Promise<API.ResponseInfo<number>> {
+export function deleteSpaceFolderInfo(folderId: string): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/spaceFolderInfo/' + folderId,
     method: 'delete',

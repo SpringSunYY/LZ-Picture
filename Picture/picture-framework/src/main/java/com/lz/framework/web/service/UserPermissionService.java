@@ -30,7 +30,7 @@ public class UserPermissionService {
      * @return 用户是否具备某权限
      */
     public boolean hasPermi(String permission) {
-        System.out.println("permission = " + permission);
+//        System.out.println("permission = " + permission);
         if (StringUtils.isEmpty(permission)) {
             return false;
         }
@@ -40,7 +40,7 @@ public class UserPermissionService {
         }
         PermissionContextHolder.setContext(permission);
         Set<String> permissions = loginUserInfo.getPermissions();
-        System.out.println("permissions = " + permissions);
+//        System.out.println("permissions = " + permissions);
         return hasPermissions(permissions, permission);
     }
 

@@ -2,7 +2,7 @@ import { http as request } from '@/utils'
 import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.d.ts'
 import type { API } from '@/types/common'
 
-export function addSpace(data: SpaceInfo): Promise<API.ResponseInfo<number>> {
+export function addSpaceInfo(data: SpaceInfo): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/spaceInfo',
     method: 'post',
@@ -10,7 +10,7 @@ export function addSpace(data: SpaceInfo): Promise<API.ResponseInfo<number>> {
   })
 }
 
-export function updateSpace(data: SpaceInfo): Promise<API.ResponseInfo<number>> {
+export function updateSpaceInfo(data: SpaceInfo): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/spaceInfo',
     method: 'put',
@@ -18,7 +18,7 @@ export function updateSpace(data: SpaceInfo): Promise<API.ResponseInfo<number>> 
   })
 }
 
-export function mySpace(params: SpaceQuery): Promise<API.ResponseInfo<Space>> {
+export function mySpaceInfo(params: SpaceQuery): Promise<API.ResponseInfo<Space>> {
   return request({
     url: '/picture/spaceInfo/mySpace',
     method: 'get',

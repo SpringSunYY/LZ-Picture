@@ -142,7 +142,7 @@ import {
   type SpaceInfo,
   type SpaceQuery,
 } from '@/types/picture/space.d.ts'
-import { addSpace, getSpaceInfo, mySpace, updateSpace } from '@/api/picture/space.ts'
+import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags/index.vue'
 import { formatSize } from '@/utils/common.ts'
@@ -215,7 +215,7 @@ const uploadSuccess = (modelValue: any) => {
 }
 const handleSubmit = () => {
   if (formState.spaceId !== '') {
-    updateSpace(formState).then((res) => {
+    updateSpaceInfo(formState).then((res) => {
       if (res?.code === 200) {
         message.success('修改空间成功')
         getMySpaceList()
@@ -223,7 +223,7 @@ const handleSubmit = () => {
       }
     })
   } else {
-    addSpace(formState).then((res) => {
+    addSpaceInfo(formState).then((res) => {
       if (res?.code === 200) {
         message.success('创建空间成功')
         getMySpaceList()
@@ -243,7 +243,7 @@ const handleUpdate = (spaceId: string) => {
 }
 const getMySpaceList = () => {
   // 获取我的空间列表
-  mySpace(spaceQuery).then((res) => {
+  mySpaceInfo(spaceQuery).then((res) => {
     if (res.code === 200) {
       spaceList.value = res?.rows || []
     } else {
