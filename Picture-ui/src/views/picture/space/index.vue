@@ -28,7 +28,7 @@
               <Tags :values="[getPSpaceStatusLabel(space.spaceStatus)]" :colors="['#1890ff']" />
               <Tags :values="[getPSpaceTypeLabel(space.spaceType)]" :colors="['#00ff0d']" />
               <a-button
-                v-if="space.userId === userId"
+                v-if="space.userId === userId && checkPermiSingle('picture:space:update')"
                 style="float: right"
                 type="primary"
                 @click="handleUpdate(space.spaceId)"
@@ -148,13 +148,14 @@ import Tags from '@/components/Tags/index.vue'
 import { formatSize } from '@/utils/common.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
+import { checkPermiSingle } from '@/utils/permission.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { p_space_status } = proxy?.useDict('p_space_status')
 const userStore = useUserStore()
-const { userName: userName, avatar: avatar, userId: userId } = storeToRefs(userStore)
+const { userId: userId } = storeToRefs(userStore)
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)

@@ -26,9 +26,17 @@
         </a-form-item>
         <a-form-item label="图片空间">
           <a-select
+            show-search
             v-model:value="formState.spaceId"
+            :options="spaceList"
+            :filter-option="false"
+            :fieldNames="{
+              label: 'spaceName',
+              value: 'spaceId',
+            }"
+            @search="handleSearchSpace"
             placeholder="请选择图片空间"
-            :options="[]"
+            :not-found-content="spaceLoading"
           />
         </a-form-item>
         <!-- 分类选择 -->
@@ -89,27 +97,32 @@
 </template>
 
 <script setup lang="ts" name="PictureUpdate">
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload/index.vue'
 import type { PictureCategoryInfoQuery, PictureCategoryInfoVo } from '@/types/picture/spaceCategory'
 import { listPictureCategoryInfo } from '@/api/picture/spaceCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
-
+import type { Space, SpaceQuery } from '@/types/picture/space'
+import { mySpaceInfo } from '@/api/picture/space.ts'
+import { debounce } from 'lodash-es'
+//空间
+const spaceList = ref<Space[]>([])
+const spaceQuery = ref<SpaceQuery>({})
+const spaceLoading = ref(false)
 const formState = reactive({
   name: '',
   introduction: '',
   pictureUrl: '',
   categoryId: '',
   pointsNeed: 10,
-  pictureStatus: 0
+  pictureStatus: 0,
 })
 const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
 const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
 const rules = {}
 
 const fileList = ref([])
-const categories = ref([])
 const submitting = ref(false)
 
 const handleSuccess = (modelValue) => {
@@ -131,7 +144,7 @@ const handleSubmit = async () => {
     const submitData = {
       ...formState,
       ...fileInfo.value,
-      userId: '当前用户ID' // 从登录状态获取
+      userId: '当前用户ID', // 从登录状态获取
     }
 
     // 这里添加实际的API调用
@@ -156,25 +169,29 @@ const getPictureCategoryList = async () => {
       JSON.parse(JSON.stringify(res?.rows || [])),
       'categoryId',
       'parentId',
-      'children'
+      'children',
     )
     console.log('pictureCategoryList', pictureCategoryList.value)
   })
 }
+const handleSearchSpace = debounce((value: string) => {
+  spaceQuery.value.spaceName = value
+  getMySpaceList()
+}, 300)
+const getMySpaceList = () => {
+  spaceLoading.value = true
+  // 获取我的空间列表
+  mySpaceInfo(spaceQuery.value).then((res) => {
+    if (res.code === 200) {
+      spaceList.value = res?.rows || []
+    } else {
+      message.error('获取空间列表失败')
+    }
+    spaceLoading.value = false
+  })
+}
+getMySpaceList()
 getPictureCategoryList()
-// 初始化分类数据
-onMounted(async () => {
-  try {
-    // 这里添加获取分类的API调用
-    // categories.value = await api.getCategories();
-    categories.value = [
-      { label: '自然风景', value: '1' },
-      { label: '城市建筑', value: '2' }
-    ]
-  } catch (error) {
-    message.error('分类加载失败')
-  }
-})
 </script>
 
 <style lang="scss" scoped>

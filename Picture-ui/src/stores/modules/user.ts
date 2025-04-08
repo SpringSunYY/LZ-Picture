@@ -80,7 +80,7 @@ const useUserStore = defineStore('user', {
         this.userId = user.userId
         this.userName = user.userName
         this.avatar = avatar
-
+        this.permissions = res?.permissions
         return res
       } catch (error) {
         router.push('/user/login')
