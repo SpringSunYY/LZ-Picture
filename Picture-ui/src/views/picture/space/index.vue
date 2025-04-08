@@ -111,7 +111,7 @@
                 v-model:value="formState.spaceType"
                 name="radioGroup"
               >
-                <a-radio value="0">个人</a-radio>
+                <a-radio value="2">个人</a-radio>
                 <a-radio value="1">团队</a-radio>
               </a-radio-group>
             </a-form-item>

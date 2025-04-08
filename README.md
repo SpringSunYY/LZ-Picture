@@ -1593,7 +1593,7 @@ CREATE TABLE ai_conversation_log_info
 
 删除时间：如果用户在删除时间三十天后永久删除此数据
 
-空间类型：0个人 1团队 2官方
+空间类型：2个人 1团队 0官方
 
 ```sql
 DROP TABLE IF EXISTS p_space_info;

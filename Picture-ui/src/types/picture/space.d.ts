@@ -114,9 +114,9 @@ export enum PSpaceType {
 }
 
 export const PSpaceTypeLabels = {
-  [PSpaceType.SPACE_TYPE_0]: '个人',
+  [PSpaceType.SPACE_TYPE_0]: '官方',
   [PSpaceType.SPACE_TYPE_1]: '团队',
-  [PSpaceType.SPACE_TYPE_2]: '官方',
+  [PSpaceType.SPACE_TYPE_2]: '个人',
 }
 
 /**

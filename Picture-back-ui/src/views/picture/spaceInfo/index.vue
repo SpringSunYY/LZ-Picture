@@ -20,7 +20,7 @@
       <el-form-item label="存储类型" prop="ossType">
         <el-select v-model="queryParams.ossType" style="width: 200px" placeholder="请选择存储类型" clearable>
           <el-option
-              v-for="dict in p_space_type"
+              v-for="dict in p_space_oss_type"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -170,7 +170,7 @@
       </el-table-column>
       <el-table-column label="存储类型" align="center" prop="ossType" v-if="columns[3].visible">
         <template #default="scope">
-          <dict-tag :options="p_space_type" :value="scope.row.ossType"/>
+          <dict-tag :options="p_space_oss_type" :value="scope.row.ossType"/>
         </template>
       </el-table-column>
       <el-table-column label="存储配置" align="center" prop="ossConfig" v-if="columns[4].visible"
@@ -251,18 +251,18 @@
     />
 
     <!-- 添加或修改空间信息对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="spaceInfoRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
+      <el-form ref="spaceInfoRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="空间名称" prop="spaceName">
           <el-input v-model="form.spaceName" placeholder="请输入空间名称"/>
         </el-form-item>
-        <el-form-item label="空间封面" prop="spaceAvatar">
-          <image-upload v-model="form.spaceAvatar"/>
-        </el-form-item>
+<!--        <el-form-item label="空间封面" prop="spaceAvatar">-->
+<!--          <image-upload v-model="form.spaceAvatar"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="存储类型" prop="ossType">
           <el-select v-model="form.ossType" placeholder="请选择存储类型">
             <el-option
-                v-for="dict in p_space_type"
+                v-for="dict in p_space_oss_type"
                 :key="dict.value"
                 :label="dict.label"
                 :value="dict.value"
@@ -272,18 +272,18 @@
         <el-form-item label="存储配置" prop="ossConfig">
           <el-input v-model="form.ossConfig" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="最大容量" prop="maxSize">
-          <el-input v-model="form.maxSize" placeholder="请输入最大容量"/>
-        </el-form-item>
-        <el-form-item label="最大文件数" prop="maxCount">
-          <el-input v-model="form.maxCount" placeholder="请输入最大文件数"/>
-        </el-form-item>
-        <el-form-item label="已用容量" prop="totalSize">
-          <el-input v-model="form.totalSize" placeholder="请输入已用容量"/>
-        </el-form-item>
-        <el-form-item label="文件总数" prop="totalCount">
-          <el-input v-model="form.totalCount" placeholder="请输入文件总数"/>
-        </el-form-item>
+<!--        <el-form-item label="最大容量" prop="maxSize">-->
+<!--          <el-input v-model="form.maxSize" placeholder="请输入最大容量"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="最大文件数" prop="maxCount">-->
+<!--          <el-input v-model="form.maxCount" placeholder="请输入最大文件数"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="已用容量" prop="totalSize">-->
+<!--          <el-input v-model="form.totalSize" placeholder="请输入已用容量"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="文件总数" prop="totalCount">-->
+<!--          <el-input v-model="form.totalCount" placeholder="请输入文件总数"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="所属用户" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入所属用户"/>
         </el-form-item>
@@ -313,17 +313,17 @@
         <el-form-item label="成员上限" prop="memberLimit">
           <el-input v-model="form.memberLimit" placeholder="请输入成员上限"/>
         </el-form-item>
-        <el-form-item label="当前成员数" prop="currentMembers">
-          <el-input v-model="form.currentMembers" placeholder="请输入当前成员数"/>
-        </el-form-item>
-        <el-form-item label="最后上传时间" prop="lastUpdateTime">
-          <el-date-picker clearable
-                          v-model="form.lastUpdateTime"
-                          type="date"
-                          value-format="YYYY-MM-DD"
-                          placeholder="请选择最后上传时间">
-          </el-date-picker>
-        </el-form-item>
+<!--        <el-form-item label="当前成员数" prop="currentMembers">-->
+<!--          <el-input v-model="form.currentMembers" placeholder="请输入当前成员数"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="最后上传时间" prop="lastUpdateTime">-->
+        <!--          <el-date-picker clearable-->
+        <!--                          v-model="form.lastUpdateTime"-->
+        <!--                          type="date"-->
+        <!--                          value-format="YYYY-MM-DD"-->
+        <!--                          placeholder="请选择最后上传时间">-->
+        <!--          </el-date-picker>-->
+        <!--        </el-form-item>-->
         <el-form-item label="删除" prop="isDelete">
           <el-radio-group v-model="form.isDelete">
             <el-radio
@@ -349,7 +349,12 @@
 import {listSpaceInfo, getSpaceInfo, delSpaceInfo, addSpaceInfo, updateSpaceInfo} from "@/api/picture/spaceInfo";
 
 const {proxy} = getCurrentInstance();
-const {common_delete, p_space_status, p_space_type} = proxy.useDict('common_delete', 'p_space_status', 'p_space_type');
+const {
+  common_delete,
+  p_space_status,
+  p_space_type,
+  p_space_oss_type
+} = proxy.useDict('common_delete', 'p_space_status', 'p_space_type', 'p_space_oss_type');
 
 const spaceInfoList = ref([]);
 const open = ref(false);

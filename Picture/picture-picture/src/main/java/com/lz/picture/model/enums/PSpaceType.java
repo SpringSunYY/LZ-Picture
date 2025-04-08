@@ -11,9 +11,9 @@ import java.util.Optional;
  */
 @Getter
 public enum PSpaceType {
-    SPACE_TYPE_0("0", "个人"),
+    SPACE_TYPE_0("0", "官方"),
     SPACE_TYPE_1("1", "团队"),
-    SPACE_TYPE_2("2", "官方");
+    SPACE_TYPE_2("2", "个人");
 
     private static final Map<String, PSpaceType> VALUE_TO_ENUM = new HashMap<>();
 

@@ -7,11 +7,13 @@ import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.enums.PSpaceOssType;
+import com.lz.picture.model.enums.PSpaceType;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import jakarta.annotation.Resource;
@@ -69,6 +71,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
      */
     @Override
     public int insertSpaceInfo(SpaceInfo spaceInfo) {
+        spaceInfo.setSpaceId(IdUtils.snowflakeId().toString());
         spaceInfo.setCreateTime(DateUtils.getNowDate());
         return spaceInfoMapper.insertSpaceInfo(spaceInfo);
     }
@@ -166,6 +169,13 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         SpaceInfo old = this.getOne(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getUserId, spaceInfo.getUserId()).eq(SpaceInfo::getSpaceName, spaceInfo.getSpaceName()));
         if (StringUtils.isNotNull(old)) {
             throw new ServiceException("空间名称已经存在！！！");
+        }
+        //判断用户可以创建的类型、个人、团队
+        ArrayList<String> spaceTypeList = new ArrayList<>();
+        spaceTypeList.add(PSpaceType.SPACE_TYPE_1.getValue());
+        spaceTypeList.add(PSpaceType.SPACE_TYPE_2.getValue());
+        if (!spaceTypeList.contains(spaceInfo.getSpaceType())) {
+            throw new ServiceException("空间类型错误！！！");
         }
         //查询用户此类型空间创建了多少个
         long count = this.count(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getUserId, spaceInfo.getUserId()).eq(SpaceInfo::getSpaceType, spaceInfo.getSpaceType()));
