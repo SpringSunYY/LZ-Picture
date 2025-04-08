@@ -1736,20 +1736,20 @@ CREATE TABLE p_space_member_info
 
 记录空间内的文件夹
 
-| 字段名       | 类型     | 长度 | 键类型                         | Null | 默认值   | 描述       |
-| ------------ | -------- | ---- | ------------------------------ | ---- | -------- | ---------- |
-| folder_id    | varchar  | 128  | 主键                           | 否   |          | 文件夹编号 |
-| space_id     | varchar  | 128  | 外键(p_space_info:space_id)    | 否   |          | 空间编号   |
-| parent_id    | varchar  | 128  | 外键(p_space_folder:folder_id) | 否   | 0        | 父级       |
-| ancestors    | varchar  | 1280 |                                | 否   |          | 祖级列表   |
-| folder_name  | varchar  | 32   | 索引                           | 否   |          | 文件夹名称 |
-| full_path    | varchar  | 1024 | 索引                           | 否   |          | 路径快照   |
-| folder_level | tinyint  |      |                                | 否   | 1        | 等级       |
-| user_id      | varchar  |      | 外键(u_user_info:user_id)      | 否   |          | 创建人     |
-| sort_order   | tinyint  |      |                                | 否   | 0        | 排序权重   |
-| create_time  | datetime |      |                                | 否   | 当前时间 | 创建时间   |
-| update_time  | datetime |      |                                | 是   | 当前时间 | 更新时间   |
-| remark       | varchar  | 128  |                                | 是   |          | 备注       |
+| 字段名       | 类型     | 长度 | 键类型                      | Null | 默认值   | 描述       |
+| ------------ | -------- | ---- | --------------------------- | ---- | -------- | ---------- |
+| folder_id    | varchar  | 128  | 主键                        | 否   |          | 文件夹编号 |
+| space_id     | varchar  | 128  | 外键(p_space_info:space_id) | 否   |          | 空间编号   |
+| parent_id    | varchar  | 128  |                             | 否   | 0        | 父级       |
+| ancestors    | varchar  | 1280 |                             | 否   |          | 祖级列表   |
+| folder_name  | varchar  | 32   | 索引                        | 否   |          | 文件夹名称 |
+| full_path    | varchar  | 1024 | 索引                        | 否   |          | 路径快照   |
+| folder_level | tinyint  |      |                             | 否   | 1        | 等级       |
+| user_id      | varchar  |      | 外键(u_user_info:user_id)   | 否   |          | 创建人     |
+| sort_order   | tinyint  |      |                             | 否   | 0        | 排序权重   |
+| create_time  | datetime |      |                             | 否   | 当前时间 | 创建时间   |
+| update_time  | datetime |      |                             | 是   | 当前时间 | 更新时间   |
+| remark       | varchar  | 128  |                             | 是   |          | 备注       |
 
 等级：最大7，只支持7级，默认顶级为1  
 
@@ -1792,23 +1792,23 @@ CREATE TABLE p_space_folder_info
 
 记录图片的分类，便于图片的分类统计，图片可以选择分类
 
-| 字段名          | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
-| --------------- | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
-| category_id     | varchar  | 128  | 主键                              | 否   |          | 分类编号 |
-| parent_id       | varchar  | 128  | 外键(p_category_info:category_id) | 否   | 0        | 父级     |
-| ancestors       | varchar  | 1280 |                                   | 否   |          | 祖级列表 |
-| cover_url       | varchar  | 512  |                                   | 是   |          | 封面图   |
-| name            | varchar  | 32   | 唯一键                            | 否   |          | 分类名称 |
-| category_desc   | varchar  | 512  |                                   | 是   |          | 分类描述 |
-| category_status | char     | 1    |                                   | 否   |          | 分类状态 |
-| category_type   | char     | 1    |                                   | 否   |          | 分类类型 |
-| query_status    | char     | 1    |                                   | 否   |          | 查询状态 |
-| usage_count     | bigint   |      | 索引                              | 否   | 0        | 使用次数 |
-| look_count      | bigint   |      | 索引                              | 否   | 0        | 查看次数 |
-| download_count  | bigint   |      | 索引                              | 否   | 0        | 下载次数 |
-| create_time     | datetime |      |                                   | 否   | 当前时间 | 创建时间 |
-| update_time     | datetime |      |                                   | 否   | 当前时间 | 更新时间 |
-| is_delete       | char     | 1    |                                   | 否   | 0        | 删除     |
+| 字段名          | 类型     | 长度 | 键类型 | Null | 默认值   | 描述     |
+| --------------- | -------- | ---- | ------ | ---- | -------- | -------- |
+| category_id     | varchar  | 128  | 主键   | 否   |          | 分类编号 |
+| parent_id       | varchar  | 128  |        | 否   | 0        | 父级     |
+| ancestors       | varchar  | 1280 |        | 否   |          | 祖级列表 |
+| cover_url       | varchar  | 512  |        | 是   |          | 封面图   |
+| name            | varchar  | 32   | 唯一键 | 否   |          | 分类名称 |
+| category_desc   | varchar  | 512  |        | 是   |          | 分类描述 |
+| category_status | char     | 1    |        | 否   |          | 分类状态 |
+| category_type   | char     | 1    |        | 否   |          | 分类类型 |
+| query_status    | char     | 1    |        | 否   |          | 查询状态 |
+| usage_count     | bigint   |      | 索引   | 否   | 0        | 使用次数 |
+| look_count      | bigint   |      | 索引   | 否   | 0        | 查看次数 |
+| download_count  | bigint   |      | 索引   | 否   | 0        | 下载次数 |
+| create_time     | datetime |      |        | 否   | 当前时间 | 创建时间 |
+| update_time     | datetime |      |        | 否   | 当前时间 | 更新时间 |
+| is_delete       | char     | 1    |        | 否   | 0        | 删除     |
 
 分类状态：0正常 1关闭，是否可以查询到且使用
 
@@ -1833,12 +1833,7 @@ create table p_picture_category_info
     download_count  bigint       default 0                 not null comment '下载次数',
     create_time     datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time     datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    is_delete       char         default '0'               not null comment '删除标记（0否 1是）',
-    constraint uk_category_name
-        unique (name),
-    constraint p_picture_category_info_ibfk_1
-        foreign key (parent_id) references p_picture_category_info (category_id)
-            on delete cascade
+    is_delete       char         default '0'               not null comment '删除标记（0否 1是）'
 )comment '图片分类信息表';
 create index idx_download_count
     on p_picture_category_info (download_count);

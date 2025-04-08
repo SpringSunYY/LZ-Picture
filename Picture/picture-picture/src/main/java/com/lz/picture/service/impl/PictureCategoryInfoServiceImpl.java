@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.picture.utils.TreeUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -68,6 +69,8 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
         pictureCategoryInfo.setLookCount(0L);
         pictureCategoryInfo.setDownloadCount(0L);
         pictureCategoryInfo.setCreateTime(DateUtils.getNowDate());
+        StringBuilder ancestors = TreeUtils.getAncestors(pictureCategoryInfo.getParentId(), new StringBuilder(), pictureCategoryInfoMapper::selectPictureCategoryInfoByCategoryId, PictureCategoryInfo::getCategoryId, PictureCategoryInfo::getParentId, "0", ",");
+        pictureCategoryInfo.setAncestors(ancestors.toString());
         return pictureCategoryInfoMapper.insertPictureCategoryInfo(pictureCategoryInfo);
     }
 

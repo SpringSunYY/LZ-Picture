@@ -26,7 +26,7 @@
         />
       </el-form-item>
       <el-form-item label="分类状态" prop="categoryStatus">
-        <el-select v-model="queryParams.categoryStatus" placeholder="请选择分类状态" clearable>
+        <el-select v-model="queryParams.categoryStatus" style="width: 200px" placeholder="请选择分类状态" clearable>
           <el-option
               v-for="dict in p_category_status"
               :key="dict.value"
@@ -36,7 +36,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="分类类型" prop="categoryType">
-        <el-select v-model="queryParams.categoryType" placeholder="请选择分类类型" clearable>
+        <el-select v-model="queryParams.categoryType" style="width: 200px" placeholder="请选择分类类型" clearable>
           <el-option
               v-for="dict in p_category_type"
               :key="dict.value"
@@ -46,7 +46,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="查询状态" prop="queryStatus">
-        <el-select v-model="queryParams.queryStatus" placeholder="请选择查询状态" clearable>
+        <el-select v-model="queryParams.queryStatus" style="width: 200px" placeholder="请选择查询状态" clearable>
           <el-option
               v-for="dict in p_category_query_status"
               :key="dict.value"
@@ -76,7 +76,7 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item label="删除标记" prop="isDelete">
-        <el-select v-model="queryParams.isDelete" placeholder="请选择删除标记" clearable>
+        <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除标记" clearable>
           <el-option
               v-for="dict in common_delete"
               :key="dict.value"
@@ -125,13 +125,13 @@
       <el-table-column label="父级分类" prop="parentId" v-if="columns[1].visible" :show-overflow-tooltip="true"/>
       <el-table-column label="祖级列表" align="center" prop="ancestors" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
+      <el-table-column label="分类名称" align="center" prop="name" v-if="columns[4].visible"
+                       :show-overflow-tooltip="true"/>
       <el-table-column label="封面图" align="center" prop="coverUrl" width="100" v-if="columns[3].visible">
         <template #default="scope">
           <image-preview :src="scope.row.coverUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="分类名称" align="center" prop="name" v-if="columns[4].visible"
-                       :show-overflow-tooltip="true"/>
       <el-table-column label="分类描述" align="center" prop="categoryDesc" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="分类状态" align="center" prop="categoryStatus" v-if="columns[6].visible">
@@ -239,25 +239,25 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-<!--        <el-form-item label="使用次数" prop="usageCount">-->
-<!--          <el-input v-model="form.usageCount" placeholder="请输入使用次数"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="查看次数" prop="lookCount">-->
-<!--          <el-input v-model="form.lookCount" placeholder="请输入查看次数"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="下载次数" prop="downloadCount">-->
-<!--          <el-input v-model="form.downloadCount" placeholder="请输入下载次数"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="删除标记" prop="isDelete">-->
-<!--          <el-radio-group v-model="form.isDelete">-->
-<!--            <el-radio-->
-<!--                v-for="dict in common_delete"-->
-<!--                :key="dict.value"-->
-<!--                :value="dict.value"-->
-<!--            >{{ dict.label }}-->
-<!--            </el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="使用次数" prop="usageCount">-->
+        <!--          <el-input v-model="form.usageCount" placeholder="请输入使用次数"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="查看次数" prop="lookCount">-->
+        <!--          <el-input v-model="form.lookCount" placeholder="请输入查看次数"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="下载次数" prop="downloadCount">-->
+        <!--          <el-input v-model="form.downloadCount" placeholder="请输入下载次数"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="删除标记" prop="isDelete">-->
+        <!--          <el-radio-group v-model="form.isDelete">-->
+        <!--            <el-radio-->
+        <!--                v-for="dict in common_delete"-->
+        <!--                :key="dict.value"-->
+        <!--                :value="dict.value"-->
+        <!--            >{{ dict.label }}-->
+        <!--            </el-radio>-->
+        <!--          </el-radio-group>-->
+        <!--        </el-form-item>-->
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -355,7 +355,7 @@ const data = reactive({
     {key: 2, label: '祖级列表', visible: false},
     {key: 3, label: '封面图', visible: true},
     {key: 4, label: '分类名称', visible: true},
-    {key: 5, label: '分类描述', visible: true},
+    {key: 5, label: '分类描述', visible: false},
     {key: 6, label: '分类状态', visible: true},
     {key: 7, label: '分类类型', visible: true},
     {key: 8, label: '查询状态', visible: true},
