@@ -11,6 +11,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -160,6 +161,9 @@ public class PictureInfo implements Serializable {
      */
     @Excel(name = "所属空间编号")
     private String spaceId;
+
+    @TableField(exist = false)
+    private List<String> tags;
 
     /**
      * 所属文件夹编号

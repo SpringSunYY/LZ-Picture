@@ -53,4 +53,14 @@ public class ConfigKeyConstants {
      * 封面图片压缩倍率百分比
      */
     public static final String PICTURE_SPACE_AVATAR_P = "picture:space:avatar:p";
+
+    /**
+     * 图片所需积分最大值
+     */
+    public static final String PICTURE_POINTS_MAX = "picture:points:max";
+
+    /**
+     * 图片所需积分最小值
+     */
+    public static final String PICTURE_POINTS_MIN = "picture:points:min";
 }

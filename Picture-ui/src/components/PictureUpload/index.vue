@@ -244,14 +244,14 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
         status: 'done',
         name: response.data.name,
         url: response.data.pictureUrl, // 确保取 `pictureUrl`
-        thumbUrl: response.data.pictureUrl,
+        thumbnailUrl: response.data.thumbnailUrl,
         pictureUrl: response.data.pictureUrl,
         meta: {
           width: response.data.picWidth,
           height: response.data.picHeight,
           ratio: (response.data.picWidth / response.data.picHeight).toFixed(2),
           format: response.data.picFormat,
-          size: (response.data.picSize / 1024 / 1024).toFixed(2),
+          size: response.data.picSize,
         },
       }
 
@@ -296,9 +296,11 @@ const handlePreview = (file) => {
 .picture-upload {
   width: 100%;
   position: relative;
-  :deep(.ant-upload){
+
+  :deep(.ant-upload) {
     padding: 0 !important;
   }
+
   .custom-upload-trigger {
     width: 100%;
     height: 100%;

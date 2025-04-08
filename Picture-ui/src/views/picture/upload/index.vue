@@ -51,6 +51,7 @@
               value: 'folderId',
               children: 'children',
             }"
+            @change="handleFolderChange"
           />
         </a-form-item>
         <!-- 分类选择 -->
@@ -65,14 +66,23 @@
               value: 'categoryId',
               children: 'children',
             }"
+            @change="handleCategoryChange"
           />
         </a-form-item>
         <a-form-item label="标签">
           <a-select
-            v-model:value="formState.tags"
             mode="tags"
+            v-model:value="formState.tags"
+            :options="tagList"
             placeholder="请输入图片标签"
-            :options="[]"
+            :filter-option="false"
+            :fieldNames="{
+              label: 'name',
+              value: 'name',
+            }"
+            @search="handleSearchTag"
+            @select="handleSelectTag"
+            :not-found-content="tagLoading"
           />
         </a-form-item>
 
@@ -112,16 +122,23 @@
 
 <script setup lang="ts" name="PictureUpdate">
 import { reactive, ref } from 'vue'
-import { type CascaderProps, message } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload/index.vue'
-import type { PictureCategoryInfoQuery, PictureCategoryInfoVo } from '@/types/picture/spaceCategory'
-import { listPictureCategoryInfo } from '@/api/picture/spaceCategory.ts'
+import type {
+  PictureCategoryInfoQuery,
+  PictureCategoryInfoVo,
+} from '@/types/picture/pictureCategory'
+import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
 import type { Space, SpaceQuery } from '@/types/picture/space'
 import { mySpaceInfo } from '@/api/picture/space.ts'
 import { debounce } from 'lodash-es'
 import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
 import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
+import type { PictureTagInfoQuery, PictureTagInfoVo } from '@/types/picture/pictureTag'
+import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
+import type { PictureInfo } from '@/types/picture/picture'
+import { addPictureInfo } from '@/api/picture/picture.ts'
 //空间
 const spaceList = ref<Space[]>([])
 const spaceQuery = ref<SpaceQuery>({})
@@ -134,54 +151,53 @@ const folderQuery = ref<SpaceFolderInfoQuery>({
   spaceId: '',
 })
 const folderList = ref<SpaceFolderInfoVo[]>([])
+//标签
+const tagList = ref<PictureTagInfoVo[]>([])
+const tagQuery = ref<PictureTagInfoQuery>({})
+const tagLoading = ref(false)
 
 const rules = {}
 const fileList = ref([])
 const submitting = ref(false)
-const formState = reactive({
+const formState = reactive<PictureInfo>({
+  pictureUrl: '',
   name: '',
   introduction: '',
-  pictureUrl: '',
   categoryId: '',
-  pointsNeed: 10,
-  pictureStatus: 0,
+  spaceId: '',
+  folderId: '',
+  tags: [],
+  picSize: 0,
+  picHeight: 0,
+  picWidth: 0,
+  pointsNeed: 0,
+  pictureStatus: '0',
+  picFormat: '',
+  picColor: '',
+  picScale: 0,
 })
 const handleSuccess = (modelValue) => {
-  // console.log('modelValue', modelValue)
+  console.log('modelValue', modelValue)
   // 提交到后端或处理数据
   formState.name = modelValue.name
-  formState.picWidth = modelValue.width
-  formState.picHeight = modelValue.height
+  formState.thumbnailUrl = modelValue.thumbnailUrl
   formState.pictureUrl = modelValue.pictureUrl
-  formState.picScale = modelValue.picScale
-  // formState.pictureUrl = modelValue.meta.url
+  formState.picWidth = modelValue.meta.width
+  formState.picHeight = modelValue.meta.height
+  formState.picScale = modelValue.meta.ratio
+  formState.picFormat = modelValue.meta.format
+  formState.picSize = modelValue.meta.size
 }
 
 // 提交处理
 const handleSubmit = async () => {
   submitting.value = true
-  try {
-    // 构造提交数据
-    const submitData = {
-      ...formState,
-      ...fileInfo.value,
-      userId: '当前用户ID', // 从登录状态获取
+  addPictureInfo(formState).then((res) => {
+    if (res.code === 200) {
+      message.success('添加成功')
     }
-
-    // 这里添加实际的API调用
-    // await api.uploadImage(submitData);
-
-    message.success('图片上传成功')
-    // 重置表单
-    formState.name = ''
-    formState.introduction = ''
-    formState.categoryId = undefined
-    fileList.value = []
-  } catch (error) {
-    message.error('上传失败')
-  } finally {
-    submitting.value = false
-  }
+  })
+  submitting.value = false
 }
 
 const getPictureCategoryList = async () => {
@@ -195,6 +211,10 @@ const getPictureCategoryList = async () => {
     // console.log('pictureCategoryList', pictureCategoryList.value)
   })
 }
+const handleCategoryChange = (value: string[]) => {
+  formState.categoryId = value[value.length - 1]
+}
+
 const handleSelectSpace = () => {
   formState.folderId = ''
   folderQuery.value.spaceId = formState.spaceId
@@ -227,6 +247,28 @@ const getFolderList = () => {
     )
   })
 }
+const handleFolderChange = (value: string[]) => {
+  formState.folderId = value[value.length - 1]
+}
+const handleSearchTag = debounce((value: string) => {
+  tagQuery.value.name = value
+  getTagList()
+}, 300)
+const handleSelectTag = (value: string) => {
+  if (formState?.tags?.length > 5) {
+    message.error('最多只能选择5个标签')
+    formState.tags = formState.tags.slice(0, 5)
+    return
+  }
+}
+const getTagList = () => {
+  tagLoading.value = true
+  listPictureTagInfo(tagQuery.value).then((res) => {
+    tagList.value = res?.rows || []
+    tagLoading.value = false
+  })
+}
+getTagList()
 getMySpaceList()
 getPictureCategoryList()
 </script>

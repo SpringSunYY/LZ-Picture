@@ -18,6 +18,7 @@ import com.lz.picture.service.ISpaceFolderInfoService;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.utils.TreeUtils;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,6 +39,7 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
     private ISpaceInfoService spaceInfoService;
 
     @Resource
+    @Lazy
     private IPictureInfoService pictureInfoService;
 
     //region mybatis代码

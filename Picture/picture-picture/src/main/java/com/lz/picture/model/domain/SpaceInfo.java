@@ -102,7 +102,7 @@ public class SpaceInfo implements Serializable {
     /**
      * 空间类型（0个人 1团队 2官方）
      */
-    @Excel(name = "空间类型", readConverterExp = "0=个人,1=团队,2=官方")
+    @Excel(name = "空间类型", readConverterExp = "2=个人,1=团队,0=官方")
     private String spaceType;
 
     /**

@@ -9,7 +9,7 @@ import usePermissionStore from '@/stores/modules/permission.ts'
 
 const useUserStore = defineStore('user', {
   state: (): {
-    permissions: string[]
+    permissions?: string[]
     userName: string
     userId: string
     avatar: string

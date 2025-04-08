@@ -1,21 +1,23 @@
 package com.lz.picture.service;
 
 import java.util.List;
+
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 图片信息Service接口
  *
  * @author YY
  * @date 2025-03-24
  */
-public interface IPictureInfoService extends IService<PictureInfo>
-{
+public interface IPictureInfoService extends IService<PictureInfo> {
     //region mybatis代码
+
     /**
      * 查询图片信息
      *
@@ -64,6 +66,7 @@ public interface IPictureInfoService extends IService<PictureInfo>
      */
     public int deletePictureInfoByPictureId(String pictureId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,12 @@ public interface IPictureInfoService extends IService<PictureInfo>
      * @return PictureInfoVO集合
      */
     List<PictureInfoVo> convertVoList(List<PictureInfo> pictureInfoList);
+
+    /**
+     * 用户新增图片信息
+     *
+     * @param pictureInfo
+     * @return
+     */
+    int userInsertPictureInfo(PictureInfo pictureInfo);
 }

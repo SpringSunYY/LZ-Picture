@@ -1,6 +1,6 @@
 //查询文件夹
 import { http as request } from '@/utils'
-import type { PictureCategoryInfoQuery, PictureCategoryInfoVo } from '@/types/picture/spaceCategory'
+import type { PictureCategoryInfoQuery, PictureCategoryInfoVo } from '@/types/picture/pictureCategory'
 import type { API } from '@/types/common'
 
 export function listPictureCategoryInfo(
