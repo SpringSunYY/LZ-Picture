@@ -36,7 +36,7 @@ public class SpaceFolderInfoUserQuery implements Serializable {
     /**
      * 父文件夹编号
      */
-    @NotEmpty(message = "父文件夹编号不能为空")
+//    @NotEmpty(message = "父文件夹编号不能为空")
     private String parentId;
 
     /**
