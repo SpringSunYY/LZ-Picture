@@ -1,18 +1,18 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.PictureInfo;
-import lombok.Data;
-import org.springframework.beans.BeanUtils;
-
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+import com.lz.picture.model.domain.PictureInfo;
 
 /**
  * 图片信息Vo对象 p_picture_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-04-09
  */
 @Data
 public class PictureInfoInsert implements Serializable {
@@ -44,7 +44,7 @@ public class PictureInfoInsert implements Serializable {
     private String categoryId;
 
     /**
-     * 图片体积（字节）
+     * 图片体积
      */
     private Long picSize;
 
@@ -120,9 +120,9 @@ public class PictureInfoInsert implements Serializable {
     private String folderId;
 
     /**
-     * 图片主色调（十六进制代码）
+     * 更多信息
      */
-    private String picColor;
+    private String moreInfo;
 
     /**
      * 删除（0否 1是）

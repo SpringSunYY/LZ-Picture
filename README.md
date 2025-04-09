@@ -1919,9 +1919,9 @@ CREATE TABLE p_picture_tag_info (
 | review_user_id | bigint   |      |                                   | 是   |                | 审核人 编号         |
 | review_time    | datetime |      |                                   | 是   |                | 审核时间            |
 | thumbnail_url  | varchar  | 512  |                                   | 是   |                | 缩略图 url          |
+| more_info      | text     |      |                                   | 是   |                | 更多信息            |
 | space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间 编号           |
 | folder_id      | varchar  | 128  |                                   | 是   |                | 文件夹              |
-| pic_color      | varchar  | 16   |                                   | 是   |                | 图片主色调          |
 | is_delete      | char     | 1    |                                   | 否   | 0              | 删除(0否 1是) 默认0 |
 | deleted_time   | datetime |      |                                   | 是   |                | 删除时间            |
 
@@ -1958,9 +1958,9 @@ CREATE TABLE p_picture_info
     review_user_id BIGINT COMMENT '审核人编号',
     review_time    DATETIME COMMENT '审核时间',
     thumbnail_url  VARCHAR(512) COMMENT '缩略图URL',
+    more_info      TEXT         COMMENT '更多信息',
     space_id       VARCHAR(128) COMMENT '所属空间编号',
     folder_id      VARCHAR(128) COMMENT '所属文件夹编号',
-    pic_color      VARCHAR(16) COMMENT '图片主色调（十六进制代码）',
     is_delete      CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
     deleted_time   DATETIME COMMENT '删除时间',
     PRIMARY KEY (picture_id),

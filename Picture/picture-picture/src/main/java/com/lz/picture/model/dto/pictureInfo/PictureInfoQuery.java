@@ -19,7 +19,7 @@ import com.lz.picture.model.domain.PictureInfo;
  * 图片信息Query对象 p_picture_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-04-09
  */
 @Data
 public class PictureInfoQuery implements Serializable {
@@ -36,14 +36,14 @@ public class PictureInfoQuery implements Serializable {
     private String name;
 
     /**
-     * 简介
-     */
-    private String introduction;
-
-    /**
      * 分类编号
      */
     private String categoryId;
+
+    /**
+     * 图片体积
+     */
+    private Long picSize;
 
     /**
      * 图片宽度
@@ -104,11 +104,6 @@ public class PictureInfoQuery implements Serializable {
     private Long reviewStatus;
 
     /**
-     * 审核信息
-     */
-    private String reviewMessage;
-
-    /**
      * 审核人编号
      */
     private Long reviewUserId;
@@ -128,11 +123,6 @@ public class PictureInfoQuery implements Serializable {
      * 所属文件夹编号
      */
     private String folderId;
-
-    /**
-     * 图片主色调（十六进制代码）
-     */
-    private String picColor;
 
     /**
      * 删除（0否 1是）

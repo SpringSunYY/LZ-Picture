@@ -25,6 +25,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="图片体积" prop="picSize">
+        <el-input
+            v-model="queryParams.picSize"
+            placeholder="请输入图片体积"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="图片宽度" prop="picWidth">
         <el-input
             v-model="queryParams.picWidth"
@@ -157,14 +165,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="图片主色调" prop="picColor">
-        <el-input
-            v-model="queryParams.picColor"
-            placeholder="请输入图片主色调"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="删除" prop="isDelete">
         <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
           <el-option
@@ -241,9 +241,14 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="图片编号" align="center" prop="pictureId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片URL" align="center" prop="pictureUrl" width="100" v-if="columns[1].visible">
+      <el-table-column label="图片" align="center" prop="pictureUrl" width="100" v-if="columns[1].visible">
         <template #default="scope">
           <image-preview :src="scope.row.pictureUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="缩略图" align="center" prop="thumbnailUrl" width="100" v-if="columns[20].visible">
+        <template #default="scope">
+          <image-preview :src="scope.row.thumbnailUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
       <el-table-column label="图片名称" align="center" prop="name" v-if="columns[2].visible"
@@ -253,7 +258,11 @@
       <el-table-column label="分类编号" align="center" prop="categoryId" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片体积" align="center" prop="picSize" v-if="columns[5].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          {{ formatSize(scope.row.picSize) }}
+        </template>
+      </el-table-column>
       <el-table-column label="图片宽度" align="center" prop="picWidth" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片高度" align="center" prop="picHeight" v-if="columns[7].visible"
@@ -304,16 +313,11 @@
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="缩略图URL" align="center" prop="thumbnailUrl" width="100" v-if="columns[20].visible">
-        <template #default="scope">
-          <image-preview :src="scope.row.thumbnailUrl" :width="50" :height="50"/>
-        </template>
-      </el-table-column>
       <el-table-column label="所属空间编号" align="center" prop="spaceId" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="所属文件夹编号" align="center" prop="folderId" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片主色调" align="center" prop="picColor" v-if="columns[23].visible"
+      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[24].visible">
         <template #default="scope">
@@ -349,7 +353,7 @@
     <!-- 添加或修改图片信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="pictureInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="图片URL" prop="pictureUrl">
+        <el-form-item label="图片" prop="pictureUrl">
           <image-upload v-model="form.pictureUrl"/>
         </el-form-item>
         <el-form-item label="图片名称" prop="name">
@@ -361,27 +365,30 @@
         <el-form-item label="分类编号" prop="categoryId">
           <el-input v-model="form.categoryId" placeholder="请输入分类编号"/>
         </el-form-item>
-        <el-form-item label="图片体积" prop="picSize">
-          <el-input v-model="form.picSize" placeholder="请输入图片体积"/>
-        </el-form-item>
-        <el-form-item label="图片宽度" prop="picWidth">
-          <el-input v-model="form.picWidth" placeholder="请输入图片宽度"/>
-        </el-form-item>
-        <el-form-item label="图片高度" prop="picHeight">
-          <el-input v-model="form.picHeight" placeholder="请输入图片高度"/>
-        </el-form-item>
-        <el-form-item label="宽高比例" prop="picScale">
-          <el-input v-model="form.picScale" placeholder="请输入宽高比例"/>
-        </el-form-item>
-        <el-form-item label="图片格式" prop="picFormat">
-          <el-input v-model="form.picFormat" placeholder="请输入图片格式"/>
-        </el-form-item>
+<!--        <el-form-item label="图片体积" prop="picSize">-->
+<!--          <el-input v-model="form.picSize" placeholder="请输入图片体积"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="图片宽度" prop="picWidth">-->
+<!--          <el-input v-model="form.picWidth" placeholder="请输入图片宽度"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="图片高度" prop="picHeight">-->
+<!--          <el-input v-model="form.picHeight" placeholder="请输入图片高度"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="宽高比例" prop="picScale">-->
+<!--          <el-input v-model="form.picScale" placeholder="请输入宽高比例"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="图片格式" prop="picFormat">-->
+<!--          <el-input v-model="form.picFormat" placeholder="请输入图片格式"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="所需积分" prop="pointsNeed">
-          <el-input v-model="form.pointsNeed" placeholder="请输入所需积分"/>
+          <el-input-number :min="10" :max="1000" v-model="form.pointsNeed" placeholder="请输入所需积分"/>
         </el-form-item>
-        <el-form-item label="上传用户编号" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入上传用户编号"/>
+        <el-form-item label="更多信息" prop="moreInfo">
+          <el-input v-model="form.moreInfo" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
+<!--        <el-form-item label="上传用户" prop="userId">-->
+<!--          <el-input v-model="form.userId" placeholder="请输入上传用户编号"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="图片状态" prop="pictureStatus">
           <el-radio-group v-model="form.pictureStatus">
             <el-radio
@@ -397,7 +404,7 @@
             <el-radio
                 v-for="dict in p_picture_review_status"
                 :key="dict.value"
-                :value="parseInt(dict.value)"
+                :value="dict.value"
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
@@ -405,29 +412,26 @@
         <el-form-item label="审核信息" prop="reviewMessage">
           <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="审核人编号" prop="reviewUserId">
-          <el-input v-model="form.reviewUserId" placeholder="请输入审核人编号"/>
-        </el-form-item>
-        <el-form-item label="审核时间" prop="reviewTime">
-          <el-date-picker clearable
-                          v-model="form.reviewTime"
-                          type="date"
-                          value-format="YYYY-MM-DD"
-                          placeholder="请选择审核时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="缩略图URL" prop="thumbnailUrl">
-          <image-upload v-model="form.thumbnailUrl"/>
-        </el-form-item>
-        <el-form-item label="所属空间编号" prop="spaceId">
-          <el-input v-model="form.spaceId" placeholder="请输入所属空间编号"/>
-        </el-form-item>
-        <el-form-item label="所属文件夹编号" prop="folderId">
-          <el-input v-model="form.folderId" placeholder="请输入所属文件夹编号"/>
-        </el-form-item>
-        <el-form-item label="图片主色调" prop="picColor">
-          <el-input v-model="form.picColor" placeholder="请输入图片主色调"/>
-        </el-form-item>
+<!--        <el-form-item label="审核人编号" prop="reviewUserId">-->
+<!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人编号"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="审核时间" prop="reviewTime">-->
+<!--          <el-date-picker clearable-->
+<!--                          v-model="form.reviewTime"-->
+<!--                          type="date"-->
+<!--                          value-format="YYYY-MM-DD"-->
+<!--                          placeholder="请选择审核时间">-->
+<!--          </el-date-picker>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="缩略图" prop="thumbnailUrl">-->
+<!--          <image-upload v-model="form.thumbnailUrl"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="所属空间编号" prop="spaceId">-->
+<!--          <el-input v-model="form.spaceId" placeholder="请输入所属空间编号"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="所属文件夹编号" prop="folderId">-->
+<!--          <el-input v-model="form.folderId" placeholder="请输入所属文件夹编号"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="删除" prop="isDelete">
           <el-radio-group v-model="form.isDelete">
             <el-radio
@@ -451,12 +455,13 @@
 
 <script setup name="PictureInfo">
 import {
-  addPictureInfo,
-  delPictureInfo,
-  getPictureInfo,
   listPictureInfo,
+  getPictureInfo,
+  delPictureInfo,
+  addPictureInfo,
   updatePictureInfo
 } from "@/api/picture/pictureInfo";
+import {formatSize} from "../../../utils/ruoyi.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -487,8 +492,8 @@ const data = reactive({
     pageSize: 10,
     pictureId: null,
     name: null,
-    introduction: null,
     categoryId: null,
+    picSize: null,
     picWidth: null,
     picHeight: null,
     picScale: null,
@@ -500,18 +505,16 @@ const data = reactive({
     updateTime: null,
     pictureStatus: null,
     reviewStatus: null,
-    reviewMessage: null,
     reviewUserId: null,
     reviewTime: null,
     spaceId: null,
     folderId: null,
-    picColor: null,
     isDelete: null,
     deletedTime: null
   },
   rules: {
     pictureUrl: [
-      {required: true, message: "图片URL不能为空", trigger: "blur"}
+      {required: true, message: "图片不能为空", trigger: "blur"}
     ],
     name: [
       {required: true, message: "图片名称不能为空", trigger: "blur"}
@@ -540,10 +543,10 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '图片编号', visible: true},
-    {key: 1, label: '图片URL', visible: true},
+    {key: 0, label: '图片编号', visible: false},
+    {key: 1, label: '图片', visible: false},
     {key: 2, label: '图片名称', visible: true},
-    {key: 3, label: '简介', visible: true},
+    {key: 3, label: '简介', visible: false},
     {key: 4, label: '分类编号', visible: true},
     {key: 5, label: '图片体积', visible: true},
     {key: 6, label: '图片宽度', visible: true},
@@ -551,21 +554,21 @@ const data = reactive({
     {key: 8, label: '宽高比例', visible: true},
     {key: 9, label: '图片格式', visible: true},
     {key: 10, label: '所需积分', visible: true},
-    {key: 11, label: '上传用户编号', visible: true},
+    {key: 11, label: '上传用户', visible: false},
     {key: 12, label: '创建时间', visible: true},
-    {key: 13, label: '编辑时间', visible: true},
-    {key: 14, label: '更新时间', visible: true},
+    {key: 13, label: '编辑时间', visible: false},
+    {key: 14, label: '更新时间', visible: false},
     {key: 15, label: '图片状态', visible: true},
     {key: 16, label: '审核状态', visible: true},
-    {key: 17, label: '审核信息', visible: true},
-    {key: 18, label: '审核人编号', visible: true},
-    {key: 19, label: '审核时间', visible: true},
-    {key: 20, label: '缩略图URL', visible: true},
-    {key: 21, label: '所属空间编号', visible: true},
-    {key: 22, label: '所属文件夹编号', visible: true},
-    {key: 23, label: '图片主色调', visible: true},
-    {key: 24, label: '删除', visible: true},
-    {key: 25, label: '删除时间', visible: true},
+    {key: 17, label: '审核信息', visible: false},
+    {key: 18, label: '审核人编号', visible: false},
+    {key: 19, label: '审核时间', visible: false},
+    {key: 20, label: '缩略图', visible: true},
+    {key: 21, label: '所属空间编号', visible: false},
+    {key: 22, label: '所属文件夹编号', visible: false},
+    {key: 23, label: '更多信息', visible: false},
+    {key: 24, label: '删除', visible: false},
+    {key: 25, label: '删除时间', visible: false},
   ],
 });
 
@@ -634,7 +637,7 @@ function reset() {
     thumbnailUrl: null,
     spaceId: null,
     folderId: null,
-    picColor: null,
+    moreInfo: null,
     isDelete: null,
     deletedTime: null
   };

@@ -1,48 +1,39 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
-import com.lz.common.utils.StringUtils;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
+import com.lz.picture.mapper.PictureInfoMapper;
+import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.SpaceFolderInfo;
 import com.lz.picture.model.domain.SpaceInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
 import com.lz.picture.model.enums.PPictureReviewStatus;
-import com.lz.picture.model.enums.PSpaceStatus;
 import com.lz.picture.model.enums.PSpaceType;
 import com.lz.picture.model.enums.PTagStatus;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
+import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IPictureTagInfoService;
 import com.lz.picture.service.ISpaceFolderInfoService;
 import com.lz.picture.service.ISpaceInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.picture.mapper.PictureInfoMapper;
-import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.service.IPictureInfoService;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MAX;
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MIN;
-import static com.lz.common.utils.SecurityUtils.getLoginUser;
 
 /**
  * 图片信息Service业务层处理
@@ -143,6 +134,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     //endregion
     @Override
+
     public QueryWrapper<PictureInfo> getQueryWrapper(PictureInfoQuery pictureInfoQuery) {
         QueryWrapper<PictureInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
@@ -159,6 +151,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String categoryId = pictureInfoQuery.getCategoryId();
         queryWrapper.eq(StringUtils.isNotEmpty(categoryId), "category_id", categoryId);
 
+        Long picSize = pictureInfoQuery.getPicSize();
+        queryWrapper.eq(StringUtils.isNotNull(picSize), "pic_size", picSize);
+
         Long picWidth = pictureInfoQuery.getPicWidth();
         queryWrapper.eq(StringUtils.isNotNull(picWidth), "pic_width", picWidth);
 
@@ -170,6 +165,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         String picFormat = pictureInfoQuery.getPicFormat();
         queryWrapper.eq(StringUtils.isNotEmpty(picFormat), "pic_format", picFormat);
+
+        Long pointsNeed = pictureInfoQuery.getPointsNeed();
+        queryWrapper.eq(StringUtils.isNotNull(pointsNeed), "points_need", pointsNeed);
 
         String userId = pictureInfoQuery.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
@@ -201,9 +199,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String folderId = pictureInfoQuery.getFolderId();
         queryWrapper.eq(StringUtils.isNotEmpty(folderId), "folder_id", folderId);
 
-        String picColor = pictureInfoQuery.getPicColor();
-        queryWrapper.eq(StringUtils.isNotEmpty(picColor), "pic_color", picColor);
-
         String isDelete = pictureInfoQuery.getIsDelete();
         queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 
@@ -213,6 +208,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return queryWrapper;
     }
 
+
     @Override
     public List<PictureInfoVo> convertVoList(List<PictureInfo> pictureInfoList) {
         if (StringUtils.isEmpty(pictureInfoList)) {
@@ -220,6 +216,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         return pictureInfoList.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
     }
+
     //TODO 更新图库信息
     @Override
     public int userInsertPictureInfo(PictureInfo pictureInfo) {
@@ -289,7 +286,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             addTagInfoList.add(pictureTagInfo);
         }
         // 计算宽高比例
-        pictureInfo.setPicScale( ((double)pictureInfo.getPicWidth() /(double) pictureInfo.getPicHeight()));
+        pictureInfo.setPicScale(((double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight()));
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
         Integer execute = transactionTemplate.execute(result -> {
             if (StringUtils.isNotEmpty(addTagInfoList)) {

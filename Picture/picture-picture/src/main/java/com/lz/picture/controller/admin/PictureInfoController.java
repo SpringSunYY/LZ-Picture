@@ -2,6 +2,8 @@ package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.config.service.IConfigInfoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -26,6 +28,8 @@ import com.lz.picture.service.IPictureInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
+import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+
 /**
  * 图片信息Controller
  *
@@ -34,22 +38,28 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/admin/picture/pictureInfo")
-public class PictureInfoController extends BaseController
-{
+public class PictureInfoController extends BaseController {
     @Resource
     private IPictureInfoService pictureInfoService;
+
+    @Resource
+    private IConfigInfoService configInfoService;
 
     /**
      * 查询图片信息列表
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(PictureInfoQuery pictureInfoQuery)
-    {
+    public TableDataInfo list(PictureInfoQuery pictureInfoQuery) {
         PictureInfo pictureInfo = PictureInfoQuery.queryToObj(pictureInfoQuery);
         startPage();
         List<PictureInfo> list = pictureInfoService.selectPictureInfoList(pictureInfo);
-        List<PictureInfoVo> listVo= list.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
+        List<PictureInfoVo> listVo = list.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        listVo.forEach(item -> {
+            item.setPictureUrl(item.getPictureUrl() + "?x-oss-process=image/resize,p_" + inCache);
+            item.setThumbnailUrl(item.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + inCache);
+        });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
@@ -61,8 +71,7 @@ public class PictureInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:export')")
     @Log(title = "图片信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, PictureInfoQuery pictureInfoQuery)
-    {
+    public void export(HttpServletResponse response, PictureInfoQuery pictureInfoQuery) {
         PictureInfo pictureInfo = PictureInfoQuery.queryToObj(pictureInfoQuery);
         List<PictureInfo> list = pictureInfoService.selectPictureInfoList(pictureInfo);
         ExcelUtil<PictureInfo> util = new ExcelUtil<PictureInfo>(PictureInfo.class);
@@ -74,8 +83,7 @@ public class PictureInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:query')")
     @GetMapping(value = "/{pictureId}")
-    public AjaxResult getInfo(@PathVariable("pictureId") String pictureId)
-    {
+    public AjaxResult getInfo(@PathVariable("pictureId") String pictureId) {
         PictureInfo pictureInfo = pictureInfoService.selectPictureInfoByPictureId(pictureId);
         return success(PictureInfoVo.objToVo(pictureInfo));
     }
@@ -86,8 +94,7 @@ public class PictureInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:add')")
     @Log(title = "图片信息", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody PictureInfoInsert pictureInfoInsert)
-    {
+    public AjaxResult add(@RequestBody PictureInfoInsert pictureInfoInsert) {
         PictureInfo pictureInfo = PictureInfoInsert.insertToObj(pictureInfoInsert);
         return toAjax(pictureInfoService.insertPictureInfo(pictureInfo));
     }
@@ -98,8 +105,7 @@ public class PictureInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:edit')")
     @Log(title = "图片信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody PictureInfoEdit pictureInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody PictureInfoEdit pictureInfoEdit) {
         PictureInfo pictureInfo = PictureInfoEdit.editToObj(pictureInfoEdit);
         return toAjax(pictureInfoService.updatePictureInfo(pictureInfo));
     }
@@ -110,8 +116,7 @@ public class PictureInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:remove')")
     @Log(title = "图片信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{pictureIds}")
-    public AjaxResult remove(@PathVariable String[] pictureIds)
-    {
+    public AjaxResult remove(@PathVariable String[] pictureIds) {
         return toAjax(pictureInfoService.deletePictureInfoByPictureIds(pictureIds));
     }
 }

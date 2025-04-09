@@ -28,7 +28,7 @@
         <result property="thumbnailUrl" column="thumbnail_url"/>
         <result property="spaceId" column="space_id"/>
         <result property="folderId" column="folder_id"/>
-        <result property="picColor" column="pic_color"/>
+        <result property="moreInfo" column="more_info"/>
         <result property="isDelete" column="is_delete"/>
         <result property="deletedTime" column="deleted_time"/>
     </resultMap>
@@ -57,7 +57,7 @@
                thumbnail_url,
                space_id,
                folder_id,
-               pic_color,
+               more_info,
                is_delete,
                deleted_time
         from p_picture_info
@@ -68,8 +68,8 @@
         <where>
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
             <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
-            <if test="introduction != null  and introduction != ''">and introduction = #{introduction}</if>
             <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="picSize != null ">and pic_size = #{picSize}</if>
             <if test="picWidth != null ">and pic_width = #{picWidth}</if>
             <if test="picHeight != null ">and pic_height = #{picHeight}</if>
             <if test="picScale != null ">and pic_scale = #{picScale}</if>
@@ -87,14 +87,12 @@
             </if>
             <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
             <if test="reviewStatus != null ">and review_status = #{reviewStatus}</if>
-            <if test="reviewMessage != null  and reviewMessage != ''">and review_message = #{reviewMessage}</if>
             <if test="reviewUserId != null ">and review_user_id = #{reviewUserId}</if>
             <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''">
                 and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
             </if>
             <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
             <if test="folderId != null  and folderId != ''">and folder_id = #{folderId}</if>
-            <if test="picColor != null  and picColor != ''">and pic_color = #{picColor}</if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
             <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''">
                 and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and
@@ -134,7 +132,7 @@
             <if test="thumbnailUrl != null">thumbnail_url,</if>
             <if test="spaceId != null">space_id,</if>
             <if test="folderId != null">folder_id,</if>
-            <if test="picColor != null">pic_color,</if>
+            <if test="moreInfo != null">more_info,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
             <if test="deletedTime != null">deleted_time,</if>
         </trim>
@@ -162,7 +160,7 @@
             <if test="thumbnailUrl != null">#{thumbnailUrl},</if>
             <if test="spaceId != null">#{spaceId},</if>
             <if test="folderId != null">#{folderId},</if>
-            <if test="picColor != null">#{picColor},</if>
+            <if test="moreInfo != null">#{moreInfo},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
             <if test="deletedTime != null">#{deletedTime},</if>
         </trim>
@@ -193,7 +191,7 @@
             <if test="thumbnailUrl != null">thumbnail_url = #{thumbnailUrl},</if>
             <if test="spaceId != null">space_id = #{spaceId},</if>
             <if test="folderId != null">folder_id = #{folderId},</if>
-            <if test="picColor != null">pic_color = #{picColor},</if>
+            <if test="moreInfo != null">more_info = #{moreInfo},</if>
             <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
             <if test="deletedTime != null">deleted_time = #{deletedTime},</if>
         </trim>

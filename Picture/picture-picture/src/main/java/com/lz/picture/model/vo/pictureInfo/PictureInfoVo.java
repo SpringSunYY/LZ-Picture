@@ -1,19 +1,21 @@
 package com.lz.picture.model.vo.pictureInfo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
-import com.lz.picture.model.domain.PictureInfo;
-import lombok.Data;
-import org.springframework.beans.BeanUtils;
-
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import com.lz.common.annotation.Excel;
+import org.springframework.beans.BeanUtils;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.picture.model.domain.PictureInfo;
 
 /**
  * 图片信息Vo对象 p_picture_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-04-09
  */
 @Data
 public class PictureInfoVo implements Serializable {
@@ -50,9 +52,9 @@ public class PictureInfoVo implements Serializable {
     private String categoryId;
 
     /**
-     * 图片体积（字节）
+     * 图片体积
      */
-    @Excel(name = "图片体积", readConverterExp = "字=节")
+    @Excel(name = "图片体积")
     private Long picSize;
 
     /**
@@ -162,10 +164,10 @@ public class PictureInfoVo implements Serializable {
     private String folderId;
 
     /**
-     * 图片主色调（十六进制代码）
+     * 更多信息
      */
-    @Excel(name = "图片主色调", readConverterExp = "十=六进制代码")
-    private String picColor;
+    @Excel(name = "更多信息")
+    private String moreInfo;
 
     /**
      * 删除（0否 1是）

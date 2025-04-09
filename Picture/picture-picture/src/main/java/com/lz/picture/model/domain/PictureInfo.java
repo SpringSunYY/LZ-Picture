@@ -18,7 +18,7 @@ import java.util.Map;
  * 图片信息对象 p_picture_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-04-09
  */
 @TableName("p_picture_info")
 @Data
@@ -57,9 +57,9 @@ public class PictureInfo implements Serializable {
     private String categoryId;
 
     /**
-     * 图片体积（字节）
+     * 图片体积
      */
-    @Excel(name = "图片体积", readConverterExp = "字=节")
+    @Excel(name = "图片体积")
     private Long picSize;
 
     /**
@@ -162,9 +162,6 @@ public class PictureInfo implements Serializable {
     @Excel(name = "所属空间编号")
     private String spaceId;
 
-    @TableField(exist = false)
-    private List<String> tags;
-
     /**
      * 所属文件夹编号
      */
@@ -172,10 +169,10 @@ public class PictureInfo implements Serializable {
     private String folderId;
 
     /**
-     * 图片主色调（十六进制代码）
+     * 更多信息
      */
-    @Excel(name = "图片主色调", readConverterExp = "十=六进制代码")
-    private String picColor;
+    @Excel(name = "更多信息")
+    private String moreInfo;
 
     /**
      * 删除（0否 1是）
@@ -196,4 +193,10 @@ public class PictureInfo implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @TableField(exist = false)
     private Map<String, Object> params;
+
+    /**
+     * 图片标签
+     */
+    @TableField(exist = false)
+    private List<String> tags;
 }

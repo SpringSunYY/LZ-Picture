@@ -10,5 +10,6 @@ export function pictureUpload(file: any) {
     },
     method: 'post',
     data: file,
+    timeout: 60000,
   })
 }
