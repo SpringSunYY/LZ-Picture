@@ -195,8 +195,7 @@ const renderIcon = (iconName: string) => {
 
 <style scoped>
 #globalHeader {
-  margin: 0 5vh;
-
+  margin: 0 4vh;
   .title-bar {
     display: flex;
     align-items: center;

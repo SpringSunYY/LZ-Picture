@@ -4,44 +4,74 @@
 
   <div v-else id="layout">
     <a-layout style="min-height: 100vh">
-      <!-- 原有布局内容 -->
-      <a-layout-header class="header">
+      <!-- 带滚动隐藏效果的头部 -->
+      <a-layout-header class="header" :class="{ hidden: isHeaderHidden }">
         <GlobalHeader />
       </a-layout-header>
+
       <a-layout-content class="content">
         <router-view v-slot="{ Component, route }">
           <keep-alive v-if="route?.meta?.isCache === true">
-            <component :is="Component" :key="route.name"/>
+            <component :is="Component" :key="route.name" />
           </keep-alive>
-          <component v-else :is="Component" :key="route.name"/>
+          <component v-else :is="Component" :key="route.name" />
         </router-view>
       </a-layout-content>
 
       <a-layout-footer class="footer">
-        <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank"> 荔枝云图库 by LZ </a>
+        <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank">荔枝云图库 by LZ</a>
       </a-layout-footer>
     </a-layout>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import GlobalHeader from '@/layout/GlobalHeader/index.vue'
+
+// 控制头部隐藏状态
+const isHeaderHidden = ref(false)
+let lastScrollTop = window.scrollY
+
+const onScroll = () => {
+  const current = window.scrollY
+  if (current > lastScrollTop && current - lastScrollTop > 5) {
+    isHeaderHidden.value = true // 向下滚动，隐藏头部
+  } else if (current < lastScrollTop - 5) {
+    isHeaderHidden.value = false // 向上滚动，显示头部
+  }
+  lastScrollTop = current <= 0 ? 0 : current
+}
+
+onMounted(() => window.addEventListener('scroll', onScroll))
+onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 #layout {
   .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.47);
+    // 让下级元素继承背景色
+    * {
+      background: inherit;
+    }
     padding-inline: 30px;
-    color: unset;
-    background: white;
-    position: fixed; /* 添加固定定位 */
-    width: 100%; /* 确保宽度占满 */
-    top: 0; /* 固定在顶部 */
-    z-index: 1000; /* 确保在其他内容之上 */
+    transition: transform 0.3s ease;
+    transform: translateY(0);
+  }
+
+  .header.hidden {
+    transform: translateY(-100%);
   }
 
   .content {
     background: linear-gradient(to right, #fefefe, #fff);
+    margin-top: 64px; /* 顶部预留高度，避免被 header 遮住 */
     margin-bottom: 28px;
     padding: 20px;
   }
