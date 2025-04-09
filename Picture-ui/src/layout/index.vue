@@ -31,9 +31,13 @@ import GlobalHeader from '@/layout/GlobalHeader/index.vue'
 <style scoped>
 #layout {
   .header {
-    padding-inline: 20px;
+    padding-inline: 30px;
     color: unset;
     background: white;
+    position: fixed; /* 添加固定定位 */
+    width: 100%; /* 确保宽度占满 */
+    top: 0; /* 固定在顶部 */
+    z-index: 1000; /* 确保在其他内容之上 */
   }
 
   .content {
