@@ -3,6 +3,9 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import  autoprefixer from 'autoprefixer'
+import tailwindcss from 'tailwindcss'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -12,12 +15,19 @@ export default defineConfig({
       symbolId: 'icon-[name]',
     }),
   ],
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcss,
+        autoprefixer,
+      ],
+    },
+  },
   server: {
     port: 5173,
     host: true,
     open: true,
     proxy: {
-      // https://cn.vitejs.dev/config/#server-proxy
       '/dev-api': {
         target: 'http://localhost:8080/user',
         changeOrigin: true,

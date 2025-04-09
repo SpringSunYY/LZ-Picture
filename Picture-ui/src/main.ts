@@ -9,6 +9,7 @@ import { message } from 'ant-design-vue'
 import SvgIcon from '@/components/SvgIcon/index.vue'
 import '@/router/permisson'
 import { useDict } from '@/utils/dict.ts'
+import '@/assets/tailwind.css'  // 已正确引入 Tailwind CSS
 
 message.config({
   maxCount: 5, // 最大显示数量

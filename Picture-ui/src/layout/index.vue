@@ -55,11 +55,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.47);
-    // 让下级元素继承背景色
-    * {
-      background: inherit;
-    }
+    background: rgb(255, 255, 255);
     padding-inline: 30px;
     transition: transform 0.3s ease;
     transform: translateY(0);
