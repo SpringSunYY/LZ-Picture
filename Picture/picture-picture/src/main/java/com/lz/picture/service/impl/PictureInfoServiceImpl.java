@@ -241,6 +241,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 throw new ServiceException("您不是该文件夹所有者，无法上传图片");
             }
         }
+        //更新空间信息
+        spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
+        spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
+        spaceInfo.setLastUpdateTime(new Date());
+        //判断当前空间是否到达最大值 官方空间没有限制
+        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
+                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
+            throw new ServiceException("空间已满，无法上传图片");
+        }
         //获取积分最大值和最小值
         String pointsNeedMax = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MAX);
         String pointsNeedMin = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MIN);
@@ -249,12 +258,17 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             throw new ServiceException(StringUtils.format("图片所需积分不在范围内，最小值：{}，最大值：{}", pointsNeedMin, pointsNeedMax));
         }
         //判断是否是十的倍数
-        if (pictureInfo.getPicSize() % 10 != 0) {
+        if (pictureInfo.getPointsNeed() % 10 != 0) {
             throw new ServiceException("图片体积必须是10的倍数");
         }
         //查询标签是否存在
         List<String> tags = pictureInfo.getTags();
-        List<PictureTagInfo> tagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getName, tags));
+        List<PictureTagInfo> tagInfoList;
+        if (StringUtils.isEmpty(tags)) {
+            tagInfoList = new ArrayList<>();
+        } else {
+            tagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getName, tags));
+        }
         //遍历两个标签，如果查询到的标签并且此标签为禁止状态，删除tags的标签
         for (PictureTagInfo tagInfo : tagInfoList) {
             if (tagInfo.getTagsStatus().equals(PTagStatus.TAG_STATUS_1.getValue())) {
@@ -288,11 +302,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         // 计算宽高比例
         pictureInfo.setPicScale(((double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight()));
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
+
         Integer execute = transactionTemplate.execute(result -> {
             if (StringUtils.isNotEmpty(addTagInfoList)) {
                 pictureTagInfoService.saveOrUpdateBatch(addTagInfoList);
             }
             pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
+            spaceInfoService.updateById(spaceInfo);
             return pictureInfoMapper.insertPictureInfo(pictureInfo);
         });
         return StringUtils.isNull(execute) ? 0 : execute;

@@ -14,7 +14,7 @@
             :modelValue="formState.pictureUrl"
             v-model:value="formState.pictureUrl"
             :allowedFormats="['image/jpeg', 'image/png']"
-            :maxSizeMB="10"
+            :maxSizeMB="50"
             :maxCount="1"
             @upload-success="handleSuccess"
           />
@@ -51,7 +51,6 @@
               value: 'folderId',
               children: 'children',
             }"
-            @change="handleFolderChange"
           />
         </a-form-item>
         <!-- 分类选择 -->
@@ -66,7 +65,6 @@
               value: 'categoryId',
               children: 'children',
             }"
-            @change="handleCategoryChange"
           />
         </a-form-item>
         <a-form-item label="标签">
@@ -192,6 +190,13 @@ const handleSuccess = (modelValue) => {
 // 提交处理
 const handleSubmit = async () => {
   submitting.value = true
+  //如果分类或者文件夹存在，取数组最后一个
+  if (formState.categoryId && Array.isArray(formState.categoryId)) {
+    formState.categoryId = formState.categoryId[formState.categoryId.length - 1]
+  }
+  if (formState.folderId && Array.isArray(formState.folderId)) {
+    formState.folderId = formState.folderId[formState.folderId.length - 1]
+  }
   addPictureInfo(formState).then((res) => {
     if (res.code === 200) {
       message.success('添加成功')
@@ -210,9 +215,6 @@ const getPictureCategoryList = async () => {
     )
     // console.log('pictureCategoryList', pictureCategoryList.value)
   })
-}
-const handleCategoryChange = (value: string[]) => {
-  formState.categoryId = value[value.length - 1]
 }
 
 const handleSelectSpace = () => {
@@ -246,9 +248,6 @@ const getFolderList = () => {
       'children',
     )
   })
-}
-const handleFolderChange = (value: string[]) => {
-  formState.folderId = value[value.length - 1]
 }
 const handleSearchTag = debounce((value: string) => {
   tagQuery.value.name = value

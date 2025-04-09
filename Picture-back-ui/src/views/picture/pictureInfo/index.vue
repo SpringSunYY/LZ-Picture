@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="图片编号" prop="pictureId">
+      <el-form-item label="图片" prop="pictureId">
         <el-input
             v-model="queryParams.pictureId"
-            placeholder="请输入图片编号"
+            placeholder="请输入图片"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -17,10 +17,10 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="分类编号" prop="categoryId">
+      <el-form-item label="分类" prop="categoryId">
         <el-input
             v-model="queryParams.categoryId"
-            placeholder="请输入分类编号"
+            placeholder="请输入分类"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -73,10 +73,10 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="上传用户编号" prop="userId">
+      <el-form-item label="上传用户" prop="userId">
         <el-input
             v-model="queryParams.userId"
-            placeholder="请输入上传用户编号"
+            placeholder="请输入上传用户"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -131,10 +131,10 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="审核人编号" prop="reviewUserId">
+      <el-form-item label="审核人" prop="reviewUserId">
         <el-input
             v-model="queryParams.reviewUserId"
-            placeholder="请输入审核人编号"
+            placeholder="请输入审核人"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -149,18 +149,18 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="所属空间编号" prop="spaceId">
+      <el-form-item label="所属空间" prop="spaceId">
         <el-input
             v-model="queryParams.spaceId"
-            placeholder="请输入所属空间编号"
+            placeholder="请输入所属空间"
             clearable
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="所属文件夹编号" prop="folderId">
+      <el-form-item label="文件夹" prop="folderId">
         <el-input
             v-model="queryParams.folderId"
-            placeholder="请输入所属文件夹编号"
+            placeholder="请输入所属文件夹"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -239,7 +239,7 @@
 
     <el-table v-loading="loading" :data="pictureInfoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="图片编号" align="center" prop="pictureId" v-if="columns[0].visible"
+      <el-table-column label="图片" align="center" prop="pictureId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片" align="center" prop="pictureUrl" width="100" v-if="columns[1].visible">
         <template #default="scope">
@@ -255,7 +255,7 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="简介" align="center" prop="introduction" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类编号" align="center" prop="categoryId" v-if="columns[4].visible"
+      <el-table-column label="分类" align="center" prop="categoryId" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片体积" align="center" prop="picSize" v-if="columns[5].visible"
                        :show-overflow-tooltip="true">
@@ -273,7 +273,7 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="所需积分" align="center" prop="pointsNeed" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="上传用户编号" align="center" prop="userId" v-if="columns[11].visible"
+      <el-table-column label="上传用户" align="center" prop="userId" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
@@ -305,7 +305,7 @@
       </el-table-column>
       <el-table-column label="审核信息" align="center" prop="reviewMessage" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="审核人编号" align="center" prop="reviewUserId" v-if="columns[18].visible"
+      <el-table-column label="审核人" align="center" prop="reviewUserId" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="审核时间" align="center" prop="reviewTime" width="180" v-if="columns[19].visible"
                        :show-overflow-tooltip="true">
@@ -313,9 +313,9 @@
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所属空间编号" align="center" prop="spaceId" v-if="columns[21].visible"
+      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="所属文件夹编号" align="center" prop="folderId" v-if="columns[22].visible"
+      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
@@ -362,8 +362,8 @@
         <el-form-item label="简介" prop="introduction">
           <el-input v-model="form.introduction" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="分类编号" prop="categoryId">
-          <el-input v-model="form.categoryId" placeholder="请输入分类编号"/>
+        <el-form-item label="分类" prop="categoryId">
+          <el-input v-model="form.categoryId" placeholder="请输入分类"/>
         </el-form-item>
 <!--        <el-form-item label="图片体积" prop="picSize">-->
 <!--          <el-input v-model="form.picSize" placeholder="请输入图片体积"/>-->
@@ -387,7 +387,7 @@
           <el-input v-model="form.moreInfo" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
 <!--        <el-form-item label="上传用户" prop="userId">-->
-<!--          <el-input v-model="form.userId" placeholder="请输入上传用户编号"/>-->
+<!--          <el-input v-model="form.userId" placeholder="请输入上传用户"/>-->
 <!--        </el-form-item>-->
         <el-form-item label="图片状态" prop="pictureStatus">
           <el-radio-group v-model="form.pictureStatus">
@@ -412,8 +412,8 @@
         <el-form-item label="审核信息" prop="reviewMessage">
           <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-<!--        <el-form-item label="审核人编号" prop="reviewUserId">-->
-<!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人编号"/>-->
+<!--        <el-form-item label="审核人" prop="reviewUserId">-->
+<!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人"/>-->
 <!--        </el-form-item>-->
 <!--        <el-form-item label="审核时间" prop="reviewTime">-->
 <!--          <el-date-picker clearable-->
@@ -426,11 +426,11 @@
 <!--        <el-form-item label="缩略图" prop="thumbnailUrl">-->
 <!--          <image-upload v-model="form.thumbnailUrl"/>-->
 <!--        </el-form-item>-->
-<!--        <el-form-item label="所属空间编号" prop="spaceId">-->
-<!--          <el-input v-model="form.spaceId" placeholder="请输入所属空间编号"/>-->
+<!--        <el-form-item label="所属空间" prop="spaceId">-->
+<!--          <el-input v-model="form.spaceId" placeholder="请输入所属空间"/>-->
 <!--        </el-form-item>-->
-<!--        <el-form-item label="所属文件夹编号" prop="folderId">-->
-<!--          <el-input v-model="form.folderId" placeholder="请输入所属文件夹编号"/>-->
+<!--        <el-form-item label="文件夹" prop="folderId">-->
+<!--          <el-input v-model="form.folderId" placeholder="请输入文件夹"/>-->
 <!--        </el-form-item>-->
         <el-form-item label="删除" prop="isDelete">
           <el-radio-group v-model="form.isDelete">
@@ -520,13 +520,13 @@ const data = reactive({
       {required: true, message: "图片名称不能为空", trigger: "blur"}
     ],
     categoryId: [
-      {required: true, message: "分类编号不能为空", trigger: "blur"}
+      {required: true, message: "分类不能为空", trigger: "blur"}
     ],
     pointsNeed: [
       {required: true, message: "所需积分不能为空", trigger: "blur"}
     ],
     userId: [
-      {required: true, message: "上传用户编号不能为空", trigger: "blur"}
+      {required: true, message: "上传用户不能为空", trigger: "blur"}
     ],
     createTime: [
       {required: true, message: "创建时间不能为空", trigger: "blur"}
@@ -543,11 +543,11 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '图片编号', visible: false},
+    {key: 0, label: '图片', visible: false},
     {key: 1, label: '图片', visible: false},
     {key: 2, label: '图片名称', visible: true},
     {key: 3, label: '简介', visible: false},
-    {key: 4, label: '分类编号', visible: true},
+    {key: 4, label: '分类', visible: true},
     {key: 5, label: '图片体积', visible: true},
     {key: 6, label: '图片宽度', visible: true},
     {key: 7, label: '图片高度', visible: true},
@@ -561,11 +561,11 @@ const data = reactive({
     {key: 15, label: '图片状态', visible: true},
     {key: 16, label: '审核状态', visible: true},
     {key: 17, label: '审核信息', visible: false},
-    {key: 18, label: '审核人编号', visible: false},
+    {key: 18, label: '审核人', visible: false},
     {key: 19, label: '审核时间', visible: false},
     {key: 20, label: '缩略图', visible: true},
-    {key: 21, label: '所属空间编号', visible: false},
-    {key: 22, label: '所属文件夹编号', visible: false},
+    {key: 21, label: '所属空间', visible: false},
+    {key: 22, label: '文件夹', visible: false},
     {key: 23, label: '更多信息', visible: false},
     {key: 24, label: '删除', visible: false},
     {key: 25, label: '删除时间', visible: false},
@@ -710,7 +710,7 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _pictureIds = row.pictureId || ids.value;
-  proxy.$modal.confirm('是否确认删除图片信息编号为"' + _pictureIds + '"的数据项？').then(function () {
+  proxy.$modal.confirm('是否确认删除图片信息为"' + _pictureIds + '"的数据项？').then(function () {
     return delPictureInfo(_pictureIds);
   }).then(() => {
     getList();
