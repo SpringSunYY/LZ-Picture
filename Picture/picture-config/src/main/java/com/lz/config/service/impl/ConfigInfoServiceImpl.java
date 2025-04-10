@@ -97,7 +97,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
         }
         //存入缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigKey(), configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + configInfo.getConfigKey(), configInfo.getConfigValue());
         return i;
     }
 
@@ -119,7 +119,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
         }
         //存入缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigKey(), configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + configInfo.getConfigKey(), configInfo.getConfigValue());
         return i;
     }
 

@@ -1,15 +1,14 @@
 import App from './App.vue'
 import router from './router'
-import Antd from 'ant-design-vue'
+import Antd, { message } from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import 'virtual:svg-icons-register' // 必须添加的运行时注册
-import { message } from 'ant-design-vue'
 import SvgIcon from '@/components/SvgIcon/index.vue'
 import '@/router/permisson'
 import { useDict } from '@/utils/dict.ts'
-import '@/assets/tailwind.css'  // 已正确引入 Tailwind CSS
+import '@/assets/tailwind.css'
 
 message.config({
   maxCount: 5, // 最大显示数量

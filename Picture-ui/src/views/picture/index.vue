@@ -24,11 +24,17 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import MasonryImage from '@/components/MasonryImage/index.vue'
-import type { PictureInfoVo, PictureInfoQuery } from '@/types/picture/picture'
+import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
+import { useConfig } from '@/utils/config.ts'
 
+const pictureHeight = ref<string>()
+onMounted(async () => {
+  pictureHeight.value = await useConfig('picture:index:height')
+  console.log('pictureHeight', pictureHeight.value)
+})
 //  数据部分
 const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据（不会做 display 样式处理）
 const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
@@ -79,7 +85,8 @@ const formatPictureListByRow = () => {
   if (!container) return
 
   const containerWidth = container.clientWidth
-  const baseHeight = 220
+  const baseHeight = Number(pictureHeight.value) || 250
+  console.log('baseHeight', baseHeight)
   const spacing = 8
   const rows: any[][] = []
   let tempRow: any[] = []
@@ -172,29 +179,29 @@ onBeforeUnmount(() => {
 .picture {
   padding: 8px;
   //margin: 0 1vh;
-}
 
-.horizontal-masonry {
-  width: 100%;
-}
+  .horizontal-masonry {
+    width: 100%;
+  }
 
-.masonry-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
+  .masonry-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
 
-.masonry-item {
-  border-radius: 6px;
-  overflow: hidden;
-  background: #f5f5f5;
-  transition: all 0.3s;
-}
+  .masonry-item {
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f5f5f5;
+    transition: all 0.3s;
+  }
 
-.load-more-trigger {
-  width: 100%;
-  text-align: center;
-  padding: 16px 0;
-  color: #888;
+  .load-more-trigger {
+    width: 100%;
+    text-align: center;
+    padding: 16px 0;
+    color: #888;
+  }
 }
 </style>

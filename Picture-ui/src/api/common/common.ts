@@ -7,3 +7,10 @@ export function getDicts(dictType: string): Promise<API.ResponseInfo<Dict[]>> {
     method: 'get',
   })
 }
+
+export function getConfig(key: string): Promise<API.ResponseInfo<{ configValue: string }>> {
+  return request({
+    url: '/config/configInfo/key/' + key,
+    method: 'get',
+  })
+}

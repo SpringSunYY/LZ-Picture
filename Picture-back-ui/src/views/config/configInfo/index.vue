@@ -244,7 +244,8 @@
           <el-input v-else v-model="form.configValue" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="配置排序" prop="orderNum">
-          <el-input-number :min="0" style="width: 50%;" v-model="form.orderNum" placeholder="请输入配置排序"/>
+          <el-input-number :min="0" :max="10" style="width: 100%" v-model="form.orderNum"
+                           placeholder="请输入配置排序"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -421,6 +422,7 @@ function handleUpdate(row) {
   const _configId = row.configId || ids.value
   getConfigInfo(_configId).then(response => {
     form.value = response.data;
+    form.value.orderNum = Number(form.value.orderNum)
     open.value = true;
     title.value = "修改配置信息";
   });
