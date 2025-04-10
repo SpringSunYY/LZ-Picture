@@ -10,6 +10,7 @@ const whiteList = [
   '/user/register',
   '/user/smsLogin',
   '/user/forgetPassword',
+  '/pictureDetail',
   '/ 404',
 ]
 

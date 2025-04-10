@@ -1,11 +1,6 @@
 <template>
   <div class="image-wrapper">
-    <img
-      :src="src"
-      :alt="alt"
-      loading="lazy"
-      class="image"
-    />
+    <img :src="src" :alt="alt" loading="lazy" class="image" />
 
     <!-- 悬停时显示的蒙版 + 文字 -->
     <div class="hover-mask">
@@ -17,7 +12,7 @@
 <script setup>
 defineProps({
   src: String,
-  alt: String
+  alt: String,
 })
 </script>
 
@@ -27,7 +22,7 @@ defineProps({
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
 
   &:hover .image {

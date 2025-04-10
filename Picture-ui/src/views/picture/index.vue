@@ -8,7 +8,7 @@
           class="masonry-item"
           :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
         >
-          <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
+          <MasonryImage :src="item.thumbnailUrl" :alt="item.name" @click="handleToPicture(item)">
             {{ item.name }}
           </MasonryImage>
         </div>
@@ -29,6 +29,7 @@ import MasonryImage from '@/components/MasonryImage/index.vue'
 import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
 import { useConfig } from '@/utils/config.ts'
+import { useRouter } from 'vue-router'
 
 const pictureHeight = ref<string>()
 onMounted(async () => {
@@ -48,6 +49,16 @@ const loading = ref(false)
 const noMore = ref(false)
 const loadMoreTrigger = ref(null)
 let observer: IntersectionObserver | null = null
+
+const router = useRouter()
+const handleToPicture = (item: PictureInfoVo) => {
+  router.push({
+    path: '/pictureDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+}
 
 // 加载数据
 async function loadMore() {
@@ -186,8 +197,8 @@ onBeforeUnmount(() => {
 
   .masonry-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
   .masonry-item {

@@ -7,11 +7,22 @@ export const constantRoutes: RouteRecordRaw[] = [
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
     meta: {
-      title: '首a页',
+      title: '首页',
       cacheKey: 'home',
       isHidden: false,
       isCache: true,
       icon: 'space',
+    },
+  },
+  {
+    path: '/pictureDetail',
+    name: 'pictureDetail',
+    component: () => import('@/views/picture/detail/index.vue'),
+    meta: {
+      title: '图片详情',
+      cacheKey: 'pictureDetail',
+      isHidden: true,
+      isCache: true,
     },
   },
   {
@@ -77,8 +88,8 @@ export const constantRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: () => import('@/views/404.vue')
-  }
+    component: () => import('@/views/404.vue'),
+  },
 ]
 
 // 创建路由实例

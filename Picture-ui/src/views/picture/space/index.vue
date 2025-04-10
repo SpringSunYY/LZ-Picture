@@ -152,7 +152,7 @@ import { checkPermiSingle } from '@/utils/permission.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const { p_space_status } = proxy?.useDict('p_space_status')
 const userStore = useUserStore()
 const { userId: userId } = storeToRefs(userStore)
