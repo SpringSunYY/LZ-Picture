@@ -1,6 +1,7 @@
 <template>
   <span class="tags">
     <a-tag
+      size="small"
       v-for="(value, index) in values"
       :key="index"
       :color="getItemColor()"
