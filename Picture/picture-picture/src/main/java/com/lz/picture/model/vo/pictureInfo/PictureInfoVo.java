@@ -1,5 +1,6 @@
 package com.lz.picture.model.vo.pictureInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Date;
@@ -19,6 +20,7 @@ import com.lz.picture.model.domain.PictureInfo;
  */
 @Data
 public class PictureInfoVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

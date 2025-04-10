@@ -134,75 +134,74 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     //endregion
     @Override
-
-    public QueryWrapper<PictureInfo> getQueryWrapper(PictureInfoQuery pictureInfoQuery) {
+    public QueryWrapper<PictureInfo> getQueryWrapper(PictureInfo pictureInfo) {
         QueryWrapper<PictureInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
-        Map<String, Object> params = pictureInfoQuery.getParams();
+        Map<String, Object> params = pictureInfo.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-        String pictureId = pictureInfoQuery.getPictureId();
+        String pictureId = pictureInfo.getPictureId();
         queryWrapper.eq(StringUtils.isNotEmpty(pictureId), "picture_id", pictureId);
 
-        String name = pictureInfoQuery.getName();
+        String name = pictureInfo.getName();
         queryWrapper.like(StringUtils.isNotEmpty(name), "name", name);
 
-        String categoryId = pictureInfoQuery.getCategoryId();
+        String categoryId = pictureInfo.getCategoryId();
         queryWrapper.eq(StringUtils.isNotEmpty(categoryId), "category_id", categoryId);
 
-        Long picSize = pictureInfoQuery.getPicSize();
+        Long picSize = pictureInfo.getPicSize();
         queryWrapper.eq(StringUtils.isNotNull(picSize), "pic_size", picSize);
 
-        Long picWidth = pictureInfoQuery.getPicWidth();
+        Long picWidth = pictureInfo.getPicWidth();
         queryWrapper.eq(StringUtils.isNotNull(picWidth), "pic_width", picWidth);
 
-        Long picHeight = pictureInfoQuery.getPicHeight();
+        Long picHeight = pictureInfo.getPicHeight();
         queryWrapper.eq(StringUtils.isNotNull(picHeight), "pic_height", picHeight);
 
-        Double picScale = pictureInfoQuery.getPicScale();
+        Double picScale = pictureInfo.getPicScale();
         queryWrapper.eq(StringUtils.isNotNull(picScale), "pic_scale", picScale);
 
-        String picFormat = pictureInfoQuery.getPicFormat();
+        String picFormat = pictureInfo.getPicFormat();
         queryWrapper.eq(StringUtils.isNotEmpty(picFormat), "pic_format", picFormat);
 
-        Long pointsNeed = pictureInfoQuery.getPointsNeed();
+        Long pointsNeed = pictureInfo.getPointsNeed();
         queryWrapper.eq(StringUtils.isNotNull(pointsNeed), "points_need", pointsNeed);
 
-        String userId = pictureInfoQuery.getUserId();
+        String userId = pictureInfo.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-        Date createTime = pictureInfoQuery.getCreateTime();
+        Date createTime = pictureInfo.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-        Date editTime = pictureInfoQuery.getEditTime();
+        Date editTime = pictureInfo.getEditTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginEditTime")) && StringUtils.isNotNull(params.get("endEditTime")), "edit_time", params.get("beginEditTime"), params.get("endEditTime"));
 
-        Date updateTime = pictureInfoQuery.getUpdateTime();
+        Date updateTime = pictureInfo.getUpdateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
 
-        String pictureStatus = pictureInfoQuery.getPictureStatus();
+        String pictureStatus = pictureInfo.getPictureStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(pictureStatus), "picture_status", pictureStatus);
 
-        Long reviewStatus = pictureInfoQuery.getReviewStatus();
+        Long reviewStatus = pictureInfo.getReviewStatus();
         queryWrapper.eq(StringUtils.isNotNull(reviewStatus), "review_status", reviewStatus);
 
-        Long reviewUserId = pictureInfoQuery.getReviewUserId();
+        Long reviewUserId = pictureInfo.getReviewUserId();
         queryWrapper.eq(StringUtils.isNotNull(reviewUserId), "review_user_id", reviewUserId);
 
-        Date reviewTime = pictureInfoQuery.getReviewTime();
+        Date reviewTime = pictureInfo.getReviewTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginReviewTime")) && StringUtils.isNotNull(params.get("endReviewTime")), "review_time", params.get("beginReviewTime"), params.get("endReviewTime"));
 
-        String spaceId = pictureInfoQuery.getSpaceId();
+        String spaceId = pictureInfo.getSpaceId();
         queryWrapper.eq(StringUtils.isNotEmpty(spaceId), "space_id", spaceId);
 
-        String folderId = pictureInfoQuery.getFolderId();
+        String folderId = pictureInfo.getFolderId();
         queryWrapper.eq(StringUtils.isNotEmpty(folderId), "folder_id", folderId);
 
-        String isDelete = pictureInfoQuery.getIsDelete();
+        String isDelete = pictureInfo.getIsDelete();
         queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 
-        Date deletedTime = pictureInfoQuery.getDeletedTime();
+        Date deletedTime = pictureInfo.getDeletedTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginDeletedTime")) && StringUtils.isNotNull(params.get("endDeletedTime")), "deleted_time", params.get("beginDeletedTime"), params.get("endDeletedTime"));
 
         return queryWrapper;

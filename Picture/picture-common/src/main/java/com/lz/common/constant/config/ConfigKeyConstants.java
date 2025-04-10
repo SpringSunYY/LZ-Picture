@@ -55,6 +55,15 @@ public class ConfigKeyConstants {
     public static final String PICTURE_SPACE_AVATAR_P = "picture:space:avatar:p";
 
     /**
+     * 首页固定高度
+     */
+    public static final String PICTURE_INDEX_HEIGHT = "picture:index:height";
+
+    /**
+     * 首页图片压缩倍率百分比
+     */
+    public static final String PICTURE_INDEX_P = "picture:index:p";
+    /**
      * 图片所需积分最大值
      */
     public static final String PICTURE_POINTS_MAX = "picture:points:max";

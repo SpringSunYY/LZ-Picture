@@ -70,10 +70,10 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     /**
      * 获取查询条件
      *
-     * @param pictureInfoQuery 查询条件对象
+     * @param pictureInfo 查询条件对象
      * @return 查询条件
      */
-    QueryWrapper<PictureInfo> getQueryWrapper(PictureInfoQuery pictureInfoQuery);
+    QueryWrapper<PictureInfo> getQueryWrapper(PictureInfo pictureInfo);
 
     /**
      * 转换vo

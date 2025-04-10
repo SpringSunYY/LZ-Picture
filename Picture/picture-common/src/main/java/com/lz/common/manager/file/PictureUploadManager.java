@@ -158,7 +158,7 @@ public class PictureUploadManager {
             String encodeToString = Base64.getEncoder().encodeToString("荔枝云图库".getBytes());
             String process = "image/format,webp/watermark,text_" + encodeToString
                     + ",size_" + fontSize
-                    + ",shadow_50"
+                    + ",shadow_10"
                     + ",color_FFFFFF,y_10,type_ZHJvaWRzYW5zZmFsbGJhY2s,g_south";
             // 创建获取压缩后图片的预签名URL
             req.setExpiration(expiration);

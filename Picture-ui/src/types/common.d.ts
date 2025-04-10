@@ -39,3 +39,18 @@ export type Dict = {
   /** 表格字典样式 */
   listClass?: string;
 };
+
+
+/**
+ * 分页信息
+ */
+export interface PageDomain {
+  /** 当前页码 */
+  pageNum: number;
+  /** 每页大小 */
+  pageSize: number;
+  /** 排序列 */
+  orderByColumn?: string;
+  /** 排序方向（asc 或 desc） */
+  isAsc?: string;
+}
