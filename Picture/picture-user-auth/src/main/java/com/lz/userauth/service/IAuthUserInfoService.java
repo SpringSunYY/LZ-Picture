@@ -1,7 +1,7 @@
 package com.lz.userauth.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.userauth.model.domain.ForgetPasswordBody;
 import com.lz.userauth.model.domain.RegisterLoginBody;
 
@@ -37,7 +37,7 @@ public interface IAuthUserInfoService extends IService<AuthUserInfo> {
      * param:
      * param: phone 手机号码
      * param: countryCode 国家码
-     * return: com.lz.userauth.model.domain.AuthUserInfo
+     * return: com.lz.common.core.domain.model.AuthUserInfo
      **/
     AuthUserInfo selectUserInfoByPhone(String phone, String countryCode);
 
@@ -50,7 +50,7 @@ public interface IAuthUserInfoService extends IService<AuthUserInfo> {
      * date: 2025/3/20 09:12
      * param:
      * param: forgetPasswordBody
-     * return: com.lz.userauth.model.domain.AuthUserInfo
+     * return: com.lz.common.core.domain.model.AuthUserInfo
      **/
     AuthUserInfo forgetPassword(ForgetPasswordBody forgetPasswordBody);
 }

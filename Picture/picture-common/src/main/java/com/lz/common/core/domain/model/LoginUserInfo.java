@@ -1,4 +1,4 @@
-package com.lz.userauth.model.domain;
+package com.lz.common.core.domain.model;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Data;

@@ -28,6 +28,11 @@
             <artifactId>picture-user-auth</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-system</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

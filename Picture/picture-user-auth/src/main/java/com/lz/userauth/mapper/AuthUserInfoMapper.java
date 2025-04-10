@@ -1,6 +1,6 @@
 package com.lz.userauth.mapper;
 
-import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.common.core.domain.model.AuthUserInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

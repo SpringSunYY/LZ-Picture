@@ -11,7 +11,7 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.PageUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.sql.SqlUtil;
-import com.lz.userauth.model.domain.LoginUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

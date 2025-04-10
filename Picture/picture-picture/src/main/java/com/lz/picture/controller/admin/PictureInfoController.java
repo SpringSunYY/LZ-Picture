@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.lz.config.service.IConfigInfoService;
+import com.lz.system.service.ISysConfigService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -28,6 +29,7 @@ import com.lz.picture.service.IPictureInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 
 /**
@@ -43,7 +45,7 @@ public class PictureInfoController extends BaseController {
     private IPictureInfoService pictureInfoService;
 
     @Resource
-    private IConfigInfoService configInfoService;
+    private ISysConfigService sysConfigService;
 
     /**
      * 查询图片信息列表
@@ -55,7 +57,7 @@ public class PictureInfoController extends BaseController {
         startPage();
         List<PictureInfo> list = pictureInfoService.selectPictureInfoList(pictureInfo);
         List<PictureInfoVo> listVo = list.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         listVo.forEach(item -> {
             item.setPictureUrl(item.getPictureUrl() + "?x-oss-process=image/resize,p_" + inCache);
             item.setThumbnailUrl(item.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + inCache);

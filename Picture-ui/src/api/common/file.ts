@@ -5,7 +5,6 @@ export function pictureUpload(file: any) {
   return request({
     url: '/picture/pictureInfo/upload',
     headers: {
-      isToken: false,
       repeatSubmit: false,
     },
     method: 'post',

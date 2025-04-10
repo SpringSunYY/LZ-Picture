@@ -3,7 +3,7 @@ package com.lz.framework.web.service;
 import java.util.Set;
 
 import com.lz.config.service.IMenuInfoService;
-import com.lz.userauth.model.domain.LoginUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;

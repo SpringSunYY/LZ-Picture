@@ -5,6 +5,8 @@ import com.lz.common.constant.Constants;
 import com.lz.common.constant.config.ConfigKeyConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.domain.model.AuthUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;

@@ -12,7 +12,7 @@ import com.lz.config.model.enmus.CMenuVisible;
 import com.lz.config.service.IMenuInfoService;
 import com.lz.userauth.mapper.AuthUserInfoMapper;
 import com.lz.userauth.model.domain.AuthBannedPermissionInfo;
-import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.userauth.model.domain.ForgetPasswordBody;
 import com.lz.userauth.model.domain.RegisterLoginBody;
 import com.lz.userauth.model.enmus.UBannedPermissionStatusEnum;

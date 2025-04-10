@@ -46,11 +46,11 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @Resource
     private IConfigInfoService configInfoService;
 
-    //    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping("/upload")
     public AjaxResult uploadPicture(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        return success(pictureUploadManager.uploadPicture(multipartFile));
+        return success(pictureUploadManager.uploadPicture(multipartFile, getLoginUser()));
     }
 
     @PreAuthorize("@uss.hasPermi('picture:upload')")

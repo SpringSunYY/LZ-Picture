@@ -2,8 +2,8 @@ package com.lz.framework.security.auth;
 
 import com.lz.framework.manager.PasswordEncoderStrategy;
 import com.lz.framework.manager.factory.PasswordEncoderFactory;
-import com.lz.userauth.model.domain.LoginUserInfo;
-import com.lz.userauth.model.domain.AuthUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
+import com.lz.common.core.domain.model.AuthUserInfo;
 import jakarta.annotation.Resource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

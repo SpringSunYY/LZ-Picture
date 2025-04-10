@@ -1,4 +1,4 @@
-package com.lz.userauth.model.domain;
+package com.lz.common.core.domain.model;
 
 import java.io.Serializable;
 import java.util.Map;

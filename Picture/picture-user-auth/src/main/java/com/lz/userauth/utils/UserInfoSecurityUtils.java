@@ -2,10 +2,9 @@ package com.lz.userauth.utils;
 
 import com.lz.common.constant.Constants;
 import com.lz.common.constant.HttpStatus;
-import com.lz.common.core.domain.model.LoginUser;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
-import com.lz.userauth.model.domain.LoginUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

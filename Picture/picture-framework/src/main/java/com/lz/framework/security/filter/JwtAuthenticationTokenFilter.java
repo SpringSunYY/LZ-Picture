@@ -3,7 +3,7 @@ package com.lz.framework.security.filter;
 import java.io.IOException;
 import java.util.Collection;
 
-import com.lz.userauth.model.domain.LoginUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.framework.web.service.UserInfoTokenService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
