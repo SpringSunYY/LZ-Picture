@@ -35,7 +35,7 @@ const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
 
 const pictureQuery = ref<PictureInfoQuery>({
   pageNum: 1,
-  pageSize: 20,
+  pageSize: 30,
 })
 
 const loading = ref(false)
@@ -171,7 +171,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .picture {
   padding: 8px;
-  margin: 0 1vh;
+  //margin: 0 1vh;
 }
 
 .horizontal-masonry {

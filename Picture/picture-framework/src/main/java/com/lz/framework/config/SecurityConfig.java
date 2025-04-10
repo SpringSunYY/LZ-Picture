@@ -130,7 +130,8 @@ public class SecurityConfig {
                             .requestMatchers("/user/login", "user/captchaImage", "user/getSmsLoginCode",
                                     "user/smsLogin", "user/register", "user/getRegisterCode",
                                     "/user/getForgetPasswordCode", "/user/forgetPassword",
-                                    "/user/picture/pictureInfo/list").permitAll()
+                                    "/user/picture/pictureInfo/list",
+                                    "/user/config/configInfo/key/**").permitAll()
                             // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/druid/**").permitAll()
