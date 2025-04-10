@@ -29,8 +29,9 @@ import MasonryImage from '@/components/MasonryImage/index.vue'
 import type { PictureInfoVo, PictureInfoQuery } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
 
-const pictureList = ref<PictureInfoVo[]>([])
-const pictureRows = ref<any[][]>([])
+//  数据部分
+const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据（不会做 display 样式处理）
+const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
 
 const pictureQuery = ref<PictureInfoQuery>({
   pageNum: 1,
@@ -42,17 +43,17 @@ const noMore = ref(false)
 const loadMoreTrigger = ref(null)
 let observer: IntersectionObserver | null = null
 
-// 加载更多
+// 加载数据
 async function loadMore() {
   if (loading.value || noMore.value) return
   loading.value = true
 
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 300)) // 模拟网络延迟
   listPictureInfo(pictureQuery.value).then(async (res) => {
     const newData = generatePictureData(res?.rows || [])
-    if (newData?.length > 0) {
-      pictureList.value.push(...newData)
-      pictureQuery.value.pageNum
+    if (newData.length > 0) {
+      rawPictureList.value.push(...newData)
+      // pictureQuery.value.pageNum++
       await nextTick()
       formatPictureListByRow()
     } else {
@@ -72,7 +73,7 @@ const generatePictureData = (dataList: PictureInfoVo[]) => {
   }))
 }
 
-// 分行填满逻辑
+// 分行排布算法（根据容器宽度）
 const formatPictureListByRow = () => {
   const container = document.querySelector('.horizontal-masonry')
   if (!container) return
@@ -80,11 +81,19 @@ const formatPictureListByRow = () => {
   const containerWidth = container.clientWidth
   const baseHeight = 220
   const spacing = 8
-  const rows = []
-  let tempRow = []
+  const rows: any[][] = []
+  let tempRow: any[] = []
   let totalRatio = 0
 
-  for (const pic of pictureList.value) {
+  for (const pic of rawPictureList.value) {
+    if (
+      pic.picWidth === undefined ||
+      pic.picWidth === 0 ||
+      pic.picHeight === undefined ||
+      pic.picHeight === 0
+    ) {
+      continue
+    }
     const ratio = pic.picWidth / pic.picHeight
     tempRow.push(pic)
     totalRatio += ratio
@@ -109,7 +118,7 @@ const formatPictureListByRow = () => {
     }
   }
 
-  // 最后一行
+  // 收尾最后一行
   if (tempRow.length > 0) {
     const row = tempRow.map((p) => {
       const r = p.picWidth / p.picHeight
@@ -134,17 +143,19 @@ function setupObserver() {
         loadMore()
       }
     },
-    { rootMargin: '100px' },
+    { rootMargin: '200px' },
   )
   if (loadMoreTrigger.value) {
     observer.observe(loadMoreTrigger.value)
   }
 }
 
+// 窗口尺寸变化时重新布局
 function handleResize() {
   formatPictureListByRow()
 }
 
+//  生命周期钩子
 onMounted(() => {
   loadMore()
   setupObserver()
@@ -160,7 +171,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .picture {
   padding: 8px;
-  margin: 0 5vh;
+  margin: 0 1vh;
 }
 
 .horizontal-masonry {
@@ -177,6 +188,7 @@ onBeforeUnmount(() => {
   border-radius: 6px;
   overflow: hidden;
   background: #f5f5f5;
+  transition: all 0.3s;
 }
 
 .load-more-trigger {
