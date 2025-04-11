@@ -64,7 +64,7 @@ import Tags from '@/components/Tags/index.vue'
 const picture = reactive({
   pictureId: 'abc123',
   pictureUrl:
-    'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00015T-1910265413049126912-compressed.webp',
+    'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00037T-1910243995154518016.JPG',
   name: '迷雾中的山脉',
   introduction: '清晨的山林笼罩在薄雾中，宁静而神秘。',
   categoryName: '自然风光',

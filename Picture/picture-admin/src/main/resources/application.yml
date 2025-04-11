@@ -96,11 +96,11 @@ token:
   # 令牌密钥
   secret: abcdefghijklmnopqrstuvwxyz
   # 令牌有效期（默认30分钟）
-  expireTime: 60
+  expireTime: 600
   soloLogin: false
   user:
     # 令牌有效期（默认30分钟）
-    expireTime: 300
+    expireTime: 14400
     header: Authorization
     secret: abcdefghijklmnopqrstuvwxyz
     soloLogin: 30

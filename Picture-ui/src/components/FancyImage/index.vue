@@ -1,6 +1,6 @@
 <template>
   <!-- 外层容器 -->
-  <div class="image-wrapper" :style="wrapperStyle">
+  <div class="fancy-image" :style="wrapperStyle">
     <!-- 图片容器 -->
     <div class="image-container" @click="handlePreview">
       <!-- 图片主体 -->
@@ -86,63 +86,64 @@ const handlePreviewClose = () => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* 外层容器 */
-.image-wrapper {
+.fancy-image {
   position: relative;
   width: 100%;
   height: 0;
   padding-bottom: calc(100% / (var(--aspect-ratio)));
   max-height: var(--max-height);
-  overflow: hidden;
-
   background: #f0f2f5;
+
+  /* 图片容器 */
+  .image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .main-image {
+    //width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    //object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 悬停蒙版 */
+  .custom-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+    border-radius: 8px;
+  }
+
+  .image-container:hover .custom-layer {
+    opacity: 1;
+  }
+
+  .default-content {
+    color: white;
+    padding: 16px;
+    text-align: center;
+  }
 }
 
-/* 图片容器 */
-.image-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
 
-.main-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 悬停蒙版 */
-.custom-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 2;
-  border-radius: 8px;
-}
-
-.image-container:hover .custom-layer {
-  opacity: 1;
-}
-
-.default-content {
-  color: white;
-  padding: 16px;
-  text-align: center;
-}
 
 /* 预览样式调整 */
 :deep(.ant-image-preview-root) {
