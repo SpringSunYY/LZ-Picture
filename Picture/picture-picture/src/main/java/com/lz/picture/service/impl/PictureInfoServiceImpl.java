@@ -76,6 +76,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Resource
     private RedisCache redisCache;
 
+    @Resource
+    private IPictureCategoryInfoService pictureCategoryInfoService;
+
     //region mybatis代码
 
     /**
@@ -282,6 +285,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * return: com.lz.picture.model.domain.SpaceInfo
      **/
     private SpaceInfo checkSpace(PictureInfo pictureInfo) {
+        //查询分类是否存在
+        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+        ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
@@ -395,6 +401,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId())) {
             throw new ServiceException("图片审核不通过，无法查看");
         }
+        //查询分类
+        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+        if (StringUtils.isNotNull(categoryInfo)) {
+            userPictureDetailInfoVo.setCategoryName(categoryInfo.getName());
+        }
         BeanUtils.copyProperties(pictureInfo, userPictureDetailInfoVo);
         //查询空间
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
@@ -412,6 +423,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setUserId(userInfo.getUserId());
             userPictureDetailInfoVo.setUserName(userInfo.getNickName());
             UserVo userVo = new UserVo();
+            if (StringUtils.isNotEmpty(userInfo.getAvatarUrl())) {
+                userInfo.setAvatarUrl(userInfo.getAvatarUrl()+"?x-oss-process=image/resize,p_10");
+            }
             BeanUtils.copyProperties(userInfo, userVo);
             userPictureDetailInfoVo.setUserInfoVo(userVo);
         }

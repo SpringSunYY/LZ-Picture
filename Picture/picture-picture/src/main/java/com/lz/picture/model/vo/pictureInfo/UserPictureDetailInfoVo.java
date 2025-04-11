@@ -1,5 +1,7 @@
 package com.lz.picture.model.vo.pictureInfo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.user.model.vo.userInfo.UserVo;
 import lombok.Data;
@@ -7,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +33,10 @@ public class UserPictureDetailInfoVo implements Serializable {
      */
     private String name;
 
+    /**
+     * 简介
+     */
+    private String introduction;
 
     /**
      * 分类编号
@@ -54,6 +61,21 @@ public class UserPictureDetailInfoVo implements Serializable {
     private Double picScale;
 
     /**
+     * 图片体积
+     */
+    private Long picSize;
+
+    /**
+     * 图片格式
+     */
+    private String picFormat;
+
+    /**
+     * 所需积分
+     */
+    private Long pointsNeed;
+
+    /**
      * 上传用户编号
      */
     private String userId;
@@ -74,6 +96,17 @@ public class UserPictureDetailInfoVo implements Serializable {
      */
     private String spaceId;
     private String spaceName;
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /**
+     * 更多信息
+     */
+    private String moreInfo;
 
     /**
      * 所属文件夹编号

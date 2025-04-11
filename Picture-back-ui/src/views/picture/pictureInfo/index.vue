@@ -365,30 +365,30 @@
         <el-form-item label="分类" prop="categoryId">
           <el-input v-model="form.categoryId" placeholder="请输入分类"/>
         </el-form-item>
-<!--        <el-form-item label="图片体积" prop="picSize">-->
-<!--          <el-input v-model="form.picSize" placeholder="请输入图片体积"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="图片宽度" prop="picWidth">-->
-<!--          <el-input v-model="form.picWidth" placeholder="请输入图片宽度"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="图片高度" prop="picHeight">-->
-<!--          <el-input v-model="form.picHeight" placeholder="请输入图片高度"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="宽高比例" prop="picScale">-->
-<!--          <el-input v-model="form.picScale" placeholder="请输入宽高比例"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="图片格式" prop="picFormat">-->
-<!--          <el-input v-model="form.picFormat" placeholder="请输入图片格式"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="图片体积" prop="picSize">-->
+        <!--          <el-input v-model="form.picSize" placeholder="请输入图片体积"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="图片宽度" prop="picWidth">-->
+        <!--          <el-input v-model="form.picWidth" placeholder="请输入图片宽度"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="图片高度" prop="picHeight">-->
+        <!--          <el-input v-model="form.picHeight" placeholder="请输入图片高度"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="宽高比例" prop="picScale">-->
+        <!--          <el-input v-model="form.picScale" placeholder="请输入宽高比例"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="图片格式" prop="picFormat">-->
+        <!--          <el-input v-model="form.picFormat" placeholder="请输入图片格式"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="所需积分" prop="pointsNeed">
           <el-input-number :min="10" :max="1000" v-model="form.pointsNeed" placeholder="请输入所需积分"/>
         </el-form-item>
         <el-form-item label="更多信息" prop="moreInfo">
           <el-input v-model="form.moreInfo" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-<!--        <el-form-item label="上传用户" prop="userId">-->
-<!--          <el-input v-model="form.userId" placeholder="请输入上传用户"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="上传用户" prop="userId">-->
+        <!--          <el-input v-model="form.userId" placeholder="请输入上传用户"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="图片状态" prop="pictureStatus">
           <el-radio-group v-model="form.pictureStatus">
             <el-radio
@@ -412,26 +412,26 @@
         <el-form-item label="审核信息" prop="reviewMessage">
           <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-<!--        <el-form-item label="审核人" prop="reviewUserId">-->
-<!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="审核时间" prop="reviewTime">-->
-<!--          <el-date-picker clearable-->
-<!--                          v-model="form.reviewTime"-->
-<!--                          type="date"-->
-<!--                          value-format="YYYY-MM-DD"-->
-<!--                          placeholder="请选择审核时间">-->
-<!--          </el-date-picker>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="缩略图" prop="thumbnailUrl">-->
-<!--          <image-upload v-model="form.thumbnailUrl"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="所属空间" prop="spaceId">-->
-<!--          <el-input v-model="form.spaceId" placeholder="请输入所属空间"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="文件夹" prop="folderId">-->
-<!--          <el-input v-model="form.folderId" placeholder="请输入文件夹"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="审核人" prop="reviewUserId">-->
+        <!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="审核时间" prop="reviewTime">-->
+        <!--          <el-date-picker clearable-->
+        <!--                          v-model="form.reviewTime"-->
+        <!--                          type="date"-->
+        <!--                          value-format="YYYY-MM-DD"-->
+        <!--                          placeholder="请选择审核时间">-->
+        <!--          </el-date-picker>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="缩略图" prop="thumbnailUrl">-->
+        <!--          <image-upload v-model="form.thumbnailUrl"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="所属空间" prop="spaceId">-->
+        <!--          <el-input v-model="form.spaceId" placeholder="请输入所属空间"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="文件夹" prop="folderId">-->
+        <!--          <el-input v-model="form.folderId" placeholder="请输入文件夹"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="删除" prop="isDelete">
           <el-radio-group v-model="form.isDelete">
             <el-radio
@@ -681,6 +681,7 @@ function handleUpdate(row) {
   const _pictureId = row.pictureId || ids.value
   getPictureInfo(_pictureId).then(response => {
     form.value = response.data;
+    form.value.pointsNeed = Number(response.data.pointsNeed);
     open.value = true;
     title.value = "修改图片信息";
   });

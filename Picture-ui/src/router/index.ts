@@ -22,7 +22,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       title: '图片详情',
       cacheKey: 'pictureDetail',
       isHidden: true,
-      isCache: true,
+      isCache: false,
     },
   },
   {

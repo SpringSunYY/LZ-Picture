@@ -1,20 +1,16 @@
 <template>
   <div>
-    <a-row class="picture-detail-user" :gutter="[24, 24]">
+    <a-row class="picture-detail" :gutter="[24, 24]">
       <!-- 左侧：标题、简介、图片 -->
       <a-col :xs="24" :md="16" class="left-view">
         <div class="image-wrapper">
-          <FancyImage
-            max-width="800px"
-            max-height="600px"
-            :src="picture.pictureUrl"
-            alt="点击预览"
-            :zoom-scale="1.15"
-          >
+          <FancyImage :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
             <template #content>
-              <div>
-                <p style="font-size: 24px; color: white">{{ picture.name }}</p>
-                <p style="color: white">{{ picture.introduction || '这张图还没有简介。' }}</p>
+              <div style="position: relative; padding: 40px">
+                <p style="font-size: 24px; color: white; text-align: center">{{ picture.name }}</p>
+                <p style="color: white; text-indent: 2em">
+                  {{ picture.introduction || '这张图还没有简介。' }}
+                </p>
               </div>
             </template>
           </FancyImage>
@@ -26,29 +22,40 @@
         <!-- 作者信息 -->
         <a-card :bordered="false" class="card author-card">
           <a-space align="center">
-            <a-avatar :src="author.avatar" size="large" />
+            <a-avatar :src="picture.userInfoVo?.avatarUrl" size="large" />
             <div>
-              <div class="nickname">{{ author.nickname }}</div>
-              <div class="ip-region">IP属地：{{ author.ipRegion }}</div>
+              <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
+              <div class="ip-region">IP属地：{{ picture.userInfoVo?.ipAddress || '未知' }}</div>
             </div>
           </a-space>
         </a-card>
         <!-- 图片信息 -->
-        <a-card title="图片信息" :bordered="false" class="card">
+        <a-card title="" :bordered="false" class="card">
           <div class="title-block">
             <h1 class="picture-name">{{ picture.name }}</h1>
-            <p class="picture-desc">{{ picture.introduction || '这张图还没有简介。' }}</p>
+            <p class="picture-desc">
+              {{ formatStrSize(picture.introduction || '', 90) || '这张图还没有简介。' }}
+            </p>
           </div>
         </a-card>
         <!-- 图片信息 -->
         <a-card title="" :bordered="false" class="card">
-          <div class="info-row" v-for="item in infoList" :key="item.label">
-            <span class="label">{{ item.label }}</span>
-            <span class="value">{{ item.value }}</span>
-          </div>
+          <a-descriptions title="图片信息" :column="{ xs: 2, sm: 1, md: 2}">
+            <a-descriptions-item label="分类">{{ picture.categoryName }}</a-descriptions-item>
+            <a-descriptions-item label="空间">{{ picture.spaceName }}</a-descriptions-item>
+            <a-descriptions-item label="格式">{{ picture.picFormat }}</a-descriptions-item>
+            <a-descriptions-item label="体积"
+              >{{ formatSize(picture.picSize || 0) }}
+            </a-descriptions-item>
+            <a-descriptions-item label="尺寸"
+              >{{ picture.picWidth }} * {{ picture.picHeight }}
+            </a-descriptions-item>
+            <a-descriptions-item label="比例">{{ picture.picScale }}</a-descriptions-item>
+          </a-descriptions>
           <Tags
-            :values="['标签1', '标签2', '标签2', '超级超级长的标签无敌长', '喜洋洋与会螳螂']"
-            :colors="['#00ff0d']"
+            v-if="picture?.pictureTags"
+            :values="picture?.pictureTags"
+            :colors="['pink', 'red', 'orange', 'green', 'cyan']"
           />
         </a-card>
       </a-col>
@@ -57,18 +64,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import FancyImage from '@/components/FancyImage/index.vue'
 import Tags from '@/components/Tags/index.vue'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
+import type { PictureDetailInfoVo } from '@/types/picture/picture'
+import { formatSize, formatStrSize } from '@/utils/common.ts'
 
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
-const picture = reactive({
-  pictureId: 'abc123',
-  pictureUrl:
+const picture = ref<PictureDetailInfoVo>({
+  pictureId: '荔枝云图库',
+  thumbnailUrl:
     'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00037T-1910243995154518016.JPG',
   name: '迷雾中的山脉',
   introduction: '清晨的山林笼罩在薄雾中，宁静而神秘。',
@@ -80,79 +89,35 @@ const picture = reactive({
   picFormat: 'jpeg',
   pointsNeed: 12,
   createTime: '2025-04-10 10:30:00',
-})
-
-const author = reactive({
-  avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Mountain',
-  nickname: '山里来的摄影师',
-  ipRegion: '云南',
+  userName: '荔枝',
+  userInfoVo: {
+    userId: '1',
+    userName: '荔枝',
+    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Mountain',
+  },
 })
 
 const getPictureInfo = () => {
   console.log('pictureId', route.query)
   console.log('pictureId', pictureId.value)
   getPictureDetailInfo(pictureId.value).then((res) => {
+    if (res.code === 200) {
+      picture.value = res?.data || {}
+    }
   })
 }
 getPictureInfo()
-
-const formatSize = (size) => {
-  if (!size) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let i = 0
-  while (size >= 1024 && i < units.length - 1) {
-    size /= 1024
-    i++
-  }
-  return `${size.toFixed(2)} ${units[i]}`
-}
-
-const infoList = computed(() => [
-  { label: '分类', value: picture.categoryName || '未分类' },
-  { label: '格式', value: picture.picFormat?.toUpperCase() },
-  { label: '尺寸', value: `${picture.picWidth} × ${picture.picHeight}` },
-  { label: '比例', value: picture.picScale },
-  { label: '体积', value: formatSize(picture.picSize) },
-  { label: '所需积分', value: `${picture.pointsNeed} 积分` },
-  { label: '上传时间', value: picture.createTime },
-])
 </script>
 
 <style scoped lang="scss">
-.picture-detail-user {
+.picture-detail {
   padding: 20px 32px;
   background-color: #f9f9f9;
 
   .left-view {
-    .title-block {
-      margin-bottom: 16px;
-
-      .picture-name {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 8px;
-      }
-
-      .picture-desc {
-        font-size: 14px;
-        color: #666;
-        margin: 0;
-      }
-    }
-
     .image-wrapper {
-      max-height: 75vh;
       overflow: hidden;
       background: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      .main-picture {
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain;
-      }
     }
   }
 
@@ -167,7 +132,7 @@ const infoList = computed(() => [
     }
 
     .author-card {
-      margin-top: 10px;
+      margin-top: 2px;
 
       .nickname {
         font-size: 16px;
@@ -177,6 +142,21 @@ const infoList = computed(() => [
       .ip-region {
         font-size: 13px;
         color: #999;
+      }
+    }
+
+    .title-block {
+      .picture-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #88e868;
+      }
+
+      .picture-desc {
+        text-indent: 2em;
+        font-size: 14px;
+        color: #666;
+        margin: 0;
       }
     }
 

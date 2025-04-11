@@ -137,47 +137,65 @@ export interface PictureInfoVo {
  */
 export interface PictureDetailInfoVo {
   /** 图片编号 */
-  pictureId?: string;
+  pictureId?: string
 
   /** 图片名称 */
-  name?: string;
+  name?: string
+
+  /** 图片简介 */
+  introduction?: string
 
   /** 分类编号 */
-  categoryId?: string;
+  categoryId?: string
 
   /** 分类名称 */
-  categoryName?: string;
+  categoryName?: string
 
   /** 图片宽度 */
-  picWidth?: number;
+  picWidth?: number
 
   /** 图片高度 */
-  picHeight?: number;
+  picHeight?: number
+
+  /** 图片体积（字节） */
+  picSize?: number
 
   /** 宽高比例 */
-  picScale?: number;
+  picScale?: number
+
+  /** 图片格式 */
+  picFormat?: string
+
+  /** 所需积分 */
+  pointsNeed?: number
 
   /** 上传用户编号 */
-  userId?: string;
+  userId?: string
 
   /** 上传用户名称 */
-  userName?: string;
+  userName?: string
 
   /** 用户信息 */
-  userInfoVo?: UserVo;
+  userInfoVo?: UserVo
 
   /** 缩略图URL */
-  thumbnailUrl?: string;
+  thumbnailUrl?: string
 
   /** 所属空间编号 */
-  spaceId?: string;
+  spaceId?: string
 
   /** 所属空间名称 */
-  spaceName?: string;
+  spaceName?: string
 
   /** 所属文件夹编号 */
-  folderId?: string;
+  folderId?: string
+
+  /**创建时间 */
+  createTime?: string
+
+  /** 更多信息 */
+  moreInfo?: Record<string, string>
 
   /** 图片标签 */
-  pictureTags?: string[];
+  pictureTags?: string[]
 }
