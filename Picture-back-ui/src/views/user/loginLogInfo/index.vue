@@ -93,14 +93,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="提示消息" prop="msg">
-        <el-input
-            v-model="queryParams.msg"
-            placeholder="请输入提示消息"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="提示消息" prop="msg">-->
+<!--        <el-input-->
+<!--            v-model="queryParams.msg"-->
+<!--            placeholder="请输入提示消息"-->
+<!--            clearable-->
+<!--            @keyup.enter="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="登录时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeLoginTime"
@@ -353,19 +353,19 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '编号', visible: true},
+    {key: 0, label: '编号', visible: false},
     {key: 1, label: '用户ID', visible: true},
     {key: 2, label: '用户名', visible: true},
     {key: 3, label: '登录方式', visible: true},
-    {key: 4, label: '匿名标识', visible: true},
+    {key: 4, label: '匿名标识', visible: false},
     {key: 5, label: '登录IP地址', visible: true},
     {key: 6, label: '登录地点', visible: true},
     {key: 7, label: '浏览器类型', visible: true},
     {key: 8, label: '操作系统', visible: true},
     {key: 9, label: '登录平台', visible: true},
-    {key: 10, label: '设备唯一标识', visible: true},
+    {key: 10, label: '设备唯一标识', visible: false},
     {key: 11, label: '状态', visible: true},
-    {key: 12, label: '错误码', visible: true},
+    {key: 12, label: '错误码', visible: false},
     {key: 13, label: '提示消息', visible: true},
     {key: 14, label: '登录时间', visible: true},
   ],

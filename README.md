@@ -669,7 +669,7 @@ CREATE TABLE u_inform_info (
 | device_id      | varchar  | 255  |                           | 是   |          | 设备唯一标识 |
 | status         | char     | 1    |                           | 否   |          | 状态         |
 | error_code     | varchar  | 64   |                           | 是   |          | 错误码       |
-| msg            | varchar  | 255  |                           | 否   |          | 提示消息     |
+| msg            | varchar  | 255  |                           | 是   |          | 提示消息     |
 | login_time     | datetime |      | 索引                      | 否   | 当前时间 | 登录时间     |
 
 匿名标识：比如手机号等等
@@ -690,7 +690,7 @@ CREATE TABLE u_login_log_info (
     device_id VARCHAR(255) COMMENT '设备唯一标识',
     status CHAR(1) NOT NULL DEFAULT '0' COMMENT '状态（0成功 1失败）',
     error_code VARCHAR(64) COMMENT '错误码',
-    msg VARCHAR(255) NOT NULL COMMENT '提示消息',
+    msg VARCHAR(255)  NULL COMMENT '提示消息',
     login_time DATETIME NOT NULL COMMENT '登录时间',
     PRIMARY KEY (info_id),
     INDEX idx_login_time (login_time),

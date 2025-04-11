@@ -5,6 +5,8 @@ import com.lz.common.constant.Constants;
 import com.lz.common.constant.UserConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.enums.ULoginStatus;
+import com.lz.common.enums.ULoginType;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.exception.user.CaptchaException;
 import com.lz.common.exception.user.CaptchaExpireException;
@@ -14,6 +16,7 @@ import com.lz.common.utils.MessageUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
+import com.lz.framework.manager.factory.UserInfoLoginAsyncFactory;
 import com.lz.framework.security.context.AuthenticationContextHolder;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.common.core.domain.model.LoginUserInfo;
@@ -107,6 +110,7 @@ public class UserInfoLoginService {
 //        }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(username,authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_0.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(),"登录成功"));
         // 生成token
         return userTokenService.createToken(loginUserInfo);
     }
@@ -211,6 +215,7 @@ public class UserInfoLoginService {
         }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(),authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_1.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(),"登录成功"));
         // 生成token
         return userTokenService.createToken(loginUserInfo);
     }

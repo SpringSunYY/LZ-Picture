@@ -7,6 +7,8 @@ import com.lz.userauth.service.IAuthLoginLogInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 /**
  * 用户登录日志Service业务层处理
  *
@@ -14,11 +16,14 @@ import org.springframework.stereotype.Service;
  * @date 2025-03-17
  */
 @Service
-public class AuthLoginLogInfoServiceImpl extends ServiceImpl<AuthLoginLogInfoMapper, AuthLoginLogInfo> implements IAuthLoginLogInfoService
-{
+public class AuthLoginLogInfoServiceImpl extends ServiceImpl<AuthLoginLogInfoMapper, AuthLoginLogInfo> implements IAuthLoginLogInfoService {
     @Resource
     private AuthLoginLogInfoMapper authLoginLogInfoMapper;
 
 
-
+    @Override
+    public int insertLoginLogInfo(AuthLoginLogInfo authLoginLogInfo) {
+        authLoginLogInfo.setLoginTime(new Date());
+        return this.save(authLoginLogInfo) ? 1 : 0;
+    }
 }

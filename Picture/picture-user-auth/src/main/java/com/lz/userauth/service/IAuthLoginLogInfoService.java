@@ -11,4 +11,5 @@ import com.lz.userauth.model.domain.AuthLoginLogInfo;
 public interface IAuthLoginLogInfoService extends IService<AuthLoginLogInfo>
 {
 
+    int insertLoginLogInfo(AuthLoginLogInfo authLoginLogInfo);
 }
