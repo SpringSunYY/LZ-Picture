@@ -412,7 +412,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setUserId(userInfo.getUserId());
             userPictureDetailInfoVo.setUserName(userInfo.getNickName());
             UserVo userVo = new UserVo();
-            BeanUtils.copyBeanProp(userInfo, userVo);
+            BeanUtils.copyProperties(userInfo, userVo);
             userPictureDetailInfoVo.setUserInfoVo(userVo);
         }
         //查询标签信息

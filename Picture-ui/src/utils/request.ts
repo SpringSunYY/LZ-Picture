@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getToken } from '@/utils/token'
+import { getToken, removeToken } from '@/utils/token'
 import { lz } from '@/utils'
 import { message } from 'ant-design-vue'
 import router from '@/router'
@@ -128,6 +128,10 @@ http.interceptors.response.use(
     // 处理 403 错误（没有权限）
     if (code === 403) {
       message.error('没有权限访问该资源', 3)
+      //如果还有tokens，删除tokens
+      if (getToken()) {
+        removeToken()
+      }
       router.push('/user/login')
       return Promise.reject(new Error(msg))
     }
