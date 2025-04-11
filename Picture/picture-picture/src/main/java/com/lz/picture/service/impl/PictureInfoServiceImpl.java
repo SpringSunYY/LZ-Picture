@@ -11,25 +11,19 @@ import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.PictureInfoMapper;
-import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.domain.PictureTagInfo;
-import com.lz.picture.model.domain.SpaceFolderInfo;
-import com.lz.picture.model.domain.SpaceInfo;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
+import com.lz.picture.model.domain.*;
 import com.lz.picture.model.enums.PPictureReviewStatus;
 import com.lz.picture.model.enums.PSpaceType;
 import com.lz.picture.model.enums.PTagStatus;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
-import com.lz.picture.service.IPictureInfoService;
-import com.lz.picture.service.IPictureTagInfoService;
-import com.lz.picture.service.ISpaceFolderInfoService;
-import com.lz.picture.service.ISpaceInfoService;
+import com.lz.picture.service.*;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MAX;
@@ -58,6 +52,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private IConfigInfoService configInfoService;
+
+    @Resource
+    private IPictureTagRelInfoService pictureTagRelInfoService;
+
+    @Resource
+    private ExecutorService executorService;
 
     @Resource
     private TransactionTemplate transactionTemplate;
@@ -219,6 +219,52 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     //TODO 更新图库信息
     @Override
     public int userInsertPictureInfo(PictureInfo pictureInfo) {
+        SpaceInfo spaceInfo = checkSpace(pictureInfo);
+        //更新空间信息
+        spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
+        spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
+        spaceInfo.setLastUpdateTime(new Date());
+        //判断当前空间是否到达最大值 官方空间没有限制
+        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
+                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
+            throw new ServiceException("空间已满，无法上传图片");
+        }
+        //获取积分最大值和最小值
+        String pointsNeedMax = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MAX);
+        String pointsNeedMin = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MIN);
+        //判断积分是否比最小值大最大值小
+        if (!(Long.parseLong(pointsNeedMax) >= pictureInfo.getPointsNeed() && pictureInfo.getPointsNeed() >= Long.parseLong(pointsNeedMin))) {
+            throw new ServiceException(StringUtils.format("图片所需积分不在范围内，最小值：{}，最大值：{}", pointsNeedMin, pointsNeedMax));
+        }
+        //判断是否是十的倍数
+        if (pictureInfo.getPointsNeed() % 10 != 0) {
+            throw new ServiceException("图片体积必须是10的倍数");
+        }
+        // 计算宽高比例
+        double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
+        //保留小数点后1位
+        picScale = Double.parseDouble(String.format("%.1f", picScale));
+        pictureInfo.setPicScale(picScale);
+        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
+        pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
+        int i = pictureInfoMapper.insertPictureInfo(pictureInfo);
+        //异步更新图片空间、标签、标签关联
+        executorService.execute(() -> {
+            implementPictureAdd(pictureInfo, spaceInfo);
+        });
+        return i;
+    }
+
+    /**
+     * description: 校验空间
+     * author: YY
+     * method: checkSpace
+     * date: 2025/4/11 15:32
+     * param:
+     * param: pictureInfo
+     * return: com.lz.picture.model.domain.SpaceInfo
+     **/
+    private SpaceInfo checkSpace(PictureInfo pictureInfo) {
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
@@ -240,28 +286,28 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 throw new ServiceException("您不是该文件夹所有者，无法上传图片");
             }
         }
-        //更新空间信息
-        spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
-        spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
-        spaceInfo.setLastUpdateTime(new Date());
-        //判断当前空间是否到达最大值 官方空间没有限制
-        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
-                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
-            throw new ServiceException("空间已满，无法上传图片");
-        }
-        //获取积分最大值和最小值
-        String pointsNeedMax = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MAX);
-        String pointsNeedMin = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MIN);
-        //判断积分是否比最小值大最大值小
-        if (!(Long.parseLong(pointsNeedMax) >= pictureInfo.getPointsNeed() && pictureInfo.getPointsNeed() >= Long.parseLong(pointsNeedMin))) {
-            throw new ServiceException(StringUtils.format("图片所需积分不在范围内，最小值：{}，最大值：{}", pointsNeedMin, pointsNeedMax));
-        }
-        //判断是否是十的倍数
-        if (pictureInfo.getPointsNeed() % 10 != 0) {
-            throw new ServiceException("图片体积必须是10的倍数");
-        }
+        return spaceInfo;
+    }
+
+    /**
+     * description: 异步更新图片信息
+     * author: YY
+     * method: implementPictureAdd
+     * date: 2025/4/11 15:14
+     * param:
+     * param: pictureInfo
+     * param: spaceInfo
+     * return: void
+     **/
+    private void implementPictureAdd(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
         //查询标签是否存在
         List<String> tags = pictureInfo.getTags();
+        //校验标签长度，如果超过16，则截取
+        tags.forEach(tag -> {
+            if (tag.length() > 16) {
+                tag = tag.substring(0, 16);
+            }
+        });
         List<PictureTagInfo> tagInfoList;
         if (StringUtils.isEmpty(tags)) {
             tagInfoList = new ArrayList<>();
@@ -298,19 +344,20 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureTagInfo.setUsageCount(1L);
             addTagInfoList.add(pictureTagInfo);
         }
-        // 计算宽高比例
-        pictureInfo.setPicScale(((double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight()));
-        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
-
-        Integer execute = transactionTemplate.execute(result -> {
+        ArrayList<PictureTagRelInfo> pictureTagRelInfos = new ArrayList<>();
+        Boolean execute = transactionTemplate.execute(result -> {
             if (StringUtils.isNotEmpty(addTagInfoList)) {
                 pictureTagInfoService.saveOrUpdateBatch(addTagInfoList);
             }
-            pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
-            spaceInfoService.updateById(spaceInfo);
-            return pictureInfoMapper.insertPictureInfo(pictureInfo);
+            //插入关联信息
+            addTagInfoList.forEach(tagInfo -> {
+                PictureTagRelInfo rel = new PictureTagRelInfo();
+                rel.setPictureId(pictureInfo.getPictureId());
+                rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
+                pictureTagRelInfos.add(rel);
+            });
+            pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
+            return spaceInfoService.updateById(spaceInfo);
         });
-        return StringUtils.isNull(execute) ? 0 : execute;
     }
-
 }
