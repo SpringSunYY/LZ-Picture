@@ -1,4 +1,5 @@
 import type { PageDomain } from '@/types/common'
+import type { UserVo } from '@/types/user'
 
 /**
  * 用户上传图片添加对象
@@ -129,4 +130,54 @@ export interface PictureInfoVo {
 
   /** 所属文件夹编号 */
   folderId?: string
+}
+
+/**
+ * 用户图片信息详情对象
+ */
+export interface PictureDetailInfoVo {
+  /** 图片编号 */
+  pictureId?: string;
+
+  /** 图片名称 */
+  name?: string;
+
+  /** 分类编号 */
+  categoryId?: string;
+
+  /** 分类名称 */
+  categoryName?: string;
+
+  /** 图片宽度 */
+  picWidth?: number;
+
+  /** 图片高度 */
+  picHeight?: number;
+
+  /** 宽高比例 */
+  picScale?: number;
+
+  /** 上传用户编号 */
+  userId?: string;
+
+  /** 上传用户名称 */
+  userName?: string;
+
+  /** 用户信息 */
+  userInfoVo?: UserVo;
+
+  /** 缩略图URL */
+  thumbnailUrl?: string;
+
+  /** 所属空间编号 */
+  spaceId?: string;
+
+  /** 所属空间名称 */
+  spaceName?: string;
+
+  /** 所属文件夹编号 */
+  folderId?: string;
+
+  /** 图片标签 */
+  pictureTags?: string[];
 }

@@ -60,6 +60,7 @@ export namespace USER {
     code?: string
     uuid?: string
   }
+
   export interface ForgetPasswordParams {
     countryCode: string
     phone: string
@@ -69,4 +70,39 @@ export namespace USER {
     code?: string
     uuid?: string
   }
+}
+
+/**
+ * 用户信息对象
+ */
+export interface UserVo {
+  /** 用户ID */
+  userId?: string
+
+  /** 用户名 */
+  userName?: string
+
+  /** 昵称 */
+  nickName?: string
+
+  /** 头像地址 */
+  avatarUrl?: string
+
+  /** 性别（0=未知 1=男 2=女） */
+  sex?: string
+
+  /** 生日 */
+  birthday?: string // 使用 string 类型表示日期时间（格式为 "yyyy-MM-dd HH:mm:ss"）
+
+  /** 职业 */
+  occupation?: string
+
+  /** 偏好语言 */
+  preferredLanguageLocale?: string
+
+  /** 个人简介 */
+  introductory?: string
+
+  /** IP属地 */
+  ipAddress?: string
 }

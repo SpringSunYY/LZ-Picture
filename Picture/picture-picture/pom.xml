@@ -33,6 +33,11 @@
             <artifactId>picture-system</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-user</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -49,7 +49,7 @@ public class UserInfoVo implements Serializable
     private String password;
 
     /** 状态（0=正常 1=异常 2=禁用） */
-    @Excel(name = "状态", readConverterExp = "0==正常,1==异常,2==禁用")
+    @Excel(name = "状态", readConverterExp = "0=正常,1=异常,2=禁用")
     private String status;
 
     /** 加密盐 */
@@ -57,7 +57,7 @@ public class UserInfoVo implements Serializable
     private String salt;
 
     /** 性别（0=未知 1=男 2=女） */
-    @Excel(name = "性别", readConverterExp = "0==未知,1==男,2==女")
+    @Excel(name = "性别", readConverterExp = "0=未知,1=男,2=女")
     private String sex;
 
     /** 生日 */
@@ -101,7 +101,7 @@ public class UserInfoVo implements Serializable
     private Date updateTime;
 
     /** 删除标记（0=未删除 1=已删除） */
-    @Excel(name = "删除标记", readConverterExp = "0==未删除,1==已删除")
+    @Excel(name = "删除标记", readConverterExp = "0=未删除,1=已删除")
     private String isDelete;
 
 

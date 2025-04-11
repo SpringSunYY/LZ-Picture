@@ -13,6 +13,7 @@ import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.enums.PPictureReviewStatus;
 import com.lz.picture.model.enums.PPictureStatus;
+import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
@@ -59,6 +60,13 @@ public class UserPictureInfoController extends BaseUserInfoController {
         PictureInfo pictureInfo = UserPictureInfoAdd.addToObj(userPictureInfoAdd);
         pictureInfo.setUserId(getUserId());
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
+    @GetMapping("/{pictureId}")
+    public AjaxResult getInfo(@PathVariable("pictureId") String pictureId) {
+        UserPictureDetailInfoVo userPictureDetailInfoVo = pictureInfoService.userSelectPictureInfoByPictureId(pictureId);
+        return success(userPictureDetailInfoVo);
     }
 
     @GetMapping("/list")

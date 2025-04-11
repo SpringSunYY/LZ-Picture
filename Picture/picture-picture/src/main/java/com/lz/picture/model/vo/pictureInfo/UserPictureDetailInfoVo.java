@@ -1,7 +1,5 @@
 package com.lz.picture.model.vo.pictureInfo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.user.model.vo.userInfo.UserVo;
 import lombok.Data;
@@ -9,7 +7,6 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,7 +16,7 @@ import java.util.List;
  * @date 2025-04-09
  */
 @Data
-public class UserPictureInfoVo implements Serializable {
+public class UserPictureDetailInfoVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +35,7 @@ public class UserPictureInfoVo implements Serializable {
      * 分类编号
      */
     private String categoryId;
+    private String categoryName;
 
 
     /**
@@ -59,6 +57,11 @@ public class UserPictureInfoVo implements Serializable {
      * 上传用户编号
      */
     private String userId;
+    private String userName;
+    /**
+     * 用户信息
+     */
+    private UserVo userInfoVo;
 
 
     /**
@@ -70,11 +73,17 @@ public class UserPictureInfoVo implements Serializable {
      * 所属空间编号
      */
     private String spaceId;
+    private String spaceName;
 
     /**
      * 所属文件夹编号
      */
     private String folderId;
+
+    /**
+     * 图片标签
+     */
+    private List<String> pictureTags;
 
 
     /**
@@ -83,11 +92,11 @@ public class UserPictureInfoVo implements Serializable {
      * @param pictureInfo PictureInfo实体对象
      * @return PictureInfoVo
      */
-    public static UserPictureInfoVo objToVo(PictureInfo pictureInfo) {
+    public static UserPictureDetailInfoVo objToVo(PictureInfo pictureInfo) {
         if (pictureInfo == null) {
             return null;
         }
-        UserPictureInfoVo pictureInfoVo = new UserPictureInfoVo();
+        UserPictureDetailInfoVo pictureInfoVo = new UserPictureDetailInfoVo();
         BeanUtils.copyProperties(pictureInfo, pictureInfoVo);
         return pictureInfoVo;
     }
@@ -98,10 +107,10 @@ public class UserPictureInfoVo implements Serializable {
      * @param pictureInfoList
      * @return
      */
-    public static List<UserPictureInfoVo> objToVo(List<PictureInfo> pictureInfoList) {
+    public static List<UserPictureDetailInfoVo> objToVo(List<PictureInfo> pictureInfoList) {
         if (pictureInfoList == null) {
             return null;
         }
-        return pictureInfoList.stream().map(UserPictureInfoVo::objToVo).toList();
+        return pictureInfoList.stream().map(UserPictureDetailInfoVo::objToVo).toList();
     }
 }

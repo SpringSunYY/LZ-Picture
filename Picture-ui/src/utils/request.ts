@@ -128,6 +128,7 @@ http.interceptors.response.use(
     // 处理 403 错误（没有权限）
     if (code === 403) {
       message.error('没有权限访问该资源', 3)
+      router.push('/user/login')
       return Promise.reject(new Error(msg))
     }
     // 处理 500 错误

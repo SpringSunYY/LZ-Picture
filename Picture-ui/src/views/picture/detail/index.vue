@@ -57,10 +57,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import FancyImage from '@/components/FancyImage/index.vue'
 import Tags from '@/components/Tags/index.vue'
+import { getPictureDetailInfo } from '@/api/picture/picture.ts'
+import { useRoute } from 'vue-router'
 
+// 获取当前路由信息
+const route = useRoute()
+const pictureId = ref<string>(route.query.pictureId as string)
 const picture = reactive({
   pictureId: 'abc123',
   pictureUrl:
@@ -82,6 +87,14 @@ const author = reactive({
   nickname: '山里来的摄影师',
   ipRegion: '云南',
 })
+
+const getPictureInfo = () => {
+  console.log('pictureId', route.query)
+  console.log('pictureId', pictureId.value)
+  getPictureDetailInfo(pictureId.value).then((res) => {
+  })
+}
+getPictureInfo()
 
 const formatSize = (size) => {
   if (!size) return '0 B'

@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 
 /**
  * 图片信息Service接口
@@ -90,4 +90,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @return
      */
     int userInsertPictureInfo(PictureInfo pictureInfo);
+
+    /**
+     * description: 查询图片详细信息，包括空间、用户、标签、文件夹
+     * author: YY
+     * method: userSelectPictureInfoByPictureId
+     * date: 2025/4/11 15:47
+     * param:
+     * param: pictureId
+     * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
+     **/
+    UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId);
 }

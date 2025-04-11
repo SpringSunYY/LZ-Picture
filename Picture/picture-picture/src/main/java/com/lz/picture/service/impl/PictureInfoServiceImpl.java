@@ -3,20 +3,27 @@ package com.lz.picture.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.constant.HttpStatus;
+import com.lz.common.constant.redis.PictureRedisConstants;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
-import com.lz.picture.model.enums.PPictureReviewStatus;
-import com.lz.picture.model.enums.PSpaceType;
-import com.lz.picture.model.enums.PTagStatus;
+import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
+import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.service.*;
+import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.vo.userInfo.UserVo;
+import com.lz.user.service.IUserInfoService;
+import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -24,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MAX;
@@ -61,6 +69,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private IUserInfoService userInfoService;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -107,6 +121,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public int updatePictureInfo(PictureInfo pictureInfo) {
         pictureInfo.setUpdateTime(DateUtils.getNowDate());
+        //删除缓存
+        redisCache.deleteObject(PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureInfo.getPictureId());
         return pictureInfoMapper.updatePictureInfo(pictureInfo);
     }
 
@@ -255,6 +271,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return i;
     }
 
+
     /**
      * description: 校验空间
      * author: YY
@@ -359,5 +376,59 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
             return spaceInfoService.updateById(spaceInfo);
         });
+    }
+
+    @Override
+    public UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId) {
+        //先查询缓存是否存在
+        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
+        if (redisCache.hasKey(key)) {
+            return redisCache.getCacheObject(key);
+        }
+        UserPictureDetailInfoVo userPictureDetailInfoVo = new UserPictureDetailInfoVo();
+        PictureInfo pictureInfo = this.getById(pictureId);
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
+        //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
+        //TODO 后续有判断是否是团队空间 团队空间成员还是可以查看的
+        if (!pictureInfo.getPictureStatus().equals(PPictureStatus.PICTURE_STATUS_0.getValue())
+                && pictureInfo.getReviewStatus().equals(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_1.getValue()))
+                && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId())) {
+            throw new ServiceException("图片审核不通过，无法查看");
+        }
+        BeanUtils.copyProperties(pictureInfo, userPictureDetailInfoVo);
+        //查询空间
+        SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
+        //判断空间是否存在且是否是公共空间
+        if (StringUtils.isNotNull(spaceInfo) && spaceInfo.getSpaceStatus().equals(PSpaceStatus.SPACE_STATUS_0.getValue())) {
+            //如果是则加入空间的信息
+            userPictureDetailInfoVo.setSpaceId(spaceInfo.getSpaceId());
+            userPictureDetailInfoVo.setSpaceName(spaceInfo.getSpaceName());
+        } else {
+            userPictureDetailInfoVo.setSpaceId(null);
+        }
+        //查询用户信息
+        UserInfo userInfo = userInfoService.selectUserInfoByUserId(pictureInfo.getUserId());
+        if (StringUtils.isNotNull(userInfo)) {
+            userPictureDetailInfoVo.setUserId(userInfo.getUserId());
+            userPictureDetailInfoVo.setUserName(userInfo.getNickName());
+            UserVo userVo = new UserVo();
+            BeanUtils.copyBeanProp(userInfo, userVo);
+            userPictureDetailInfoVo.setUserInfoVo(userVo);
+        }
+        //查询标签信息
+        List<PictureTagRelInfo> pictureTagRelInfoList = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                .eq(PictureTagRelInfo::getPictureId, pictureId));
+        if (StringUtils.isNotEmpty(pictureTagRelInfoList)) {
+            List<String> tagIds = pictureTagRelInfoList.stream()
+                    .map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
+            List<PictureTagInfo> pictureTagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
+                    .in(PictureTagInfo::getTagId, tagIds));
+            List<String> tagNames = pictureTagInfoList.stream()
+                    .map(PictureTagInfo::getName).collect(Collectors.toList());
+            userPictureDetailInfoVo.setPictureTags(tagNames);
+        }
+        //存入缓存 五分钟即可
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
+        return userPictureDetailInfoVo;
     }
 }
