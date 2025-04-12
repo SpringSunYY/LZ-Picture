@@ -2292,7 +2292,42 @@ CREATE TABLE p_user_comment_info
   DEFAULT CHARSET = utf8mb4 COMMENT ='图片评论表';
 ```
 
+#### 评论点赞表：p_picture_comment_like_info
 
+| 字段名       | 类型     | 长度 | 键类型                      | Null | 默认值   | 描述         |
+| ------------ | -------- | ---- | --------------------------- | ---- | -------- | ------------ |
+| like_id      | varchar  | 128  | 主键                        | 否   |          | 点赞记录编号 |
+| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)  | 否   |          | 用户编号     |
+| picture_id   | varchar  | 128  | 外键 (p_picture:picture_id) | 否   |          | 图片编号     |
+| comment_id   | varchar  | 128  | 外键 (p_picture_comment)    | 否   |          | 评论编号     |
+| target_cover | varchar  | 512  |                             | 是   |          | 封面         |
+| create_time  | datetime |      |                             | 否   | 当前时间 | 点赞时间     |
+
+```sql
+DROP TABLE IF EXISTS p_picture_comment_like_info;
+CREATE TABLE p_picture_comment_like_info (
+    like_id VARCHAR(128) NOT NULL COMMENT '点赞编号',
+    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
+    picture_id varchar(128) NOT NULL COMMENT '图片编号',
+    target_cover VARCHAR(512) COMMENT '封面URL', 
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+    PRIMARY KEY (like_id),
+    UNIQUE KEY uk_user_picture (user_id, picture_id),
+    INDEX idx_like_user (user_id),
+    INDEX idx_like_picture (picture_id),
+    CONSTRAINT fk_like_user 
+        FOREIGN KEY (user_id) 
+        REFERENCES u_user_info(user_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_like_picture 
+        FOREIGN KEY (picture_id) 
+        REFERENCES p_picture(picture_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_like_category 
+        FOREIGN KEY (category_id) 
+        REFERENCES p_category_info(category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论点赞记录表';
+```
 
 #### 用户行为表：p_user_behavior_info
 
