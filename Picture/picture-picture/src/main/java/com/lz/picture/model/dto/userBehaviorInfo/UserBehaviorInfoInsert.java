@@ -1,23 +1,26 @@
-package com.lz.picture.model.dto.userViewLogInfo;
+package com.lz.picture.model.dto.userBehaviorInfo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.UserViewLogInfo;
+import com.lz.picture.model.domain.UserBehaviorInfo;
 /**
- * 用户浏览记录Vo对象 p_user_view_log_info
+ * 用户行为Vo对象 p_user_behavior_info
  *
  * @author YY
  * @date 2025-04-12
  */
 @Data
-public class UserViewLogInfoInsert implements Serializable
+public class UserBehaviorInfoInsert implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    /** 记录编号 */
-    private String viewId;
+    /** 行为编号 */
+    private String behaviorId;
+
+    /** 行为类型 */
+    private String behaviorType;
 
     /** 用户编号 */
     private String userId;
@@ -33,6 +36,9 @@ public class UserViewLogInfoInsert implements Serializable
 
     /** 分数 */
     private BigDecimal score;
+
+    /** 分享链接 */
+    private String shareLink;
 
     /** 图片分类 */
     private String categoryId;
@@ -64,15 +70,15 @@ public class UserViewLogInfoInsert implements Serializable
     /**
      * 对象转封装类
      *
-     * @param userViewLogInfoInsert 插入对象
-     * @return UserViewLogInfoInsert
+     * @param userBehaviorInfoInsert 插入对象
+     * @return UserBehaviorInfoInsert
      */
-    public static UserViewLogInfo insertToObj(UserViewLogInfoInsert userViewLogInfoInsert) {
-        if (userViewLogInfoInsert == null) {
+    public static UserBehaviorInfo insertToObj(UserBehaviorInfoInsert userBehaviorInfoInsert) {
+        if (userBehaviorInfoInsert == null) {
             return null;
         }
-        UserViewLogInfo userViewLogInfo = new UserViewLogInfo();
-        BeanUtils.copyProperties(userViewLogInfoInsert, userViewLogInfo);
-        return userViewLogInfo;
+        UserBehaviorInfo userBehaviorInfo = new UserBehaviorInfo();
+        BeanUtils.copyProperties(userBehaviorInfoInsert, userBehaviorInfo);
+        return userBehaviorInfo;
     }
 }

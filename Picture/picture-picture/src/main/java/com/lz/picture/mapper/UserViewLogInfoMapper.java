@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * 用户浏览记录Mapper接口
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-04-12
  */
 public interface UserViewLogInfoMapper extends BaseMapper<UserViewLogInfo>
 {

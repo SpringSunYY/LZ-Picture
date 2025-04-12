@@ -2,6 +2,7 @@ package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -30,12 +31,11 @@ import com.lz.common.core.page.TableDataInfo;
  * 用户浏览记录Controller
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-04-12
  */
 @RestController
 @RequestMapping("/admin/picture/userViewLogInfo")
-public class UserViewLogInfoController extends BaseController
-{
+public class UserViewLogInfoController extends BaseController {
     @Resource
     private IUserViewLogInfoService userViewLogInfoService;
 
@@ -44,12 +44,11 @@ public class UserViewLogInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:userViewLogInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(UserViewLogInfoQuery userViewLogInfoQuery)
-    {
+    public TableDataInfo list(UserViewLogInfoQuery userViewLogInfoQuery) {
         UserViewLogInfo userViewLogInfo = UserViewLogInfoQuery.queryToObj(userViewLogInfoQuery);
         startPage();
         List<UserViewLogInfo> list = userViewLogInfoService.selectUserViewLogInfoList(userViewLogInfo);
-        List<UserViewLogInfoVo> listVo= list.stream().map(UserViewLogInfoVo::objToVo).collect(Collectors.toList());
+        List<UserViewLogInfoVo> listVo = list.stream().map(UserViewLogInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
@@ -61,8 +60,7 @@ public class UserViewLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userViewLogInfo:export')")
     @Log(title = "用户浏览记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, UserViewLogInfoQuery userViewLogInfoQuery)
-    {
+    public void export(HttpServletResponse response, UserViewLogInfoQuery userViewLogInfoQuery) {
         UserViewLogInfo userViewLogInfo = UserViewLogInfoQuery.queryToObj(userViewLogInfoQuery);
         List<UserViewLogInfo> list = userViewLogInfoService.selectUserViewLogInfoList(userViewLogInfo);
         ExcelUtil<UserViewLogInfo> util = new ExcelUtil<UserViewLogInfo>(UserViewLogInfo.class);
@@ -74,8 +72,7 @@ public class UserViewLogInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:userViewLogInfo:query')")
     @GetMapping(value = "/{viewId}")
-    public AjaxResult getInfo(@PathVariable("viewId") String viewId)
-    {
+    public AjaxResult getInfo(@PathVariable("viewId") String viewId) {
         UserViewLogInfo userViewLogInfo = userViewLogInfoService.selectUserViewLogInfoByViewId(viewId);
         return success(UserViewLogInfoVo.objToVo(userViewLogInfo));
     }
@@ -86,8 +83,7 @@ public class UserViewLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userViewLogInfo:add')")
     @Log(title = "用户浏览记录", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody UserViewLogInfoInsert userViewLogInfoInsert)
-    {
+    public AjaxResult add(@RequestBody UserViewLogInfoInsert userViewLogInfoInsert) {
         UserViewLogInfo userViewLogInfo = UserViewLogInfoInsert.insertToObj(userViewLogInfoInsert);
         return toAjax(userViewLogInfoService.insertUserViewLogInfo(userViewLogInfo));
     }
@@ -98,8 +94,7 @@ public class UserViewLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userViewLogInfo:edit')")
     @Log(title = "用户浏览记录", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody UserViewLogInfoEdit userViewLogInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody UserViewLogInfoEdit userViewLogInfoEdit) {
         UserViewLogInfo userViewLogInfo = UserViewLogInfoEdit.editToObj(userViewLogInfoEdit);
         return toAjax(userViewLogInfoService.updateUserViewLogInfo(userViewLogInfo));
     }
@@ -110,8 +105,7 @@ public class UserViewLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userViewLogInfo:remove')")
     @Log(title = "用户浏览记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{viewIds}")
-    public AjaxResult remove(@PathVariable String[] viewIds)
-    {
+    public AjaxResult remove(@PathVariable String[] viewIds) {
         return toAjax(userViewLogInfoService.deleteUserViewLogInfoByViewIds(viewIds));
     }
 }

@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
  * 用户浏览记录Service接口
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-04-12
  */
 public interface IUserViewLogInfoService extends IService<UserViewLogInfo>
 {

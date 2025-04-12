@@ -1,4 +1,4 @@
-package com.lz.picture.model.vo.userViewLogInfo;
+package com.lz.picture.model.vo.userBehaviorInfo;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -7,21 +7,25 @@ import lombok.Data;
 import com.lz.common.annotation.Excel;
 import org.springframework.beans.BeanUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.UserViewLogInfo;
+import com.lz.picture.model.domain.UserBehaviorInfo;
 /**
- * 用户浏览记录Vo对象 p_user_view_log_info
+ * 用户行为Vo对象 p_user_behavior_info
  *
  * @author YY
  * @date 2025-04-12
  */
 @Data
-public class UserViewLogInfoVo implements Serializable
+public class UserBehaviorInfoVo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    /** 记录编号 */
-    @Excel(name = "记录编号")
-    private String viewId;
+    /** 行为编号 */
+    @Excel(name = "行为编号")
+    private String behaviorId;
+
+    /** 行为类型 */
+    @Excel(name = "行为类型")
+    private String behaviorType;
 
     /** 用户编号 */
     @Excel(name = "用户编号")
@@ -43,6 +47,10 @@ public class UserViewLogInfoVo implements Serializable
     @Excel(name = "分数")
     private BigDecimal score;
 
+    /** 分享链接 */
+    @Excel(name = "分享链接")
+    private String shareLink;
+
     /** 图片分类 */
     @Excel(name = "图片分类")
     private String categoryId;
@@ -59,9 +67,9 @@ public class UserViewLogInfoVo implements Serializable
     @Excel(name = "封面")
     private String targetCover;
 
-    /** 查看时间 */
+    /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "查看时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /** 设备唯一标识 */
@@ -88,15 +96,15 @@ public class UserViewLogInfoVo implements Serializable
      /**
      * 对象转封装类
      *
-     * @param userViewLogInfo UserViewLogInfo实体对象
-     * @return UserViewLogInfoVo
+     * @param userBehaviorInfo UserBehaviorInfo实体对象
+     * @return UserBehaviorInfoVo
      */
-    public static UserViewLogInfoVo objToVo(UserViewLogInfo userViewLogInfo) {
-        if (userViewLogInfo == null) {
+    public static UserBehaviorInfoVo objToVo(UserBehaviorInfo userBehaviorInfo) {
+        if (userBehaviorInfo == null) {
             return null;
         }
-        UserViewLogInfoVo userViewLogInfoVo = new UserViewLogInfoVo();
-        BeanUtils.copyProperties(userViewLogInfo, userViewLogInfoVo);
-        return userViewLogInfoVo;
+        UserBehaviorInfoVo userBehaviorInfoVo = new UserBehaviorInfoVo();
+        BeanUtils.copyProperties(userBehaviorInfo, userBehaviorInfoVo);
+        return userBehaviorInfoVo;
     }
 }

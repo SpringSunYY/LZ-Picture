@@ -461,7 +461,7 @@ import {
   addPictureInfo,
   updatePictureInfo
 } from "@/api/picture/pictureInfo";
-import {formatSize} from "../../../utils/ruoyi.js";
+import {formatSize} from "@/utils/ruoyi.js";
 
 const {proxy} = getCurrentInstance();
 const {

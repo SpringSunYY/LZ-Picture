@@ -1,6 +1,7 @@
 package com.lz.picture.model.dto.userViewLogInfo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.picture.model.domain.UserViewLogInfo;
@@ -8,33 +9,57 @@ import com.lz.picture.model.domain.UserViewLogInfo;
  * 用户浏览记录Vo对象 p_user_view_log_info
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-04-12
  */
 @Data
 public class UserViewLogInfoEdit implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    /** 浏览记录编号 */
+    /** 记录编号 */
     private String viewId;
 
     /** 用户编号 */
     private String userId;
 
-    /** 目标类型（0图片 1用户 2空间） */
+    /** 目标类型 */
     private String targetType;
 
-    /** 目标对象编号 */
+    /** 目标对象 */
     private String targetId;
+
+    /** 目标内容 */
+    private String targetContent;
+
+    /** 分数 */
+    private BigDecimal score;
 
     /** 图片分类 */
     private String categoryId;
 
+    /** 空间 */
+    private String spaceId;
+
     /** 图片标签 */
     private String tags;
 
-    /** 封面URL */
+    /** 封面 */
     private String targetCover;
+
+    /** 设备唯一标识 */
+    private String deviceId;
+
+    /** 浏览器类型 */
+    private String browser;
+
+    /** 操作系统 */
+    private String os;
+
+    /** 平台 */
+    private String platform;
+
+    /** IP属地 */
+    private String ipAddress;
 
     /**
      * 对象转封装类

@@ -13,21 +13,25 @@ import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 /**
- * 用户浏览记录对象 p_user_view_log_info
+ * 用户行为对象 p_user_behavior_info
  *
  * @author YY
  * @date 2025-04-12
  */
-@TableName("p_user_view_log_info")
+@TableName("p_user_behavior_info")
 @Data
-public class UserViewLogInfo implements Serializable
+public class UserBehaviorInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    /** 记录编号 */
-        @Excel(name = "记录编号")
-    @TableId(value = "view_id", type = IdType.ASSIGN_ID)
-    private String viewId;
+    /** 行为编号 */
+        @Excel(name = "行为编号")
+    @TableId(value = "behavior_id", type = IdType.ASSIGN_ID)
+    private String behaviorId;
+
+    /** 行为类型 */
+        @Excel(name = "行为类型")
+    private String behaviorType;
 
     /** 用户编号 */
         @Excel(name = "用户编号")
@@ -49,6 +53,10 @@ public class UserViewLogInfo implements Serializable
         @Excel(name = "分数")
     private BigDecimal score;
 
+    /** 分享链接 */
+        @Excel(name = "分享链接")
+    private String shareLink;
+
     /** 图片分类 */
         @Excel(name = "图片分类")
     private String categoryId;
@@ -65,9 +73,9 @@ public class UserViewLogInfo implements Serializable
         @Excel(name = "封面")
     private String targetCover;
 
-    /** 查看时间 */
+    /** 创建时间 */
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        @Excel(name = "查看时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+        @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /** 设备唯一标识 */

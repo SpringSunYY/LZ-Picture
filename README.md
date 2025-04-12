@@ -1732,7 +1732,7 @@ CREATE TABLE p_space_member_info
 
 
 
-#### 文件夹表设计 :p_space_folder_info
+#### 文件夹表 :p_space_folder_info
 
 记录空间内的文件夹
 
@@ -2221,15 +2221,18 @@ CREATE TABLE p_user_action_log_info (
 
 
 
-#### 图片评论表：p_picture_comment_info
+#### 用户评论表：p_user_comment_info
 
 | 字段名         | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
 | -------------- | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
 | comment_id     | varchar  | 128  | 主键                              | 否   |          | 评论编号 |
 | user_id        | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
 | parent_id      | varchar  | 128  | 外键 (p_picture_comment)          | 是   |          | 父级编号 |
-| picture_id     | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
-| category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
+| target_type    | char     | 1    |                                   | 否   |          | 目标类型 |
+| target_id      | varchar  | 128  |                                   | 否   |          | 目标对象 |
+| target_content | varchar  | 256  |                                   | 是   |          | 目标内容 |
+| category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 是   |          | 图片分类 |
+| space_id       | varchar  | 128  |                                   | 是   |          | 空间     |
 | tags           | varchar  | 256  |                                   | 是   |          | 图片标签 |
 | content        | varchar  | 256  |                                   | 是   |          | 评论内容 |
 | create_time    | datetime |      |                                   | 否   | 当前时间 | 评论时间 |
@@ -2240,6 +2243,8 @@ CREATE TABLE p_user_action_log_info (
 
 图片：评论可以上传一张图片，但是会被压缩
 
+目标内容：评论就是父级评论内容 图片就是图片名称 空间就是空间名称
+
 分类：存这个图片的分类，后续可以做推荐算法
 
 标签：直接使用字符串存储，一个图片最多五个标签，存储方式："花","玫瑰花"，每个用引号包裹，，分割
@@ -2247,8 +2252,8 @@ CREATE TABLE p_user_action_log_info (
 评论状态：0正常 1异常
 
 ```sql
-DROP TABLE IF EXISTS p_picture_comment_info;
-CREATE TABLE p_picture_comment_info
+DROP TABLE IF EXISTS p_user_comment_info;
+CREATE TABLE p_user_comment_info
 (
     comment_id  VARCHAR(128) NOT NULL COMMENT '评论编号',
     user_id     VARCHAR(128) NOT NULL COMMENT '用户编号',
@@ -2289,206 +2294,120 @@ CREATE TABLE p_picture_comment_info
 
 
 
-#### 评论点赞表：p_picture_comment_like_info
+#### 用户行为表：p_user_behavior_info
 
-| 字段名       | 类型     | 长度 | 键类型                      | Null | 默认值   | 描述         |
-| ------------ | -------- | ---- | --------------------------- | ---- | -------- | ------------ |
-| like_id      | varchar  | 128  | 主键                        | 否   |          | 点赞记录编号 |
-| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)  | 否   |          | 用户编号     |
-| picture_id   | varchar  | 128  | 外键 (p_picture:picture_id) | 否   |          | 图片编号     |
-| comment_id   | varchar  | 128  | 外键 (p_picture_comment)    | 否   |          | 评论编号     |
-| target_cover | varchar  | 512  |                             | 是   |          | 封面         |
-| create_time  | datetime |      |                             | 否   | 当前时间 | 点赞时间     |
+| 字段名         | 类型     | 长度 | 键类型                                    | Null | 默认值   | 描述         |
+| -------------- | -------- | ---- | ----------------------------------------- | ---- | -------- | ------------ |
+| behavior_id    | varchar  | 128  | 主键                                      | 否   |          | 转发编号     |
+| behavior_type  | char     | 1    |                                           | 否   |          | 行为类型     |
+| user_id        | varchar  | 128  | 外键 (u_user_info:user_id)                | 否   |          | 用户编号     |
+| target_type    | char     | 1    |                                           | 否   |          | 目标类型     |
+| target_id      | varchar  | 128  |                                           | 否   |          | 目标对象     |
+| target_content | varchar  | 256  |                                           | 是   |          | 目标内容     |
+| score          | decimal  | 5,2  |                                           | 否   |          | 分数         |
+| share_link     | varchar  | 512  |                                           | 是   |          | 分享链接     |
+| category_id    | varchar  | 128  | 外键(p_picture_category_info:category_id) | 是   |          | 图片分类     |
+| space_id       | varchar  | 128  |                                           | 是   |          | 空间         |
+| tags           | varchar  | 256  |                                           | 是   |          | 图片标签     |
+| target_cover   | varchar  | 512  |                                           | 是   |          | 封面         |
+| create_time    | datetime |      |                                           | 否   | 当前时间 | 转发时间     |
+| device_id      | varchar  | 256  |                                           | 是   |          | 设备唯一标识 |
+| browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
+| os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
+| platform       | varchar  | 20   |                                           | 是   |          | 平台         |
+| ip_address     | varchar  | 64   |                                           | 是   |          | IP属地       |
 
-```sql
-DROP TABLE IF EXISTS p_picture_comment_like_info;
-CREATE TABLE p_picture_comment_like_info (
-    like_id VARCHAR(128) NOT NULL COMMENT '点赞编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id varchar(128) NOT NULL COMMENT '图片编号',
-    target_cover VARCHAR(512) COMMENT '封面URL', 
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
-    PRIMARY KEY (like_id),
-    UNIQUE KEY uk_user_picture (user_id, picture_id),
-    INDEX idx_like_user (user_id),
-    INDEX idx_like_picture (picture_id),
-    CONSTRAINT fk_like_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_like_picture 
-        FOREIGN KEY (picture_id) 
-        REFERENCES p_picture(picture_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_like_category 
-        FOREIGN KEY (category_id) 
-        REFERENCES p_category_info(category_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片点赞记录表';
-```
+行为类型：0点赞 1收藏 2转发
 
+目标类型：0图片 1用户 2空间
 
+目标内容：比如说如果是空间，可以存储空间名称，如果是图片可以存储图片名称
 
-#### 图片点赞表：p_picture_like_info
+封面：每个目标类型都有封面，图片就是本图片、用户是头像、空间是空间的封面
 
-| 字段名       | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
-| ------------ | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
-| like_id      | varchar  | 128  | 主键                              | 否   |          | 点赞编号 |
-| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
-| picture_id   | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
-| category_id  | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
-| tags         | varchar  | 256  |                                   | 是   |          | 图片标签 |
-| target_cover | varchar  | 512  |                                   | 是   |          | 封面     |
-| create_time  | datetime |      |                                   | 否   | 当前时间 | 点赞时间 |
+行为得分：比如
 
 ```sql
-DROP TABLE IF EXISTS p_picture_like_info;
-CREATE TABLE p_picture_like_info
-(
-    like_id      VARCHAR(128) NOT NULL COMMENT '点赞编号',
-    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id   varchar(128) NOT NULL COMMENT '图片编号',
-    category_id  VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags         VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL',
-    create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
-    PRIMARY KEY (like_id),
-    UNIQUE KEY uk_user_picture (user_id, picture_id),
-    INDEX idx_like_user (user_id),
-    INDEX idx_like_picture (picture_id),
-    CONSTRAINT fk_like_user
-        FOREIGN KEY (user_id)
-            REFERENCES u_user_info (user_id),
-    CONSTRAINT fk_like_picture
-        FOREIGN KEY (picture_id)
-            REFERENCES p_picture_info (picture_id),
-    CONSTRAINT fk_like_category
-        FOREIGN KEY (category_id)
-            REFERENCES p_picture_category_info (category_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='图片点赞记录表';
-```
-
-
-
-#### 图片转发表：p_picture_share_info
-
-| 字段名       | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
-| ------------ | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
-| share_id     | varchar  | 128  | 主键                              | 否   |          | 转发编号 |
-| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
-| picture_id   | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
-| category_id  | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
-| tags         | varchar  | 256  |                                   | 是   |          | 图片标签 |
-| target_cover | varchar  | 512  |                                   | 是   |          | 封面     |
-| create_time  | datetime |      |                                   | 否   | 当前时间 | 转发时间 |
-
-```sql
-DROP TABLE IF EXISTS p_picture_share_info;
-CREATE TABLE p_picture_share_info
-(
-    share_id     VARCHAR(128) NOT NULL COMMENT '转发编号',
-    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id   varchar(128) NOT NULL COMMENT '图片编号',
-    category_id  VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags         VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL',
-    create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
-    PRIMARY KEY (share_id),
-    INDEX idx_share_user (user_id),
-    INDEX idx_share_picture (picture_id),
-    INDEX idx_share_category (category_id),
-    CONSTRAINT fk_share_user
-        FOREIGN KEY (user_id)
-            REFERENCES u_user_info (user_id),
-    CONSTRAINT fk_share_picture
-        FOREIGN KEY (picture_id)
-            REFERENCES p_picture_info (picture_id),
-    CONSTRAINT fk_share_category
-        FOREIGN KEY (category_id)
-            REFERENCES p_picture_category_info (category_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='图片转发记录表';
-```
-
-
-
-#### 图片收藏表：p_picture_favorite_info
-
-| 字段名       | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述     |
-| ------------ | -------- | ---- | --------------------------------- | ---- | -------- | -------- |
-| favorite_id  | varchar  | 128  | 主键                              | 否   |          | 收藏编号 |
-| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号 |
-| picture_id   | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号 |
-| category_id  | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类 |
-| tags         | varchar  | 256  |                                   | 是   |          | 图片标签 |
-| target_cover | varchar  | 512  |                                   | 是   |          | 封面     |
-| create_time  | datetime |      |                                   | 否   | 当前时间 | 收藏时间 |
-
-```sql
-DROP TABLE IF EXISTS p_picture_favorite_info;
-CREATE TABLE p_picture_favorite_info
-(
-    favorite_id  VARCHAR(128) NOT NULL COMMENT '收藏编号',
-    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
-    picture_id   varchar(128) NOT NULL COMMENT '图片编号',
-    category_id  VARCHAR(128) NOT NULL COMMENT '图片分类',
-    tags         VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL',
-    create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
-    PRIMARY KEY (favorite_id),
-    INDEX idx_favorite_user (user_id),
-    INDEX idx_favorite_picture (picture_id),
-    CONSTRAINT fk_favorite_user
-        FOREIGN KEY (user_id)
-            REFERENCES u_user_info (user_id),
-    CONSTRAINT fk_favorite_picture
-        FOREIGN KEY (picture_id)
-            REFERENCES p_picture_info (picture_id),
-    CONSTRAINT fk_favorite_category
-        FOREIGN KEY (category_id)
-            REFERENCES p_picture_category_info (category_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='用户图片收藏表';
+DROP TABLE IF EXISTS p_user_behavior_info;
+CREATE TABLE `p_user_behavior_info` (
+  `behavior_id` VARCHAR(128) NOT NULL COMMENT '转发编号',
+  `behavior_type` CHAR(1) NOT NULL COMMENT '行为类型',
+  `user_id` VARCHAR(128) NOT NULL COMMENT '用户编号',
+  `target_type` CHAR(1) NOT NULL COMMENT '目标类型',
+  `target_id` VARCHAR(128) NOT NULL COMMENT '目标对象',
+  `target_content` VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
+  `score` DECIMAL(5,2) NOT NULL COMMENT '分数',
+  `share_link` VARCHAR(512) DEFAULT NULL COMMENT '分享链接',
+  `category_id` VARCHAR(128) DEFAULT NULL COMMENT '图片分类',
+  `space_id` VARCHAR(128) DEFAULT NULL COMMENT '空间',
+  `tags` VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
+  `target_cover` VARCHAR(512) DEFAULT NULL COMMENT '封面',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
+  `device_id` VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
+  `browser` VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
+  `os` VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+  `platform` VARCHAR(20) DEFAULT NULL COMMENT '平台',
+  `ip_address` VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
+  PRIMARY KEY (`behavior_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_target` (`target_type`, `target_id`),
+  KEY `idx_create_time` (`create_time`),
+  CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `u_user_info` (`user_id`),
+  CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `p_picture_category_info` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户行为表';
 ```
 
 
 
 #### 用户浏览记录表：p_user_view_log_info
 
-| 字段名       | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述         |
-| ------------ | -------- | ---- | --------------------------------- | ---- | -------- | ------------ |
-| view_id      | varchar  | 128  | 主键                              | 否   |          | 浏览记录编号 |
-| user_id      | varchar  | 128  | 外键 (u_user_info:user_id)        | 是   |          | 用户编号     |
-| target_type  | char     | 1    |                                   | 否   |          | 目标类型     |
-| target_id    | varchar  | 128  |                                   | 否   |          | 目标对象     |
-| category_id  | varchar  | 128  | 外键(p_category_info:category_id) | 是   |          | 图片分类     |
-| tags         | varchar  | 256  |                                   | 是   |          | 图片标签     |
-| target_cover | varchar  | 512  |                                   | 是   |          | 封面         |
-| create_time  | datetime |      |                                   | 否   | 当前时间 | 查看时间     |
+| 字段名         | 类型     | 长度 | 键类型                                    | Null | 默认值   | 描述         |
+| -------------- | -------- | ---- | ----------------------------------------- | ---- | -------- | ------------ |
+| view_id        | varchar  | 128  | 主键                                      | 否   |          | 浏览记录编号 |
+| user_id        | varchar  | 128  | 外键 (u_user_info:user_id)                | 是   |          | 用户编号     |
+| target_type    | char     | 1    |                                           | 否   |          | 目标类型     |
+| target_id      | varchar  | 128  |                                           | 否   |          | 目标对象     |
+| target_content | varchar  | 256  |                                           | 是   |          | 目标内容     |
+| score          | decimal  | 5,2  |                                           | 否   |          | 分数         |
+| category_id    | varchar  | 128  | 外键(p_picture_category_info:category_id) | 是   |          | 图片分类     |
+| space_id       | varchar  | 128  |                                           | 是   |          | 空间         |
+| tags           | varchar  | 256  |                                           | 是   |          | 图片标签     |
+| target_cover   | varchar  | 512  |                                           | 是   |          | 封面         |
+| create_time    | datetime |      |                                           | 否   | 当前时间 | 查看时间     |
+| device_id      | varchar  | 256  |                                           | 是   |          | 设备唯一标识 |
+| browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
+| os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
+| platform       | varchar  | 20   |                                           | 是   |          | 平台         |
+| ip_address     | varchar  | 64   |                                           | 是   |          | IP属地       |
 
 目标类型：0图片 1用户 2空间
+
+目标内容：比如说如果是空间，可以存储空间名称，如果是图片可以存储图片名称
 
 封面：每个目标类型都有封面，图片就是本图片、用户是头像、空间是空间的封面
 
 ```sql
 DROP TABLE IF EXISTS p_user_view_log_info;
 CREATE TABLE p_user_view_log_info (
-    view_id VARCHAR(128) NOT NULL COMMENT '浏览记录编号',
-    user_id VARCHAR(128) COMMENT '用户编号',
-    target_type CHAR(1) NOT NULL COMMENT '目标类型（0图片 1用户 2空间）',
-    target_id VARCHAR(128) NOT NULL COMMENT '目标对象编号',
-    category_id  VARCHAR(128) COMMENT '图片分类',
-    tags         VARCHAR(256) COMMENT '图片标签',
-    target_cover VARCHAR(512) COMMENT '封面URL',
+    view_id VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '浏览记录编号',
+    user_id VARCHAR(128) DEFAULT NULL COMMENT '用户编号',
+    target_type CHAR(1) NOT NULL COMMENT '目标类型',
+    target_id VARCHAR(128) NOT NULL COMMENT '目标对象',
+    target_content VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
+    score DECIMAL(5, 2) NOT NULL COMMENT '分数',
+    category_id VARCHAR(128) DEFAULT NULL COMMENT '图片分类',
+    space_id VARCHAR(128) DEFAULT NULL COMMENT '空间',
+    tags VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
+    target_cover VARCHAR(512) DEFAULT NULL COMMENT '封面',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '查看时间',
-    PRIMARY KEY (view_id),
-    INDEX idx_view_user (user_id),
-    INDEX idx_target (target_type, target_id),
-    CONSTRAINT fk_view_log_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id) 
-        ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户浏览记录表';
+    device_id VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
+    browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
+    os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+    platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
+    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id),
+    FOREIGN KEY (category_id) REFERENCES p_picture_category_info(category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户浏览记录表';
 ```
 
 

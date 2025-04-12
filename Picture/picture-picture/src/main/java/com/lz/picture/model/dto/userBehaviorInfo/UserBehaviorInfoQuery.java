@@ -1,4 +1,4 @@
-package com.lz.picture.model.dto.userViewLogInfo;
+package com.lz.picture.model.dto.userBehaviorInfo;
 
 import java.util.Map;
 import java.io.Serializable;
@@ -9,20 +9,23 @@ import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.UserViewLogInfo;
+import com.lz.picture.model.domain.UserBehaviorInfo;
 /**
- * 用户浏览记录Query对象 p_user_view_log_info
+ * 用户行为Query对象 p_user_behavior_info
  *
  * @author YY
  * @date 2025-04-12
  */
 @Data
-public class UserViewLogInfoQuery implements Serializable
+public class UserBehaviorInfoQuery implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    /** 记录编号 */
-    private String viewId;
+    /** 行为编号 */
+    private String behaviorId;
+
+    /** 行为类型 */
+    private String behaviorType;
 
     /** 用户编号 */
     private String userId;
@@ -48,7 +51,7 @@ public class UserViewLogInfoQuery implements Serializable
     /** 图片标签 */
     private String tags;
 
-    /** 查看时间 */
+    /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
@@ -75,15 +78,15 @@ public class UserViewLogInfoQuery implements Serializable
     /**
      * 对象转封装类
      *
-     * @param userViewLogInfoQuery 查询对象
-     * @return UserViewLogInfo
+     * @param userBehaviorInfoQuery 查询对象
+     * @return UserBehaviorInfo
      */
-    public static UserViewLogInfo queryToObj(UserViewLogInfoQuery userViewLogInfoQuery) {
-        if (userViewLogInfoQuery == null) {
+    public static UserBehaviorInfo queryToObj(UserBehaviorInfoQuery userBehaviorInfoQuery) {
+        if (userBehaviorInfoQuery == null) {
             return null;
         }
-        UserViewLogInfo userViewLogInfo = new UserViewLogInfo();
-        BeanUtils.copyProperties(userViewLogInfoQuery, userViewLogInfo);
-        return userViewLogInfo;
+        UserBehaviorInfo userBehaviorInfo = new UserBehaviorInfo();
+        BeanUtils.copyProperties(userBehaviorInfoQuery, userBehaviorInfo);
+        return userBehaviorInfo;
     }
 }

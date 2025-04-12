@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import com.lz.common.utils.StringUtils;
+import java.math.BigDecimal;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
  * 用户浏览记录Service业务层处理
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-04-12
  */
 @Service
 public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMapper, UserViewLogInfo> implements IUserViewLogInfoService
@@ -123,14 +124,38 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
     String targetId = userViewLogInfoQuery.getTargetId();
         queryWrapper.eq(StringUtils.isNotEmpty(targetId) ,"target_id",targetId);
 
+    String targetContent = userViewLogInfoQuery.getTargetContent();
+        queryWrapper.eq(StringUtils.isNotEmpty(targetContent) ,"target_content",targetContent);
+
+    BigDecimal score = userViewLogInfoQuery.getScore();
+        queryWrapper.eq( StringUtils.isNotNull(score),"score",score);
+
     String categoryId = userViewLogInfoQuery.getCategoryId();
         queryWrapper.eq(StringUtils.isNotEmpty(categoryId) ,"category_id",categoryId);
 
+    String spaceId = userViewLogInfoQuery.getSpaceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(spaceId) ,"space_id",spaceId);
+
     String tags = userViewLogInfoQuery.getTags();
-        queryWrapper.eq(StringUtils.isNotEmpty(tags) ,"tags",tags);
+        queryWrapper.like(StringUtils.isNotEmpty(tags) ,"tags",tags);
 
     Date createTime = userViewLogInfoQuery.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+
+    String deviceId = userViewLogInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+
+    String browser = userViewLogInfoQuery.getBrowser();
+        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+
+    String os = userViewLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+
+    String platform = userViewLogInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+
+    String ipAddress = userViewLogInfoQuery.getIpAddress();
+        queryWrapper.eq(StringUtils.isNotEmpty(ipAddress) ,"ip_address",ipAddress);
 
         return queryWrapper;
     }
