@@ -2354,7 +2354,7 @@ CREATE TABLE p_picture_comment_like_info (
 
 行为类型：0点赞 1收藏 2转发
 
-目标类型：0图片 1用户 2空间
+目标类型：0图片 2用户 1空间
 
 目标内容：比如说如果是空间，可以存储空间名称，如果是图片可以存储图片名称
 
@@ -2415,7 +2415,7 @@ CREATE TABLE `p_user_behavior_info` (
 | platform       | varchar  | 20   |                                           | 是   |          | 平台         |
 | ip_address     | varchar  | 64   |                                           | 是   |          | IP属地       |
 
-目标类型：0图片 1用户 2空间
+目标类型：0图片 2用户 1空间
 
 目标内容：比如说如果是空间，可以存储空间名称，如果是图片可以存储图片名称
 

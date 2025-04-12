@@ -1,21 +1,26 @@
 package com.lz.picture.service;
 
+import java.util.Date;
 import java.util.List;
+
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.picture.model.domain.UserViewLogInfo;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
 import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
+
 /**
  * 用户浏览记录Service接口
  *
  * @author YY
  * @date 2025-04-12
  */
-public interface IUserViewLogInfoService extends IService<UserViewLogInfo>
-{
+public interface IUserViewLogInfoService extends IService<UserViewLogInfo> {
     //region mybatis代码
+
     /**
      * 查询用户浏览记录
      *
@@ -64,6 +69,7 @@ public interface IUserViewLogInfoService extends IService<UserViewLogInfo>
      */
     public int deleteUserViewLogInfoByViewId(String viewId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +85,16 @@ public interface IUserViewLogInfoService extends IService<UserViewLogInfo>
      * @return UserViewLogInfoVO集合
      */
     List<UserViewLogInfoVo> convertVoList(List<UserViewLogInfo> userViewLogInfoList);
+
+    /**
+     * 记录用户浏览记录
+     *
+     * @param userId                用户编号
+     * @param targetType            目标类型
+     * @param score                 分数
+     * @param nowDate               当前时间
+     * @param deviceInfo            设备信息
+     * @param userViewLogTargetInfo 目标信息
+     */
+    void recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfo userViewLogTargetInfo, Date nowDate, DeviceInfo deviceInfo);
 }

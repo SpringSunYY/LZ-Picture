@@ -1,7 +1,7 @@
 package com.lz.framework.security.auth;
 
-import com.lz.framework.manager.PasswordEncoderStrategy;
-import com.lz.framework.manager.factory.PasswordEncoderFactory;
+import com.lz.framework.strategy.PasswordEncoderStrategy;
+import com.lz.framework.strategy.factory.PasswordEncoderFactory;
 import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import jakarta.annotation.Resource;

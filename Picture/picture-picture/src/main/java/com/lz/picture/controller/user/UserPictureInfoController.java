@@ -8,6 +8,7 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
+import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
@@ -62,6 +63,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
+    @UserViewLog(targetType = "0", score = 1)
     @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
     @GetMapping("/{pictureId}")
     public AjaxResult getInfo(@PathVariable("pictureId") String pictureId) {

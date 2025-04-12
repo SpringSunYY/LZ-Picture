@@ -2,9 +2,11 @@ package com.lz.picture.model.dto.userViewLogInfo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.picture.model.domain.UserViewLogInfo;
+
 /**
  * 用户浏览记录Vo对象 p_user_view_log_info
  *
@@ -12,53 +14,82 @@ import com.lz.picture.model.domain.UserViewLogInfo;
  * @date 2025-04-12
  */
 @Data
-public class UserViewLogInfoInsert implements Serializable
-{
+public class UserViewLogInfoInsert implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 记录编号 */
+    /**
+     * 记录编号
+     */
     private String viewId;
 
-    /** 用户编号 */
+    /**
+     * 用户编号
+     */
     private String userId;
 
-    /** 目标类型 */
+    /**
+     * 目标类型
+     */
     private String targetType;
 
-    /** 目标对象 */
+    /**
+     * 目标对象
+     */
     private String targetId;
 
-    /** 目标内容 */
+    /**
+     * 目标内容
+     */
     private String targetContent;
 
-    /** 分数 */
-    private BigDecimal score;
+    /**
+     * 分数
+     */
+    private Double score;
 
-    /** 图片分类 */
+    /**
+     * 图片分类
+     */
     private String categoryId;
 
-    /** 空间 */
+    /**
+     * 空间
+     */
     private String spaceId;
 
-    /** 图片标签 */
+    /**
+     * 图片标签
+     */
     private String tags;
 
-    /** 封面 */
+    /**
+     * 封面
+     */
     private String targetCover;
 
-    /** 设备唯一标识 */
+    /**
+     * 设备唯一标识
+     */
     private String deviceId;
 
-    /** 浏览器类型 */
+    /**
+     * 浏览器类型
+     */
     private String browser;
 
-    /** 操作系统 */
+    /**
+     * 操作系统
+     */
     private String os;
 
-    /** 平台 */
+    /**
+     * 平台
+     */
     private String platform;
 
-    /** IP属地 */
+    /**
+     * IP属地
+     */
     private String ipAddress;
 
     /**

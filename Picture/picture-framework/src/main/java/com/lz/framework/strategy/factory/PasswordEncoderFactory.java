@@ -1,6 +1,6 @@
-package com.lz.framework.manager.factory;
+package com.lz.framework.strategy.factory;
 
-import com.lz.framework.manager.PasswordEncoderStrategy;
+import com.lz.framework.strategy.PasswordEncoderStrategy;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

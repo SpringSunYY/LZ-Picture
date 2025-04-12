@@ -1,4 +1,4 @@
-package com.lz.framework.manager;
+package com.lz.framework.strategy;
 
 /**
  * 加密
