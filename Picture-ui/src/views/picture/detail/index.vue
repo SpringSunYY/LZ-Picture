@@ -7,8 +7,8 @@
           <FancyImage :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
             <template #content>
               <div style="position: relative; padding: 40px">
-                <p style="font-size: 24px; color: white; text-align: center">{{ picture.name }}</p>
-                <p style="color: white; text-indent: 2em">
+                <p style="font-size: 5vh; color: #00ff95; text-align: center">{{ picture.name }}</p>
+                <p style="color: white; text-indent: 2em;font-size: 2vh">
                   {{ picture.introduction || '这张图还没有简介。' }}
                 </p>
               </div>
@@ -40,7 +40,7 @@
         </a-card>
         <!-- 图片信息 -->
         <a-card title="" :bordered="false" class="card">
-          <a-descriptions title="图片信息" :column="{ xs: 2, sm: 1, md: 2}">
+          <a-descriptions title="图片信息" :column="{ xs: 2, sm: 1, md: 2 }">
             <a-descriptions-item label="分类">{{ picture.categoryName }}</a-descriptions-item>
             <a-descriptions-item label="空间">{{ picture.spaceName }}</a-descriptions-item>
             <a-descriptions-item label="格式">{{ picture.picFormat }}</a-descriptions-item>
@@ -58,20 +58,58 @@
             :colors="['pink', 'red', 'orange', 'green', 'cyan']"
           />
         </a-card>
+        <a-card title="" :bordered="false" class="card action-card">
+          <a-space-compact align="center" style="padding: 0">
+            <a-tooltip title="Like">
+              <a-button class="icon-button">
+                <LikeOutlined style="vertical-align: middle; font-size: 18px" />
+                3200
+              </a-button>
+            </a-tooltip>
+            <a-tooltip title="Star">
+              <a-button class="icon-button"> <StarOutlined />320 </a-button>
+            </a-tooltip>
+            <a-tooltip title="Share">
+              <a-button class="icon-button"> <ShareAltOutlined />320 </a-button>
+            </a-tooltip>
+            <a-tooltip title="Comment">
+              <a-button class="icon-button">
+                <CommentOutlined />
+              </a-button>
+            </a-tooltip>
+            <a-tooltip title="Download">
+              <a-button class="icon-button">
+                <template #icon>
+                  <SvgIcon name="download" />
+                </template>
+                <span style="font-size: 16px; padding-left: 8px; color: green">{{
+                  picture.pointsNeed
+                }}</span>
+                <span style="font-size: 16px; padding-left: 8px">积分</span>
+              </a-button>
+            </a-tooltip>
+          </a-space-compact>
+        </a-card>
       </a-col>
     </a-row>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import FancyImage from '@/components/FancyImage/index.vue'
 import Tags from '@/components/Tags/index.vue'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import { formatSize, formatStrSize } from '@/utils/common.ts'
-
+import {
+  CommentOutlined,
+  LikeOutlined,
+  ShareAltOutlined,
+  StarOutlined,
+} from '@ant-design/icons-vue'
+import SvgIcon from '@/components/SvgIcon/index.vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -127,13 +165,22 @@ getPictureInfo()
     gap: 16px;
 
     .card {
+      width: 100%;
       //border-radius: 12px;
       background-color: #fff;
     }
+    .action-card {
+      .icon-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
+        .anticon {
+          font-size: 18px;
+        }
+      }
+    }
     .author-card {
-      margin-top: 2px;
-
       .nickname {
         font-size: 16px;
         font-weight: 600;
@@ -172,19 +219,6 @@ getPictureInfo()
       .value {
         font-weight: 500;
       }
-    }
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-
-    .left-view,
-    .right-info {
-      width: 100%;
-    }
-
-    .image-wrapper {
-      max-height: none;
     }
   }
 }
