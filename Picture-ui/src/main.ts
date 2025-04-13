@@ -9,7 +9,7 @@ import SvgIcon from '@/components/SvgIcon/index.vue'
 import '@/router/permisson'
 import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'
-
+import UndrawUI from 'undraw-ui'
 message.config({
   maxCount: 5, // 最大显示数量
   duration: 3, // 默认持续时间（秒）
@@ -20,5 +20,5 @@ app.component('SvgIcon', SvgIcon)
 app.use(Antd)
 app.use(createPinia())
 app.use(router)
-
+app.use(UndrawUI)
 app.mount('#app')

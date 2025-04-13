@@ -1,4 +1,4 @@
-const emoji = {
+let emoji = {
   faceList: [
     { type: 'emoji', label: '😀' },
     { label: '/static/emoji/smile.webp' },

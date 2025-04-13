@@ -1,14 +1,14 @@
 <template>
   <u-comment-scroll :disable="disable" @more="more">
-    <u-comment :config="config" @submit="submit" @like="like">
+    <u-comment :config="config" @submit="submit" @like="like" @reply-page="replyPage">
       <u-comment-nav v-model="latest" @sorted="sorted"></u-comment-nav>
       <!-- <template>导航栏卡槽</template> -->
       <!-- <template #header>头部卡槽</template> -->
-      <!-- <template #action="{ user }">动作卡槽{{ user.username }}</template> -->
+       <template #action="{ user }">加载更多</template>
       <!-- <template #avatar="{ id, user }">头像卡槽{{ user.avatar }}</template> -->
-      <!-- <template #info>信息卡槽</template> -->
+      <!--             <template #info>信息卡槽</template>-->
       <!-- <template #card>用户信息卡片卡槽</template> -->
-      <!-- <template #func>功能区域卡槽</template> -->
+      <!--             <template #func>功能区域卡槽</template>-->
     </u-comment>
   </u-comment-scroll>
 </template>
@@ -18,14 +18,41 @@
 // static文件放在public下,引入emoji.ts文件可以移动assets下引入,也可以自定义到指定位置
 import emoji from './emoji.ts'
 import { reactive, ref } from 'vue'
-import { CommentApi, CommentSubmitApi, ConfigApi, Time, usePage, UToast } from 'undraw-ui'
+import {
+  cloneDeep,
+  type CommentApi,
+  type CommentReplyPageApi,
+  type CommentSubmitApi,
+  type ConfigApi,
+  createObjectURL,
+  Time,
+  usePage,
+  UToast,
+} from 'undraw-ui'
 
 const config = reactive<ConfigApi>({
   user: {} as any, // 当前用户信息
   emoji: emoji, // 表情包数据
   comments: [], // 评论数据
   relativeTime: true, // 开启人性化时间
-  page: true, // 开启分页
+  page: false, // 开启分页
+  show: {
+    level: false, // 关闭等级显示
+    homeLink: false, // 关闭个人主页链接跳转
+    address: true, // 关闭地址信息
+    likes: true, // 关闭点赞按钮显示
+  },
+  // 图片上传
+  upload: (files, finish) => {
+    // 模拟请求接口上传处理
+    setTimeout(() => {
+      // 模拟返回请求接口字符串地址数组
+      let list = files.map((e) => createObjectURL(e))
+      console.log(list)
+      // 上传成功返回图像列表地址追加到submit事件的content属性里
+      finish(list)
+    }, 200)
+  },
 })
 
 // 模拟请求接口获取评论数据
@@ -103,6 +130,90 @@ const comments = [
       list: [
         {
           id: '11',
+          parentId: 1,
+          uid: '1',
+          content: '[狗头][微笑2]',
+          likes: 6666,
+          createTime: new Time().add(-1, 'hour'),
+          user: {
+            username: '杜甫 [唐代]',
+            level: 6,
+            avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg',
+            homeLink: '/1',
+          },
+        },
+        {
+          id: '111',
+          parentId: 1,
+          uid: '1',
+          content: '[狗头][微笑2]',
+          likes: 6666,
+          createTime: new Time().add(-1, 'hour'),
+          user: {
+            username: '杜甫 [唐代]',
+            level: 6,
+            avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg',
+            homeLink: '/1',
+          },
+        },
+        {
+          id: '121',
+          parentId: 1,
+          uid: '1',
+          content: '[狗头][微笑2]',
+          likes: 6666,
+          createTime: new Time().add(-1, 'hour'),
+          user: {
+            username: '杜甫 [唐代]',
+            level: 6,
+            avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg',
+            homeLink: '/1',
+          },
+        },
+        {
+          id: '131',
+          parentId: 1,
+          uid: '1',
+          content: '[狗头][微笑2]',
+          likes: 6666,
+          createTime: new Time().add(-1, 'hour'),
+          user: {
+            username: '杜甫 [唐代]',
+            level: 6,
+            avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg',
+            homeLink: '/1',
+          },
+        },
+        {
+          id: '141',
+          parentId: 1,
+          uid: '1',
+          content: '[狗头][微笑2]',
+          likes: 6666,
+          createTime: new Time().add(-1, 'hour'),
+          user: {
+            username: '杜甫 [唐代]',
+            level: 6,
+            avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg',
+            homeLink: '/1',
+          },
+        },
+        {
+          id: '151',
+          parentId: 1,
+          uid: '1',
+          content: '[狗头][微笑2]',
+          likes: 6666,
+          createTime: new Time().add(-1, 'hour'),
+          user: {
+            username: '杜甫 [唐代]',
+            level: 6,
+            avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg',
+            homeLink: '/1',
+          },
+        },
+        {
+          id: '161',
           parentId: 1,
           uid: '1',
           content: '[狗头][微笑2]',
@@ -238,6 +349,22 @@ let pageSize = 1
 let total = comments.length
 // 是否禁用滚动加载评论
 const disable = ref(false)
+let reply = cloneDeep(comments[3].reply)
+//回复分页
+const replyPage = ({ parentId, current, size, finish }: CommentReplyPageApi) => {
+  console.log(current, size)
+  // 根据 parentId查询后端分页回复列表返回并覆盖回复
+  if (reply) {
+    let tmp = {
+      total: reply?.total,
+      // 分页提取回复
+      list: usePage(current, size, reply.list),
+    }
+    setTimeout(() => {
+      finish(tmp)
+    }, 200)
+  }
+}
 // 模拟接口请求加载更多评论
 const more = () => {
   console.log(disable.value)
