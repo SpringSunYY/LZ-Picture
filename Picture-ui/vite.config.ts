@@ -5,7 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import  autoprefixer from 'autoprefixer'
 import tailwindcss from 'tailwindcss'
-
+import Components from 'unplugin-vue-components/vite'
+import { UndrawUiResolver } from 'undraw-ui/es/resolvers'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -13,6 +14,9 @@ export default defineConfig({
     createSvgIconsPlugin({
       iconDirs: [path.resolve(__dirname, 'src/assets/icons/svg')],
       symbolId: 'icon-[name]',
+    }),
+    Components({
+      resolvers: [UndrawUiResolver]
     }),
   ],
   css: {

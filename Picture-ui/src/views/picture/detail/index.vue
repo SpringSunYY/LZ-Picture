@@ -8,7 +8,7 @@
             <template #content>
               <div style="position: relative; padding: 40px">
                 <p style="font-size: 5vh; color: #00ff95; text-align: center">{{ picture.name }}</p>
-                <p style="color: white; text-indent: 2em;font-size: 2vh">
+                <p style="color: white; text-indent: 2em; font-size: 2vh">
                   {{ picture.introduction || '这张图还没有简介。' }}
                 </p>
               </div>
@@ -67,13 +67,19 @@
               </a-button>
             </a-tooltip>
             <a-tooltip title="Star">
-              <a-button class="icon-button"> <StarOutlined />320 </a-button>
+              <a-button class="icon-button">
+                <StarOutlined />
+                320
+              </a-button>
             </a-tooltip>
             <a-tooltip title="Share">
-              <a-button class="icon-button"> <ShareAltOutlined />320 </a-button>
+              <a-button class="icon-button">
+                <ShareAltOutlined />
+                320
+              </a-button>
             </a-tooltip>
             <a-tooltip title="Comment">
-              <a-button class="icon-button">
+              <a-button class="icon-button" @click="showComment = !showComment">
                 <CommentOutlined />
               </a-button>
             </a-tooltip>
@@ -89,6 +95,9 @@
               </a-button>
             </a-tooltip>
           </a-space-compact>
+        </a-card>
+        <a-card title="评论" v-if="showComment" :bordered="false" class="card">
+          <Comment></Comment>
         </a-card>
       </a-col>
     </a-row>
@@ -110,6 +119,7 @@ import {
   StarOutlined,
 } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon/index.vue'
+import Comment from '@/components/Comment/index.vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -134,6 +144,8 @@ const picture = ref<PictureDetailInfoVo>({
     avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Mountain',
   },
 })
+
+const showComment = ref(false)
 
 const getPictureInfo = () => {
   console.log('pictureId', route.query)
@@ -169,6 +181,7 @@ getPictureInfo()
       //border-radius: 12px;
       background-color: #fff;
     }
+
     .action-card {
       .icon-button {
         display: flex;
@@ -180,6 +193,7 @@ getPictureInfo()
         }
       }
     }
+
     .author-card {
       .nickname {
         font-size: 16px;
