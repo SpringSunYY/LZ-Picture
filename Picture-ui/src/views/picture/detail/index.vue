@@ -127,8 +127,7 @@ const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
 const picture = ref<PictureDetailInfoVo>({
   pictureId: '荔枝云图库',
-  thumbnailUrl:
-    'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00037T-1910243995154518016.JPG',
+  thumbnailUrl: '',
   name: '迷雾中的山脉',
   introduction: '清晨的山林笼罩在薄雾中，宁静而神秘。',
   categoryName: '自然风光',
@@ -143,7 +142,7 @@ const picture = ref<PictureDetailInfoVo>({
   userInfoVo: {
     userId: '1',
     userName: '荔枝',
-    avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Mountain',
+    avatarUrl: '',
   },
 })
 
