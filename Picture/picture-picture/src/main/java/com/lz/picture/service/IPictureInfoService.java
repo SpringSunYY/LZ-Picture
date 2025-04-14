@@ -101,4 +101,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
      **/
     UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId);
+
+    /**
+     * description: 重新设置缓存
+     * author: YY
+     * method: resetPictureInfoCache
+     * date: 2025/4/15 00:04
+     * param:
+     * param: pictureId 图片id
+     * return: void
+     **/
+    void resetPictureInfoCache(String pictureId);
 }

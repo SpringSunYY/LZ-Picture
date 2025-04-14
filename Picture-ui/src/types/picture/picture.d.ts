@@ -198,4 +198,15 @@ export interface PictureDetailInfoVo {
 
   /** 图片标签 */
   pictureTags?: string[]
+
+  /** 喜欢总数 */
+  likeCount?: number
+  /** 分享总数 */
+  shareCount?: number
+  /**收藏总数 */
+  collectCount?: number
+  /** 下载总数 */
+  downloadCount?: number
+  /** 评论总数 */
+  commentCount?: number
 }

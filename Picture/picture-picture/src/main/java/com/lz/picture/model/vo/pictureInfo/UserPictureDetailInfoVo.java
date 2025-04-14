@@ -118,6 +118,21 @@ public class UserPictureDetailInfoVo implements Serializable {
      */
     private List<String> pictureTags;
 
+    /**
+     * 点赞数
+     */
+    private Long likeCount;
+
+    /**
+     * 收藏数
+     */
+    private Long collectCount;
+
+    /**
+     * 分享数
+     */
+    private Long shareCount;
+
 
     /**
      * 对象转封装类

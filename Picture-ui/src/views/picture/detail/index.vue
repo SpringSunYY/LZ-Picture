@@ -61,21 +61,21 @@
         <a-card title="" :bordered="false" class="card action-card">
           <a-space-compact align="center" style="padding: 0">
             <a-tooltip title="Like">
-              <a-button class="icon-button">
+              <a-button class="icon-button" @click="addUserBehavior('0')">
                 <LikeOutlined style="vertical-align: middle; font-size: 18px" />
-                3200
+                {{ picture?.likeCount || 0 }}
               </a-button>
             </a-tooltip>
-            <a-tooltip title="Star">
+            <a-tooltip title="Star" @click="addUserBehavior('1')">
               <a-button class="icon-button">
                 <StarOutlined />
-                320
+                {{ picture?.collectCount || 0 }}
               </a-button>
             </a-tooltip>
-            <a-tooltip title="Share">
+            <a-tooltip title="Share" @click="addUserBehavior('2')">
               <a-button class="icon-button">
                 <ShareAltOutlined />
-                320
+                {{ picture?.shareCount || 0 }}
               </a-button>
             </a-tooltip>
             <a-tooltip title="Comment">
@@ -120,6 +120,8 @@ import {
 } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon/index.vue'
 import Comment from '@/components/Comment/index.vue'
+import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
+import { message } from 'ant-design-vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -154,6 +156,50 @@ const getPictureInfo = () => {
     if (res.code === 200) {
       picture.value = res?.data || {}
     }
+  })
+}
+const addUserBehavior = (behaviorType: string) => {
+  console.log('behaviorType', behaviorType)
+  const targetType = '0'
+  let meg = '点赞成功'
+
+  addUserBehaviorInfo({
+    behaviorType: behaviorType,
+    targetType: targetType,
+    targetId: pictureId.value,
+  }).then((res) => {
+    if (res.code === 200 && (res.data != undefined || res.data != null)) {
+      switch (behaviorType) {
+        case '0':
+          meg = '点赞成功'
+          picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
+          break
+        case '1':
+          meg = '收藏成功'
+          picture.value.collectCount = Number(picture.value?.collectCount || 0) + 1
+          break
+        case '2':
+          meg = '分享成功'
+          picture.value.shareCount = Number(picture.value?.shareCount || 0) + 1
+          break
+      }
+    } else {
+      switch (behaviorType) {
+        case '0':
+          meg = '取消点赞成功'
+          picture.value.likeCount = Number(picture.value?.likeCount || 0) - 1
+          break
+        case '1':
+          meg = '取消收藏成功'
+          picture.value.collectCount = Number(picture.value?.collectCount || 0) - 1
+          break
+        case '2':
+          meg = '取消分享成功'
+          picture.value.shareCount = Number(picture.value?.shareCount || 0) - 1
+          break
+      }
+    }
+    message.success(meg)
   })
 }
 getPictureInfo()

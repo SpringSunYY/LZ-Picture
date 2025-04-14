@@ -16,9 +16,11 @@ import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
+import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.vo.userInfo.UserVo;
@@ -78,6 +80,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private IPictureCategoryInfoService pictureCategoryInfoService;
+
+    @Resource
+    private IUserBehaviorInfoService behaviorInfoService;
 
     //region mybatis代码
 
@@ -391,6 +396,20 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (redisCache.hasKey(key)) {
             return redisCache.getCacheObject(key);
         }
+        return getUserPictureDetailInfoVo(pictureId, key);
+    }
+
+    /**
+     * description: 获取用户图片详情
+     * author: YY
+     * method: getUserPictureDetailInfoVo
+     * date: 2025/4/15 00:32
+     * param:
+     * param: pictureId
+     * param: key
+     * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
+     **/
+    private UserPictureDetailInfoVo getUserPictureDetailInfoVo(String pictureId, String key) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = new UserPictureDetailInfoVo();
         PictureInfo pictureInfo = this.getById(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
@@ -424,7 +443,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setUserName(userInfo.getNickName());
             UserVo userVo = new UserVo();
             if (StringUtils.isNotEmpty(userInfo.getAvatarUrl())) {
-                userInfo.setAvatarUrl(userInfo.getAvatarUrl()+"?x-oss-process=image/resize,p_10");
+                userInfo.setAvatarUrl(userInfo.getAvatarUrl() + "?x-oss-process=image/resize,p_10");
             }
             BeanUtils.copyProperties(userInfo, userVo);
             userPictureDetailInfoVo.setUserInfoVo(userVo);
@@ -441,8 +460,51 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     .map(PictureTagInfo::getName).collect(Collectors.toList());
             userPictureDetailInfoVo.setPictureTags(tagNames);
         }
+        //查询点赞、收藏、分享数
+        getPictureStatics(pictureId, userPictureDetailInfoVo);
+
         //存入缓存 五分钟即可
         redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
         return userPictureDetailInfoVo;
+    }
+
+    /**
+     * description: 获取统计信息
+     * author: YY
+     * method: getPictureStatics
+     * date: 2025/4/15 00:32
+     * param:
+     * param: pictureId
+     * param: userPictureDetailInfoVo
+     * return: void
+     **/
+    private void getPictureStatics(String pictureId, UserPictureDetailInfoVo userPictureDetailInfoVo) {
+        UserBehaviorInfo behaviorInfo = new UserBehaviorInfo();
+        behaviorInfo.setTargetId(pictureId);
+        behaviorInfo.setTargetType(PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue());
+        List<UserBehaviorInfoStaticVo> staticBehaviorInfo = behaviorInfoService.staticBehaviorInfo(behaviorInfo);
+        if (StringUtils.isNotEmpty(staticBehaviorInfo)) {
+            staticBehaviorInfo.forEach(behaviorInfoStaticVo -> {
+                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue())) {
+                    userPictureDetailInfoVo.setLikeCount(behaviorInfoStaticVo.getTargetTypeCount());
+                }
+                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_1.getValue())) {
+                    userPictureDetailInfoVo.setCollectCount(behaviorInfoStaticVo.getTargetTypeCount());
+                }
+                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_2.getValue())) {
+                    userPictureDetailInfoVo.setShareCount(behaviorInfoStaticVo.getTargetTypeCount());
+                }
+            });
+        }
+        //如果没有就是0
+        userPictureDetailInfoVo.setLikeCount(StringUtils.isNull(userPictureDetailInfoVo.getLikeCount()) ? 0 : userPictureDetailInfoVo.getLikeCount());
+        userPictureDetailInfoVo.setCollectCount(StringUtils.isNull(userPictureDetailInfoVo.getCollectCount()) ? 0 : userPictureDetailInfoVo.getCollectCount());
+        userPictureDetailInfoVo.setShareCount(StringUtils.isNull(userPictureDetailInfoVo.getShareCount()) ? 0 : userPictureDetailInfoVo.getShareCount());
+    }
+
+    @Override
+    public void resetPictureInfoCache(String pictureId) {
+        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
+        getUserPictureDetailInfoVo(pictureId, key);
     }
 }

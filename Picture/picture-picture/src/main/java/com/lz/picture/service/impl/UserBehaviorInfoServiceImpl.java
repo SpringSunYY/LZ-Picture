@@ -16,10 +16,14 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.model.enums.PUserBehaviorTargetType;
 import com.lz.picture.model.enums.PUserBehaviorType;
 import com.lz.picture.model.enums.PUserBehaviorTypeScore;
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
+import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyExecutor;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -41,6 +45,10 @@ import static com.lz.picture.model.enums.PUserBehaviorTypeScore.USER_BEHAVIOR_TY
 public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMapper, UserBehaviorInfo> implements IUserBehaviorInfoService {
     @Resource
     private UserBehaviorInfoMapper userBehaviorInfoMapper;
+
+    @Resource
+    @Lazy
+    private UserBehaviorInfoStrategyExecutor userBehaviorInfoStrategyExecutor;
 
     //region mybatis代码
 
@@ -180,26 +188,24 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
     }
 
     @Override
-    public int userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+    public UserBehaviorInfo userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         //校验数据 获取分数
         checkType(userBehaviorInfo);
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         BeanUtils.copyProperties(deviceInfo, userBehaviorInfo);
-        //根据不同类型来赋值
-        switch (userBehaviorInfo.getBehaviorType()) {
-            //点赞
-            case "0":
-                break;
-            //收藏
-            case "1":
-                break;
-            //转发
-            case "2":
-                break;
-            default:
-                throw new RuntimeException("未知类型");
+        //根据不同类型来赋值 策略模式
+        UserBehaviorInfo behaviorInfo = userBehaviorInfoStrategyExecutor.executeGetUserBehaviorInfo(userBehaviorInfo);
+        //插入数据库 如果存在
+        if (StringUtils.isNotNull(behaviorInfo)) {
+            behaviorInfo.setBehaviorId(IdUtils.snowflakeId().toString());
+            userBehaviorInfoMapper.insertUserBehaviorInfo(behaviorInfo);
         }
-        return 0;
+        return behaviorInfo;
+    }
+
+    @Override
+    public List<UserBehaviorInfoStaticVo> staticBehaviorInfo(UserBehaviorInfo behaviorInfo) {
+        return userBehaviorInfoMapper.staticBehaviorInfo(behaviorInfo);
     }
 
     private static void checkType(UserBehaviorInfo userBehaviorInfo) {

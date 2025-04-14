@@ -4,8 +4,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -18,13 +17,14 @@ import java.util.List;
  * 执行器
  * Version: 1.0
  */
+@Service
 public class UserBehaviorInfoStrategyExecutor {
     //策略模式列表
     @Resource
     private List<UserBehaviorInfoStrategyService> userBehaviorInfoStrategyServices;
 
-    @Resource
-    private ApplicationContext applicationContext;
+//    @Resource
+//    private ApplicationContext applicationContext;
 
     public UserBehaviorInfo executeGetUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         ThrowUtils.throwIf(StringUtils.isNull(userBehaviorInfo), "用户行为参数错误");

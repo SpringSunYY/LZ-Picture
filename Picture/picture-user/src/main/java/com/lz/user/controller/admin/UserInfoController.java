@@ -34,7 +34,7 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/admin/user/userInfo")
-public class UserInfoController extends BaseController
+public class  UserInfoController extends BaseController
 {
     @Resource
     private IUserInfoService userInfoService;

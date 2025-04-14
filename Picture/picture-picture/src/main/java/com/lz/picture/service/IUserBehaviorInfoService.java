@@ -3,6 +3,7 @@ package com.lz.picture.service;
 import java.util.List;
 
 import com.lz.picture.model.domain.UserBehaviorInfo;
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 
@@ -90,7 +91,18 @@ public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo> {
      * date: 2025/4/14 16:54
      * param:
      * param: userBehaviorInfo
-     * return: int
+     * return: UserBehaviorInfo
      **/
-    int userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
+    UserBehaviorInfo userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
+
+    /**
+     * description: 查询每种类型的行为总数
+     * author: YY
+     * method: staticBehaviorInfo
+     * date: 2025/4/15 00:24
+     * param:
+     * param: behaviorInfo
+     * return: java.util.List<com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo>
+     **/
+    List<UserBehaviorInfoStaticVo> staticBehaviorInfo(UserBehaviorInfo behaviorInfo);
 }
