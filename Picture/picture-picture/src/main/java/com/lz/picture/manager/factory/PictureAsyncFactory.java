@@ -131,7 +131,7 @@ public class PictureAsyncFactory {
      **/
     private static void getTargetIdAndContentByPicture(JSONObject data, UserViewLogTargetInfo userViewLogTargetInfo) {
         UserPictureDetailInfoVo pictureInfo = JSONObject.parseObject(JSON.toJSONString(data), UserPictureDetailInfoVo.class);
-        System.out.println("pictureInfo = " + pictureInfo);
+//        System.out.println("pictureInfo = " + pictureInfo);
         //获取图片信息
         if (StringUtils.isNotEmpty(pictureInfo.getPictureTags())) {
             userViewLogTargetInfo.setTags(String.join(SEPARATION, pictureInfo.getPictureTags()));

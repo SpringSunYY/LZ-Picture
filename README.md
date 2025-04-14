@@ -2360,7 +2360,7 @@ CREATE TABLE p_picture_comment_like_info (
 
 封面：每个目标类型都有封面，图片就是本图片、用户是头像、空间是空间的封面
 
-行为得分：比如
+行为得分：比如点赞3分 收藏6分 转发12分
 
 ```sql
 DROP TABLE IF EXISTS p_user_behavior_info;

@@ -35,7 +35,7 @@ public class UserBehaviorInfoEdit implements Serializable
     private String targetContent;
 
     /** 分数 */
-    private BigDecimal score;
+    private Double score;
 
     /** 分享链接 */
     private String shareLink;

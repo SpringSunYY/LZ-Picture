@@ -40,7 +40,7 @@ public class UserBehaviorInfoQuery implements Serializable
     private String targetContent;
 
     /** 分数 */
-    private BigDecimal score;
+    private Double score;
 
     /** 图片分类 */
     private String categoryId;

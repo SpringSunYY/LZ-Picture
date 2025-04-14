@@ -9,7 +9,6 @@ import com.lz.userauth.model.domain.AuthLoginLogInfo;
 import com.lz.userauth.service.IAuthLoginLogInfoService;
 import com.lz.userauth.service.IAuthUserInfoService;
 
-import java.util.Date;
 import java.util.TimerTask;
 
 /**
@@ -55,7 +54,7 @@ public class UserInfoLoginAsyncFactory {
                 authUserInfo.setUserId(userId);
                 authUserInfo.setLastLoginTime(authLoginLogInfo.getLoginTime());
                 authUserInfo.setLastLoginIp(authLoginLogInfo.getLoginLocation());
-                authUserInfo.setIpAddress(deviceInfo.getLoginLocation());
+                authUserInfo.setIpAddress(deviceInfo.getIpAddress());
                 SpringUtils.getBean(IAuthUserInfoService.class).updateById(authUserInfo);
             }
         };

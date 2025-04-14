@@ -1,13 +1,9 @@
 package com.lz.common.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 设备信息
@@ -29,7 +25,7 @@ public class DeviceInfo implements Serializable {
     /**
      * 登录地点
      */
-    private String loginLocation;
+    private String ipAddress;
 
     /**
      * 浏览器类型

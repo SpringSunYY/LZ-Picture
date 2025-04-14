@@ -2,12 +2,8 @@ package com.lz.common.utils.ip;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.TimerTask;
 
-import com.lz.common.constant.Constants;
 import com.lz.common.core.domain.DeviceInfo;
-import com.lz.common.utils.LogUtils;
-import com.lz.common.utils.spring.SpringUtils;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
 import com.lz.common.utils.ServletUtils;
@@ -352,7 +348,7 @@ public class IpUtils {
         }
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setIpaddr(ip);
-        deviceInfo.setLoginLocation(address);
+        deviceInfo.setIpAddress(address);
         deviceInfo.setBrowser(browser);
         deviceInfo.setOs(os);
         deviceInfo.setPlatform(platform);

@@ -10,8 +10,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 
-import java.math.BigDecimal;
-
 import com.lz.common.utils.DateUtils;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
 import jakarta.annotation.Resource;
@@ -201,7 +199,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         userViewLogInfo.setBrowser(deviceInfo.getBrowser());
         userViewLogInfo.setOs(deviceInfo.getOs());
         userViewLogInfo.setPlatform(deviceInfo.getOs());
-        userViewLogInfo.setIpAddress(deviceInfo.getLoginLocation());
+        userViewLogInfo.setIpAddress(deviceInfo.getIpAddress());
         this.saveOrUpdate(userViewLogInfo);
     }
 

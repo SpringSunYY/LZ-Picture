@@ -1,21 +1,23 @@
 package com.lz.picture.service;
 
 import java.util.List;
+
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 用户行为Service接口
  *
  * @author YY
  * @date 2025-04-12
  */
-public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo>
-{
+public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo> {
     //region mybatis代码
+
     /**
      * 查询用户行为
      *
@@ -64,6 +66,7 @@ public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo>
      */
     public int deleteUserBehaviorInfoByBehaviorId(String behaviorId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,15 @@ public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo>
      * @return UserBehaviorInfoVO集合
      */
     List<UserBehaviorInfoVo> convertVoList(List<UserBehaviorInfo> userBehaviorInfoList);
+
+    /**
+     * description: 用户创建行为 如果存在则删除，不存在则创建
+     * author: YY
+     * method: userInsertUserBehaviorInfo
+     * date: 2025/4/14 16:54
+     * param:
+     * param: userBehaviorInfo
+     * return: int
+     **/
+    int userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
 }

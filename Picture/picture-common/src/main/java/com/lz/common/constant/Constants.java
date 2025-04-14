@@ -170,4 +170,9 @@ public class Constants
      */
     public static final String[] JOB_ERROR_STR = { "java.net.URL", "javax.naming.InitialContext", "org.yaml.snakeyaml",
             "org.springframework", "org.apache", "com.lz.common.utils.file", "com.lz.common.config", "com.lz.generator" };
+
+    /**
+     * 公共分隔符
+     */
+    public static final String COMMON_SEPARATOR = ";";
 }
