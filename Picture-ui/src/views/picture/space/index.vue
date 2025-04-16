@@ -77,13 +77,11 @@
           <a-input v-model:value="formState.spaceName" showCount :maxlength="32" allowClear />
         </a-form-item>
         <a-form-item label="空间封面" name="spaceAvatar">
-          <PictureUpload
-            :modelValue="formState.spaceAvatar"
+          <CoverUpload
             v-model:value="formState.spaceAvatar"
-            :allowedFormats="['image/jpeg', 'image/png']"
-            :maxSizeMB="10"
+            :acceptTypes="['image/jpeg', 'image/png']"
+            :maxSize="10"
             :maxCount="1"
-            @upload-success="uploadSuccess"
           />
         </a-form-item>
         <a-row :gutter="[24, 24]">
@@ -134,7 +132,6 @@
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PictureUpload from '@/components/PictureUpload/index.vue'
 import {
   getPSpaceStatusLabel,
   getPSpaceTypeLabel,
@@ -149,10 +146,11 @@ import { formatSize } from '@/utils/common.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { checkPermiSingle } from '@/utils/permission.ts'
+import CoverUpload from '@/components/CoverUpload.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
- 
+
 const { p_space_status } = proxy?.useDict('p_space_status')
 const userStore = useUserStore()
 const { userId: userId } = storeToRefs(userStore)
@@ -214,9 +212,6 @@ const resetForm = () => {
   })
 }
 
-const uploadSuccess = (modelValue: any) => {
-  formState.spaceAvatar = modelValue.pictureUrl
-}
 const handleSubmit = () => {
   if (formState.spaceId !== '') {
     updateSpaceInfo(formState).then((res) => {
@@ -237,7 +232,7 @@ const handleSubmit = () => {
   }
 }
 const handleUpdate = (spaceId: string) => {
-  console.log(spaceId)
+  // console.log(spaceId)
   resetForm()
   title.value = '修改空间'
   getSpaceInfo(spaceId).then((res) => {

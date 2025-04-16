@@ -398,7 +398,8 @@ public class PictureUploadManager {
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
-
+            String format = "image/format,webp";
+            req.setProcess(format);
             // 创建获取压缩后图片的预签名URL
             req.setExpiration(expiration);
             URL compressedUrl = ossClient.generatePresignedUrl(req);
@@ -409,9 +410,10 @@ public class PictureUploadManager {
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
             ossClient.putObject(ossConfig.getBucket(), compressedFilePath, inputStream);
-
+            String compressedUrlStr = compressedUrl.toString();
+            int limit = compressedUrlStr.lastIndexOf(".");
             // 返回文件访问路径或URL
-            return compressedUrl.toString();
+            return compressedUrlStr.substring(0, limit) + compressedSuffix;
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
