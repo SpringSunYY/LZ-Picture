@@ -124,9 +124,19 @@ public class UserPictureDetailInfoVo implements Serializable {
     private Long likeCount;
 
     /**
+     * 是否点赞
+     */
+    private Boolean isLike;
+
+    /**
      * 收藏数
      */
     private Long collectCount;
+
+    /**
+     * 是否收藏
+     */
+    private Boolean isCollect;
 
     /**
      * 分享数

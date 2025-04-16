@@ -1,6 +1,7 @@
 package com.lz.picture.strategy.userBehaviorInfoStrategy.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
@@ -10,6 +11,7 @@ import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.model.enums.PTagStatus;
+import com.lz.picture.model.enums.PUserBehaviorTargetType;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IPictureTagInfoService;
 import com.lz.picture.service.IPictureTagRelInfoService;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.TimerTask;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 
 /**
  * Project: Picture
@@ -44,6 +47,9 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
 
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
+
+    @Resource
+    private RedisCache redisCache;
 
     /**
      * description: 判断是否存在
@@ -123,14 +129,16 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
             userBehaviorInfoService.insertUserBehaviorInfo(info);
         }
         //重新获取信息 异步去更新缓存
-        getTargetInfo(info);
+        asyncUpdate(info);
         return info;
     }
 
-    public void getTargetInfo(UserBehaviorInfo info) {
+    public void asyncUpdate(UserBehaviorInfo info) {
         PictureAsyncManager.me().execute(new TimerTask() {
             @Override
             public void run() {
+                String behaviorKey = PICTURE_USER_BEHAVIOR + info.getUserId() + ":" + info.getBehaviorType() + ":" + info.getTargetId();
+                redisCache.deleteObject(behaviorKey);
                 pictureInfoService.resetPictureInfoCache(info.getTargetId());
             }
         });

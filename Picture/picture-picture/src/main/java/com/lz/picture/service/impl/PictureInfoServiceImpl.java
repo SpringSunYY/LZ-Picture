@@ -16,7 +16,6 @@ import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
-import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MAX;
 import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MIN;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 
 /**
  * 图片信息Service业务层处理
@@ -82,7 +82,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     private IPictureCategoryInfoService pictureCategoryInfoService;
 
     @Resource
-    private IUserBehaviorInfoService behaviorInfoService;
+    private IUserBehaviorInfoService userBehaviorInfoService;
 
     //region mybatis代码
 
@@ -390,13 +390,56 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     @Override
-    public UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId) {
+    public UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId, String userId) {
         //先查询缓存是否存在
         String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
+        UserPictureDetailInfoVo userPictureDetailInfoVo = null;
         if (redisCache.hasKey(key)) {
-            return redisCache.getCacheObject(key);
+            userPictureDetailInfoVo = redisCache.getCacheObject(key);
+        } else {
+            userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
         }
-        return getUserPictureDetailInfoVo(pictureId, key);
+        //存入缓存 五分钟即可
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
+        //查询是否有行为，点赞、收藏
+        isBehavior(pictureId, userId, userPictureDetailInfoVo);
+        return userPictureDetailInfoVo;
+    }
+
+    /**
+     * 是否有收藏
+     *
+     * @param pictureId
+     * @param userId
+     * @param userPictureDetailInfoVo
+     */
+    private void isBehavior(String pictureId, String userId, UserPictureDetailInfoVo userPictureDetailInfoVo) {
+        String behaviorKey = PICTURE_USER_BEHAVIOR + userId + ":" + PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue() + ":" + pictureId;
+        ArrayList<UserBehaviorInfo> userBehaviorInfos = new ArrayList<>();
+        if (redisCache.hasKey(behaviorKey)) {
+            userBehaviorInfos = redisCache.getCacheObject(behaviorKey);
+        } else {
+            List<UserBehaviorInfo> list = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
+                    .eq(UserBehaviorInfo::getUserId, userId)
+                    .eq(UserBehaviorInfo::getTargetId, pictureId)
+                    .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue())
+                    .in(UserBehaviorInfo::getBehaviorType, Arrays.asList(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue(), PUserBehaviorType.USER_BEHAVIOR_TYPE_1.getValue())));
+            if (StringUtils.isNotEmpty(list)) {
+                userBehaviorInfos.addAll(list);
+            }
+        }
+
+        if (StringUtils.isNotEmpty(userBehaviorInfos)) {
+            for (UserBehaviorInfo info : userBehaviorInfos) {
+                if (info.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue())) {
+                    userPictureDetailInfoVo.setIsLike(true);
+                }
+                if (info.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_1.getValue())) {
+                    userPictureDetailInfoVo.setIsCollect(true);
+                }
+            }
+            redisCache.setCacheObject(behaviorKey, userBehaviorInfos, 5, TimeUnit.MINUTES);
+        }
     }
 
     /**
@@ -409,7 +452,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * param: key
      * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
      **/
-    private UserPictureDetailInfoVo getUserPictureDetailInfoVo(String pictureId, String key) {
+    private UserPictureDetailInfoVo getUserPictureDetailInfoVo(String pictureId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = new UserPictureDetailInfoVo();
         PictureInfo pictureInfo = this.getById(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
@@ -463,8 +506,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //查询点赞、收藏、分享数
         getPictureStatics(pictureId, userPictureDetailInfoVo);
 
-        //存入缓存 五分钟即可
-        redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
         return userPictureDetailInfoVo;
     }
 
@@ -482,7 +523,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         UserBehaviorInfo behaviorInfo = new UserBehaviorInfo();
         behaviorInfo.setTargetId(pictureId);
         behaviorInfo.setTargetType(PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue());
-        List<UserBehaviorInfoStaticVo> staticBehaviorInfo = behaviorInfoService.staticBehaviorInfo(behaviorInfo);
+        List<UserBehaviorInfoStaticVo> staticBehaviorInfo = userBehaviorInfoService.staticBehaviorInfo(behaviorInfo);
         if (StringUtils.isNotEmpty(staticBehaviorInfo)) {
             staticBehaviorInfo.forEach(behaviorInfoStaticVo -> {
                 if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue())) {
@@ -505,6 +546,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public void resetPictureInfoCache(String pictureId) {
         String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
-        getUserPictureDetailInfoVo(pictureId, key);
+        UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+        //存入缓存 五分钟即可
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
     }
 }

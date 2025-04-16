@@ -67,7 +67,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
     @GetMapping("/{pictureId}")
     public AjaxResult getInfo(@PathVariable("pictureId") String pictureId) {
-        UserPictureDetailInfoVo userPictureDetailInfoVo = pictureInfoService.userSelectPictureInfoByPictureId(pictureId);
+        UserPictureDetailInfoVo userPictureDetailInfoVo = pictureInfoService.userSelectPictureInfoByPictureId(pictureId, getUserId());
         return success(userPictureDetailInfoVo);
     }
 

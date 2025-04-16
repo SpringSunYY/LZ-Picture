@@ -62,13 +62,25 @@
           <a-space-compact align="center" style="padding: 0">
             <a-tooltip title="Like">
               <a-button class="icon-button" @click="addUserBehavior('0')">
-                <LikeOutlined style="vertical-align: middle; font-size: 18px" />
+                <LikeOutlined
+                  :style="{
+                    color: picture.isLike ? '#ff4d4f' : '#999',
+                    verticalAlign: 'middle',
+                    fontSize: '18px',
+                  }"
+                />
                 {{ picture?.likeCount || 0 }}
               </a-button>
             </a-tooltip>
             <a-tooltip title="Star" @click="addUserBehavior('1')">
               <a-button class="icon-button">
-                <StarOutlined />
+                <StarOutlined
+                  :style="{
+                    color: picture.isCollect ? '#00ff95' : '#999',
+                    verticalAlign: 'middle',
+                    fontSize: '18px',
+                  }"
+                />
                 {{ picture?.collectCount || 0 }}
               </a-button>
             </a-tooltip>
@@ -172,10 +184,12 @@ const addUserBehavior = (behaviorType: string) => {
         case '0':
           meg = '点赞成功'
           picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
+          picture.value.isLike = !picture.value.isLike
           break
         case '1':
           meg = '收藏成功'
           picture.value.collectCount = Number(picture.value?.collectCount || 0) + 1
+          picture.value.isCollect = !picture.value.isCollect
           break
         case '2':
           meg = '分享成功'
@@ -187,10 +201,12 @@ const addUserBehavior = (behaviorType: string) => {
         case '0':
           meg = '取消点赞成功'
           picture.value.likeCount = Number(picture.value?.likeCount || 0) - 1
+          picture.value.isLike = !picture.value.isLike
           break
         case '1':
           meg = '取消收藏成功'
           picture.value.collectCount = Number(picture.value?.collectCount || 0) - 1
+          picture.value.isCollect = !picture.value.isCollect
           break
         case '2':
           meg = '取消分享成功'

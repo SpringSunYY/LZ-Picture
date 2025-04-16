@@ -13,4 +13,6 @@ public class PictureRedisConstants {
      * 图片详细信息
      */
     public static final String PICTURE_PICTURE_DETAIL = "picture:picture:detail:";
+
+    public static final String PICTURE_USER_BEHAVIOR = "picture:user:behavior:";
 }

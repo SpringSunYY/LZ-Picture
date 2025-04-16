@@ -201,10 +201,14 @@ export interface PictureDetailInfoVo {
 
   /** 喜欢总数 */
   likeCount?: number
+  /** 是否喜欢 */
+  isLike?: boolean
   /** 分享总数 */
   shareCount?: number
   /**收藏总数 */
   collectCount?: number
+  /** 是否收藏 */
+  isCollect?: boolean
   /** 下载总数 */
   downloadCount?: number
   /** 评论总数 */

@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.model.domain.UserBehaviorInfo;
+import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyConfig;
 import jakarta.annotation.Resource;
 
 import java.util.Date;
+import java.util.TimerTask;
 
 /**
  * Project: Picture
@@ -25,6 +28,9 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
 
+    @Resource
+    private IPictureInfoService pictureInfoService;
+
     @Override
     public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         //判断今天是否分享过
@@ -35,7 +41,7 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
             detailInfo.setBehaviorId(IdUtils.snowflakeId().toString());
             userBehaviorInfoService.insertUserBehaviorInfo(detailInfo);
             //重新获取信息 异步去更新缓存
-            getTargetInfo(userBehaviorInfo);
+            asyncUpdate(userBehaviorInfo);
         }
         return detailInfo;
     }
@@ -53,4 +59,14 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
         //存在表示要删除 不存在则是要添加
         return StringUtils.isNotNull(behaviorInfo);
     }
+    @Override
+    public void asyncUpdate(UserBehaviorInfo info) {
+        PictureAsyncManager.me().execute(new TimerTask() {
+            @Override
+            public void run() {
+                pictureInfoService.resetPictureInfoCache(info.getTargetId());
+            }
+        });
+    }
+
 }

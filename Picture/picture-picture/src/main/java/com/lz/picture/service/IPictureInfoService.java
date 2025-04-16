@@ -100,7 +100,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * param: pictureId
      * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
      **/
-    UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId);
+    UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId,String userId);
 
     /**
      * description: 重新设置缓存
