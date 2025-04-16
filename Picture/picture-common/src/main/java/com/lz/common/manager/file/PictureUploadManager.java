@@ -6,6 +6,7 @@ import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
+import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.PutObjectResult;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.model.LoginUserInfo;
@@ -79,6 +80,54 @@ public class PictureUploadManager {
         return new OSSClientBuilder().build(ossConfig.getEndpoint(), ossConfig.getAccessKeyId(), ossConfig.getAccessKeySecret());
     }
 
+    public String generateDownloadUrl(String filePath) {
+        OSS ossClient = null;
+        try {
+            ossClient = new OSSClientBuilder().build(
+                    ossConfig.getEndpoint(),
+                    ossConfig.getAccessKeyId(),
+                    ossConfig.getAccessKeySecret()
+            );
+            String objectKey = extractKeyFromPath(filePath);
+            // 设置过期时间，比如 5 分钟
+            Date expiration = new Date(System.currentTimeMillis() + 5 * 60 * 1000);
+            GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
+                    ossConfig.getBucket(), objectKey, HttpMethod.GET
+            );
+            req.setExpiration(expiration);
+            URL url = ossClient.generatePresignedUrl(req);
+            return url.toString();
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
+
+
+    private String extractKeyFromPath(String path) {
+        try {
+            if (path.startsWith("http")) {
+                // 是 URL，比如 https://bucket-name.oss-cn-region.aliyuncs.com/picture/xxx.jpg
+                URL url = new URL(path);
+                return url.getPath().substring(1); // 去掉前面的 "/"
+            }
+
+            if (path.startsWith(ossConfig.getBucket())) {
+                // 是以桶开头的路径，比如 litchi-picture/picture/xxx.jpg
+                return path.substring(ossConfig.getBucket().length() + 1); // 去掉桶名和斜杠
+            }
+
+            // 否则就是正常的 key，比如 picture/xxx.jpg
+            return path;
+        } catch (Exception e) {
+            log.warn("路径解析失败，默认按原始 key 处理：{}", path);
+            return path;
+        }
+    }
+
+
     /**
      * description: 上传图片
      * author: YY
@@ -125,7 +174,7 @@ public class PictureUploadManager {
             // 上传原始文件
             PutObjectResult putObjectResult = ossClient.putObject(ossConfig.getBucket(), filePath, file);
 //            System.out.println("原图上传成功：" + filePath);
-            System.out.println("putObjectResult = " + JSONObject.toJSONString(putObjectResult));
+//            System.out.println("putObjectResult = " + JSONObject.toJSONString(putObjectResult));
 
             // 生成获取图片信息的预签名URL（包含目录路径）
             String style = "image/info";
@@ -278,5 +327,6 @@ public class PictureUploadManager {
             throw new RuntimeException("文件类型不支持");
         }
     }
+
 
 }

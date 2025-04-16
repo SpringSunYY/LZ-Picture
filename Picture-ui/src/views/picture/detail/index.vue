@@ -98,7 +98,10 @@
               </a-button>
             </a-tooltip>
             <a-tooltip title="Download">
-              <a-button class="icon-button">
+              <a-button
+                class="icon-button"
+                @click="downloadImage(picture.pictureId, picture?.name + '.' + picture?.picFormat)"
+              >
                 <template #icon>
                   <SvgIcon name="download" />
                 </template>
@@ -125,7 +128,7 @@ import Tags from '@/components/Tags/index.vue'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
-import { formatSize, formatStrSize } from '@/utils/common.ts'
+import { formatSize } from '@/utils/common.ts'
 import {
   CommentOutlined,
   LikeOutlined,
@@ -136,6 +139,7 @@ import SvgIcon from '@/components/SvgIcon/index.vue'
 import Comment from '@/components/Comment/index.vue'
 import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
+import { downloadImage } from '@/utils/file.ts'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -219,6 +223,7 @@ const addUserBehavior = (behaviorType: string) => {
     message.success(meg)
   })
 }
+
 getPictureInfo()
 </script>
 

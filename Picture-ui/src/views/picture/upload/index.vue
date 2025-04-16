@@ -242,10 +242,9 @@ const rules = {
     //必须是0或者10的倍数
     {
       validator: (rule: any, value: number) => {
-        if (value % 10 !== 0) {
-          return new Error('请输入0或者10的倍数')
-        }
-        return true
+        return value % 10 === 0
+          ? Promise.resolve()
+          : Promise.reject(new Error('请输入0或者10的倍数'))
       },
       trigger: 'blur',
     },

@@ -137,7 +137,7 @@ export interface PictureInfoVo {
  */
 export interface PictureDetailInfoVo {
   /** 图片编号 */
-  pictureId?: string
+  pictureId: string
 
   /** 图片名称 */
   name?: string

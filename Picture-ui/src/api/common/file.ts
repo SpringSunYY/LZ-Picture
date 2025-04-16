@@ -12,3 +12,15 @@ export function pictureUpload(file: any) {
     timeout: 60000,
   })
 }
+
+export function pictureDownload(pictureId: string) {
+  return request({
+    url: '/picture/pictureInfo/download/' + pictureId,
+    headers: {
+      repeatSubmit: false,
+    },
+    responseType: 'blob',
+    method: 'get',
+    timeout: 60000,
+  })
+}
