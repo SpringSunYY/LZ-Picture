@@ -33,9 +33,11 @@
         <a-card title="" :bordered="false" class="card">
           <div class="title-block">
             <h1 class="picture-name">{{ picture.name }}</h1>
-            <p class="picture-desc">
-              {{ formatStrSize(picture.introduction || '', 90) || '这张图还没有简介。' }}
-            </p>
+            <u-fold unfold line="2">
+              <p class="picture-desc">
+                {{ picture.introduction || '这张图还没有简介。' }}
+              </p>
+            </u-fold>
           </div>
         </a-card>
         <!-- 图片信息 -->
