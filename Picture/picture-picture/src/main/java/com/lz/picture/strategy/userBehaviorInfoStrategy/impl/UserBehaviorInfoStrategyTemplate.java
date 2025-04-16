@@ -3,6 +3,7 @@ package com.lz.picture.strategy.userBehaviorInfoStrategy.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.PictureTagInfo;
@@ -45,15 +46,15 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
     private IUserBehaviorInfoService userBehaviorInfoService;
 
     /**
-     * description: 之前图片前操作
+     * description: 判断是否存在
      * author: YY
-     * method: beforeExecution
+     * method: judgeExist
      * date: 2025/4/15 00:01
      * param:
      * param: userBehaviorInfo
      * return: com.lz.picture.model.domain.UserBehaviorInfo
      **/
-    public UserBehaviorInfo beforeExecution(UserBehaviorInfo userBehaviorInfo) {
+    public boolean judgeExist(UserBehaviorInfo userBehaviorInfo) {
         //判断此用户此类型是否存在
         UserBehaviorInfo behaviorInfo = userBehaviorInfoService.getOne(new LambdaQueryWrapper<UserBehaviorInfo>()
                 .eq(UserBehaviorInfo::getUserId, userBehaviorInfo.getUserId())
@@ -63,21 +64,21 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
         //存在表示要删除 不存在则是要添加
         if (StringUtils.isNotNull(behaviorInfo)) {
             userBehaviorInfoService.deleteUserBehaviorInfoByBehaviorId(behaviorInfo.getBehaviorId());
-            return null;
+            return true;
         }
-        return userBehaviorInfo;
+        return false;
     }
 
     /**
-     * description: 返回操作
+     * description: 获取详细信息
      * author: YY
-     * method: returnExecution
+     * method: getDetailInfo
      * date: 2025/4/15 00:01
      * param:
      * param: userBehaviorInfo
      * return: com.lz.picture.model.domain.UserBehaviorInfo
      **/
-    public UserBehaviorInfo returnExecution(UserBehaviorInfo userBehaviorInfo) {
+    public UserBehaviorInfo getDetailInfo(UserBehaviorInfo userBehaviorInfo) {
         //获取图片信息
         PictureInfo pictureInfo = pictureInfoService.selectPictureInfoByPictureId(userBehaviorInfo.getTargetId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
@@ -111,12 +112,16 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
 
     @Override
     public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
-        //执行前操作
-        UserBehaviorInfo behaviorInfo = beforeExecution(userBehaviorInfo);
-        if (StringUtils.isNull(behaviorInfo)) {
+        //执行前操作 判断是否存在
+        if (judgeExist(userBehaviorInfo)) {
             return null;
         }
-        UserBehaviorInfo info = returnExecution(userBehaviorInfo);
+        UserBehaviorInfo info = getDetailInfo(userBehaviorInfo);
+        //插入数据库 如果存在
+        if (StringUtils.isNotNull(info)) {
+            info.setBehaviorId(IdUtils.snowflakeId().toString());
+            userBehaviorInfoService.insertUserBehaviorInfo(info);
+        }
         //重新获取信息 异步去更新缓存
         getTargetInfo(info);
         return info;

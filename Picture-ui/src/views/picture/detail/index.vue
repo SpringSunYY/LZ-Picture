@@ -149,8 +149,8 @@ const picture = ref<PictureDetailInfoVo>({
 const showComment = ref(false)
 
 const getPictureInfo = () => {
-  console.log('pictureId', route.query)
-  console.log('pictureId', pictureId.value)
+  // console.log('pictureId', route.query)
+  // console.log('pictureId', pictureId.value)
   getPictureDetailInfo(pictureId.value).then((res) => {
     if (res.code === 200) {
       picture.value = res?.data || {}
@@ -158,7 +158,7 @@ const getPictureInfo = () => {
   })
 }
 const addUserBehavior = (behaviorType: string) => {
-  console.log('behaviorType', behaviorType)
+  // console.log('behaviorType', behaviorType)
   const targetType = '0'
   let meg = '点赞成功'
 

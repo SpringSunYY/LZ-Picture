@@ -1,23 +1,15 @@
 package com.lz.picture.strategy.userBehaviorInfoStrategy.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.ThrowUtils;
-import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.domain.PictureTagInfo;
-import com.lz.picture.model.domain.PictureTagRelInfo;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.model.enums.PTagStatus;
-import com.lz.picture.service.IPictureInfoService;
-import com.lz.picture.service.IPictureTagInfoService;
-import com.lz.picture.service.IPictureTagRelInfoService;
+import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyConfig;
-import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyService;
 import jakarta.annotation.Resource;
 
-import java.util.List;
-
-import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import java.util.Date;
 
 /**
  * Project: Picture
@@ -30,17 +22,35 @@ import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 @UserBehaviorInfoStrategyConfig(targetType = "0", type = "2")
 public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehaviorInfoStrategyTemplate {
 
+    @Resource
+    private IUserBehaviorInfoService userBehaviorInfoService;
+
     @Override
     public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
-        //执行前操作
-        UserBehaviorInfo behaviorInfo = beforeExecution(userBehaviorInfo);
-        getTargetInfo(behaviorInfo);
-        return returnExecution(userBehaviorInfo);
+        //判断今天是否分享过
+        //如果不存在则添加，也就是分享记录每天只记录一次
+        boolean b = !judgeExist(userBehaviorInfo);
+        UserBehaviorInfo detailInfo = getDetailInfo(userBehaviorInfo);
+        if (b) {
+            detailInfo.setBehaviorId(IdUtils.snowflakeId().toString());
+            userBehaviorInfoService.insertUserBehaviorInfo(detailInfo);
+            //重新获取信息 异步去更新缓存
+            getTargetInfo(userBehaviorInfo);
+        }
+        return detailInfo;
     }
 
     @Override
-    public UserBehaviorInfo beforeExecution(UserBehaviorInfo userBehaviorInfo) {
-        //TODO 创建分享链接
-        return userBehaviorInfo;
+    public boolean judgeExist(UserBehaviorInfo userBehaviorInfo) {
+        //判断此用户此类型是否存在
+        UserBehaviorInfo behaviorInfo = userBehaviorInfoService.getOne(
+                new LambdaQueryWrapper<UserBehaviorInfo>()
+                        .eq(UserBehaviorInfo::getUserId, userBehaviorInfo.getUserId())
+                        .eq(UserBehaviorInfo::getTargetType, userBehaviorInfo.getTargetType())
+                        .eq(UserBehaviorInfo::getBehaviorType, userBehaviorInfo.getBehaviorType())
+                        .eq(UserBehaviorInfo::getTargetId, userBehaviorInfo.getTargetId())
+                        .apply("DATE_FORMAT(create_time, '%Y-%m-%d') = {0}", DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date())));
+        //存在表示要删除 不存在则是要添加
+        return StringUtils.isNotNull(behaviorInfo);
     }
 }

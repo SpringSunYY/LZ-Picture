@@ -194,13 +194,7 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         BeanUtils.copyProperties(deviceInfo, userBehaviorInfo);
         //根据不同类型来赋值 策略模式
-        UserBehaviorInfo behaviorInfo = userBehaviorInfoStrategyExecutor.executeGetUserBehaviorInfo(userBehaviorInfo);
-        //插入数据库 如果存在
-        if (StringUtils.isNotNull(behaviorInfo)) {
-            behaviorInfo.setBehaviorId(IdUtils.snowflakeId().toString());
-            userBehaviorInfoMapper.insertUserBehaviorInfo(behaviorInfo);
-        }
-        return behaviorInfo;
+        return userBehaviorInfoStrategyExecutor.executeGetUserBehaviorInfo(userBehaviorInfo);
     }
 
     @Override
