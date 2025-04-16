@@ -354,7 +354,7 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="pictureInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="图片" prop="pictureUrl">
-          <image-upload v-model="form.pictureUrl"/>
+          <image-upload v-model="form.thumbnailUrl"/>
         </el-form-item>
         <el-form-item label="图片名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入图片名称"/>

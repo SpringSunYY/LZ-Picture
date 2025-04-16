@@ -63,7 +63,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @PostMapping("/upload")
     public AjaxResult uploadPicture(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        return success(pictureUploadManager.uploadPicture(multipartFile, getLoginUser()));
+        return success(pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser()));
     }
 
     @PreAuthorize("@uss.hasPermi('picture:download')")
