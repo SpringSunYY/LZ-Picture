@@ -132,16 +132,11 @@
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  getPSpaceStatusLabel,
-  getPSpaceTypeLabel,
-  type Space,
-  type SpaceInfo,
-  type SpaceQuery,
-} from '@/types/picture/space.d.ts'
+import { getPSpaceStatusLabel, getPSpaceTypeLabel } from '@/types/picture/space'
+import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.d.ts'
 import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
-import Tags from '@/components/Tags/index.vue'
+import Tags from '@/components/Tags.vue'
 import { formatSize } from '@/utils/common.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'

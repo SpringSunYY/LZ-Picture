@@ -44,7 +44,7 @@
 </template>
 <script setup name="HomeView">
 import Picture from '@/views/picture/index.vue'
-import DirectionAwareHover from '@/components/DirectionAwareHover/index.vue'
+import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
 </script>
 
 

@@ -24,7 +24,7 @@
 
 <script setup lang="ts" name="Picture">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import MasonryImage from '@/components/MasonryImage/index.vue'
+import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo, PictureInfoQuery } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
 

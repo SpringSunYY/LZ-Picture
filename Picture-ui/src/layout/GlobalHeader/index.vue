@@ -71,7 +71,7 @@ import { MenuProps, message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'
 import { storeToRefs } from 'pinia'
-import SvgIcon from '@/components/SvgIcon/index.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
 

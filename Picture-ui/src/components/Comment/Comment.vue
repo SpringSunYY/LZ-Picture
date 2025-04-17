@@ -4,7 +4,7 @@
       <u-comment-nav v-model="latest" @sorted="sorted"></u-comment-nav>
       <!-- <template>导航栏卡槽</template> -->
       <!-- <template #header>头部卡槽</template> -->
-       <template #action="{ user }">加载更多</template>
+      <template #action="{ user }">加载更多</template>
       <!-- <template #avatar="{ id, user }">头像卡槽{{ user.avatar }}</template> -->
       <!--             <template #info>信息卡槽</template>-->
       <!-- <template #card>用户信息卡片卡槽</template> -->

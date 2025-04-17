@@ -5,7 +5,7 @@ import 'ant-design-vue/dist/reset.css'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import 'virtual:svg-icons-register' // 必须添加的运行时注册
-import SvgIcon from '@/components/SvgIcon/index.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 import '@/router/permisson'
 import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'

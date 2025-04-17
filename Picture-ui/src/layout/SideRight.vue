@@ -12,7 +12,7 @@ import { computed, h, ref } from 'vue'
 import { type MenuProps } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import usePermissionStore from '@/stores/modules/permission.ts'
-import SvgIcon from '@/components/SvgIcon/index.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const router = useRouter()
 
@@ -93,9 +93,7 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
 const items = computed(() => {
   // 生成有效路由结构
   // 合并静态菜单项
-  return [
-    ...(generateMenu(permissionStore?.routes) || []),
-  ]
+  return [...(generateMenu(permissionStore?.routes) || [])]
 })
 // 图标渲染器
 const renderIcon = (iconName: string) => {

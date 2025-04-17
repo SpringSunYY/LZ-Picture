@@ -123,8 +123,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import FancyImage from '@/components/FancyImage/index.vue'
-import Tags from '@/components/Tags/index.vue'
+import FancyImage from '@/components/FancyImage.vue'
+import Tags from '@/components/Tags.vue'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
@@ -135,8 +135,8 @@ import {
   ShareAltOutlined,
   StarOutlined,
 } from '@ant-design/icons-vue'
-import SvgIcon from '@/components/SvgIcon/index.vue'
-import Comment from '@/components/Comment/index.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
+import Comment from '@/components/Comment/Comment.vue'
 import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
