@@ -3,24 +3,25 @@
   <router-view v-if="$route.meta.fullPage" />
 
   <div v-else id="layout">
-    <a-layout style="min-height: 100vh">
-      <!-- 带滚动隐藏效果的头部 -->
-      <a-layout-header class="header" :class="{ hidden: isHeaderHidden }">
-        <GlobalHeader />
-      </a-layout-header>
-
-      <a-layout-content class="content">
-        <router-view v-slot="{ Component, route }">
-          <keep-alive v-if="route?.meta?.isCache === true">
-            <component :is="Component" :key="route.name" />
-          </keep-alive>
-          <component v-else :is="Component" :key="route.name" />
-        </router-view>
-      </a-layout-content>
-
-      <a-layout-footer class="footer">
-        <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank">荔枝云图库 by LZ</a>
-      </a-layout-footer>
+    <a-layout>
+      <a-layout>
+        <a-layout-header class="header" :class="{ hidden: isHeaderHidden }">
+          <GlobalHeader />
+        </a-layout-header>
+        <a-layout-content class="content">
+          <router-view v-slot="{ Component, route }">
+            <keep-alive v-if="route?.meta?.isCache === true">
+              <component :is="Component" :key="route.name" />
+            </keep-alive>
+            <component v-else :is="Component" :key="route.name" />
+          </router-view>
+        </a-layout-content>
+        <a-layout-footer class="footer">
+          <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank"
+            >LitchiPicture by LZ</a
+          >
+        </a-layout-footer>
+      </a-layout>
     </a-layout>
   </div>
 </template>

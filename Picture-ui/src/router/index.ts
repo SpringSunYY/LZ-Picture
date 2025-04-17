@@ -11,7 +11,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       cacheKey: 'home',
       isHidden: false,
       isCache: true,
-      icon: 'space',
+      icon: 'home',
     },
   },
   {

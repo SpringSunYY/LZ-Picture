@@ -5,7 +5,7 @@
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.png" alt="logo" />
-            <div class="title">荔枝云图库</div>
+            <div class="title">LitchiPicture</div>
           </div>
         </RouterLink>
       </a-col>
@@ -22,9 +22,9 @@
         <div class="user-login-status">
           <div v-if="userName">
             <a-dropdown>
-              <ASpace>
+              <ASpace @click="showDrawer">
                 <a-avatar :src="avatar" />
-                {{ userName ?? '未知' }}
+                {{ nickName ?? '未知' }}
               </ASpace>
               <template #overlay>
                 <a-menu>
@@ -37,10 +37,29 @@
             </a-dropdown>
           </div>
           <div v-else>
-            <a-button type="primary" href="/user/login">登录</a-button>
+            <a-button type="primary" href="/user/login">登录/注册</a-button>
           </div>
         </div>
       </a-col>
+      <a-drawer
+        width="36vh"
+        v-model:open="open"
+        class="custom-class"
+        root-class-name="root-class-name"
+        placement="right"
+        @after-open-change="afterOpenChange"
+      >
+        <template #title>
+          <a-space align="center">
+            <a-avatar :src="avatar" size="large" />
+            <div>
+              <div class="nickname" style="font-size: 14px">{{ userName }}</div>
+              <div class="nickname" style="font-size: 12px; color: #616161">{{ nickName }}</div>
+            </div>
+          </a-space>
+        </template>
+        <SideRight />
+      </a-drawer>
     </a-row>
   </div>
 </template>
@@ -54,9 +73,10 @@ import useUserStore from '@/stores/modules/user.js'
 import { storeToRefs } from 'pinia'
 import SvgIcon from '@/components/SvgIcon/index.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
+import SideRight from '@/layout/SideRight.vue'
 
 const userStore = useUserStore()
-const { userName: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
+const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 const router = useRouter()
 // 用户注销
 const doLogout = async () => {
@@ -127,29 +147,28 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
     })
     .map((route) => {
       // console.log('route', route)
-      const menuItem = {
-        key: route.path, // 使用规范化后的路径作为 key
+      const menuItem: any = {
+        key: route.path,
         label: route?.meta?.title,
         onClick: () => {
           if (route.meta?.menuType && route.meta.menuType !== 'C') return
-          // console.log('点击', route.path)
-          router.push({
-            path: route.path,
-          })
+          router.push({ path: route.path })
         },
         title: route?.meta?.title,
         icon: route?.meta?.icon ? renderIcon(route.meta.icon as string) : undefined,
-        children: [] as MenuProps['items'],
       }
 
-      // 处理嵌套路由
+      // 只有在存在子节点时才添加 children
       if (route.children?.length) {
-        menuItem.children = generateMenu(
+        const children = generateMenu(
           route.children.map((child) => ({
             ...child,
             path: `${child.path}`.replace(/\/+/g, '/'),
           })),
         )
+        if (route.children.length > 0) {
+          menuItem.children = children
+        }
       }
       // console.log('menuItem', menuItem)
       return menuItem
@@ -191,11 +210,22 @@ const renderIcon = (iconName: string) => {
       className: 'menu-icon',
     })
 }
+
+const open = ref<boolean>(false)
+
+const afterOpenChange = (bool: boolean) => {
+  console.log('open', bool)
+}
+
+const showDrawer = () => {
+  open.value = true
+}
 </script>
 
 <style scoped>
 #globalHeader {
   margin: 0 4vh;
+
   .title-bar {
     display: flex;
     align-items: center;
@@ -205,6 +235,7 @@ const renderIcon = (iconName: string) => {
     color: black;
     font-size: 18px;
     margin-left: 16px;
+    font-family: 'sans-serif';
   }
 
   .logo {

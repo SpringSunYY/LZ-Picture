@@ -11,6 +11,7 @@ const useUserStore = defineStore('user', {
   state: (): {
     permissions?: string[]
     userName: string
+    nickName?: string
     userId: string
     avatar: string
     token: string | null
@@ -18,6 +19,7 @@ const useUserStore = defineStore('user', {
     token: getToken(),
     userId: '',
     userName: '',
+    nickName: '',
     avatar: '',
     permissions: [],
   }),
@@ -79,6 +81,7 @@ const useUserStore = defineStore('user', {
         // 更新用户信息
         this.userId = user.userId
         this.userName = user.userName
+        this.nickName = user?.nickName
         this.avatar = avatar
         this.permissions = res?.permissions
         return res

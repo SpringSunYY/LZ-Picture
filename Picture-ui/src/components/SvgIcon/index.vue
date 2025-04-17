@@ -1,11 +1,16 @@
 <template>
-  <svg :class="svgClass" aria-hidden="true" v-bind="$attrs">
+  <svg
+    :class="svgClass"
+    :style="customStyle"
+    aria-hidden="true"
+    v-bind="$attrs"
+  >
     <use :xlink:href="iconName" :fill="color" />
   </svg>
 </template>
 
 <script>
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, useAttrs } from 'vue'
 
 export default defineComponent({
   name: 'SvgIcon',
@@ -21,29 +26,46 @@ export default defineComponent({
       type: String,
       default: '',
     },
-    // 颜色覆盖（优先级高于currentColor）
+    // 颜色覆盖
     color: {
       type: String,
       default: '',
     },
-    // 尺寸覆盖（1em=父级字体大小）
+    // 尺寸覆盖（支持 px、em、rem）
     size: {
       type: [Number, String],
-      default: '16',
+      default: '16px',
     },
   },
   setup(props) {
+    const attrs = useAttrs()
+
     const iconName = computed(() => `#icon-${props.name}`)
+
     const svgClass = computed(() => {
       const cls = ['svg-icon']
       if (props.className) cls.push(props.className)
       return cls.join(' ')
     })
 
-    const customStyle = computed(() => ({
-      fontSize: props.size ? `${props.size}px` : '',
-      color: props.color || 'currentColor',
-    }))
+    const customStyle = computed(() => {
+      // 合并外部 style 和内部 style
+      const externalStyle =
+        typeof attrs.style === 'object' ? attrs.style : {}
+
+      const internalStyle = {
+        fontSize:
+          typeof props.size === 'number'
+            ? `${props.size}px`
+            : props.size,
+        color: props.color || 'currentColor',
+      }
+
+      return {
+        ...externalStyle,
+        ...internalStyle,
+      }
+    })
 
     return { iconName, svgClass, customStyle }
   },
@@ -53,11 +75,12 @@ export default defineComponent({
 <style scoped>
 .svg-icon {
   transform: scale(1.5);
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.2em; /* 补偿对齐偏移 */
-  fill: currentColor; /* 颜色继承父级文本 */
+  width: 1.0em;
+  height: 1.0em;
+  vertical-align: -0.2em;
+  fill: currentColor;
   overflow: hidden;
+  display: inline-block;
 
   &:focus {
     outline: none;

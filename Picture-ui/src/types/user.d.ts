@@ -25,6 +25,7 @@ export namespace USER {
     user: {
       userId: string
       userName: string
+      nickName: string
       avatarUrl?: string
     }
     permissions?: string[]

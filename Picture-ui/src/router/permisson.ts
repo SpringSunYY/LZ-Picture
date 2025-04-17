@@ -43,7 +43,7 @@ router.beforeEach(async (to, from, next) => {
           routes.forEach((route) => {
             router.addRoute(route)
           })
-          router.replace(router.currentRoute.value.fullPath);
+          router.replace(router.currentRoute.value.fullPath)
           // 使用 next 回调函数确保跳转
           next({ ...to, replace: true })
         })
