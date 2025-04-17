@@ -17,7 +17,7 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: '/pictureDetail',
     name: 'pictureDetail',
-    component: () => import('@/views/picture/detail/index.vue'),
+    component: () => import('@/views/picture/picture/pictureDetail.vue'),
     meta: {
       title: '图片详情',
       cacheKey: 'pictureDetail',
@@ -34,7 +34,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       {
         path: 'login',
         name: 'UserLogin',
-        component: () => import('@/views/user/login/index.vue'),
+        component: () => import('@/views/user/login/login.vue'),
         meta: {
           title: '用户登录',
           fullPage: true,
@@ -45,7 +45,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       {
         path: 'register',
         name: 'UserRegister',
-        component: () => import('@/views/user/login/register/index.vue'),
+        component: () => import('@/views/user/login/register.vue'),
         meta: {
           title: '用户注册',
           fullPage: true,
@@ -56,7 +56,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       {
         path: 'smsLogin',
         name: 'UserSmsLogin',
-        component: () => import('@/views/user/login/smsLogin/index.vue'),
+        component: () => import('@/views/user/login/smsLogin.vue'),
         meta: {
           title: '短信登录',
           fullPage: true,
@@ -67,7 +67,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       {
         path: 'forgetPassword',
         name: 'UserForgetPassword',
-        component: () => import('@/views/user/login/forgetPassword/index.vue'),
+        component: () => import('@/views/user/login/forgetPassword.vue'),
         meta: {
           title: '密码重置',
           fullPage: true,

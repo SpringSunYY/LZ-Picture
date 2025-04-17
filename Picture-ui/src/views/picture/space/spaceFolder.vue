@@ -1,5 +1,5 @@
 <template>
-  <div class="picture-space-folder">
+  <div class="space-folder">
     <a-page-header class="folder-header" :title="'空间文件夹管理'" @back="goBack">
       <template #breadcrumb>
         <a-breadcrumb>
@@ -277,7 +277,7 @@ getFolderList()
 </script>
 
 <style scoped lang="scss">
-.picture-space-folder {
+.space-folder {
   max-width: 1440px;
   margin: 0 auto;
 
