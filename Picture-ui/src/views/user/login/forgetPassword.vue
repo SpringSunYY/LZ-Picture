@@ -135,7 +135,7 @@
   </div>
 </template>
 
-<script setup name="forgetPassword">
+<script setup lang="ts" name="forgetPassword">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
