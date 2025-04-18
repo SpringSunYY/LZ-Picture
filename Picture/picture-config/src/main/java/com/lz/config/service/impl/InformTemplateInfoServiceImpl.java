@@ -119,7 +119,7 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
         }
         informTemplateInfo.setUpdateTime(DateUtils.getNowDate());
         //删除缓存
-        redisCache.deleteObject(UserConfigRedisConstants.CONFIG_TEMPLATE_INFO + informTemplateInfo.getTemplateType() + ":" + informTemplateInfo.getLocale());
+        redisCache.deleteObject(UserConfigRedisConstants.CONFIG_TEMPLATE_INFO + informTemplateInfo.getTemplateType() + ":" + informTemplateInfo.getTemplateKey() + ":" + informTemplateInfo.getLocale());
         return informTemplateInfoMapper.updateInformTemplateInfo(informTemplateInfo);
     }
 
@@ -278,19 +278,24 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
             return null;
         }
         String key = UserConfigRedisConstants.CONFIG_TEMPLATE_INFO + templateType + ":" + templateKey + ":" + locale;
-        InformTemplateInfo cacheObject = redisCache.getCacheObject(key);
-        if (StringUtils.isNull(cacheObject)) {
+        String cacheStr = redisCache.getCacheObject(key);
+        InformTemplateInfo info = new InformTemplateInfo();
+        if (StringUtils.isEmpty(cacheStr)) {
             //从数据库获取
-            cacheObject = this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateKey, templateKey)
+            info = this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateKey, templateKey)
                     .eq(InformTemplateInfo::getLocale, locale)
                     .eq(InformTemplateInfo::getTemplateType, templateType));
+            info.setTemplateVersion(null);
+            info.setTemplateVersionHistory(null);
+        } else {
+            info = JSON.parseObject(cacheStr, InformTemplateInfo.class);
         }
         // 如果未启用
-        if (StringUtils.isNotNull(cacheObject) && !cacheObject.getStatus().equals(CTemplateStatus.TEMPLATE_STATUS_0.getValue())) {
+        if (StringUtils.isNotNull(info) && !info.getStatus().equals(CTemplateStatus.TEMPLATE_STATUS_0.getValue())) {
             return null;
         }
         //缓存
-        redisCache.setCacheObject(key, InformTemplateInfoCacheVo.objToVo(cacheObject));
-        return cacheObject;
+        redisCache.setCacheObject(key, JSONObject.toJSONString(info));
+        return info;
     }
 }

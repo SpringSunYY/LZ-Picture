@@ -9,7 +9,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.lz.common.core.redis.RedisCache;
-import com.lz.config.manager.sms.model.LoginCode;
+import com.lz.config.manager.sms.model.SmsBody;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -88,9 +88,9 @@ public class SmsManager {
 
     public static void main(String[] args) {
         SmsManager smsManage = new SmsManager();
-        LoginCode loginCode = new LoginCode();
-        loginCode.setCode("123456");
-        String jsonString = JSONObject.toJSONString(loginCode);
+        SmsBody smsBody = new SmsBody();
+        /*smsBody.setCode("123456");*/
+        String jsonString = JSONObject.toJSONString(smsBody);
         SendSmsResponse response = smsManage.sendSms("18585595238",
                 "荔枝开发阶段短信服务",
                 "SMS_480850068", jsonString

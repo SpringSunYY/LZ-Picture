@@ -3,7 +3,7 @@ package com.lz.common;
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.lz.config.manager.sms.SmsManager;
-import com.lz.config.manager.sms.model.LoginCode;
+import com.lz.config.manager.sms.model.SmsBody;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,9 +24,9 @@ public class CommonTest {
     @Test
     public void testSendSms() {
         //TODO 待短信签名审核完成后，再进行测试
-        LoginCode loginCode = new LoginCode();
-        loginCode.setCode("123456");
-        String jsonString = JSONObject.toJSONString(loginCode);
+        SmsBody smsBody = new SmsBody();
+//        smsBody.setCode("123456");
+        String jsonString = JSONObject.toJSONString(smsBody);
         SendSmsResponse response = smsManage.sendSms("18585595238",
                 "荔枝开发阶段短信服务",
                 "SMS_480850068", jsonString
