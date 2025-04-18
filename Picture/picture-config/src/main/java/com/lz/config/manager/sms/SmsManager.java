@@ -1,4 +1,4 @@
-package com.lz.common.manager.sms;
+package com.lz.config.manager.sms;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.DefaultAcsClient;
@@ -9,7 +9,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.lz.common.core.redis.RedisCache;
-import com.lz.common.manager.sms.model.LoginCode;
+import com.lz.config.manager.sms.model.LoginCode;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
  * Version: 1.0
  */
 @Component
-@PropertySource("classpath:application-config.properties")
+@PropertySource(value = { "classpath:application-config.yml" })
 public class SmsManager {
     //产品名称:云通信短信API产品,开发者无需替换
     private static final String product = "Dysmsapi";                            // 无需修改
@@ -87,7 +87,6 @@ public class SmsManager {
     }
 
     public static void main(String[] args) {
-
         SmsManager smsManage = new SmsManager();
         LoginCode loginCode = new LoginCode();
         loginCode.setCode("123456");
@@ -101,6 +100,5 @@ public class SmsManager {
         System.out.println("Message=" + response.getMessage());
         System.out.println("RequestId=" + response.getRequestId());
         System.out.println("BizId=" + response.getBizId());
-
     }
 }

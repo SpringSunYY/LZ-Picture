@@ -516,7 +516,8 @@ const {
   localeQueryParams,
   localeList,
   localeLoading,
-  templateVersion
+  templateVersion,
+  currentVersion
 } = toRefs(data);
 
 // 计算属性，过滤小于最大版本的选项

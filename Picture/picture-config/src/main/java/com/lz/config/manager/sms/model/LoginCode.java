@@ -1,4 +1,4 @@
-package com.lz.common.manager.sms.model;
+package com.lz.config.manager.sms.model;
 
 import lombok.Data;
 

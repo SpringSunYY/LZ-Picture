@@ -1,4 +1,4 @@
-package com.lz.common;
+package com.lz.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
@@ -10,31 +10,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Project: Picture
- * Package: com.lz.common
+ * Package: com.lz.config
  * Author: YY
- * CreateTime: 2025-03-19  11:41
- * Description: CommonTest
+ * CreateTime: 2025-04-18  21:35
+ * Description: SmsTest
  * Version: 1.0
  */
 @SpringBootTest
-public class CommonTest {
+public class SmsTest {
     @Resource
-    private SmsManager smsManage;
+    private SmsManager smsManager;
 
     @Test
-    public void testSendSms() {
-        //TODO 待短信签名审核完成后，再进行测试
+    public void sendSms() {
         LoginCode loginCode = new LoginCode();
         loginCode.setCode("123456");
         String jsonString = JSONObject.toJSONString(loginCode);
-        SendSmsResponse response = smsManage.sendSms("18585595238",
+        SendSmsResponse response = smsManager.sendSms("18585595238",
                 "荔枝开发阶段短信服务",
                 "SMS_480850068", jsonString
         );
-        System.out.println("短信接口返回的数据----------------");
-        System.out.println("Code=" + response.getCode());
-        System.out.println("Message=" + response.getMessage());
-        System.out.println("RequestId=" + response.getRequestId());
-        System.out.println("BizId=" + response.getBizId());
     }
 }
