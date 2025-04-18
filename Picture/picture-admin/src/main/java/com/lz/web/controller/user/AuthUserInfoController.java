@@ -87,7 +87,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
         boolean captchaEnabled = "true".equals(configInfoCache);
         smsLoginBody.setCaptchaEnabled(captchaEnabled);
         String smsLoginCode = loginService.getSmsCode(smsLoginBody.getPhone(), smsLoginBody.getCountryCode(), smsLoginBody.getCode(), smsLoginBody.isCaptchaEnabled(), smsLoginBody.getUuid());
-        System.err.println(smsLoginCode);
+//        System.err.println(smsLoginCode);
         return AjaxResult.success("验证码发送成功");
     }
 
@@ -100,7 +100,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
     @PostMapping("/smsLogin")
     public AjaxResult smsLogin(@RequestBody SmsLoginBody smsLoginBody) {
         AjaxResult ajax = AjaxResult.success();
-        System.out.println("ajax = " + smsLoginBody);
+//        System.out.println("ajax = " + smsLoginBody);
         // 生成令牌
         String token = loginService.smsLogin(smsLoginBody.getCountryCode(), smsLoginBody.getPhone(), smsLoginBody.getSmsCode());
         ajax.put(Constants.TOKEN, token);

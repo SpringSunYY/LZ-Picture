@@ -45,7 +45,7 @@ public class SmsTemplate {
         // 修改第39行代码
         Map<String, Object> paramsMap = JSONObject.parseObject(variables);
         paramsMap.put("code", code);
-        System.out.println("templateInfo = " + templateInfo);
+//        System.out.println("templateInfo = " + templateInfo);
         SendSmsResponse sendSmsResponse = smsManager.sendSms(phone, templateInfo.getServiceSignName(), templateInfo.getServiceTemplateId(), JSONObject.toJSONString(paramsMap));
         SmsResponse smsResponse = new SmsResponse();
         BeanUtils.copyProperties(sendSmsResponse, smsResponse);

@@ -14,6 +14,7 @@ import com.lz.common.exception.user.UserNotExistsException;
 import com.lz.common.exception.user.UserPasswordNotMatchException;
 import com.lz.common.utils.MessageUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.config.manager.sms.SmsTemplate;
 import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.framework.manager.factory.UserInfoLoginAsyncFactory;
@@ -61,6 +62,9 @@ public class UserInfoLoginService {
 
     @Resource(name = "userInfoAuthenticationManager")
     private AuthenticationManager authenticationManager;
+
+    @Resource
+    private SmsTemplate smsTemplate;
 
 
     /**
@@ -160,7 +164,8 @@ public class UserInfoLoginService {
         //随机6位数验证码
         String code = StringUtils.generateCode();
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone, code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
-        // TODO 发送真正验证码
+        // TODO 发送真正验证码 先写死zh
+        smsTemplate.sendCode(code, phone, "zh");
         return code;
     }
 
