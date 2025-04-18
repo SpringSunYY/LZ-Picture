@@ -1,5 +1,6 @@
 package com.lz.config.model.dto.informTemplateInfo;
 
+import com.lz.common.annotation.Excel;
 import com.lz.config.model.domain.InformTemplateInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +26,11 @@ public class InformTemplateInfoEdit implements Serializable {
      * 模版名称
      */
     private String templateName;
+
+    /**
+     * 模版KEY
+     */
+    private String templateKey;
 
     /**
      * 语言

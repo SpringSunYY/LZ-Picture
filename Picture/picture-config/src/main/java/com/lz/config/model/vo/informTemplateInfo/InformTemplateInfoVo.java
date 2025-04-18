@@ -32,6 +32,12 @@ public class InformTemplateInfoVo implements Serializable {
     private String templateName;
 
     /**
+     * 模版KEY
+     */
+    @Excel(name = "模版KEY")
+    private String templateKey;
+
+    /**
      * 语言
      */
     @Excel(name = "语言")

@@ -27,6 +27,11 @@ public class InformTemplateInfoInsert implements Serializable {
     private String templateName;
 
     /**
+     * 模版KEY
+     */
+    private String templateKey;
+
+    /**
      * 语言
      */
     private String locale;

@@ -7,6 +7,7 @@
     <resultMap type="InformTemplateInfo" id="InformTemplateInfoResult">
         <result property="templateId" column="template_id"/>
         <result property="templateName" column="template_name"/>
+        <result property="templateType"    column="template_type"    />
         <result property="locale" column="locale"/>
         <result property="channel" column="channel"/>
         <result property="templateType" column="template_type"/>
@@ -30,6 +31,7 @@
     <sql id="selectInformTemplateInfoVo">
         select template_id,
                template_name,
+               template_key,
                locale,
                channel,
                template_type,
@@ -58,6 +60,7 @@
             <if test="templateName != null  and templateName != ''">and template_name like concat('%', #{templateName},
                 '%')
             </if>
+            <if test="templateKey != null  and templateKey != ''"> and template_key like concat('%', #{templateKey},'%') </if>
             <if test="locale != null  and locale != ''">and locale = #{locale}</if>
             <if test="channel != null  and channel != ''">and channel = #{channel}</if>
             <if test="templateType != null  and templateType != ''">and template_type = #{templateType}</if>
@@ -89,6 +92,7 @@
         insert into c_inform_template_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="templateName != null and templateName != ''">template_name,</if>
+            <if test="templateKey != null and templateKey != ''">template_key,</if>
             <if test="locale != null and locale != ''">locale,</if>
             <if test="channel != null">channel,</if>
             <if test="templateType != null and templateType != ''">template_type,</if>
@@ -110,6 +114,7 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="templateName != null and templateName != ''">#{templateName},</if>
+            <if test="templateKey != null and templateKey != ''">#{templateKey},</if>
             <if test="locale != null and locale != ''">#{locale},</if>
             <if test="channel != null">#{channel},</if>
             <if test="templateType != null and templateType != ''">#{templateType},</if>
@@ -135,6 +140,7 @@
         update c_inform_template_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="templateName != null and templateName != ''">template_name = #{templateName},</if>
+            <if test="templateKey != null and templateKey != ''">template_key = #{templateKey},</if>
             <if test="locale != null and locale != ''">locale = #{locale},</if>
             <if test="channel != null">channel = #{channel},</if>
             <if test="templateType != null and templateType != ''">template_type = #{templateType},</if>
