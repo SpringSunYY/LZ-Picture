@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.*;
+import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 
 /**
  * 空间信息Service业务层处理

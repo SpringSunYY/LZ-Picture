@@ -35,8 +35,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MAX;
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_POINTS_MIN;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_POINTS_MAX;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_POINTS_MIN;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 
 /**

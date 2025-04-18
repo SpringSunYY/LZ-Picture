@@ -1,29 +1,27 @@
 package com.lz.web.controller.common;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-import com.lz.common.constant.config.ConfigKeyConstants;
+import com.google.code.kaptcha.Producer;
+import com.lz.common.config.RuoYiConfig;
+import com.lz.common.constant.CacheConstants;
+import com.lz.common.constant.Constants;
+import com.lz.common.constant.config.UserConfigKeyConstants;
+import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.redis.RedisCache;
+import com.lz.common.utils.sign.Base64;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
+import com.lz.system.service.ISysConfigService;
 import jakarta.annotation.Resource;
-
-import javax.imageio.ImageIO;
-
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.google.code.kaptcha.Producer;
-import com.lz.common.config.RuoYiConfig;
-import com.lz.common.constant.CacheConstants;
-import com.lz.common.constant.Constants;
-import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.core.redis.RedisCache;
-import com.lz.common.utils.sign.Base64;
-import com.lz.common.utils.uuid.IdUtils;
-import com.lz.system.service.ISysConfigService;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 验证码操作处理
@@ -61,7 +59,7 @@ public class CaptchaController {
      */
     @GetMapping("/user/captchaImage")
     public AjaxResult getUserInfoCaptchaCode(HttpServletResponse response) throws IOException {
-        String configInfoCache = configInfoService.getConfigInfoInCache(ConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
+        String configInfoCache = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
         boolean captchaEnabled = "true".equals(configInfoCache);
         return getCode(captchaEnabled);
     }

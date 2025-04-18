@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_CONFIG_INFO_KEY;
+import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_CONFIG_INFO_KEY;
 
 /**
  * 配置信息Service业务层处理

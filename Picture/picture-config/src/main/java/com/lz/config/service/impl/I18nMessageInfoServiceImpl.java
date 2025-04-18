@@ -22,7 +22,7 @@ import com.lz.config.service.II18nMessageInfoService;
 import com.lz.config.model.dto.i18nMessageInfo.I18nMessageInfoQuery;
 import com.lz.config.model.vo.i18nMessageInfo.I18nMessageInfoVo;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.CONFIG_LOCALIZATION;
+import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_LOCALIZATION;
 
 /**
  * 国际化信息Service业务层处理

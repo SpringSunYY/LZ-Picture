@@ -28,7 +28,7 @@ import com.lz.picture.service.ISpaceInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 
 /**
  * 空间信息Controller

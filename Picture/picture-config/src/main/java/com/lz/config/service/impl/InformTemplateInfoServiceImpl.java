@@ -10,12 +10,16 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.constant.redis.UserConfigRedisConstants;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoVersionQuery;
+import com.lz.config.model.enmus.CTemplateStatus;
+import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoCacheVo;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -36,6 +40,9 @@ import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoVo;
 public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInfoMapper, InformTemplateInfo> implements IInformTemplateInfoService {
     @Resource
     private InformTemplateInfoMapper informTemplateInfoMapper;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -70,9 +77,9 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
     @Override
     public int insertInformTemplateInfo(InformTemplateInfo informTemplateInfo) {
         //获取存在数据库内的数据
-        InformTemplateInfo old = getInformTemplateInfoByNameLocaleType(informTemplateInfo);
+        InformTemplateInfo old = getInformTemplateInfoByKeyLocaleType(informTemplateInfo);
         if (StringUtils.isNotNull(old)) {
-            throw new ServiceException("此语言通知模版名称已存在");
+            throw new ServiceException("此语言通知模版key已存在");
         }
         informTemplateInfo.setTemplateVersion(1L);
         informTemplateInfo.setCreateBy(SecurityUtils.getUsername());
@@ -103,22 +110,32 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
         //获取自己老的此数据
         InformTemplateInfo myOld = informTemplateInfoMapper.selectInformTemplateInfoByTemplateId(informTemplateInfo.getTemplateId());
         //获取存在数据库内的数据
-        InformTemplateInfo old = getInformTemplateInfoByNameLocaleType(informTemplateInfo);
+        InformTemplateInfo old = getInformTemplateInfoByKeyLocaleType(informTemplateInfo);
         //判断如果我的老的存在数据库内的不相同并且和传过来的名称不同于旧数据
         if (StringUtils.isNotNull(old)
-                && !myOld.getTemplateName().equals(old.getTemplateName()) &&
-                !myOld.getTemplateName().equals(informTemplateInfo.getTemplateName())) {
-            //说明更新的名称存在
-            throw new ServiceException("此语言此类型通知模版名称已存在");
+                && !myOld.getTemplateId().equals(old.getTemplateId())) {
+            //说明更新的名称key存在
+            throw new ServiceException("此语言此类型通知模版key已存在");
         }
         informTemplateInfo.setUpdateTime(DateUtils.getNowDate());
+        //删除缓存
+        redisCache.deleteObject(UserConfigRedisConstants.CONFIG_TEMPLATE_INFO + informTemplateInfo.getTemplateType() + ":" + informTemplateInfo.getLocale());
         return informTemplateInfoMapper.updateInformTemplateInfo(informTemplateInfo);
     }
 
 
+    /**
+     * description: 根据key和缓存locale
+     * author: YY
+     * method: getInformTemplateInfoByKeyLocaleType
+     * date: 2025/4/18 22:42
+     * param:
+     * param: informTemplateInfo
+     * return: com.lz.config.model.domain.InformTemplateInfo
+     **/
     @Override
-    public InformTemplateInfo getInformTemplateInfoByNameLocaleType(InformTemplateInfo informTemplateInfo) {
-        return this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateName, informTemplateInfo.getTemplateName())
+    public InformTemplateInfo getInformTemplateInfoByKeyLocaleType(InformTemplateInfo informTemplateInfo) {
+        return this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateKey, informTemplateInfo.getTemplateKey())
                 .eq(InformTemplateInfo::getLocale, informTemplateInfo.getLocale())
                 .eq(InformTemplateInfo::getTemplateType, informTemplateInfo.getTemplateType()));
     }
@@ -255,4 +272,25 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
         return InformTemplateInfoHistory.getInformTemplateInfoByVersion(informTemplateInfoHistory);
     }
 
+    @Override
+    public InformTemplateInfo getInformTemplateInfoByKeyAndLocale(String templateKey, String locale, String templateType) {
+        if (StringUtils.isNull(templateKey) || StringUtils.isNull(locale) || StringUtils.isNull(templateType)) {
+            return null;
+        }
+        String key = UserConfigRedisConstants.CONFIG_TEMPLATE_INFO + templateType + ":" + templateKey + ":" + locale;
+        InformTemplateInfo cacheObject = redisCache.getCacheObject(key);
+        if (StringUtils.isNull(cacheObject)) {
+            //从数据库获取
+            cacheObject = this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateKey, templateKey)
+                    .eq(InformTemplateInfo::getLocale, locale)
+                    .eq(InformTemplateInfo::getTemplateType, templateType));
+        }
+        // 如果未启用
+        if (StringUtils.isNotNull(cacheObject) && !cacheObject.getStatus().equals(CTemplateStatus.TEMPLATE_STATUS_0.getValue())) {
+            return null;
+        }
+        //缓存
+        redisCache.setCacheObject(key, InformTemplateInfoCacheVo.objToVo(cacheObject));
+        return cacheObject;
+    }
 }

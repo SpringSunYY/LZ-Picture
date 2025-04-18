@@ -1,16 +1,11 @@
 package com.lz.picture.controller.user;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.model.OSSObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.exception.ServiceException;
-import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.file.FileUploadUtils;
-import com.lz.common.utils.file.FileUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.model.domain.PictureInfo;
@@ -23,21 +18,13 @@ import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_INDEX_P;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
 
 /**
  * Project: Picture

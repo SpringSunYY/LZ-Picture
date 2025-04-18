@@ -11,7 +11,6 @@ import com.lz.picture.model.dto.spaceInfo.SpaceInfoAdd;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoUpdate;
 import com.lz.picture.model.enums.PSpaceType;
-import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.config.ConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 
 /**
  * Project: Picture

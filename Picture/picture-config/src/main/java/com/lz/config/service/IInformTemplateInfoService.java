@@ -60,7 +60,7 @@ public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
      * param: informTemplateInfo
      * return: com.lz.config.model.domain.InformTemplateInfo
      **/
-    InformTemplateInfo getInformTemplateInfoByNameLocaleType(InformTemplateInfo informTemplateInfo);
+    InformTemplateInfo getInformTemplateInfoByKeyLocaleType(InformTemplateInfo informTemplateInfo);
 
     /**
      * 批量删除通知模版
@@ -108,4 +108,16 @@ public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
      **/
     InformTemplateInfo getInformTemplateInfoByVersion(InformTemplateInfoVersionQuery informTemplateInfoVersionQuery);
 
+    /**
+     * description: 通过模版key 和语言 获取模版
+     * author: YY
+     * method: getInformTemplateInfoByKeyAndLocale
+     * date: 2025/4/18 22:49
+     * param:
+     * param: templateKey 模版key 必须要否则返回空
+     * param: locale 语言 必须否则返回空
+     * param: templateType 模版类型 必须否则返回空
+     * return: com.lz.config.model.domain.InformTemplateInfo
+     **/
+    InformTemplateInfo getInformTemplateInfoByKeyAndLocale(String templateKey, String locale, String templateType);
 }
