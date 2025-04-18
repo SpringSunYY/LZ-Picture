@@ -61,7 +61,7 @@ public class SmsTest {
         String code = "123456";
         String phone = "18585595238";
         String locale = "zh";
-        SmsResponse smsResponse = smsTemplate.sendCode(code, phone, locale);
+        SmsResponse smsResponse = smsTemplate.sendCode("sms_register_code",code, phone, locale);
         System.out.println("smsResponse = " + smsResponse);
     }
 }

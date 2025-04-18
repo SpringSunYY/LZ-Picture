@@ -79,7 +79,7 @@ public class SmsManager {
     }
 
     public IAcsClient createClient() throws ClientException {
-        System.out.println("accessKeyId = " + accessKeyId);
+//        System.out.println("accessKeyId = " + accessKeyId);
         //初始化acsClient,暂不支持region化
         IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", accessKeyId, accessKeySecret);
         DefaultProfile.addEndpoint("cn-hangzhou", "cn-hangzhou", product, domain);

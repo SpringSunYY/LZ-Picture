@@ -12,5 +12,8 @@ public class UserConfigConstants {
     /**
      * 登录短信验证码模版KEY
      */
-    public static final String LOGIN_SMS_CODE = "login_sms_code";
+    public static final String SMS_LOGIN_CODE = "sms_login_code";
+
+    public static final String SMS_REGISTER_CODE = "sms_register_code";
+
 }
