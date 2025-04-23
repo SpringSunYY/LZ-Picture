@@ -51,6 +51,49 @@
       </a-col>
     </a-row>
 
+    <!-- 图片网格列表 -->
+    <a-row :gutter="[24, 24]">
+      <a-col
+        v-for="picture in pictureList"
+        :key="picture.pictureId"
+        :xs="24"
+        :sm="6"
+        :md="6"
+        :lg="6"
+      >
+        <div class="picture-card">
+          <div class="cover-image" :style="coverStyle(picture?.thumbnailUrl)"></div>
+          <div class="picture-info">
+            <h3 class="title">{{ picture.name }}</h3>
+            <div class="meta">
+              <a-button
+                v-if="picture.userId === userId && checkPermiSingle('picture:space:update')"
+                style="float: right"
+                type="primary"
+                size="small"
+              >
+                修改
+              </a-button>
+            </div>
+          </div>
+        </div>
+      </a-col>
+    </a-row>
+
+    <div style="text-align: center; margin-top: 20px; margin-bottom: 10px">
+      <a-pagination
+        v-model:current="current"
+        :pageSize="pictureQuery.pageSize"
+        show-quick-jumper
+        :total="pictureTotal"
+        :showTotal="(total) => `共 ${total} 条`"
+        :showSizeChanger="true"
+        @change="onChange"
+        @showSizeChange="onShowSizeChange"
+        :pageSizeOptions="['12', '24', '48', '96']"
+      />
+    </div>
+
     <!--添加空间-->
     <a-modal v-model:open="open" :footer="null" centered destroyOnClose>
       <!-- 自定义标题插槽 -->
@@ -130,6 +173,11 @@ import {
 } from '@/api/picture/spaceFolder.ts'
 import { message, Modal } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
+import { checkPermiSingle } from '@/utils/permission.ts'
+import { storeToRefs } from 'pinia'
+import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
+import useUserStore from '@/stores/modules/user.ts'
+import { listPictureInfo } from '@/api/picture/picture.ts'
 
 interface Folder {
   folderId: string
@@ -137,6 +185,15 @@ interface Folder {
   parentId: string
 }
 
+const userStore = useUserStore()
+const { userId: userId } = storeToRefs(userStore)
+const pictureList = ref<PictureInfoVo[]>([]) // 图片
+const pictureQuery = ref<PictureInfoQuery>({
+  pageNum: 1,
+  pageSize: 12,
+})
+const current = ref(1)
+const pictureTotal = ref(1)
 // 当前所在的父文件夹 ID
 const currentParentId = ref('0')
 const open = ref(false)
@@ -273,6 +330,38 @@ const getFolderList = () => {
     folderList.value = res?.rows || []
   })
 }
+
+// 分页器每页条数变化回调
+const onShowSizeChange = (currentPage: number, size: number) => {
+  pictureQuery.value.pageSize = size
+  pictureQuery.value.pageNum = 1 // 切换条数后重置到第一页
+  current.value = 1
+  getSpaceInfoList()
+}
+
+// 修改现有 onChange 方法保持页码同步
+const onChange = (pageNumber: number) => {
+  current.value = pageNumber
+  pictureQuery.value.pageNum = pageNumber
+  getSpaceInfoList()
+}
+
+const getSpaceInfoList = () => {
+  pictureQuery.value.folderId = currentParentId.value
+  pictureQuery.value.spaceId = route.query.spaceId as string
+  listPictureInfo(pictureQuery.value).then((res) => {
+    pictureList.value = res?.rows || []
+    pictureTotal.value = res?.total || 0
+    // console.log('pictureList', pictureList.value)
+    // console.log('pictureTotal', pictureTotal.value)
+  })
+}
+
+// 封面样式处理
+const coverStyle = (url?: string) => ({
+  backgroundImage: `url(${url || '/default-space-cover.jpg'})`,
+})
+getSpaceInfoList()
 getFolderList()
 </script>
 
@@ -343,16 +432,51 @@ getFolderList()
       color: #52c41a;
     }
   }
-}
 
-.form-footer {
-  text-align: right;
-  padding: 16px 0 0;
-  margin-top: 24px;
-  border-top: 1px solid #f0f0f0;
+  .picture-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  .ant-btn {
-    margin-left: 10px;
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .cover-image {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .picture-info {
+      padding: 16px;
+
+      .title {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .meta {
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 12px;
+      }
+    }
+  }
+
+  .form-footer {
+    text-align: right;
+    padding: 16px 0 0;
+    margin-top: 24px;
+    border-top: 1px solid #f0f0f0;
+
+    .ant-btn {
+      margin-left: 10px;
+    }
   }
 }
 </style>

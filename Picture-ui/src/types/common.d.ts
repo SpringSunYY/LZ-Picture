@@ -15,7 +15,8 @@ declare namespace API {
     rows?: Array<T>
     data?: T
     msg?: string
-    code: number
+    code: number,
+    total?: number
   }
 }
 

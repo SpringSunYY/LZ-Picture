@@ -34,7 +34,7 @@ import { useRouter } from 'vue-router'
 const pictureHeight = ref<string>()
 onMounted(async () => {
   pictureHeight.value = await useConfig('picture:index:height')
-  console.log('pictureHeight', pictureHeight.value)
+  // console.log('pictureHeight', pictureHeight.value)
 })
 //  数据部分
 const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据（不会做 display 样式处理）
