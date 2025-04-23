@@ -49,7 +49,8 @@
         </div>
       </a-col>
     </a-row>
-
+    <u-divider border-style="dashed"></u-divider>
+    <PictureInfoList style="margin-top: 20px"></PictureInfoList>
     <!--添加空间-->
     <a-modal v-model:open="open" :footer="null" centered destroyOnClose>
       <!-- 自定义标题插槽 -->
@@ -142,6 +143,7 @@ import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { checkPermiSingle } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
+import PictureInfoList from '@/components/PictureInfoList.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

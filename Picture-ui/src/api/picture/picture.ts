@@ -1,6 +1,11 @@
 import type { API } from '@/types/common'
 import { http as request } from '@/utils'
-import type { PictureDetailInfoVo, PictureInfo, PictureInfoQuery } from '@/types/picture/picture'
+import type {
+  MyPictureInfoVo,
+  PictureDetailInfoVo,
+  PictureInfo,
+  PictureInfoQuery
+} from '@/types/picture/picture'
 
 export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<number>> {
   return request({
@@ -13,6 +18,15 @@ export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<numb
 export function listPictureInfo(params: PictureInfoQuery): Promise<API.ResponseInfo<PictureInfo>> {
   return request({
     url: '/picture/pictureInfo/list',
+    params: params,
+  })
+}
+
+export function listMyPictureInfo(
+  params: PictureInfoQuery,
+): Promise<API.ResponseInfo<MyPictureInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/list/my',
     params: params,
   })
 }

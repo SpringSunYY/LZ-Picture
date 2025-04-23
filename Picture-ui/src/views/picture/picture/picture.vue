@@ -52,12 +52,13 @@ let observer: IntersectionObserver | null = null
 
 const router = useRouter()
 const handleToPicture = (item: PictureInfoVo) => {
-  router.push({
+  const routeData = router.resolve({
     path: '/pictureDetail',
     query: {
       pictureId: item.pictureId,
     },
   })
+  window.open(routeData.href, '_blank')
 }
 
 // 加载数据

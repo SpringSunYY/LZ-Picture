@@ -13,6 +13,7 @@ import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.enums.PPictureReviewStatus;
 import com.lz.picture.model.enums.PPictureStatus;
+import com.lz.picture.model.vo.pictureInfo.MyPictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
 import com.lz.picture.service.IPictureInfoService;
@@ -43,7 +44,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
 
     @Resource
     private IConfigInfoService configInfoService;
-
 
 
     @PreAuthorize("@uss.hasPermi('picture:upload')")
@@ -80,6 +80,25 @@ public class UserPictureInfoController extends BaseUserInfoController {
         //压缩图片
         String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (UserPictureInfoVo vo : userPictureInfoVos) {
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
+        }
+        TableDataInfo tableDataInfo = new TableDataInfo();
+        tableDataInfo.setRows(userPictureInfoVos);
+        tableDataInfo.setTotal(page.getTotal());
+        return tableDataInfo;
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:list')")
+    @GetMapping("/list/my")
+    public TableDataInfo listMy(UserPictureInfoQuery userPictureInfoQuery) {
+        PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
+        pictureInfo.setUserId(getUserId());
+        QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
+        Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
+        List<MyPictureInfoVo> userPictureInfoVos = MyPictureInfoVo.objToVo(page.getRecords());
+        //压缩图片
+        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
+        for (MyPictureInfoVo vo : userPictureInfoVos) {
             vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
         }
         TableDataInfo tableDataInfo = new TableDataInfo();
