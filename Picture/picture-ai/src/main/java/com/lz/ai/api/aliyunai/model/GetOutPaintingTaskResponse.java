@@ -1,4 +1,4 @@
-package com.lz.ai.model.aliyunai.model;
+package com.lz.ai.api.aliyunai.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

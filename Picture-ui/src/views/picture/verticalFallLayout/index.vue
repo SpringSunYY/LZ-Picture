@@ -5,7 +5,7 @@
         v-for="item in pictureList"
         :key="item.pictureId"
         class="masonry-item"
-        :style="{ gridRowEnd: `span ${item.rowSpan}` }"
+        :style="{ gridRowEnd: `span ${item?.rowSpan}` }"
       >
         <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
           <!-- 自定义左下角文字内容 -->

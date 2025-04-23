@@ -5,6 +5,8 @@ import type { UserVo } from '@/types/user'
  * 用户上传图片添加对象
  */
 export interface PictureInfo {
+  /** 图片编号 */
+  pictureId?: string
   /** 图片URL */
   pictureUrl: string
 

@@ -38,6 +38,11 @@
             <artifactId>picture-user</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-ai</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -1,4 +1,4 @@
-package com.lz.ai.model.aliyunai;
+package com.lz.ai.api.aliyunai;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.ContentType;
@@ -7,9 +7,9 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.aliyun.oss.ServiceException;
-import com.lz.ai.model.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.lz.ai.model.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.lz.ai.model.aliyunai.model.GetOutPaintingTaskResponse;
+import com.lz.ai.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.lz.ai.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.lz.ai.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.lz.common.factory.YamlPropertySourceFactory;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
