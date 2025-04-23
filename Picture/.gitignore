@@ -47,3 +47,4 @@ nbdist/
 !*/build/*.xml
 /picture-admin/src/main/resources/application-config.properties
 /picture-config/src/main/resources/application-config.yml
+/picture-admin/src/main/resources/application-config.yml

@@ -23,6 +23,21 @@
             <artifactId>picture-common</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-json</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-config</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

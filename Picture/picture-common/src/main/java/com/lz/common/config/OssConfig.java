@@ -1,5 +1,6 @@
 package com.lz.common.config;
 
+import com.lz.common.factory.YamlPropertySourceFactory;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -16,7 +17,8 @@ import org.springframework.context.annotation.PropertySource;
  */
 @Data
 @Configuration
-@PropertySource("classpath:application-config.properties")
+@PropertySource(value = {"classpath:application-config.yml"},
+        factory = YamlPropertySourceFactory.class)
 public class OssConfig {
     @Value("${aliYun.accessKeyId}")
     private String accessKeyId;
