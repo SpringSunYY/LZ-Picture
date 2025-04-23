@@ -31,7 +31,7 @@
                 :colors="['#7300ff']"
               />
               <a-button
-                v-if="picture.userId === userId && checkPermiSingle('picture:space:update')"
+                v-if="checkUser(picture.userId) && checkPermiSingle('picture:upload')"
                 style="float: right"
                 type="primary"
                 size="small"
@@ -64,7 +64,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { checkPermiSingle } from '@/utils/permission.ts'
+import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { ref, watchEffect } from 'vue'

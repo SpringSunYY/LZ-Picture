@@ -62,7 +62,7 @@ export function checkPermiAny(value: string[] | string): boolean {
     }
   }
 
-  console.error(`need permissions! Like checkPermiAny="['system:user:add','system:user:edit']"`)
+  // console.error(`need permissions! Like checkPermiAny="['system:user:add','system:user:edit']"`)
   return false
 }
 
@@ -76,4 +76,12 @@ export function checkPermiSingle(value: string): boolean {
   if (!permissions || permissions.length === 0) return false // 检查 permissions 是否为空
   const all_permission = '*:*:*'
   return permissions.includes(value) || all_permission === value
+}
+
+/**
+ * 检查用户是否匹配 是否是自己
+ * @param userId
+ */
+export function checkUser(userId: string): boolean {
+  return useUserStore().userId === userId
 }

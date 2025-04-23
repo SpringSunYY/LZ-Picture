@@ -28,7 +28,7 @@
               <Tags :values="[getPSpaceStatusLabel(space.spaceStatus)]" :colors="['#1890ff']" />
               <Tags :values="[getPSpaceTypeLabel(space.spaceType)]" :colors="['#00ff0d']" />
               <a-button
-                v-if="space.userId === userId && checkPermiSingle('picture:space:update')"
+                v-if="checkUser(space.userId) && checkPermiSingle('picture:space:update')"
                 style="float: right"
                 type="primary"
                 @click="handleUpdate(space.spaceId)"
@@ -141,7 +141,7 @@ import Tags from '@/components/Tags.vue'
 import { formatSize } from '@/utils/common.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
-import { checkPermiSingle } from '@/utils/permission.ts'
+import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'
 
