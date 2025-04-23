@@ -143,6 +143,16 @@ public class UserPictureDetailInfoVo implements Serializable {
      */
     private Long shareCount;
 
+    /**
+     * 图片状态（0公共 1私有）
+     */
+    private String pictureStatus;
+
+    /**
+     * 图片URL
+     */
+    private String pictureUrl;
+
 
     /**
      * 对象转封装类

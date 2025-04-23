@@ -35,6 +35,7 @@
                 style="float: right"
                 type="primary"
                 size="small"
+                @click="handleUpdate(picture.pictureId)"
               >
                 修改
               </a-button>
@@ -61,12 +62,14 @@
         :pageSizeOptions="['12', '24', '48', '96']"
       />
     </div>
+
+    <a-modal v-model:open="open" :footer="null" centered destroyOnClose :width="800">
+      <PictureEdit :pictureId="pictureId"></PictureEdit>
+    </a-modal>
   </div>
 </template>
 <script setup lang="ts">
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
-import useUserStore from '@/stores/modules/user.ts'
-import { storeToRefs } from 'pinia'
 import { ref, watchEffect } from 'vue'
 import {
   getPictureReviewStatusLabel,
@@ -78,6 +81,7 @@ import { listMyPictureInfo } from '@/api/picture/picture.ts'
 import { formatSize } from '@/utils/common.ts'
 import Tags from '@/components/Tags.vue'
 import { useRouter } from 'vue-router'
+import PictureEdit from '@/components/PictureEdit.vue'
 
 const props = defineProps({
   currentParentId: {
@@ -90,8 +94,6 @@ const props = defineProps({
   },
 })
 
-const userStore = useUserStore()
-const { userId: userId } = storeToRefs(userStore)
 const pictureList = ref<MyPictureInfoVo[]>([]) // 图片
 const pictureQuery = ref<PictureInfoQuery>({
   pageNum: 1,
@@ -99,7 +101,8 @@ const pictureQuery = ref<PictureInfoQuery>({
 })
 const current = ref(1)
 const pictureTotal = ref(1)
-
+const open = ref(false)
+const pictureId = ref('')
 // 路由跳转
 const router = useRouter()
 const goDetail = (pictureId: string) => {
@@ -139,6 +142,12 @@ const getSpaceInfoList = () => {
     // console.log('pictureTotal', pictureTotal.value)
   })
 }
+
+const handleUpdate = (id: string) => {
+  pictureId.value = id
+  open.value = true
+}
+
 watchEffect(() => {
   if (props.currentParentId) {
     getSpaceInfoList()

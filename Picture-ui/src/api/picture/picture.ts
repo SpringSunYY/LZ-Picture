@@ -55,3 +55,12 @@ export function getPictureDetailInfo(
     method: 'get',
   })
 }
+
+export function getMyPictureDetailInfo(
+  pictureId: string,
+): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/my/' + pictureId,
+    method: 'get',
+  })
+}

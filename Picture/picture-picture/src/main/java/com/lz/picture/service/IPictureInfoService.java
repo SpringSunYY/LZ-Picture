@@ -100,7 +100,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * param: pictureId
      * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
      **/
-    UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId,String userId);
+    UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId, String userId);
 
     /**
      * description: 重新设置缓存
@@ -112,4 +112,16 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * return: void
      **/
     void resetPictureInfoCache(String pictureId);
+
+    /**
+     * 用户自己查看图片信息
+     *
+     * @param pictureId 图片id
+     * @param userId 用户ID
+     * @return com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
+     * @author YY
+     * @method userMySelectPictureInfoByPictureId
+     * @date 2025/4/23 23:03
+     **/
+    UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId);
 }

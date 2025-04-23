@@ -56,4 +56,9 @@ public class UserConfigKeyConstants {
      * 图片所需积分最小值
      */
     public static final String PICTURE_POINTS_MIN = "picture:points:min";
+
+    /**
+     * 用户查看自己原图密钥时间
+     */
+    public static final String PICTURE_LOOK_ORIGINAL_TIMEOUT = "picture:look:original:timeout";
 }

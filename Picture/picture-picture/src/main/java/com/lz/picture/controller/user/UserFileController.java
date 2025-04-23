@@ -57,7 +57,7 @@ public class UserFileController extends BaseUserInfoController {
     public void downloadPicture(@PathVariable("pictureId") String pictureId, HttpServletResponse response) throws IOException {
         //TODO 图片校验
         PictureInfo pictureInfo = pictureInfoService.selectPictureInfoByPictureId(pictureId);
-        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl());
+        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(),5L);
 
         response.reset();
         response.setContentType("application/octet-stream");

@@ -49,7 +49,7 @@
         </div>
       </a-col>
     </a-row>
-    <u-divider border-style="dashed"></u-divider>
+    <a-divider style="border-color: #7cb305" dashed />
     <PictureInfoList style="margin-top: 20px"></PictureInfoList>
     <!--添加空间-->
     <a-modal v-model:open="open" :footer="null" centered destroyOnClose>

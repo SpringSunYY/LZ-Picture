@@ -87,7 +87,7 @@ public class PictureUploadManager {
      * @param filePath
      * @return
      */
-    public String generateDownloadUrl(String filePath) {
+    public String generateDownloadUrl(String filePath,Long expireTime) {
         OSS ossClient = null;
         try {
             ossClient = new OSSClientBuilder().build(
@@ -97,7 +97,7 @@ public class PictureUploadManager {
             );
             String objectKey = extractKeyFromPath(filePath);
             // 设置过期时间，比如 5 分钟
-            Date expiration = new Date(System.currentTimeMillis() + 5 * 60 * 1000);
+            Date expiration = new Date(System.currentTimeMillis() + expireTime * 60 * 1000);
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(), objectKey, HttpMethod.GET
             );

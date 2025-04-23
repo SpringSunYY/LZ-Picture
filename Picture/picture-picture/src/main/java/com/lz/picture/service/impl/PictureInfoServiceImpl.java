@@ -8,6 +8,7 @@ import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
+import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -35,8 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_POINTS_MAX;
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_POINTS_MIN;
+import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 
 /**
@@ -83,6 +83,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
+
+    @Resource
+    private PictureUploadManager pictureUploadManager;
 
     //region mybatis代码
 
@@ -549,5 +552,17 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
         //存入缓存 五分钟即可
         redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId) {
+        UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+        ThrowUtils.throwIf(!userId.equals(userPictureDetailInfoVo.getUserId()), "图片不存在");
+        //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
+        String time = configInfoService.getConfigInfoInCache(PICTURE_LOOK_ORIGINAL_TIMEOUT);
+        Long timeout = Long.valueOf(time);
+        String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), timeout);
+        userPictureDetailInfoVo.setPictureUrl(url);
+        return userPictureDetailInfoVo;
     }
 }

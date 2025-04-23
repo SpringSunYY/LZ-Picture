@@ -97,6 +97,11 @@ const props = defineProps({
   maxSizeMB: { type: Number, default: 5 },
   uploadText: { type: String, default: '点击上传' },
   multiple: { type: Boolean, default: true },
+  isEdit: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'upload-success', 'upload-error'])
@@ -138,11 +143,14 @@ const loadImageMeta = (url: string) => {
   })
 }
 const isInit = ref(true)
+const isEdit = ref(false)
 // 修改 watch 逻辑
 watch(
   () => props.modelValue,
   async (newVal) => {
-    if (isInit.value) {
+    console.log(isInit.value, isEdit.value)
+    if (isInit.value || isEdit.value) {
+      isEdit.value = false
       isInit.value = false
     } else {
       return
@@ -150,6 +158,7 @@ watch(
     if (newVal === '') {
       return
     }
+    console.log('newVal', newVal)
     if (typeof newVal === 'string') {
       const meta = await loadImageMeta(newVal)
       innerFileList.value = [
@@ -262,7 +271,7 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
       emit('update:modelValue', formatOutput())
       message.success('图片上传成功')
     } else {
-      throw new Error(response?.message || '上传失败')
+      new Error(response?.message || '上传失败')
     }
   } catch (error) {
     console.error('上传错误:', error)
@@ -290,6 +299,7 @@ const handlePreview = (file) => {
   }
   previewVisible.value = true
 }
+isInit.value = props.isEdit
 </script>
 
 <style lang="scss" scoped>
