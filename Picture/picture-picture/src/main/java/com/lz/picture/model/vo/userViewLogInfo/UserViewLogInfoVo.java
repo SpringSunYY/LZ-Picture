@@ -54,7 +54,7 @@ public class UserViewLogInfoVo implements Serializable {
      * 分数
      */
     @Excel(name = "分数")
-    private Boolean score;
+    private Double score;
 
     /**
      * 图片分类

@@ -277,7 +277,7 @@ public class UserInfoLoginService {
         validateCaptcha(code, captchaEnabled, uuid);
         String registerCode = StringUtils.generateCode();
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
-        //TODO 发送验证码
+        smsTemplate.sendCode(UserConfigConstants.SMS_FORGET_PASSWORD_CODE, registerCode, phone, "zh");
         return registerCode;
     }
 }

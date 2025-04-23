@@ -181,8 +181,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         UserViewLogInfo userViewLogInfo = new UserViewLogInfo();
         //如果存在
         if (StringUtils.isNotEmpty(list)) {
-            userViewLogInfo = list.get(0);
-
+            userViewLogInfo = list.getFirst();
         }
         //赋值
         userViewLogInfo.setUserId(userId);

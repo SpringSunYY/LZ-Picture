@@ -14,6 +14,13 @@ public class UserConfigConstants {
      */
     public static final String SMS_LOGIN_CODE = "sms_login_code";
 
+    /**
+     * 注册发送验证码
+     */
     public static final String SMS_REGISTER_CODE = "sms_register_code";
 
+    /**
+     * 忘记密码发送验证码
+     */
+    public static final String SMS_FORGET_PASSWORD_CODE = "sms_forget_password_code";
 }

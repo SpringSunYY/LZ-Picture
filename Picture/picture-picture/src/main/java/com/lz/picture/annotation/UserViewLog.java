@@ -1,10 +1,8 @@
 package com.lz.picture.annotation;
 
-import com.lz.common.enums.BusinessType;
 import com.lz.common.enums.OperatorType;
 
 import java.lang.annotation.*;
-import java.math.BigDecimal;
 
 /**
  * 自定义图片浏览记录注解
