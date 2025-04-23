@@ -129,7 +129,7 @@ const currentPreview = ref({})
 const loadImageMeta = (url: string) => {
   return new Promise((resolve) => {
     const img = new Image()
-    const fileName = url.split('.').pop()
+    const fileName = url.split('.').pop()?.split('?')[0] || ''
     img.onload = () => {
       resolve({
         width: img.naturalWidth,
