@@ -41,6 +41,11 @@ public class PictureInfoQuery implements Serializable {
     private String categoryId;
 
     /**
+     * 域名URL
+     */
+    private String dnsUrl;
+
+    /**
      * 图片体积
      */
     private Long picSize;

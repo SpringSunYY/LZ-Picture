@@ -1,24 +1,25 @@
 package com.lz.picture.model.domain;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Date;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.lz.common.annotation.Excel;
-import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 图片信息对象 p_picture_info
  *
  * @author YY
- * @date 2025-04-09
+ * @date 2025-04-24
  */
 @TableName("p_picture_info")
 @Data
@@ -39,6 +40,12 @@ public class PictureInfo implements Serializable {
     private String pictureUrl;
 
     /**
+     * 域名URL
+     */
+    @Excel(name = "域名URL")
+    private String dnsUrl;
+
+    /**
      * 图片名称
      */
     @Excel(name = "图片名称")
@@ -57,9 +64,9 @@ public class PictureInfo implements Serializable {
     private String categoryId;
 
     /**
-     * 图片体积
+     * 图片体积（字节）
      */
-    @Excel(name = "图片体积")
+    @Excel(name = "图片体积", readConverterExp = "字节")
     private Long picSize;
 
     /**
@@ -193,10 +200,4 @@ public class PictureInfo implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @TableField(exist = false)
     private Map<String, Object> params;
-
-    /**
-     * 图片标签
-     */
-    @TableField(exist = false)
-    private List<String> tags;
 }

@@ -7,11 +7,11 @@
     <a-row :gutter="16">
       <a-col :span="12">
         <h4>原始图片</h4>
-        <img :src="picture?.pictureUrl" :alt="picture?.name" style="max-width: 100%" />
+        <a-image :src="picture?.pictureUrl" :alt="picture?.name" style="max-width: 100%" />
       </a-col>
       <a-col :span="12">
         <h4>扩图结果</h4>
-        <img
+        <a-image
           v-if="resultImageUrl"
           :src="resultImageUrl"
           :alt="picture?.name"

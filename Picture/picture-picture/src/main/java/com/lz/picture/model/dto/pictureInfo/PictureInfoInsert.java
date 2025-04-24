@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.picture.model.domain.PictureInfo;
@@ -27,6 +28,11 @@ public class PictureInfoInsert implements Serializable {
      * 图片URL
      */
     private String pictureUrl;
+
+    /**
+     * 域名URL
+     */
+    private String dnsUrl;
 
     /**
      * 图片名称

@@ -7,6 +7,7 @@
     <resultMap type="PictureInfo" id="PictureInfoResult">
         <result property="pictureId" column="picture_id"/>
         <result property="pictureUrl" column="picture_url"/>
+        <result property="dnsUrl" column="dns_url"/>
         <result property="name" column="name"/>
         <result property="introduction" column="introduction"/>
         <result property="categoryId" column="category_id"/>
@@ -36,6 +37,7 @@
     <sql id="selectPictureInfoVo">
         select picture_id,
                picture_url,
+               dns_url,
                name,
                introduction,
                category_id,
@@ -67,26 +69,19 @@
         <include refid="selectPictureInfoVo"/>
         <where>
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="dnsUrl != null  and dnsUrl != ''">and dns_url like concat('%', #{dnsUrl}, '%')</if>
             <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
             <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
-            <if test="picSize != null ">and pic_size = #{picSize}</if>
             <if test="picWidth != null ">and pic_width = #{picWidth}</if>
             <if test="picHeight != null ">and pic_height = #{picHeight}</if>
             <if test="picScale != null ">and pic_scale = #{picScale}</if>
             <if test="picFormat != null  and picFormat != ''">and pic_format = #{picFormat}</if>
             <if test="pointsNeed != null ">and points_need = #{pointsNeed}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
-                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
-            </if>
-            <if test="params.beginEditTime != null and params.beginEditTime != '' and params.endEditTime != null and params.endEditTime != ''">
-                and DATE_FORMAT(edit_time, '%Y-%m-%d') between #{params.beginEditTime} and #{params.endEditTime}
-            </if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
-                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
-            </if>
+            <if test="createTime != null ">and create_time = #{createTime}</if>
             <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
             <if test="reviewStatus != null ">and review_status = #{reviewStatus}</if>
+            <if test="reviewMessage != null  and reviewMessage != ''">and review_message = #{reviewMessage}</if>
             <if test="reviewUserId != null ">and review_user_id = #{reviewUserId}</if>
             <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''">
                 and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
@@ -99,7 +94,6 @@
                 #{params.endDeletedTime}
             </if>
         </where>
-        order by create_time desc
     </select>
 
     <select id="selectPictureInfoByPictureId" parameterType="String" resultMap="PictureInfoResult">
@@ -112,6 +106,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">picture_id,</if>
             <if test="pictureUrl != null and pictureUrl != ''">picture_url,</if>
+            <if test="dnsUrl != null and dnsUrl != ''">dns_url,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="introduction != null">introduction,</if>
             <if test="categoryId != null and categoryId != ''">category_id,</if>
@@ -140,6 +135,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">#{pictureId},</if>
             <if test="pictureUrl != null and pictureUrl != ''">#{pictureUrl},</if>
+            <if test="dnsUrl != null and dnsUrl != ''">#{dnsUrl},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="introduction != null">#{introduction},</if>
             <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
@@ -171,6 +167,7 @@
         update p_picture_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="pictureUrl != null and pictureUrl != ''">picture_url = #{pictureUrl},</if>
+            <if test="dnsUrl != null and dnsUrl != ''">dns_url = #{dnsUrl},</if>
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="introduction != null">introduction = #{introduction},</if>
             <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
