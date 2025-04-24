@@ -1,9 +1,5 @@
 <template>
-  <a-card
-    class="picture-out-painting"
-    :footer="false"
-    @cancel="closeModal"
-  >
+  <a-card class="picture-out-painting" :footer="false" @cancel="closeModal">
     <a-row :gutter="16">
       <a-col :span="12">
         <h4>原始图片</h4>
@@ -22,9 +18,9 @@
     <div style="margin-bottom: 16px" />
     <a-flex justify="center" gap="16">
       <a-button type="primary" :loading="!!taskId" ghost @click="createTask">生成图片</a-button>
-<!--      <a-button v-if="resultImageUrl" type="primary" :loading="uploadLoading" @click="handleUpload">-->
-<!--        应用结果-->
-<!--      </a-button>-->
+      <a-button v-if="resultImageUrl" type="primary" :loading="uploadLoading" @click="handleUpload">
+        应用结果
+      </a-button>
     </a-flex>
   </a-card>
 </template>
@@ -35,6 +31,7 @@ import { message } from 'ant-design-vue'
 import type { Space } from '@/types/picture/space'
 import { createPictureOutPaintingTask, getPictureOutPaintingTask } from '@/api/picture/ai.ts'
 import type { PictureInfo } from '@/types/picture/picture'
+import { urlUploadFile } from '@/api/common/file.ts'
 
 interface Props {
   picture?: PictureInfo
@@ -121,36 +118,29 @@ const clearPolling = () => {
 // 是否正在上传
 const uploadLoading = ref(false)
 
-// /**
-//  * 上传图片
-//  * @param file
-//  */
-// const handleUpload = async () => {
-//   uploadLoading.value = true
-//   try {
-//     const params: API.PictureUploadRequest = {
-//       fileUrl: resultImageUrl.value,
-//       spaceId: props.spaceId,
-//     }
-//     if (props.picture) {
-//       params.id = props.picture.id
-//     }
-//     const res = await uploadPictureByUrlUsingPost(params)
-//     if (res.data.code === 0 && res.data.data) {
-//       message.success('图片上传成功')
-//       // 将上传成功的图片信息传递给父组件
-//       props.onSuccess?.(res.data.data)
-//       // 关闭弹窗
-//       closeModal()
-//     } else {
-//       message.error('图片上传失败，' + res.data.message)
-//     }
-//   } catch (error) {
-//     console.error('图片上传失败', error)
-//     message.error('图片上传失败，' + error.message)
-//   }
-//   uploadLoading.value = false
-// }
+/**
+ * 上传图片
+ * @param file
+ */
+const handleUpload = async () => {
+  uploadLoading.value = true
+  try {
+    const res = await urlUploadFile({ url: resultImageUrl.value, spaceId: props.spaceId })
+    if (res.code === 200 && res.data) {
+      message.success('图片上传成功')
+      // 将上传成功的图片信息传递给父组件
+      props.onSuccess?.(res.data)
+      // 关闭弹窗
+      closeModal()
+    } else {
+      message.error('图片上传失败，' + res.data.message)
+    }
+  } catch (error) {
+    console.error('图片上传失败', error)
+    message.error('图片上传失败，' + error.message)
+  }
+  uploadLoading.value = false
+}
 
 // 是否可见
 const visible = ref(false)

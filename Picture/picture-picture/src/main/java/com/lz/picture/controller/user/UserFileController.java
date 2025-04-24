@@ -2,8 +2,10 @@ package com.lz.picture.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.file.FileUtils;
 import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.dto.file.UrlUploadRequest;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -48,8 +50,16 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload/cover")
     public AjaxResult uploadCover(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        String picture = pictureUploadManager.uploadCover(multipartFile, "picture", getLoginUser());
+        String picture = pictureUploadManager.uploadCover(multipartFile, "cover", getLoginUser());
         return success(picture);
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PostMapping("/upload/url")
+    public AjaxResult uploadUrl(@RequestBody UrlUploadRequest urlUploadRequest) {
+        // 执行业务上传
+        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
+        return success(pictureFileResponse);
     }
 
     @PreAuthorize("@uss.hasPermi('picture:download')")
@@ -57,7 +67,7 @@ public class UserFileController extends BaseUserInfoController {
     public void downloadPicture(@PathVariable("pictureId") String pictureId, HttpServletResponse response) throws IOException {
         //TODO 图片校验
         PictureInfo pictureInfo = pictureInfoService.selectPictureInfoByPictureId(pictureId);
-        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(),5L);
+        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
 
         response.reset();
         response.setContentType("application/octet-stream");

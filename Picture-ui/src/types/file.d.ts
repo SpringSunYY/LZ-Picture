@@ -48,3 +48,8 @@ export interface PictureFileResponse {
    */
   thumbnailUrl: string
 }
+
+export interface UrlUploadRequest {
+  url: string;
+  pictureId: string;
+}

@@ -1,5 +1,5 @@
 import { http as request } from '@/utils'
-import type { PictureFileResponse } from '@/types/file'
+import type { PictureFileResponse, UrlUploadRequest } from '@/types/file'
 import type { API } from '@/types/common'
 
 export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
@@ -22,6 +22,18 @@ export function coverUploadFile(file: any) {
     },
     method: 'post',
     data: file,
+    timeout: 60000,
+  })
+}
+
+export function urlUploadFile(data: UrlUploadRequest):Promise<API.ResponseInfo<PictureFileResponse>> {
+  return request({
+    url: '/picture/file/upload/url',
+    headers: {
+      repeatSubmit: false,
+    },
+    method: 'post',
+    data: data,
     timeout: 60000,
   })
 }
