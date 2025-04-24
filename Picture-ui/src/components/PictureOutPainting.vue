@@ -3,7 +3,7 @@
     <a-row :gutter="16">
       <a-col :span="12">
         <h4>原始图片</h4>
-        <a-image :src="picture?.pictureUrl" :alt="picture?.name" style="max-width: 100%" />
+        <a-image :src="createUrl()" :alt="picture?.name" style="max-width: 100%" />
       </a-col>
       <a-col :span="12">
         <h4>扩图结果</h4>
@@ -28,16 +28,19 @@
 <script lang="ts" setup name="PictureOutPainting">
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
-import type { Space } from '@/types/picture/space'
 import { createPictureOutPaintingTask, getPictureOutPaintingTask } from '@/api/picture/ai.ts'
 import type { PictureInfo } from '@/types/picture/picture'
 import { urlUploadFile } from '@/api/common/file.ts'
+import type { PictureFileResponse } from '@/types/file'
 
 interface Props {
   picture?: PictureInfo
   spaceId?: string
-  onSuccess?: (newPicture: Space) => void
 }
+
+const emit = defineEmits<{
+  (e: 'success', data: PictureFileResponse): void
+}>()
 
 const props = defineProps<Props>()
 
@@ -115,6 +118,14 @@ const clearPolling = () => {
   }
 }
 
+const createUrl = () => {
+  if (!props.picture?.pictureUrl?.startsWith('http')) {
+    return (props.picture?.dnsUrl ?? '') + (props.picture?.pictureUrl ?? '')
+  } else {
+    return props.picture?.pictureUrl ?? ''
+  }
+}
+
 // 是否正在上传
 const uploadLoading = ref(false)
 
@@ -129,11 +140,11 @@ const handleUpload = async () => {
     if (res.code === 200 && res.data) {
       message.success('图片上传成功')
       // 将上传成功的图片信息传递给父组件
-      props.onSuccess?.(res.data)
+      emit('success', res.data)
       // 关闭弹窗
       closeModal()
     } else {
-      message.error('图片上传失败，' + res.data.message)
+      message.error('图片上传失败，' + res.msg)
     }
   } catch (error) {
     console.error('图片上传失败', error)

@@ -65,6 +65,7 @@
                 ref="pictureOutPainting"
                 :spaceId="formState.spaceId"
                 :picture="formState"
+                @success="handleExternalSuccess"
               ></PictureOutPainting>
             </a-form-item>
           </a-col>
@@ -222,6 +223,7 @@ import { addPictureInfo, getMyPictureDetailInfo } from '@/api/picture/picture.ts
 import { EditOutlined, QuestionCircleOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 import PictureOutPainting from '@/components/PictureOutPainting.vue'
+import type { PictureFileResponse } from '@/types/file'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -325,7 +327,16 @@ const handleSuccess = (modelValue: any) => {
   formState.picFormat = modelValue.meta.format
   formState.picSize = modelValue.meta.size
 }
-
+const handleExternalSuccess = (moderValue: PictureFileResponse) => {
+  console.log(moderValue)
+  formState.dnsUrl = moderValue.dnsUrl
+  formState.thumbnailUrl = moderValue.thumbnailUrl
+  formState.pictureUrl = moderValue.pictureUrl
+  formState.picWidth = moderValue.picWidth
+  formState.picHeight = moderValue.picHeight
+  formState.picScale = Number(moderValue.picScale.toFixed(2))
+  formState.picFormat = moderValue.picFormat
+}
 // 提交处理
 const handleSubmit = async () => {
   submitting.value = true
