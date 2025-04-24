@@ -1,14 +1,12 @@
 <template>
-  <div class="picture-update">
+  <div class="picture-edit">
     <a-card :bordered="false">
       <!-- 自定义标题插槽 -->
       <template #title>
         <div class="custom-modal-title">
           <span style="color: #1890ff; margin-right: 8px">🚀</span>
           {{ title }}
-          <a-tooltip
-            title="您可以上传图片到官方空间、自己的空间以及加入的团队空间中，并设置图片信息，如名称、简介、分类、标签等，如果积分为0则表示图片免费。"
-          >
+          <a-tooltip title="如果积分为0则表示图片免费。">
             <question-circle-outlined class="title-tip-icon" />
           </a-tooltip>
         </div>
@@ -167,7 +165,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="PictureUpdate">
+<script setup lang="ts" name="PictureEdit">
 import { reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload.vue'
@@ -187,14 +185,12 @@ import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
 import type { PictureInfo } from '@/types/picture/picture'
 import { addPictureInfo, getMyPictureDetailInfo } from '@/api/picture/picture.ts'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { useRoute } from 'vue-router'
 
-const props = defineProps({
-  pictureId: {
-    type: String,
-    default: '',
-  },
-})
-const title = ref('图片上传')
+// 获取当前路由信息
+const route = useRoute()
+const pictureId = ref<string>(route.query.pictureId as string)
+const title = ref('图片编辑')
 //空间
 const spaceList = ref<Space[]>([])
 const spaceQuery = ref<SpaceQuery>({})
@@ -382,11 +378,13 @@ const getTagList = () => {
     tagLoading.value = false
   })
 }
+console.log('pictureId', pictureId.value)
 const getPictureInfo = () => {
-  if (props.pictureId === '') {
+  console.log('pictureId', pictureId.value)
+  if (pictureId.value === '') {
     return
   }
-  getMyPictureDetailInfo(props.pictureId).then((res) => {
+  getMyPictureDetailInfo(pictureId.value).then((res) => {
     Object.assign(formState, res.data)
     tagList.value = res?.data?.pictureTags?.map((item: string) => {
       return {
@@ -408,8 +406,8 @@ getPictureCategoryList()
 </script>
 
 <style lang="scss" scoped>
-.picture-update {
-  width: 90%;
+.picture-edit {
+  width: 70%;
   margin: 0 auto;
 
   .custom-modal-title {

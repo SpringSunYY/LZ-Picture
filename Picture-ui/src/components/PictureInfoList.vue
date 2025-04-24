@@ -18,9 +18,8 @@
           ></div>
           <div class="picture-info">
             <h3 class="title">{{ picture.name }}</h3>
-            <div class="meta">
+            <a-space class="meta" :wrap="true" direction="horizontal">
               <span>{{ formatSize(picture.picSize) }}</span>
-              <a-divider type="vertical" />
               <a-divider type="vertical" />
               <Tags
                 :values="[getPictureStatusLabel(picture.pictureStatus)]"
@@ -30,6 +29,7 @@
                 :values="[getPictureReviewStatusLabel(picture.reviewStatus)]"
                 :colors="['#7300ff']"
               />
+
               <a-button
                 v-if="checkUser(picture.userId) && checkPermiSingle('picture:upload')"
                 style="float: right"
@@ -39,7 +39,7 @@
               >
                 修改
               </a-button>
-            </div>
+            </a-space>
           </div>
         </div>
       </a-col>
@@ -62,10 +62,6 @@
         :pageSizeOptions="['12', '24', '48', '96']"
       />
     </div>
-
-    <a-modal v-model:open="open" :footer="null" centered destroyOnClose :width="800">
-      <PictureEdit :pictureId="pictureId"></PictureEdit>
-    </a-modal>
   </div>
 </template>
 <script setup lang="ts">
@@ -81,7 +77,6 @@ import { listMyPictureInfo } from '@/api/picture/picture.ts'
 import { formatSize } from '@/utils/common.ts'
 import Tags from '@/components/Tags.vue'
 import { useRouter } from 'vue-router'
-import PictureEdit from '@/components/PictureEdit.vue'
 
 const props = defineProps({
   currentParentId: {
@@ -101,7 +96,6 @@ const pictureQuery = ref<PictureInfoQuery>({
 })
 const current = ref(1)
 const pictureTotal = ref(1)
-const open = ref(false)
 const pictureId = ref('')
 // 路由跳转
 const router = useRouter()
@@ -145,7 +139,12 @@ const getSpaceInfoList = () => {
 
 const handleUpdate = (id: string) => {
   pictureId.value = id
-  open.value = true
+  const routeData = router.resolve({
+    path: '/picture/pictureEdit',
+    query: { pictureId: id },
+  })
+  console.log('routeData', routeData)
+  window.open(routeData.href, '_blank')
 }
 
 watchEffect(() => {

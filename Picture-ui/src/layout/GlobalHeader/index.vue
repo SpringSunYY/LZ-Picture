@@ -143,7 +143,10 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
   // console.log('generateMenu', routes)
   return routes
     .filter((route) => {
-      return !route.redirect && route?.meta?.title && !checkRouteHidden(route)
+      console.log('checkRouteHidden', route)
+      return (
+        !route.redirect && route?.meta?.title && !route.meta?.isHidden && !checkRouteHidden(route)
+      )
     })
     .map((route) => {
       // console.log('route', route)
@@ -166,7 +169,7 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
             path: `${child.path}`.replace(/\/+/g, '/'),
           })),
         )
-        if (route.children.length > 0) {
+        if (children && children.length > 0) {
           menuItem.children = children
         }
       }

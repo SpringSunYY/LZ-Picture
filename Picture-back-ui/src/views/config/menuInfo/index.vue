@@ -497,7 +497,7 @@ const data = reactive({
     {key: 0, label: '编号', visible: false},
     {key: 1, label: '菜单名称', visible: true},
     {key: 2, label: '父菜单', visible: false},
-    {key: 3, label: '显示顺序', visible: false},
+    {key: 3, label: '显示顺序', visible: true},
     {key: 4, label: '路由地址', visible: true},
     {key: 5, label: '组件路径', visible: false},
     {key: 6, label: '路由参数', visible: false},

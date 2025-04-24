@@ -53,7 +53,7 @@
         class="preview-modal"
       >
         <template #title>
-          <div class="preview-title">
+          <div class="preview-title" style="padding-left:10px ">
             <a-tag color="blue">{{ currentPreview.meta.format }}</a-tag>
             <a-tag color="green" v-if="currentPreview.meta.size > 0"
               >{{ currentPreview.meta?.size }}MB
@@ -448,7 +448,7 @@ isInit.value = props.isEdit
   .ant-modal-content {
     .preview-content {
       position: relative;
-      width: 100%;
+      //width: 100%;
       //height: 70vh;
       display: flex;
       justify-content: center;
@@ -458,7 +458,8 @@ isInit.value = props.isEdit
       //overflow: auto;
 
       .full-preview {
-        max-width: 90%;
+        padding: 2px;
+        //max-width: 90%;
         //height: auto;
         max-height: 70vh;
         //object-fit: contain;

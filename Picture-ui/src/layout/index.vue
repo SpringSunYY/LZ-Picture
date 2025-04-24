@@ -36,9 +36,9 @@ let lastScrollTop = window.scrollY
 
 const onScroll = () => {
   const current = window.scrollY
-  if (current > lastScrollTop && current - lastScrollTop > 5) {
+  if (current > lastScrollTop && current - lastScrollTop > 3) {
     isHeaderHidden.value = true // 向下滚动，隐藏头部
-  } else if (current < lastScrollTop - 5) {
+  } else if (current < lastScrollTop - 3) {
     isHeaderHidden.value = false // 向上滚动，显示头部
   }
   lastScrollTop = current <= 0 ? 0 : current
