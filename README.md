@@ -1685,7 +1685,7 @@ CREATE TABLE ai_conversation_log_info
 
 #### 空间信息表：p_space_info
 
-| 字段名           | 类型     | 长度 | 键类型                    | nuu  | 默认值     | 描述                          |
+| 字段名           | 类型     | 长度 | 键类型                    | null | 默认值     | 描述                          |
 | ---------------- | -------- | ---- | ------------------------- | ---- | ---------- | ----------------------------- |
 | space_id         | varchar  | 128  | 主键                      | 否   |            | 空间编号                      |
 | space_name       | varchar  | 32   | 唯一                      | 否   |            | 空间名称                      |
@@ -2035,7 +2035,7 @@ CREATE TABLE p_picture_tag_info (
 | -------------- | -------- | ---- | --------------------------------- | ---- | -------------- | ------------------- |
 | picture_id     | varchar  | 128  | 主键                              | 否   | auto_increment | 图片编号            |
 | picture_url    | varchar  | 512  |                                   | 否   |                | 图片 url            |
-| dns_url        | varchar  | 512  |                                   | 否   |                | 域名URL             |
+| dns_url        | varchar  | 512  |                                   | 是   |                | 域名URL             |
 | name           | varchar  | 32   |                                   | 否   |                | 图片名称            |
 | introduction   | varchar  | 512  |                                   | 是   |                | 简介                |
 | category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 否   |                | 分类                |
@@ -2075,7 +2075,7 @@ CREATE TABLE p_picture_info
 (
     picture_id     varchar(128) COMMENT '图片编号',
     picture_url    VARCHAR(512) NOT NULL COMMENT '图片URL',
-    dns_url        VARCHAR(512) NOT NULL COMMENT '域名URL',
+    dns_url        VARCHAR(512) NULL COMMENT '域名URL',
     name           VARCHAR(32)  NOT NULL COMMENT '图片名称',
     introduction   VARCHAR(512) COMMENT '简介',
     category_id    VARCHAR(128) NOT NULL COMMENT '分类编号',

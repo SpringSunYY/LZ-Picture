@@ -2,6 +2,7 @@ package com.lz.common.config;
 
 import com.lz.common.factory.YamlPropertySourceFactory;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -32,4 +33,6 @@ public class OssConfig {
     private String endpoint;
     @Value("${aliYun.region}")
     private String region;
+    @Value("${aliYun.dnsUrl}")
+    private String dnsUrl;
 }

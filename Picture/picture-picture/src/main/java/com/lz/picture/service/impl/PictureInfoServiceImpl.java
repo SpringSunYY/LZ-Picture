@@ -3,6 +3,7 @@ package com.lz.picture.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.redis.RedisCache;
@@ -87,6 +88,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Resource
     private PictureUploadManager pictureUploadManager;
 
+    @Resource
+    private OssConfig ossConfig;
+
     //region mybatis代码
 
     /**
@@ -97,7 +101,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      */
     @Override
     public PictureInfo selectPictureInfoByPictureId(String pictureId) {
-        return pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
+        PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
+        String pictureUrl = builderPictureUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+        pictureInfo.setPictureUrl(pictureUrl);
+        String thumbnailUrl = builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+        pictureInfo.setThumbnailUrl(thumbnailUrl);
+        return pictureInfo;
     }
 
     /**
@@ -108,7 +117,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      */
     @Override
     public List<PictureInfo> selectPictureInfoList(PictureInfo pictureInfo) {
-        return pictureInfoMapper.selectPictureInfoList(pictureInfo);
+        List<PictureInfo> pictureInfos = pictureInfoMapper.selectPictureInfoList(pictureInfo);
+        for (PictureInfo info : pictureInfos) {
+            String pictureUrl = builderPictureUrl(info.getPictureUrl(), info.getDnsUrl());
+            info.setPictureUrl(pictureUrl);
+            String thumbnailUrl = builderPictureUrl(info.getThumbnailUrl(), info.getDnsUrl());
+            info.setThumbnailUrl(thumbnailUrl);
+        }
+        return pictureInfos;
     }
 
     /**
@@ -317,6 +333,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 throw new ServiceException("您不是该文件夹所有者，无法上传图片");
             }
         }
+        //判断空间是否是公共
+        if (spaceInfo.getOssType().equals(PSpaceOssType.SPACE_OSS_TYPE_0.getValue())) {
+            //是公共空间，使用官方域名,官方不指定域名，根据配置文件获取域名
+            pictureInfo.setDnsUrl(null);
+        } else {
+            //TODO 从空间配置获取域名
+        }
         return spaceInfo;
     }
 
@@ -401,6 +424,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo = redisCache.getCacheObject(key);
         } else {
             userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+            userPictureDetailInfoVo.setPictureUrl(null);
         }
         //存入缓存 五分钟即可
         redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
@@ -472,6 +496,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setCategoryName(categoryInfo.getName());
         }
         BeanUtils.copyProperties(pictureInfo, userPictureDetailInfoVo);
+        //构建图片url
+        String pictureUrl = builderPictureUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+        userPictureDetailInfoVo.setPictureUrl(pictureUrl);
+        String thumbnailUrl = builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+        userPictureDetailInfoVo.setThumbnailUrl(thumbnailUrl);
         //查询空间
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         //判断空间是否存在且是否是公共空间
@@ -564,5 +593,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), timeout);
         userPictureDetailInfoVo.setPictureUrl(url);
         return userPictureDetailInfoVo;
+    }
+
+    @Override
+    public String builderPictureUrl(String pictureUrl, String dnsUrl) {
+        if (StringUtils.isNotEmpty(dnsUrl)) {
+            return dnsUrl + pictureUrl;
+        } else {
+            return ossConfig.getDnsUrl() + pictureUrl;
+        }
     }
 }

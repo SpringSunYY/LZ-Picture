@@ -1,22 +1,27 @@
 package com.lz.common.manager.file.model;
 
-import com.lz.common.annotation.Excel;
 import lombok.Data;
 
 /**
+ * 图片文件返回
  * Project: Picture
  * Package: com.lz.common.manager.file.model
  * Author: YY
  * CreateTime: 2025-03-29  20:29
- * Description: PictureResponse
+ * Description: PictureFileResponse
  * Version: 1.0
  */
 @Data
-public class PictureResponse {
+public class PictureFileResponse {
     /**
      * 图片URL
      */
     private String pictureUrl;
+
+    /**
+     * 图片域名
+     */
+    private String dnsUrl;
 
     /**
      * 图片名称

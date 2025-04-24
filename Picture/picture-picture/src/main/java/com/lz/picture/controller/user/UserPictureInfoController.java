@@ -83,7 +83,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureInfo.setPictureStatus(PPictureStatus.PICTURE_STATUS_0.getValue());
         QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
         Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
-        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(page.getRecords());
+        List<PictureInfo> pictureInfoList = getPictureInfos(page);
+        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(pictureInfoList);
         //压缩图片
         String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (UserPictureInfoVo vo : userPictureInfoVos) {
@@ -102,7 +103,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureInfo.setUserId(getUserId());
         QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
         Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
-        List<MyPictureInfoVo> userPictureInfoVos = MyPictureInfoVo.objToVo(page.getRecords());
+        List<PictureInfo> pictureInfoList = getPictureInfos(page);
+        List<MyPictureInfoVo> userPictureInfoVos = MyPictureInfoVo.objToVo(pictureInfoList);
         //压缩图片
         String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (MyPictureInfoVo vo : userPictureInfoVos) {
@@ -112,5 +114,16 @@ public class UserPictureInfoController extends BaseUserInfoController {
         tableDataInfo.setRows(userPictureInfoVos);
         tableDataInfo.setTotal(page.getTotal());
         return tableDataInfo;
+    }
+
+    private List<PictureInfo> getPictureInfos(Page<PictureInfo> page) {
+        List<PictureInfo> pictureInfoList = page.getRecords();
+        for (PictureInfo info : pictureInfoList) {
+            String pictureUrl = pictureInfoService.builderPictureUrl(info.getPictureUrl(), info.getDnsUrl());
+            info.setPictureUrl(pictureUrl);
+            String thumbnailUrl = pictureInfoService.builderPictureUrl(info.getThumbnailUrl(), info.getDnsUrl());
+            info.setThumbnailUrl(thumbnailUrl);
+        }
+        return pictureInfoList;
     }
 }

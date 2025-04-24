@@ -1,7 +1,6 @@
 package com.lz.picture.model.vo.pictureInfo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.user.model.vo.userInfo.UserVo;
 import lombok.Data;

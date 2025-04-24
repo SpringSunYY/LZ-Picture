@@ -53,7 +53,7 @@
         class="preview-modal"
       >
         <template #title>
-          <div class="preview-title" style="padding-left:10px ">
+          <div class="preview-title" style="padding-left: 10px">
             <a-tag color="blue">{{ currentPreview.meta.format }}</a-tag>
             <a-tag color="green" v-if="currentPreview.meta.size > 0"
               >{{ currentPreview.meta?.size }}MB
@@ -251,16 +251,17 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
       const uploadedFile = {
         uid: file.uid,
         status: 'done',
-        name: response.data.name,
-        url: response.data.pictureUrl, // 确保取 `pictureUrl`
-        thumbnailUrl: response.data.thumbnailUrl,
-        pictureUrl: response.data.pictureUrl,
+        name: response?.data?.name,
+        url: response?.data?.pictureUrl, // 确保取 `pictureUrl`
+        thumbnailUrl: response?.data?.thumbnailUrl,
+        pictureUrl: response?.data?.pictureUrl,
+        dnsUrl: response?.data?.dnsUrl,
         meta: {
-          width: response.data.picWidth,
-          height: response.data.picHeight,
-          ratio: (response.data.picWidth / response.data.picHeight).toFixed(2),
-          format: response.data.picFormat,
-          size: response.data.picSize,
+          width: response?.data?.picWidth,
+          height: response?.data?.picHeight,
+          ratio: (response?.data?.picWidth / response?.data?.picHeight).toFixed(2),
+          format: response?.data?.picFormat,
+          size: response?.data.picSize,
         },
       }
 

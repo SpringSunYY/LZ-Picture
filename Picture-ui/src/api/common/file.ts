@@ -1,7 +1,8 @@
-// 登录方法
 import { http as request } from '@/utils'
+import type { PictureFileResponse } from '@/types/file'
+import type { API } from '@/types/common'
 
-export function pictureUpload(file: any) {
+export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
   return request({
     url: '/picture/file/upload',
     headers: {

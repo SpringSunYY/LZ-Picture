@@ -36,6 +36,11 @@ public class UserPictureInfoAdd implements Serializable {
     private String name;
 
     /**
+     * 域名URL
+     */
+    private String dnsUrl;
+
+    /**
      * 简介
      */
     private String introduction;

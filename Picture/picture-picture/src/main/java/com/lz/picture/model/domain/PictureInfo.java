@@ -195,6 +195,10 @@ public class PictureInfo implements Serializable {
     @Excel(name = "删除时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date deletedTime;
 
+    /**
+     * 标签集合
+     */
+    @TableField(exist = false)
     private List<String> tags;
 
     /**

@@ -29,6 +29,11 @@ public class PictureInfoEdit implements Serializable {
     private String pictureUrl;
 
     /**
+     * 域名URL
+     */
+    private String dnsUrl;
+
+    /**
      * 图片名称
      */
     private String name;

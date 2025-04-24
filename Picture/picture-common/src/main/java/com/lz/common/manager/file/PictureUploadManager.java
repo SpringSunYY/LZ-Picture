@@ -6,13 +6,12 @@ import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
-import com.aliyun.oss.model.OSSObject;
-import com.aliyun.oss.model.PutObjectResult;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.manager.file.model.Exif;
-import com.lz.common.manager.file.model.PictureResponse;
+import com.lz.common.manager.file.model.PictureFileInfo;
+import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.file.FileUtils;
@@ -87,7 +86,7 @@ public class PictureUploadManager {
      * @param filePath
      * @return
      */
-    public String generateDownloadUrl(String filePath,Long expireTime) {
+    public String generateDownloadUrl(String filePath, Long expireTime) {
         OSS ossClient = null;
         try {
             ossClient = new OSSClientBuilder().build(
@@ -130,7 +129,10 @@ public class PictureUploadManager {
                 // 是以桶开头的路径，比如 litchi-picture/picture/xxx.jpg
                 return path.substring(ossConfig.getBucket().length() + 1); // 去掉桶名和斜杠
             }
-
+            if (path.startsWith("/")) {
+                //去掉"/"
+                return path.substring(1);
+            }
             // 否则就是正常的 key，比如 picture/xxx.jpg
             return path;
         } catch (Exception e) {
@@ -150,27 +152,18 @@ public class PictureUploadManager {
      * param: fileBytes
      * return: java.lang.String
      **/
-    public PictureResponse uploadPicture(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+    public PictureFileResponse uploadPicture(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        String nameNotSuffix = FileUtils.getNameNotSuffix(multipartFile.getOriginalFilename());
-        String suffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        Long snowflaked = IdUtils.snowflakeId();
-        String newFileName = nameNotSuffix + "-" + snowflaked + "." + suffix;
-        String dir = ossConfig.getDir();
-        //生成文件路径 包括时间年/月/日
-        String parseDateToStr = DateUtils.parseDateToStr(DateUtils.yyyy_mm_dd, new Date());
-        String filePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + newFileName;
-        //压缩文件信息
-        String compressedSuffix = "-compressed.webp";
-        String compressedFileName = nameNotSuffix + "-" + snowflaked + compressedSuffix;
-        String compressedFilePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + compressedFileName;
+        PictureFileInfo pictureFileInfo = getPictureFileInfo(multipartFile, fileDir);
+
         try {
-            file = File.createTempFile(newFileName, suffix);
+            file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
             multipartFile.transferTo(file);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("文件上传失败", e);
+            throw new RuntimeException("文件上传失败");
         }
         //校验文件
         validateFile(file);
@@ -186,7 +179,7 @@ public class PictureUploadManager {
             );
 
             // 上传原始文件
-            ossClient.putObject(ossConfig.getBucket(), filePath, file);
+            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getFilePath(), file);
 //            System.out.println("原图上传成功：" + filePath);
 //            System.out.println("putObjectResult = " + JSONObject.toJSONString(putObjectResult));
 
@@ -195,7 +188,7 @@ public class PictureUploadManager {
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
-                    filePath,  // 使用完整路径
+                    pictureFileInfo.getFilePath(),  // 使用完整路径
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
@@ -208,20 +201,9 @@ public class PictureUploadManager {
 //            System.out.println("图片元数据：" + imageInfo);
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
 //            System.out.println("exif = " + exif);
-            //设置图片信息
-            PictureResponse pictureResponse = new PictureResponse();
-            String pictureUrl = signedUrl.toString().split("\\?")[0];
-            pictureResponse.setPictureUrl(pictureUrl);
-            pictureResponse.setName(nameNotSuffix);
-            pictureResponse.setPicSize(Long.parseLong(exif.getFileSize().getValue()));
             long picWidth = Long.parseLong(exif.getImageWidth().getValue());
-            pictureResponse.setPicWidth(picWidth);
             long picHeight = Long.parseLong(exif.getImageHeight().getValue());
-            pictureResponse.setPicHeight(picHeight);
-            pictureResponse.setPicScale(((double) picWidth / (double) picHeight));
-            pictureResponse.setPicFormat(suffix);
-            int limit = pictureUrl.lastIndexOf(".");
-            pictureResponse.setThumbnailUrl(pictureUrl.substring(0, limit) + compressedSuffix);
+
 //            System.out.println("limit = " + pictureResponse);
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
@@ -237,11 +219,11 @@ public class PictureUploadManager {
             connection.setRequestMethod("GET");
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
-            ossClient.putObject(ossConfig.getBucket(), compressedFilePath, inputStream);
+            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getCompressedFilePath(), inputStream);
 //            System.out.println("压缩图上传成功：" + compressedFilePath);
 //            System.out.println("compressedPutObjectResult = " + JSONObject.toJSONString(compressedPutObjectResult));
             // 返回文件访问路径或URL
-            return pictureResponse;
+            return buildPictureResponse(ossConfig.getEndpoint(), pictureFileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
@@ -255,13 +237,76 @@ public class PictureUploadManager {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    log.error("文件关闭失败", e);
                 }
             }
-            if (file != null && file.exists()) {
+            if (file.exists()) {
                 boolean delete = file.delete();
             }
         }
+    }
+
+    /**
+     * 返回图片信息
+     *
+     * @param endpoint        环境dns
+     * @param pictureFileInfo 图片文件信息
+     * @param picSize         图片大小
+     * @param picWidth        图片宽度
+     * @param picHeight       图片高度
+     * @return com.lz.common.manager.file.model.PictureFileResponse
+     * @author YY
+     * @method buildPictureResponse
+     * @date 2025/4/24 20:20
+     **/
+    private static PictureFileResponse buildPictureResponse(String endpoint, PictureFileInfo pictureFileInfo, Long picSize, long picWidth, long picHeight) {
+        //设置图片信息
+        PictureFileResponse pictureFileResponse = new PictureFileResponse();
+        pictureFileResponse.setPictureUrl("/" + pictureFileInfo.getFilePath());
+        pictureFileResponse.setName(pictureFileInfo.getFileNameNotSuffix());
+        pictureFileResponse.setPicSize(picSize);
+        pictureFileResponse.setPicWidth(picWidth);
+        pictureFileResponse.setPicHeight(picHeight);
+        pictureFileResponse.setPicScale(((double) picWidth / (double) picHeight));
+        pictureFileResponse.setPicFormat(pictureFileInfo.getFileSuffix());
+        pictureFileResponse.setThumbnailUrl("/" + pictureFileInfo.getCompressedFilePath());
+        pictureFileResponse.setDnsUrl(endpoint);
+        return pictureFileResponse;
+    }
+
+    /**
+     * 获取文件基本信息
+     *
+     * @param multipartFile 文件
+     * @param fileDir       文件目录
+     * @return com.lz.common.manager.file.model.PictureFileInfo
+     * @author YY
+     * @method getPictureFileInfo
+     * @date 2025/4/24 20:14
+     **/
+    private PictureFileInfo getPictureFileInfo(MultipartFile multipartFile, String fileDir) {
+        String filename = multipartFile.getOriginalFilename();
+        String nameNotSuffix = FileUtils.getNameNotSuffix(filename);
+        String fileSuffix = FileUtil.getSuffix(filename);
+        String newFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + "." + fileSuffix;
+        String dir = ossConfig.getDir();
+        //生成文件路径 包括时间年/月/日
+        String parseDateToStr = DateUtils.parseDateToStr(DateUtils.yyyy_mm_dd, new Date());
+        String filePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + newFileName;
+        //压缩文件信息
+        String compressedSuffix = "-compressed.webp";
+        String compressedFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + compressedSuffix;
+        String compressedFilePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + compressedFileName;
+        PictureFileInfo pictureFileInfo = new PictureFileInfo();
+        pictureFileInfo.setFileNameNotSuffix(nameNotSuffix);
+        pictureFileInfo.setFileName(filename);
+        pictureFileInfo.setFileSuffix(fileSuffix);
+        pictureFileInfo.setFilePath(filePath);
+        pictureFileInfo.setNewFileName(newFileName);
+        pictureFileInfo.setCompressedSuffix(compressedSuffix);
+        pictureFileInfo.setCompressedFileName(compressedFileName);
+        pictureFileInfo.setCompressedFilePath(compressedFilePath);
+        return pictureFileInfo;
     }
 
     /**
@@ -357,20 +402,9 @@ public class PictureUploadManager {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        String nameNotSuffix = FileUtils.getNameNotSuffix(multipartFile.getOriginalFilename());
-        String suffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        Long snowflaked = IdUtils.snowflakeId();
-        String newFileName = nameNotSuffix + "-" + snowflaked + "." + suffix;
-        String dir = ossConfig.getDir();
-        //生成文件路径 包括时间年/月/日
-        String parseDateToStr = DateUtils.parseDateToStr(DateUtils.yyyy_mm_dd, new Date());
-        String filePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + newFileName;
-        //压缩文件信息
-        String compressedSuffix = "-compressed.webp";
-        String compressedFileName = nameNotSuffix + "-" + snowflaked + compressedSuffix;
-        String compressedFilePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + compressedFileName;
+        PictureFileInfo pictureFileInfo = getPictureFileInfo(multipartFile, fileDir);
         try {
-            file = File.createTempFile(newFileName, suffix);
+            file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
             multipartFile.transferTo(file);
         } catch (Exception e) {
             e.printStackTrace();
@@ -389,12 +423,12 @@ public class PictureUploadManager {
             );
 
             // 上传原始文件
-            ossClient.putObject(ossConfig.getBucket(), filePath, file);
+            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getFilePath(), file);
             //生成签名
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
-                    filePath,  // 使用完整路径
+                    pictureFileInfo.getFileName(),  // 使用完整路径
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
@@ -409,11 +443,11 @@ public class PictureUploadManager {
             connection.setRequestMethod("GET");
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
-            ossClient.putObject(ossConfig.getBucket(), compressedFilePath, inputStream);
+            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getCompressedFilePath(), inputStream);
             String compressedUrlStr = compressedUrl.toString();
             int limit = compressedUrlStr.lastIndexOf(".");
             // 返回文件访问路径或URL
-            return compressedUrlStr.substring(0, limit) + compressedSuffix;
+            return compressedUrlStr.substring(0, limit) + pictureFileInfo.getCompressedSuffix();
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());

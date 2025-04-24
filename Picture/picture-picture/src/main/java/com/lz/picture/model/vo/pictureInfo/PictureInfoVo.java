@@ -1,16 +1,14 @@
 package com.lz.picture.model.vo.pictureInfo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
+import com.lz.picture.model.domain.PictureInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
-import org.springframework.beans.BeanUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.PictureInfo;
 
 /**
  * 图片信息Vo对象 p_picture_info
