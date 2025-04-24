@@ -1,6 +1,7 @@
 package com.lz.picture.model.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Date;
 import java.util.Date;
@@ -193,6 +194,8 @@ public class PictureInfo implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "删除时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date deletedTime;
+
+    private List<String> tags;
 
     /**
      * 请求参数
