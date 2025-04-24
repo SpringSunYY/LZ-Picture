@@ -385,8 +385,6 @@ getPictureCategoryList()
   margin: 0 auto;
 
   .custom-modal-title {
-    display: flex;
-    align-items: center;
     font-size: 16px;
 
     .title-tip-icon {

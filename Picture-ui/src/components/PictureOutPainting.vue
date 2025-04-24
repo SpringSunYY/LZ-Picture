@@ -1,17 +1,15 @@
 <template>
-  <a-modal
-    class="image-out-painting"
-    v-model:visible="visible"
-    title="AI 扩图"
+  <a-card
+    class="picture-out-painting"
     :footer="false"
     @cancel="closeModal"
   >
-    <a-row gutter="16">
-      <a-col span="12">
+    <a-row :gutter="16">
+      <a-col :span="12">
         <h4>原始图片</h4>
         <img :src="picture?.pictureUrl" :alt="picture?.name" style="max-width: 100%" />
       </a-col>
-      <a-col span="12">
+      <a-col :span="12">
         <h4>扩图结果</h4>
         <img
           v-if="resultImageUrl"
@@ -28,10 +26,10 @@
 <!--        应用结果-->
 <!--      </a-button>-->
     </a-flex>
-  </a-modal>
+  </a-card>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="PictureOutPainting">
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Space } from '@/types/picture/space'
@@ -66,7 +64,7 @@ const createTask = async () => {
       yScale: 2,
     },
   })
-  if (res.code === 0 && res?.data) {
+  if (res.code === 200 && res?.data) {
     message.success('创建任务成功，请耐心等待，不要退出界面')
     console.log(res.data.output.taskId)
     taskId.value = res.data.output.taskId
@@ -89,7 +87,7 @@ const startPolling = () => {
   pollingTimer = setInterval(async () => {
     try {
       const res = await getPictureOutPaintingTask(taskId?.value)
-      if (res.code === 0 && res.data) {
+      if (res.code === 200 && res.data) {
         const taskResult = res.data.output
         if (taskResult?.taskStatus === 'SUCCEEDED') {
           message.success('扩图任务执行成功')
@@ -174,7 +172,7 @@ defineExpose({
 </script>
 
 <style>
-.image-out-painting {
+.picture-out-painting {
   text-align: center;
 }
 </style>

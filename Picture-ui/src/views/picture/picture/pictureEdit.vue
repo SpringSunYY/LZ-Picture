@@ -3,13 +3,40 @@
     <a-card :bordered="false">
       <!-- 自定义标题插槽 -->
       <template #title>
-        <div class="custom-modal-title">
-          <span style="color: #1890ff; margin-right: 8px">🚀</span>
-          {{ title }}
-          <a-tooltip title="如果积分为0则表示图片免费。">
-            <question-circle-outlined class="title-tip-icon" />
-          </a-tooltip>
-        </div>
+        <a-row :row="[24, 24]">
+          <a-col :xs="24" :sm="8" :md="8" :lg="8">
+            <div class="custom-modal-title">
+              <span style="color: #1890ff; margin-right: 8px">🚀</span>
+              {{ title }}
+              <a-tooltip title="如果积分为0则表示图片免费。">
+                <question-circle-outlined class="title-tip-icon" />
+              </a-tooltip>
+            </div>
+          </a-col>
+          <a-col :xs="24" :sm="16" :md="16" :lg="16">
+            <a-space
+              size="middle"
+              style="float: right; margin-bottom: 2px; text-align: center"
+              direction="horizontal"
+              :wrap="true"
+            >
+              <a-button
+                style="display: flex; align-items: center; justify-content: center"
+                type="text"
+                :icon="h(EditOutlined)"
+                @click="doSelectOperation('edit')"
+                >编辑图片
+              </a-button>
+              <a-button
+                style="display: flex; align-items: center; justify-content: center"
+                type="text"
+                :icon="h(FullscreenOutlined)"
+                @click="doSelectOperation('external')"
+                >AI 扩图
+              </a-button>
+            </a-space>
+          </a-col>
+        </a-row>
       </template>
       <a-form
         :model="formState"
@@ -23,6 +50,8 @@
             <!-- 图片上传 -->
             <a-form-item label="图片文件" name="pictureUrl">
               <PictureUpload
+                ref="pictureUpload"
+                v-if="editOpen"
                 :modelValue="formState.pictureUrl"
                 v-model:value="formState.pictureUrl"
                 :allowedFormats="['image/jpeg', 'image/png']"
@@ -31,6 +60,12 @@
                 @upload-success="handleSuccess"
                 :isEdit="true"
               />
+              <PictureOutPainting
+                v-if="externalOpen"
+                ref="pictureOutPainting"
+                :spaceId="formState.spaceId"
+                :picture="formState"
+              ></PictureOutPainting>
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -166,7 +201,7 @@
 </template>
 
 <script setup lang="ts" name="PictureEdit">
-import { reactive, ref } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload.vue'
 import type {
@@ -184,9 +219,9 @@ import type { PictureTagInfoQuery, PictureTagInfoVo } from '@/types/picture/pict
 import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
 import type { PictureInfo } from '@/types/picture/picture'
 import { addPictureInfo, getMyPictureDetailInfo } from '@/api/picture/picture.ts'
-import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, QuestionCircleOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
-
+import PictureOutPainting from '@/components/PictureOutPainting.vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -307,6 +342,14 @@ const handleSubmit = async () => {
     }
   })
   submitting.value = false
+}
+
+// 选择操作
+const editOpen = ref(true)
+const externalOpen = ref()
+const doSelectOperation = (open: string) => {
+  editOpen.value = open === 'edit'
+  externalOpen.value = open === 'external'
 }
 
 const getPictureCategoryList = async () => {

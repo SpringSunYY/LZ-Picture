@@ -49,6 +49,7 @@ public class AliYunAiApi {
                 .header(Header.CONTENT_TYPE, ContentType.JSON.getValue())
                 .body(JSONUtil.toJsonStr(createOutPaintingTaskRequest));
         try (HttpResponse httpResponse = httpRequest.execute()) {
+            System.out.println("httpResponse = " + httpResponse);
             if (!httpResponse.isOk()) {
                 log.error("请求异常：{}", httpResponse.body());
                 throw new ServiceException("AI扩图失败");
