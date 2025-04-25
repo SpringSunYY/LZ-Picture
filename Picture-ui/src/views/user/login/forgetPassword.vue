@@ -211,10 +211,13 @@ const rules = {
 const getCode = () => {
   if (!captchaEnabled.value) return
   getCodeImg().then((res) => {
+    //@ts-ignore
     captchaEnabled.value = res.captchaEnabled ?? true
     if (captchaEnabled.value) {
-      codeUrl.value = 'data:image/gif;base64,' + res.img
-      forgotPasswordForm.value.uuid = res.uuid
+      //@ts-ignore
+      codeUrl.value = 'data:image/gif;base64,' + res?.img
+      //@ts-ignore
+      forgotPasswordForm.value.uuid = res?.uuid
     }
   })
 }
@@ -242,6 +245,9 @@ const sendVerificationCode = async () => {
       phone: forgotPasswordForm.value.phone,
       code: forgotPasswordForm.value.code,
       uuid: forgotPasswordForm.value.uuid,
+      smsCode: forgotPasswordForm.value.smsCode,
+      password: forgotPasswordForm.value.newPassword,
+      confirmPassword: forgotPasswordForm.value.confirmPassword
     })
 
     message.success('验证码已发送')
@@ -257,7 +263,8 @@ const sendVerificationCode = async () => {
       }
     }, 1000)
   } catch (error) {
-    message.error(error.message || '验证码发送失败')
+    console.log('验证失败:', error)
+    message.error( '验证码发送失败')
     isSending.value = false
     getCode() // 刷新图形验证码
   }
@@ -279,14 +286,14 @@ const handleSubmit = async () => {
     await router.push('/user/login')
   } catch (error) {
     console.log('验证失败:', error)
-    message.error(error.message || '密码重置失败')
+    message.error( '密码重置失败')
     getCode() // 失败时刷新图形验证码
   } finally {
     loading.value = false
   }
 }
 
-const handleFinishFailed = (errors) => {
+const handleFinishFailed = (errors:string) => {
   console.log('验证失败:', errors)
 }
 

@@ -28,11 +28,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 80,
     host: true,
     open: true,
     proxy: {
       '/dev-api': {
+        // target: 'http://8.138.211.218:8080/user',
         target: 'http://localhost:8080/user',
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/dev-api/, ''),

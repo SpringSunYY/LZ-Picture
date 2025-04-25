@@ -73,8 +73,8 @@ const handleCustomUpload = async ({ file, onSuccess, onError }: any) => {
   try {
     const res = await coverUploadFile(formData)
     // 模拟 Upload 返回格式
-    onSuccess(res.msg)
-    emit('update:value', res.msg)
+    onSuccess(res?.msg)
+    emit('update:value', res?.msg)
   } catch (err) {
     message.error('上传失败')
     onError?.(err)
@@ -100,7 +100,7 @@ const handleCancel = () => {
 const handleRemove = () => {
   emit(
     'update:value',
-    fileList.value
+    fileList?.value
       .filter((f) => f.status === 'done' && f.url)
       .map((f) => f.url)
       .join(';'),

@@ -1,12 +1,20 @@
 @echo off
 echo.
-echo [ĞÅÏ¢] ´ò°üWeb¹¤³Ì£¬Éú³Éwar/jar°üÎÄ¼ş¡£
+echo [ä¿¡æ¯] æ­£åœ¨æ„å»º Web é¡¹ç›®ï¼Œç”Ÿæˆ war/jar åŒ…æ–‡ä»¶...
 echo.
+
+:: è®¾ç½® JDK è·¯å¾„
+set JAVA_HOME=E:\Java\Tool\JDK\JDK21
+set PATH=%JAVA_HOME%\bin;%PATH%
+
+:: æ‰“å° Java ç‰ˆæœ¬ç¡®è®¤æ˜¯å¦æ˜¯ JDK21
+java -version
+javac -version
 
 %~d0
 cd %~dp0
-
 cd ..
+
 call mvn clean package -Dmaven.test.skip=true
 
 pause

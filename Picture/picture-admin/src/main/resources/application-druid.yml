@@ -8,6 +8,7 @@ spring:
             master:
                 url: jdbc:mysql://localhost:3306/lz-picture?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
+#                password: mysql1234
                 password: yy0908..
             # 从库数据源
             slave:

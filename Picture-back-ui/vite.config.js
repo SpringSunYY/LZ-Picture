@@ -26,7 +26,7 @@ export default defineConfig(({mode, command}) => {
         devtool: 'source-map',
         // vite 相关配置
         server: {
-            port: 80,
+            port: 1226,
             host: true,
             open: true,
             proxy: {

@@ -12,9 +12,7 @@ declare module 'vue' {
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
     DirectionAwareHover: typeof import('./src/components/DirectionAwareHover.vue')['default']
     FancyImage: typeof import('./src/components/FancyImage.vue')['default']
-    ImageOutPainting: typeof import('./src/components/ImageOutPainting.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']
-    PictureEdit: typeof import('./src/components/PictureEdit.vue')['default']
     PictureInfoList: typeof import('./src/components/PictureInfoList.vue')['default']
     PictureOutPainting: typeof import('./src/components/PictureOutPainting.vue')['default']
     PictureUpload: typeof import('./src/components/PictureUpload.vue')['default']
@@ -25,7 +23,6 @@ declare module 'vue' {
     UComment: typeof import('undraw-ui')['UComment']
     UCommentNav: typeof import('undraw-ui')['UCommentNav']
     UCommentScroll: typeof import('undraw-ui')['UCommentScroll']
-    UDivider: typeof import('undraw-ui')['UDivider']
     UFold: typeof import('undraw-ui')['UFold']
   }
 }

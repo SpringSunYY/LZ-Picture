@@ -14,7 +14,7 @@ export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileRe
   })
 }
 
-export function coverUploadFile(file: any) {
+export function coverUploadFile(file: any):Promise<API.ResponseInfo<string>> {
   return request({
     url: '/picture/file/upload/cover',
     headers: {
