@@ -1,12 +1,9 @@
 <template>
   <div class="home-view">
-    <button class="mt-4 rounded bg-white px-4 py-2 text-black">View Recipe</button>
     <div class="text-center">
-      <h1 class="text-4xl font-bold text-blue-500">Hello Vue 3 + TypeScript + Tailwind CSS!</h1>
+      <h1 class="text-4xl font-bold text-blue-500">荔智云图，打造属于我们的图片生态</h1>
     </div>
     <div class="container mx-auto p-8">
-      <h1 class="mb-8 text-3xl font-bold">Direction Aware Hover Card Examples</h1>
-
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 md:grid-cols-2">
         <!-- Basic usage -->
         <DirectionAwareHover
@@ -46,5 +43,3 @@
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
 </script>
-
-

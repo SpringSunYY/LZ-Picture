@@ -18,7 +18,7 @@
         </a-layout-content>
         <a-layout-footer class="footer">
           <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank"
-            >LitchiPicture by LZ</a
+            >荔智云图 by LZ</a
           >
         </a-layout-footer>
       </a-layout>
