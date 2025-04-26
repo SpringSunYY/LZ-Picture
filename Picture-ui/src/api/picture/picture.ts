@@ -4,13 +4,24 @@ import type {
   MyPictureInfoVo,
   PictureDetailInfoVo,
   PictureInfo,
-  PictureInfoQuery
+  PictureInfoQuery,
+  PictureInfoUpdate,
 } from '@/types/picture/picture'
 
 export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/pictureInfo',
     method: 'post',
+    data: data,
+  })
+}
+
+export function updatePictureInfo(
+  data: PictureInfoUpdate,
+): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/update',
+    method: 'put',
     data: data,
   })
 }
@@ -28,14 +39,6 @@ export function listMyPictureInfo(
   return request({
     url: '/picture/pictureInfo/list/my',
     params: params,
-  })
-}
-
-export function updatePictureInfo(data: PictureInfo): Promise<API.ResponseInfo<number>> {
-  return request({
-    url: '/picture/pictureInfo',
-    method: 'put',
-    data: data,
   })
 }
 

@@ -262,7 +262,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     //TODO 更新图库信息
     @Override
     public int userInsertPictureInfo(PictureInfo pictureInfo) {
-        SpaceInfo spaceInfo = checkSpace(pictureInfo);
+        SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
         //更新空间信息
         spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
@@ -270,19 +270,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //判断当前空间是否到达最大值 官方空间没有限制
         if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
-            throw new ServiceException("空间已满，无法上传图片");
+            throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
         }
-        //获取积分最大值和最小值
-        String pointsNeedMax = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MAX);
-        String pointsNeedMin = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MIN);
-        //判断积分是否比最小值大最大值小
-        if (!(Long.parseLong(pointsNeedMax) >= pictureInfo.getPointsNeed() && pictureInfo.getPointsNeed() >= Long.parseLong(pointsNeedMin))) {
-            throw new ServiceException(StringUtils.format("图片所需积分不在范围内，最小值：{}，最大值：{}", pointsNeedMin, pointsNeedMax));
-        }
-        //判断是否是十的倍数
-        if (pictureInfo.getPointsNeed() % 10 != 0) {
-            throw new ServiceException("图片体积必须是10的倍数");
-        }
+        //校验积分
+        checkPoints(pictureInfo);
         // 计算宽高比例
         double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
         //保留小数点后1位
@@ -298,17 +289,46 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return i;
     }
 
+    /**
+     * 校验积分
+     *
+     * @param pictureInfo
+     * @return void
+     * @author YY
+     * @method checkPoints
+     * @date 2025/4/26 20:57
+     **/
+    private void checkPoints(PictureInfo pictureInfo) {
+        //获取积分最大值和最小值
+        String pointsNeedMax = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MAX);
+        String pointsNeedMin = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MIN);
+        //判断积分是否比最小值大最大值小
+        if (!(Long.parseLong(pointsNeedMax) >= pictureInfo.getPointsNeed() && pictureInfo.getPointsNeed() >= Long.parseLong(pointsNeedMin))) {
+            throw new ServiceException(StringUtils.format("图片所需积分不在范围内，最小值：{}，最大值：{}", pointsNeedMin, pointsNeedMax));
+        }
+        //判断是否是十的倍数
+        if (pictureInfo.getPointsNeed() % 10 != 0) {
+            throw new ServiceException("图片体积必须是10的倍数");
+        }
+    }
+
 
     /**
      * description: 校验空间
      * author: YY
-     * method: checkSpace
+     * method: checkPictureAndSpace
      * date: 2025/4/11 15:32
      * param:
      * param: pictureInfo
      * return: com.lz.picture.model.domain.SpaceInfo
      **/
-    private SpaceInfo checkSpace(PictureInfo pictureInfo) {
+    private SpaceInfo checkPictureAndSpace(PictureInfo pictureInfo) {
+        //如果传过来有图片id则校验图片
+        if (StringUtils.isNotEmpty(pictureInfo.getPictureId())) {
+            PictureInfo pictureInfoById = selectPictureInfoByPictureId(pictureInfo.getPictureId());
+            ThrowUtils.throwIf(StringUtils.isNull(pictureInfoById), HttpStatus.NO_CONTENT, "图片不存在");
+            pictureInfo.setUserId(pictureInfoById.getUserId());
+        }
         //查询分类是否存在
         PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
         ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
@@ -317,21 +337,24 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
             throw new ServiceException("空间不存在");
         }
-        //如果空间不是公共的，则需要判断用户是否是空间所有者
-        //TODO 后续团队空间判断不一样
-        if (!spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue()) && !spaceInfo.getUserId().equals(pictureInfo.getUserId())) {
-            throw new ServiceException("您不是该空间所有者，无法上传图片");
+        //如果空间为个人空间
+        if (!spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_2.getValue())) {
+            //如果传过来图片ID并且自己不是图片作者
+            ThrowUtils.throwIf(pictureInfo.getPictureId() != null && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()), "您不是该图片所有者，无法上传图片");
+            //如果用户不是自己
+            ThrowUtils.throwIf(!spaceInfo.getUserId().equals(pictureInfo.getUserId()), "您不是该空间所有者，无法上传图片");
+            //判断文件夹是否存在且文件夹作者是自己
+            if (StringUtils.isNotEmpty(pictureInfo.getFolderId())) {
+                SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectSpaceFolderInfoByFolderId(pictureInfo.getFolderId());
+                ThrowUtils.throwIf(StringUtils.isNull(spaceFolderInfo), HttpStatus.NO_CONTENT, "文件夹不存在");
+                ThrowUtils.throwIf(!spaceFolderInfo.getUserId().equals(pictureInfo.getUserId()), HttpStatus.NO_CONTENT, "您不是该文件夹所有者，无法上传图片");
+                //判断该空间是否有此文件夹
+                ThrowUtils.throwIf(!spaceFolderInfo.getSpaceId().equals(pictureInfo.getSpaceId()), HttpStatus.NO_CONTENT, "该空间没有此文件夹，无法上传图片");
+            }
         }
-        //判断文件夹是否存在且文件夹作者是自己
-        //TODO 后续团队空间判断不一样
-        if (StringUtils.isNotEmpty(pictureInfo.getFolderId())) {
-            SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectSpaceFolderInfoByFolderId(pictureInfo.getFolderId());
-            if (StringUtils.isNull(spaceFolderInfo)) {
-                throw new ServiceException("文件夹不存在");
-            }
-            if (!spaceFolderInfo.getUserId().equals(pictureInfo.getUserId())) {
-                throw new ServiceException("您不是该文件夹所有者，无法上传图片");
-            }
+        //如果空间是团队空间
+        if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_1.getValue())) {
+            //TODO 团队空间判断
         }
         //判断空间是否是公共
         if (spaceInfo.getOssType().equals(PSpaceOssType.SPACE_OSS_TYPE_0.getValue())) {
@@ -602,5 +625,123 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         } else {
             return ossConfig.getDnsUrl() + pictureUrl;
         }
+    }
+
+    @Override
+    public UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo) {
+        SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
+        //查询在数据库内内容
+        PictureInfo pictureInfoDb = pictureInfoMapper.selectPictureInfoByPictureId(pictureInfo.getPictureId());
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb), HttpStatus.NO_CONTENT, "图片不存在");
+        //更新空间信息
+        spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize() - pictureInfoDb.getPicSize());
+        spaceInfo.setLastUpdateTime(new Date());
+        //判断当前空间是否到达最大值 官方空间没有限制
+        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
+                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
+            throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
+        }
+        //校验积分
+        checkPoints(pictureInfo);
+        // 计算宽高比例
+        double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
+        //保留小数点后1位
+        picScale = Double.parseDouble(String.format("%.1f", picScale));
+        pictureInfo.setPicScale(picScale);
+        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
+        int i = pictureInfoMapper.updatePictureInfo(pictureInfo);
+        //同步更新图片空间、标签、标签关联
+        implementPictureUpdate(pictureInfo, spaceInfo);
+        //查询用户现在所拥有的信息
+        return userMySelectPictureInfoByPictureId(pictureInfo.getPictureId(), pictureInfo.getUserId());
+    }
+
+    /**
+     * 更新标签、空间
+     *
+     * @param pictureInfo
+     * @param spaceInfo
+     * @return void
+     * @author YY
+     * @method implementPictureUpdate
+     * @date 2025/4/26 21:07
+     **/
+    private void implementPictureUpdate(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
+        //获取图片原有关联
+        List<String> tagRelTagIds = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                        .eq(PictureTagRelInfo::getPictureId, pictureInfo.getPictureId()))
+                .stream()
+                .map(PictureTagRelInfo::getTagId)
+                .toList();
+        //查询到这些标签
+        List<String> tagRelTagNames = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
+                        .in(PictureTagInfo::getTagId, tagRelTagIds))
+                .stream()
+                .map(PictureTagInfo::getName)
+                .toList();
+        //删除图片原有标签关联
+        pictureTagRelInfoService.deletePictureTagRelInfoByPictureId(pictureInfo.getPictureId());
+        //查询标签是否存在
+        List<String> tags = pictureInfo.getTags();
+        //校验标签长度，如果超过16，则截取
+        tags.forEach(tag -> {
+            if (tag.length() > 16) {
+                tag = tag.substring(0, 16);
+            }
+        });
+        List<PictureTagInfo> tagInfoList;
+        if (StringUtils.isEmpty(tags)) {
+            tagInfoList = new ArrayList<>();
+        } else {
+            tagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getName, tags));
+        }
+        //遍历两个标签，如果查询到的标签并且此标签为禁止状态，删除tags的标签
+        for (PictureTagInfo tagInfo : tagInfoList) {
+            if (tagInfo.getTagsStatus().equals(PTagStatus.TAG_STATUS_1.getValue())) {
+                tags.remove(tagInfo.getName());
+                tagInfoList.remove(tagInfo);
+            }
+        }
+        List<PictureTagInfo> addTagInfoList = new ArrayList<>();
+        //遍历剩下的tagInfoList，如果标签不存在，则添加新的标签
+        for (PictureTagInfo info : tagInfoList) {
+            //如果包含说明数据库已经有此标签
+            if (tags.contains(info.getName())) {
+                PictureTagInfo pictureTagInfo = new PictureTagInfo();
+                BeanUtils.copyBeanProp(pictureTagInfo, info);
+                //如果标签之前有过关联这不需要给使用次数加1
+                if (!tagRelTagNames.contains(info.getName())) {
+                    info.setUsageCount(info.getUsageCount() + 1);
+                }
+                addTagInfoList.add(pictureTagInfo);
+                tags.remove(info.getName());
+            }
+        }
+        for (String tag : tags) {
+            PictureTagInfo pictureTagInfo = new PictureTagInfo();
+            pictureTagInfo.setLookCount(0L);
+            pictureTagInfo.setDownloadCount(0L);
+            pictureTagInfo.setUserId(pictureInfo.getUserId());
+            pictureTagInfo.setCreateTime(new Date());
+            pictureTagInfo.setName(tag);
+            pictureTagInfo.setTagsStatus(PTagStatus.TAG_STATUS_0.getValue());
+            pictureTagInfo.setUsageCount(1L);
+            addTagInfoList.add(pictureTagInfo);
+        }
+        ArrayList<PictureTagRelInfo> pictureTagRelInfos = new ArrayList<>();
+        Boolean execute = transactionTemplate.execute(result -> {
+            if (StringUtils.isNotEmpty(addTagInfoList)) {
+                pictureTagInfoService.saveOrUpdateBatch(addTagInfoList);
+            }
+            //插入关联信息
+            addTagInfoList.forEach(tagInfo -> {
+                PictureTagRelInfo rel = new PictureTagRelInfo();
+                rel.setPictureId(pictureInfo.getPictureId());
+                rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
+                pictureTagRelInfos.add(rel);
+            });
+            pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
+            return spaceInfoService.updateById(spaceInfo);
+        });
     }
 }

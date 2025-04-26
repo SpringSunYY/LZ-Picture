@@ -1,6 +1,5 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,15 +12,19 @@ import java.util.List;
 
 /**
  * 图片信息Vo对象 p_picture_info
- *
+ * 用户更新图片
  * @author YY
  * @date 2025-03-25
  */
 @Data
-public class UserPictureInfoAdd implements Serializable {
+public class UserPictureInfoUpdate implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 图片编号
+     */
+    private String pictureId;
 
     /**
      * 图片URL
@@ -85,13 +88,6 @@ public class UserPictureInfoAdd implements Serializable {
     @NotNull(message = "所需积分不能为空")
     private Long pointsNeed;
 
-
-    /**
-     * 图片状态（0公共 1私有）
-     */
-    private String pictureStatus;
-
-
     /**
      * 缩略图URL
      */
@@ -114,6 +110,10 @@ public class UserPictureInfoAdd implements Serializable {
     private List<String> tags;
 
 
+    /**
+     * 图片状态（0公共 1私有）
+     */
+    private String pictureStatus;
 
     /**
      * 对象转封装类
@@ -121,7 +121,7 @@ public class UserPictureInfoAdd implements Serializable {
      * @param pictureInfoInsert 插入对象
      * @return PictureInfoInsert
      */
-    public static PictureInfo addToObj(UserPictureInfoAdd pictureInfoInsert) {
+    public static PictureInfo updateToObj(UserPictureInfoUpdate pictureInfoInsert) {
         if (pictureInfoInsert == null) {
             return null;
         }

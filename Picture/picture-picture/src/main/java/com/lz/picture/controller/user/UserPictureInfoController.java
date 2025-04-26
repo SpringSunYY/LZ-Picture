@@ -11,6 +11,7 @@ import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
+import com.lz.picture.model.dto.pictureInfo.UserPictureInfoUpdate;
 import com.lz.picture.model.enums.PPictureReviewStatus;
 import com.lz.picture.model.enums.PPictureStatus;
 import com.lz.picture.model.vo.pictureInfo.MyPictureInfoVo;
@@ -52,6 +53,14 @@ public class UserPictureInfoController extends BaseUserInfoController {
         PictureInfo pictureInfo = UserPictureInfoAdd.addToObj(userPictureInfoAdd);
         pictureInfo.setUserId(getUserId());
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PutMapping("/update")
+    public AjaxResult update(@RequestBody @Validated UserPictureInfoUpdate userPictureInfoUpdate) {
+        PictureInfo pictureInfo = UserPictureInfoUpdate.updateToObj(userPictureInfoUpdate);
+        pictureInfo.setUserId(getUserId());
+        return success(pictureInfoService.userUpdatePictureInfo(pictureInfo));
     }
 
     @UserViewLog(targetType = "0", score = 1)

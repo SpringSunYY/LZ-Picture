@@ -226,122 +226,172 @@ export interface MyPictureInfoVo {
   /**
    * 图片编号
    */
-  pictureId: string;
+  pictureId: string
 
   /**
    * 图片名称
    */
-  name: string;
+  name: string
 
   /**
    * 简介
    */
-  introduction: string;
+  introduction: string
 
   /**
    * 分类编号
    */
-  categoryId: string;
+  categoryId: string
 
   /**
    * 图片体积
    */
-  picSize: number;
+  picSize: number
 
   /**
    * 图片宽度
    */
-  picWidth: number;
+  picWidth: number
 
   /**
    * 图片高度
    */
-  picHeight: number;
+  picHeight: number
 
   /**
    * 宽高比例
    */
-  picScale: number;
+  picScale: number
 
   /**
    * 图片格式
    */
-  picFormat: string;
+  picFormat: string
 
   /**
    * 上传用户编号
    */
-  userId: string;
+  userId: string
 
   /**
    * 创建时间，格式：yyyy-MM-dd HH:mm:ss
    */
-  createTime: string;
+  createTime: string
 
   /**
    * 图片状态（0公共 1私有）
    */
-  pictureStatus: string;
+  pictureStatus: string
 
   /**
    * 审核状态（0待审核 1通过 2拒绝）
    */
-  reviewStatus: string;
+  reviewStatus: string
 
   /**
    * 缩略图URL
    */
-  thumbnailUrl: string;
+  thumbnailUrl: string
 }
 
 // 图片状态 枚举
 export enum PPictureStatus {
-  PICTURE_STATUS_0 = "0", // 公共
-  PICTURE_STATUS_1 = "1", // 私有
+  PICTURE_STATUS_0 = '0', // 公共
+  PICTURE_STATUS_1 = '1', // 私有
 }
 
 // 图片状态的标签映射
 export const PPictureStatusLabel: { [key in PPictureStatus]: string } = {
-  [PPictureStatus.PICTURE_STATUS_0]: "公共",
-  [PPictureStatus.PICTURE_STATUS_1]: "私有",
-};
+  [PPictureStatus.PICTURE_STATUS_0]: '公共',
+  [PPictureStatus.PICTURE_STATUS_1]: '私有',
+}
 
 // 根据值获取标签
 export function getPictureStatusLabel(value: string): string | undefined {
-  return PPictureStatusLabel[value];
+  return PPictureStatusLabel[value]
 }
 
 // 根据字符串值获取枚举项
 export function getPictureStatusByValue(value: string): PPictureStatus | undefined {
   if (Object.values(PPictureStatus).includes(value as PPictureStatus)) {
-    return value as PPictureStatus;
+    return value as PPictureStatus
   }
-  return undefined;
+  return undefined
 }
 
 // 图片审核状态 枚举
 export enum PPictureReviewStatus {
-  PICTURE_REVIEW_STATUS_0 = "0", // 待审核
-  PICTURE_REVIEW_STATUS_1 = "1", // 同意
-  PICTURE_REVIEW_STATUS_2 = "2", // 拒绝
+  PICTURE_REVIEW_STATUS_0 = '0', // 待审核
+  PICTURE_REVIEW_STATUS_1 = '1', // 同意
+  PICTURE_REVIEW_STATUS_2 = '2', // 拒绝
 }
 
 // 审核状态的标签映射
 export const PPictureReviewStatusLabel: { [key in PPictureReviewStatus]: string } = {
-  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_0]: "待审核",
-  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_1]: "同意",
-  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_2]: "拒绝",
-};
+  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_0]: '待审核',
+  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_1]: '同意',
+  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_2]: '拒绝',
+}
 
 // 获取状态标签
 export function getPictureReviewStatusLabel(value: string): string | undefined {
-  return PPictureReviewStatusLabel[value];
+  return PPictureReviewStatusLabel[value]
 }
 
 // 通过字符串获取枚举值
 export function getPictureReviewStatusByValue(value: string): PPictureReviewStatus | undefined {
   if (Object.values(PPictureReviewStatus).includes(value as PPictureReviewStatus)) {
-    return value as PPictureReviewStatus;
+    return value as PPictureReviewStatus
   }
-  return undefined;
+  return undefined
+}
+
+export interface PictureInfoUpdate {
+  /** 图片URL */
+  pictureUrl: string
+
+  /** 图片名称 */
+  name: string
+
+  /** 域名URL */
+  dnsUrl?: string
+
+  /** 简介 */
+  introduction?: string
+
+  /** 分类编号 */
+  categoryId?: string
+
+  /** 图片体积（字节） */
+  picSize: number
+
+  /** 图片宽度 */
+  picWidth: number
+
+  /** 宽高比例 */
+  picScale?: number
+
+  /** 图片高度 */
+  picHeight: number
+
+  /** 图片格式 */
+  picFormat?: string
+
+  /** 所需积分 */
+  pointsNeed: number
+
+  /** 缩略图URL */
+  thumbnailUrl?: string
+
+  /** 所属空间编号 */
+  spaceId: string
+
+  /** 所属文件夹编号 */
+  folderId?: string
+
+  /** 图片标签 */
+  tags?: string[]
+
+  /** 图片状态（0公共 1私有） */
+  pictureStatus?: string
 }

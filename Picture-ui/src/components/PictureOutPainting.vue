@@ -18,7 +18,7 @@
     <div style="margin-bottom: 16px" />
     <a-flex justify="center" gap="16">
       <a-button type="primary" :loading="!!taskId" ghost @click="createTask">生成图片</a-button>
-      <a-button v-if="resultImageUrl" type="primary" :loading="uploadLoading" @click="handleUpload">
+      <a-button v-if="resultImageUrl" type="primary" :loading="props.loading" @click="handleUpload">
         应用结果
       </a-button>
     </a-flex>
@@ -35,7 +35,8 @@ import type { PictureFileResponse } from '@/types/file'
 
 interface Props {
   picture?: PictureInfo
-  spaceId?: string
+  spaceId?: string,
+  loading?: boolean
 }
 
 const emit = defineEmits<{
@@ -64,6 +65,7 @@ const createTask = async () => {
       yScale: 2,
     },
   })
+  console.log(res)
   if (res.code === 200 && res?.data) {
     message.success('创建任务成功，请耐心等待，不要退出界面')
     console.log(res.data.output.taskId)
@@ -134,6 +136,7 @@ const uploadLoading = ref(false)
  * @param file
  */
 const handleUpload = async () => {
+  message.info('正在上传图片，请稍等...')
   uploadLoading.value = true
   try {
     const res = await urlUploadFile({ url: resultImageUrl.value, spaceId: props.spaceId })

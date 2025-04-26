@@ -65,6 +65,7 @@
                 ref="pictureOutPainting"
                 :spaceId="formState.spaceId"
                 :picture="formState"
+                :loading="loading"
                 @success="handleExternalSuccess"
               ></PictureOutPainting>
             </a-form-item>
@@ -191,7 +192,7 @@
             type="primary"
             html-type="submit"
             style="padding: 0 40px; margin: 0 auto"
-            :loading="submitting"
+            :loading="loading"
           >
             提交
           </a-button>
@@ -218,9 +219,9 @@ import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/sp
 import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 import type { PictureTagInfoQuery, PictureTagInfoVo } from '@/types/picture/pictureTag'
 import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
-import type { PictureInfo } from '@/types/picture/picture'
-import { addPictureInfo, getMyPictureDetailInfo } from '@/api/picture/picture.ts'
-import { EditOutlined, QuestionCircleOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
+import type { PictureInfoUpdate } from '@/types/picture/picture'
+import { addPictureInfo, getMyPictureDetailInfo, updatePictureInfo } from '@/api/picture/picture.ts'
+import { EditOutlined, FullscreenOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 import PictureOutPainting from '@/components/PictureOutPainting.vue'
 import type { PictureFileResponse } from '@/types/file'
@@ -228,6 +229,7 @@ import type { PictureFileResponse } from '@/types/file'
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
 const title = ref('图片编辑')
+const loading = ref(false)
 //空间
 const spaceList = ref<Space[]>([])
 const spaceQuery = ref<SpaceQuery>({})
@@ -298,8 +300,7 @@ const rules = {
     },
   ],
 }
-const submitting = ref(false)
-const formState = reactive<PictureInfo>({
+const formState = reactive<PictureInfoUpdate>({
   pictureUrl: '',
   name: '',
   introduction: '',
@@ -313,7 +314,6 @@ const formState = reactive<PictureInfo>({
   pointsNeed: 0,
   pictureStatus: '0',
   picFormat: '',
-  picColor: '',
   picScale: 0,
 })
 const handleSuccess = (modelValue: any) => {
@@ -329,6 +329,9 @@ const handleSuccess = (modelValue: any) => {
 }
 const handleExternalSuccess = (moderValue: PictureFileResponse) => {
   console.log(moderValue)
+  loading.value = true
+  console.log(loading.value)
+  message.success('正在更新...', 1.5)
   formState.dnsUrl = moderValue.dnsUrl
   formState.thumbnailUrl = moderValue.thumbnailUrl
   formState.pictureUrl = moderValue.pictureUrl
@@ -336,10 +339,20 @@ const handleExternalSuccess = (moderValue: PictureFileResponse) => {
   formState.picHeight = moderValue.picHeight
   formState.picScale = Number(moderValue.picScale.toFixed(2))
   formState.picFormat = moderValue.picFormat
+  updatePictureInfo(formState)
+    .then((res) => {
+      if (res.code === 200) {
+        message.success('更新成功')
+        Object.assign(formState, res.data)
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 // 提交处理
 const handleSubmit = async () => {
-  submitting.value = true
+  loading.value = true
   //如果分类或者文件夹存在，取数组最后一个
   if (formState.categoryId && Array.isArray(formState.categoryId)) {
     formState.categoryId = formState.categoryId[formState.categoryId.length - 1]
@@ -347,12 +360,15 @@ const handleSubmit = async () => {
   if (formState.folderId && Array.isArray(formState.folderId)) {
     formState.folderId = formState.folderId[formState.folderId.length - 1]
   }
-  addPictureInfo(formState).then((res) => {
-    if (res.code === 200) {
-      message.success('添加成功')
-    }
-  })
-  submitting.value = false
+  updatePictureInfo(formState)
+    .then((res) => {
+      if (res.code === 200) {
+        message.success('修改成功')
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 // 选择操作
@@ -432,9 +448,9 @@ const getTagList = () => {
     tagLoading.value = false
   })
 }
-console.log('pictureId', pictureId.value)
+// console.log('pictureId', pictureId.value)
 const getPictureInfo = () => {
-  console.log('pictureId', pictureId.value)
+  // console.log('pictureId', pictureId.value)
   if (pictureId.value === '') {
     return
   }

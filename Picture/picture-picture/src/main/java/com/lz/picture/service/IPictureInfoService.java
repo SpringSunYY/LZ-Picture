@@ -117,7 +117,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * 用户自己查看图片信息
      *
      * @param pictureId 图片id
-     * @param userId 用户ID
+     * @param userId    用户ID
      * @return com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
      * @author YY
      * @method userMySelectPictureInfoByPictureId
@@ -129,8 +129,19 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * 构建图片URL
      *
      * @param pictureUrl 图片URL
-     * @param dnsUrl 域名URL
+     * @param dnsUrl     域名URL
      * @return 图片URL
      */
     String builderPictureUrl(String pictureUrl, String dnsUrl);
+
+    /**
+     * 用户更新图片信息
+     *
+     * @param pictureInfo 图片信息
+     * @return int
+     * @author YY
+     * @method userUpdatePictureInfo
+     * @date 2025/4/26 20:40
+     **/
+    UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo);
 }
