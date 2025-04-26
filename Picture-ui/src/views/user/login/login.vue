@@ -119,7 +119,7 @@ const handleSubmit = async () => {
   }
   try {
     loading.value = true
-    userStore.login(loginForm.value).then(() => {
+    await userStore.login(loginForm.value).then(() => {
       const query = route.query
       const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
         if (cur !== 'redirect') {
