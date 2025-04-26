@@ -11,7 +11,11 @@ import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 
 import com.lz.common.utils.DateUtils;
+import com.lz.picture.model.domain.PictureTagInfo;
+import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
+import com.lz.picture.service.IPictureTagInfoService;
+import com.lz.picture.service.IPictureTagRelInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -32,6 +36,12 @@ import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
 public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMapper, UserViewLogInfo> implements IUserViewLogInfoService {
     @Resource
     private UserViewLogInfoMapper userViewLogInfoMapper;
+
+    @Resource
+    private IPictureTagInfoService pictureTagInfoService;
+
+    @Resource
+    private IPictureTagRelInfoService pictureTagRelInfoService;
 
     //region mybatis代码
 
@@ -182,6 +192,17 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         //如果存在
         if (StringUtils.isNotEmpty(list)) {
             userViewLogInfo = list.getFirst();
+        } else {
+            //更新标签
+            List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>().eq(PictureTagRelInfo::getPictureId, userViewLogTargetInfo.getTargetId()));
+            if (StringUtils.isNotEmpty(tagRelInfos)) {
+                List<String> tagIds = tagRelInfos.stream().map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
+                List<PictureTagInfo> tagInfos = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getTagId, tagIds));
+                tagInfos.forEach(tagInfo -> {
+                    tagInfo.setLookCount(tagInfo.getLookCount() + 1);
+                });
+                pictureTagInfoService.updateBatchById(tagInfos);
+            }
         }
         //赋值
         userViewLogInfo.setUserId(userId);
