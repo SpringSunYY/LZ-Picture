@@ -92,6 +92,7 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
         userBehaviorInfo.setTargetContent(pictureInfo.getName());
         userBehaviorInfo.setTargetCover(pictureInfo.getThumbnailUrl());
         userBehaviorInfo.setSpaceId(pictureInfo.getSpaceId());
+        userBehaviorInfo.setCategoryId(pictureInfo.getCategoryId());
         //查询标签关联
         List<String> relTagList = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
                         .eq(PictureTagRelInfo::getPictureId, userBehaviorInfo.getTargetId()))

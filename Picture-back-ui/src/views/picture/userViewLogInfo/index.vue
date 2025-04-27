@@ -35,14 +35,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="分数" prop="score">
-        <el-input
-            v-model="queryParams.score"
-            placeholder="请输入分数"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="分数" prop="score">-->
+<!--        <el-input-->
+<!--            v-model="queryParams.score"-->
+<!--            placeholder="请输入分数"-->
+<!--            clearable-->
+<!--            @keyup.enter="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="图片分类" prop="categoryId">
         <el-input
             v-model="queryParams.categoryId"
@@ -59,14 +59,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="图片标签" prop="tags">
-        <el-input
-            v-model="queryParams.tags"
-            placeholder="请输入图片标签"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="图片标签" prop="tags">-->
+<!--        <el-input-->
+<!--            v-model="queryParams.tags"-->
+<!--            placeholder="请输入图片标签"-->
+<!--            clearable-->
+<!--            @keyup.enter="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="查看时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeCreateTime"
@@ -77,7 +77,7 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="设备唯一标识" prop="deviceId">
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入设备唯一标识"
@@ -85,7 +85,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -362,9 +362,9 @@ const data = reactive({
     {key: 3, label: '目标对象', visible: true},
     {key: 4, label: '目标内容', visible: true},
     {key: 5, label: '分数', visible: true},
-    {key: 6, label: '图片分类', visible: true},
-    {key: 7, label: '空间', visible: true},
-    {key: 8, label: '图片标签', visible: true},
+    {key: 6, label: '图片分类', visible: false},
+    {key: 7, label: '空间', visible: false},
+    {key: 8, label: '图片标签', visible: false},
     {key: 9, label: '封面', visible: true},
     {key: 10, label: '查看时间', visible: true},
     {key: 11, label: '设备唯一标识', visible: false},

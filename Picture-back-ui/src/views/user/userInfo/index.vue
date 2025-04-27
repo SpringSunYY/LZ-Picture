@@ -51,14 +51,14 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="加密盐" prop="salt">
-        <el-input
-            v-model="queryParams.salt"
-            placeholder="请输入加密盐"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+      <!--      <el-form-item label="加密盐" prop="salt">-->
+      <!--        <el-input-->
+      <!--            v-model="queryParams.salt"-->
+      <!--            placeholder="请输入加密盐"-->
+      <!--            clearable-->
+      <!--            @keyup.enter="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="性别" prop="sex">
         <el-select v-model="queryParams.sex" style="width: 200px" placeholder="请选择性别" clearable>
           <el-option
@@ -103,24 +103,24 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="最后登录时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeLastLoginTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
-      <el-form-item label="最后登录IP" prop="lastLoginIp">
-        <el-input
-            v-model="queryParams.lastLoginIp"
-            placeholder="请输入最后登录IP"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+      <!--      <el-form-item label="最后登录时间" style="width: 308px">-->
+      <!--        <el-date-picker-->
+      <!--            v-model="daterangeLastLoginTime"-->
+      <!--            value-format="YYYY-MM-DD"-->
+      <!--            type="daterange"-->
+      <!--            range-separator="-"-->
+      <!--            start-placeholder="开始日期"-->
+      <!--            end-placeholder="结束日期"-->
+      <!--        ></el-date-picker>-->
+      <!--      </el-form-item>-->
+      <!--      <el-form-item label="最后登录IP" prop="lastLoginIp">-->
+      <!--        <el-input-->
+      <!--            v-model="queryParams.lastLoginIp"-->
+      <!--            placeholder="请输入最后登录IP"-->
+      <!--            clearable-->
+      <!--            @keyup.enter="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="创建时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeCreateTime"
@@ -131,23 +131,25 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="更新时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeUpdateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
+      <!--      <el-form-item label="更新时间" style="width: 308px">-->
+      <!--        <el-date-picker-->
+      <!--            v-model="daterangeUpdateTime"-->
+      <!--            value-format="YYYY-MM-DD"-->
+      <!--            type="daterange"-->
+      <!--            range-separator="-"-->
+      <!--            start-placeholder="开始日期"-->
+      <!--            end-placeholder="结束日期"-->
+      <!--        ></el-date-picker>-->
+      <!--      </el-form-item>-->
       <el-form-item label="删除标记" prop="isDelete">
-        <el-input
-            v-model="queryParams.isDelete"
-            placeholder="请输入删除标记"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除标记" clearable>
+          <el-option
+              v-for="dict in common_delete"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -213,8 +215,11 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="昵称" align="center" prop="nickName" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="头像地址" align="center" prop="avatarUrl" v-if="columns[5].visible"
-                       :show-overflow-tooltip="true"/>
+      <el-table-column label="头像地址" align="center" prop="avatarUrl" width="100" v-if="columns[5].visible">
+        <template #default="scope">
+          <image-preview :src="scope.row.avatarUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="密码" align="center" prop="password" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="状态" align="center" prop="status" v-if="columns[7].visible">
@@ -263,8 +268,11 @@
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[19].visible"
-                       :show-overflow-tooltip="true"/>
+      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[19].visible">
+        <template #default="scope">
+          <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -367,7 +375,7 @@
 import {listUserInfo, getUserInfo, delUserInfo, addUserInfo, updateUserInfo} from "@/api/user/userInfo";
 
 const {proxy} = getCurrentInstance();
-const {u_user_status, u_user_sex} = proxy.useDict('u_user_status', 'u_user_sex');
+const {common_delete, u_user_status, u_user_sex} = proxy.useDict('common_delete', 'u_user_status', 'u_user_sex');
 
 const userInfoList = ref([]);
 const open = ref(false);
@@ -431,26 +439,26 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '用户ID', visible: true},
+    {key: 0, label: '用户ID', visible: false},
     {key: 1, label: '用户名', visible: true},
     {key: 2, label: '手机号', visible: true},
     {key: 3, label: '国家代码', visible: true},
     {key: 4, label: '昵称', visible: true},
     {key: 5, label: '头像地址', visible: true},
-    {key: 6, label: '密码', visible: true},
+    {key: 6, label: '密码', visible: false},
     {key: 7, label: '状态', visible: true},
-    {key: 8, label: '加密盐', visible: true},
+    {key: 8, label: '加密盐', visible: false},
     {key: 9, label: '性别', visible: true},
     {key: 10, label: '生日', visible: true},
-    {key: 11, label: '职业', visible: true},
-    {key: 12, label: '偏好语言', visible: true},
-    {key: 13, label: '个人简介', visible: true},
+    {key: 11, label: '职业', visible: false},
+    {key: 12, label: '偏好语言', visible: false},
+    {key: 13, label: '个人简介', visible: false},
     {key: 14, label: 'IP属地', visible: true},
     {key: 15, label: '最后登录时间', visible: true},
-    {key: 16, label: '最后登录IP', visible: true},
+    {key: 16, label: '最后登录IP', visible: false},
     {key: 17, label: '创建时间', visible: true},
-    {key: 18, label: '更新时间', visible: true},
-    {key: 19, label: '删除标记', visible: true},
+    {key: 18, label: '更新时间', visible: false},
+    {key: 19, label: '删除标记', visible: false},
   ],
 });
 

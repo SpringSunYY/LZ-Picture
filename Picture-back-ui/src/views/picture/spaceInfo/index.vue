@@ -65,26 +65,26 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-<!--      <el-form-item label="最后上传时间" style="width: 308px">-->
-<!--        <el-date-picker-->
-<!--            v-model="daterangeLastUpdateTime"-->
-<!--            value-format="YYYY-MM-DD"-->
-<!--            type="daterange"-->
-<!--            range-separator="-"-->
-<!--            start-placeholder="开始日期"-->
-<!--            end-placeholder="结束日期"-->
-<!--        ></el-date-picker>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="最后更新时间" style="width: 308px">-->
-<!--        <el-date-picker-->
-<!--            v-model="daterangeUpdateTime"-->
-<!--            value-format="YYYY-MM-DD"-->
-<!--            type="daterange"-->
-<!--            range-separator="-"-->
-<!--            start-placeholder="开始日期"-->
-<!--            end-placeholder="结束日期"-->
-<!--        ></el-date-picker>-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="最后上传时间" style="width: 308px">-->
+      <!--        <el-date-picker-->
+      <!--            v-model="daterangeLastUpdateTime"-->
+      <!--            value-format="YYYY-MM-DD"-->
+      <!--            type="daterange"-->
+      <!--            range-separator="-"-->
+      <!--            start-placeholder="开始日期"-->
+      <!--            end-placeholder="结束日期"-->
+      <!--        ></el-date-picker>-->
+      <!--      </el-form-item>-->
+      <!--      <el-form-item label="最后更新时间" style="width: 308px">-->
+      <!--        <el-date-picker-->
+      <!--            v-model="daterangeUpdateTime"-->
+      <!--            value-format="YYYY-MM-DD"-->
+      <!--            type="daterange"-->
+      <!--            range-separator="-"-->
+      <!--            start-placeholder="开始日期"-->
+      <!--            end-placeholder="结束日期"-->
+      <!--        ></el-date-picker>-->
+      <!--      </el-form-item>-->
       <el-form-item label="删除" prop="isDelete">
         <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
           <el-option
@@ -176,11 +176,19 @@
       <el-table-column label="存储配置" align="center" prop="ossConfig" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="最大容量" align="center" prop="maxSize" v-if="columns[5].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          {{ formatSize(scope.row.maxSize) }}
+        </template>
+      </el-table-column>
       <el-table-column label="最大文件数" align="center" prop="maxCount" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="已用容量" align="center" prop="totalSize" v-if="columns[7].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          {{ formatSize(scope.row.totalSize) }}
+        </template>
+      </el-table-column>
       <el-table-column label="文件总数" align="center" prop="totalCount" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="所属用户" align="center" prop="userId" v-if="columns[9].visible"
@@ -347,6 +355,7 @@
 
 <script setup name="SpaceInfo">
 import {listSpaceInfo, getSpaceInfo, delSpaceInfo, addSpaceInfo, updateSpaceInfo} from "@/api/picture/spaceInfo";
+import {formatSize} from "@/utils/ruoyi.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -428,7 +437,7 @@ const data = reactive({
     {key: 13, label: '成员上限', visible: false},
     {key: 14, label: '当前成员数', visible: false},
     {key: 15, label: '创建时间', visible: true},
-    {key: 16, label: '最后上传时间', visible: true},
+    {key: 16, label: '最后上传时间', visible: false},
     {key: 17, label: '最后更新时间', visible: false},
     {key: 18, label: '删除', visible: false},
     {key: 19, label: '删除时间', visible: false},

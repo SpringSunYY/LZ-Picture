@@ -45,16 +45,16 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="更新时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeUpdateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
+<!--      <el-form-item label="更新时间" style="width: 308px">-->
+<!--        <el-date-picker-->
+<!--            v-model="daterangeUpdateTime"-->
+<!--            value-format="YYYY-MM-DD"-->
+<!--            type="daterange"-->
+<!--            range-separator="-"-->
+<!--            start-placeholder="开始日期"-->
+<!--            end-placeholder="结束日期"-->
+<!--        ></el-date-picker>-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -263,16 +263,16 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '标签编号', visible: true},
+    {key: 0, label: '标签编号', visible: false},
     {key: 1, label: '标签名称', visible: true},
     {key: 2, label: '标签状态', visible: true},
-    {key: 3, label: '标签描述', visible: true},
+    {key: 3, label: '标签描述', visible: false},
     {key: 4, label: '使用次数', visible: true},
     {key: 5, label: '查看次数', visible: true},
     {key: 6, label: '下载次数', visible: true},
     {key: 7, label: '所属用户', visible: true},
     {key: 8, label: '创建时间', visible: true},
-    {key: 9, label: '更新时间', visible: true},
+    {key: 9, label: '更新时间', visible: false},
   ],
 });
 

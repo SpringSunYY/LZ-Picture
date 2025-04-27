@@ -3,6 +3,8 @@ package com.lz.picture.controller.admin;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
+import com.lz.system.service.ISysConfigService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -27,6 +29,8 @@ import com.lz.picture.service.IUserViewLogInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
+
 /**
  * 用户浏览记录Controller
  *
@@ -38,6 +42,8 @@ import com.lz.common.core.page.TableDataInfo;
 public class UserViewLogInfoController extends BaseController {
     @Resource
     private IUserViewLogInfoService userViewLogInfoService;
+    @Resource
+    private ISysConfigService sysConfigService;
 
     /**
      * 查询用户浏览记录列表
@@ -49,6 +55,10 @@ public class UserViewLogInfoController extends BaseController {
         startPage();
         List<UserViewLogInfo> list = userViewLogInfoService.selectUserViewLogInfoList(userViewLogInfo);
         List<UserViewLogInfoVo> listVo = list.stream().map(UserViewLogInfoVo::objToVo).collect(Collectors.toList());
+        String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
+        for (UserViewLogInfoVo vo : listVo) {
+            vo.setTargetCover(vo.getTargetCover() + "?x-oss-process=image/resize,p_" + inCache);
+        }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
