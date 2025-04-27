@@ -144,7 +144,7 @@ import { downloadImage } from '@/utils/file.ts'
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
 const picture = ref<PictureDetailInfoVo>({
-  pictureId: '荔枝云图库',
+  pictureId: '荔智云图',
   thumbnailUrl: '',
   name: '迷雾中的山脉',
   introduction: '清晨的山林笼罩在薄雾中，宁静而神秘。',

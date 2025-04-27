@@ -9,7 +9,7 @@
             </div>
           </a-col>
           <a-col :span="12" style="align-content: center">
-            <h2>荔枝云图库登录</h2>
+            <h2>荔智云图登录</h2>
           </a-col>
         </a-row>
       </div>
