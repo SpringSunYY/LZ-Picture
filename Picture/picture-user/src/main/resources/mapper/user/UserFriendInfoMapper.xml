@@ -17,12 +17,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectUserFriendInfoList" parameterType="UserFriendInfo" resultMap="UserFriendInfoResult">
         <include refid="selectUserFriendInfoVo"/>
-        <where>  
-            <if test="relationId != null  and relationId != ''"> and relation_id = #{relationId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="friendUserId != null  and friendUserId != ''"> and friend_user_id = #{friendUserId}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        <where>
+            <if test="relationId != null  and relationId != ''">and relation_id = #{relationId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="friendUserId != null  and friendUserId != ''">and friend_user_id = #{friendUserId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and create_time between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectUserFriendInfoByRelationId" parameterType="String" resultMap="UserFriendInfoResult">

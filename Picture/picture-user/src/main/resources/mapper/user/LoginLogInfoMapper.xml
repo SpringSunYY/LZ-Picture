@@ -28,21 +28,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectLoginLogInfoList" parameterType="LoginLogInfo" resultMap="LoginLogInfoResult">
         <include refid="selectLoginLogInfoVo"/>
-        <where>  
-            <if test="infoId != null  and infoId != ''"> and info_id = #{infoId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-            <if test="loginType != null  and loginType != ''"> and login_type = #{loginType}</if>
-            <if test="ipaddr != null  and ipaddr != ''"> and ipaddr like concat('%', #{ipaddr}, '%')</if>
-            <if test="loginLocation != null  and loginLocation != ''"> and login_location like concat('%', #{loginLocation}, '%')</if>
-            <if test="browser != null  and browser != ''"> and browser like concat('%', #{browser}, '%')</if>
-            <if test="os != null  and os != ''"> and os like concat('%', #{os}, '%')</if>
-            <if test="platform != null  and platform != ''"> and platform like concat('%', #{platform}, '%')</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-            <if test="errorCode != null  and errorCode != ''"> and error_code = #{errorCode}</if>
-            <if test="msg != null  and msg != ''"> and msg = #{msg}</if>
-            <if test="params.beginLoginTime != null and params.beginLoginTime != '' and params.endLoginTime != null and params.endLoginTime != ''"> and login_time between #{params.beginLoginTime} and #{params.endLoginTime}</if>
+        <where>
+            <if test="infoId != null  and infoId != ''">and info_id = #{infoId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''">and user_name like concat('%', #{userName}, '%')</if>
+            <if test="loginType != null  and loginType != ''">and login_type = #{loginType}</if>
+            <if test="ipaddr != null  and ipaddr != ''">and ipaddr like concat('%', #{ipaddr}, '%')</if>
+            <if test="loginLocation != null  and loginLocation != ''">and login_location like concat('%',
+                #{loginLocation}, '%')
+            </if>
+            <if test="browser != null  and browser != ''">and browser like concat('%', #{browser}, '%')</if>
+            <if test="os != null  and os != ''">and os like concat('%', #{os}, '%')</if>
+            <if test="platform != null  and platform != ''">and platform like concat('%', #{platform}, '%')</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="errorCode != null  and errorCode != ''">and error_code = #{errorCode}</if>
+            <if test="msg != null  and msg != ''">and msg = #{msg}</if>
+            <if test="params.beginLoginTime != null and params.beginLoginTime != '' and params.endLoginTime != null and params.endLoginTime != ''">
+                and login_time between #{params.beginLoginTime} and #{params.endLoginTime}
+            </if>
         </where>
+        order by login_time desc
     </select>
     
     <select id="selectLoginLogInfoByInfoId" parameterType="String" resultMap="LoginLogInfoResult">

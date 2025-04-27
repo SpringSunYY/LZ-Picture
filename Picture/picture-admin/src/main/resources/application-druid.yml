@@ -8,8 +8,8 @@ spring:
             master:
                 url: jdbc:mysql://localhost:3306/lz-picture?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
-#                password: mysql1234
-                password: yy0908..
+                password: mysql1234
+#                password: yy0908..
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
@@ -46,7 +46,7 @@ spring:
                 enabled: true
                 # 设置白名单，不填则允许所有访问
                 allow:
-                url-pattern: /druid/*
+                url-pattern: /admin/druid/*
                 # 控制台管理用户名和密码
                 login-username: ruoyi
                 login-password: 123456

@@ -25,17 +25,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSpaceInvitationInfoList" parameterType="SpaceInvitationInfo" resultMap="SpaceInvitationInfoResult">
         <include refid="selectSpaceInvitationInfoVo"/>
-        <where>  
-            <if test="invitationId != null  and invitationId != ''"> and invitation_id = #{invitationId}</if>
-            <if test="spaceId != null  and spaceId != ''"> and space_id = #{spaceId}</if>
-            <if test="spaceName != null  and spaceName != ''"> and space_name like concat('%', #{spaceName}, '%')</if>
-            <if test="roleType != null  and roleType != ''"> and role_type = #{roleType}</if>
-            <if test="invitationStatus != null  and invitationStatus != ''"> and invitation_status = #{invitationStatus}</if>
-            <if test="invitationUserId != null  and invitationUserId != ''"> and invitation_user_id = #{invitationUserId}</if>
-            <if test="params.beginExpireTime != null and params.beginExpireTime != '' and params.endExpireTime != null and params.endExpireTime != ''"> and DATE_FORMAT(expire_time, '%Y-%m-%d') between #{params.beginExpireTime} and #{params.endExpireTime}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+        <where>
+            <if test="invitationId != null  and invitationId != ''">and invitation_id = #{invitationId}</if>
+            <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="spaceName != null  and spaceName != ''">and space_name like concat('%', #{spaceName}, '%')</if>
+            <if test="roleType != null  and roleType != ''">and role_type = #{roleType}</if>
+            <if test="invitationStatus != null  and invitationStatus != ''">and invitation_status =
+                #{invitationStatus}
+            </if>
+            <if test="invitationUserId != null  and invitationUserId != ''">and invitation_user_id =
+                #{invitationUserId}
+            </if>
+            <if test="params.beginExpireTime != null and params.beginExpireTime != '' and params.endExpireTime != null and params.endExpireTime != ''">
+                and DATE_FORMAT(expire_time, '%Y-%m-%d') between #{params.beginExpireTime} and #{params.endExpireTime}
+            </if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectSpaceInvitationInfoByInvitationId" parameterType="String" resultMap="SpaceInvitationInfoResult">

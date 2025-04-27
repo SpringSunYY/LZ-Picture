@@ -94,6 +94,7 @@
                 #{params.endDeletedTime}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectPictureInfoByPictureId" parameterType="String" resultMap="PictureInfoResult">

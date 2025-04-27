@@ -24,17 +24,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectUserReportInfoList" parameterType="UserReportInfo" resultMap="UserReportInfoResult">
         <include refid="selectUserReportInfoVo"/>
-        <where>  
-            <if test="reportId != null  and reportId != ''"> and report_id = #{reportId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="targetType != null  and targetType != ''"> and target_type = #{targetType}</if>
-            <if test="targetId != null "> and target_id = #{targetId}</if>
-            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="reviewStatus != null "> and review_status = #{reviewStatus}</if>
-            <if test="reviewUserId != null "> and review_user_id = #{reviewUserId}</if>
-            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''"> and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}</if>
+        <where>
+            <if test="reportId != null  and reportId != ''">and report_id = #{reportId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="targetType != null  and targetType != ''">and target_type = #{targetType}</if>
+            <if test="targetId != null ">and target_id = #{targetId}</if>
+            <if test="reason != null  and reason != ''">and reason = #{reason}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="reviewStatus != null ">and review_status = #{reviewStatus}</if>
+            <if test="reviewUserId != null ">and review_user_id = #{reviewUserId}</if>
+            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''">
+                and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
+            </if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectUserReportInfoByReportId" parameterType="String" resultMap="UserReportInfoResult">

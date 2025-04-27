@@ -28,6 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="params.beginEndTime != null and params.beginEndTime != '' and params.endEndTime != null and params.endEndTime != ''"> and end_time between #{params.beginEndTime} and #{params.endEndTime}</if>
             <if test="status != null  and status != ''"> and status = #{status}</if>
         </where>
+        order by start_time desc
     </select>
     
     <select id="selectBannedPermissionInfoByBannedId" parameterType="String" resultMap="BannedPermissionInfoResult">

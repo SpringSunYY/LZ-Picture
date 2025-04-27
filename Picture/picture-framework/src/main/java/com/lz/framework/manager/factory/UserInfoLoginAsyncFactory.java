@@ -47,6 +47,7 @@ public class UserInfoLoginAsyncFactory {
                 authLoginLogInfo.setLoginType(type);
                 authLoginLogInfo.setStatus(status);
                 authLoginLogInfo.setMsg(msg);
+                authLoginLogInfo.setLoginLocation(deviceInfo.getIpAddress());
                 // 插入数据
                 SpringUtils.getBean(IAuthLoginLogInfoService.class).insertLoginLogInfo(authLoginLogInfo);
                 //更新用户信息

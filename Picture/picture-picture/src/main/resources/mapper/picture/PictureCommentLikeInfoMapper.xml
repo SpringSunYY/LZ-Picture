@@ -18,13 +18,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectPictureCommentLikeInfoList" parameterType="PictureCommentLikeInfo" resultMap="PictureCommentLikeInfoResult">
         <include refid="selectPictureCommentLikeInfoVo"/>
-        <where>  
-            <if test="likeId != null  and likeId != ''"> and like_id = #{likeId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
-            <if test="targetCover != null  and targetCover != ''"> and target_cover = #{targetCover}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        <where>
+            <if test="likeId != null  and likeId != ''">and like_id = #{likeId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="targetCover != null  and targetCover != ''">and target_cover = #{targetCover}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectPictureCommentLikeInfoByLikeId" parameterType="String" resultMap="PictureCommentLikeInfoResult">

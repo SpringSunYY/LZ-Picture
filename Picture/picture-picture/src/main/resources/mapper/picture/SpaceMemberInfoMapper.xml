@@ -18,22 +18,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSpaceMemberInfoVo">
-        select member_id, space_id, user_id, role_type, last_active_time, create_time, update_time, inviter_user_id, join_type, remark from p_space_member_info
+        select member_id,
+               space_id,
+               user_id,
+               role_type,
+               last_active_time,
+               create_time,
+               update_time,
+               inviter_user_id,
+               join_type,
+               remark
+        from p_space_member_info
     </sql>
 
     <select id="selectSpaceMemberInfoList" parameterType="SpaceMemberInfo" resultMap="SpaceMemberInfoResult">
         <include refid="selectSpaceMemberInfoVo"/>
-        <where>  
-            <if test="memberId != null  and memberId != ''"> and member_id = #{memberId}</if>
-            <if test="spaceId != null  and spaceId != ''"> and space_id = #{spaceId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="roleType != null  and roleType != ''"> and role_type = #{roleType}</if>
-            <if test="params.beginLastActiveTime != null and params.beginLastActiveTime != '' and params.endLastActiveTime != null and params.endLastActiveTime != ''"> and DATE_FORMAT(last_active_time, '%Y-%m-%d') between #{params.beginLastActiveTime} and #{params.endLastActiveTime}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="inviterUserId != null  and inviterUserId != ''"> and inviter_user_id = #{inviterUserId}</if>
-            <if test="joinType != null  and joinType != ''"> and join_type = #{joinType}</if>
+        <where>
+            <if test="memberId != null  and memberId != ''">and member_id = #{memberId}</if>
+            <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="roleType != null  and roleType != ''">and role_type = #{roleType}</if>
+            <if test="params.beginLastActiveTime != null and params.beginLastActiveTime != '' and params.endLastActiveTime != null and params.endLastActiveTime != ''">
+                and DATE_FORMAT(last_active_time, '%Y-%m-%d') between #{params.beginLastActiveTime} and
+                #{params.endLastActiveTime}
+            </if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="inviterUserId != null  and inviterUserId != ''">and inviter_user_id = #{inviterUserId}</if>
+            <if test="joinType != null  and joinType != ''">and join_type = #{joinType}</if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectSpaceMemberInfoByMemberId" parameterType="String" resultMap="SpaceMemberInfoResult">

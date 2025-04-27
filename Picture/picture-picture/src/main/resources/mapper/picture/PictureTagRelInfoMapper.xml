@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.PictureTagRelInfoMapper">
-    
+
     <resultMap type="PictureTagRelInfo" id="PictureTagRelInfoResult">
-        <result property="pictureId"    column="picture_id"    />
-        <result property="tagId"    column="tag_id"    />
+        <result property="pictureId" column="picture_id"/>
+        <result property="tagId" column="tag_id"/>
     </resultMap>
 
     <sql id="selectPictureTagRelInfoVo">
-        select picture_id, tag_id from p_picture_tag_rel_info
+        select picture_id, tag_id
+        from p_picture_tag_rel_info
     </sql>
 
     <select id="selectPictureTagRelInfoList" parameterType="PictureTagRelInfo" resultMap="PictureTagRelInfoResult">
         <include refid="selectPictureTagRelInfoVo"/>
-        <where>  
-            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
-            <if test="tagId != null  and tagId != ''"> and tag_id = #{tagId}</if>
+        <where>
+            <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="tagId != null  and tagId != ''">and tag_id = #{tagId}</if>
         </where>
     </select>
-    
+
     <select id="selectPictureTagRelInfoByPictureId" parameterType="String" resultMap="PictureTagRelInfoResult">
         <include refid="selectPictureTagRelInfoVo"/>
         where picture_id = #{pictureId}
@@ -31,11 +32,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">picture_id,</if>
             <if test="tagId != null">tag_id,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">#{pictureId},</if>
             <if test="tagId != null">#{tagId},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePictureTagRelInfo" parameterType="PictureTagRelInfo">
@@ -47,11 +48,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePictureTagRelInfoByPictureId" parameterType="String">
-        delete from p_picture_tag_rel_info where picture_id = #{pictureId}
+        delete
+        from p_picture_tag_rel_info
+        where picture_id = #{pictureId}
     </delete>
 
     <delete id="deletePictureTagRelInfoByPictureIds" parameterType="String">
-        delete from p_picture_tag_rel_info where picture_id in 
+        delete from p_picture_tag_rel_info where picture_id in
         <foreach item="pictureId" collection="array" open="(" separator="," close=")">
             #{pictureId}
         </foreach>

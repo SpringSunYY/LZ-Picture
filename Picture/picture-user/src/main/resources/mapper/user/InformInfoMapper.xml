@@ -25,17 +25,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectInformInfoList" parameterType="InformInfo" resultMap="InformInfoResult">
         <include refid="selectInformInfoVo"/>
-        <where>  
-            <if test="recordId != null  and recordId != ''"> and record_id = #{recordId}</if>
-            <if test="templateId != null "> and template_id = #{templateId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="informType != null  and informType != ''"> and inform_type = #{informType}</if>
-            <if test="status != null "> and status = #{status}</if>
-            <if test="isRead != null "> and is_read = #{isRead}</if>
-            <if test="params.beginReadTime != null and params.beginReadTime != '' and params.endReadTime != null and params.endReadTime != ''"> and read_time between #{params.beginReadTime} and #{params.endReadTime}</if>
-            <if test="params.beginSendTime != null and params.beginSendTime != '' and params.endSendTime != null and params.endSendTime != ''"> and send_time between #{params.beginSendTime} and #{params.endSendTime}</if>
-            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        <where>
+            <if test="recordId != null  and recordId != ''">and record_id = #{recordId}</if>
+            <if test="templateId != null ">and template_id = #{templateId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="informType != null  and informType != ''">and inform_type = #{informType}</if>
+            <if test="status != null ">and status = #{status}</if>
+            <if test="isRead != null ">and is_read = #{isRead}</if>
+            <if test="params.beginReadTime != null and params.beginReadTime != '' and params.endReadTime != null and params.endReadTime != ''">
+                and read_time between #{params.beginReadTime} and #{params.endReadTime}
+            </if>
+            <if test="params.beginSendTime != null and params.beginSendTime != '' and params.endSendTime != null and params.endSendTime != ''">
+                and send_time between #{params.beginSendTime} and #{params.endSendTime}
+            </if>
+            <if test="isDeleted != null ">and is_deleted = #{isDeleted}</if>
         </where>
+        order by send_time desc
     </select>
     
     <select id="selectInformInfoByRecordId" parameterType="String" resultMap="InformInfoResult">

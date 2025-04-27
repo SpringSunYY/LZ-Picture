@@ -59,6 +59,7 @@
             </if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectPictureCategoryInfoByCategoryId" parameterType="String" resultMap="PictureCategoryInfoResult">

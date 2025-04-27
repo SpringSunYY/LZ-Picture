@@ -25,20 +25,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectUserActionLogInfoList" parameterType="UserActionLogInfo" resultMap="UserActionLogInfoResult">
         <include refid="selectUserActionLogInfoVo"/>
-        <where>  
-            <if test="actionId != null  and actionId != ''"> and action_id = #{actionId}</if>
-            <if test="searchId != null  and searchId != ''"> and search_id = #{searchId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="actionType != null  and actionType != ''"> and action_type = #{actionType}</if>
-            <if test="targetType != null  and targetType != ''"> and target_type = #{targetType}</if>
-            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
-            <if test="os != null  and os != ''"> and os = #{os}</if>
-            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
-            <if test="ipAddress != null  and ipAddress != ''"> and ip_address like concat('%', #{ipAddress}, '%')</if>
+        <where>
+            <if test="actionId != null  and actionId != ''">and action_id = #{actionId}</if>
+            <if test="searchId != null  and searchId != ''">and search_id = #{searchId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="actionType != null  and actionType != ''">and action_type = #{actionType}</if>
+            <if test="targetType != null  and targetType != ''">and target_type = #{targetType}</if>
+            <if test="targetId != null  and targetId != ''">and target_id = #{targetId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''">and browser = #{browser}</if>
+            <if test="os != null  and os != ''">and os = #{os}</if>
+            <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectUserActionLogInfoByActionId" parameterType="String" resultMap="UserActionLogInfoResult">

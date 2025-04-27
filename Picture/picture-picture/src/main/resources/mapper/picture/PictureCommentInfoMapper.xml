@@ -25,19 +25,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectPictureCommentInfoList" parameterType="PictureCommentInfo" resultMap="PictureCommentInfoResult">
         <include refid="selectPictureCommentInfoVo"/>
-        <where>  
-            <if test="commentId != null  and commentId != ''"> and comment_id = #{commentId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
-            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
-            <if test="categoryId != null  and categoryId != ''"> and category_id = #{categoryId}</if>
-            <if test="tags != null  and tags != ''"> and tags like concat('%', #{tags}, '%')</if>
-            <if test="content != null  and content != ''"> and content = #{content}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="likeCount != null "> and like_count = #{likeCount}</if>
-            <if test="ipAddress != null  and ipAddress != ''"> and ip_address = #{ipAddress}</if>
-            <if test="commentStatus != null  and commentStatus != ''"> and comment_status = #{commentStatus}</if>
+        <where>
+            <if test="commentId != null  and commentId != ''">and comment_id = #{commentId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="parentId != null  and parentId != ''">and parent_id = #{parentId}</if>
+            <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="tags != null  and tags != ''">and tags like concat('%', #{tags}, '%')</if>
+            <if test="content != null  and content != ''">and content = #{content}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="likeCount != null ">and like_count = #{likeCount}</if>
+            <if test="ipAddress != null  and ipAddress != ''">and ip_address = #{ipAddress}</if>
+            <if test="commentStatus != null  and commentStatus != ''">and comment_status = #{commentStatus}</if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectPictureCommentInfoByCommentId" parameterType="String" resultMap="PictureCommentInfoResult">

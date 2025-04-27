@@ -25,6 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bindingType != null  and bindingType != ''"> and binding_type = #{bindingType}</if>
             <if test="params.beginBindingTime != null and params.beginBindingTime != '' and params.endBindingTime != null and params.endBindingTime != ''"> and binding_time between #{params.beginBindingTime} and #{params.endBindingTime}</if>
         </where>
+        order by binding_time desc
     </select>
     
     <select id="selectUserBindingInfoByBindingId" parameterType="String" resultMap="UserBindingInfoResult">

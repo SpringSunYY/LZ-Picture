@@ -1,53 +1,84 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.SpaceInfoMapper">
-    
+
     <resultMap type="SpaceInfo" id="SpaceInfoResult">
-        <result property="spaceId"    column="space_id"    />
-        <result property="spaceName"    column="space_name"    />
-        <result property="spaceAvatar"    column="space_avatar"    />
-        <result property="ossType"    column="oss_type"    />
-        <result property="ossConfig"    column="oss_config"    />
-        <result property="maxSize"    column="max_size"    />
-        <result property="maxCount"    column="max_count"    />
-        <result property="totalSize"    column="total_size"    />
-        <result property="totalCount"    column="total_count"    />
-        <result property="userId"    column="user_id"    />
-        <result property="spaceDesc"    column="space_desc"    />
-        <result property="spaceStatus"    column="space_status"    />
-        <result property="spaceType"    column="space_type"    />
-        <result property="memberLimit"    column="member_limit"    />
-        <result property="currentMembers"    column="current_members"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="lastUpdateTime"    column="last_update_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="isDelete"    column="is_delete"    />
-        <result property="deletedTime"    column="deleted_time"    />
+        <result property="spaceId" column="space_id"/>
+        <result property="spaceName" column="space_name"/>
+        <result property="spaceAvatar" column="space_avatar"/>
+        <result property="ossType" column="oss_type"/>
+        <result property="ossConfig" column="oss_config"/>
+        <result property="maxSize" column="max_size"/>
+        <result property="maxCount" column="max_count"/>
+        <result property="totalSize" column="total_size"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="userId" column="user_id"/>
+        <result property="spaceDesc" column="space_desc"/>
+        <result property="spaceStatus" column="space_status"/>
+        <result property="spaceType" column="space_type"/>
+        <result property="memberLimit" column="member_limit"/>
+        <result property="currentMembers" column="current_members"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastUpdateTime" column="last_update_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="deletedTime" column="deleted_time"/>
     </resultMap>
 
     <sql id="selectSpaceInfoVo">
-        select space_id, space_name, space_avatar, oss_type, oss_config, max_size, max_count, total_size, total_count, user_id, space_desc, space_status, space_type, member_limit, current_members, create_time, last_update_time, update_time, is_delete, deleted_time from p_space_info
+        select space_id,
+               space_name,
+               space_avatar,
+               oss_type,
+               oss_config,
+               max_size,
+               max_count,
+               total_size,
+               total_count,
+               user_id,
+               space_desc,
+               space_status,
+               space_type,
+               member_limit,
+               current_members,
+               create_time,
+               last_update_time,
+               update_time,
+               is_delete,
+               deleted_time
+        from p_space_info
     </sql>
 
     <select id="selectSpaceInfoList" parameterType="SpaceInfo" resultMap="SpaceInfoResult">
         <include refid="selectSpaceInfoVo"/>
-        <where>  
-            <if test="spaceId != null  and spaceId != ''"> and space_id = #{spaceId}</if>
-            <if test="spaceName != null  and spaceName != ''"> and space_name like concat('%', #{spaceName}, '%')</if>
-            <if test="ossType != null  and ossType != ''"> and oss_type = #{ossType}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="spaceStatus != null  and spaceStatus != ''"> and space_status = #{spaceStatus}</if>
-            <if test="spaceType != null  and spaceType != ''"> and space_type = #{spaceType}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginLastUpdateTime != null and params.beginLastUpdateTime != '' and params.endLastUpdateTime != null and params.endLastUpdateTime != ''"> and DATE_FORMAT(last_update_time, '%Y-%m-%d') between #{params.beginLastUpdateTime} and #{params.endLastUpdateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
-            <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''"> and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and #{params.endDeletedTime}</if>
+        <where>
+            <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="spaceName != null  and spaceName != ''">and space_name like concat('%', #{spaceName}, '%')</if>
+            <if test="ossType != null  and ossType != ''">and oss_type = #{ossType}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="spaceStatus != null  and spaceStatus != ''">and space_status = #{spaceStatus}</if>
+            <if test="spaceType != null  and spaceType != ''">and space_type = #{spaceType}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginLastUpdateTime != null and params.beginLastUpdateTime != '' and params.endLastUpdateTime != null and params.endLastUpdateTime != ''">
+                and DATE_FORMAT(last_update_time, '%Y-%m-%d') between #{params.beginLastUpdateTime} and
+                #{params.endLastUpdateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
+            <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''">
+                and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and
+                #{params.endDeletedTime}
+            </if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectSpaceInfoBySpaceId" parameterType="String" resultMap="SpaceInfoResult">
         <include refid="selectSpaceInfoVo"/>
         where space_id = #{spaceId}
@@ -76,7 +107,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
             <if test="deletedTime != null">deleted_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="spaceId != null">#{spaceId},</if>
             <if test="spaceName != null and spaceName != ''">#{spaceName},</if>
@@ -98,7 +129,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
             <if test="deletedTime != null">#{deletedTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateSpaceInfo" parameterType="SpaceInfo">
@@ -128,11 +159,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteSpaceInfoBySpaceId" parameterType="String">
-        delete from p_space_info where space_id = #{spaceId}
+        delete
+        from p_space_info
+        where space_id = #{spaceId}
     </delete>
 
     <delete id="deleteSpaceInfoBySpaceIds" parameterType="String">
-        delete from p_space_info where space_id in 
+        delete from p_space_info where space_id in
         <foreach item="spaceId" collection="array" open="(" separator="," close=")">
             #{spaceId}
         </foreach>

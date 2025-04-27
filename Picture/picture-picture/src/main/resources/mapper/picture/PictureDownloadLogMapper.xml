@@ -1,62 +1,88 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.PictureDownloadLogMapper">
-    
+
     <resultMap type="PictureDownloadLog" id="PictureDownloadLogResult">
-        <result property="downloadId"    column="download_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="pictureId"    column="picture_id"    />
-        <result property="categoryId"    column="category_id"    />
-        <result property="tags"    column="tags"    />
-        <result property="spaceId"    column="space_id"    />
-        <result property="downloadIp"    column="download_ip"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="browser"    column="browser"    />
-        <result property="os"    column="os"    />
-        <result property="platform"    column="platform"    />
-        <result property="pointsCost"    column="points_cost"    />
-        <result property="isFree"    column="is_free"    />
-        <result property="pointsAuthorGain"    column="points_author_gain"    />
-        <result property="pointsOfficialGain"    column="points_official_gain"    />
-        <result property="pointsSpaceGain"    column="points_space_gain"    />
-        <result property="proportion"    column="proportion"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="downloadStatus"    column="download_status"    />
-        <result property="failReason"    column="fail_reason"    />
-        <result property="downloadType"    column="download_type"    />
-        <result property="referSource"    column="refer_source"    />
+        <result property="downloadId" column="download_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="pictureId" column="picture_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="tags" column="tags"/>
+        <result property="spaceId" column="space_id"/>
+        <result property="downloadIp" column="download_ip"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="platform" column="platform"/>
+        <result property="pointsCost" column="points_cost"/>
+        <result property="isFree" column="is_free"/>
+        <result property="pointsAuthorGain" column="points_author_gain"/>
+        <result property="pointsOfficialGain" column="points_official_gain"/>
+        <result property="pointsSpaceGain" column="points_space_gain"/>
+        <result property="proportion" column="proportion"/>
+        <result property="createTime" column="create_time"/>
+        <result property="downloadStatus" column="download_status"/>
+        <result property="failReason" column="fail_reason"/>
+        <result property="downloadType" column="download_type"/>
+        <result property="referSource" column="refer_source"/>
     </resultMap>
 
     <sql id="selectPictureDownloadLogVo">
-        select download_id, user_id, picture_id, category_id, tags, space_id, download_ip, device_id, browser, os, platform, points_cost, is_free, points_author_gain, points_official_gain, points_space_gain, proportion, create_time, download_status, fail_reason, download_type, refer_source from p_picture_download_log
+        select download_id,
+               user_id,
+               picture_id,
+               category_id,
+               tags,
+               space_id,
+               download_ip,
+               device_id,
+               browser,
+               os,
+               platform,
+               points_cost,
+               is_free,
+               points_author_gain,
+               points_official_gain,
+               points_space_gain,
+               proportion,
+               create_time,
+               download_status,
+               fail_reason,
+               download_type,
+               refer_source
+        from p_picture_download_log
     </sql>
 
     <select id="selectPictureDownloadLogList" parameterType="PictureDownloadLog" resultMap="PictureDownloadLogResult">
         <include refid="selectPictureDownloadLogVo"/>
-        <where>  
-            <if test="downloadId != null  and downloadId != ''"> and download_id = #{downloadId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="pictureId != null  and pictureId != ''"> and picture_id = #{pictureId}</if>
-            <if test="categoryId != null  and categoryId != ''"> and category_id = #{categoryId}</if>
-            <if test="tags != null  and tags != ''"> and tags like concat('%', #{tags}, '%')</if>
-            <if test="spaceId != null  and spaceId != ''"> and space_id = #{spaceId}</if>
-            <if test="downloadIp != null  and downloadIp != ''"> and download_ip like concat('%', #{downloadIp}, '%')</if>
-            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
-            <if test="os != null  and os != ''"> and os = #{os}</if>
-            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
-            <if test="pointsCost != null "> and points_cost = #{pointsCost}</if>
-            <if test="isFree != null  and isFree != ''"> and is_free = #{isFree}</if>
-            <if test="proportion != null "> and proportion = #{proportion}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="downloadStatus != null  and downloadStatus != ''"> and download_status = #{downloadStatus}</if>
-            <if test="downloadType != null  and downloadType != ''"> and download_type = #{downloadType}</if>
-            <if test="referSource != null  and referSource != ''"> and refer_source = #{referSource}</if>
+        <where>
+            <if test="downloadId != null  and downloadId != ''">and download_id = #{downloadId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="tags != null  and tags != ''">and tags like concat('%', #{tags}, '%')</if>
+            <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="downloadIp != null  and downloadIp != ''">and download_ip like concat('%', #{downloadIp}, '%')
+            </if>
+            <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''">and browser = #{browser}</if>
+            <if test="os != null  and os != ''">and os = #{os}</if>
+            <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="pointsCost != null ">and points_cost = #{pointsCost}</if>
+            <if test="isFree != null  and isFree != ''">and is_free = #{isFree}</if>
+            <if test="proportion != null ">and proportion = #{proportion}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="downloadStatus != null  and downloadStatus != ''">and download_status = #{downloadStatus}</if>
+            <if test="downloadType != null  and downloadType != ''">and download_type = #{downloadType}</if>
+            <if test="referSource != null  and referSource != ''">and refer_source = #{referSource}</if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectPictureDownloadLogByDownloadId" parameterType="String" resultMap="PictureDownloadLogResult">
         <include refid="selectPictureDownloadLogVo"/>
         where download_id = #{downloadId}
@@ -87,7 +113,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="failReason != null">fail_reason,</if>
             <if test="downloadType != null and downloadType != ''">download_type,</if>
             <if test="referSource != null">refer_source,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="downloadId != null">#{downloadId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
@@ -111,7 +137,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="failReason != null">#{failReason},</if>
             <if test="downloadType != null and downloadType != ''">#{downloadType},</if>
             <if test="referSource != null">#{referSource},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePictureDownloadLog" parameterType="PictureDownloadLog">
@@ -143,11 +169,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePictureDownloadLogByDownloadId" parameterType="String">
-        delete from p_picture_download_log where download_id = #{downloadId}
+        delete
+        from p_picture_download_log
+        where download_id = #{downloadId}
     </delete>
 
     <delete id="deletePictureDownloadLogByDownloadIds" parameterType="String">
-        delete from p_picture_download_log where download_id in 
+        delete from p_picture_download_log where download_id in
         <foreach item="downloadId" collection="array" open="(" separator="," close=")">
             #{downloadId}
         </foreach>
