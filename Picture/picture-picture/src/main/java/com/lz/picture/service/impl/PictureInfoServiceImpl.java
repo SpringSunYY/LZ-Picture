@@ -673,12 +673,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .stream()
                 .map(PictureTagRelInfo::getTagId)
                 .toList();
-        //查询到这些标签
-        List<String> tagRelTagNames = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
-                        .in(PictureTagInfo::getTagId, tagRelTagIds))
-                .stream()
-                .map(PictureTagInfo::getName)
-                .toList();
+        List<String> tagRelTagNames = new ArrayList<>();
+        //判断是否有关联
+        if (StringUtils.isNotEmpty(tagRelTagIds)) {
+            List<PictureTagInfo> tagInfos = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
+                    .in(PictureTagInfo::getTagId, tagRelTagIds));
+            tagRelTagNames = tagInfos.stream()
+                    .map(PictureTagInfo::getName)
+                    .toList();
+        }
         //删除图片原有标签关联
         pictureTagRelInfoService.deletePictureTagRelInfoByPictureId(pictureInfo.getPictureId());
         //查询标签是否存在

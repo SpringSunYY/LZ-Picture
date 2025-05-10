@@ -75,8 +75,14 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload/cover")
     public AjaxResult uploadCover(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        String picture = pictureUploadManager.uploadCover(multipartFile, "cover", getLoginUser());
-        return success(picture);
+        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadCover(multipartFile, "cover", getLoginUser());
+        //异步执行存入文件日志
+        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(pictureFileResponse,
+                getLoginUser().getUserId(),
+                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                CFileLogTypeEnum.LOG_TYPE_0.getValue()
+        ));
+        return success(pictureFileResponse);
     }
 
     /**
@@ -90,6 +96,13 @@ public class UserFileController extends BaseUserInfoController {
     public AjaxResult uploadUrl(@RequestBody UrlUploadRequest urlUploadRequest) {
         // 执行业务上传
         PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
+        //异步执行存入文件日志
+        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(pictureFileResponse,
+                getLoginUser().getUserId(),
+                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                CFileLogTypeEnum.LOG_TYPE_1.getValue()
+        ));
+        pictureFileResponse.setPictureUrl(null);
         return success(pictureFileResponse);
     }
 

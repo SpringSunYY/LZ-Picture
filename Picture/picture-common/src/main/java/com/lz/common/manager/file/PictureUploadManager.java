@@ -265,7 +265,11 @@ public class PictureUploadManager {
         pictureFileResponse.setPicSize(picSize);
         pictureFileResponse.setPicWidth(picWidth);
         pictureFileResponse.setPicHeight(picHeight);
-        pictureFileResponse.setPicScale(((double) picWidth / (double) picHeight));
+        if (picWidth > 0 && picHeight > 0) {
+            pictureFileResponse.setPicScale(((double) picWidth / (double) picHeight));
+        } else {
+            pictureFileResponse.setPicScale(0.0);
+        }
         pictureFileResponse.setPicFormat(pictureFileInfo.getFileSuffix());
         pictureFileResponse.setThumbnailUrl("/" + pictureFileInfo.getCompressedFilePath());
         pictureFileResponse.setDnsUrl(endpoint);
@@ -395,7 +399,7 @@ public class PictureUploadManager {
      * param: loginUser
      * return: String
      **/
-    public String uploadCover(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+    public PictureFileResponse uploadCover(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
@@ -418,21 +422,17 @@ public class PictureUploadManager {
                     ossConfig.getAccessKeyId(),
                     ossConfig.getAccessKeySecret()
             );
-
             // 上传原始文件
             ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getFilePath(), file);
-            //生成签名
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
-                    pictureFileInfo.getFileName(),  // 使用完整路径
+                    pictureFileInfo.getFilePath(),  // 使用完整路径
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
-            String format = "image/format,webp";
-            req.setProcess(format);
-            // 创建获取压缩后图片的预签名URL
-            req.setExpiration(expiration);
+
+            // 发送HTTP请求获取图片信息
             URL compressedUrl = ossClient.generatePresignedUrl(req);
             // 获取压缩后的图片输入流
             HttpURLConnection connection = (HttpURLConnection) compressedUrl.openConnection();
@@ -440,10 +440,8 @@ public class PictureUploadManager {
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
             ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getCompressedFilePath(), inputStream);
-            String compressedUrlStr = compressedUrl.toString();
-            int limit = compressedUrlStr.lastIndexOf(".");
-            // 返回文件访问路径或URL
-            return compressedUrlStr.substring(0, limit) + pictureFileInfo.getCompressedSuffix();
+            // 返回文件访问路径或1URL
+            return buildPictureResponse(ossConfig.getEndpoint(), pictureFileInfo, 0L, 0, 0);
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
@@ -491,7 +489,7 @@ public class PictureUploadManager {
         InputStream inputStream = null;
         OSS ossClient = null;
         try {
-             file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
+            file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
             processFile(url, file);
             // 初始化OSS客户端
             ossClient = new OSSClientBuilder().build(
@@ -550,7 +548,7 @@ public class PictureUploadManager {
                     log.error("文件关闭失败", e);
                 }
             }
-            if (StringUtils.isNotNull(file)&&file.exists()) {
+            if (StringUtils.isNotNull(file) && file.exists()) {
                 boolean delete = file.delete();
             }
         }

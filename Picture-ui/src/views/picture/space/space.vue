@@ -150,7 +150,6 @@ const proxy = instance?.proxy
 
 const { p_space_status } = proxy?.useDict('p_space_status')
 const userStore = useUserStore()
-const { userId: userId } = storeToRefs(userStore)
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)

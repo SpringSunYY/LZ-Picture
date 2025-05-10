@@ -1,6 +1,7 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.CommonDeleteEnum;
@@ -41,6 +42,9 @@ public class UserSpaceInfoController extends BaseUserInfoController {
     @Resource
     private IConfigInfoService configInfoService;
 
+    @Resource
+    private OssConfig ossConfig;
+
     @PreAuthorize("@uss.hasPermi('picture:space:add')")
     @PostMapping
     public AjaxResult add(@RequestBody @Validated SpaceInfoAdd spaceInfoAdd) {
@@ -76,7 +80,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         listVo.stream()
                 .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
                 .forEach(vo -> {
-                    vo.setSpaceAvatar(vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+                    vo.setSpaceAvatar(ossConfig.getDnsUrl() + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
                 });
         TableDataInfo dataTable = getDataTable(list);
         dataTable.setTotal(list.size());

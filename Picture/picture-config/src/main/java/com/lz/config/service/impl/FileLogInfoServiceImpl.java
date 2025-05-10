@@ -195,11 +195,13 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         //默认冗余
         fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
         //先插入原图
-        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
+        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_1.getValue());
         fileLogInfo.setLogId(IdUtils.fastUUID());
         fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
         //其次压缩
-        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_1.getValue());
+        //压缩图片全部webp
+        fileLogInfo.setFileType("webp");
+        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
         fileLogInfo.setFileUrl(pictureFileResponse.getThumbnailUrl());
         fileLogInfo.setLogId(IdUtils.fastUUID());
         fileLogInfoMapper.insertFileLogInfo(fileLogInfo);

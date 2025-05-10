@@ -41,6 +41,8 @@ const emit = defineEmits(['update:value'])
 
 const fileList = ref<UploadProps['fileList']>([])
 
+const dnsUrl = import.meta.env.VITE_DNS_URL
+
 const previewVisible = ref(false)
 const previewImage = ref('')
 const previewTitle = ref('')
@@ -73,8 +75,8 @@ const handleCustomUpload = async ({ file, onSuccess, onError }: any) => {
   try {
     const res = await coverUploadFile(formData)
     // 模拟 Upload 返回格式
-    onSuccess(res?.msg)
-    emit('update:value', res?.msg)
+    onSuccess(res?.data?.thumbnailUrl)
+    emit('update:value', res?.data.thumbnailUrl)
   } catch (err) {
     message.error('上传失败')
     onError?.(err)
@@ -111,12 +113,13 @@ const handleRemove = () => {
 watch(
   () => props.value,
   (val) => {
+    console.log('value', val)
     if (val) {
       fileList.value = val.split(';').map((url, index) => ({
         uid: `${index}`,
         name: `图片${index + 1}`,
         status: 'done',
-        url,
+        url: dnsUrl + url,
       }))
     } else {
       fileList.value = []
@@ -125,15 +128,15 @@ watch(
   { immediate: true },
 )
 
-// 同步上传成功后的 fileList => value
-watch(
-  fileList,
-  (list) => {
-    const validUrls = list.filter((f) => f.status === 'done' && f.url).map((f) => f.url as string)
-    emit('update:value', validUrls.join(';'))
-  },
-  { deep: true },
-)
+// // 同步上传成功后的 fileList => value
+// watch(
+//   fileList,
+//   (list) => {
+//     const validUrls = list.filter((f) => f.status === 'done' && f.url).map((f) => f.url as string)
+//     emit('update:value', validUrls.join(';'))
+//   },
+//   { deep: true },
+// )
 </script>
 
 <style scoped>
