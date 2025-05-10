@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 图片异步任务管理器
+ * 公共异步任务管理器
  * 
  * @author YY
  */

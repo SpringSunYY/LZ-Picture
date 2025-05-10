@@ -4,6 +4,11 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.file.FileUtils;
+import com.lz.config.model.enmus.CFileLogOssTypeEnum;
+import com.lz.config.model.enmus.CFileLogTypeEnum;
+import com.lz.config.service.IFileLogInfoService;
+import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.file.UrlUploadRequest;
 import com.lz.picture.service.IPictureInfoService;
@@ -20,6 +25,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.TimerTask;
 
 /**
  * Project: Picture
@@ -49,7 +55,14 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload")
     public AjaxResult uploadPicture(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        return success(pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser()));
+        PictureFileResponse picture = pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser());
+        //异步执行存入文件日志
+        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(picture,
+                getLoginUser().getUserId(),
+                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                CFileLogTypeEnum.LOG_TYPE_0.getValue()
+                ));
+        return success(picture);
     }
 
     /**

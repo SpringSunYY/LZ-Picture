@@ -482,8 +482,10 @@ create index idx_template_type
 | log_status  | char     | 1    |                            | 否   |          | 状态;(0冗余,1正常,1已删除) |
 | oss_type    | char     | 1    |                            | 否   | 1        | 存储类型                   |
 | log_type    | char     | 1    |                            | 否   | 1        | 日志类型                   |
+| is_compress | char     | 1    |                            | 否   | 1        | 是否压缩                   |
 | create_time | datetime |      |                            | 否   | 当前时间 | 创建时间                   |
 | delete_time | datetime |      |                            | 是   |          | 删除时间                   |
+| ip_addr     | varchar  | 50   |                            | 否   |          | IP地址                     |
 | device_id   | varchar  | 256  |                            | 是   |          | 设备唯一标识               |
 | browser     | varchar  | 50   |                            | 是   |          | 浏览器类型                 |
 | os          | varchar  | 50   |                            | 是   |          | 操作系统                   |
@@ -492,7 +494,9 @@ create index idx_template_type
 
 域名URL：如果没有就是官方
 
-日志类型：0原图 1压缩图 2空间封面 3头像
+日志类型：0图片 1空间封面 2头像
+
+是否压缩：记录图片是否压缩 0是 1否
 
 存储类型：0官方 1阿里云 。。。。其他的用户自定义
 
@@ -507,9 +511,11 @@ CREATE TABLE `c_file_log_info`
     `file_type`   VARCHAR(16)  NOT NULL COMMENT '文件类型',
     `log_status`  CHAR(1)      NOT NULL COMMENT '状态',
     `oss_type`    CHAR(1)      NOT NULL DEFAULT '0' COMMENT '存储类型（0官方 1阿里云）',
-    `log_type`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '日志类型（0原图 1压缩图 2空间封面 3头像）',
+    `log_type`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '日志类型（0图片 1空间封面 2头像）',
+    `is_compress`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '是否压缩（0是 1否）',
     `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `delete_time` DATETIME              DEFAULT NULL COMMENT '删除时间',
+    `ip_addr` VARCHAR(50) NOT NULL COMMENT 'IP地址',
     `device_id`   VARCHAR(256)          DEFAULT NULL COMMENT '设备唯一标识',
     `browser`     VARCHAR(50)           DEFAULT NULL COMMENT '浏览器类型',
     `os`          VARCHAR(50)           DEFAULT NULL COMMENT '操作系统',

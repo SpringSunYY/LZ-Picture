@@ -54,9 +54,14 @@ public class FileLogInfoInsert implements Serializable {
     private String ossType;
 
     /**
-     * 日志类型（0原图 1压缩图 2空间封面 3头像）
+     * 日志类型（0图片 1空间封面 2头像）
      */
     private String logType;
+
+    /**
+     * 是否压缩（0是 1否）
+     */
+    private String isCompress;
 
     /**
      * 对象转封装类

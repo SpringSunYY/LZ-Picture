@@ -3,8 +3,11 @@ package com.lz.picture.manager.factory;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.spring.SpringUtils;
+import com.lz.config.service.IFileLogInfoService;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
@@ -24,6 +27,28 @@ import java.util.TimerTask;
 public class PictureAsyncFactory {
 
     public static final String SEPARATION = ";";
+
+    /**
+     * 记录文件日志
+     *
+     * @param pictureFileResponse 返回图片信息
+     * @param userId              用户编号
+     * @param ossType             存储类型
+     * @param logType             日志类型
+     * @return TimerTask
+     * @author: YY
+     * @date: 2025/5/10 22:51
+     **/
+    public static TimerTask recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType) {
+        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+        return new TimerTask() {
+            @Override
+            public void run() {
+                //插入文件日志
+                SpringUtils.getBean(IFileLogInfoService.class).recordFileLog(pictureFileResponse, userId, ossType, logType, deviceInfo);
+            }
+        };
+    }
 
     /**
      * description: 记录图片浏览记录

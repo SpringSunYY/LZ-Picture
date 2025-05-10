@@ -47,15 +47,23 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="创建时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeCreateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
+      <el-form-item label="是否压缩" prop="isCompress">
+        <el-select v-model="queryParams.isCompress" style="width: 200px" placeholder="请选择是否压缩" clearable>
+          <el-option
+              v-for="dict in c_file_log_is_compress"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="创建时间" prop="createTime">
+        <el-date-picker clearable
+                        v-model="queryParams.createTime"
+                        type="date"
+                        value-format="YYYY-MM-DD"
+                        placeholder="请选择创建时间">
+        </el-date-picker>
       </el-form-item>
       <el-form-item label="删除时间" style="width: 308px">
         <el-date-picker
@@ -67,7 +75,15 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="设备唯一标识" prop="deviceId">
+      <el-form-item label="IP地址" prop="ipAddr">
+        <el-input
+            v-model="queryParams.ipAddr"
+            placeholder="请输入IP地址"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入设备唯一标识"
@@ -75,7 +91,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -189,27 +205,34 @@
           <dict-tag :options="c_file_log_type" :value="scope.row.logType"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[8].visible"
+      <el-table-column label="是否压缩" align="center" prop="isCompress" v-if="columns[8].visible">
+        <template #default="scope">
+          <dict-tag :options="c_file_log_is_compress" :value="scope.row.isCompress"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deleteTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="删除时间" align="center" prop="deleteTime" width="180" v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deleteTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[10].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[11].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[12].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[13].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[14].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[15].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -243,6 +266,9 @@
         <el-form-item label="文件路径" prop="fileUrl">
           <image-upload v-model="form.fileUrl"/>
         </el-form-item>
+        <el-form-item label="文件类型" prop="fileType">
+          <el-input v-model="form.fileType" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
         <el-form-item label="状态" prop="logStatus">
           <el-radio-group v-model="form.logStatus">
             <el-radio
@@ -273,6 +299,16 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="是否压缩" prop="isCompress">
+          <el-select v-model="form.isCompress" placeholder="请选择是否压缩">
+            <el-option
+                v-for="dict in c_file_log_is_compress"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -295,10 +331,11 @@ import {
 
 const {proxy} = getCurrentInstance();
 const {
+  c_file_log_is_compress,
   c_file_log_status,
   c_file_log_type,
   c_file_log_oss_type
-} = proxy.useDict('c_file_log_status', 'c_file_log_type', 'c_file_log_oss_type');
+} = proxy.useDict('c_file_log_is_compress', 'c_file_log_status', 'c_file_log_type', 'c_file_log_oss_type');
 
 const fileLogInfoList = ref([]);
 const open = ref(false);
@@ -309,7 +346,6 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-const daterangeCreateTime = ref([]);
 const daterangeDeleteTime = ref([]);
 
 const data = reactive({
@@ -319,12 +355,15 @@ const data = reactive({
     pageSize: 10,
     logId: null,
     userId: null,
+    dnsUrl: null,
     fileType: null,
     logStatus: null,
     ossType: null,
     logType: null,
+    isCompress: null,
     createTime: null,
     deleteTime: null,
+    ipAddr: null,
     deviceId: null,
     browser: null,
     os: null,
@@ -342,7 +381,7 @@ const data = reactive({
       {required: true, message: "文件路径不能为空", trigger: "blur"}
     ],
     fileType: [
-      {required: true, message: "文件类型不能为空", trigger: "change"}
+      {required: true, message: "文件类型不能为空", trigger: "blur"}
     ],
     logStatus: [
       {required: true, message: "状态不能为空", trigger: "change"}
@@ -353,13 +392,19 @@ const data = reactive({
     logType: [
       {required: true, message: "日志类型不能为空", trigger: "change"}
     ],
+    isCompress: [
+      {required: true, message: "是否压缩不能为空", trigger: "change"}
+    ],
     createTime: [
       {required: true, message: "创建时间不能为空", trigger: "blur"}
+    ],
+    ipAddr: [
+      {required: true, message: "IP地址不能为空", trigger: "blur"}
     ],
   },
   //表格展示列
   columns: [
-    {key: 0, label: '日志编号', visible: true},
+    {key: 0, label: '日志编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
     {key: 2, label: '域名URL', visible: false},
     {key: 3, label: '文件路径', visible: true},
@@ -367,13 +412,15 @@ const data = reactive({
     {key: 5, label: '状态', visible: true},
     {key: 6, label: '存储类型', visible: true},
     {key: 7, label: '日志类型', visible: true},
-    {key: 8, label: '创建时间', visible: true},
-    {key: 9, label: '删除时间', visible: true},
-    {key: 10, label: '设备唯一标识', visible: false},
-    {key: 11, label: '浏览器类型', visible: false},
-    {key: 12, label: '操作系统', visible: false},
-    {key: 13, label: '平台', visible: false},
-    {key: 14, label: 'IP属地', visible: false},
+    {key: 8, label: '是否压缩', visible: true},
+    {key: 9, label: '创建时间', visible: true},
+    {key: 10, label: '删除时间', visible: true},
+    {key: 11, label: 'IP地址', visible: false},
+    {key: 12, label: '设备唯一标识', visible: false},
+    {key: 13, label: '浏览器类型', visible: false},
+    {key: 14, label: '操作系统', visible: false},
+    {key: 15, label: '平台', visible: false},
+    {key: 16, label: 'IP属地', visible: false},
   ],
 });
 
@@ -383,10 +430,6 @@ const {queryParams, form, rules, columns} = toRefs(data);
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
-  if (null != daterangeCreateTime && '' != daterangeCreateTime) {
-    queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
-    queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
-  }
   if (null != daterangeDeleteTime && '' != daterangeDeleteTime) {
     queryParams.value.params["beginDeleteTime"] = daterangeDeleteTime.value[0];
     queryParams.value.params["endDeleteTime"] = daterangeDeleteTime.value[1];
@@ -415,8 +458,10 @@ function reset() {
     logStatus: null,
     ossType: null,
     logType: null,
+    isCompress: null,
     createTime: null,
     deleteTime: null,
+    ipAddr: null,
     deviceId: null,
     browser: null,
     os: null,
@@ -434,7 +479,6 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
-  daterangeCreateTime.value = [];
   daterangeDeleteTime.value = [];
   proxy.resetForm("queryRef");
   handleQuery();

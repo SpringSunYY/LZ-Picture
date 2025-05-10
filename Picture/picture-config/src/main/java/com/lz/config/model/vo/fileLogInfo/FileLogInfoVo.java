@@ -64,10 +64,16 @@ public class FileLogInfoVo implements Serializable {
     private String ossType;
 
     /**
-     * 日志类型（0原图 1压缩图 2空间封面 3头像）
+     * 日志类型（0图片 1空间封面 2头像）
      */
-    @Excel(name = "日志类型", readConverterExp = "0=原图,1=压缩图,2=空间封面,3=头像")
+    @Excel(name = "日志类型", readConverterExp = "0=图片,1=空间封面,2=头像")
     private String logType;
+
+    /**
+     * 是否压缩（0是 1否）
+     */
+    @Excel(name = "是否压缩", readConverterExp = "0=是,1=否")
+    private String isCompress;
 
     /**
      * 创建时间
@@ -82,6 +88,12 @@ public class FileLogInfoVo implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "删除时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date deleteTime;
+
+    /**
+     * IP地址
+     */
+    @Excel(name = "IP地址")
+    private String ipAddr;
 
     /**
      * 设备唯一标识

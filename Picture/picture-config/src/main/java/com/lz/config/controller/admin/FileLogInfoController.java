@@ -2,6 +2,8 @@ package com.lz.config.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.system.service.ISysConfigService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -26,6 +28,8 @@ import com.lz.config.service.IFileLogInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
+
 /**
  * 文件日志Controller
  *
@@ -34,22 +38,27 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/admin/config/fileLogInfo")
-public class FileLogInfoController extends BaseController
-{
+public class FileLogInfoController extends BaseController {
     @Resource
     private IFileLogInfoService fileLogInfoService;
+
+    @Resource
+    private ISysConfigService sysConfigService;
 
     /**
      * 查询文件日志列表
      */
     @PreAuthorize("@ss.hasPermi('config:fileLogInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(FileLogInfoQuery fileLogInfoQuery)
-    {
+    public TableDataInfo list(FileLogInfoQuery fileLogInfoQuery) {
         FileLogInfo fileLogInfo = FileLogInfoQuery.queryToObj(fileLogInfoQuery);
         startPage();
         List<FileLogInfo> list = fileLogInfoService.selectFileLogInfoList(fileLogInfo);
-        List<FileLogInfoVo> listVo= list.stream().map(FileLogInfoVo::objToVo).collect(Collectors.toList());
+        List<FileLogInfoVo> listVo = list.stream().map(FileLogInfoVo::objToVo).collect(Collectors.toList());
+        String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
+        listVo.forEach(item -> {
+            item.setFileUrl(item.getFileUrl() + "?x-oss-process=image/resize,p_"+inCache);
+        });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
@@ -61,8 +70,7 @@ public class FileLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:fileLogInfo:export')")
     @Log(title = "文件日志", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, FileLogInfoQuery fileLogInfoQuery)
-    {
+    public void export(HttpServletResponse response, FileLogInfoQuery fileLogInfoQuery) {
         FileLogInfo fileLogInfo = FileLogInfoQuery.queryToObj(fileLogInfoQuery);
         List<FileLogInfo> list = fileLogInfoService.selectFileLogInfoList(fileLogInfo);
         ExcelUtil<FileLogInfo> util = new ExcelUtil<FileLogInfo>(FileLogInfo.class);
@@ -74,8 +82,7 @@ public class FileLogInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('config:fileLogInfo:query')")
     @GetMapping(value = "/{logId}")
-    public AjaxResult getInfo(@PathVariable("logId") String logId)
-    {
+    public AjaxResult getInfo(@PathVariable("logId") String logId) {
         FileLogInfo fileLogInfo = fileLogInfoService.selectFileLogInfoByLogId(logId);
         return success(FileLogInfoVo.objToVo(fileLogInfo));
     }
@@ -86,8 +93,7 @@ public class FileLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:fileLogInfo:add')")
     @Log(title = "文件日志", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody FileLogInfoInsert fileLogInfoInsert)
-    {
+    public AjaxResult add(@RequestBody FileLogInfoInsert fileLogInfoInsert) {
         FileLogInfo fileLogInfo = FileLogInfoInsert.insertToObj(fileLogInfoInsert);
         return toAjax(fileLogInfoService.insertFileLogInfo(fileLogInfo));
     }
@@ -98,8 +104,7 @@ public class FileLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:fileLogInfo:edit')")
     @Log(title = "文件日志", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody FileLogInfoEdit fileLogInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody FileLogInfoEdit fileLogInfoEdit) {
         FileLogInfo fileLogInfo = FileLogInfoEdit.editToObj(fileLogInfoEdit);
         return toAjax(fileLogInfoService.updateFileLogInfo(fileLogInfo));
     }
@@ -110,8 +115,7 @@ public class FileLogInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:fileLogInfo:remove')")
     @Log(title = "文件日志", businessType = BusinessType.DELETE)
     @DeleteMapping("/{logIds}")
-    public AjaxResult remove(@PathVariable String[] logIds)
-    {
+    public AjaxResult remove(@PathVariable String[] logIds) {
         return toAjax(fileLogInfoService.deleteFileLogInfoByLogIds(logIds));
     }
 }

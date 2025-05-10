@@ -5,10 +5,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.lz.common.config.OssConfig;
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
+
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.enmus.CFileLogIsCompressEnum;
+import com.lz.config.model.enmus.CFileLogOssTypeEnum;
+import com.lz.config.model.enmus.CFileLogStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,12 +36,16 @@ import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
  * @date 2025-04-24
  */
 @Service
-public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileLogInfo> implements IFileLogInfoService
-{
+public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileLogInfo> implements IFileLogInfoService {
     @Resource
     private FileLogInfoMapper fileLogInfoMapper;
 
+    @Resource
+    private OssConfig ossConfig;
+
+
     //region mybatis代码
+
     /**
      * 查询文件日志
      *
@@ -39,8 +53,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @return 文件日志
      */
     @Override
-    public FileLogInfo selectFileLogInfoByLogId(String logId)
-    {
+    public FileLogInfo selectFileLogInfoByLogId(String logId) {
         return fileLogInfoMapper.selectFileLogInfoByLogId(logId);
     }
 
@@ -51,9 +64,16 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @return 文件日志
      */
     @Override
-    public List<FileLogInfo> selectFileLogInfoList(FileLogInfo fileLogInfo)
-    {
-        return fileLogInfoMapper.selectFileLogInfoList(fileLogInfo);
+    public List<FileLogInfo> selectFileLogInfoList(FileLogInfo fileLogInfo) {
+        List<FileLogInfo> fileLogInfos = fileLogInfoMapper.selectFileLogInfoList(fileLogInfo);
+        for (FileLogInfo info : fileLogInfos) {
+            if (StringUtils.isNotEmpty(info.getDnsUrl())) {
+                info.setFileUrl(ossConfig.getDnsUrl() + info.getFileUrl());
+            } else {
+                info.setFileUrl(ossConfig.getDnsUrl() + info.getFileUrl());
+            }
+        }
+        return fileLogInfos;
     }
 
     /**
@@ -63,8 +83,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @return 结果
      */
     @Override
-    public int insertFileLogInfo(FileLogInfo fileLogInfo)
-    {
+    public int insertFileLogInfo(FileLogInfo fileLogInfo) {
         fileLogInfo.setCreateTime(DateUtils.getNowDate());
         return fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
     }
@@ -76,8 +95,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @return 结果
      */
     @Override
-    public int updateFileLogInfo(FileLogInfo fileLogInfo)
-    {
+    public int updateFileLogInfo(FileLogInfo fileLogInfo) {
         return fileLogInfoMapper.updateFileLogInfo(fileLogInfo);
     }
 
@@ -88,8 +106,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @return 结果
      */
     @Override
-    public int deleteFileLogInfoByLogIds(String[] logIds)
-    {
+    public int deleteFileLogInfoByLogIds(String[] logIds) {
         return fileLogInfoMapper.deleteFileLogInfoByLogIds(logIds);
     }
 
@@ -100,51 +117,51 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @return 结果
      */
     @Override
-    public int deleteFileLogInfoByLogId(String logId)
-    {
+    public int deleteFileLogInfoByLogId(String logId) {
         return fileLogInfoMapper.deleteFileLogInfoByLogId(logId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<FileLogInfo> getQueryWrapper(FileLogInfoQuery fileLogInfoQuery){
+    public QueryWrapper<FileLogInfo> getQueryWrapper(FileLogInfoQuery fileLogInfoQuery) {
         QueryWrapper<FileLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = fileLogInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String logId = fileLogInfoQuery.getLogId();
-        queryWrapper.eq(StringUtils.isNotEmpty(logId) ,"log_id",logId);
+        String logId = fileLogInfoQuery.getLogId();
+        queryWrapper.eq(StringUtils.isNotEmpty(logId), "log_id", logId);
 
-    String userId = fileLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = fileLogInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String fileType = fileLogInfoQuery.getFileType();
-        queryWrapper.eq(StringUtils.isNotEmpty(fileType) ,"file_type",fileType);
+        String fileType = fileLogInfoQuery.getFileType();
+        queryWrapper.eq(StringUtils.isNotEmpty(fileType), "file_type", fileType);
 
-    String logStatus = fileLogInfoQuery.getLogStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(logStatus) ,"log_status",logStatus);
+        String logStatus = fileLogInfoQuery.getLogStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(logStatus), "log_status", logStatus);
 
-    Date createTime = fileLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = fileLogInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    Date deleteTime = fileLogInfoQuery.getDeleteTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginDeleteTime"))&&StringUtils.isNotNull(params.get("endDeleteTime")),"delete_time",params.get("beginDeleteTime"),params.get("endDeleteTime"));
+        Date deleteTime = fileLogInfoQuery.getDeleteTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginDeleteTime")) && StringUtils.isNotNull(params.get("endDeleteTime")), "delete_time", params.get("beginDeleteTime"), params.get("endDeleteTime"));
 
-    String deviceId = fileLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String deviceId = fileLogInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
 
-    String browser = fileLogInfoQuery.getBrowser();
-        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String browser = fileLogInfoQuery.getBrowser();
+        queryWrapper.eq(StringUtils.isNotEmpty(browser), "browser", browser);
 
-    String os = fileLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        String os = fileLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
 
-    String platform = fileLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        String platform = fileLogInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
 
-    String ipAddress = fileLogInfoQuery.getIpAddress();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddress) ,"ip_address",ipAddress);
+        String ipAddress = fileLogInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 
         return queryWrapper;
     }
@@ -157,4 +174,34 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         return fileLogInfoList.stream().map(FileLogInfoVo::objToVo).collect(Collectors.toList());
     }
 
+
+    @Override
+    public void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo) {
+        FileLogInfo fileLogInfo = new FileLogInfo();
+        System.err.println("deviceInfo = " + deviceInfo);
+        BeanUtils.copyProperties(deviceInfo, fileLogInfo);
+        fileLogInfo.setIpAddr(deviceInfo.getIpaddr());
+        //设置对应值
+        fileLogInfo.setUserId(userId);
+        fileLogInfo.setDnsUrl(pictureFileResponse.getDnsUrl());
+        fileLogInfo.setFileUrl(pictureFileResponse.getPictureUrl());
+        fileLogInfo.setFileType(pictureFileResponse.getPicFormat());
+        //如果是官方
+        if (!CFileLogOssTypeEnum.OSS_TYPE_0.getValue().equals(ossType)) {
+            fileLogInfo.setOssType(ossType);
+        }
+        fileLogInfo.setLogType(logType);
+        fileLogInfo.setCreateTime(DateUtils.getNowDate());
+        //默认冗余
+        fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+        //先插入原图
+        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
+        fileLogInfo.setLogId(IdUtils.fastUUID());
+        fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
+        //其次压缩
+        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_1.getValue());
+        fileLogInfo.setFileUrl(pictureFileResponse.getThumbnailUrl());
+        fileLogInfo.setLogId(IdUtils.fastUUID());
+        fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
+    }
 }

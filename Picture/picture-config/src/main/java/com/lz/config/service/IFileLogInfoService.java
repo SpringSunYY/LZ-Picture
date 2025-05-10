@@ -1,21 +1,25 @@
 package com.lz.config.service;
 
 import java.util.List;
+
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.config.model.domain.FileLogInfo;
 import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
 import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 文件日志Service接口
  *
  * @author YY
  * @date 2025-04-24
  */
-public interface IFileLogInfoService extends IService<FileLogInfo>
-{
+public interface IFileLogInfoService extends IService<FileLogInfo> {
     //region mybatis代码
+
     /**
      * 查询文件日志
      *
@@ -64,6 +68,7 @@ public interface IFileLogInfoService extends IService<FileLogInfo>
      */
     public int deleteFileLogInfoByLogId(String logId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +84,18 @@ public interface IFileLogInfoService extends IService<FileLogInfo>
      * @return FileLogInfoVO集合
      */
     List<FileLogInfoVo> convertVoList(List<FileLogInfo> fileLogInfoList);
+
+    /**
+     * 记录文件日志
+     *
+     * @param pictureFileResponse 图片信息
+     * @param userId              用户编号
+     * @param ossType             存储类型
+     * @param logType             日志类型
+     * @param deviceInfo          设备信息
+     * @return void
+     * @author: YY
+     * @date: 2025/5/10 22:56
+     **/
+    void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
 }
