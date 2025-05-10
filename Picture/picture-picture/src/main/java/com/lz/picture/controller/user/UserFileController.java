@@ -82,6 +82,7 @@ public class UserFileController extends BaseUserInfoController {
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
         ));
+        pictureFileResponse.setPictureUrl(null);
         return success(pictureFileResponse);
     }
 
@@ -102,7 +103,6 @@ public class UserFileController extends BaseUserInfoController {
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_1.getValue()
         ));
-        pictureFileResponse.setPictureUrl(null);
         return success(pictureFileResponse);
     }
 

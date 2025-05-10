@@ -641,6 +641,29 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
         }
+        //根据图片域名信息去除域名
+        //判断空间是否是自定义存储
+        if (spaceInfo.getOssType().equals(PSpaceOssType.SPACE_OSS_TYPE_0.getValue())) {
+            //不是判断图片域名是否正确
+            if (pictureInfo.getPictureUrl().startsWith(ossConfig.getDnsUrl())) {
+                //删除图片传过来的域名前缀
+                pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().replace(ossConfig.getDnsUrl(), ""));
+            }
+            if (pictureInfo.getThumbnailUrl().startsWith(ossConfig.getDnsUrl())) {
+                //删除图片传过来的域名前缀
+                pictureInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl().replace(ossConfig.getDnsUrl(), ""));
+            }
+            pictureInfo.setDnsUrl(null);
+        } else {
+            //反之是用户自定义域名
+            //TODO 判断、删除域名前缀、添加域名
+            //删除路径参数
+            pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().split("\\?")[0]);
+        }
+        //删除路径参数
+        pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().split("\\?")[0]);
+        //删除路径参数
+        pictureInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl().split("\\?")[0]);
         //校验积分
         checkPoints(pictureInfo);
         // 计算宽高比例
@@ -649,7 +672,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
-        int i = pictureInfoMapper.updatePictureInfo(pictureInfo);
+        pictureInfoMapper.updatePictureInfo(pictureInfo);
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
         //查询用户现在所拥有的信息
@@ -686,6 +709,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureTagRelInfoService.deletePictureTagRelInfoByPictureId(pictureInfo.getPictureId());
         //查询标签是否存在
         List<String> tags = pictureInfo.getTags();
+        if (StringUtils.isEmpty(tags)) {
+            tags = new ArrayList<>();
+        }
         //校验标签长度，如果超过16，则截取
         tags.forEach(tag -> {
             if (tag.length() > 16) {
@@ -693,10 +719,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             }
         });
         List<PictureTagInfo> tagInfoList;
-        if (StringUtils.isEmpty(tags)) {
-            tagInfoList = new ArrayList<>();
-        } else {
+        if (!StringUtils.isEmpty(tags)) {
             tagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getName, tags));
+        } else {
+            tagInfoList = new ArrayList<>();
         }
         //遍历两个标签，如果查询到的标签并且此标签为禁止状态，删除tags的标签
         for (PictureTagInfo tagInfo : tagInfoList) {
