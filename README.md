@@ -476,9 +476,12 @@ create index idx_template_type
 | ----------- | -------- | ---- | -------------------------- | ---- | -------- | -------------------------- |
 | log_id      | varchar  | 128  | 主键                       | 否   |          | 日志编号                   |
 | user_id     | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号                   |
+| dns_url     | varchar  | 512  |                            | 是   |          | 域名URL                    |
 | file_url    | varchar  | 512  |                            | 否   |          | 文件路径                   |
 | file_type   | varchar  | 16   |                            | 否   |          | 文件类型                   |
 | log_status  | char     | 1    |                            | 否   |          | 状态;(0冗余,1正常,1已删除) |
+| oss_type    | char     | 1    |                            | 否   | 1        | 存储类型                   |
+| log_type    | char     | 1    |                            | 否   | 1        | 日志类型                   |
 | create_time | datetime |      |                            | 否   | 当前时间 | 创建时间                   |
 | delete_time | datetime |      |                            | 是   |          | 删除时间                   |
 | device_id   | varchar  | 256  |                            | 是   |          | 设备唯一标识               |
@@ -487,23 +490,35 @@ create index idx_template_type
 | platform    | varchar  | 20   |                            | 是   |          | 平台                       |
 | ip_address  | varchar  | 64   |                            | 是   |          | IP属地                     |
 
+域名URL：如果没有就是官方
+
+日志类型：0原图 1压缩图 2空间封面 3头像
+
+存储类型：0官方 1阿里云 。。。。其他的用户自定义
+
 ```sql
-CREATE TABLE `c_file_log_info` (
-  `log_id` VARCHAR(128) NOT NULL COMMENT '日志编号',
-  `user_id` VARCHAR(128) NOT NULL COMMENT '用户编号',
-  `file_url` VARCHAR(512) NOT NULL COMMENT '文件路径',
-  `file_type` VARCHAR(16) NOT NULL COMMENT '文件类型',
-  `log_status` CHAR(1) NOT NULL COMMENT '状态',
-  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `delete_time` DATETIME DEFAULT NULL COMMENT '删除时间',
-  `device_id` VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
-  `browser` VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
-  `os` VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
-  `platform` VARCHAR(20) DEFAULT NULL COMMENT '平台',
-  `ip_address` VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
-  PRIMARY KEY (`log_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `u_user_info` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件日志表';
+DROP TABLE IF EXISTS c_file_log_info;
+CREATE TABLE `c_file_log_info`
+(
+    `log_id`      VARCHAR(128) NOT NULL COMMENT '日志编号',
+    `user_id`     VARCHAR(128) NOT NULL COMMENT '用户编号',
+    `dns_url`     VARCHAR(512) NOT NULL COMMENT '域名URL',
+    `file_url`    VARCHAR(512) NOT NULL COMMENT '文件路径',
+    `file_type`   VARCHAR(16)  NOT NULL COMMENT '文件类型',
+    `log_status`  CHAR(1)      NOT NULL COMMENT '状态',
+    `oss_type`    CHAR(1)      NOT NULL DEFAULT '0' COMMENT '存储类型（0官方 1阿里云）',
+    `log_type`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '日志类型（0原图 1压缩图 2空间封面 3头像）',
+    `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `delete_time` DATETIME              DEFAULT NULL COMMENT '删除时间',
+    `device_id`   VARCHAR(256)          DEFAULT NULL COMMENT '设备唯一标识',
+    `browser`     VARCHAR(50)           DEFAULT NULL COMMENT '浏览器类型',
+    `os`          VARCHAR(50)           DEFAULT NULL COMMENT '操作系统',
+    `platform`    VARCHAR(20)           DEFAULT NULL COMMENT '平台',
+    `ip_address`  VARCHAR(64)           DEFAULT NULL COMMENT 'IP属地',
+    PRIMARY KEY (`log_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `u_user_info` (`user_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='文件日志表';
 ```
 
 
@@ -1708,7 +1723,7 @@ CREATE TABLE ai_conversation_log_info
 | member_limit     | int      |      |                           | 是   | 10         | 人数上限                      |
 | current_members  | int      |      |                           | 是   | 0          | 当前人数                      |
 
-存储类型：0官方 1阿里云
+存储类型：0官方 1阿里云 。。。。其他的用户自定义
 
 存储配置：存储后转为json，比如说一些阿里的oss配置，腾讯云的配置
 

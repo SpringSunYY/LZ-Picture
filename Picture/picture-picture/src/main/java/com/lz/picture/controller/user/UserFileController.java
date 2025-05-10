@@ -39,6 +39,12 @@ public class UserFileController extends BaseUserInfoController {
     private IPictureInfoService pictureInfoService;
 
 
+    /**
+     * 上传图片
+     *
+     * @param multipartFile
+     * @return
+     */
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping("/upload")
     public AjaxResult uploadPicture(@RequestPart("file") MultipartFile multipartFile) {
@@ -46,6 +52,12 @@ public class UserFileController extends BaseUserInfoController {
         return success(pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser()));
     }
 
+    /**
+     * 上传封面图
+     *
+     * @param multipartFile
+     * @return
+     */
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping("/upload/cover")
     public AjaxResult uploadCover(@RequestPart("file") MultipartFile multipartFile) {
@@ -54,6 +66,12 @@ public class UserFileController extends BaseUserInfoController {
         return success(picture);
     }
 
+    /**
+     * url上传图片
+     *
+     * @param urlUploadRequest
+     * @return
+     */
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping("/upload/url")
     public AjaxResult uploadUrl(@RequestBody UrlUploadRequest urlUploadRequest) {

@@ -469,6 +469,7 @@ public class PictureUploadManager {
 
     /**
      * 根据url上传图片
+     * 上传原始文件和压缩后的图片
      *
      * @param url       路径
      * @param fileDir   文件目录

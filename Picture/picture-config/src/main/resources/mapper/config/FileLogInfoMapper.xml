@@ -1,45 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.config.mapper.FileLogInfoMapper">
-    
+
     <resultMap type="FileLogInfo" id="FileLogInfoResult">
-        <result property="logId"    column="log_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="fileUrl"    column="file_url"    />
-        <result property="fileType"    column="file_type"    />
-        <result property="logStatus"    column="log_status"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="deleteTime"    column="delete_time"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="browser"    column="browser"    />
-        <result property="os"    column="os"    />
-        <result property="platform"    column="platform"    />
-        <result property="ipAddress"    column="ip_address"    />
+        <result property="logId" column="log_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="dnsUrl" column="dns_url"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="fileType" column="file_type"/>
+        <result property="logStatus" column="log_status"/>
+        <result property="ossType" column="oss_type"/>
+        <result property="logType" column="log_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="platform" column="platform"/>
+        <result property="ipAddress" column="ip_address"/>
     </resultMap>
 
     <sql id="selectFileLogInfoVo">
-        select log_id, user_id, file_url, file_type, log_status, create_time, delete_time, device_id, browser, os, platform, ip_address from c_file_log_info
+        select log_id,
+               user_id,
+               dns_url,
+               file_url,
+               file_type,
+               log_status,
+               oss_type,
+               log_type,
+               create_time,
+               delete_time,
+               device_id,
+               browser,
+               os,
+               platform,
+               ip_address
+        from c_file_log_info
     </sql>
 
     <select id="selectFileLogInfoList" parameterType="FileLogInfo" resultMap="FileLogInfoResult">
         <include refid="selectFileLogInfoVo"/>
-        <where>  
-            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="fileType != null  and fileType != ''"> and file_type = #{fileType}</if>
-            <if test="logStatus != null  and logStatus != ''"> and log_status = #{logStatus}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginDeleteTime != null and params.beginDeleteTime != '' and params.endDeleteTime != null and params.endDeleteTime != ''"> and DATE_FORMAT(delete_time, '%Y-%m-%d') between #{params.beginDeleteTime} and #{params.endDeleteTime}</if>
-            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
-            <if test="os != null  and os != ''"> and os = #{os}</if>
-            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
-            <if test="ipAddress != null  and ipAddress != ''"> and ip_address like concat('%', #{ipAddress}, '%')</if>
+        <where>
+            <if test="logId != null  and logId != ''">and log_id = #{logId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="fileType != null  and fileType != ''">and file_type = #{fileType}</if>
+            <if test="logStatus != null  and logStatus != ''">and log_status = #{logStatus}</if>
+            <if test="ossType != null  and ossType != ''">and oss_type = #{ossType}</if>
+            <if test="logType != null  and logType != ''">and log_type = #{logType}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginDeleteTime != null and params.beginDeleteTime != '' and params.endDeleteTime != null and params.endDeleteTime != ''">
+                and DATE_FORMAT(delete_time, '%Y-%m-%d') between #{params.beginDeleteTime} and #{params.endDeleteTime}
+            </if>
+            <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''">and browser = #{browser}</if>
+            <if test="os != null  and os != ''">and os = #{os}</if>
+            <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
         </where>
     </select>
-    
+
     <select id="selectFileLogInfoByLogId" parameterType="String" resultMap="FileLogInfoResult">
         <include refid="selectFileLogInfoVo"/>
         where log_id = #{logId}
@@ -50,9 +74,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="logId != null">log_id,</if>
             <if test="userId != null and userId != ''">user_id,</if>
+            <if test="dnsUrl != null and dnsUrl != ''">dns_url,</if>
             <if test="fileUrl != null and fileUrl != ''">file_url,</if>
             <if test="fileType != null and fileType != ''">file_type,</if>
             <if test="logStatus != null and logStatus != ''">log_status,</if>
+            <if test="ossType != null and ossType != ''">oss_type,</if>
+            <if test="logType != null and logType != ''">log_type,</if>
             <if test="createTime != null">create_time,</if>
             <if test="deleteTime != null">delete_time,</if>
             <if test="deviceId != null">device_id,</if>
@@ -60,13 +87,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="os != null">os,</if>
             <if test="platform != null">platform,</if>
             <if test="ipAddress != null">ip_address,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="logId != null">#{logId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="dnsUrl != null and dnsUrl != ''">#{dnsUrl},</if>
             <if test="fileUrl != null and fileUrl != ''">#{fileUrl},</if>
             <if test="fileType != null and fileType != ''">#{fileType},</if>
             <if test="logStatus != null and logStatus != ''">#{logStatus},</if>
+            <if test="ossType != null and ossType != ''">#{ossType},</if>
+            <if test="logType != null and logType != ''">#{logType},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="deleteTime != null">#{deleteTime},</if>
             <if test="deviceId != null">#{deviceId},</if>
@@ -74,16 +104,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="os != null">#{os},</if>
             <if test="platform != null">#{platform},</if>
             <if test="ipAddress != null">#{ipAddress},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateFileLogInfo" parameterType="FileLogInfo">
         update c_file_log_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="dnsUrl != null and dnsUrl != ''">dns_url = #{dnsUrl},</if>
             <if test="fileUrl != null and fileUrl != ''">file_url = #{fileUrl},</if>
             <if test="fileType != null and fileType != ''">file_type = #{fileType},</if>
             <if test="logStatus != null and logStatus != ''">log_status = #{logStatus},</if>
+            <if test="ossType != null and ossType != ''">oss_type = #{ossType},</if>
+            <if test="logType != null and logType != ''">log_type = #{logType},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="deleteTime != null">delete_time = #{deleteTime},</if>
             <if test="deviceId != null">device_id = #{deviceId},</if>
@@ -96,11 +129,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteFileLogInfoByLogId" parameterType="String">
-        delete from c_file_log_info where log_id = #{logId}
+        delete
+        from c_file_log_info
+        where log_id = #{logId}
     </delete>
 
     <delete id="deleteFileLogInfoByLogIds" parameterType="String">
-        delete from c_file_log_info where log_id in 
+        delete from c_file_log_info where log_id in
         <foreach item="logId" collection="array" open="(" separator="," close=")">
             #{logId}
         </foreach>
