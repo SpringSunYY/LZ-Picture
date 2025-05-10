@@ -1,15 +1,10 @@
 <template>
-  <svg
-    :class="svgClass"
-    :style="customStyle"
-    aria-hidden="true"
-    v-bind="$attrs"
-  >
+  <svg :class="svgClass" :style="customStyle" aria-hidden="true" v-bind="$attrs">
     <use :xlink:href="iconName" :fill="color" />
   </svg>
 </template>
 
-<script>
+<script lang="ts" name="SvgIcon">
 import { defineComponent, computed, useAttrs } from 'vue'
 
 export default defineComponent({
@@ -50,14 +45,10 @@ export default defineComponent({
 
     const customStyle = computed(() => {
       // 合并外部 style 和内部 style
-      const externalStyle =
-        typeof attrs.style === 'object' ? attrs.style : {}
+      const externalStyle = typeof attrs.style === 'object' ? attrs.style : {}
 
       const internalStyle = {
-        fontSize:
-          typeof props.size === 'number'
-            ? `${props.size}px`
-            : props.size,
+        fontSize: typeof props.size === 'number' ? `${props.size}px` : props.size,
         color: props.color || 'currentColor',
       }
 
@@ -75,12 +66,13 @@ export default defineComponent({
 <style scoped>
 .svg-icon {
   transform: scale(1.5);
-  width: 1.0em;
-  height: 1.0em;
-  vertical-align: -0.2em;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
   fill: currentColor;
   overflow: hidden;
   display: inline-block;
+  font-size: inherit;
 
   &:focus {
     outline: none;

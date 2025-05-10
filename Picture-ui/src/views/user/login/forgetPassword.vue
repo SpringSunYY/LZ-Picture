@@ -247,7 +247,7 @@ const sendVerificationCode = async () => {
       uuid: forgotPasswordForm.value.uuid,
       smsCode: forgotPasswordForm.value.smsCode,
       password: forgotPasswordForm.value.newPassword,
-      confirmPassword: forgotPasswordForm.value.confirmPassword
+      confirmPassword: forgotPasswordForm.value.confirmPassword,
     })
 
     message.success('验证码已发送')
@@ -264,7 +264,7 @@ const sendVerificationCode = async () => {
     }, 1000)
   } catch (error) {
     console.log('验证失败:', error)
-    message.error( '验证码发送失败')
+    message.error('验证码发送失败')
     isSending.value = false
     getCode() // 刷新图形验证码
   }
@@ -286,14 +286,14 @@ const handleSubmit = async () => {
     await router.push('/user/login')
   } catch (error) {
     console.log('验证失败:', error)
-    message.error( '密码重置失败')
+    message.error('密码重置失败')
     getCode() // 失败时刷新图形验证码
   } finally {
     loading.value = false
   }
 }
 
-const handleFinishFailed = (errors:string) => {
+const handleFinishFailed = (errors: string) => {
   console.log('验证失败:', errors)
 }
 

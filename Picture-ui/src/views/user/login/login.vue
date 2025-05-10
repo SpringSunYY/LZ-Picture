@@ -58,7 +58,7 @@
   </div>
 </template>
 
-<script setup name="UserLogin">
+<script setup lang="ts" name="UserLogin">
 import { UserSwitchOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
