@@ -369,6 +369,15 @@ const handleSubmit = async () => {
     .finally(() => {
       loading.value = false
     })
+  // 处理分类路径
+  if (formState.categoryId) {
+    const selectedPath = findPathById(pictureCategoryList.value, formState.categoryId)
+    if (selectedPath) {
+      formState.categoryId = selectedPath // 设置为数组形式 ['1', '1-1', '1-1-1']
+    } else {
+      console.warn('未找到匹配的分类路径')
+    }
+  }
 }
 
 // 选择操作
@@ -468,9 +477,41 @@ const getPictureInfo = () => {
     })
     folderQuery.value.spaceId = formState.spaceId
     getFolderList()
+    // 处理分类路径
+    if (formState.categoryId) {
+      const selectedPath = findPathById(pictureCategoryList.value, formState.categoryId)
+      if (selectedPath) {
+        formState.categoryId = selectedPath // 设置为数组形式 ['1', '1-1', '1-1-1']
+      } else {
+        console.warn('未找到匹配的分类路径')
+      }
+    }
     console.log('formState', formState)
   })
 }
+
+/**
+ * 根据 categoryId 查找完整路径
+ * @param data 分类列表
+ * @param targetId 目标叶子节点 ID
+ * @returns 路径数组，如 ['1', '1-1', '1-1-1']
+ */
+function findPathById(data: PictureCategoryInfoVo[], targetId: string): string[] | null {
+  for (const node of data) {
+    const path = [node.categoryId]
+    if (node.categoryId === targetId) {
+      return path
+    }
+    if (node.children) {
+      const childPath = findPathById(node.children, targetId)
+      if (childPath) {
+        return [...path, ...childPath]
+      }
+    }
+  }
+  return null
+}
+
 getPictureInfo()
 getPictureCategoryList()
 </script>
