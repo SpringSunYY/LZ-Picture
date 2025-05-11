@@ -7,9 +7,8 @@ import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.file.FileUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
-import com.lz.config.service.IFileLogInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
-import com.lz.picture.manager.factory.PictureAsyncFactory;
+import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.file.UrlUploadRequest;
 import com.lz.picture.service.IPictureInfoService;
@@ -26,7 +25,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.TimerTask;
 
 /**
  * Project: Picture
@@ -58,7 +56,7 @@ public class UserFileController extends BaseUserInfoController {
         // 执行业务上传
         PictureFileResponse picture = pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser());
         //异步执行存入文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(picture,
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
@@ -81,7 +79,7 @@ public class UserFileController extends BaseUserInfoController {
         PictureFileResponse target = new PictureFileResponse();
         BeanUtils.copyProperties(pictureFileResponse, target);
         //异步执行存入文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(target,
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(target,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_1.getValue()
@@ -102,7 +100,7 @@ public class UserFileController extends BaseUserInfoController {
         // 执行业务上传
         PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
         //异步执行存入文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(pictureFileResponse,
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(pictureFileResponse,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()

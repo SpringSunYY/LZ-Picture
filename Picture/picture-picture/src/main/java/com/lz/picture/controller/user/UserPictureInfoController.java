@@ -6,13 +6,8 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
-import com.lz.config.model.enmus.CFileLogStatusEnum;
-import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.UserViewLog;
-import com.lz.picture.manager.PictureAsyncManager;
-import com.lz.picture.manager.factory.PictureAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
@@ -30,7 +25,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.TimerTask;
 
 import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
 

@@ -17,7 +17,7 @@ import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
-import com.lz.picture.manager.factory.PictureAsyncFactory;
+import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.enums.*;
@@ -289,7 +289,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             implementPictureAdd(pictureInfo, spaceInfo);
         });
         //异步更新文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.updateNormalFileLog(pictureInfo));
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateNormalFileLog(pictureInfo));
         return i;
     }
 
@@ -679,7 +679,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         //异步更新文件日志的信息
-        PictureAsyncManager.me().execute(PictureAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
         //查询用户现在所拥有的信息

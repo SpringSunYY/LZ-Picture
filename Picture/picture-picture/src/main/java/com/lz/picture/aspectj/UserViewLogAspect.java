@@ -6,7 +6,7 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.manager.PictureAsyncManager;
-import com.lz.picture.manager.factory.PictureAsyncFactory;
+import com.lz.picture.manager.factory.PictureUserViewLogAsyncFactory;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -59,6 +59,6 @@ public class UserViewLogAspect {
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
 //        System.out.println("deviceInfo = " + JSON.toJSONString(deviceInfo));
         Date nowDate = DateUtils.getNowDate();
-        PictureAsyncManager.me().execute(PictureAsyncFactory.recordUserViewLog(userId, targetType, score, deviceInfo, jsonResult, nowDate));
+        PictureAsyncManager.me().execute(PictureUserViewLogAsyncFactory.recordUserViewLog(userId, targetType, score, deviceInfo, jsonResult, nowDate));
     }
 }

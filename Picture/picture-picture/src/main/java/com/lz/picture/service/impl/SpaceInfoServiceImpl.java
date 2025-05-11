@@ -10,7 +10,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
-import com.lz.picture.manager.factory.PictureAsyncFactory;
+import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
@@ -218,7 +218,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
 
         boolean save = this.save(spaceInfo);
         //异步更新封面文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.recordSpaceCoverFileInfoLog(spaceInfo));
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordSpaceCoverFileInfoLog(spaceInfo));
         return save ? 1 : 0;
     }
 
@@ -234,7 +234,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         }
         spaceInfo.setUpdateTime(DateUtils.getNowDate());
         boolean b = this.updateById(spaceInfo);
-        PictureAsyncManager.me().execute(PictureAsyncFactory.updateSpaceCoverFileInfoLog(old,spaceInfo));
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateSpaceCoverFileInfoLog(old,spaceInfo));
         return b ? 1 : 0;
     }
 
