@@ -49,7 +49,7 @@
         </div>
       </a-col>
     </a-row>
-    <a-divider style="border-color: #7cb305" dashed />
+    <a-divider style="border-color: #7cb305" dashed orientation="left">我的图片</a-divider>
     <PictureInfoList style="margin-top: 20px"></PictureInfoList>
     <!--添加空间-->
     <a-modal v-model:open="open" :footer="null" centered destroyOnClose>

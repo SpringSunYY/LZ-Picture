@@ -45,7 +45,7 @@
       </a-col>
     </a-row>
 
-    <div style="text-align: center; margin-top: 20px; margin-bottom: 10px">
+    <div v-if="pictureTotal > 12" style="text-align: center; margin-top: 20px; margin-bottom: 10px">
       <a-pagination
         v-model:current="current"
         :pageSize="pictureQuery.pageSize"
