@@ -64,6 +64,8 @@ public class PictureFileLogAsyncFactory {
                 if (!pictureInfoDb.getPictureUrl().equals(pictureInfo.getPictureUrl())) {
                     //如果不一样，更新新的为正常，老的为冗余
                     FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                    newFileLogUpdate.setTargetId(pictureInfo.getPictureId());
+                    newFileLogUpdate.setTargetContent(pictureInfo.getName());
                     newFileLogUpdate.setPictureUrl(pictureInfo.getPictureUrl());
                     newFileLogUpdate.setThumbnailUrl(pictureInfo.getThumbnailUrl());
                     newFileLogUpdate.setUserId(pictureInfo.getUserId());
@@ -72,7 +74,11 @@ public class PictureFileLogAsyncFactory {
                     newFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
                     //插入文件日志
                     SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(newFileLogUpdate);
+
+                    //更新老的为冗余
                     FileLogUpdate oldFileLogUpdate = new FileLogUpdate();
+                    oldFileLogUpdate.setTargetId(pictureInfoDb.getPictureId());
+                    oldFileLogUpdate.setTargetContent(pictureInfoDb.getName());
                     oldFileLogUpdate.setPictureUrl(pictureInfoDb.getPictureUrl());
                     oldFileLogUpdate.setThumbnailUrl(pictureInfoDb.getThumbnailUrl());
                     oldFileLogUpdate.setUserId(pictureInfoDb.getUserId());
@@ -100,6 +106,8 @@ public class PictureFileLogAsyncFactory {
             @Override
             public void run() {
                 FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                newFileLogUpdate.setTargetId(spaceInfo.getSpaceId());
+                newFileLogUpdate.setTargetContent(spaceInfo.getSpaceName());
                 newFileLogUpdate.setThumbnailUrl(spaceInfo.getSpaceAvatar());
                 newFileLogUpdate.setUserId(spaceInfo.getUserId());
                 newFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_1.getValue());
@@ -129,6 +137,8 @@ public class PictureFileLogAsyncFactory {
             public void run() {
                 if (!old.getSpaceAvatar().equals(spaceInfo.getSpaceAvatar())) {
                     FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                    newFileLogUpdate.setTargetId(spaceInfo.getSpaceId());
+                    newFileLogUpdate.setTargetContent(spaceInfo.getSpaceName());
                     newFileLogUpdate.setThumbnailUrl(spaceInfo.getSpaceAvatar());
                     newFileLogUpdate.setUserId(spaceInfo.getUserId());
                     newFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_1.getValue());
@@ -137,6 +147,8 @@ public class PictureFileLogAsyncFactory {
                     SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(newFileLogUpdate);
 
                     FileLogUpdate oldFileLogUpdate = new FileLogUpdate();
+                    oldFileLogUpdate.setTargetId(old.getSpaceId());
+                    oldFileLogUpdate.setTargetContent(old.getSpaceName());
                     oldFileLogUpdate.setThumbnailUrl(old.getSpaceAvatar());
                     oldFileLogUpdate.setUserId(old.getUserId());
                     oldFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_1.getValue());
@@ -162,6 +174,8 @@ public class PictureFileLogAsyncFactory {
             @Override
             public void run() {
                 FileLogUpdate fileLogUpdate = new FileLogUpdate();
+                fileLogUpdate.setTargetId(pictureInfo.getPictureId());
+                fileLogUpdate.setTargetContent(pictureInfo.getName());
                 fileLogUpdate.setPictureUrl(pictureInfo.getPictureUrl());
                 fileLogUpdate.setThumbnailUrl(pictureInfo.getThumbnailUrl());
                 fileLogUpdate.setUserId(pictureInfo.getUserId());

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 文件日志对象 c_file_log_info
  *
  * @author YY
- * @date 2025-05-10
+ * @date 2025-05-11
  */
 @TableName("c_file_log_info")
 @Data
@@ -38,6 +38,18 @@ public class FileLogInfo implements Serializable {
      */
     @Excel(name = "用户编号")
     private String userId;
+
+    /**
+     * 目标对象
+     */
+    @Excel(name = "目标对象")
+    private String targetId;
+
+    /**
+     * 目标内容
+     */
+    @Excel(name = "目标内容")
+    private String targetContent;
 
     /**
      * 域名URL

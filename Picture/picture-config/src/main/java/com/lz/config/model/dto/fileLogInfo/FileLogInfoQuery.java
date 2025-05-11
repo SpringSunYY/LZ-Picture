@@ -19,7 +19,7 @@ import com.lz.config.model.domain.FileLogInfo;
  * 文件日志Query对象 c_file_log_info
  *
  * @author YY
- * @date 2025-05-10
+ * @date 2025-05-11
  */
 @Data
 public class FileLogInfoQuery implements Serializable {
@@ -34,6 +34,16 @@ public class FileLogInfoQuery implements Serializable {
      * 用户编号
      */
     private String userId;
+
+    /**
+     * 目标对象
+     */
+    private String targetId;
+
+    /**
+     * 目标内容
+     */
+    private String targetContent;
 
     /**
      * 域名URL

@@ -19,6 +19,16 @@ public class FileLogUpdate {
     private String userId;
 
     /**
+     * 目标对象
+     */
+    private String targetId;
+
+    /**
+     * 目标内容
+     */
+    private String targetContent;
+
+    /**
      * 图片URL
      */
     private String pictureUrl;

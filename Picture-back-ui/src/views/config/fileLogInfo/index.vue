@@ -17,6 +17,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="目标对象" prop="targetId">
+        <el-input
+            v-model="queryParams.targetId"
+            placeholder="请输入目标对象"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="状态" prop="logStatus">
         <el-select v-model="queryParams.logStatus" style="width: 200px" placeholder="请选择状态" clearable>
           <el-option
@@ -57,13 +65,15 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="创建时间" prop="createTime">
-        <el-date-picker clearable
-                        v-model="queryParams.createTime"
-                        type="date"
-                        value-format="YYYY-MM-DD"
-                        placeholder="请选择创建时间">
-        </el-date-picker>
+      <el-form-item label="创建时间" style="width: 308px">
+        <el-date-picker
+            v-model="daterangeCreateTime"
+            value-format="YYYY-MM-DD"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+        ></el-date-picker>
       </el-form-item>
       <el-form-item label="删除时间" style="width: 308px">
         <el-date-picker
@@ -181,58 +191,62 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="域名URL" align="center" prop="dnsUrl" v-if="columns[2].visible"
+      <el-table-column label="目标对象" align="center" prop="targetId" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="文件路径" align="center" prop="fileUrl" width="100" v-if="columns[3].visible">
+      <el-table-column label="目标内容" align="center" prop="targetContent" v-if="columns[3].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="域名URL" align="center" prop="dnsUrl" v-if="columns[4].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="文件路径" align="center" prop="fileUrl" width="100" v-if="columns[5].visible">
         <template #default="scope">
           <image-preview :src="scope.row.fileUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="文件类型" align="center" prop="fileType" v-if="columns[4].visible"
+      <el-table-column label="文件类型" align="center" prop="fileType" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[5].visible">
+      <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[7].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_status" :value="scope.row.logStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="存储类型" align="center" prop="ossType" v-if="columns[6].visible">
+      <el-table-column label="存储类型" align="center" prop="ossType" v-if="columns[8].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_oss_type" :value="scope.row.ossType"/>
         </template>
       </el-table-column>
-      <el-table-column label="日志类型" align="center" prop="logType" v-if="columns[7].visible">
+      <el-table-column label="日志类型" align="center" prop="logType" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_type" :value="scope.row.logType"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否压缩" align="center" prop="isCompress" v-if="columns[8].visible">
+      <el-table-column label="是否压缩" align="center" prop="isCompress" v-if="columns[10].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_is_compress" :value="scope.row.isCompress"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[11].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deleteTime" width="180" v-if="columns[10].visible"
+      <el-table-column label="删除时间" align="center" prop="deleteTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deleteTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[11].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[12].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[13].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[14].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[15].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[16].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -259,6 +273,12 @@
       <el-form ref="fileLogInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户编号" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户编号"/>
+        </el-form-item>
+        <el-form-item label="目标对象" prop="targetId">
+          <el-input v-model="form.targetId" placeholder="请输入目标对象"/>
+        </el-form-item>
+        <el-form-item label="目标内容">
+          <editor v-model="form.targetContent" :min-height="192"/>
         </el-form-item>
         <el-form-item label="域名URL" prop="dnsUrl">
           <el-input v-model="form.dnsUrl" type="textarea" placeholder="请输入内容"/>
@@ -346,6 +366,7 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const daterangeCreateTime = ref([]);
 const daterangeDeleteTime = ref([]);
 
 const data = reactive({
@@ -355,6 +376,8 @@ const data = reactive({
     pageSize: 10,
     logId: null,
     userId: null,
+    targetId: null,
+    targetContent: null,
     dnsUrl: null,
     fileType: null,
     logStatus: null,
@@ -373,6 +396,9 @@ const data = reactive({
   rules: {
     userId: [
       {required: true, message: "用户编号不能为空", trigger: "blur"}
+    ],
+    targetId: [
+      {required: true, message: "目标对象不能为空", trigger: "blur"}
     ],
     dnsUrl: [
       {required: true, message: "域名URL不能为空", trigger: "blur"}
@@ -406,21 +432,23 @@ const data = reactive({
   columns: [
     {key: 0, label: '日志编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
-    {key: 2, label: '域名URL', visible: false},
-    {key: 3, label: '文件路径', visible: true},
-    {key: 4, label: '文件类型', visible: true},
-    {key: 5, label: '状态', visible: true},
-    {key: 6, label: '存储类型', visible: true},
-    {key: 7, label: '日志类型', visible: true},
-    {key: 8, label: '是否压缩', visible: true},
-    {key: 9, label: '创建时间', visible: true},
-    {key: 10, label: '删除时间', visible: true},
-    {key: 11, label: 'IP地址', visible: false},
-    {key: 12, label: '设备唯一标识', visible: false},
-    {key: 13, label: '浏览器类型', visible: false},
-    {key: 14, label: '操作系统', visible: false},
-    {key: 15, label: '平台', visible: false},
-    {key: 16, label: 'IP属地', visible: false},
+    {key: 2, label: '目标对象', visible: false},
+    {key: 3, label: '目标内容', visible: true},
+    {key: 4, label: '域名URL', visible: false},
+    {key: 5, label: '文件路径', visible: true},
+    {key: 6, label: '文件类型', visible: true},
+    {key: 7, label: '状态', visible: true},
+    {key: 8, label: '存储类型', visible: true},
+    {key: 9, label: '日志类型', visible: true},
+    {key: 10, label: '是否压缩', visible: true},
+    {key: 11, label: '创建时间', visible: true},
+    {key: 12, label: '删除时间', visible: true},
+    {key: 13, label: 'IP地址', visible: false},
+    {key: 14, label: '设备唯一标识', visible: false},
+    {key: 15, label: '浏览器类型', visible: false},
+    {key: 16, label: '操作系统', visible: false},
+    {key: 17, label: '平台', visible: false},
+    {key: 18, label: 'IP属地', visible: false},
   ],
 });
 
@@ -430,6 +458,10 @@ const {queryParams, form, rules, columns} = toRefs(data);
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (null != daterangeCreateTime && '' != daterangeCreateTime) {
+    queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
+    queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
+  }
   if (null != daterangeDeleteTime && '' != daterangeDeleteTime) {
     queryParams.value.params["beginDeleteTime"] = daterangeDeleteTime.value[0];
     queryParams.value.params["endDeleteTime"] = daterangeDeleteTime.value[1];
@@ -452,6 +484,8 @@ function reset() {
   form.value = {
     logId: null,
     userId: null,
+    targetId: null,
+    targetContent: null,
     dnsUrl: null,
     fileUrl: null,
     fileType: null,
@@ -479,6 +513,7 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
+  daterangeCreateTime.value = [];
   daterangeDeleteTime.value = [];
   proxy.resetForm("queryRef");
   handleQuery();

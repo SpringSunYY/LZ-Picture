@@ -7,6 +7,8 @@
     <resultMap type="FileLogInfo" id="FileLogInfoResult">
         <result property="logId" column="log_id"/>
         <result property="userId" column="user_id"/>
+        <result property="targetId" column="target_id"/>
+        <result property="targetContent" column="target_content"/>
         <result property="dnsUrl" column="dns_url"/>
         <result property="fileUrl" column="file_url"/>
         <result property="fileType" column="file_type"/>
@@ -27,6 +29,8 @@
     <sql id="selectFileLogInfoVo">
         select log_id,
                user_id,
+               target_id,
+               target_content,
                dns_url,
                file_url,
                file_type,
@@ -50,13 +54,19 @@
         <where>
             <if test="logId != null  and logId != ''">and log_id = #{logId}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="targetId != null  and targetId != ''">and target_id = #{targetId}</if>
+            <if test="targetContent != null  and targetContent != ''">and target_content like concat('%',
+                #{targetContent}, '%')
+            </if>
             <if test="dnsUrl != null  and dnsUrl != ''">and dns_url like concat('%', #{dnsUrl}, '%')</if>
             <if test="fileType != null  and fileType != ''">and file_type = #{fileType}</if>
             <if test="logStatus != null  and logStatus != ''">and log_status = #{logStatus}</if>
             <if test="ossType != null  and ossType != ''">and oss_type = #{ossType}</if>
             <if test="logType != null  and logType != ''">and log_type = #{logType}</if>
             <if test="isCompress != null  and isCompress != ''">and is_compress = #{isCompress}</if>
-            <if test="createTime != null ">and create_time = #{createTime}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
             <if test="params.beginDeleteTime != null and params.beginDeleteTime != '' and params.endDeleteTime != null and params.endDeleteTime != ''">
                 and DATE_FORMAT(delete_time, '%Y-%m-%d') between #{params.beginDeleteTime} and #{params.endDeleteTime}
             </if>
@@ -78,8 +88,10 @@
     <insert id="insertFileLogInfo" parameterType="FileLogInfo">
         insert into c_file_log_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="logId != null and logId != ''">log_id,</if>
+            <if test="logId != null">log_id,</if>
             <if test="userId != null and userId != ''">user_id,</if>
+            <if test="targetId != null and targetId != ''">target_id,</if>
+            <if test="targetContent != null">target_content,</if>
             <if test="dnsUrl != null and dnsUrl != ''">dns_url,</if>
             <if test="fileUrl != null and fileUrl != ''">file_url,</if>
             <if test="fileType != null and fileType != ''">file_type,</if>
@@ -97,8 +109,10 @@
             <if test="ipAddress != null">ip_address,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="logId != null and logId != ''">#{logId},</if>
+            <if test="logId != null">#{logId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="targetId != null and targetId != ''">#{targetId},</if>
+            <if test="targetContent != null">#{targetContent},</if>
             <if test="dnsUrl != null and dnsUrl != ''">#{dnsUrl},</if>
             <if test="fileUrl != null and fileUrl != ''">#{fileUrl},</if>
             <if test="fileType != null and fileType != ''">#{fileType},</if>
@@ -121,6 +135,8 @@
         update c_file_log_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="targetId != null and targetId != ''">target_id = #{targetId},</if>
+            <if test="targetContent != null">target_content = #{targetContent},</if>
             <if test="dnsUrl != null and dnsUrl != ''">dns_url = #{dnsUrl},</if>
             <if test="fileUrl != null and fileUrl != ''">file_url = #{fileUrl},</if>
             <if test="fileType != null and fileType != ''">file_type = #{fileType},</if>

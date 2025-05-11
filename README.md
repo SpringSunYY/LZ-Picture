@@ -476,25 +476,27 @@ create index idx_template_type
 
 用于存储文件每次上传的日志，防止冗余数据，定时删除这些冗余数据
 
-| 字段名      | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述                       |
-| ----------- | -------- | ---- | -------------------------- | ---- | -------- | -------------------------- |
-| log_id      | varchar  | 128  | 主键                       | 否   |          | 日志编号                   |
-| user_id     | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号                   |
-| dns_url     | varchar  | 512  |                            | 是   |          | 域名URL                    |
-| file_url    | varchar  | 512  |                            | 否   |          | 文件路径                   |
-| file_type   | varchar  | 16   |                            | 否   |          | 文件类型                   |
-| log_status  | char     | 1    |                            | 否   |          | 状态;(0冗余,1正常,1已删除) |
-| oss_type    | char     | 1    |                            | 否   | 1        | 存储类型                   |
-| log_type    | char     | 1    |                            | 否   | 1        | 日志类型                   |
-| is_compress | char     | 1    |                            | 否   | 1        | 是否压缩                   |
-| create_time | datetime |      |                            | 否   | 当前时间 | 创建时间                   |
-| delete_time | datetime |      |                            | 是   |          | 删除时间                   |
-| ip_addr     | varchar  | 50   |                            | 否   |          | IP地址                     |
-| device_id   | varchar  | 256  |                            | 是   |          | 设备唯一标识               |
-| browser     | varchar  | 50   |                            | 是   |          | 浏览器类型                 |
-| os          | varchar  | 50   |                            | 是   |          | 操作系统                   |
-| platform    | varchar  | 20   |                            | 是   |          | 平台                       |
-| ip_address  | varchar  | 64   |                            | 是   |          | IP属地                     |
+| 字段名         | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述                       |
+| -------------- | -------- | ---- | -------------------------- | ---- | -------- | -------------------------- |
+| log_id         | varchar  | 128  | 主键                       | 否   |          | 日志编号                   |
+| user_id        | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号                   |
+| target_id      | varchar  | 128  |                            | 是   |          | 目标对象                   |
+| target_content | varchar  | 256  |                            | 是   |          | 目标内容                   |
+| dns_url        | varchar  | 512  |                            | 是   |          | 域名URL                    |
+| file_url       | varchar  | 512  |                            | 否   |          | 文件路径                   |
+| file_type      | varchar  | 16   |                            | 否   |          | 文件类型                   |
+| log_status     | char     | 1    |                            | 否   |          | 状态;(0冗余,1正常,1已删除) |
+| oss_type       | char     | 1    |                            | 否   | 1        | 存储类型                   |
+| log_type       | char     | 1    |                            | 否   | 1        | 日志类型                   |
+| is_compress    | char     | 1    |                            | 否   | 1        | 是否压缩                   |
+| create_time    | datetime |      |                            | 否   | 当前时间 | 创建时间                   |
+| delete_time    | datetime |      |                            | 是   |          | 删除时间                   |
+| ip_addr        | varchar  | 50   |                            | 否   |          | IP地址                     |
+| device_id      | varchar  | 256  |                            | 是   |          | 设备唯一标识               |
+| browser        | varchar  | 50   |                            | 是   |          | 浏览器类型                 |
+| os             | varchar  | 50   |                            | 是   |          | 操作系统                   |
+| platform       | varchar  | 20   |                            | 是   |          | 平台                       |
+| ip_address     | varchar  | 64   |                            | 是   |          | IP属地                     |
 
 域名URL：如果没有就是官方
 
@@ -510,6 +512,8 @@ CREATE TABLE `c_file_log_info`
 (
     `log_id`      VARCHAR(128) NOT NULL COMMENT '日志编号',
     `user_id`     VARCHAR(128) NOT NULL COMMENT '用户编号',
+  	`target_id` VARCHAR(128)  NULL COMMENT '目标对象',
+  	`target_content` VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
     `dns_url`     VARCHAR(512) NOT NULL COMMENT '域名URL',
     `file_url`    VARCHAR(512) NOT NULL COMMENT '文件路径',
     `file_type`   VARCHAR(16)  NOT NULL COMMENT '文件类型',

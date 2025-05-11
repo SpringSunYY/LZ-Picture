@@ -12,7 +12,7 @@ import com.lz.config.model.domain.FileLogInfo;
  * 文件日志Vo对象 c_file_log_info
  *
  * @author YY
- * @date 2025-05-10
+ * @date 2025-05-11
  */
 @Data
 public class FileLogInfoInsert implements Serializable {
@@ -27,6 +27,16 @@ public class FileLogInfoInsert implements Serializable {
      * 用户编号
      */
     private String userId;
+
+    /**
+     * 目标对象
+     */
+    private String targetId;
+
+    /**
+     * 目标内容
+     */
+    private String targetContent;
 
     /**
      * 域名URL

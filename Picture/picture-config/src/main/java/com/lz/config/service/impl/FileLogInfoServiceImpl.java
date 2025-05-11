@@ -227,8 +227,10 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
             FileLogInfo fileLogInfo = this.getOne(eq);
             //如果不为空更新
             if (StringUtils.isNotNull(fileLogInfo)) {
-                //正常表示无需删除
                 fileLogInfo.setLogStatus(fileLogUpdate.getUpdateLogStatus());
+                fileLogInfo.setTargetContent(fileLogUpdate.getTargetContent());
+                //正常表示无需删除
+                fileLogInfo.setTargetId(fileLogUpdate.getTargetId());
                 this.updateFileLogInfo(fileLogInfo);
             }
         }
@@ -243,6 +245,8 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
             FileLogInfo fileLogInfo = this.getOne(eq);
             //如果不为空更新
             if (StringUtils.isNotNull(fileLogInfo)) {
+                fileLogInfo.setTargetContent(fileLogUpdate.getTargetContent());
+                fileLogInfo.setTargetId(fileLogUpdate.getTargetId());
                 //正常表示无需删除
                 fileLogInfo.setLogStatus(fileLogUpdate.getUpdateLogStatus());
                 this.updateFileLogInfo(fileLogInfo);
