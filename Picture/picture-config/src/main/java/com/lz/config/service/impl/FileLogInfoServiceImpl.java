@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.model.PictureFileResponse;
@@ -16,6 +17,7 @@ import java.util.Date;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.enmus.CFileLogIsCompressEnum;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogStatusEnum;
@@ -205,5 +207,43 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         fileLogInfo.setFileUrl(pictureFileResponse.getThumbnailUrl());
         fileLogInfo.setLogId(IdUtils.fastUUID());
         fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
+    }
+
+    @Override
+    public int updateNormalFileLog(FileLogUpdate fileLogUpdate) {
+
+        //判断是否传来图片地址
+        if (StringUtils.isNotEmpty(fileLogUpdate.getPictureUrl())) {
+            //查询到该图片
+            LambdaQueryWrapper<FileLogInfo> eq = new LambdaQueryWrapper<FileLogInfo>()
+                    .eq(FileLogInfo::getLogStatus, fileLogUpdate.getLogStatus())
+                    .eq(FileLogInfo::getLogType, fileLogUpdate.getLogType())
+                    .eq(FileLogInfo::getUserId, fileLogUpdate.getUserId())
+                    .eq(FileLogInfo::getFileUrl, fileLogUpdate.getPictureUrl());
+            FileLogInfo fileLogInfo = this.getOne(eq);
+            //如果不为空更新
+            if (StringUtils.isNotNull(fileLogInfo)) {
+                //正常表示无需删除
+                fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                this.updateFileLogInfo(fileLogInfo);
+            }
+        }
+        //判断传来的压缩图片
+        if (StringUtils.isNotEmpty(fileLogUpdate.getThumbnailUrl())) {
+            //查询到该图片
+            LambdaQueryWrapper<FileLogInfo> eq = new LambdaQueryWrapper<FileLogInfo>()
+                    .eq(FileLogInfo::getLogStatus, fileLogUpdate.getLogStatus())
+                    .eq(FileLogInfo::getLogType, fileLogUpdate.getLogType())
+                    .eq(FileLogInfo::getUserId, fileLogUpdate.getUserId())
+                    .eq(FileLogInfo::getFileUrl, fileLogUpdate.getThumbnailUrl());
+            FileLogInfo fileLogInfo = this.getOne(eq);
+            //如果不为空更新
+            if (StringUtils.isNotNull(fileLogInfo)) {
+                //正常表示无需删除
+                fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                this.updateFileLogInfo(fileLogInfo);
+            }
+        }
+        return 1;
     }
 }

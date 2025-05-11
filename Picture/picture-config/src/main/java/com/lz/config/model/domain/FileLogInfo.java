@@ -60,7 +60,7 @@ public class FileLogInfo implements Serializable {
     /**
      * 状态
      */
-    @Excel(name = "状态")
+    @Excel(name = "状态", readConverterExp = "0=冗余,1=正常,2=删除")
     private String logStatus;
 
     /**

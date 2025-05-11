@@ -7,7 +7,11 @@ import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.spring.SpringUtils;
+import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
+import com.lz.config.model.enmus.CFileLogStatusEnum;
+import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.config.service.IFileLogInfoService;
+import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
@@ -46,6 +50,31 @@ public class PictureAsyncFactory {
             public void run() {
                 //插入文件日志
                 SpringUtils.getBean(IFileLogInfoService.class).recordFileLog(pictureFileResponse, userId, ossType, logType, deviceInfo);
+            }
+        };
+    }
+
+    /**
+     * 更新图片信息为正常
+     *
+     * @param pictureInfo
+     * @return TimerTask
+     * @Author: YY
+     * @method: updateNormalFileLog
+     * @date: 2025/5/11 14:50
+     **/
+    public static TimerTask updateNormalFileLog(PictureInfo pictureInfo) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                FileLogUpdate fileLogUpdate = new FileLogUpdate();
+                fileLogUpdate.setPictureUrl(pictureInfo.getPictureUrl());
+                fileLogUpdate.setThumbnailUrl(pictureInfo.getThumbnailUrl());
+                fileLogUpdate.setUserId(pictureInfo.getUserId());
+                fileLogUpdate.setLogType(CFileLogTypeEnum.LOG_TYPE_0.getValue());
+                fileLogUpdate.setLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                //插入文件日志
+                SpringUtils.getBean(IFileLogInfoService.class).updateNormalFileLog(fileLogUpdate);
             }
         };
     }

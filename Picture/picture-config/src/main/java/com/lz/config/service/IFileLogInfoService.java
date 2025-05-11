@@ -5,6 +5,7 @@ import java.util.List;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.config.model.domain.FileLogInfo;
+import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
 import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
 
@@ -98,4 +99,15 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * @date: 2025/5/10 22:56
      **/
     void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
+
+    /**
+     * 更新文件日志为正常
+     *
+     * @param fileLogUpdate
+     * @return int
+     * @author: YY
+     * @method: updateNormalFileLog
+     * @date: 2025/5/11 14:52
+     **/
+    int updateNormalFileLog(FileLogUpdate fileLogUpdate);
 }
