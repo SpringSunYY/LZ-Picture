@@ -95,6 +95,69 @@ public class PictureAsyncFactory {
         };
     }
 
+
+    /**
+     * 记录空间封面记录
+     *
+     * @param spaceInfo
+     * @return TimerTask
+     * @author: YY
+     * @method: recordSpaceCoverFileInfoLog
+     * @date: 2025/5/11 16:40
+     **/
+    public static TimerTask recordSpaceCoverFileInfoLog(SpaceInfo spaceInfo) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                newFileLogUpdate.setThumbnailUrl(spaceInfo.getSpaceAvatar());
+                newFileLogUpdate.setUserId(spaceInfo.getUserId());
+                newFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_1.getValue());
+                newFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                newFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                //插入文件日志
+                SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(newFileLogUpdate);
+            }
+        };
+    }
+
+
+    /**
+     * 更新空间封面记录
+     * 如果新的封面和原来的封面不一样，则更新新的为正常，老的为冗余
+     *
+     * @param old
+     * @param spaceInfo
+     * @return TimerTask
+     * @author: YY
+     * @method: updateSpaceCoverFileInfoLog
+     * @date: 2025/5/11 16:40
+     **/
+    public static TimerTask updateSpaceCoverFileInfoLog(SpaceInfo old, SpaceInfo spaceInfo) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                if (!old.getSpaceAvatar().equals(spaceInfo.getSpaceAvatar())) {
+                    FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                    newFileLogUpdate.setThumbnailUrl(spaceInfo.getSpaceAvatar());
+                    newFileLogUpdate.setUserId(spaceInfo.getUserId());
+                    newFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_1.getValue());
+                    newFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                    newFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                    SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(newFileLogUpdate);
+
+                    FileLogUpdate oldFileLogUpdate = new FileLogUpdate();
+                    oldFileLogUpdate.setThumbnailUrl(old.getSpaceAvatar());
+                    oldFileLogUpdate.setUserId(old.getUserId());
+                    oldFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_1.getValue());
+                    oldFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                    oldFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                    SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(oldFileLogUpdate);
+                }
+            }
+        };
+    }
+
     /**
      * 更新图片信息为正常
      *

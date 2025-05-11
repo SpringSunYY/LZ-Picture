@@ -9,6 +9,8 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
+import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureAsyncFactory;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
@@ -213,7 +215,11 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         spaceInfo.setMaxSize(Long.parseLong(maxSize));
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         spaceInfo.setOssType(PSpaceOssType.SPACE_OSS_TYPE_0.getValue());
-        return this.save(spaceInfo) ? 1 : 0;
+
+        boolean save = this.save(spaceInfo);
+        //异步更新封面文件日志
+        PictureAsyncManager.me().execute(PictureAsyncFactory.recordSpaceCoverFileInfoLog(spaceInfo));
+        return save ? 1 : 0;
     }
 
     @Override
@@ -227,7 +233,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             throw new ServiceException("空间不存在！！！");
         }
         spaceInfo.setUpdateTime(DateUtils.getNowDate());
-        return this.updateById(spaceInfo) ? 1 : 0;
+        boolean b = this.updateById(spaceInfo);
+        PictureAsyncManager.me().execute(PictureAsyncFactory.updateSpaceCoverFileInfoLog(old,spaceInfo));
+        return b ? 1 : 0;
     }
 
 }

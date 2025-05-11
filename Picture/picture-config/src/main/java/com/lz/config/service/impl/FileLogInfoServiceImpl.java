@@ -180,7 +180,6 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     @Override
     public void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo) {
         FileLogInfo fileLogInfo = new FileLogInfo();
-        System.err.println("deviceInfo = " + deviceInfo);
         BeanUtils.copyProperties(deviceInfo, fileLogInfo);
         fileLogInfo.setIpAddr(deviceInfo.getIpaddr());
         //设置对应值
@@ -211,7 +210,6 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
 
     @Override
     public int updateFileLog(FileLogUpdate fileLogUpdate) {
-        System.err.println("fileLogUpdate = " + fileLogUpdate);
 
         //判断是否传来图片地址
         if (StringUtils.isNotEmpty(fileLogUpdate.getPictureUrl())) {

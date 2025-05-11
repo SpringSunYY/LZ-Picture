@@ -3,6 +3,7 @@ package com.lz.picture.controller.user;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.file.FileUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
@@ -61,7 +62,7 @@ public class UserFileController extends BaseUserInfoController {
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
-                ));
+        ));
         return success(picture);
     }
 
@@ -76,11 +77,14 @@ public class UserFileController extends BaseUserInfoController {
     public AjaxResult uploadCover(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
         PictureFileResponse pictureFileResponse = pictureUploadManager.uploadCover(multipartFile, "cover", getLoginUser());
+        //防止线程变量共享
+        PictureFileResponse target = new PictureFileResponse();
+        BeanUtils.copyProperties(pictureFileResponse, target);
         //异步执行存入文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(pictureFileResponse,
+        PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(target,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
-                CFileLogTypeEnum.LOG_TYPE_0.getValue()
+                CFileLogTypeEnum.LOG_TYPE_1.getValue()
         ));
         pictureFileResponse.setPictureUrl(null);
         return success(pictureFileResponse);
