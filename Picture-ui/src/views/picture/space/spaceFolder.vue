@@ -143,6 +143,7 @@ interface Folder {
   folderName: string
   parentId: string
 }
+
 // 获取当前路由信息
 const route = useRoute()
 const router = useRouter()

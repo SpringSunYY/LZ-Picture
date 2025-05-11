@@ -21,14 +21,17 @@
           <div class="space-info">
             <h3 class="title">{{ space.spaceName }}</h3>
             <div class="meta">
-              <span>{{ formatSize(space.totalSize) }}</span>
+              <span>{{ formatSize(space?.totalSize ?? 0) }}</span>
               <a-divider type="vertical" />
               <span>{{ space.totalCount }}个文件</span>
               <a-divider type="vertical" />
-              <Tags :values="[getPSpaceStatusLabel(space.spaceStatus)]" :colors="['#1890ff']" />
-              <Tags :values="[getPSpaceTypeLabel(space.spaceType)]" :colors="['#00ff0d']" />
+              <Tags
+                :values="[getPSpaceStatusLabel(space?.spaceStatus ?? '')]"
+                :colors="['#1890ff']"
+              />
+              <Tags :values="[getPSpaceTypeLabel(space?.spaceType ?? '')]" :colors="['#00ff0d']" />
               <a-button
-                v-if="checkUser(space.userId) && checkPermiSingle('picture:space:update')"
+                v-if="checkUser(space.userId ?? '') && checkPermiSingle('picture:space:update')"
                 style="float: right"
                 type="primary"
                 @click="handleUpdate(space.spaceId)"

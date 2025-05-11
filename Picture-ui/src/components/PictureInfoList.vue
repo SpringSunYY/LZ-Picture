@@ -126,6 +126,10 @@ const getSpaceInfoList = () => {
   if (props.currentParentId !== '') {
     pictureQuery.value.folderId = props.currentParentId
   }
+  //如果当前为根目录
+  if (props.currentParentId === '0') {
+    pictureQuery.value.folderId = undefined
+  }
   if (props.spaceId !== '') {
     pictureQuery.value.spaceId = props.spaceId
   }
