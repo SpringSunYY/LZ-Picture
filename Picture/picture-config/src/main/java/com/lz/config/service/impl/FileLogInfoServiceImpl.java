@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
 
@@ -44,6 +46,9 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
 
     @Resource
     private OssConfig ossConfig;
+
+    @Resource
+    private PictureUploadManager pictureUploadManager;
 
 
     //region mybatis代码
@@ -242,6 +247,45 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
                 fileLogInfo.setLogStatus(fileLogUpdate.getUpdateLogStatus());
                 this.updateFileLogInfo(fileLogInfo);
             }
+        }
+        return 1;
+    }
+
+    @Override
+    public int autoDeleteFile(Integer size, Integer days) {
+        //根据页数查询到第几天的数据
+        Page<FileLogInfo> page = new Page<>(1, size);
+        LambdaQueryWrapper<FileLogInfo> queryWrapper = new LambdaQueryWrapper<FileLogInfo>()
+                .eq(FileLogInfo::getLogStatus, CFileLogStatusEnum.LOG_STATUS_0.getValue())
+                //时间精确到日
+                .apply("DATE_FORMAT(create_time, '%Y-%m-%d') = DATE_SUB(CURDATE(), INTERVAL {0} DAY)", days);
+        Page<FileLogInfo> result = this.page(page, queryWrapper);
+        List<FileLogInfo> logInfos = result.getRecords();
+        //获取到所有的文件路径
+        Date deleteDate = DateUtils.getNowDate();
+        String logStatus = CFileLogStatusEnum.LOG_STATUS_2.getValue();
+        List<String> urlList = logInfos.stream()
+                .map(log -> {
+                    log.setDeleteTime(deleteDate);
+                    log.setLogStatus(logStatus);
+                    //去掉文件第一个/
+                    if (log.getFileUrl().startsWith("/")){
+                        return log.getFileUrl().substring(1);
+                    }
+                    return log.getFileUrl();
+                })
+                .toList();
+        //如果不为空则删除
+        if (StringUtils.isNotEmpty(urlList)) {
+            pictureUploadManager.deleteFile(urlList);
+        }
+        //不需要事务
+        //获取到总数
+        this.updateBatchById(logInfos);
+        long total = result.getTotal();
+        if (total > 0) {
+            //如果总数不为0则表示还有数据没有删除则直接删除
+            this.autoDeleteFile(size, days);
         }
         return 1;
     }

@@ -7,10 +7,13 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.alibaba.fastjson2.JSONObject;
-import com.aliyun.oss.HttpMethod;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.ServiceException;
+import com.aliyun.oss.*;
+import com.aliyun.oss.common.auth.CredentialsProvider;
+import com.aliyun.oss.common.auth.CredentialsProviderFactory;
+import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
+import com.aliyun.oss.common.comm.SignVersion;
+import com.aliyun.oss.model.DeleteObjectsRequest;
+import com.aliyun.oss.model.DeleteObjectsResult;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.model.LoginUserInfo;
@@ -30,15 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.*;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.lz.common.constant.ConfigConstants.*;
 
@@ -635,5 +632,35 @@ public class PictureUploadManager {
     protected void processFile(Object inputSource, File file) throws Exception {
         String fileUrl = (String) inputSource;
         HttpUtil.downloadFile(fileUrl, file);
+    }
+
+
+    public void deleteFile(List<String> keys) {
+        // 使用最原始、兼容性最强的方法创建 OSS 客户端
+        OSS ossClient = new OSSClientBuilder().build(
+                ossConfig.getEndpoint(),
+                ossConfig.getAccessKeyId(),
+                ossConfig.getAccessKeySecret()
+        );
+
+        try {
+            // 删除文件。
+            DeleteObjectsResult deleteObjectsResult = ossClient.deleteObjects(new DeleteObjectsRequest(ossConfig.getBucket()).withKeys(keys).withEncodingType("url"));
+//            List<String> deletedObjects = deleteObjectsResult.getDeletedObjects();
+//            try {
+//                for (String obj : deletedObjects) {
+//                    String deleteObj = URLDecoder.decode(obj, "UTF-8");
+//                    System.out.println(deleteObj);
+//                }
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+        } catch (Exception e) {
+            log.error("文件删除失败", e);
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
     }
 }

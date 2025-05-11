@@ -110,4 +110,16 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * @date: 2025/5/11 14:52
      **/
     int updateFileLog(FileLogUpdate fileLogUpdate);
+
+    /**
+     * 自动删除冗余文件
+     * 比如说1000条，前第几天
+     * @param size 长度
+     * @param days 天数
+     * @return int
+     * @author: YY
+     * @method: autoDeleteFile
+     * @date: 2025/5/11 18:04
+     **/
+    int autoDeleteFile(Integer size, Integer days);
 }

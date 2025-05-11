@@ -41,7 +41,7 @@
         <hutool.version>5.8.26</hutool.version>
         <aliyun.core.version>4.0.6</aliyun.core.version>
         <aliyun.sdk.version>2.0.0</aliyun.sdk.version>
-        <aliyun.oss.version>3.5.0</aliyun.oss.version>
+        <aliyun.oss.version>3.17.4</aliyun.oss.version>
     </properties>
 
     <!-- 依赖声明 -->
