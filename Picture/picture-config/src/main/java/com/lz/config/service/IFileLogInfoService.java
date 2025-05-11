@@ -101,13 +101,13 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
     void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
 
     /**
-     * 更新文件日志为正常
+     * 更新文件日志
      *
-     * @param fileLogUpdate
+     * @param fileLogUpdate 根据查询内容，更新需要更新内容
      * @return int
      * @author: YY
      * @method: updateNormalFileLog
      * @date: 2025/5/11 14:52
      **/
-    int updateNormalFileLog(FileLogUpdate fileLogUpdate);
+    int updateFileLog(FileLogUpdate fileLogUpdate);
 }

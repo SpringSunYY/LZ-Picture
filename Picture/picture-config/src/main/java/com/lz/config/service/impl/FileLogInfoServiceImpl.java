@@ -210,21 +210,22 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     }
 
     @Override
-    public int updateNormalFileLog(FileLogUpdate fileLogUpdate) {
+    public int updateFileLog(FileLogUpdate fileLogUpdate) {
+        System.err.println("fileLogUpdate = " + fileLogUpdate);
 
         //判断是否传来图片地址
         if (StringUtils.isNotEmpty(fileLogUpdate.getPictureUrl())) {
             //查询到该图片
             LambdaQueryWrapper<FileLogInfo> eq = new LambdaQueryWrapper<FileLogInfo>()
-                    .eq(FileLogInfo::getLogStatus, fileLogUpdate.getLogStatus())
-                    .eq(FileLogInfo::getLogType, fileLogUpdate.getLogType())
+                    .eq(FileLogInfo::getLogStatus, fileLogUpdate.getQueryLogStatus())
+                    .eq(FileLogInfo::getLogType, fileLogUpdate.getQueryLogType())
                     .eq(FileLogInfo::getUserId, fileLogUpdate.getUserId())
                     .eq(FileLogInfo::getFileUrl, fileLogUpdate.getPictureUrl());
             FileLogInfo fileLogInfo = this.getOne(eq);
             //如果不为空更新
             if (StringUtils.isNotNull(fileLogInfo)) {
                 //正常表示无需删除
-                fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                fileLogInfo.setLogStatus(fileLogUpdate.getUpdateLogStatus());
                 this.updateFileLogInfo(fileLogInfo);
             }
         }
@@ -232,15 +233,15 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         if (StringUtils.isNotEmpty(fileLogUpdate.getThumbnailUrl())) {
             //查询到该图片
             LambdaQueryWrapper<FileLogInfo> eq = new LambdaQueryWrapper<FileLogInfo>()
-                    .eq(FileLogInfo::getLogStatus, fileLogUpdate.getLogStatus())
-                    .eq(FileLogInfo::getLogType, fileLogUpdate.getLogType())
+                    .eq(FileLogInfo::getLogStatus, fileLogUpdate.getQueryLogStatus())
+                    .eq(FileLogInfo::getLogType, fileLogUpdate.getQueryLogType())
                     .eq(FileLogInfo::getUserId, fileLogUpdate.getUserId())
                     .eq(FileLogInfo::getFileUrl, fileLogUpdate.getThumbnailUrl());
             FileLogInfo fileLogInfo = this.getOne(eq);
             //如果不为空更新
             if (StringUtils.isNotNull(fileLogInfo)) {
                 //正常表示无需删除
-                fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                fileLogInfo.setLogStatus(fileLogUpdate.getUpdateLogStatus());
                 this.updateFileLogInfo(fileLogInfo);
             }
         }

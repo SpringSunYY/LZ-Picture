@@ -16,6 +16,8 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
+import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.enums.*;
@@ -286,6 +288,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         executorService.execute(() -> {
             implementPictureAdd(pictureInfo, spaceInfo);
         });
+        //异步更新文件日志
+        PictureAsyncManager.me().execute(PictureAsyncFactory.updateNormalFileLog(pictureInfo));
         return i;
     }
 
@@ -337,8 +341,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
             throw new ServiceException("空间不存在");
         }
-        //如果空间为个人空间
-        if (!spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_2.getValue())) {
+        //如果空间为个人空间并且不是官方空间
+        if (!spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_2.getValue())
+                && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
             //如果传过来图片ID并且自己不是图片作者
             ThrowUtils.throwIf(pictureInfo.getPictureId() != null && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()), "您不是该图片所有者，无法上传图片");
             //如果用户不是自己
@@ -673,6 +678,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setPicScale(picScale);
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
         pictureInfoMapper.updatePictureInfo(pictureInfo);
+        //异步更新文件日志的信息
+        PictureAsyncManager.me().execute(PictureAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
         //查询用户现在所拥有的信息

@@ -101,7 +101,7 @@ public class UserFileController extends BaseUserInfoController {
         PictureAsyncManager.me().execute(PictureAsyncFactory.recordFileLog(pictureFileResponse,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
-                CFileLogTypeEnum.LOG_TYPE_1.getValue()
+                CFileLogTypeEnum.LOG_TYPE_0.getValue()
         ));
         return success(pictureFileResponse);
     }

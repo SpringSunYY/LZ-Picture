@@ -55,6 +55,47 @@ public class PictureAsyncFactory {
     }
 
     /**
+     * 异步更新文件日志，判断是否和存入数据库日志一样，如果不一样则更新，如果一样则不更新，表示没有新上传图片
+     * 因为新增时图片已经为正常
+     * 不一样表示新上传图片，要把上传的图片更新为正常，老图片为冗余
+     *
+     * @param pictureInfoDb
+     * @param pictureInfo
+     * @return TimerTask
+     * @author: YY
+     * @method: updateFileLogInfo
+     * @date: 2025/5/11 15:25
+     **/
+    public static TimerTask updateFileLogInfo(PictureInfo pictureInfoDb, PictureInfo pictureInfo) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                //判断是否和存入数据库日志一样，如果不一样则更新，如果一样则不更新，因为新增时就是正常
+                if (!pictureInfoDb.getPictureUrl().equals(pictureInfo.getPictureUrl())) {
+                    //如果不一样，更新新的为正常，老的为冗余
+                    FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                    newFileLogUpdate.setPictureUrl(pictureInfo.getPictureUrl());
+                    newFileLogUpdate.setThumbnailUrl(pictureInfo.getThumbnailUrl());
+                    newFileLogUpdate.setUserId(pictureInfo.getUserId());
+                    newFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_0.getValue());
+                    newFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                    newFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                    //插入文件日志
+                    SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(newFileLogUpdate);
+                    FileLogUpdate oldFileLogUpdate = new FileLogUpdate();
+                    oldFileLogUpdate.setPictureUrl(pictureInfoDb.getPictureUrl());
+                    oldFileLogUpdate.setThumbnailUrl(pictureInfoDb.getThumbnailUrl());
+                    oldFileLogUpdate.setUserId(pictureInfoDb.getUserId());
+                    oldFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_0.getValue());
+                    oldFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                    oldFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                    SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(oldFileLogUpdate);
+                }
+            }
+        };
+    }
+
+    /**
      * 更新图片信息为正常
      *
      * @param pictureInfo
@@ -71,10 +112,11 @@ public class PictureAsyncFactory {
                 fileLogUpdate.setPictureUrl(pictureInfo.getPictureUrl());
                 fileLogUpdate.setThumbnailUrl(pictureInfo.getThumbnailUrl());
                 fileLogUpdate.setUserId(pictureInfo.getUserId());
-                fileLogUpdate.setLogType(CFileLogTypeEnum.LOG_TYPE_0.getValue());
-                fileLogUpdate.setLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                fileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_0.getValue());
+                fileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                fileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
                 //插入文件日志
-                SpringUtils.getBean(IFileLogInfoService.class).updateNormalFileLog(fileLogUpdate);
+                SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(fileLogUpdate);
             }
         };
     }

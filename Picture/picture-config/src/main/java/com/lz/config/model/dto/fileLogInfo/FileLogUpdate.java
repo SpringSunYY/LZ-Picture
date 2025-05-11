@@ -29,14 +29,23 @@ public class FileLogUpdate {
     private String thumbnailUrl;
 
     /**
-     * 状态
+     * 需要查询状态
      */
-    private String logStatus;
+    private String queryLogStatus;
 
     /**
-     * 日志类型（0图片 1空间封面 2头像）
+     * 需要查询日志类型（0图片 1空间封面 2头像）
      */
-    private String logType;
+    private String queryLogType;
+    /**
+     * 需要查询状态
+     */
+    private String updateLogStatus;
+
+    /**
+     * 需要查询日志类型（0图片 1空间封面 2头像）
+     */
+    private String updateLogType;
 
     /**
      * 日志编号

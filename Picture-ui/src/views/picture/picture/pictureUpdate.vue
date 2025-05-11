@@ -185,6 +185,7 @@ import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
 import type { PictureInfo } from '@/types/picture/picture'
 import { addPictureInfo } from '@/api/picture/picture.ts'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { findPathById } from '@/utils/common.ts'
 
 const title = ref('图片上传')
 //空间
@@ -304,6 +305,15 @@ const handleSubmit = async () => {
       message.success('添加成功')
     }
   })
+  // 处理分类路径
+  if (formState.categoryId) {
+    const selectedPath = findPathById(pictureCategoryList.value, formState.categoryId)
+    if (selectedPath) {
+      formState.categoryId = selectedPath // 设置为数组形式 ['1', '1-1', '1-1-1']
+    } else {
+      console.warn('未找到匹配的分类路径')
+    }
+  }
   submitting.value = false
 }
 

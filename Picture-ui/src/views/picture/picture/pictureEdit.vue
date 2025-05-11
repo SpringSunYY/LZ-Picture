@@ -225,6 +225,7 @@ import { EditOutlined, FullscreenOutlined, QuestionCircleOutlined } from '@ant-d
 import { useRoute } from 'vue-router'
 import PictureOutPainting from '@/components/PictureOutPainting.vue'
 import type { PictureFileResponse } from '@/types/file'
+import { findPathById } from '@/utils/common.ts'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -339,19 +340,14 @@ const handleExternalSuccess = (moderValue: PictureFileResponse) => {
   formState.picHeight = moderValue.picHeight
   formState.picScale = Number(moderValue.picScale.toFixed(2))
   formState.picFormat = moderValue.picFormat
-  updatePictureInfo(formState)
-    .then((res) => {
-      if (res.code === 200) {
-        message.success('更新成功')
-        Object.assign(formState, res.data)
-      }
-    })
-    .finally(() => {
-      loading.value = false
-    })
+  updatePicture()
 }
 // 提交处理
 const handleSubmit = async () => {
+  updatePicture()
+}
+//更新图片信息
+const updatePicture = async () => {
   loading.value = true
   //如果分类或者文件夹存在，取数组最后一个
   if (formState.categoryId && Array.isArray(formState.categoryId)) {
@@ -364,6 +360,7 @@ const handleSubmit = async () => {
     .then((res) => {
       if (res.code === 200) {
         message.success('修改成功')
+        Object.assign(formState, res.data)
       }
     })
     .finally(() => {
@@ -489,29 +486,6 @@ const getPictureInfo = () => {
     console.log('formState', formState)
   })
 }
-
-/**
- * 根据 categoryId 查找完整路径
- * @param data 分类列表
- * @param targetId 目标叶子节点 ID
- * @returns 路径数组，如 ['1', '1-1', '1-1-1']
- */
-function findPathById(data: PictureCategoryInfoVo[], targetId: string): string[] | null {
-  for (const node of data) {
-    const path = [node.categoryId]
-    if (node.categoryId === targetId) {
-      return path
-    }
-    if (node.children) {
-      const childPath = findPathById(node.children, targetId)
-      if (childPath) {
-        return [...path, ...childPath]
-      }
-    }
-  }
-  return null
-}
-
 getPictureInfo()
 getPictureCategoryList()
 </script>

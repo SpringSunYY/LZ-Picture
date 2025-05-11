@@ -58,8 +58,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult add(@RequestBody @Validated UserPictureInfoAdd userPictureInfoAdd) {
         PictureInfo pictureInfo = UserPictureInfoAdd.addToObj(userPictureInfoAdd);
         pictureInfo.setUserId(getUserId());
-        //异步更新文件日志
-        PictureAsyncManager.me().execute(PictureAsyncFactory.updateNormalFileLog(pictureInfo));
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
