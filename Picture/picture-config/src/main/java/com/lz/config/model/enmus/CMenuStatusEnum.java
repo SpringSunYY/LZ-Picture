@@ -1,4 +1,4 @@
-package com.lz.picture.model.enums;
+package com.lz.config.model.enmus;
 
 import lombok.Getter;
 
@@ -7,29 +7,26 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 用户行为类型 枚举
+ * 菜单状态枚举
  */
 @Getter
-public enum PUserBehaviorTypeScore {
-    USER_BEHAVIOR_TYPE_SCORE_0("0", 3.0, "点赞"),
-    USER_BEHAVIOR_TYPE_SCORE_1("1", 6.0, "收藏"),
-    USER_BEHAVIOR_TYPE_SCORE_2("2", 12.0, "转发");
+public enum CMenuStatusEnum {
+    MENU_STATUS_0("0", "正常"),
+    MENU_STATUS_1("1", "隐藏");
 
-    private static final Map<String, PUserBehaviorTypeScore> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, CMenuStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (PUserBehaviorTypeScore item : values()) {
+        for (CMenuStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
 
     private final String value;
-    private final Double score;
     private final String label;
 
-    PUserBehaviorTypeScore(String value, Double score, String label) {
+    CMenuStatusEnum(String value, String label) {
         this.value = value;
-        this.score = score;
         this.label = label;
     }
 
@@ -39,7 +36,7 @@ public enum PUserBehaviorTypeScore {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<PUserBehaviorTypeScore> getEnumByValue(String value) {
+    public static Optional<CMenuStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

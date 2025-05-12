@@ -7,18 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 图片审核状态 枚举
+ * 空间状态枚举
  */
 @Getter
-public enum PPictureReviewStatus {
-    PICTURE_REVIEW_STATUS_0("0", "待审核"),
-    PICTURE_REVIEW_STATUS_1("1", "同意"),
-    PICTURE_REVIEW_STATUS_2("2", "拒绝");
+public enum PSpaceStatusEnum {
+    SPACE_STATUS_0("0", "公共"),
+    SPACE_STATUS_1("1", "私有");
 
-    private static final Map<String, PPictureReviewStatus> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PSpaceStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (PPictureReviewStatus item : values()) {
+        for (PSpaceStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -26,9 +25,17 @@ public enum PPictureReviewStatus {
     private final String value;
     private final String label;
 
-    PPictureReviewStatus(String value, String label) {
+    PSpaceStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     /**
@@ -37,7 +44,7 @@ public enum PPictureReviewStatus {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<PPictureReviewStatus> getEnumByValue(String value) {
+    public static Optional<PSpaceStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

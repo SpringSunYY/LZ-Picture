@@ -11,7 +11,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.config.mapper.ConfigInfoMapper;
 import com.lz.config.model.domain.ConfigInfo;
 import com.lz.config.model.dto.configInfo.ConfigInfoQuery;
-import com.lz.config.model.enmus.CConfigIsIn;
+import com.lz.config.model.enmus.CConfigIsInEnum;
 import com.lz.config.model.vo.configInfo.ConfigInfoVo;
 import com.lz.config.service.IConfigInfoService;
 import jakarta.annotation.PostConstruct;
@@ -193,12 +193,12 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     @Override
     public String getConfigInfoInCache(String configKey) {
         //先根据名称获取缓存
-        return getCache(CConfigIsIn.CONFIG_IS_IN_0.getValue(), configKey);
+        return getCache(CConfigIsInEnum.CONFIG_IS_IN_0.getValue(), configKey);
     }
 
     @Override
     public String getConfigInfoOutCache(String configKey) {
-        return getCache(CConfigIsIn.CONFIG_IS_IN_1.getValue(), configKey);
+        return getCache(CConfigIsInEnum.CONFIG_IS_IN_1.getValue(), configKey);
     }
 
     private String getCache(String isIn, String configKey) {

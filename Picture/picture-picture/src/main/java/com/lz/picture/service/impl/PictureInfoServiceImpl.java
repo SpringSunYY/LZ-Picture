@@ -270,8 +270,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
         spaceInfo.setLastUpdateTime(new Date());
         //判断当前空间是否到达最大值 官方空间没有限制
-        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
-                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
+        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
+                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
         }
         //校验积分
@@ -281,7 +281,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
-        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
+        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue()));
         pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
         int i = pictureInfoMapper.insertPictureInfo(pictureInfo);
         //异步更新图片空间、标签、标签关联
@@ -342,8 +342,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             throw new ServiceException("空间不存在");
         }
         //如果空间为个人空间并且不是官方空间
-        if (!spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_2.getValue())
-                && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
+        if (!spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())
+                && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
             //如果传过来图片ID并且自己不是图片作者
             ThrowUtils.throwIf(pictureInfo.getPictureId() != null && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()), "您不是该图片所有者，无法上传图片");
             //如果用户不是自己
@@ -358,11 +358,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             }
         }
         //如果空间是团队空间
-        if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_1.getValue())) {
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
             //TODO 团队空间判断
         }
         //判断空间是否是公共
-        if (spaceInfo.getOssType().equals(PSpaceOssType.SPACE_OSS_TYPE_0.getValue())) {
+        if (spaceInfo.getOssType().equals(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue())) {
             //是公共空间，使用官方域名,官方不指定域名，根据配置文件获取域名
             pictureInfo.setDnsUrl(null);
         } else {
@@ -398,7 +398,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //遍历两个标签，如果查询到的标签并且此标签为禁止状态，删除tags的标签
         for (PictureTagInfo tagInfo : tagInfoList) {
-            if (tagInfo.getTagsStatus().equals(PTagStatus.TAG_STATUS_1.getValue())) {
+            if (tagInfo.getTagsStatus().equals(PTagStatusEnum.TAG_STATUS_1.getValue())) {
                 tags.remove(tagInfo.getName());
                 tagInfoList.remove(tagInfo);
             }
@@ -422,7 +422,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureTagInfo.setUserId(pictureInfo.getUserId());
             pictureTagInfo.setCreateTime(new Date());
             pictureTagInfo.setName(tag);
-            pictureTagInfo.setTagsStatus(PTagStatus.TAG_STATUS_0.getValue());
+            pictureTagInfo.setTagsStatus(PTagStatusEnum.TAG_STATUS_0.getValue());
             pictureTagInfo.setUsageCount(1L);
             addTagInfoList.add(pictureTagInfo);
         }
@@ -469,7 +469,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @param userPictureDetailInfoVo
      */
     private void isBehavior(String pictureId, String userId, UserPictureDetailInfoVo userPictureDetailInfoVo) {
-        String behaviorKey = PICTURE_USER_BEHAVIOR + userId + ":" + PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue() + ":" + pictureId;
+        String behaviorKey = PICTURE_USER_BEHAVIOR + userId + ":" + PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue() + ":" + pictureId;
         ArrayList<UserBehaviorInfo> userBehaviorInfos = new ArrayList<>();
         if (redisCache.hasKey(behaviorKey)) {
             userBehaviorInfos = redisCache.getCacheObject(behaviorKey);
@@ -477,8 +477,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             List<UserBehaviorInfo> list = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
                     .eq(UserBehaviorInfo::getUserId, userId)
                     .eq(UserBehaviorInfo::getTargetId, pictureId)
-                    .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue())
-                    .in(UserBehaviorInfo::getBehaviorType, Arrays.asList(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue(), PUserBehaviorType.USER_BEHAVIOR_TYPE_1.getValue())));
+                    .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue())
+                    .in(UserBehaviorInfo::getBehaviorType, Arrays.asList(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue(), PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())));
             if (StringUtils.isNotEmpty(list)) {
                 userBehaviorInfos.addAll(list);
             }
@@ -486,10 +486,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         if (StringUtils.isNotEmpty(userBehaviorInfos)) {
             for (UserBehaviorInfo info : userBehaviorInfos) {
-                if (info.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue())) {
+                if (info.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
                     userPictureDetailInfoVo.setIsLike(true);
                 }
-                if (info.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_1.getValue())) {
+                if (info.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())) {
                     userPictureDetailInfoVo.setIsCollect(true);
                 }
             }
@@ -513,8 +513,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
         //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
         //TODO 后续有判断是否是团队空间 团队空间成员还是可以查看的
-        if (!pictureInfo.getPictureStatus().equals(PPictureStatus.PICTURE_STATUS_0.getValue())
-                && pictureInfo.getReviewStatus().equals(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_1.getValue()))
+        if (!pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                && pictureInfo.getReviewStatus().equals(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue()))
                 && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId())) {
             throw new ServiceException("图片审核不通过，无法查看");
         }
@@ -532,7 +532,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //查询空间
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         //判断空间是否存在且是否是公共空间
-        if (StringUtils.isNotNull(spaceInfo) && spaceInfo.getSpaceStatus().equals(PSpaceStatus.SPACE_STATUS_0.getValue())) {
+        if (StringUtils.isNotNull(spaceInfo) && spaceInfo.getSpaceStatus().equals(PSpaceStatusEnum.SPACE_STATUS_0.getValue())) {
             //如果是则加入空间的信息
             userPictureDetailInfoVo.setSpaceId(spaceInfo.getSpaceId());
             userPictureDetailInfoVo.setSpaceName(spaceInfo.getSpaceName());
@@ -582,17 +582,17 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     private void getPictureStatics(String pictureId, UserPictureDetailInfoVo userPictureDetailInfoVo) {
         UserBehaviorInfo behaviorInfo = new UserBehaviorInfo();
         behaviorInfo.setTargetId(pictureId);
-        behaviorInfo.setTargetType(PUserBehaviorTargetType.USER_BEHAVIOR_TARGET_TYPE_0.getValue());
+        behaviorInfo.setTargetType(PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue());
         List<UserBehaviorInfoStaticVo> staticBehaviorInfo = userBehaviorInfoService.staticBehaviorInfo(behaviorInfo);
         if (StringUtils.isNotEmpty(staticBehaviorInfo)) {
             staticBehaviorInfo.forEach(behaviorInfoStaticVo -> {
-                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_0.getValue())) {
+                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
                     userPictureDetailInfoVo.setLikeCount(behaviorInfoStaticVo.getTargetTypeCount());
                 }
-                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_1.getValue())) {
+                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())) {
                     userPictureDetailInfoVo.setCollectCount(behaviorInfoStaticVo.getTargetTypeCount());
                 }
-                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorType.USER_BEHAVIOR_TYPE_2.getValue())) {
+                if (behaviorInfoStaticVo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue())) {
                     userPictureDetailInfoVo.setShareCount(behaviorInfoStaticVo.getTargetTypeCount());
                 }
             });
@@ -642,13 +642,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize() - pictureInfoDb.getPicSize());
         spaceInfo.setLastUpdateTime(new Date());
         //判断当前空间是否到达最大值 官方空间没有限制
-        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())
-                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_0.getValue())) {
+        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
+                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
         }
         //根据图片域名信息去除域名
         //判断空间是否是自定义存储
-        if (spaceInfo.getOssType().equals(PSpaceOssType.SPACE_OSS_TYPE_0.getValue())) {
+        if (spaceInfo.getOssType().equals(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue())) {
             //不是判断图片域名是否正确
             if (pictureInfo.getPictureUrl().startsWith(ossConfig.getDnsUrl())) {
                 //删除图片传过来的域名前缀
@@ -676,7 +676,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
-        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_0.getValue()));
+        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue()));
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         //异步更新文件日志的信息
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
@@ -733,7 +733,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //遍历两个标签，如果查询到的标签并且此标签为禁止状态，删除tags的标签
         for (PictureTagInfo tagInfo : tagInfoList) {
-            if (tagInfo.getTagsStatus().equals(PTagStatus.TAG_STATUS_1.getValue())) {
+            if (tagInfo.getTagsStatus().equals(PTagStatusEnum.TAG_STATUS_1.getValue())) {
                 tags.remove(tagInfo.getName());
                 tagInfoList.remove(tagInfo);
             }
@@ -760,7 +760,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureTagInfo.setUserId(pictureInfo.getUserId());
             pictureTagInfo.setCreateTime(new Date());
             pictureTagInfo.setName(tag);
-            pictureTagInfo.setTagsStatus(PTagStatus.TAG_STATUS_0.getValue());
+            pictureTagInfo.setTagsStatus(PTagStatusEnum.TAG_STATUS_0.getValue());
             pictureTagInfo.setUsageCount(1L);
             addTagInfoList.add(pictureTagInfo);
         }

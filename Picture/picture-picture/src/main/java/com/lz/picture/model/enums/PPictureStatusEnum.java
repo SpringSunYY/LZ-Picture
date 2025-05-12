@@ -1,4 +1,4 @@
-package com.lz.config.model.enmus;
+package com.lz.picture.model.enums;
 
 import lombok.Getter;
 
@@ -7,17 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 菜单状态枚举
+ * 图片状态 枚举
  */
 @Getter
-public enum CMenuStatus {
-    MENU_STATUS_0("0", "正常"),
-    MENU_STATUS_1("1", "隐藏");
+public enum PPictureStatusEnum {
+    PICTURE_STATUS_0("0", "公共"),
+    PICTURE_STATUS_1("1", "私有");
 
-    private static final Map<String, CMenuStatus> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PPictureStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (CMenuStatus item : values()) {
+        for (PPictureStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,7 +25,7 @@ public enum CMenuStatus {
     private final String value;
     private final String label;
 
-    CMenuStatus(String value, String label) {
+    PPictureStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -36,7 +36,7 @@ public enum CMenuStatus {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<CMenuStatus> getEnumByValue(String value) {
+    public static Optional<PPictureStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

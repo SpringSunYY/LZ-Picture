@@ -14,8 +14,8 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
-import com.lz.picture.model.enums.PSpaceOssType;
-import com.lz.picture.model.enums.PSpaceType;
+import com.lz.picture.model.enums.PSpaceOssTypeEnum;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import jakarta.annotation.Resource;
@@ -173,16 +173,16 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         }
         //判断用户可以创建的类型、个人、团队
         ArrayList<String> spaceTypeList = new ArrayList<>();
-        spaceTypeList.add(PSpaceType.SPACE_TYPE_1.getValue());
-        spaceTypeList.add(PSpaceType.SPACE_TYPE_2.getValue());
+        spaceTypeList.add(PSpaceTypeEnum.SPACE_TYPE_1.getValue());
+        spaceTypeList.add(PSpaceTypeEnum.SPACE_TYPE_2.getValue());
         if (!spaceTypeList.contains(spaceInfo.getSpaceType())) {
             throw new ServiceException("空间类型错误！！！");
         }
         //获取用户最大空间数量
         String maxSpaceCount = "";
-        if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_1.getValue())) {
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
             maxSpaceCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_1);
-        } else if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_2.getValue())) {
+        } else if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())) {
             maxSpaceCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_2);
         }
         if (StringUtils.isEmpty(maxSpaceCount)) {
@@ -214,7 +214,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         }
         spaceInfo.setMaxSize(Long.parseLong(maxSize));
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
-        spaceInfo.setOssType(PSpaceOssType.SPACE_OSS_TYPE_0.getValue());
+        spaceInfo.setOssType(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue());
 
         boolean save = this.save(spaceInfo);
         //异步更新封面文件日志

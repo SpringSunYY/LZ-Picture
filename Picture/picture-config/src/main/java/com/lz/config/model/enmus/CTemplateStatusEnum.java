@@ -7,21 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 模板类型 枚举
+ * 模板状态 枚举
  */
 @Getter
-public enum CTemplateType {
-    TEMPLATE_TYPE_0("0", "其他"),
-    TEMPLATE_TYPE_1("1", "短信"),
-    TEMPLATE_TYPE_2("2", "邮件"),
-    TEMPLATE_TYPE_3("3", "站内通知"),
-    TEMPLATE_TYPE_5("5", "APP推送"),
-    TEMPLATE_TYPE_6("6", "微信");
+public enum CTemplateStatusEnum {
+    TEMPLATE_STATUS_0("0", "已启用"),
+    TEMPLATE_STATUS_1("1", "已禁用");
 
-    private static final Map<String, CTemplateType> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, CTemplateStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (CTemplateType item : values()) {
+        for (CTemplateStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -29,17 +25,9 @@ public enum CTemplateType {
     private final String value;
     private final String label;
 
-    CTemplateType(String value, String label) {
+    CTemplateStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     /**
@@ -48,7 +36,7 @@ public enum CTemplateType {
      * @param value 枚举值
      * @return 对应的枚举对象，若无对应项则返回 Optional.empty()
      */
-    public static Optional<CTemplateType> getEnumByValue(String value) {
+    public static Optional<CTemplateStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

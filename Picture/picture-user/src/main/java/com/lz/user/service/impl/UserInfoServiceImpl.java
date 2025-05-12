@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.model.domain.MenuInfo;
-import com.lz.config.model.enmus.CMenuStatus;
-import com.lz.config.model.enmus.CMenuType;
-import com.lz.config.model.enmus.CMenuVisible;
+import com.lz.config.model.enmus.CMenuStatusEnum;
+import com.lz.config.model.enmus.CMenuTypeEnum;
+import com.lz.config.model.enmus.CMenuVisibleEnum;
 import com.lz.config.service.IMenuInfoService;
 import com.lz.user.mapper.UserInfoMapper;
 import com.lz.user.model.domain.UserInfo;
@@ -180,11 +180,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     public List<MenuInfo> getMenu(Set<String> permissions) {
         List<MenuInfo> menuInfoList = menuInfoService.list(new LambdaQueryWrapper<>(MenuInfo.class)
                 .and(q -> q
-                        .eq(MenuInfo::getMenuType, CMenuType.MENU_TYPE_M.getValue())
+                        .eq(MenuInfo::getMenuType, CMenuTypeEnum.MENU_TYPE_M.getValue())
                         .or()
-                        .eq(MenuInfo::getMenuType, CMenuType.MENU_TYPE_C.getValue())
-                ).eq(MenuInfo::getVisible, CMenuVisible.MENU_VISIBLE_0.getValue())
-                .eq(MenuInfo::getStatus, CMenuStatus.MENU_STATUS_0.getValue()));
+                        .eq(MenuInfo::getMenuType, CMenuTypeEnum.MENU_TYPE_C.getValue())
+                ).eq(MenuInfo::getVisible, CMenuVisibleEnum.MENU_VISIBLE_0.getValue())
+                .eq(MenuInfo::getStatus, CMenuStatusEnum.MENU_STATUS_0.getValue()));
         //如果用户没有此权限则不显示此菜单
         if (StringUtils.isNotEmpty(permissions)) {
             return menuInfoList.stream().filter(menuInfo -> permissions.contains(menuInfo.getPerms())).collect(Collectors.toList());

@@ -6,7 +6,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.config.manager.sms.model.SmsResponse;
 import com.lz.config.model.domain.InformTemplateInfo;
-import com.lz.config.model.enmus.CTemplateType;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.config.service.IInformTemplateInfoService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class SmsTemplate {
     private IInformTemplateInfoService informTemplateInfoService;
 
     public SmsResponse sendCode(String templateKey,String code, String phone, String locale) {
-        InformTemplateInfo templateInfo = informTemplateInfoService.getInformTemplateInfoByKeyAndLocale(templateKey, locale, CTemplateType.TEMPLATE_TYPE_1.getValue());
+        InformTemplateInfo templateInfo = informTemplateInfoService.getInformTemplateInfoByKeyAndLocale(templateKey, locale, CTemplateTypeEnum.TEMPLATE_TYPE_1.getValue());
         if (StringUtils.isNull(templateInfo)) {
             log.error("短信模板不存在或者未启用");
         }

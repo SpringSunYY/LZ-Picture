@@ -10,8 +10,7 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.model.enums.PTagStatus;
-import com.lz.picture.model.enums.PUserBehaviorTargetType;
+import com.lz.picture.model.enums.PTagStatusEnum;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IPictureTagInfoService;
 import com.lz.picture.service.IPictureTagRelInfoService;
@@ -106,7 +105,7 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
                         .in(PictureTagInfo::getTagId, relTagList))
                 .stream()
                 .filter(tag -> {
-                    return PTagStatus.TAG_STATUS_0.getValue().equals(tag.getTagsStatus());
+                    return PTagStatusEnum.TAG_STATUS_0.getValue().equals(tag.getTagsStatus());
                 })
                 .map(PictureTagInfo::getName)
                 .toList();

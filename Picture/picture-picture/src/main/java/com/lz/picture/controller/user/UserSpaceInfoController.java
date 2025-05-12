@@ -11,7 +11,7 @@ import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoAdd;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoUpdate;
-import com.lz.picture.model.enums.PSpaceType;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
@@ -70,7 +70,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         spaceInfoQuery.setUserId(getLoginUser().getUserId());
         spaceInfoQuery.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         QueryWrapper<SpaceInfo> queryWrapper = spaceInfoService.getQueryWrapper(spaceInfoQuery);
-        queryWrapper.or().eq("space_type", PSpaceType.SPACE_TYPE_0.getValue());
+        queryWrapper.or().eq("space_type", PSpaceTypeEnum.SPACE_TYPE_0.getValue());
         queryWrapper.orderByAsc("space_type");
         List<SpaceInfo> list = spaceInfoService.list(queryWrapper);
         //转为Vo

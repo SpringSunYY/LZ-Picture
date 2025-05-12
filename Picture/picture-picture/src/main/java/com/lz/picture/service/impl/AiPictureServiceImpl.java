@@ -11,7 +11,7 @@ import com.lz.common.utils.bean.BeanUtils;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.pictureInfo.CreatePictureOutPaintingTaskRequest;
-import com.lz.picture.model.enums.PSpaceType;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.service.IAiPictureService;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.ISpaceInfoService;
@@ -51,7 +51,7 @@ public class AiPictureServiceImpl implements IAiPictureService {
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), "空间不存在");
         //查看空间是否是团队空间
-        if (spaceInfo.getSpaceType().equals(PSpaceType.SPACE_TYPE_1.getValue())) {
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
             //如果是团队空间则判断用户是否是空间成员
             //TODO 后续有判断是否是团队空间 团队空间成员还是可以查看的
         } else {

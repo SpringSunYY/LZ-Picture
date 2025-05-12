@@ -7,17 +7,18 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 空间状态枚举
+ * 用户行为类型 枚举
  */
 @Getter
-public enum PSpaceStatus {
-    SPACE_STATUS_0("0", "公共"),
-    SPACE_STATUS_1("1", "私有");
+public enum PUserBehaviorTypeEnum {
+    USER_BEHAVIOR_TYPE_0("0", "点赞"),
+    USER_BEHAVIOR_TYPE_1("1", "收藏"),
+    USER_BEHAVIOR_TYPE_2("2", "转发");
 
-    private static final Map<String, PSpaceStatus> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PUserBehaviorTypeEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (PSpaceStatus item : values()) {
+        for (PUserBehaviorTypeEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,17 +26,9 @@ public enum PSpaceStatus {
     private final String value;
     private final String label;
 
-    PSpaceStatus(String value, String label) {
+    PUserBehaviorTypeEnum(String value, String label) {
         this.value = value;
         this.label = label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     /**
@@ -44,7 +37,7 @@ public enum PSpaceStatus {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<PSpaceStatus> getEnumByValue(String value) {
+    public static Optional<PUserBehaviorTypeEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

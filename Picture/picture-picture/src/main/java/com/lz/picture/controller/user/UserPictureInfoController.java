@@ -12,8 +12,8 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoUpdate;
-import com.lz.picture.model.enums.PPictureReviewStatus;
-import com.lz.picture.model.enums.PPictureStatus;
+import com.lz.picture.model.enums.PPictureReviewStatusEnum;
+import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.vo.pictureInfo.MyPictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
@@ -88,8 +88,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
         }
         PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
         //限定审核通过 状态为正常
-        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatus.PICTURE_REVIEW_STATUS_1.getValue()));
-        pictureInfo.setPictureStatus(PPictureStatus.PICTURE_STATUS_0.getValue());
+        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue()));
+        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
         QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
         Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
         List<PictureInfo> pictureInfoList = getPictureInfos(page);

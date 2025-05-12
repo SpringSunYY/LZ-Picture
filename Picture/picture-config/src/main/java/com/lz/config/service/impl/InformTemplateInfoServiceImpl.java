@@ -18,8 +18,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoVersionQuery;
-import com.lz.config.model.enmus.CTemplateStatus;
-import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoCacheVo;
+import com.lz.config.model.enmus.CTemplateStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -291,7 +290,7 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
             info = JSON.parseObject(cacheStr, InformTemplateInfo.class);
         }
         // 如果未启用
-        if (StringUtils.isNotNull(info) && !info.getStatus().equals(CTemplateStatus.TEMPLATE_STATUS_0.getValue())) {
+        if (StringUtils.isNotNull(info) && !info.getStatus().equals(CTemplateStatusEnum.TEMPLATE_STATUS_0.getValue())) {
             return null;
         }
         //缓存

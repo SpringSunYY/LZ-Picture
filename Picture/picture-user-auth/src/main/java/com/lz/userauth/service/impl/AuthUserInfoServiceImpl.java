@@ -8,7 +8,7 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.domain.MenuInfo;
-import com.lz.config.model.enmus.CMenuVisible;
+import com.lz.config.model.enmus.CMenuVisibleEnum;
 import com.lz.config.service.IMenuInfoService;
 import com.lz.userauth.mapper.AuthUserInfoMapper;
 import com.lz.userauth.model.domain.AuthBannedPermissionInfo;
@@ -55,8 +55,8 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
     public Set<String> getUserPermission(AuthUserInfo user) {
         //获取所有的权限，用户默认拥有所有权限 查询显示的
         MenuInfo menuInfo = new MenuInfo();
-        menuInfo.setVisible(CMenuVisible.MENU_VISIBLE_0.getValue());
-        menuInfo.setStatus(CMenuVisible.MENU_VISIBLE_0.getValue());
+        menuInfo.setVisible(CMenuVisibleEnum.MENU_VISIBLE_0.getValue());
+        menuInfo.setStatus(CMenuVisibleEnum.MENU_VISIBLE_0.getValue());
         List<MenuInfo> menuInfos = menuInfoService.selectMenuInfoList(menuInfo);
         //获取用户被封禁的权限
         AuthBannedPermissionInfo authBannedPermissionInfo = new AuthBannedPermissionInfo();

@@ -1,4 +1,4 @@
-package com.lz.config.model.enmus;
+package com.lz.picture.model.enums;
 
 import lombok.Getter;
 
@@ -7,17 +7,18 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 配置是否启用枚举
+ * 空间类型枚举
  */
 @Getter
-public enum CConfigIsIn {
-    CONFIG_IS_IN_0("0", "是"),
-    CONFIG_IS_IN_1("1", "否");
+public enum PSpaceTypeEnum {
+    SPACE_TYPE_0("0", "官方"),
+    SPACE_TYPE_1("1", "团队"),
+    SPACE_TYPE_2("2", "个人");
 
-    private static final Map<String, CConfigIsIn> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PSpaceTypeEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (CConfigIsIn item : values()) {
+        for (PSpaceTypeEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,9 +26,17 @@ public enum CConfigIsIn {
     private final String value;
     private final String label;
 
-    CConfigIsIn(String value, String label) {
+    PSpaceTypeEnum(String value, String label) {
         this.value = value;
         this.label = label;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     /**
@@ -36,7 +45,7 @@ public enum CConfigIsIn {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<CConfigIsIn> getEnumByValue(String value) {
+    public static Optional<PSpaceTypeEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

@@ -1,4 +1,4 @@
-package com.lz.config.model.enmus;
+package com.lz.picture.model.enums;
 
 import lombok.Getter;
 
@@ -7,17 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 菜单显示状态枚举
+ * 标签状态 枚举
  */
 @Getter
-public enum CMenuVisible {
-    MENU_VISIBLE_0("0", "显示"),
-    MENU_VISIBLE_1("1", "不显示");
+public enum PTagStatusEnum {
+    TAG_STATUS_0("0", "正常"),
+    TAG_STATUS_1("1", "禁止");
 
-    private static final Map<String, CMenuVisible> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PTagStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (CMenuVisible item : values()) {
+        for (PTagStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,7 +25,7 @@ public enum CMenuVisible {
     private final String value;
     private final String label;
 
-    CMenuVisible(String value, String label) {
+    PTagStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -36,7 +36,7 @@ public enum CMenuVisible {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<CMenuVisible> getEnumByValue(String value) {
+    public static Optional<PTagStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

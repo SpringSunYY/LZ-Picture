@@ -6,20 +6,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
-
-import java.math.BigDecimal;
 
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
-import com.lz.common.utils.uuid.IdUtils;
-import com.lz.picture.model.enums.PUserBehaviorTargetType;
-import com.lz.picture.model.enums.PUserBehaviorType;
-import com.lz.picture.model.enums.PUserBehaviorTypeScore;
+import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
+import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
+import com.lz.picture.model.enums.PUserBehaviorTypeScoreEnum;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyExecutor;
 import jakarta.annotation.Resource;
@@ -32,8 +28,6 @@ import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
-
-import static com.lz.picture.model.enums.PUserBehaviorTypeScore.USER_BEHAVIOR_TYPE_SCORE_0;
 
 /**
  * 用户行为Service业务层处理
@@ -204,14 +198,14 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
 
     private static void checkType(UserBehaviorInfo userBehaviorInfo) {
         //判断目标类型
-        Optional<PUserBehaviorTargetType> userBehaviorTargetType = PUserBehaviorTargetType.getEnumByValue(userBehaviorInfo.getTargetType());
+        Optional<PUserBehaviorTargetTypeEnum> userBehaviorTargetType = PUserBehaviorTargetTypeEnum.getEnumByValue(userBehaviorInfo.getTargetType());
         ThrowUtils.throwIf(StringUtils.isNull(userBehaviorTargetType), "目标类型错误");
         //判断行为类型
-        Optional<PUserBehaviorType> behaviorType = PUserBehaviorType.getEnumByValue(userBehaviorInfo.getBehaviorType());
+        Optional<PUserBehaviorTypeEnum> behaviorType = PUserBehaviorTypeEnum.getEnumByValue(userBehaviorInfo.getBehaviorType());
         ThrowUtils.throwIf(behaviorType.isEmpty(), "行为类型错误");
         //根据行为类型获取分数
-        PUserBehaviorType behaviorTypeValue = behaviorType.get();
-        Optional<PUserBehaviorTypeScore> scoreOptional = PUserBehaviorTypeScore.getEnumByValue(behaviorTypeValue.getValue());
+        PUserBehaviorTypeEnum behaviorTypeValue = behaviorType.get();
+        Optional<PUserBehaviorTypeScoreEnum> scoreOptional = PUserBehaviorTypeScoreEnum.getEnumByValue(behaviorTypeValue.getValue());
         ThrowUtils.throwIf(scoreOptional.isEmpty(), "行为类型分数未配置");
         userBehaviorInfo.setScore(scoreOptional.get().getScore());
     }

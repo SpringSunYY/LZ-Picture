@@ -23,7 +23,7 @@ import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
 import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 
 import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_MENU_PERMISSION;
-import static com.lz.config.model.enmus.CMenuVisible.MENU_VISIBLE_0;
+import static com.lz.config.model.enmus.CMenuVisibleEnum.MENU_VISIBLE_0;
 
 /**
  * 菜单信息Service业务层处理

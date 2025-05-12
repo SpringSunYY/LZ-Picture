@@ -7,27 +7,29 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 用户行为目标类型 枚举
+ * 用户行为类型 枚举
  */
 @Getter
-public enum PUserBehaviorTargetType {
-    USER_BEHAVIOR_TARGET_TYPE_0("0", "图片"),
-    USER_BEHAVIOR_TARGET_TYPE_1("1", "空间"),
-    USER_BEHAVIOR_TARGET_TYPE_2("2", "用户");
+public enum PUserBehaviorTypeScoreEnum {
+    USER_BEHAVIOR_TYPE_SCORE_0("0", 3.0, "点赞"),
+    USER_BEHAVIOR_TYPE_SCORE_1("1", 6.0, "收藏"),
+    USER_BEHAVIOR_TYPE_SCORE_2("2", 12.0, "转发");
 
-    private static final Map<String, PUserBehaviorTargetType> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PUserBehaviorTypeScoreEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (PUserBehaviorTargetType item : values()) {
+        for (PUserBehaviorTypeScoreEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
 
     private final String value;
+    private final Double score;
     private final String label;
 
-    PUserBehaviorTargetType(String value, String label) {
+    PUserBehaviorTypeScoreEnum(String value, Double score, String label) {
         this.value = value;
+        this.score = score;
         this.label = label;
     }
 
@@ -37,7 +39,7 @@ public enum PUserBehaviorTargetType {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<PUserBehaviorTargetType> getEnumByValue(String value) {
+    public static Optional<PUserBehaviorTypeScoreEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

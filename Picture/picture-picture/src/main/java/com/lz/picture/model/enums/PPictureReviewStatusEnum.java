@@ -7,17 +7,18 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 存储类型枚举
+ * 图片审核状态 枚举
  */
 @Getter
-public enum PSpaceOssType {
-    SPACE_OSS_TYPE_0("0", "官方"),
-    SPACE_OSS_TYPE_1("1", "阿里云");
+public enum PPictureReviewStatusEnum {
+    PICTURE_REVIEW_STATUS_0("0", "待审核"),
+    PICTURE_REVIEW_STATUS_1("1", "同意"),
+    PICTURE_REVIEW_STATUS_2("2", "拒绝");
 
-    private static final Map<String, PSpaceOssType> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PPictureReviewStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (PSpaceOssType item : values()) {
+        for (PPictureReviewStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,7 +26,7 @@ public enum PSpaceOssType {
     private final String value;
     private final String label;
 
-    PSpaceOssType(String value, String label) {
+    PPictureReviewStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -36,7 +37,7 @@ public enum PSpaceOssType {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<PSpaceOssType> getEnumByValue(String value) {
+    public static Optional<PPictureReviewStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

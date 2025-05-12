@@ -5,11 +5,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.utils.StringUtils;
-import java.math.BigDecimal;
+
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.http.HttpUtils;
+import com.lz.common.utils.uuid.IdUtils;
+import com.lz.points.model.enums.PoPackageIsLongTermEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,15 +30,15 @@ import com.lz.points.model.vo.pointsRechargePackageInfo.PointsRechargePackageInf
  * 充值积分套餐Service业务层处理
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-12
  */
 @Service
-public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRechargePackageInfoMapper, PointsRechargePackageInfo> implements IPointsRechargePackageInfoService
-{
+public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRechargePackageInfoMapper, PointsRechargePackageInfo> implements IPointsRechargePackageInfoService {
     @Resource
     private PointsRechargePackageInfoMapper pointsRechargePackageInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询充值积分套餐
      *
@@ -40,8 +46,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @return 充值积分套餐
      */
     @Override
-    public PointsRechargePackageInfo selectPointsRechargePackageInfoByPackageId(String packageId)
-    {
+    public PointsRechargePackageInfo selectPointsRechargePackageInfoByPackageId(String packageId) {
         return pointsRechargePackageInfoMapper.selectPointsRechargePackageInfoByPackageId(packageId);
     }
 
@@ -52,8 +57,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @return 充值积分套餐
      */
     @Override
-    public List<PointsRechargePackageInfo> selectPointsRechargePackageInfoList(PointsRechargePackageInfo pointsRechargePackageInfo)
-    {
+    public List<PointsRechargePackageInfo> selectPointsRechargePackageInfoList(PointsRechargePackageInfo pointsRechargePackageInfo) {
         return pointsRechargePackageInfoMapper.selectPointsRechargePackageInfoList(pointsRechargePackageInfo);
     }
 
@@ -64,8 +68,14 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @return 结果
      */
     @Override
-    public int insertPointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo)
-    {
+    public int insertPointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo) {
+        //如果不是长期套餐必须要设置套餐生效时间
+        if (PoPackageIsLongTermEnum.PACKAGE_IS_LONG_TERM_1.getValue().equals(pointsRechargePackageInfo.getIsLongTerm())) {
+            ThrowUtils.throwIf(StringUtils.isNull(pointsRechargePackageInfo.getStartTime())||StringUtils.isNull(pointsRechargePackageInfo.getEndTime()), "套餐不是长期请设置套餐生效时间和结束时间!!!");
+        }
+        //查询是否已经拥有此套餐
+        ThrowUtils.throwIf(StringUtils.isNotNull(selectPointRechargePackageInfoByPackageName(pointsRechargePackageInfo.getPackageName())), "已存在此套餐名称!!!");
+        pointsRechargePackageInfo.setPackageId(IdUtils.snowflakeId().toString());
         pointsRechargePackageInfo.setCreateTime(DateUtils.getNowDate());
         return pointsRechargePackageInfoMapper.insertPointsRechargePackageInfo(pointsRechargePackageInfo);
     }
@@ -77,9 +87,14 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @return 结果
      */
     @Override
-    public int updatePointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo)
-    {
-      pointsRechargePackageInfo.setUpdateTime(DateUtils.getNowDate());
+    public int updatePointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo) {
+        //如果不是长期套餐必须要设置套餐生效时间
+        if (PoPackageIsLongTermEnum.PACKAGE_IS_LONG_TERM_1.getValue().equals(pointsRechargePackageInfo.getIsLongTerm())) {
+            ThrowUtils.throwIf(StringUtils.isNull(pointsRechargePackageInfo.getStartTime())||StringUtils.isNull(pointsRechargePackageInfo.getEndTime()), "套餐不是长期请设置套餐生效时间和结束时间!!!");
+        }
+        PointsRechargePackageInfo pointsRechargePackageInfoDb = selectPointRechargePackageInfoByPackageName(pointsRechargePackageInfo.getPackageName());
+        ThrowUtils.throwIf(StringUtils.isNotNull(pointsRechargePackageInfoDb) && !pointsRechargePackageInfoDb.getPackageId().equals(pointsRechargePackageInfo.getPackageId()), "已存在此套餐名称!!!");
+        pointsRechargePackageInfo.setUpdateTime(DateUtils.getNowDate());
         return pointsRechargePackageInfoMapper.updatePointsRechargePackageInfo(pointsRechargePackageInfo);
     }
 
@@ -90,8 +105,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @return 结果
      */
     @Override
-    public int deletePointsRechargePackageInfoByPackageIds(String[] packageIds)
-    {
+    public int deletePointsRechargePackageInfoByPackageIds(String[] packageIds) {
         return pointsRechargePackageInfoMapper.deletePointsRechargePackageInfoByPackageIds(packageIds);
     }
 
@@ -102,42 +116,42 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @return 结果
      */
     @Override
-    public int deletePointsRechargePackageInfoByPackageId(String packageId)
-    {
+    public int deletePointsRechargePackageInfoByPackageId(String packageId) {
         return pointsRechargePackageInfoMapper.deletePointsRechargePackageInfoByPackageId(packageId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PointsRechargePackageInfo> getQueryWrapper(PointsRechargePackageInfoQuery pointsRechargePackageInfoQuery){
+    public QueryWrapper<PointsRechargePackageInfo> getQueryWrapper(PointsRechargePackageInfoQuery pointsRechargePackageInfoQuery) {
         QueryWrapper<PointsRechargePackageInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = pointsRechargePackageInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String packageId = pointsRechargePackageInfoQuery.getPackageId();
-        queryWrapper.eq(StringUtils.isNotEmpty(packageId) ,"package_id",packageId);
+        String packageId = pointsRechargePackageInfoQuery.getPackageId();
+        queryWrapper.eq(StringUtils.isNotEmpty(packageId), "package_id", packageId);
 
-    String packageName = pointsRechargePackageInfoQuery.getPackageName();
-        queryWrapper.like(StringUtils.isNotEmpty(packageName) ,"package_name",packageName);
+        String packageName = pointsRechargePackageInfoQuery.getPackageName();
+        queryWrapper.like(StringUtils.isNotEmpty(packageName), "package_name", packageName);
 
-    String isLongTerm = pointsRechargePackageInfoQuery.getIsLongTerm();
-        queryWrapper.eq(StringUtils.isNotEmpty(isLongTerm) ,"is_long_term",isLongTerm);
+        String isLongTerm = pointsRechargePackageInfoQuery.getIsLongTerm();
+        queryWrapper.eq(StringUtils.isNotEmpty(isLongTerm), "is_long_term", isLongTerm);
 
-    Date startTime = pointsRechargePackageInfoQuery.getStartTime();
-        queryWrapper.eq( StringUtils.isNotNull(startTime),"start_time",startTime);
+        Date startTime = pointsRechargePackageInfoQuery.getStartTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginStartTime")) && StringUtils.isNotNull(params.get("endStartTime")), "start_time", params.get("beginStartTime"), params.get("endStartTime"));
 
-    Date endTime = pointsRechargePackageInfoQuery.getEndTime();
-        queryWrapper.eq( StringUtils.isNotNull(endTime),"end_time",endTime);
+        Date endTime = pointsRechargePackageInfoQuery.getEndTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginEndTime")) && StringUtils.isNotNull(params.get("endEndTime")), "end_time", params.get("beginEndTime"), params.get("endEndTime"));
 
-    String packageStatus = pointsRechargePackageInfoQuery.getPackageStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(packageStatus) ,"package_status",packageStatus);
+        String packageStatus = pointsRechargePackageInfoQuery.getPackageStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(packageStatus), "package_status", packageStatus);
 
-    Date createTime = pointsRechargePackageInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = pointsRechargePackageInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    Date updateTime = pointsRechargePackageInfoQuery.getUpdateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime"))&&StringUtils.isNotNull(params.get("endUpdateTime")),"update_time",params.get("beginUpdateTime"),params.get("endUpdateTime"));
+        Date updateTime = pointsRechargePackageInfoQuery.getUpdateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
 
         return queryWrapper;
     }
@@ -150,4 +164,9 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
         return pointsRechargePackageInfoList.stream().map(PointsRechargePackageInfoVo::objToVo).collect(Collectors.toList());
     }
 
+    @Override
+    public PointsRechargePackageInfo selectPointRechargePackageInfoByPackageName(String packageName) {
+        return this.getOne(new LambdaQueryWrapper<PointsRechargePackageInfo>()
+                .eq(PointsRechargePackageInfo::getPackageName, packageName));
+    }
 }

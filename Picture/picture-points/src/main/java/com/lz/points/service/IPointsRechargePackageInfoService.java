@@ -1,21 +1,23 @@
 package com.lz.points.service;
 
 import java.util.List;
+
 import com.lz.points.model.domain.PointsRechargePackageInfo;
 import com.lz.points.model.vo.pointsRechargePackageInfo.PointsRechargePackageInfoVo;
 import com.lz.points.model.dto.pointsRechargePackageInfo.PointsRechargePackageInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 充值积分套餐Service接口
  *
  * @author YY
  * @date 2025-03-25
  */
-public interface IPointsRechargePackageInfoService extends IService<PointsRechargePackageInfo>
-{
+public interface IPointsRechargePackageInfoService extends IService<PointsRechargePackageInfo> {
     //region mybatis代码
+
     /**
      * 查询充值积分套餐
      *
@@ -64,6 +66,7 @@ public interface IPointsRechargePackageInfoService extends IService<PointsRechar
      */
     public int deletePointsRechargePackageInfoByPackageId(String packageId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,15 @@ public interface IPointsRechargePackageInfoService extends IService<PointsRechar
      * @return PointsRechargePackageInfoVO集合
      */
     List<PointsRechargePackageInfoVo> convertVoList(List<PointsRechargePackageInfo> pointsRechargePackageInfoList);
+
+    /**
+     * 根据名称查询充值积分套餐
+     *
+     * @param packageName 积分充值套餐名称
+     * @return PointsRechargePackageInfo
+     * @author: YY
+     * @method: selectPointRechargePackageInfoByPackageName
+     * @date: 2025/5/12 23:52
+     **/
+    PointsRechargePackageInfo selectPointRechargePackageInfoByPackageName(String packageName);
 }

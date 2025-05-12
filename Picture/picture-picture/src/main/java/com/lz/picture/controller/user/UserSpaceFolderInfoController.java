@@ -10,7 +10,7 @@ import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoUserAdd;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoUserQuery;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoUserUpdate;
-import com.lz.picture.model.enums.PSpaceStatus;
+import com.lz.picture.model.enums.PSpaceStatusEnum;
 import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
 import com.lz.picture.service.ISpaceFolderInfoService;
 import com.lz.picture.service.ISpaceInfoService;
@@ -98,7 +98,7 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
             throw new ServiceException("空间不存在，或者已被删除");
         }
         //如果空间为私有
-        if (spaceInfo.getSpaceType().equals(PSpaceStatus.SPACE_STATUS_1.getValue())
+        if (spaceInfo.getSpaceType().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
                 && !spaceInfo.getUserId().equals(getLoginUser().getUserId())) {
             throw new ServiceException("您没有权限访问该空间");
         }

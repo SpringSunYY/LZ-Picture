@@ -1,4 +1,4 @@
-package com.lz.picture.model.enums;
+package com.lz.points.model.enums;
 
 import lombok.Getter;
 
@@ -7,19 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 空间角色枚举
+ * 配置是否启用枚举
  */
 @Getter
-public enum PSpaceRole {
-    SPACE_ROLE_0("0", "创建者"),
-    SPACE_ROLE_1("1", "管理员"),
-    SPACE_ROLE_2("2", "编辑者"),
-    SPACE_ROLE_3("3", "预览者");
+public enum PoPackageIsLongTermEnum {
+    PACKAGE_IS_LONG_TERM_0("0", "是"),
+    PACKAGE_IS_LONG_TERM_1("1", "否");
 
-    private static final Map<String, PSpaceRole> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, PoPackageIsLongTermEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (PSpaceRole item : values()) {
+        for (PoPackageIsLongTermEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -27,7 +25,7 @@ public enum PSpaceRole {
     private final String value;
     private final String label;
 
-    PSpaceRole(String value, String label) {
+    PoPackageIsLongTermEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -38,7 +36,7 @@ public enum PSpaceRole {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<PSpaceRole> getEnumByValue(String value) {
+    public static Optional<PoPackageIsLongTermEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }
