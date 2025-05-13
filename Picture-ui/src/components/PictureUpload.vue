@@ -158,7 +158,7 @@ watch(
     if (newVal === '') {
       return
     }
-    console.log('newVal', newVal)
+    // console.log('newVal', newVal)
     if (typeof newVal === 'string') {
       const meta = await loadImageMeta(newVal)
       innerFileList.value = [

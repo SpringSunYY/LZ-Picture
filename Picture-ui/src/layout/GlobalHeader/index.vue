@@ -143,7 +143,7 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
   // console.log('generateMenu', routes)
   return routes
     .filter((route) => {
-      console.log('checkRouteHidden', route)
+      // console.log('checkRouteHidden', route)
       return (
         !route.redirect && route?.meta?.title && !route.meta?.isHidden && !checkRouteHidden(route)
       )

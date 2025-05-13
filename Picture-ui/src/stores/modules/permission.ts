@@ -73,7 +73,7 @@ const loadView = (viewPath: string, menuType: string) => {
   if (matchKey) {
     return modules[matchKey]
   } else {
-    console.error(`未找到匹配的组件路径: ${viewPath}`)
+    // console.error(`未找到匹配的组件路径: ${viewPath}`)
     return null
   }
 }

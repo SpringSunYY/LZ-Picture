@@ -52,7 +52,7 @@ router.beforeEach(async (to, from, next) => {
         return next()
       }
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       removeToken()
       return next({
         path: '/user/login',
