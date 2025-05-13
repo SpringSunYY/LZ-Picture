@@ -18,7 +18,7 @@ export const formatStrSize = (str: string, maxLength: number) => {
   //如果字符串长度大于最大长度，则截取并添加省略号
   if (str.length > maxLength) {
     str = str.substring(0, maxLength)
-    console.log('str', str)
+    // console.log('str', str)
     return str.substring(0, maxLength) + '...'
   } else {
     return str

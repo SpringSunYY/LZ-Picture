@@ -26,6 +26,17 @@ export const constantRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/points/payment',
+    name: 'PointsPayment',
+    component: () => import('@/views/points/payment.vue'),
+    meta: {
+      title: '用户登录',
+      fullPage: false,
+      isHidden: true,
+      isCache: true,
+    },
+  },
+  {
     path: '/user',
     meta: {
       isHidden: true,
@@ -94,7 +105,7 @@ export const constantRoutes: RouteRecordRaw[] = [
 
 // 创建路由实例
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: constantRoutes,
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { top: 0 }

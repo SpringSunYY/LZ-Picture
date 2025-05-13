@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
 import { handleTree } from '@/utils/lz.ts'
 
+// @ts-ignore
 const modules = import.meta.glob('@/views/**/*.vue')
 
 interface PermissionState {

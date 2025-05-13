@@ -67,12 +67,8 @@
 <script setup lang="ts">
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import { ref, watchEffect } from 'vue'
-import {
-  getPictureReviewStatusLabel,
-  getPictureStatusLabel,
-  type MyPictureInfoVo,
-  type PictureInfoQuery,
-} from '@/types/picture/picture.d.ts'
+import { getPictureReviewStatusLabel, getPictureStatusLabel } from '@/types/picture/picture.d.ts'
+import type { MyPictureInfoVo, PictureInfoQuery } from '@/types/picture/picture.d.ts'
 import { listMyPictureInfo } from '@/api/picture/picture.ts'
 import { formatSize } from '@/utils/common.ts'
 import Tags from '@/components/Tags.vue'
@@ -147,7 +143,6 @@ const handleUpdate = (id: string) => {
     path: '/picture/pictureEdit',
     query: { pictureId: id },
   })
-  console.log('routeData', routeData)
   window.open(routeData.href, '_blank')
 }
 

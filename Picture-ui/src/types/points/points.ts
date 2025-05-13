@@ -3,13 +3,13 @@
  */
 export interface PointsRechargePackageInfoQuery {
   /** 套餐编号 */
-  packageId: string
+  packageId?: string
 
   /** 套餐名称 */
-  packageName: string
+  packageName?: string
 
   /** 是否长期（0是 1否） */
-  isLongTerm: string
+  isLongTerm?: string
 }
 
 /**

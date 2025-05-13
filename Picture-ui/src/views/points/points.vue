@@ -36,7 +36,7 @@
     <div class="package-list">
       <a-row :gutter="[24, 24]">
         <a-col
-          :xs="24" :sm="24" :md="12" :lg="6" :xxl="6"
+          xs="24" :sm="24" :md="24" :lg="12" :xl="6" :xxl="6"
           v-for="pkg in filteredPackages"
           :key="pkg.packageId"
         >
@@ -84,7 +84,7 @@
               <a-button
                 type="primary"
                 block
-                @click="showPackageDetails(pkg)"
+
                 :disabled="pkg.packageStatus !== '1'"
               >
                 立即购买
@@ -138,11 +138,10 @@ const searchText = ref('')
 const statusFilter = ref('')
 const termFilter = ref('')
 const detailsVisible = ref(false)
-const selectedPackage = ref(null)
 
 // 过滤后的套餐列表
 const filteredPackages = computed(() => {
-  return packages.value.filter((pkg) => {
+  return packages.value?.filter((pkg) => {
     const matchesSearch =
       !searchText.value || pkg.packageName.toLowerCase().includes(searchText.value.toLowerCase())
     const matchesStatus = !statusFilter.value || pkg.packageStatus === statusFilter.value
@@ -173,7 +172,7 @@ const formatDate = (dateString) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 const getPointsRechargePackageList = () => {
-  getPointsRechargePackageInfoList().then((res) => {
+  getPointsRechargePackageInfoList({}).then((res) => {
     packages.value = res.rows
     message.success('套餐数据加载成功')
   })
@@ -259,9 +258,9 @@ onMounted(() => {
   }
 
   .points-item {
-    //display: flex;
-    //justify-content: space-between;
-    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 20px;
   }
 
   .points-label {

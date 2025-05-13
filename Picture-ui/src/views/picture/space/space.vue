@@ -142,7 +142,6 @@ import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags.vue'
 import { formatSize } from '@/utils/common.ts'
-import useUserStore from '@/stores/modules/user.ts'
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'

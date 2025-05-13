@@ -3,6 +3,7 @@ import type {
   PointsRechargePackageInfoQuery,
   PointsRechargePackageInfoVo,
 } from '@/types/points/points.ts'
+import type { API } from '@/types/common'
 
 //获取积分套餐列表
 export function getPointsRechargePackageInfoList(
