@@ -93,4 +93,15 @@ public interface IPointsRechargePackageInfoService extends IService<PointsRechar
      * @date: 2025/5/12 23:52
      **/
     PointsRechargePackageInfo selectPointRechargePackageInfoByPackageName(String packageName);
+
+    /**
+     * 用户查询套餐列表
+     *
+     * @param pointsRechargePackageInfo
+     * @return List<PointsRechargePackageInfo>
+     * @author: YY
+     * @method: userSelectPointsRechargePackageInfoList
+     * @date: 2025/5/13 10:33
+     **/
+    List<PointsRechargePackageInfo> userSelectPointsRechargePackageInfoList(PointsRechargePackageInfo pointsRechargePackageInfo);
 }

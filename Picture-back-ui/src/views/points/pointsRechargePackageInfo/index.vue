@@ -148,36 +148,37 @@
           <dict-tag :options="po_package_is_long_term" :value="scope.row.isLongTerm"/>
         </template>
       </el-table-column>
-      <el-table-column label="生效时间" align="center" prop="startTime" width="180" v-if="columns[7].visible"
+      <el-table-column label="排序权重" align="center" prop="sortOrder" v-if="columns[7].visible" :show-overflow-tooltip="true"/>
+      <el-table-column label="生效时间" align="center" prop="startTime" width="180" v-if="columns[8].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结束时间" align="center" prop="endTime" width="180" v-if="columns[8].visible"
+      <el-table-column label="结束时间" align="center" prop="endTime" width="180" v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="套餐状态" align="center" prop="packageStatus" v-if="columns[9].visible">
+      <el-table-column label="套餐状态" align="center" prop="packageStatus" v-if="columns[10].visible">
         <template #default="scope">
           <dict-tag :options="po_package_status" :value="scope.row.packageStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[10].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[11].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[12].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -236,19 +237,22 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="排序权重" prop="sortOrder">
+          <el-input-number :min="0" :max="10" v-model="form.sortOrder" placeholder="请输入排序权重" />
+        </el-form-item>
         <el-form-item label="生效时间" prop="startTime">
           <el-date-picker clearable
                           v-model="form.startTime"
-                          type="date"
-                          value-format="YYYY-MM-DD"
+                          type="datetime"
+                          value-format="YYYY-MM-DD HH:mm:ss"
                           placeholder="请选择套餐生效时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="结束时间" prop="endTime">
           <el-date-picker clearable
                           v-model="form.endTime"
-                          type="date"
-                          value-format="YYYY-MM-DD"
+                          type="datetime"
+                          value-format="YYYY-MM-DD HH:mm:ss"
                           placeholder="请选择套餐结束时间">
           </el-date-picker>
         </el-form-item>
@@ -346,12 +350,13 @@ const data = reactive({
     {key: 4, label: '套餐赠送积分', visible: true},
     {key: 5, label: '套餐描述', visible: true},
     {key: 6, label: '是否长期', visible: true},
-    {key: 7, label: '套餐生效时间', visible: true},
-    {key: 8, label: '套餐结束时间', visible: true},
-    {key: 9, label: '套餐状态', visible: true},
-    {key: 10, label: '创建时间', visible: true},
-    {key: 11, label: '更新时间', visible: false},
-    {key: 12, label: '备注', visible: false},
+    {key: 7, label: '排序权重', visible: false},
+    {key: 8, label: '套餐生效时间', visible: true},
+    {key: 9, label: '套餐结束时间', visible: true},
+    {key: 10, label: '套餐状态', visible: true},
+    {key: 11, label: '创建时间', visible: true},
+    {key: 12, label: '更新时间', visible: false},
+    {key: 13, label: '备注', visible: false},
   ],
 });
 
@@ -400,6 +405,7 @@ function reset() {
     pointsBonus: null,
     description: null,
     isLongTerm: null,
+    sortOrder: null,
     startTime: null,
     endTime: null,
     packageStatus: null,
@@ -497,8 +503,9 @@ getList();
 <style scoped>
 .custom-label {
   display: inline-flex; /* 保持内联弹性布局 */
-  align-items: center;  /* 垂直居中 */
+  align-items: center; /* 垂直居中 */
 }
+
 .tooltip-icon {
   width: 14px;
   height: 14px;

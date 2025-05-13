@@ -1058,6 +1058,7 @@ CREATE TABLE po_payment_order_info
 | points_bonus   | int      |      |        | 是   | 0        | 套餐赠送积分 |
 | description    | varchar  | 512  |        | 是   |          | 套餐描述     |
 | is_long_term   | char     | 1    |        | 否   | 1        | 是否长期     |
+| sort_order     | tinyint  |      |        | 否   | 0        | 排序权重     |
 | start_time     | datetime |      |        | 是   |          | 套餐生效时间 |
 | end_time       | datetime |      |        | 是   |          | 套餐结束时间 |
 | package_status | char     | 1    |        | 否   | 0        | 套餐状态     |
@@ -1079,6 +1080,7 @@ CREATE TABLE po_points_recharge_package_info (
     points_bonus INT DEFAULT 0 COMMENT '套餐赠送积分',
     description VARCHAR(512) COMMENT '套餐描述',
     is_long_term CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否长期（0是 1否）',
+    sort_order   TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序权重',
     start_time DATETIME COMMENT '套餐生效时间',
     end_time DATETIME COMMENT '套餐结束时间',
     package_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '套餐状态（0正常 1失效）',

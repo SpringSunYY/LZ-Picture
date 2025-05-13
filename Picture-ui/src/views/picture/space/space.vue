@@ -136,14 +136,13 @@
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPSpaceStatusLabel, getPSpaceTypeLabel } from '@/types/picture/space.d.ts'
 import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.d.ts'
+import { getPSpaceStatusLabel, getPSpaceTypeLabel } from '@/types/picture/space.d.ts'
 import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags.vue'
 import { formatSize } from '@/utils/common.ts'
 import useUserStore from '@/stores/modules/user.ts'
-import { storeToRefs } from 'pinia'
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'
@@ -152,7 +151,7 @@ const instance = getCurrentInstance()
 const proxy = instance?.proxy
 
 const { p_space_status } = proxy?.useDict('p_space_status')
-const userStore = useUserStore()
+
 // 新增状态管理
 const open = ref(false)
 const submitting = ref(false)

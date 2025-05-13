@@ -23,6 +23,11 @@
             <artifactId>picture-common</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-user-auth</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

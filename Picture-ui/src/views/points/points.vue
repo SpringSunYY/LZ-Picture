@@ -3,7 +3,7 @@
     <a-page-header title="积分充值套餐" sub-title="选择适合您的积分充值方案" />
 
     <div class="filter-section">
-      <a-space>
+      <a-space align="center" :wrap="true">
         <a-input-search
           v-model:value="searchText"
           placeholder="搜索套餐名称"
@@ -34,19 +34,16 @@
     </div>
 
     <div class="package-list">
-      <a-row :gutter="[16, 16]">
+      <a-row :gutter="[24, 24]">
         <a-col
-          :xs="24"
-          :sm="12"
-          :md="8"
-          :lg="6"
+          :xs="24" :sm="24" :md="12" :lg="6" :xxl="6"
           v-for="pkg in filteredPackages"
-          :key="pkg.package_id"
+          :key="pkg.packageId"
         >
           <a-card
             hoverable
             class="package-card"
-            :class="{ 'inactive-package': pkg.packageStatus === '1' }"
+            :class="{ 'inactive-package': pkg.packageStatus === '0' }"
             @click="showPackageDetails(pkg)"
           >
             <template #cover>
@@ -59,8 +56,8 @@
                   <a-tag :color="pkg.isLongTerm === '1' ? 'blue' : 'green'">
                     {{ pkg.isLongTerm === '1' ? '限时套餐' : '长期套餐' }}
                   </a-tag>
-                  <a-tag :color="pkg.packageStatus === '0' ? 'success' : 'error'">
-                    {{ pkg.packageStatus === '0' ? '正常' : '失效' }}
+                  <a-tag :color="pkg.packageStatus === '1' ? 'success' : 'warning'">
+                    {{ getPackageStatusLabel(pkg.packageStatus) }}
                   </a-tag>
                 </div>
               </div>
@@ -71,12 +68,12 @@
             </div>
             <div class="points-section">
               <div class="points-item">
-                <span class="points-label">积分：</span>
+                <span class="points-label">积分</span>
                 <span class="points-value">{{ pkg.points }}</span>
               </div>
-              <div class="points-item" v-if="pkg.pointsBonus > 0">
-                <span class="points-label">赠送：</span>
-                <span class="points-value bonus">+{{ pkg.pointsBonus }}</span>
+              <div class="points-item">
+                <span class="points-label">赠送</span>
+                <span class="points-value bonus">+{{ pkg.pointsBonus || 0 }}</span>
               </div>
             </div>
             <div class="package-footer">
@@ -84,7 +81,12 @@
               <p v-else-if="pkg.startTime && pkg.endTime" class="validity">
                 {{ formatDate(pkg.startTime) }} 至 {{ formatDate(pkg.endTime) }}
               </p>
-              <a-button type="primary" block :disabled="pkg.packageStatus === '1'">
+              <a-button
+                type="primary"
+                block
+                @click="showPackageDetails(pkg)"
+                :disabled="pkg.packageStatus !== '1'"
+              >
                 立即购买
               </a-button>
             </div>
@@ -96,9 +98,9 @@
     <!-- 套餐详情弹窗 -->
     <a-modal v-model:open="detailsVisible" :title="'购买套餐'" width="600px" :footer="null">
       <Detail
-        v-if="selectedPackage"
+        v-if="pointsRechargePackageInfo"
         @close="detailsVisible = !detailsVisible"
-        :packageInfo="selectedPackage"
+        :packageInfo="pointsRechargePackageInfo"
       />
     </a-modal>
   </div>
@@ -108,86 +110,29 @@
 import { ref, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import Detail from './detail.vue'
+import {
+  getPointsRechargePackageInfo,
+  getPointsRechargePackageInfoList,
+} from '@/api/points/points.ts'
+import { getPackageStatusLabel } from '@/types/points/points.ts'
+import type { PointsRechargePackageInfoVo } from '@/types/points/points.ts'
 
 // 模拟数据
-const packages = ref([
-  {
-    package_id: 'PKG001',
-    packageName: '新手入门包',
-    price: 9.9,
-    points: 100,
-    pointsBonus: 10,
-    description: '适合新用户的入门级积分套餐，额外赠送10积分',
-    isLongTerm: '1',
-    startTime: '2023-01-01 00:00:00',
-    endTime: '2023-12-31 23:59:59',
-    packageStatus: '0',
-    create_time: '2023-01-01 10:00:00',
-    update_time: null,
-    remark: '限时优惠',
-  },
-  {
-    package_id: 'PKG002',
-    packageName: '标准套餐',
-    price: 29.9,
-    points: 300,
-    pointsBonus: 30,
-    description: '性价比最高的标准套餐，额外赠送30积分',
-    isLongTerm: '0',
-    startTime: null,
-    endTime: null,
-    packageStatus: '0',
-    create_time: '2023-01-01 10:00:00',
-    update_time: null,
-    remark: '热门选择',
-  },
-  {
-    package_id: 'PKG003',
-    packageName: '高级套餐',
-    price: 99.9,
-    points: 1000,
-    pointsBonus: 200,
-    description: '高级用户首选，赠送200积分，物超所值',
-    isLongTerm: '0',
-    startTime: null,
-    endTime: null,
-    packageStatus: '0',
-    create_time: '2023-01-01 10:00:00',
-    update_time: null,
-    remark: '高级会员推荐',
-  },
-  {
-    package_id: 'PKG004',
-    packageName: '限时特惠包',
-    price: 49.9,
-    points: 600,
-    pointsBonus: 100,
-    description: '限时特惠，抢购即赠100积分',
-    isLongTerm: '1',
-    startTime: '2023-06-01 00:00:00',
-    endTime: '2023-06-30 23:59:59',
-    packageStatus: '1',
-    create_time: '2023-05-15 10:00:00',
-    update_time: null,
-    remark: '已结束',
-  },
-  {
-    package_id: 'PKG005',
-    packageName: '尊享VIP套餐',
-    price: 199.9,
-    points: 2500,
-    pointsBonus: 500,
-    description: 'VIP专享套餐，赠送500积分，享受最高优惠',
-    isLongTerm: '0',
-    startTime: null,
-    endTime: null,
-    packageStatus: '0',
-    create_time: '2023-01-01 10:00:00',
-    update_time: null,
-    remark: 'VIP专享',
-  },
-])
-
+const packages = ref<PointsRechargePackageInfoVo>([])
+const pointsRechargePackageInfo = ref<PointsRechargePackageInfoVo>({
+  packageId: '',
+  packageName: '',
+  price: 9.9,
+  points: 100,
+  pointsBonus: 10,
+  description: '',
+  isLongTerm: '',
+  startTime: '',
+  endTime: '',
+  packageStatus: '0',
+  create_time: '',
+  update_time: null,
+})
 // 状态变量
 const searchText = ref('')
 const statusFilter = ref('')
@@ -216,8 +161,10 @@ const handleSearch = () => {
 }
 
 const showPackageDetails = (pkg) => {
-  selectedPackage.value = pkg
-  detailsVisible.value = true
+  getPointsRechargePackageInfo(pkg.packageId).then((res) => {
+    pointsRechargePackageInfo.value = res.data
+    detailsVisible.value = true
+  })
 }
 
 const formatDate = (dateString) => {
@@ -225,31 +172,26 @@ const formatDate = (dateString) => {
   const date = new Date(dateString)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
-
+const getPointsRechargePackageList = () => {
+  getPointsRechargePackageInfoList().then((res) => {
+    packages.value = res.rows
+    message.success('套餐数据加载成功')
+  })
+}
 // 生命周期钩子
 onMounted(() => {
   // 在实际应用中，这里会从API获取套餐数据
-  // fetchPackages();
+  getPointsRechargePackageList()
 })
-
-// 实际应用中的API调用
-const fetchPackages = async () => {
-  try {
-    // const response = await api.getPackages();
-    // packages.value = response.data;
-    message.success('套餐数据加载成功')
-  } catch (error) {
-    message.error('获取套餐数据失败')
-    console.error(error)
-  }
-}
 </script>
 
 <style scoped lang="scss">
 .points {
   //padding: 24px;
   //background-color: #f5f5f5;
-  min-height: 100vh;
+  //min-height: 100vh;
+  margin: 0 auto;
+  max-width: 90%;
 
   .filter-section {
     margin-bottom: 24px;
@@ -317,8 +259,8 @@ const fetchPackages = async () => {
   }
 
   .points-item {
-    display: flex;
-    justify-content: space-between;
+    //display: flex;
+    //justify-content: space-between;
     margin-bottom: 8px;
   }
 
@@ -328,6 +270,7 @@ const fetchPackages = async () => {
 
   .points-value {
     font-weight: bold;
+    color: #096dd9;
   }
 
   .bonus {

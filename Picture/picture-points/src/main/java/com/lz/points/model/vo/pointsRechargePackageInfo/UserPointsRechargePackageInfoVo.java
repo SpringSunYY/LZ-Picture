@@ -1,16 +1,17 @@
 package com.lz.points.model.vo.pointsRechargePackageInfo;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import com.lz.common.annotation.Excel;
-import org.springframework.beans.BeanUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.utils.StringUtils;
 import com.lz.points.model.domain.PointsRechargePackageInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 充值积分套餐Vo对象 po_points_recharge_package_info
@@ -19,7 +20,7 @@ import com.lz.points.model.domain.PointsRechargePackageInfo;
  * @date 2025-03-25
  */
 @Data
-public class PointsRechargePackageInfoVo implements Serializable {
+public class UserPointsRechargePackageInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -65,11 +66,6 @@ public class PointsRechargePackageInfoVo implements Serializable {
     private String isLongTerm;
 
     /**
-     * 排序权重
-     */
-    private Long sortOrder;
-
-    /**
      * 套餐生效时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -89,26 +85,6 @@ public class PointsRechargePackageInfoVo implements Serializable {
     @Excel(name = "套餐状态", readConverterExp = "0=正常,1=失效")
     private String packageStatus;
 
-    /**
-     * 创建时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    private Date updateTime;
-
-    /**
-     * 备注
-     */
-    @Excel(name = "备注")
-    private String remark;
-
 
     /**
      * 对象转封装类
@@ -116,12 +92,28 @@ public class PointsRechargePackageInfoVo implements Serializable {
      * @param pointsRechargePackageInfo PointsRechargePackageInfo实体对象
      * @return PointsRechargePackageInfoVo
      */
-    public static PointsRechargePackageInfoVo objToVo(PointsRechargePackageInfo pointsRechargePackageInfo) {
+    public static UserPointsRechargePackageInfoVo objToVo(PointsRechargePackageInfo pointsRechargePackageInfo) {
         if (pointsRechargePackageInfo == null) {
             return null;
         }
-        PointsRechargePackageInfoVo pointsRechargePackageInfoVo = new PointsRechargePackageInfoVo();
+        UserPointsRechargePackageInfoVo pointsRechargePackageInfoVo = new UserPointsRechargePackageInfoVo();
         BeanUtils.copyProperties(pointsRechargePackageInfo, pointsRechargePackageInfoVo);
         return pointsRechargePackageInfoVo;
+    }
+
+    /**
+     * 对象列表转封装类
+     *
+     * @param pointsRechargePackageInfoList
+     * @return UserPointsRechargePackageInfoVo
+     * @author: YY
+     * @method: objToVo
+     * @date: 2025/5/13 10:02
+     **/
+    public static List<UserPointsRechargePackageInfoVo> objToVo(List<PointsRechargePackageInfo> pointsRechargePackageInfoList) {
+        if (StringUtils.isEmpty(pointsRechargePackageInfoList)) {
+            return new ArrayList<>();
+        }
+        return pointsRechargePackageInfoList.stream().map(UserPointsRechargePackageInfoVo::objToVo).toList();
     }
 }

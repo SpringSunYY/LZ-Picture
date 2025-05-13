@@ -9,8 +9,8 @@
         <a-tag :color="packageInfo.isLongTerm === '1' ? 'blue' : 'green'">
           {{ packageInfo.isLongTerm === '1' ? '限时套餐' : '长期套餐' }}
         </a-tag>
-        <a-tag :color="packageInfo.packageStatus === '0' ? 'success' : 'error'">
-          {{ packageInfo.packageStatus === '0' ? '正常' : '失效' }}
+        <a-tag :color="packageInfo.packageStatus === '1' ? 'success' : 'error'">
+          {{ getPackageStatusLabel(packageInfo.packageStatus) }}
         </a-tag>
       </div>
     </div>
@@ -22,11 +22,11 @@
         </a-descriptions-item>
 
         <a-descriptions-item label="有效期" :span="1">
-          <template v-if="packageInfo.isLongTerm === '0'"> 长期有效 </template>
+          <template v-if="packageInfo.isLongTerm === '0'"> 长期有效</template>
           <template v-else-if="packageInfo.startTime && packageInfo.endTime">
             {{ formatDate(packageInfo.startTime) }} 至 {{ formatDate(packageInfo.endTime) }}
           </template>
-          <template v-else> 未设置 </template>
+          <template v-else> 未设置</template>
         </a-descriptions-item>
         <a-descriptions-item label="积分数量" :span="1">
           <span class="points">{{ packageInfo.points }}</span>
@@ -41,13 +41,12 @@
 
       <div class="action-section">
         <a-space>
-          <a-button type="primary" size="large" :disabled="packageInfo.packageStatus === '1'">
+          <a-button type="primary" size="large" :disabled="packageInfo.packageStatus !== '1'">
             立即购买
           </a-button>
-          <a-button size="large" @click="handleClose"> 返回列表 </a-button>
+          <a-button size="large" @click="handleClose"> 返回列表</a-button>
         </a-space>
       </div>
-
       <div class="package-benefits" v-if="packageInfo.packageStatus === '0'">
         <h3>套餐权益</h3>
         <a-card>
@@ -127,6 +126,7 @@
 
 <script setup lang="ts" name="PointsDetail">
 import { defineProps } from 'vue'
+import { getPackageStatusLabel } from '@/types/points/points.ts'
 
 const props = defineProps({
   packageInfo: {
@@ -134,7 +134,6 @@ const props = defineProps({
     required: true,
   },
 })
-
 const emit = defineEmits(['close'])
 
 const formatDate = (dateString) => {

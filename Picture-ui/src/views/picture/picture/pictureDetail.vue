@@ -21,7 +21,7 @@
       <a-col :xs="24" :md="8" class="right-info">
         <!-- 作者信息 -->
         <a-card :bordered="false" class="card author-card">
-          <a-space align="center">
+          <a-space align="center" :wrap="true">
             <a-avatar :src="picture.userInfoVo?.avatarUrl" size="large" />
             <div>
               <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
@@ -61,7 +61,7 @@
           />
         </a-card>
         <a-card title="" :bordered="false" class="card action-card">
-          <a-space-compact align="center" style="padding: 0">
+          <a-space-compact direction="horizontal" align="center" style="padding: 0" :wrap="true">
             <a-tooltip title="Like">
               <a-button class="icon-button" @click="addUserBehavior('0')">
                 <LikeOutlined

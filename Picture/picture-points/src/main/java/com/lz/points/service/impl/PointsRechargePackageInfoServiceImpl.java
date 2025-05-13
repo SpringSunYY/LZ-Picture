@@ -16,6 +16,7 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.http.HttpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.points.model.enums.PoPackageIsLongTermEnum;
+import com.lz.points.model.enums.PoPackageStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -71,7 +72,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
     public int insertPointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo) {
         //如果不是长期套餐必须要设置套餐生效时间
         if (PoPackageIsLongTermEnum.PACKAGE_IS_LONG_TERM_1.getValue().equals(pointsRechargePackageInfo.getIsLongTerm())) {
-            ThrowUtils.throwIf(StringUtils.isNull(pointsRechargePackageInfo.getStartTime())||StringUtils.isNull(pointsRechargePackageInfo.getEndTime()), "套餐不是长期请设置套餐生效时间和结束时间!!!");
+            ThrowUtils.throwIf(StringUtils.isNull(pointsRechargePackageInfo.getStartTime()) || StringUtils.isNull(pointsRechargePackageInfo.getEndTime()), "套餐不是长期请设置套餐生效时间和结束时间!!!");
         }
         //查询是否已经拥有此套餐
         ThrowUtils.throwIf(StringUtils.isNotNull(selectPointRechargePackageInfoByPackageName(pointsRechargePackageInfo.getPackageName())), "已存在此套餐名称!!!");
@@ -90,7 +91,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
     public int updatePointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo) {
         //如果不是长期套餐必须要设置套餐生效时间
         if (PoPackageIsLongTermEnum.PACKAGE_IS_LONG_TERM_1.getValue().equals(pointsRechargePackageInfo.getIsLongTerm())) {
-            ThrowUtils.throwIf(StringUtils.isNull(pointsRechargePackageInfo.getStartTime())||StringUtils.isNull(pointsRechargePackageInfo.getEndTime()), "套餐不是长期请设置套餐生效时间和结束时间!!!");
+            ThrowUtils.throwIf(StringUtils.isNull(pointsRechargePackageInfo.getStartTime()) || StringUtils.isNull(pointsRechargePackageInfo.getEndTime()), "套餐不是长期请设置套餐生效时间和结束时间!!!");
         }
         PointsRechargePackageInfo pointsRechargePackageInfoDb = selectPointRechargePackageInfoByPackageName(pointsRechargePackageInfo.getPackageName());
         ThrowUtils.throwIf(StringUtils.isNotNull(pointsRechargePackageInfoDb) && !pointsRechargePackageInfoDb.getPackageId().equals(pointsRechargePackageInfo.getPackageId()), "已存在此套餐名称!!!");
@@ -168,5 +169,15 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
     public PointsRechargePackageInfo selectPointRechargePackageInfoByPackageName(String packageName) {
         return this.getOne(new LambdaQueryWrapper<PointsRechargePackageInfo>()
                 .eq(PointsRechargePackageInfo::getPackageName, packageName));
+    }
+
+    @Override
+    public List<PointsRechargePackageInfo> userSelectPointsRechargePackageInfoList(PointsRechargePackageInfo pointsRechargePackageInfo) {
+        //指定查询未开始和正常的
+        return this.list(new QueryWrapper<PointsRechargePackageInfo>()
+                .in("package_status", PoPackageStatusEnum.PACKAGE_STATUS_0.getValue(), PoPackageStatusEnum.PACKAGE_STATUS_1.getValue())
+                .eq(StringUtils.isNotEmpty(pointsRechargePackageInfo.getPackageName()), "package_name", pointsRechargePackageInfo.getPackageName())
+                .eq(StringUtils.isNotEmpty(pointsRechargePackageInfo.getIsLongTerm()), "is_long_term", pointsRechargePackageInfo.getIsLongTerm())
+                .orderBy(true, true, "sort_order"));
     }
 }
