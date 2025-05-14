@@ -42,6 +42,7 @@
         <aliyun.core.version>4.0.6</aliyun.core.version>
         <aliyun.sdk.version>2.0.0</aliyun.sdk.version>
         <aliyun.oss.version>3.17.4</aliyun.oss.version>
+        <alipay.sdk.version>4.34.0.ALL</alipay.sdk.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -219,6 +220,13 @@
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${aliyun.oss.version}</version>
+            </dependency>
+            <!--阿里云支付-->
+            <!--https://opendocs.alipay.com/open/59da99d0_alipay.trade.page.pay?-->
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>${alipay.sdk.version}</version>
             </dependency>
 
             <!--框架代码-->
