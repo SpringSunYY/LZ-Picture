@@ -22,8 +22,10 @@
           <div v-if="currentStep === 0" class="order-confirmation">
             <a-card title="订单确认" class="order-card">
               <div class="package-info">
-                <div class="package-header"
-                     :class="packageInfo.isLongTerm === '1' ? 'regular-package' : 'long-term-package'">
+                <div
+                  class="package-header"
+                  :class="packageInfo.isLongTerm === '1' ? 'regular-package' : 'long-term-package'"
+                >
                   <div class="text-2xl font-bold text">{{ packageInfo.packageName }}</div>
                   <div class="package-tag">
                     <a-tag :color="packageInfo.isLongTerm === '1' ? 'blue' : 'green'">
@@ -43,11 +45,10 @@
                     <span class="bonus-points">{{ packageInfo.pointsBonus }} 积分</span>
                   </a-descriptions-item>
                   <a-descriptions-item label="有效期">
-                    <template v-if="packageInfo.isLongTerm === '0'">
-                      长期有效
-                    </template>
+                    <template v-if="packageInfo.isLongTerm === '0'"> 长期有效</template>
                     <template v-else-if="packageInfo.startTime && packageInfo.endTime">
-                      {{ formatDate(packageInfo.startTime) }} 至 {{ formatDate(packageInfo.endTime) }}
+                      {{ formatDateTimeByStr(packageInfo.startTime) }} 至
+                      {{ formatDateTimeByStr(packageInfo.endTime) }}
                     </template>
                   </a-descriptions-item>
                 </a-descriptions>
@@ -83,7 +84,7 @@
                 <a-radio value="alipay" class="payment-option">
                   <div class="payment-option-content">
                     <div class="payment-icon alipay-icon">
-                     <SvgIcon size="1.5em" name="aliPay" />
+                      <SvgIcon size="1.5em" name="aliPay" />
                     </div>
                     <div class="payment-label">
                       <div>支付宝</div>
@@ -117,21 +118,36 @@
 
               <div v-if="paymentMethod === 'creditcard'" class="credit-card-form">
                 <a-form :model="cardForm" layout="vertical">
-                  <a-form-item label="持卡人姓名" name="cardHolder"
-                               :rules="[{ required: true, message: '请输入持卡人姓名' }]">
+                  <a-form-item
+                    label="持卡人姓名"
+                    name="cardHolder"
+                    :rules="[{ required: true, message: '请输入持卡人姓名' }]"
+                  >
                     <a-input v-model:value="cardForm.cardHolder" placeholder="请输入持卡人姓名" />
                   </a-form-item>
-                  <a-form-item label="卡号" name="cardNumber" :rules="[{ required: true, message: '请输入卡号' }]">
+                  <a-form-item
+                    label="卡号"
+                    name="cardNumber"
+                    :rules="[{ required: true, message: '请输入卡号' }]"
+                  >
                     <a-input v-model:value="cardForm.cardNumber" placeholder="请输入卡号" />
                   </a-form-item>
                   <a-row :gutter="16">
                     <a-col :span="12">
-                      <a-form-item label="有效期" name="expiry" :rules="[{ required: true, message: '请输入有效期' }]">
+                      <a-form-item
+                        label="有效期"
+                        name="expiry"
+                        :rules="[{ required: true, message: '请输入有效期' }]"
+                      >
                         <a-input v-model:value="cardForm.expiry" placeholder="MM/YY" />
                       </a-form-item>
                     </a-col>
                     <a-col :span="12">
-                      <a-form-item label="CVV" name="cvv" :rules="[{ required: true, message: '请输入CVV' }]">
+                      <a-form-item
+                        label="CVV"
+                        name="cvv"
+                        :rules="[{ required: true, message: '请输入CVV' }]"
+                      >
                         <a-input v-model:value="cardForm.cvv" placeholder="CVV" />
                       </a-form-item>
                     </a-col>
@@ -148,7 +164,9 @@
 
               <div class="action-buttons">
                 <a-button @click="prevStep">上一步</a-button>
-                <a-button type="primary" @click="nextStep" :disabled="!paymentMethod">下一步</a-button>
+                <a-button type="primary" @click="nextStep" :disabled="!paymentMethod"
+                  >下一步
+                </a-button>
               </div>
             </a-card>
           </div>
@@ -156,21 +174,50 @@
           <!-- 步骤3: 支付处理 -->
           <div v-if="currentStep === 2" class="payment-processing">
             <a-card title="支付处理中" class="processing-card">
-              <div class="payment-qrcode" v-if="paymentMethod === 'alipay' || paymentMethod === 'wechat'">
+              <div class="payment-qrcode" v-if="paymentMethod === 'wechat'">
                 <div class="qrcode-container">
                   <div class="qrcode-image">
                     <!-- 这里放二维码图片 -->
                     <div class="mock-qrcode"></div>
                   </div>
                   <p class="qrcode-tip">
-                    {{ paymentMethod === 'alipay' ? '请使用支付宝扫码支付' : '请使用微信扫码支付' }}
+                    <!--                    {{ paymentMethod === 'alipay' ? '请使用支付宝扫码支付' : '请使用微信扫码支付' }}-->
+                    请使用微信扫码支付
                   </p>
                 </div>
                 <div class="payment-amount">
-                  <p>支付金额: <span class="amount">¥{{ (packageInfo.price - discount).toFixed(2) }}</span></p>
+                  <p>
+                    支付金额:
+                    <span class="amount">¥{{ (packageInfo.price - discount).toFixed(2) }}</span>
+                  </p>
                 </div>
                 <div class="payment-timer">
-                  <p>二维码有效时间: <span class="timer">{{ formatTime(paymentTimer) }}</span></p>
+                  <p>
+                    二维码有效时间: <span class="timer">{{ formatTime(paymentTimer) }}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="payment-qrcode" v-if="paymentMethod === 'alipay'">
+                <div class="qrcode-container">
+                  <div class="qrcode-image">
+                    <!-- 这里放二维码图片 -->
+                    <SvgIcon name="useAlipay" size="12em"/>
+                  </div>
+                  <p class="qrcode-tip">
+                    <!--                    {{ paymentMethod === 'alipay' ? '请使用支付宝扫码支付' : '请使用微信扫码支付' }}-->
+                    正在使用支付宝支付
+                  </p>
+                </div>
+                <div class="payment-amount">
+                  <p>
+                    支付金额:
+                    <span class="amount">¥{{ (packageInfo.price - discount).toFixed(2) }}</span>
+                  </p>
+                </div>
+                <div class="payment-timer">
+                  <p>
+                    支付有效时间: <span class="timer">{{ formatTime(paymentTimer) }}</span>
+                  </p>
                 </div>
               </div>
 
@@ -196,7 +243,9 @@
             <a-result
               :status="paymentSuccess ? 'success' : 'error'"
               :title="paymentSuccess ? '支付成功' : '支付失败'"
-              :sub-title="paymentSuccess ? '您的积分已成功充值到账户' : '支付过程中遇到问题，请重试'"
+              :sub-title="
+                paymentSuccess ? '您的积分已成功充值到账户' : '支付过程中遇到问题，请重试'
+              "
             >
               <template #extra>
                 <div class="result-details" v-if="paymentSuccess">
@@ -218,7 +267,7 @@
                   </div>
                   <div class="result-item">
                     <span>支付时间:</span>
-                    <span>{{ formatDateTime(new Date()) }}</span>
+                    <span>{{ formatDateTimeByDate(new Date()) }}</span>
                   </div>
                 </div>
                 <div class="action-buttons">
@@ -248,6 +297,7 @@ import { message } from 'ant-design-vue'
 import { getPointsRechargePackageInfo } from '@/api/points/points.ts'
 import type { PointsRechargePackageInfoVo } from '@/types/points/points.ts'
 import SvgIcon from '@/components/SvgIcon.vue'
+import { formatDateTimeByDate, formatDateTimeByStr, formatTime } from '@/utils/common.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -255,7 +305,7 @@ const packageInfo = ref<PointsRechargePackageInfoVo>()
 
 // 支付流程状态
 const currentStep = ref(0)
-const paymentMethod = ref('')
+const paymentMethod = ref('alipay')
 const paymentSuccess = ref(false)
 const paymentTimer = ref(300) // 5分钟倒计时
 const timerInterval = ref(null)
@@ -267,7 +317,7 @@ const cardForm = ref({
   cardHolder: '',
   cardNumber: '',
   expiry: '',
-  cvv: ''
+  cvv: '',
 })
 
 // 方法
@@ -275,7 +325,7 @@ const navToPackages = () => {
   router.push('/points')
 }
 
-const goBack=()=>{
+const goBack = () => {
   navToPackages()
 }
 
@@ -292,8 +342,12 @@ const nextStep = () => {
 
     if (paymentMethod.value === 'creditcard') {
       // 验证信用卡信息
-      if (!cardForm.value.cardHolder || !cardForm.value.cardNumber ||
-        !cardForm.value.expiry || !cardForm.value.cvv) {
+      if (
+        !cardForm.value.cardHolder ||
+        !cardForm.value.cardNumber ||
+        !cardForm.value.expiry ||
+        !cardForm.value.cvv
+      ) {
         message.warning('请填写完整的银行卡信息')
         return
       }
@@ -373,7 +427,7 @@ const simulatePayment = () => {
 const finishPayment = () => {
   if (paymentSuccess.value) {
     // 支付成功，更新用户积分 (实际应用中会通过API处理)
-    const totalPoints = packageInfo.value.points + (packageInfo.value.pointsBonus || 0)
+    const totalPoints = packageInfo.value?.points + (packageInfo.value?.pointsBonus || 0)
 
     // 显示积分到账通知
     setTimeout(() => {
@@ -385,23 +439,6 @@ const finishPayment = () => {
     // 支付失败，返回套餐列表
     router.push('/points')
   }
-}
-
-// 格式化函数
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
-
-const formatDateTime = (date) => {
-  return `${formatDate(date)} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
-}
-
-const formatTime = (seconds) => {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
 
 onMounted(() => {
@@ -416,7 +453,6 @@ onMounted(() => {
     router.push('/points')
   }
 })
-
 
 // 生命周期钩子
 onUnmounted(() => {
@@ -500,7 +536,6 @@ $border-radius: 4px;
     }
   }
 }
-
 
 // 支付流程样式
 .payment-flow {

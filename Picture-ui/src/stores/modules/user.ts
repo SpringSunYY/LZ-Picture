@@ -1,6 +1,7 @@
 import { forgetPassword, getInfo, login, logout, register, smsLogin } from '@/api/userInfo/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
 import { isEmpty, isHttp } from '@/utils/validate'
+//@ts-ignore
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'
 import type { USER } from '@/types/user'
@@ -75,6 +76,7 @@ const useUserStore = defineStore('user', {
         // 处理头像路径
         let avatar = user.avatarUrl || ''
         if (!isHttp(avatar)) {
+          //@ts-ignore
           avatar = isEmpty(avatar) ? defAva : `${import.meta.env.VITE_APP_BASE_API}${avatar}`
         }
 

@@ -46,3 +46,27 @@ export const findPathById = (data: PictureCategoryInfoVo[], targetId: string): s
   }
   return null
 }
+
+// 格式化函数
+export const formatDate = (dateString: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+export const formatDateTimeByStr= (dateString: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+ }
+
+export const formatDateTimeByDate = (date: Date) => {
+  date = new Date(date)
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+}
+
+export const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
