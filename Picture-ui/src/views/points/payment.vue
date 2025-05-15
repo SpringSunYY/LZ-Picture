@@ -182,7 +182,7 @@
                   </div>
                   <p class="qrcode-tip">
                     <!--                    {{ paymentMethod === 'alipay' ? '请使用支付宝扫码支付' : '请使用微信扫码支付' }}-->
-                    请使用微信扫码支付
+                    正在使用使用微信扫码支付，请勿关闭或刷新此页面
                   </p>
                 </div>
                 <div class="payment-amount">
@@ -201,11 +201,11 @@
                 <div class="qrcode-container">
                   <div class="qrcode-image">
                     <!-- 这里放二维码图片 -->
-                    <SvgIcon name="useAlipay" size="12em"/>
+                    <SvgIcon name="useAlipay" size="12em" />
                   </div>
                   <p class="qrcode-tip">
                     <!--                    {{ paymentMethod === 'alipay' ? '请使用支付宝扫码支付' : '请使用微信扫码支付' }}-->
-                    正在使用支付宝支付
+                    正在使用支付宝支付，请勿关闭或刷新此页面
                   </p>
                 </div>
                 <div class="payment-amount">
@@ -271,7 +271,7 @@
                   </div>
                 </div>
                 <div class="action-buttons">
-                  <a-button v-if="!paymentSuccess" @click="prevStep">重新支付</a-button>
+                  <a-button v-if="!paymentSuccess" @click="anewPayment">重新支付</a-button>
                   <a-button type="primary" @click="finishPayment">
                     {{ paymentSuccess ? '完成' : '返回套餐列表' }}
                   </a-button>
@@ -291,13 +291,18 @@
 </template>
 
 <script setup lang="ts" name="PointsPayment">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { getPointsRechargePackageInfo } from '@/api/points/points.ts'
-import type { PointsRechargePackageInfoVo } from '@/types/points/points.ts'
+import type { PointsRechargePackageInfoVo } from '@/types/points/points.d.ts'
 import SvgIcon from '@/components/SvgIcon.vue'
 import { formatDateTimeByDate, formatDateTimeByStr, formatTime } from '@/utils/common.ts'
+import { alipayWeb } from '@/api/points/pay.ts'
+import type { PayRequest } from '@/types/points/pay'
+import useUserStore from '@/stores/modules/user.ts'
+import { storeToRefs } from 'pinia'
+import { toNumber } from 'lodash-es'
 
 const router = useRouter()
 const route = useRoute()
@@ -311,6 +316,14 @@ const paymentTimer = ref(300) // 5分钟倒计时
 const timerInterval = ref(null)
 const discount = ref(0) // 优惠金额
 const orderId = ref('')
+
+const userStore = useUserStore()
+const { userId: userId } = storeToRefs(userStore)
+//支付表单
+const formState = ref<PayRequest>({
+  packageId: route.query.packageId as string,
+  userId: userId.value,
+})
 
 // 银行卡表单
 const cardForm = ref({
@@ -327,6 +340,33 @@ const navToPackages = () => {
 
 const goBack = () => {
   navToPackages()
+}
+
+// 支付宝支付
+const alipay = () => {
+  alipayWeb(formState.value).then((res) => {
+    console.log(res)
+    if (res.code != 200) {
+      message.error('支付失败！！！')
+    }
+    if (!res.data?.success) {
+      message.error('支付失败！！！')
+    }
+    message.success('支付成功后请回此页面点击完成支付')
+    message.success("即将跳转支付宝支付页面...")
+    //定时三秒后跳转
+    setTimeout(() => {
+      // 打开新窗口
+      const newWindow = window.open('', '_blank')
+      if (newWindow) {
+        // 将 HTML 内容写入新窗口
+        newWindow.document.write(res.data.html)
+        newWindow.document.close() // 关闭写入流
+      } else {
+        console.error('无法打开新窗口')
+      }
+    }, 3000)
+  })
 }
 
 const nextStep = () => {
@@ -354,6 +394,12 @@ const nextStep = () => {
     }
 
     currentStep.value = 2
+    // 支付
+    //如果是支付宝支付
+    if (paymentMethod.value === 'alipay') {
+      alipay()
+    }
+    // 启动计时器
     startPaymentTimer()
   }
 }
@@ -368,15 +414,19 @@ const prevStep = () => {
         clearInterval(timerInterval.value)
       }
     }
-    //如果是重新支付
-    if (currentStep.value === 2) {
-      startPaymentTimer()
-    }
   } else {
     navToPackages()
   }
 }
-
+//重新支付
+const anewPayment = () => {
+  //从选择支付开始
+  currentStep.value = 1
+  //清楚定时器
+  if (timerInterval.value !== null) {
+    clearInterval(timerInterval.value)
+  }
+}
 const startPaymentTimer = () => {
   // 清除可能存在的旧计时器
   if (timerInterval.value) {
@@ -413,7 +463,7 @@ const simulatePayment = () => {
 
   // 模拟80%的概率支付成功
   setTimeout(() => {
-    paymentSuccess.value = Math.random() > 0.8
+    paymentSuccess.value = false
     currentStep.value = 3
 
     if (paymentSuccess.value) {
@@ -427,7 +477,8 @@ const simulatePayment = () => {
 const finishPayment = () => {
   if (paymentSuccess.value) {
     // 支付成功，更新用户积分 (实际应用中会通过API处理)
-    const totalPoints = packageInfo.value?.points + (packageInfo.value?.pointsBonus || 0)
+    const totalPoints =
+      (toNumber(packageInfo.value?.points) || 0) + (toNumber(packageInfo.value?.pointsBonus) || 0)
 
     // 显示积分到账通知
     setTimeout(() => {
@@ -445,7 +496,7 @@ onMounted(() => {
   const packageId = route.query.packageId
   if (packageId) {
     // 从 API 获取套餐信息
-    getPointsRechargePackageInfo(packageId).then((res) => {
+    getPointsRechargePackageInfo(typeof packageId === 'string' ? packageId : '').then((res) => {
       packageInfo.value = res.data
     })
   } else {

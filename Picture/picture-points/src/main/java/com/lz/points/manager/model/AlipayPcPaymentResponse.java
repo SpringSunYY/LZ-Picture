@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- * TODO
+ * PC阿里支付返回
  *
  * @Project: Picture
  * @Author: YY
@@ -17,14 +17,13 @@ import java.util.Map;
 @Data
 public class AlipayPcPaymentResponse {
     private String pageRedirectionData;
-    private String htmlBody;
+    private String html;
 
-    private String body;
 
     /**
      * 是否成功
      */
-    private boolean isSuccess;
+    private boolean success;
 
     @ApiField("code")
     private String code;
@@ -47,7 +46,7 @@ public class AlipayPcPaymentResponse {
     private String merchantOrderNo;
 
     /**
-     * 商户订单号
+     * 商户订单号 商户自定义
      */
     @ApiField("out_trade_no")
     private String outTradeNo;

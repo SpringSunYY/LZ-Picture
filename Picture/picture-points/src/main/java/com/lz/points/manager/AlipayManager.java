@@ -50,7 +50,6 @@ public class AlipayManager {
             // 构造请求参数以调用接口
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
             request.setReturnUrl(config.getNotifyUrl());
-            AlipayTradePagePayModel model = new AlipayTradePagePayModel();
             request.setNotifyUrl("");
             JSONObject bizContent = new JSONObject();
             bizContent.put("out_trade_no", alipayPcPaymentRequest.getOutTradeNo());
@@ -60,9 +59,6 @@ public class AlipayManager {
             bizContent.put("timeout_express", alipayPcPaymentRequest.getTimeoutExpress());
             bizContent.put("product_code", alipayPcPaymentRequest.getProductCode());
             request.setBizContent(bizContent.toString());
-
-            // 第三方代调用模式下请设置app_auth_token
-            // request.putOtherTextParam("app_auth_token", "<-- 请填写应用授权令牌 -->");
 
             AlipayTradePagePayResponse response = alipayClient.pageExecute(request, "POST");
             // 如果需要返回GET请求，请使用
@@ -83,7 +79,7 @@ public class AlipayManager {
                 sb.append(pageRedirectionData);
                 sb.append("</body>\n" +
                         "</html>");
-                result.setHtmlBody(sb.toString());
+                result.setHtml(sb.toString());
                 result.setPageRedirectionData(pageRedirectionData);
             } else {
                 log.error("支付请求失败:{}", JSONObject.toJSONString(response));
@@ -92,6 +88,7 @@ public class AlipayManager {
                 // System.out.println(diagnosisUrl);
             }
             result.setSuccess(response.isSuccess());
+            result.setOutTradeNo(alipayPcPaymentRequest.getOutTradeNo());
             return result;
         } catch (AlipayApiException e) {
             log.error("支付请求失败！！！", e);

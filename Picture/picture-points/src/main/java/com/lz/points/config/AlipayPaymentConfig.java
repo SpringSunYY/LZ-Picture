@@ -60,4 +60,14 @@ public class AlipayPaymentConfig {
      */
     @Value("${alipay.signType}")
     private String signType;
+    /**
+     * 产品编码
+     */
+    @Value("${alipay.productCode}")
+    private String productCode;
+    /**
+     * 超时时间
+     */
+    @Value("${alipay.timeoutExpress}")
+    private String timeoutExpress;
 }

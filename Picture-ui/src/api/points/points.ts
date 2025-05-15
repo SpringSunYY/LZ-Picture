@@ -2,7 +2,7 @@ import { http as request } from '@/utils'
 import type {
   PointsRechargePackageInfoQuery,
   PointsRechargePackageInfoVo,
-} from '@/types/points/points.ts'
+} from '@/types/points/points.d.ts'
 import type { API } from '@/types/common'
 
 //获取积分套餐列表

@@ -29,19 +29,19 @@ export interface PointsRechargePackageInfoVo {
   points: number
 
   /** 套餐赠送积分 */
-  pointsBonus: number
+  pointsBonus?: number
 
   /** 套餐描述 */
-  description: string
+  description?: string
 
   /** 是否长期（0是 1否） */
   isLongTerm: string
 
   /** 套餐生效时间（格式：yyyy-MM-dd HH:mm:ss） */
-  startTime: string
+  startTime?: string
 
   /** 套餐结束时间（格式：yyyy-MM-dd HH:mm:ss） */
-  endTime: string
+  endTime?: string
 
   /** 套餐状态（0正常 1失效） */
   packageStatus: string

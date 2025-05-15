@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts" name="PointsDetail">
-import { getPackageStatusLabel } from '@/types/points/points.ts'
+import { getPackageStatusLabel } from '@/types/points/points.d.ts'
 import { message } from 'ant-design-vue'
 import { checkPermiSingle } from '@/utils/permission.ts'
 import { useRouter } from 'vue-router'

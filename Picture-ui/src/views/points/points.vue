@@ -114,8 +114,8 @@ import {
   getPointsRechargePackageInfo,
   getPointsRechargePackageInfoList,
 } from '@/api/points/points.ts'
-import { getPackageStatusLabel } from '@/types/points/points.ts'
-import type { PointsRechargePackageInfoVo } from '@/types/points/points.ts'
+import { getPackageStatusLabel } from '@/types/points/points.d.ts'
+import type { PointsRechargePackageInfoVo } from '@/types/points/points.d.ts'
 
 // 模拟数据
 const packages = ref<PointsRechargePackageInfoVo>([])
