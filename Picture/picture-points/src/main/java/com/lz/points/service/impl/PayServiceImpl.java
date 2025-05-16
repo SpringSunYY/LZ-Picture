@@ -6,6 +6,7 @@ import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.points.config.AlipayPaymentConfig;
 import com.lz.points.manager.AlipayManager;
+import com.lz.points.manager.model.AlipayCallbackRequest;
 import com.lz.points.manager.model.AlipayPcPaymentRequest;
 import com.lz.points.manager.model.AlipayPcPaymentResponse;
 import com.lz.points.model.domain.PointsRechargePackageInfo;
@@ -59,5 +60,10 @@ public class PayServiceImpl implements IPayService {
         AlipayPcPaymentVo paymentVo = new AlipayPcPaymentVo();
         BeanUtils.copyProperties(alipayPcPaymentResponse, paymentVo);
         return paymentVo;
+    }
+
+    @Override
+    public void alipayCallback(AlipayCallbackRequest alipayCallbackRequest) {
+
     }
 }
