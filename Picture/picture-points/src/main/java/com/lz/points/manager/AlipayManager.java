@@ -6,8 +6,11 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradePagePayModel;
+import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradePagePayResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.lz.points.config.AlipayPaymentConfig;
 import com.lz.points.manager.model.AlipayPcPaymentRequest;
 import com.lz.points.manager.model.AlipayPcPaymentResponse;
@@ -15,9 +18,12 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
- * TODO
+ * 支付宝支付
  *
  * @Project: Picture
  * @Author: YY
@@ -94,5 +100,43 @@ public class AlipayManager {
             log.error("支付请求失败！！！", e);
             throw new RuntimeException("支付请求失败！！！");
         }
+    }
+
+    public String query(String outTradNo, String tradeNo) throws Exception {
+        // 初始化SDK
+        AlipayClient alipayClient = new DefaultAlipayClient(getAlipayConfig());
+
+        // 构造请求参数以调用接口
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        AlipayTradeQueryModel model = new AlipayTradeQueryModel();
+
+        // 设置订单支付时传入的商户订单号
+        model.setOutTradeNo(outTradNo);
+
+        // 设置支付宝交易号
+        model.setTradeNo(tradeNo);
+
+        // 设置查询选项
+        List<String> queryOptions = new ArrayList<String>();
+        queryOptions.add("trade_settle_info");
+        model.setQueryOptions(queryOptions);
+
+        request.setBizModel(model);
+        // 第三方代调用模式下请设置app_auth_token
+        // request.putOtherTextParam("app_auth_token", "<-- 请填写应用授权令牌 -->");
+
+        AlipayTradeQueryResponse response = alipayClient.execute(request);
+        System.out.println(response.getBody());
+
+        if (response.isSuccess()) {
+            System.out.println("调用成功");
+            return response.getBody();
+        } else {
+            System.out.println("调用失败");
+            // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
+            // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
+            // System.out.println(diagnosisUrl);
+        }
+        return "";
     }
 }

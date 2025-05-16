@@ -131,7 +131,8 @@ public class SecurityConfig {
                                     "user/smsLogin", "user/register", "user/getRegisterCode",
                                     "/user/getForgetPasswordCode", "/user/forgetPassword",
                                     "/user/picture/pictureInfo/list",
-                                    "/user/config/configInfo/key/**").permitAll()
+                                    "/user/config/configInfo/key/**",
+                                    "/user/points/pay/alipay/callback").permitAll()
                             // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/admin/swagger-ui.html", "/admin/v3/api-docs/**", "/admin/swagger-ui/**", "/admin/druid/**").permitAll()
