@@ -1,6 +1,5 @@
 package com.lz.points.model.dto.pointsRechargeInfo;
 
-import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -25,7 +24,6 @@ import com.lz.points.model.domain.PointsRechargeInfo;
  */
 @Data
 public class PointsRechargeInfoQuery implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -67,6 +65,11 @@ public class PointsRechargeInfoQuery implements Serializable {
      * 充值金额
      */
     private BigDecimal priceCount;
+
+    /**
+     * 实付金额
+     */
+    private BigDecimal buyerPayAmount;
 
     /**
      * 数量
@@ -130,6 +133,11 @@ public class PointsRechargeInfoQuery implements Serializable {
      * IP地址
      */
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    private String ipAddress;
 
     /**
      * 删除

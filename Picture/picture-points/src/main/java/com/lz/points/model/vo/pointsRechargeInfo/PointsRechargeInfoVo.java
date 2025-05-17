@@ -1,6 +1,5 @@
 package com.lz.points.model.vo.pointsRechargeInfo;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -21,7 +20,6 @@ import com.lz.points.model.domain.PointsRechargeInfo;
  */
 @Data
 public class PointsRechargeInfoVo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -71,6 +69,12 @@ public class PointsRechargeInfoVo implements Serializable {
      */
     @Excel(name = "充值金额")
     private BigDecimal priceCount;
+
+    /**
+     * 实付金额
+     */
+    @Excel(name = "实付金额")
+    private BigDecimal buyerPayAmount;
 
     /**
      * 数量
@@ -146,6 +150,12 @@ public class PointsRechargeInfoVo implements Serializable {
      */
     @Excel(name = "IP地址")
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    @Excel(name = "IP属地")
+    private String ipAddress;
 
     /**
      * 备注

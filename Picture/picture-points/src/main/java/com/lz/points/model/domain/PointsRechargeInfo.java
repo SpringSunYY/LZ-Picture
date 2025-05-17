@@ -1,6 +1,5 @@
 package com.lz.points.model.domain;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("po_points_recharge_info")
 @Data
 public class PointsRechargeInfo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -77,6 +75,12 @@ public class PointsRechargeInfo implements Serializable {
      */
     @Excel(name = "充值金额")
     private BigDecimal priceCount;
+
+    /**
+     * 实付金额
+     */
+    @Excel(name = "实付金额")
+    private BigDecimal buyerPayAmount;
 
     /**
      * 数量
@@ -152,6 +156,12 @@ public class PointsRechargeInfo implements Serializable {
      */
     @Excel(name = "IP地址")
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    @Excel(name = "IP属地")
+    private String ipAddress;
 
     /**
      * 备注

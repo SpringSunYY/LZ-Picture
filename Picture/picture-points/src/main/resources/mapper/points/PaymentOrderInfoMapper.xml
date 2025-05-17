@@ -28,6 +28,7 @@
         <result property="os" column="os"/>
         <result property="platform" column="platform"/>
         <result property="ipAddr" column="ip_addr"/>
+        <result property="ipAddress" column="ip_address"/>
         <result property="isDelete" column="is_delete"/>
         <result property="remark" column="remark"/>
     </resultMap>
@@ -56,6 +57,7 @@
                os,
                platform,
                ip_addr,
+               ip_address,
                is_delete,
                remark
         from po_payment_order_info
@@ -83,6 +85,7 @@
             <if test="paymentStatus != null  and paymentStatus != ''">and payment_status = #{paymentStatus}</if>
             <if test="paymentCode != null  and paymentCode != ''">and payment_code = #{paymentCode}</if>
             <if test="paymentMsg != null  and paymentMsg != ''">and payment_msg = #{paymentMsg}</if>
+            <if test="paymentExtend != null  and paymentExtend != ''">and payment_extend = #{paymentExtend}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
@@ -94,6 +97,7 @@
             <if test="os != null  and os != ''">and os like concat('%', #{os}, '%')</if>
             <if test="platform != null  and platform != ''">and platform = #{platform}</if>
             <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
     </select>
@@ -129,6 +133,7 @@
             <if test="os != null">os,</if>
             <if test="platform != null">platform,</if>
             <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
+            <if test="ipAddress != null">ip_address,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
             <if test="remark != null">remark,</if>
         </trim>
@@ -156,6 +161,7 @@
             <if test="os != null">#{os},</if>
             <if test="platform != null">#{platform},</if>
             <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
+            <if test="ipAddress != null">#{ipAddress},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
             <if test="remark != null">#{remark},</if>
         </trim>
@@ -186,6 +192,7 @@
             <if test="os != null">os = #{os},</if>
             <if test="platform != null">platform = #{platform},</if>
             <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
+            <if test="ipAddress != null">ip_address = #{ipAddress},</if>
             <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
             <if test="remark != null">remark = #{remark},</if>
         </trim>

@@ -1,6 +1,5 @@
 package com.lz.points.model.vo.paymentOrderInfo;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -21,7 +20,6 @@ import com.lz.points.model.domain.PaymentOrderInfo;
  */
 @Data
 public class PaymentOrderInfoVo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -164,6 +162,12 @@ public class PaymentOrderInfoVo implements Serializable {
      */
     @Excel(name = "IP地址")
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    @Excel(name = "IP属地")
+    private String ipAddress;
 
     /**
      * 删除

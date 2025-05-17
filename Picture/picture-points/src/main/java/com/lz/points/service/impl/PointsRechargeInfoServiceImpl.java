@@ -137,6 +137,9 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
         BigDecimal priceCount = pointsRechargeInfoQuery.getPriceCount();
         queryWrapper.eq(StringUtils.isNotNull(priceCount), "price_count", priceCount);
 
+        BigDecimal buyerPayAmount = pointsRechargeInfoQuery.getBuyerPayAmount();
+        queryWrapper.eq(StringUtils.isNotNull(buyerPayAmount), "buyer_pay_amount", buyerPayAmount);
+
         Long rechargeCount = pointsRechargeInfoQuery.getRechargeCount();
         queryWrapper.eq(StringUtils.isNotNull(rechargeCount), "recharge_count", rechargeCount);
 
@@ -172,6 +175,9 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
 
         String ipAddr = pointsRechargeInfoQuery.getIpAddr();
         queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+
+        String ipAddress = pointsRechargeInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 
         String isDelete = pointsRechargeInfoQuery.getIsDelete();
         queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);

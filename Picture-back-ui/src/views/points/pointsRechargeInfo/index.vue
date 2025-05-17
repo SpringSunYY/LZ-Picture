@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="充值记录编号" prop="rechargeId">
+      <el-form-item label="记录编号" prop="rechargeId">
         <el-input
             v-model="queryParams.rechargeId"
             placeholder="请输入充值记录编号"
@@ -33,7 +33,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="总数" prop="totalCount">
+      <el-form-item label="积分总数" prop="totalCount">
         <el-input
             v-model="queryParams.totalCount"
             placeholder="请输入总数"
@@ -41,7 +41,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="充值积分数量" prop="pointsCount">
+      <el-form-item label="积分数量" prop="pointsCount">
         <el-input
             v-model="queryParams.pointsCount"
             placeholder="请输入充值积分数量"
@@ -65,6 +65,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="实付金额" prop="buyerPayAmount">
+        <el-input
+            v-model="queryParams.buyerPayAmount"
+            placeholder="请输入实付金额"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="数量" prop="rechargeCount">
         <el-input
             v-model="queryParams.rechargeCount"
@@ -73,7 +81,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="第三方支付平台" prop="thirdParty">
+      <el-form-item label="支付平台" prop="thirdParty">
         <el-input
             v-model="queryParams.thirdParty"
             placeholder="请输入第三方支付平台"
@@ -81,7 +89,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="第三方支付平台订单号" prop="thirdPartyOrder">
+      <el-form-item label="平台订单" prop="thirdPartyOrder">
         <el-input
             v-model="queryParams.thirdPartyOrder"
             placeholder="请输入第三方支付平台订单号"
@@ -119,17 +127,7 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="更新时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeUpdateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
-      <el-form-item label="设备唯一标识" prop="deviceId">
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入设备唯一标识"
@@ -137,7 +135,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -165,6 +163,14 @@
         <el-input
             v-model="queryParams.ipAddr"
             placeholder="请输入IP地址"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="IP属地" prop="ipAddress">
+        <el-input
+            v-model="queryParams.ipAddress"
+            placeholder="请输入IP属地"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -249,48 +255,52 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="充值金额" align="center" prop="priceCount" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="数量" align="center" prop="rechargeCount" v-if="columns[8].visible"
+      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[9].visible"
+      <el-table-column label="数量" align="center" prop="rechargeCount" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[10].visible"
+      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="充值状态" align="center" prop="rechargeStatus" v-if="columns[11].visible">
+      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[11].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="充值状态" align="center" prop="rechargeStatus" v-if="columns[12].visible">
         <template #default="scope">
           <dict-tag :options="po_recharge_status" :value="scope.row.rechargeStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="充值时间" align="center" prop="createTime" width="180" v-if="columns[12].visible"
+      <el-table-column label="充值时间" align="center" prop="createTime" width="180" v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="到账时间" align="center" prop="arrivalTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="到账时间" align="center" prop="arrivalTime" width="180" v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.arrivalTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[15].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[16].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[17].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[18].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[19].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[20].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[21].visible">
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[22].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[23].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -336,9 +346,6 @@
         <el-form-item label="赠送数量" prop="bonusCount">
           <el-input v-model="form.bonusCount" placeholder="请输入赠送数量"/>
         </el-form-item>
-        <el-form-item label="充值金额" prop="priceCount">
-          <el-input v-model="form.priceCount" placeholder="请输入充值金额"/>
-        </el-form-item>
         <el-form-item label="数量" prop="rechargeCount">
           <el-input v-model="form.rechargeCount" placeholder="请输入数量"/>
         </el-form-item>
@@ -351,9 +358,6 @@
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="IP地址" prop="ipAddr">
-          <el-input v-model="form.ipAddr" placeholder="请输入IP地址"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -417,6 +421,7 @@ const data = reactive({
     pointsCount: null,
     bonusCount: null,
     priceCount: null,
+    buyerPayAmount: null,
     rechargeCount: null,
     thirdParty: null,
     thirdPartyOrder: null,
@@ -429,6 +434,7 @@ const data = reactive({
     os: null,
     platform: null,
     ipAddr: null,
+    ipAddress: null,
     isDelete: null
   },
   rules: {
@@ -471,7 +477,7 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '充值记录编号', visible: true},
+    {key: 0, label: '充值记录编号', visible: false},
     {key: 1, label: '套餐编号', visible: true},
     {key: 2, label: '用户编号', visible: true},
     {key: 3, label: '订单编号', visible: true},
@@ -479,20 +485,22 @@ const data = reactive({
     {key: 5, label: '充值积分数量', visible: true},
     {key: 6, label: '赠送数量', visible: true},
     {key: 7, label: '充值金额', visible: true},
-    {key: 8, label: '数量', visible: true},
-    {key: 9, label: '第三方支付平台', visible: true},
-    {key: 10, label: '第三方支付平台订单号', visible: true},
-    {key: 11, label: '充值状态', visible: true},
-    {key: 12, label: '充值时间', visible: true},
-    {key: 13, label: '到账时间', visible: true},
-    {key: 14, label: '更新时间', visible: true},
-    {key: 15, label: '设备唯一标识', visible: true},
-    {key: 16, label: '浏览器类型', visible: true},
-    {key: 17, label: '操作系统', visible: true},
-    {key: 18, label: '平台', visible: true},
-    {key: 19, label: 'IP地址', visible: true},
-    {key: 20, label: '备注', visible: true},
-    {key: 21, label: '删除', visible: true},
+    {key: 8, label: '实付金额', visible: true},
+    {key: 9, label: '数量', visible: true},
+    {key: 10, label: '第三方支付平台', visible: true},
+    {key: 11, label: '第三方支付平台订单号', visible: false},
+    {key: 12, label: '充值状态', visible: true},
+    {key: 13, label: '充值时间', visible: true},
+    {key: 14, label: '到账时间', visible: true},
+    {key: 15, label: '更新时间', visible: false},
+    {key: 16, label: '设备唯一标识', visible: false},
+    {key: 17, label: '浏览器类型', visible: false},
+    {key: 18, label: '操作系统', visible: false},
+    {key: 19, label: '平台', visible: false},
+    {key: 20, label: 'IP地址', visible: false},
+    {key: 21, label: 'IP属地', visible: false},
+    {key: 22, label: '备注', visible: false},
+    {key: 23, label: '删除', visible: false},
   ],
 });
 
@@ -538,6 +546,7 @@ function reset() {
     pointsCount: null,
     bonusCount: null,
     priceCount: null,
+    buyerPayAmount: null,
     rechargeCount: null,
     thirdParty: null,
     thirdPartyOrder: null,
@@ -550,6 +559,7 @@ function reset() {
     os: null,
     platform: null,
     ipAddr: null,
+    ipAddress: null,
     remark: null,
     isDelete: null
   };

@@ -1,6 +1,5 @@
 package com.lz.points.model.domain;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("po_payment_order_info")
 @Data
 public class PaymentOrderInfo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -170,6 +168,12 @@ public class PaymentOrderInfo implements Serializable {
      */
     @Excel(name = "IP地址")
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    @Excel(name = "IP属地")
+    private String ipAddress;
 
     /**
      * 删除

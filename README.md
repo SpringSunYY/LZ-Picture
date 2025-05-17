@@ -172,6 +172,25 @@
 
    空间文件夹的新增修改
 
+## 积分模块
+
+### 积分套餐
+
+1. 积分套餐新增修改：积分套餐也有赠送积分。
+2. 用户选择积分套餐可以进行充值
+
+### 积分充值
+
+1. 用户选择积分套餐后进行充值
+
+2. 支付
+
+   > 用户首先选择积分套餐，选择完成后选择支付渠道，例：支付宝
+   >
+   > 选择支付渠道后开始进行支付，后台创建支付订单并向支付宝发起支付请求，请求成功后创建支付订单，存订单如缓存并，返回订单号给前端，前端跳转支付页面并轮训获取订单状态，支付成功后支付页面跳转套餐页面，原页面获取到订单支付成功后跳转下一步，用户点击返回返回套餐页面，此时后端任务支付宝回调接口后更新订单状态并充值。
+   >
+   > 如果原来用户没有账号为用户创建账户。
+
 ## 数据库设计
 
 ### 配置模块
@@ -1027,6 +1046,7 @@ CREATE TABLE po_payment_method_info (
 | os                | varchar  | 50   |                                  | 是   |          | 操作系统             |
 | platform          | varchar  | 20   |                                  | 是   |          | 平台                 |
 | ip_addr           | varchar  | 50   |                                  | 否   |          | IP地址               |
+| ip_address        | varchar  | 64   |                                  | 是   |          | IP属地               |
 | is_delete         | char     | 1    |                                  | 否   | 0        | 删除                 |
 | remark            | varchar  | 512  |                                  | 是   |          | 备注                 |
 
@@ -1035,6 +1055,8 @@ CREATE TABLE po_payment_method_info (
 订单类型：0充值 1消费
 
 支付状态：根据第三方返回信息获取，也就是交易状态
+
+支付方式：0支付宝 1微信
 
 ```sql
 DROP TABLE IF EXISTS po_payment_order_info;
@@ -1062,6 +1084,7 @@ CREATE TABLE po_payment_order_info (
     os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
     platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
     ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
     is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除',
     remark VARCHAR(512) DEFAULT NULL COMMENT '备注',
     CONSTRAINT fk_payment_order_user_id FOREIGN KEY (user_id) REFERENCES u_user_info(user_id)
@@ -1135,6 +1158,7 @@ CREATE TABLE po_points_recharge_package_info (
 | points_count      | int      |      |                                                  | 否   | 0        | 充值积分数量         |
 | bonus_count       | int      |      |                                                  | 是   | 0        | 赠送数量             |
 | price_count       | decimal  | 10,2 |                                                  | 否   | 0.00     | 充值金额             |
+| buyer_pay_amount  | decimal  | 10,2 |                                                  | 是   | 0.00     | 实付金额             |
 | recharge_count    | int      |      |                                                  | 否   | 0        | 数量                 |
 | third_party       | varchar  | 128  |                                                  | 否   |          | 第三方支付平台       |
 | third_party_order | varchar  | 128  |                                                  | 是   |          | 第三方支付平台订单号 |
@@ -1147,6 +1171,7 @@ CREATE TABLE po_points_recharge_package_info (
 | os                | varchar  | 50   |                                                  | 是   |          | 操作系统             |
 | platform          | varchar  | 20   |                                                  | 是   |          | 平台                 |
 | ip_addr           | varchar  | 50   |                                                  | 否   |          | IP地址               |
+| ip_address        | varchar  | 64   |                                                  | 是   |          | IP属地               |
 | remark            | varchar  | 512  |                                                  | 是   |          | 备注                 |
 | is_delete         | char     | 1    |                                                  | 否   | 0        | 删除                 |
 
@@ -1164,6 +1189,7 @@ CREATE TABLE po_points_recharge_info (
     points_count INT NOT NULL DEFAULT 0 COMMENT '充值积分数量',
     bonus_count INT DEFAULT 0 COMMENT '赠送数量',
     price_count DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '充值金额',
+    buyer_pay_amount DECIMAL(10,2) DEFAULT 0.00 COMMENT '实付金额',
     recharge_count INT NOT NULL DEFAULT 0 COMMENT '数量',
     third_party VARCHAR(128) NOT NULL COMMENT '第三方支付平台',
     third_party_order VARCHAR(128) DEFAULT NULL COMMENT '第三方支付平台订单号',
@@ -1176,6 +1202,7 @@ CREATE TABLE po_points_recharge_info (
     os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
     platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
     ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
     remark VARCHAR(512) DEFAULT NULL COMMENT '备注',
     is_delete CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除',
 
@@ -1183,7 +1210,7 @@ CREATE TABLE po_points_recharge_info (
     CONSTRAINT fk_points_recharge_user_id FOREIGN KEY (user_id) REFERENCES u_user_info(user_id),
     CONSTRAINT fk_points_recharge_order_id FOREIGN KEY (order_id) REFERENCES po_payment_order_info(order_id),
     CONSTRAINT fk_points_recharge_package_id FOREIGN KEY (package_id) REFERENCES po_points_recharge_package_info(package_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充值记录表：记录用户充值积分记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充值记录表';
 ```
 
 

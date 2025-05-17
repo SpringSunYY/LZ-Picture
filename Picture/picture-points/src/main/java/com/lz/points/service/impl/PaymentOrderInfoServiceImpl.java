@@ -158,6 +158,9 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
         String paymentMsg = paymentOrderInfoQuery.getPaymentMsg();
         queryWrapper.eq(StringUtils.isNotEmpty(paymentMsg), "payment_msg", paymentMsg);
 
+        String paymentExtend = paymentOrderInfoQuery.getPaymentExtend();
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentExtend), "payment_extend", paymentExtend);
+
         Date createTime = paymentOrderInfoQuery.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
@@ -178,6 +181,9 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
 
         String ipAddr = paymentOrderInfoQuery.getIpAddr();
         queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+
+        String ipAddress = paymentOrderInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 
         String isDelete = paymentOrderInfoQuery.getIsDelete();
         queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);

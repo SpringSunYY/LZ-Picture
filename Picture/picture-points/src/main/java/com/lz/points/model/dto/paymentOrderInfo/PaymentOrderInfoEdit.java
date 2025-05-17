@@ -40,26 +40,6 @@ public class PaymentOrderInfoEdit implements Serializable {
     private String paymentType;
 
     /**
-     * 订单总金额
-     */
-    private BigDecimal totalAmount;
-
-    /**
-     * 实付金额
-     */
-    private BigDecimal buyerPayAmount;
-
-    /**
-     * 实收金额
-     */
-    private BigDecimal receiptAmount;
-
-    /**
-     * 平台优惠金额
-     */
-    private BigDecimal discountAmount;
-
-    /**
      * 删除
      */
     private String isDelete;

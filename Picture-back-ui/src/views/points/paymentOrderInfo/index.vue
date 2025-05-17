@@ -27,39 +27,17 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="订单总金额" prop="totalAmount">
-        <el-input
-            v-model="queryParams.totalAmount"
-            placeholder="请输入订单总金额"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+      <el-form-item label="支付方式" prop="paymentType">
+        <el-select v-model="queryParams.paymentType" style="width: 200px" placeholder="请选择支付方式" clearable>
+          <el-option
+              v-for="dict in po_payment_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="实付金额" prop="buyerPayAmount">
-        <el-input
-            v-model="queryParams.buyerPayAmount"
-            placeholder="请输入实付金额"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="实收金额" prop="receiptAmount">
-        <el-input
-            v-model="queryParams.receiptAmount"
-            placeholder="请输入实收金额"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="平台优惠金额" prop="discountAmount">
-        <el-input
-            v-model="queryParams.discountAmount"
-            placeholder="请输入平台优惠金额"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="第三方支付平台" prop="thirdParty">
+      <el-form-item label="支付平台" prop="thirdParty">
         <el-input
             v-model="queryParams.thirdParty"
             placeholder="请输入第三方支付平台"
@@ -67,7 +45,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="第三方用户编号" prop="thirdUserId">
+      <el-form-item label="平台用户" prop="thirdUserId">
         <el-input
             v-model="queryParams.thirdUserId"
             placeholder="请输入第三方用户编号"
@@ -75,7 +53,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="第三方支付平台订单号" prop="thirdPartyOrder">
+      <el-form-item label="平台订单" prop="thirdPartyOrder">
         <el-input
             v-model="queryParams.thirdPartyOrder"
             placeholder="请输入第三方支付平台订单号"
@@ -101,7 +79,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="支付返回Code" prop="paymentCode">
+      <el-form-item label="Code" prop="paymentCode">
         <el-input
             v-model="queryParams.paymentCode"
             placeholder="请输入支付返回Code"
@@ -109,7 +87,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="支付返回Msg" prop="paymentMsg">
+      <el-form-item label="Msg" prop="paymentMsg">
         <el-input
             v-model="queryParams.paymentMsg"
             placeholder="请输入支付返回Msg"
@@ -127,17 +105,7 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="更新时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeUpdateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
-      <el-form-item label="设备唯一标识" prop="deviceId">
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入设备唯一标识"
@@ -145,7 +113,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -173,6 +141,14 @@
         <el-input
             v-model="queryParams.ipAddr"
             placeholder="请输入IP地址"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="IP属地" prop="ipAddress">
+        <el-input
+            v-model="queryParams.ipAddress"
+            placeholder="请输入IP属地"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -250,8 +226,11 @@
           <dict-tag :options="po_order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="支付方式" align="center" prop="paymentType" v-if="columns[3].visible"
-                       :show-overflow-tooltip="true"/>
+      <el-table-column label="支付方式" align="center" prop="paymentType" v-if="columns[3].visible">
+        <template #default="scope">
+          <dict-tag :options="po_payment_type" :value="scope.row.paymentType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="订单总金额" align="center" prop="totalAmount" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="实付金额" align="center" prop="buyerPayAmount" v-if="columns[5].visible"
@@ -305,12 +284,14 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[23].visible">
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[23].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[24].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[24].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[25].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -348,17 +329,15 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="订单总金额" prop="totalAmount">
-          <el-input v-model="form.totalAmount" placeholder="请输入订单总金额"/>
-        </el-form-item>
-        <el-form-item label="实付金额" prop="buyerPayAmount">
-          <el-input v-model="form.buyerPayAmount" placeholder="请输入实付金额"/>
-        </el-form-item>
-        <el-form-item label="实收金额" prop="receiptAmount">
-          <el-input v-model="form.receiptAmount" placeholder="请输入实收金额"/>
-        </el-form-item>
-        <el-form-item label="平台优惠金额" prop="discountAmount">
-          <el-input v-model="form.discountAmount" placeholder="请输入平台优惠金额"/>
+        <el-form-item label="支付方式" prop="paymentType">
+          <el-radio-group v-model="form.paymentType">
+            <el-radio
+                v-for="dict in po_payment_type"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="删除" prop="isDelete">
           <el-radio-group v-model="form.isDelete">
@@ -394,7 +373,11 @@ import {
 } from "@/api/points/paymentOrderInfo";
 
 const {proxy} = getCurrentInstance();
-const {common_delete, po_order_status} = proxy.useDict('common_delete', 'po_order_status');
+const {
+  common_delete,
+  po_payment_type,
+  po_order_status
+} = proxy.useDict('common_delete', 'po_payment_type', 'po_order_status');
 
 const paymentOrderInfoList = ref([]);
 const open = ref(false);
@@ -429,6 +412,7 @@ const data = reactive({
     paymentStatus: null,
     paymentCode: null,
     paymentMsg: null,
+    paymentExtend: null,
     createTime: null,
     updateTime: null,
     deviceId: null,
@@ -436,6 +420,7 @@ const data = reactive({
     os: null,
     platform: null,
     ipAddr: null,
+    ipAddress: null,
     isDelete: null,
   },
   rules: {
@@ -472,31 +457,32 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '订单编号', visible: true},
+    {key: 0, label: '订单编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
     {key: 2, label: '订单状态', visible: true},
     {key: 3, label: '支付方式', visible: true},
     {key: 4, label: '订单总金额', visible: true},
     {key: 5, label: '实付金额', visible: true},
     {key: 6, label: '实收金额', visible: true},
-    {key: 7, label: '平台优惠金额', visible: true},
+    {key: 7, label: '平台优惠金额', visible: false},
     {key: 8, label: '第三方支付平台', visible: true},
-    {key: 9, label: '第三方用户编号', visible: true},
-    {key: 10, label: '第三方支付平台订单号', visible: true},
+    {key: 9, label: '第三方用户编号', visible: false},
+    {key: 10, label: '第三方支付平台订单号', visible: false},
     {key: 11, label: '支付时间', visible: true},
     {key: 12, label: '支付状态', visible: true},
-    {key: 13, label: '支付返回Code', visible: true},
-    {key: 14, label: '支付返回Msg', visible: true},
-    {key: 15, label: '支付返回额外信息', visible: true},
+    {key: 13, label: '支付返回Code', visible: false},
+    {key: 14, label: '支付返回Msg', visible: false},
+    {key: 15, label: '支付返回额外信息', visible: false},
     {key: 16, label: '创建时间', visible: true},
-    {key: 17, label: '更新时间', visible: true},
-    {key: 18, label: '设备唯一标识', visible: true},
-    {key: 19, label: '浏览器类型', visible: true},
-    {key: 20, label: '操作系统', visible: true},
-    {key: 21, label: '平台', visible: true},
-    {key: 22, label: 'IP地址', visible: true},
-    {key: 23, label: '删除', visible: true},
-    {key: 24, label: '备注', visible: true},
+    {key: 17, label: '更新时间', visible: false},
+    {key: 18, label: '设备唯一标识', visible: false},
+    {key: 19, label: '浏览器类型', visible: false},
+    {key: 20, label: '操作系统', visible: false},
+    {key: 21, label: '平台', visible: false},
+    {key: 22, label: 'IP地址', visible: false},
+    {key: 23, label: 'IP属地', visible: false},
+    {key: 24, label: '删除', visible: false},
+    {key: 25, label: '备注', visible: false},
   ],
 });
 
@@ -557,6 +543,7 @@ function reset() {
     os: null,
     platform: null,
     ipAddr: null,
+    ipAddress: null,
     isDelete: null,
     remark: null
   };

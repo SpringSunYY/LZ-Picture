@@ -103,6 +103,11 @@ public class PaymentOrderInfoQuery implements Serializable {
     private String paymentMsg;
 
     /**
+     * 支付返回额外信息
+     */
+    private String paymentExtend;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -138,6 +143,11 @@ public class PaymentOrderInfoQuery implements Serializable {
      * IP地址
      */
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    private String ipAddress;
 
     /**
      * 删除
