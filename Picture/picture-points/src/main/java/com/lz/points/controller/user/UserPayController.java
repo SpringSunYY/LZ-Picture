@@ -55,11 +55,7 @@ public class UserPayController extends BaseUserInfoController {
             System.out.println(s + "--" + parameterMap.get(s)[0]);
             map.put(s, parameterMap.get(s)[0]);
         }
-        //转换map为json
-        String json = JSON.toJSONString(map);
-        //转换JSON为阿里支付回调请求参数实体
-        AlipayCallbackRequest alipayCallbackRequest = JSON.parseObject(json, AlipayCallbackRequest.class);
-        payService.alipayCallback(alipayCallbackRequest);
+        payService.alipayCallback(map);
         return success();
     }
 }

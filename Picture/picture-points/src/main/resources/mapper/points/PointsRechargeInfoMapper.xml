@@ -1,60 +1,95 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.points.mapper.PointsRechargeInfoMapper">
-    
+
     <resultMap type="PointsRechargeInfo" id="PointsRechargeInfoResult">
-        <result property="rechargeId"    column="recharge_id"    />
-        <result property="packageId"    column="package_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="orderId"    column="order_id"    />
-        <result property="totalCount"    column="total_count"    />
-        <result property="pointsCount"    column="points_count"    />
-        <result property="bonusCount"    column="bonus_count"    />
-        <result property="priceCount"    column="price_count"    />
-        <result property="rechargeCount"    column="recharge_count"    />
-        <result property="thirdParty"    column="third_party"    />
-        <result property="thirdPartyOrder"    column="third_party_order"    />
-        <result property="rechargeStatus"    column="recharge_status"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="failReason"    column="fail_reason"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="browser"    column="browser"    />
-        <result property="os"    column="os"    />
-        <result property="platform"    column="platform"    />
-        <result property="ipAddr"    column="ip_addr"    />
-        <result property="remark"    column="remark"    />
-        <result property="isDelete"    column="is_delete"    />
+        <result property="rechargeId" column="recharge_id"/>
+        <result property="packageId" column="package_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="pointsCount" column="points_count"/>
+        <result property="bonusCount" column="bonus_count"/>
+        <result property="priceCount" column="price_count"/>
+        <result property="rechargeCount" column="recharge_count"/>
+        <result property="thirdParty" column="third_party"/>
+        <result property="thirdPartyOrder" column="third_party_order"/>
+        <result property="rechargeStatus" column="recharge_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="arrivalTime" column="arrival_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="platform" column="platform"/>
+        <result property="ipAddr" column="ip_addr"/>
+        <result property="remark" column="remark"/>
+        <result property="isDelete" column="is_delete"/>
     </resultMap>
 
     <sql id="selectPointsRechargeInfoVo">
-        select recharge_id, package_id, user_id, order_id, total_count, points_count, bonus_count, price_count, recharge_count, third_party, third_party_order, recharge_status, create_time, update_time, fail_reason, device_id, browser, os, platform, ip_addr, remark, is_delete from po_points_recharge_info
+        select recharge_id,
+               package_id,
+               user_id,
+               order_id,
+               total_count,
+               points_count,
+               bonus_count,
+               price_count,
+               recharge_count,
+               third_party,
+               third_party_order,
+               recharge_status,
+               create_time,
+               arrival_time,
+               update_time,
+               device_id,
+               browser,
+               os,
+               platform,
+               ip_addr,
+               remark,
+               is_delete
+        from po_points_recharge_info
     </sql>
 
     <select id="selectPointsRechargeInfoList" parameterType="PointsRechargeInfo" resultMap="PointsRechargeInfoResult">
         <include refid="selectPointsRechargeInfoVo"/>
-        <where>  
-            <if test="rechargeId != null  and rechargeId != ''"> and recharge_id = #{rechargeId}</if>
-            <if test="packageId != null  and packageId != ''"> and package_id = #{packageId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="orderId != null  and orderId != ''"> and order_id = #{orderId}</if>
-            <if test="thirdParty != null  and thirdParty != ''"> and third_party = #{thirdParty}</if>
-            <if test="thirdPartyOrder != null  and thirdPartyOrder != ''"> and third_party_order = #{thirdPartyOrder}</if>
-            <if test="rechargeStatus != null  and rechargeStatus != ''"> and recharge_status = #{rechargeStatus}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="failReason != null  and failReason != ''"> and fail_reason = #{failReason}</if>
-            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
-            <if test="os != null  and os != ''"> and os = #{os}</if>
-            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
-            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        <where>
+            <if test="rechargeId != null  and rechargeId != ''">and recharge_id = #{rechargeId}</if>
+            <if test="packageId != null  and packageId != ''">and package_id = #{packageId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="orderId != null  and orderId != ''">and order_id = #{orderId}</if>
+            <if test="totalCount != null ">and total_count = #{totalCount}</if>
+            <if test="pointsCount != null ">and points_count = #{pointsCount}</if>
+            <if test="bonusCount != null ">and bonus_count = #{bonusCount}</if>
+            <if test="priceCount != null ">and price_count = #{priceCount}</if>
+            <if test="rechargeCount != null ">and recharge_count = #{rechargeCount}</if>
+            <if test="thirdParty != null  and thirdParty != ''">and third_party = #{thirdParty}</if>
+            <if test="thirdPartyOrder != null  and thirdPartyOrder != ''">and third_party_order = #{thirdPartyOrder}
+            </if>
+            <if test="rechargeStatus != null  and rechargeStatus != ''">and recharge_status = #{rechargeStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginArrivalTime != null and params.beginArrivalTime != '' and params.endArrivalTime != null and params.endArrivalTime != ''">
+                and DATE_FORMAT(arrival_time, '%Y-%m-%d') between #{params.beginArrivalTime} and
+                #{params.endArrivalTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''">and browser = #{browser}</if>
+            <if test="os != null  and os != ''">and os like concat('%', #{os}, '%')</if>
+            <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
     </select>
-    
+
     <select id="selectPointsRechargeInfoByRechargeId" parameterType="String" resultMap="PointsRechargeInfoResult">
         <include refid="selectPointsRechargeInfoVo"/>
         where recharge_id = #{rechargeId}
@@ -76,8 +111,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="thirdPartyOrder != null">third_party_order,</if>
             <if test="rechargeStatus != null and rechargeStatus != ''">recharge_status,</if>
             <if test="createTime != null">create_time,</if>
+            <if test="arrivalTime != null">arrival_time,</if>
             <if test="updateTime != null">update_time,</if>
-            <if test="failReason != null">fail_reason,</if>
             <if test="deviceId != null">device_id,</if>
             <if test="browser != null">browser,</if>
             <if test="os != null">os,</if>
@@ -85,7 +120,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
             <if test="remark != null">remark,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="rechargeId != null">#{rechargeId},</if>
             <if test="packageId != null and packageId != ''">#{packageId},</if>
@@ -100,8 +135,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="thirdPartyOrder != null">#{thirdPartyOrder},</if>
             <if test="rechargeStatus != null and rechargeStatus != ''">#{rechargeStatus},</if>
             <if test="createTime != null">#{createTime},</if>
+            <if test="arrivalTime != null">#{arrivalTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
-            <if test="failReason != null">#{failReason},</if>
             <if test="deviceId != null">#{deviceId},</if>
             <if test="browser != null">#{browser},</if>
             <if test="os != null">#{os},</if>
@@ -109,7 +144,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
             <if test="remark != null">#{remark},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePointsRechargeInfo" parameterType="PointsRechargeInfo">
@@ -127,8 +162,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="thirdPartyOrder != null">third_party_order = #{thirdPartyOrder},</if>
             <if test="rechargeStatus != null and rechargeStatus != ''">recharge_status = #{rechargeStatus},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="arrivalTime != null">arrival_time = #{arrivalTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="failReason != null">fail_reason = #{failReason},</if>
             <if test="deviceId != null">device_id = #{deviceId},</if>
             <if test="browser != null">browser = #{browser},</if>
             <if test="os != null">os = #{os},</if>
@@ -141,11 +176,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePointsRechargeInfoByRechargeId" parameterType="String">
-        delete from po_points_recharge_info where recharge_id = #{rechargeId}
+        delete
+        from po_points_recharge_info
+        where recharge_id = #{rechargeId}
     </delete>
 
     <delete id="deletePointsRechargeInfoByRechargeIds" parameterType="String">
-        delete from po_points_recharge_info where recharge_id in 
+        delete from po_points_recharge_info where recharge_id in
         <foreach item="rechargeId" collection="array" open="(" separator="," close=")">
             #{rechargeId}
         </foreach>

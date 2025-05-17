@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.lz.common.utils.StringUtils;
+
 import java.math.BigDecimal;
 import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
@@ -24,15 +27,15 @@ import com.lz.points.model.vo.paymentOrderInfo.PaymentOrderInfoVo;
  * 支付订单Service业务层处理
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-17
  */
 @Service
-public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMapper, PaymentOrderInfo> implements IPaymentOrderInfoService
-{
+public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMapper, PaymentOrderInfo> implements IPaymentOrderInfoService {
     @Resource
     private PaymentOrderInfoMapper paymentOrderInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询支付订单
      *
@@ -40,8 +43,7 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @return 支付订单
      */
     @Override
-    public PaymentOrderInfo selectPaymentOrderInfoByOrderId(String orderId)
-    {
+    public PaymentOrderInfo selectPaymentOrderInfoByOrderId(String orderId) {
         return paymentOrderInfoMapper.selectPaymentOrderInfoByOrderId(orderId);
     }
 
@@ -52,8 +54,7 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @return 支付订单
      */
     @Override
-    public List<PaymentOrderInfo> selectPaymentOrderInfoList(PaymentOrderInfo paymentOrderInfo)
-    {
+    public List<PaymentOrderInfo> selectPaymentOrderInfoList(PaymentOrderInfo paymentOrderInfo) {
         return paymentOrderInfoMapper.selectPaymentOrderInfoList(paymentOrderInfo);
     }
 
@@ -64,8 +65,7 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @return 结果
      */
     @Override
-    public int insertPaymentOrderInfo(PaymentOrderInfo paymentOrderInfo)
-    {
+    public int insertPaymentOrderInfo(PaymentOrderInfo paymentOrderInfo) {
         paymentOrderInfo.setCreateTime(DateUtils.getNowDate());
         return paymentOrderInfoMapper.insertPaymentOrderInfo(paymentOrderInfo);
     }
@@ -77,9 +77,8 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @return 结果
      */
     @Override
-    public int updatePaymentOrderInfo(PaymentOrderInfo paymentOrderInfo)
-    {
-      paymentOrderInfo.setUpdateTime(DateUtils.getNowDate());
+    public int updatePaymentOrderInfo(PaymentOrderInfo paymentOrderInfo) {
+        paymentOrderInfo.setUpdateTime(DateUtils.getNowDate());
         return paymentOrderInfoMapper.updatePaymentOrderInfo(paymentOrderInfo);
     }
 
@@ -90,8 +89,7 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @return 结果
      */
     @Override
-    public int deletePaymentOrderInfoByOrderIds(String[] orderIds)
-    {
+    public int deletePaymentOrderInfoByOrderIds(String[] orderIds) {
         return paymentOrderInfoMapper.deletePaymentOrderInfoByOrderIds(orderIds);
     }
 
@@ -102,72 +100,87 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @return 结果
      */
     @Override
-    public int deletePaymentOrderInfoByOrderId(String orderId)
-    {
+    public int deletePaymentOrderInfoByOrderId(String orderId) {
         return paymentOrderInfoMapper.deletePaymentOrderInfoByOrderId(orderId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PaymentOrderInfo> getQueryWrapper(PaymentOrderInfoQuery paymentOrderInfoQuery){
+    public QueryWrapper<PaymentOrderInfo> getQueryWrapper(PaymentOrderInfoQuery paymentOrderInfoQuery) {
         QueryWrapper<PaymentOrderInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = paymentOrderInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String orderId = paymentOrderInfoQuery.getOrderId();
-        queryWrapper.eq(StringUtils.isNotEmpty(orderId) ,"order_id",orderId);
+        String orderId = paymentOrderInfoQuery.getOrderId();
+        queryWrapper.eq(StringUtils.isNotEmpty(orderId), "order_id", orderId);
 
-    String userId = paymentOrderInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = paymentOrderInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String orderType = paymentOrderInfoQuery.getOrderType();
-        queryWrapper.eq(StringUtils.isNotEmpty(orderType) ,"order_type",orderType);
+        String orderStatus = paymentOrderInfoQuery.getOrderStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(orderStatus), "order_status", orderStatus);
 
-    String orderStatus = paymentOrderInfoQuery.getOrderStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(orderStatus) ,"order_status",orderStatus);
+        String paymentType = paymentOrderInfoQuery.getPaymentType();
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentType), "payment_type", paymentType);
 
-    BigDecimal amount = paymentOrderInfoQuery.getAmount();
-        queryWrapper.eq( StringUtils.isNotNull(amount),"amount",amount);
+        BigDecimal totalAmount = paymentOrderInfoQuery.getTotalAmount();
+        queryWrapper.eq(StringUtils.isNotNull(totalAmount), "total_amount", totalAmount);
 
-    String paymentId = paymentOrderInfoQuery.getPaymentId();
-        queryWrapper.eq(StringUtils.isNotEmpty(paymentId) ,"payment_id",paymentId);
+        BigDecimal buyerPayAmount = paymentOrderInfoQuery.getBuyerPayAmount();
+        queryWrapper.eq(StringUtils.isNotNull(buyerPayAmount), "buyer_pay_amount", buyerPayAmount);
 
-    String thirdParty = paymentOrderInfoQuery.getThirdParty();
-        queryWrapper.eq(StringUtils.isNotEmpty(thirdParty) ,"third_party",thirdParty);
+        BigDecimal receiptAmount = paymentOrderInfoQuery.getReceiptAmount();
+        queryWrapper.eq(StringUtils.isNotNull(receiptAmount), "receipt_amount", receiptAmount);
 
-    String thirdPartyOrder = paymentOrderInfoQuery.getThirdPartyOrder();
-        queryWrapper.eq(StringUtils.isNotEmpty(thirdPartyOrder) ,"third_party_order",thirdPartyOrder);
+        BigDecimal discountAmount = paymentOrderInfoQuery.getDiscountAmount();
+        queryWrapper.eq(StringUtils.isNotNull(discountAmount), "discount_amount", discountAmount);
 
-    Date paymentTime = paymentOrderInfoQuery.getPaymentTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginPaymentTime"))&&StringUtils.isNotNull(params.get("endPaymentTime")),"payment_time",params.get("beginPaymentTime"),params.get("endPaymentTime"));
+        String thirdParty = paymentOrderInfoQuery.getThirdParty();
+        queryWrapper.eq(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);
 
-    String paymentStatus = paymentOrderInfoQuery.getPaymentStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(paymentStatus) ,"payment_status",paymentStatus);
+        String thirdUserId = paymentOrderInfoQuery.getThirdUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(thirdUserId), "third_user_id", thirdUserId);
 
-    Date createTime = paymentOrderInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        String thirdPartyOrder = paymentOrderInfoQuery.getThirdPartyOrder();
+        queryWrapper.eq(StringUtils.isNotEmpty(thirdPartyOrder), "third_party_order", thirdPartyOrder);
 
-    Date updateTime = paymentOrderInfoQuery.getUpdateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime"))&&StringUtils.isNotNull(params.get("endUpdateTime")),"update_time",params.get("beginUpdateTime"),params.get("endUpdateTime"));
+        Date paymentTime = paymentOrderInfoQuery.getPaymentTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginPaymentTime")) && StringUtils.isNotNull(params.get("endPaymentTime")), "payment_time", params.get("beginPaymentTime"), params.get("endPaymentTime"));
 
-    String deviceId = paymentOrderInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String paymentStatus = paymentOrderInfoQuery.getPaymentStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentStatus), "payment_status", paymentStatus);
 
-    String browser = paymentOrderInfoQuery.getBrowser();
-        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String paymentCode = paymentOrderInfoQuery.getPaymentCode();
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentCode), "payment_code", paymentCode);
 
-    String os = paymentOrderInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        String paymentMsg = paymentOrderInfoQuery.getPaymentMsg();
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentMsg), "payment_msg", paymentMsg);
 
-    String platform = paymentOrderInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        Date createTime = paymentOrderInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String ipAddr = paymentOrderInfoQuery.getIpAddr();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddr) ,"ip_addr",ipAddr);
+        Date updateTime = paymentOrderInfoQuery.getUpdateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
 
-    String isDelete = paymentOrderInfoQuery.getIsDelete();
-        queryWrapper.eq(StringUtils.isNotEmpty(isDelete) ,"is_delete",isDelete);
+        String deviceId = paymentOrderInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
+
+        String browser = paymentOrderInfoQuery.getBrowser();
+        queryWrapper.eq(StringUtils.isNotEmpty(browser), "browser", browser);
+
+        String os = paymentOrderInfoQuery.getOs();
+        queryWrapper.like(StringUtils.isNotEmpty(os), "os", os);
+
+        String platform = paymentOrderInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
+
+        String ipAddr = paymentOrderInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+
+        String isDelete = paymentOrderInfoQuery.getIsDelete();
+        queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 
         return queryWrapper;
     }

@@ -1,5 +1,8 @@
 package com.lz.points.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
@@ -17,7 +20,10 @@ import com.lz.points.model.vo.pay.AlipayPcPaymentVo;
 import com.lz.points.service.IPayService;
 import com.lz.points.service.IPointsRechargePackageInfoService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 
 /**
  * TODO
@@ -27,6 +33,7 @@ import org.springframework.stereotype.Service;
  * @CreateTime: 2025-05-15  09:39
  * @Version: 1.0
  */
+@Slf4j
 @Service
 public class PayServiceImpl implements IPayService {
     @Resource
@@ -63,7 +70,27 @@ public class PayServiceImpl implements IPayService {
     }
 
     @Override
-    public void alipayCallback(AlipayCallbackRequest alipayCallbackRequest) {
+    public void alipayCallback(HashMap<String, String> map) {
+        boolean sign = false;
+        try {
+            sign = AlipaySignature.rsaCheckV1(map,
+                    alipayPaymentConfig.getPublicKey(),
+                    alipayPaymentConfig.getCharset(),
+                    alipayPaymentConfig.getSignType());
+        } catch (AlipayApiException e) {
+            log.error("获取支付宝签名失败！！！", e);
+            throw new RuntimeException("获取支付宝签名失败！！！");
+        }
 
+        System.out.println("sign = " + sign);
+        if (!sign) {
+            throw new RuntimeException("签名验证失败！！！");
+        } else {
+            //转换map为json
+            String json = JSON.toJSONString(map);
+            //转换JSON为阿里支付回调请求参数实体
+            AlipayCallbackRequest alipayCallbackRequest = JSON.parseObject(json, AlipayCallbackRequest.class); //转换map为json
+            alipayManager.query(alipayCallbackRequest.getOutTradeNo(), alipayCallbackRequest.getTradeNo());
+        }
     }
 }

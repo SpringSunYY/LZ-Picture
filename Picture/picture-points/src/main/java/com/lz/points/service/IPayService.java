@@ -1,10 +1,9 @@
 package com.lz.points.service;
 
-import com.lz.points.manager.model.AlipayCallbackRequest;
-import com.lz.points.manager.model.AlipayPcPaymentRequest;
-import com.lz.points.manager.model.AlipayPcPaymentResponse;
 import com.lz.points.model.dto.pay.PayRequest;
 import com.lz.points.model.vo.pay.AlipayPcPaymentVo;
+
+import java.util.HashMap;
 
 public interface IPayService {
     /**
@@ -26,5 +25,5 @@ public interface IPayService {
      * @param alipayCallbackRequest
      * @return void
      **/
-    void alipayCallback(AlipayCallbackRequest alipayCallbackRequest);
+    void alipayCallback(HashMap<String, String> alipayCallbackRequest);
 }

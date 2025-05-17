@@ -1,6 +1,7 @@
 package com.lz.points.manager;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
@@ -102,40 +103,46 @@ public class AlipayManager {
         }
     }
 
-    public String query(String outTradNo, String tradeNo) throws Exception {
-        // 初始化SDK
-        AlipayClient alipayClient = new DefaultAlipayClient(getAlipayConfig());
+    public String query(String outTradNo, String tradeNo) {
+        try {
+            // 初始化SDK
+            AlipayClient alipayClient = new DefaultAlipayClient(getAlipayConfig());
 
-        // 构造请求参数以调用接口
-        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
-        AlipayTradeQueryModel model = new AlipayTradeQueryModel();
+            // 构造请求参数以调用接口
+            AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+            AlipayTradeQueryModel model = new AlipayTradeQueryModel();
 
-        // 设置订单支付时传入的商户订单号
-        model.setOutTradeNo(outTradNo);
+            // 设置订单支付时传入的商户订单号
+            model.setOutTradeNo(outTradNo);
 
-        // 设置支付宝交易号
-        model.setTradeNo(tradeNo);
+            // 设置支付宝交易号
+            model.setTradeNo(tradeNo);
 
-        // 设置查询选项
-        List<String> queryOptions = new ArrayList<String>();
-        queryOptions.add("trade_settle_info");
-        model.setQueryOptions(queryOptions);
+            // 设置查询选项
+            List<String> queryOptions = new ArrayList<String>();
+            queryOptions.add("trade_settle_info");
+            model.setQueryOptions(queryOptions);
 
-        request.setBizModel(model);
-        // 第三方代调用模式下请设置app_auth_token
-        // request.putOtherTextParam("app_auth_token", "<-- 请填写应用授权令牌 -->");
+            request.setBizModel(model);
+            // 第三方代调用模式下请设置app_auth_token
+            // request.putOtherTextParam("app_auth_token", "<-- 请填写应用授权令牌 -->");
 
-        AlipayTradeQueryResponse response = alipayClient.execute(request);
-        System.out.println(response.getBody());
+            AlipayTradeQueryResponse response = alipayClient.execute(request);
+            System.err.println("response = " + JSON.toJSONString(response));
+            System.out.println(response.getBody());
 
-        if (response.isSuccess()) {
-            System.out.println("调用成功");
-            return response.getBody();
-        } else {
-            System.out.println("调用失败");
-            // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
-            // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
-            // System.out.println(diagnosisUrl);
+            if (response.isSuccess()) {
+                System.out.println("调用成功");
+                return response.getBody();
+            } else {
+                System.out.println("调用失败");
+                // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
+                // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
+                // System.out.println(diagnosisUrl);
+            }
+        } catch (AlipayApiException e) {
+            log.error("获取支付宝签名失败！！！", e);
+            throw new RuntimeException("获取支付宝签名失败！！！");
         }
         return "";
     }

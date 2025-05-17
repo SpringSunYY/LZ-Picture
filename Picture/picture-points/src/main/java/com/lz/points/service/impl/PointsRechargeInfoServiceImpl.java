@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.lz.common.utils.StringUtils;
+
 import java.math.BigDecimal;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -22,15 +27,15 @@ import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
  * 积分充值记录Service业务层处理
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-17
  */
 @Service
-public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInfoMapper, PointsRechargeInfo> implements IPointsRechargeInfoService
-{
+public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInfoMapper, PointsRechargeInfo> implements IPointsRechargeInfoService {
     @Resource
     private PointsRechargeInfoMapper pointsRechargeInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询积分充值记录
      *
@@ -38,8 +43,7 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @return 积分充值记录
      */
     @Override
-    public PointsRechargeInfo selectPointsRechargeInfoByRechargeId(String rechargeId)
-    {
+    public PointsRechargeInfo selectPointsRechargeInfoByRechargeId(String rechargeId) {
         return pointsRechargeInfoMapper.selectPointsRechargeInfoByRechargeId(rechargeId);
     }
 
@@ -50,8 +54,7 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @return 积分充值记录
      */
     @Override
-    public List<PointsRechargeInfo> selectPointsRechargeInfoList(PointsRechargeInfo pointsRechargeInfo)
-    {
+    public List<PointsRechargeInfo> selectPointsRechargeInfoList(PointsRechargeInfo pointsRechargeInfo) {
         return pointsRechargeInfoMapper.selectPointsRechargeInfoList(pointsRechargeInfo);
     }
 
@@ -62,8 +65,7 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @return 结果
      */
     @Override
-    public int insertPointsRechargeInfo(PointsRechargeInfo pointsRechargeInfo)
-    {
+    public int insertPointsRechargeInfo(PointsRechargeInfo pointsRechargeInfo) {
         pointsRechargeInfo.setCreateTime(DateUtils.getNowDate());
         return pointsRechargeInfoMapper.insertPointsRechargeInfo(pointsRechargeInfo);
     }
@@ -75,9 +77,8 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @return 结果
      */
     @Override
-    public int updatePointsRechargeInfo(PointsRechargeInfo pointsRechargeInfo)
-    {
-      pointsRechargeInfo.setUpdateTime(DateUtils.getNowDate());
+    public int updatePointsRechargeInfo(PointsRechargeInfo pointsRechargeInfo) {
+        pointsRechargeInfo.setUpdateTime(DateUtils.getNowDate());
         return pointsRechargeInfoMapper.updatePointsRechargeInfo(pointsRechargeInfo);
     }
 
@@ -88,8 +89,7 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @return 结果
      */
     @Override
-    public int deletePointsRechargeInfoByRechargeIds(String[] rechargeIds)
-    {
+    public int deletePointsRechargeInfoByRechargeIds(String[] rechargeIds) {
         return pointsRechargeInfoMapper.deletePointsRechargeInfoByRechargeIds(rechargeIds);
     }
 
@@ -100,66 +100,81 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @return 结果
      */
     @Override
-    public int deletePointsRechargeInfoByRechargeId(String rechargeId)
-    {
+    public int deletePointsRechargeInfoByRechargeId(String rechargeId) {
         return pointsRechargeInfoMapper.deletePointsRechargeInfoByRechargeId(rechargeId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PointsRechargeInfo> getQueryWrapper(PointsRechargeInfoQuery pointsRechargeInfoQuery){
+    public QueryWrapper<PointsRechargeInfo> getQueryWrapper(PointsRechargeInfoQuery pointsRechargeInfoQuery) {
         QueryWrapper<PointsRechargeInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = pointsRechargeInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String rechargeId = pointsRechargeInfoQuery.getRechargeId();
-        queryWrapper.eq(StringUtils.isNotEmpty(rechargeId) ,"recharge_id",rechargeId);
+        String rechargeId = pointsRechargeInfoQuery.getRechargeId();
+        queryWrapper.eq(StringUtils.isNotEmpty(rechargeId), "recharge_id", rechargeId);
 
-    String packageId = pointsRechargeInfoQuery.getPackageId();
-        queryWrapper.eq(StringUtils.isNotEmpty(packageId) ,"package_id",packageId);
+        String packageId = pointsRechargeInfoQuery.getPackageId();
+        queryWrapper.eq(StringUtils.isNotEmpty(packageId), "package_id", packageId);
 
-    String userId = pointsRechargeInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = pointsRechargeInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String orderId = pointsRechargeInfoQuery.getOrderId();
-        queryWrapper.eq(StringUtils.isNotEmpty(orderId) ,"order_id",orderId);
+        String orderId = pointsRechargeInfoQuery.getOrderId();
+        queryWrapper.eq(StringUtils.isNotEmpty(orderId), "order_id", orderId);
 
-    String thirdParty = pointsRechargeInfoQuery.getThirdParty();
-        queryWrapper.eq(StringUtils.isNotEmpty(thirdParty) ,"third_party",thirdParty);
+        Long totalCount = pointsRechargeInfoQuery.getTotalCount();
+        queryWrapper.eq(StringUtils.isNotNull(totalCount), "total_count", totalCount);
 
-    String thirdPartyOrder = pointsRechargeInfoQuery.getThirdPartyOrder();
-        queryWrapper.eq(StringUtils.isNotEmpty(thirdPartyOrder) ,"third_party_order",thirdPartyOrder);
+        Long pointsCount = pointsRechargeInfoQuery.getPointsCount();
+        queryWrapper.eq(StringUtils.isNotNull(pointsCount), "points_count", pointsCount);
 
-    String rechargeStatus = pointsRechargeInfoQuery.getRechargeStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(rechargeStatus) ,"recharge_status",rechargeStatus);
+        Long bonusCount = pointsRechargeInfoQuery.getBonusCount();
+        queryWrapper.eq(StringUtils.isNotNull(bonusCount), "bonus_count", bonusCount);
 
-    Date createTime = pointsRechargeInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        BigDecimal priceCount = pointsRechargeInfoQuery.getPriceCount();
+        queryWrapper.eq(StringUtils.isNotNull(priceCount), "price_count", priceCount);
 
-    Date updateTime = pointsRechargeInfoQuery.getUpdateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime"))&&StringUtils.isNotNull(params.get("endUpdateTime")),"update_time",params.get("beginUpdateTime"),params.get("endUpdateTime"));
+        Long rechargeCount = pointsRechargeInfoQuery.getRechargeCount();
+        queryWrapper.eq(StringUtils.isNotNull(rechargeCount), "recharge_count", rechargeCount);
 
-    String failReason = pointsRechargeInfoQuery.getFailReason();
-        queryWrapper.eq(StringUtils.isNotEmpty(failReason) ,"fail_reason",failReason);
+        String thirdParty = pointsRechargeInfoQuery.getThirdParty();
+        queryWrapper.eq(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);
 
-    String deviceId = pointsRechargeInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String thirdPartyOrder = pointsRechargeInfoQuery.getThirdPartyOrder();
+        queryWrapper.eq(StringUtils.isNotEmpty(thirdPartyOrder), "third_party_order", thirdPartyOrder);
 
-    String browser = pointsRechargeInfoQuery.getBrowser();
-        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String rechargeStatus = pointsRechargeInfoQuery.getRechargeStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(rechargeStatus), "recharge_status", rechargeStatus);
 
-    String os = pointsRechargeInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        Date createTime = pointsRechargeInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String platform = pointsRechargeInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        Date arrivalTime = pointsRechargeInfoQuery.getArrivalTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginArrivalTime")) && StringUtils.isNotNull(params.get("endArrivalTime")), "arrival_time", params.get("beginArrivalTime"), params.get("endArrivalTime"));
 
-    String ipAddr = pointsRechargeInfoQuery.getIpAddr();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddr) ,"ip_addr",ipAddr);
+        Date updateTime = pointsRechargeInfoQuery.getUpdateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
 
-    String isDelete = pointsRechargeInfoQuery.getIsDelete();
-        queryWrapper.eq(StringUtils.isNotEmpty(isDelete) ,"is_delete",isDelete);
+        String deviceId = pointsRechargeInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
+
+        String browser = pointsRechargeInfoQuery.getBrowser();
+        queryWrapper.eq(StringUtils.isNotEmpty(browser), "browser", browser);
+
+        String os = pointsRechargeInfoQuery.getOs();
+        queryWrapper.like(StringUtils.isNotEmpty(os), "os", os);
+
+        String platform = pointsRechargeInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
+
+        String ipAddr = pointsRechargeInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+
+        String isDelete = pointsRechargeInfoQuery.getIsDelete();
+        queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 
         return queryWrapper;
     }
