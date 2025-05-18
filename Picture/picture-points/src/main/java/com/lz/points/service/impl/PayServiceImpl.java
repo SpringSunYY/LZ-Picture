@@ -154,7 +154,7 @@ public class PayServiceImpl implements IPayService {
     }
 
     @Override
-    public void alipayCallback(HashMap<String, String> map) {
+    public String alipayCallback(HashMap<String, String> map) {
         boolean sign = false;
         try {
             sign = AlipaySignature.rsaCheckV1(map,
@@ -162,13 +162,15 @@ public class PayServiceImpl implements IPayService {
                     alipayPaymentConfig.getCharset(),
                     alipayPaymentConfig.getSignType());
         } catch (AlipayApiException e) {
-            log.error("获取支付宝签名失败！！！", e);
-            throw new RuntimeException("获取支付宝签名失败！！！");
+            log.error("时间：{}获取支付宝签名失败：{}", DateUtils.getNowDate(), e);
+//            throw new RuntimeException("获取支付宝签名失败！！！");
+            return alipayPaymentConfig.getRedirectUrl();
         }
 
         System.out.println("sign = " + sign);
         if (!sign) {
             log.error("时间：{}签名验证失败：{}", DateUtils.getNowDate(), sign);
+            return alipayPaymentConfig.getRedirectUrl();
         } else {
             //转换map为json
             String json = JSON.toJSONString(map);
@@ -177,18 +179,25 @@ public class PayServiceImpl implements IPayService {
             AlipayTradeQueryResponse response = alipayManager.query(alipayCallbackRequest.getOutTradeNo(), alipayCallbackRequest.getTradeNo());
             if (response.isSuccess()) {
                 //执行积分充值
-                executePointsRecharge(response);
+                PaymentOrderInfo paymentOrderInfo = executePointsRecharge(response);
+                //删除缓存
+                if (StringUtils.isNull(paymentOrderInfo)) {
+                    return null;
+                }
+                redisCache.deleteObject(POINTS_ORDER_DETAIL + paymentOrderInfo.getOrderId() + COMMON_SEPARATOR_CACHE + paymentOrderInfo.getUserId());
+                return alipayPaymentConfig.getRedirectUrl();
             }
+            return alipayPaymentConfig.getRedirectUrl();
         }
     }
 
-    private void executePointsRecharge(AlipayTradeQueryResponse response) {
+    private PaymentOrderInfo executePointsRecharge(AlipayTradeQueryResponse response) {
         //查询到对应支付订单
         PaymentOrderInfo paymentOrderInfo = paymentOrderInfoService.selectPaymentOrderInfoByOrderId(response.getOutTradeNo());
         Date nowDate = DateUtils.getNowDate();
         if (StringUtils.isNull(paymentOrderInfo)) {
             log.error("时间:{}未找到对应支付订单:{}", nowDate, response.getOutTradeNo());
-            return;
+            return null;
         }
         //查询到对应的积分充值记录
         String userId = paymentOrderInfo.getUserId();
@@ -198,7 +207,7 @@ public class PayServiceImpl implements IPayService {
 
         if (StringUtils.isNull(rechargeInfo)) {
             log.error("时间:{}未找到对应的积分充值记录：{}", nowDate, response.getOutTradeNo());
-            return;
+            return null;
         }
         //设置订单信息
         String totalAmount = response.getTotalAmount();
@@ -298,6 +307,7 @@ public class PayServiceImpl implements IPayService {
             paymentOrderInfoService.updateById(paymentOrderInfo);
             return null;
         });
+        return paymentOrderInfo;
     }
 
     @Override

@@ -46,6 +46,9 @@ public class UserPaymentOrderInfoVo implements Serializable {
     @Excel(name = "实付金额")
     private BigDecimal buyerPayAmount;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date paymentTime;
+
 
     /**
      * 对象转封装类

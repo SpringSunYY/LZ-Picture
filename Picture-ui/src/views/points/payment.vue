@@ -298,8 +298,8 @@ import { getPointsRechargePackageInfo } from '@/api/points/points.ts'
 import type { PointsRechargePackageInfoVo } from '@/types/points/points.d.ts'
 import SvgIcon from '@/components/SvgIcon.vue'
 import { formatDateTimeByDate, formatDateTimeByStr, formatTime } from '@/utils/common.ts'
-import { alipayWeb } from '@/api/points/pay.ts'
-import type { PayRequest } from '@/types/points/pay'
+import { alipayWeb, getOrderInfo } from '@/api/points/pay.ts'
+import { type PayRequest, POrderStatusEnum } from '@/types/points/pay.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { toNumber } from 'lodash-es'
@@ -336,6 +336,7 @@ const clearPolling = () => {
     clearInterval(pollingTimer)
     pollingTimer = null
   }
+  console.log('清理轮询', pollingTimer)
 }
 
 // 开始轮询
@@ -345,9 +346,32 @@ const startPolling = () => {
   }
   pollingTimer = setInterval(async () => {
     try {
+      const res = await getOrderInfo(outTradeNo.value)
+      if (res.code === 200 && res.data) {
+        if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_1) {
+          message.success('支付成功')
+          paymentSuccess.value = true
+          paymentMethod.value = 'alipay'
+          currentStep.value = 3
+          // 清理轮询
+          clearPolling()
+        }
+        if (
+          res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_2 ||
+          res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_3 ||
+          res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_4
+        ) {
+          message.error('支付失败')
+          paymentSuccess.value = false
+          paymentMethod.value = 'alipay'
+          currentStep.value = 3
+          // 清理轮询
+          clearPolling()
+        }
+      }
     } catch (error) {
       console.error('支付失败', error)
-      message.error('支付失败，' + error?.message)
+      message.error('支付失败')
       // 清理轮询
       clearPolling()
     }
@@ -450,6 +474,7 @@ const prevStep = () => {
     if (currentStep.value === 1) {
       if (timerInterval.value !== null) {
         clearInterval(timerInterval.value)
+        clearPolling()
       }
     }
   } else {
@@ -487,29 +512,49 @@ const startPaymentTimer = () => {
   }, 1000)
 }
 
-const simulatePayment = () => {
+const simulatePayment = async () => {
+  if (outTradeNo.value === '') {
+    message.loading('正在创建订单...', 2)
+    return
+  }
   // 模拟支付过程
-  message.loading('正在处理支付...', 2)
+  message.loading('正在查询支付...', 2)
+  const res = await getOrderInfo(outTradeNo.value)
 
+  if (res.code === 200 && res.data) {
+    if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_0) {
+      message.warning('请先支付', 2)
+      return
+    }
+    if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_1) {
+      message.success('支付成功')
+      paymentSuccess.value = true
+      paymentMethod.value = 'alipay'
+      currentStep.value = 3
+      // 清理轮询
+      clearPolling()
+    }
+    if (
+      res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_2 ||
+      res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_3 ||
+      res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_4
+    ) {
+      message.error('支付失败')
+      paymentSuccess.value = false
+      paymentMethod.value = 'alipay'
+      currentStep.value = 3
+      // 清理轮询
+      clearPolling()
+    }
+  } else {
+    message.error('支付失败')
+  }
+  // 清理轮询
+  clearPolling()
   // 清除计时器
   if (timerInterval.value !== null) {
     clearInterval(timerInterval.value)
   }
-
-  // 生成随机订单号
-  orderId.value = 'ORD' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000)
-
-  // 模拟80%的概率支付成功
-  setTimeout(() => {
-    paymentSuccess.value = false
-    currentStep.value = 3
-
-    if (paymentSuccess.value) {
-      message.success('支付成功！')
-    } else {
-      message.error('支付失败，请重试')
-    }
-  }, 2000)
 }
 
 const finishPayment = () => {

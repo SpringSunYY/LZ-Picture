@@ -288,7 +288,7 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '账户编号', visible: true},
+    {key: 0, label: '账户编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
     {key: 2, label: '支付密码', visible: false},
     {key: 3, label: '加密方式', visible: false},

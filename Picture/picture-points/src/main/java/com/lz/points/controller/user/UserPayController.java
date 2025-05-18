@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.utils.StringUtils;
 import com.lz.points.config.AlipayPaymentConfig;
 import com.lz.points.manager.model.AlipayCallbackRequest;
 import com.lz.points.model.dto.pay.PayRequest;
+import com.lz.points.model.vo.paymentOrderInfo.UserPaymentOrderInfoVo;
 import com.lz.points.service.IPayService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -15,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +49,7 @@ public class UserPayController extends BaseUserInfoController {
      * 支付宝回调接口
      */
     @GetMapping("/alipay/callback")
-    public AjaxResult alipayCallback(HttpServletRequest request, HttpServletResponse httpServletResponse) throws AlipayApiException {
+    public void alipayCallback(HttpServletRequest request, HttpServletResponse response) throws AlipayApiException, IOException {
         Map<String, String[]> parameterMap = request.getParameterMap();
         System.out.println(parameterMap);
 
@@ -55,8 +58,8 @@ public class UserPayController extends BaseUserInfoController {
             System.out.println(s + "--" + parameterMap.get(s)[0]);
             map.put(s, parameterMap.get(s)[0]);
         }
-        payService.alipayCallback(map);
-        return success();
+        String redirectUrl = payService.alipayCallback(map);
+        response.sendRedirect(redirectUrl);
     }
 
     /**

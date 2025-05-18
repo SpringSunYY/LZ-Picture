@@ -58,6 +58,7 @@ public class AlipayManager {
             // 构造请求参数以调用接口
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
             request.setReturnUrl(config.getNotifyUrl());
+//            request.setNotifyUrl(config.getNotifyUrl());
             request.setNotifyUrl("");
             JSONObject bizContent = new JSONObject();
             bizContent.put("out_trade_no", alipayPcPaymentRequest.getOutTradeNo());

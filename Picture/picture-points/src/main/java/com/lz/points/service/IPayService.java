@@ -27,7 +27,7 @@ public interface IPayService {
      * @method: alipayCallback
      * @date: 2025/5/16 14:00
      **/
-    void alipayCallback(HashMap<String, String> alipayCallbackRequest);
+    String alipayCallback(HashMap<String, String> alipayCallbackRequest);
 
     /**
      * 获取支付信息

@@ -41,10 +41,20 @@ public class AlipayPaymentConfig {
     @Value("${alipay.appId}")
     private String appId;
     /**
-     * 回调地址
+     * 异步回调地址
      */
     @Value("${alipay.notifyUrl}")
     private String notifyUrl;
+    /**
+     * 同步回调地址
+     */
+    @Value("${alipay.returnUrl}")
+    private String returnUrl;
+    /**
+     * 重定向地址
+     */
+    @Value("${alipay.redirectUrl}")
+    private String redirectUrl;
     /**
      * 格式
      */
