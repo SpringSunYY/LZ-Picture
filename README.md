@@ -1021,34 +1021,34 @@ CREATE TABLE po_payment_method_info (
 
 #### 支付订单表：po_payment_order_info
 
-| 字段名            | 类型     | 长度 | 键类型                           | Null | 默认值   | 描述                 |
-| ----------------- | -------- | ---- | -------------------------------- | ---- | -------- | -------------------- |
-| order_id          | varchar  | 128  | 主键                             | 否   |          | 订单编号             |
-| user_id           | varchar  | 128  | 外键 (u_user_info:user_id)、唯一 | 否   |          | 用户编号             |
-| order_status      | varchar  | 32   |                                  | 否   | 0        | 订单状态             |
-| payment_type      | varchar  | 128  |                                  | 否   |          | 支付方式             |
-| total_amount      | decimal  | 10,2 |                                  | 否   | 0.00     | 订单总金额           |
-| buyer_pay_amount  | decimal  | 10,2 |                                  | 是   | 0.00     | 实付金额             |
-| receipt_amount    | decimal  | 10,2 |                                  | 是   | 0.00     | 实收金额             |
-| discount_amount   | decimal  | 10,2 |                                  | 是   | 0.00     | 平台优惠金额         |
-| third_party       | varchar  | 128  |                                  | 否   |          | 第三方支付平台       |
-| third_user_id     | varchar  | 128  |                                  | 是   |          | 第三方用户编号       |
-| third_party_order | varchar  | 128  |                                  | 是   |          | 第三方支付平台订单号 |
-| payment_time      | datetime |      |                                  | 是   |          | 支付时间             |
-| payment_status    | varchar  | 32   |                                  | 否   | 0        | 支付状态             |
-| payment_code      | varchar  | 128  |                                  | 是   |          | 支付返回Code         |
-| payment_msg       | varchar  | 128  |                                  | 是   |          | 支付返回Msg          |
-| payment_extend    | text     |      |                                  | 是   |          | 支付返回额外信息     |
-| create_time       | datetime |      |                                  | 否   | 当前时间 | 创建时间             |
-| update_time       | datetime |      |                                  | 否   | 当前时间 | 更新时间             |
-| device_id         | varchar  | 255  |                                  | 是   |          | 设备唯一标识         |
-| browser           | varchar  | 50   |                                  | 是   |          | 浏览器类型           |
-| os                | varchar  | 50   |                                  | 是   |          | 操作系统             |
-| platform          | varchar  | 20   |                                  | 是   |          | 平台                 |
-| ip_addr           | varchar  | 50   |                                  | 否   |          | IP地址               |
-| ip_address        | varchar  | 64   |                                  | 是   |          | IP属地               |
-| is_delete         | char     | 1    |                                  | 否   | 0        | 删除                 |
-| remark            | varchar  | 512  |                                  | 是   |          | 备注                 |
+| 字段名            | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述                 |
+| ----------------- | -------- | ---- | -------------------------- | ---- | -------- | -------------------- |
+| order_id          | varchar  | 128  | 主键                       | 否   |          | 订单编号             |
+| user_id           | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号             |
+| order_status      | varchar  | 32   |                            | 否   | 0        | 订单状态             |
+| payment_type      | varchar  | 128  |                            | 否   |          | 支付方式             |
+| total_amount      | decimal  | 10,2 |                            | 否   | 0.00     | 订单总金额           |
+| buyer_pay_amount  | decimal  | 10,2 |                            | 是   | 0.00     | 实付金额             |
+| receipt_amount    | decimal  | 10,2 |                            | 是   | 0.00     | 实收金额             |
+| discount_amount   | decimal  | 10,2 |                            | 是   | 0.00     | 平台优惠金额         |
+| third_party       | varchar  | 128  |                            | 否   |          | 第三方支付平台       |
+| third_user_id     | varchar  | 128  |                            | 是   |          | 第三方用户编号       |
+| third_party_order | varchar  | 128  |                            | 是   |          | 第三方支付平台订单号 |
+| payment_time      | datetime |      |                            | 是   |          | 支付时间             |
+| payment_status    | varchar  | 32   |                            | 否   | 0        | 支付状态             |
+| payment_code      | varchar  | 128  |                            | 是   |          | 支付返回Code         |
+| payment_msg       | varchar  | 128  |                            | 是   |          | 支付返回Msg          |
+| payment_extend    | text     |      |                            | 是   |          | 支付返回额外信息     |
+| create_time       | datetime |      |                            | 否   | 当前时间 | 创建时间             |
+| update_time       | datetime |      |                            | 否   | 当前时间 | 更新时间             |
+| device_id         | varchar  | 255  |                            | 是   |          | 设备唯一标识         |
+| browser           | varchar  | 50   |                            | 是   |          | 浏览器类型           |
+| os                | varchar  | 50   |                            | 是   |          | 操作系统             |
+| platform          | varchar  | 20   |                            | 是   |          | 平台                 |
+| ip_addr           | varchar  | 50   |                            | 否   |          | IP地址               |
+| ip_address        | varchar  | 64   |                            | 是   |          | IP属地               |
+| is_delete         | char     | 1    |                            | 否   | 0        | 删除                 |
+| remark            | varchar  | 512  |                            | 是   |          | 备注                 |
 
 订单状态：0待支付 1支付成功 2支付失败 3超时 4已取消等
 
@@ -1062,7 +1062,7 @@ CREATE TABLE po_payment_method_info (
 DROP TABLE IF EXISTS po_payment_order_info;
 CREATE TABLE po_payment_order_info (
     order_id VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '订单编号',
-    user_id VARCHAR(128) NOT NULL UNIQUE COMMENT '用户编号',
+    user_id VARCHAR(128) NOT NULL  COMMENT '用户编号',
     order_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '订单状态',
     payment_type VARCHAR(128) NOT NULL COMMENT '支付方式',
     total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '订单总金额',

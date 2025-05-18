@@ -1,40 +1,58 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.points.mapper.AccountInfoMapper">
-    
+
     <resultMap type="AccountInfo" id="AccountInfoResult">
-        <result property="accountId"    column="account_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="password"    column="password"    />
-        <result property="salt"    column="salt"    />
-        <result property="pointsEarned"    column="points_earned"    />
-        <result property="pointsUsed"    column="points_used"    />
-        <result property="rechargeAmount"    column="recharge_amount"    />
-        <result property="accountStatus"    column="account_status"    />
-        <result property="pointsBalance"    column="points_balance"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="remark"    column="remark"    />
-        <result property="isDelete"    column="is_delete"    />
+        <result property="accountId" column="account_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="pointsEarned" column="points_earned"/>
+        <result property="pointsUsed" column="points_used"/>
+        <result property="rechargeAmount" column="recharge_amount"/>
+        <result property="accountStatus" column="account_status"/>
+        <result property="pointsBalance" column="points_balance"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="isDelete" column="is_delete"/>
     </resultMap>
 
     <sql id="selectAccountInfoVo">
-        select account_id, user_id, password, salt, points_earned, points_used, recharge_amount, account_status, points_balance, create_time, update_time, remark, is_delete from po_account_info
+        select account_id,
+               user_id,
+               password,
+               salt,
+               points_earned,
+               points_used,
+               recharge_amount,
+               account_status,
+               points_balance,
+               create_time,
+               update_time,
+               remark,
+               is_delete
+        from po_account_info
     </sql>
 
     <select id="selectAccountInfoList" parameterType="AccountInfo" resultMap="AccountInfoResult">
         <include refid="selectAccountInfoVo"/>
-        <where>  
-            <if test="accountId != null  and accountId != ''"> and account_id = #{accountId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        <where>
+            <if test="accountId != null  and accountId != ''">and account_id = #{accountId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectAccountInfoByAccountId" parameterType="String" resultMap="AccountInfoResult">
         <include refid="selectAccountInfoVo"/>
         where account_id = #{accountId}
@@ -56,7 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="accountId != null">#{accountId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
@@ -71,7 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateAccountInfo" parameterType="AccountInfo">
@@ -94,11 +112,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteAccountInfoByAccountId" parameterType="String">
-        delete from po_account_info where account_id = #{accountId}
+        delete
+        from po_account_info
+        where account_id = #{accountId}
     </delete>
 
     <delete id="deleteAccountInfoByAccountIds" parameterType="String">
-        delete from po_account_info where account_id in 
+        delete from po_account_info where account_id in
         <foreach item="accountId" collection="array" open="(" separator="," close=")">
             #{accountId}
         </foreach>

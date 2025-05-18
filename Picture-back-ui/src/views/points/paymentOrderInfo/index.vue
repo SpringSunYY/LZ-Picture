@@ -251,11 +251,7 @@
           <span>{{ parseTime(scope.row.paymentTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="支付状态" align="center" prop="paymentStatus" v-if="columns[12].visible">
-        <template #default="scope">
-          <dict-tag :options="po_payment_status" :value="scope.row.paymentStatus"/>
-        </template>
-      </el-table-column>
+      <el-table-column label="支付状态" align="center" prop="paymentStatus" v-if="columns[12].visible"/>
       <el-table-column label="支付返回Code" align="center" prop="paymentCode" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="支付返回Msg" align="center" prop="paymentMsg" v-if="columns[14].visible"
@@ -463,13 +459,13 @@ const data = reactive({
     {key: 3, label: '支付方式', visible: true},
     {key: 4, label: '订单总金额', visible: true},
     {key: 5, label: '实付金额', visible: true},
-    {key: 6, label: '实收金额', visible: true},
+    {key: 6, label: '实收金额', visible: false},
     {key: 7, label: '平台优惠金额', visible: false},
     {key: 8, label: '第三方支付平台', visible: true},
     {key: 9, label: '第三方用户编号', visible: false},
     {key: 10, label: '第三方支付平台订单号', visible: false},
     {key: 11, label: '支付时间', visible: true},
-    {key: 12, label: '支付状态', visible: true},
+    {key: 12, label: '支付状态', visible: false},
     {key: 13, label: '支付返回Code', visible: false},
     {key: 14, label: '支付返回Msg', visible: false},
     {key: 15, label: '支付返回额外信息', visible: false},

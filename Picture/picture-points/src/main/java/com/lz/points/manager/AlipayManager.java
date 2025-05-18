@@ -12,6 +12,7 @@ import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.lz.common.utils.DateUtils;
 import com.lz.points.config.AlipayPaymentConfig;
 import com.lz.points.manager.model.AlipayPcPaymentRequest;
 import com.lz.points.manager.model.AlipayPcPaymentResponse;
@@ -103,7 +104,17 @@ public class AlipayManager {
         }
     }
 
-    public String query(String outTradNo, String tradeNo) {
+    /**
+     * 查询支付结果
+     *
+     * @param outTradNo 商家自定义订单号
+     * @param tradeNo   支付宝订单号
+     * @return AlipayPcPaymentResponse
+     * @author: YY
+     * @method: query
+     * @date: 2025/5/18 19:59
+     **/
+    public AlipayTradeQueryResponse query(String outTradNo, String tradeNo) {
         try {
             // 初始化SDK
             AlipayClient alipayClient = new DefaultAlipayClient(getAlipayConfig());
@@ -129,21 +140,24 @@ public class AlipayManager {
 
             AlipayTradeQueryResponse response = alipayClient.execute(request);
             System.err.println("response = " + JSON.toJSONString(response));
-            System.out.println(response.getBody());
+            System.out.println("body" + response.getBody());
 
             if (response.isSuccess()) {
                 System.out.println("调用成功");
-                return response.getBody();
+                //获取到body内部alipay_trade_query_response
+                JSONObject jsonObject = JSONObject.parseObject(response.getBody());
+                String alipayTradeQueryResponse = jsonObject.get("alipay_trade_query_response").toString();
+                return JSONObject.parseObject(alipayTradeQueryResponse, AlipayTradeQueryResponse.class);
             } else {
-                System.out.println("调用失败");
+                log.error("时间{}-调用失败:{}", DateUtils.getNowDate(), response);
                 // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
                 // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
                 // System.out.println(diagnosisUrl);
             }
         } catch (AlipayApiException e) {
-            log.error("获取支付宝签名失败！！！", e);
-            throw new RuntimeException("获取支付宝签名失败！！！");
+            log.error("时间：{}，获取支付宝签名失败！！！", DateUtils.getNowDate(), e);
+//            throw new RuntimeException("获取支付宝签名失败！！！");
         }
-        return "";
+        return null;
     }
 }

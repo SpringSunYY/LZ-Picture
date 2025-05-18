@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.utils.StringUtils;
+
 import java.math.BigDecimal;
+
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -25,12 +29,12 @@ import com.lz.points.model.vo.accountInfo.AccountInfoVo;
  * @date 2025-03-25
  */
 @Service
-public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, AccountInfo> implements IAccountInfoService
-{
+public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, AccountInfo> implements IAccountInfoService {
     @Resource
     private AccountInfoMapper accountInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询积分账户
      *
@@ -38,8 +42,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @return 积分账户
      */
     @Override
-    public AccountInfo selectAccountInfoByAccountId(String accountId)
-    {
+    public AccountInfo selectAccountInfoByAccountId(String accountId) {
         return accountInfoMapper.selectAccountInfoByAccountId(accountId);
     }
 
@@ -50,8 +53,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @return 积分账户
      */
     @Override
-    public List<AccountInfo> selectAccountInfoList(AccountInfo accountInfo)
-    {
+    public List<AccountInfo> selectAccountInfoList(AccountInfo accountInfo) {
         return accountInfoMapper.selectAccountInfoList(accountInfo);
     }
 
@@ -62,8 +64,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @return 结果
      */
     @Override
-    public int insertAccountInfo(AccountInfo accountInfo)
-    {
+    public int insertAccountInfo(AccountInfo accountInfo) {
         accountInfo.setCreateTime(DateUtils.getNowDate());
         return accountInfoMapper.insertAccountInfo(accountInfo);
     }
@@ -75,9 +76,8 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @return 结果
      */
     @Override
-    public int updateAccountInfo(AccountInfo accountInfo)
-    {
-      accountInfo.setUpdateTime(DateUtils.getNowDate());
+    public int updateAccountInfo(AccountInfo accountInfo) {
+        accountInfo.setUpdateTime(DateUtils.getNowDate());
         return accountInfoMapper.updateAccountInfo(accountInfo);
     }
 
@@ -88,8 +88,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @return 结果
      */
     @Override
-    public int deleteAccountInfoByAccountIds(String[] accountIds)
-    {
+    public int deleteAccountInfoByAccountIds(String[] accountIds) {
         return accountInfoMapper.deleteAccountInfoByAccountIds(accountIds);
     }
 
@@ -100,33 +99,33 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @return 结果
      */
     @Override
-    public int deleteAccountInfoByAccountId(String accountId)
-    {
+    public int deleteAccountInfoByAccountId(String accountId) {
         return accountInfoMapper.deleteAccountInfoByAccountId(accountId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<AccountInfo> getQueryWrapper(AccountInfoQuery accountInfoQuery){
+    public QueryWrapper<AccountInfo> getQueryWrapper(AccountInfoQuery accountInfoQuery) {
         QueryWrapper<AccountInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = accountInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String accountId = accountInfoQuery.getAccountId();
-        queryWrapper.eq(StringUtils.isNotEmpty(accountId) ,"account_id",accountId);
+        String accountId = accountInfoQuery.getAccountId();
+        queryWrapper.eq(StringUtils.isNotEmpty(accountId), "account_id", accountId);
 
-    String userId = accountInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = accountInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    Date createTime = accountInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = accountInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    Date updateTime = accountInfoQuery.getUpdateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime"))&&StringUtils.isNotNull(params.get("endUpdateTime")),"update_time",params.get("beginUpdateTime"),params.get("endUpdateTime"));
+        Date updateTime = accountInfoQuery.getUpdateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
 
-    String isDelete = accountInfoQuery.getIsDelete();
-        queryWrapper.eq(StringUtils.isNotEmpty(isDelete) ,"is_delete",isDelete);
+        String isDelete = accountInfoQuery.getIsDelete();
+        queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 
         return queryWrapper;
     }
@@ -137,6 +136,11 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
             return Collections.emptyList();
         }
         return accountInfoList.stream().map(AccountInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public AccountInfo selectAccountInfoByUserId(String userId) {
+        return this.getOne(new LambdaQueryWrapper<AccountInfo>().eq(AccountInfo::getUserId, userId));
     }
 
 }

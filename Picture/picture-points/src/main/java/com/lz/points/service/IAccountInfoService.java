@@ -1,21 +1,23 @@
 package com.lz.points.service;
 
 import java.util.List;
+
 import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.vo.accountInfo.AccountInfoVo;
 import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 积分账户Service接口
  *
  * @author YY
  * @date 2025-03-25
  */
-public interface IAccountInfoService extends IService<AccountInfo>
-{
+public interface IAccountInfoService extends IService<AccountInfo> {
     //region mybatis代码
+
     /**
      * 查询积分账户
      *
@@ -64,6 +66,7 @@ public interface IAccountInfoService extends IService<AccountInfo>
      */
     public int deleteAccountInfoByAccountId(String accountId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,16 @@ public interface IAccountInfoService extends IService<AccountInfo>
      * @return AccountInfoVO集合
      */
     List<AccountInfoVo> convertVoList(List<AccountInfo> accountInfoList);
+
+    /**
+     * 根据用户ID查询用户
+     *
+     * @param
+     * @param userId 用户编号
+     * @return AccountInfo
+     * @author: YY
+     * @method: selectAccountInfoByUserId
+     * @date: 2025/5/18 21:12
+     **/
+    AccountInfo selectAccountInfoByUserId(String userId);
 }

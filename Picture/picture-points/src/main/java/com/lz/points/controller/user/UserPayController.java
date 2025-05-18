@@ -58,4 +58,13 @@ public class UserPayController extends BaseUserInfoController {
         payService.alipayCallback(map);
         return success();
     }
+
+    /**
+     * 获取订单信息
+     */
+    @PreAuthorize("@uss.hasPermi('points:payment')")
+    @GetMapping("/order/{outTradeNo}")
+    public AjaxResult getOrderInfo(@PathVariable("outTradeNo") String outTradeNo) {
+        return success(payService.getOrderInfo(outTradeNo, getUserId()));
+    }
 }

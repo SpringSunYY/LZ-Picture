@@ -5,7 +5,7 @@ import io.jsonwebtoken.Claims;
 
 /**
  * 通用常量信息
- * 
+ *
  * @author YY
  */
 public class Constants
@@ -175,4 +175,6 @@ public class Constants
      * 公共分隔符
      */
     public static final String COMMON_SEPARATOR = ";";
+
+    public static final String COMMON_SEPARATOR_CACHE = ":";
 }

@@ -325,6 +325,34 @@ const formState = ref<PayRequest>({
   userId: userId.value,
 })
 
+//订单编号
+const outTradeNo = ref('')
+
+// 轮询定时器
+let pollingTimer: number | null = null
+// 清理轮询
+const clearPolling = () => {
+  if (pollingTimer) {
+    clearInterval(pollingTimer)
+    pollingTimer = null
+  }
+}
+
+// 开始轮询
+const startPolling = () => {
+  if (outTradeNo.value === '') {
+    return
+  }
+  pollingTimer = setInterval(async () => {
+    try {
+    } catch (error) {
+      console.error('支付失败', error)
+      message.error('支付失败，' + error?.message)
+      // 清理轮询
+      clearPolling()
+    }
+  }, 3000) // 每 3 秒轮询一次
+}
 // 银行卡表单
 const cardForm = ref({
   cardHolder: '',
@@ -348,20 +376,30 @@ const alipay = () => {
     console.log(res)
     if (res.code != 200) {
       message.error('支付失败！！！')
+      return
+    }
+    if (!res.data) {
+      message.error('支付失败！！！')
+      return
     }
     if (!res.data?.success) {
       message.error('支付失败！！！')
+      return
     }
+    //订单信息
+    outTradeNo.value = res.data.outTradeNo
     message.success('支付成功后请回此页面点击完成支付')
-    message.success("即将跳转支付宝支付页面...")
+    message.success('即将跳转支付宝支付页面...')
     //定时三秒后跳转
     setTimeout(() => {
       // 打开新窗口
       const newWindow = window.open('', '_blank')
-      if (newWindow) {
+      if (newWindow && res.data) {
         // 将 HTML 内容写入新窗口
         newWindow.document.write(res.data.html)
         newWindow.document.close() // 关闭写入流
+        //创建轮训获取支付结果
+        startPolling()
       } else {
         console.error('无法打开新窗口')
       }
