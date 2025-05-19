@@ -6,13 +6,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
+import com.lz.points.model.enums.PoOrderStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -197,6 +198,20 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
             return Collections.emptyList();
         }
         return paymentOrderInfoList.stream().map(PaymentOrderInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public int autoUpdateExpiredOrder(Date expiredTime) {
+        //查询到过期的订单 未支付的订单
+        List<PaymentOrderInfo> paymentOrderInfos = this.list(new LambdaQueryWrapper<PaymentOrderInfo>()
+                .eq(PaymentOrderInfo::getOrderStatus, PoOrderStatusEnum.ORDER_STATUS_0.getValue())
+                .lt(PaymentOrderInfo::getCreateTime, expiredTime));
+        //更新订单为已过期
+        paymentOrderInfos.forEach(paymentOrderInfo ->
+                paymentOrderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_3.getValue())
+        );
+        return this.updateBatchById(paymentOrderInfos) ? 1 : 0;
     }
 
 }

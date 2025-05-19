@@ -1,5 +1,6 @@
 package com.lz.points.service;
 
+import java.util.Date;
 import java.util.List;
 import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
@@ -79,4 +80,11 @@ public interface IPointsRechargeInfoService extends IService<PointsRechargeInfo>
      * @return PointsRechargeInfoVO集合
      */
     List<PointsRechargeInfoVo> convertVoList(List<PointsRechargeInfo> pointsRechargeInfoList);
+
+    /**
+     * 自动更新过期订单
+     *
+     * @param expiredTime 过期时间
+     */
+    int autoUpdateExpiredOrder(Date expiredTime);
 }

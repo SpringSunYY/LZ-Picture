@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
+import com.lz.points.model.enums.PoRechargeStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -191,6 +193,19 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
             return Collections.emptyList();
         }
         return pointsRechargeInfoList.stream().map(PointsRechargeInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public int autoUpdateExpiredOrder(Date expiredTime) {
+        //查询到未支付且超过过期时间的订单
+        List<PointsRechargeInfo> list = this.list(new LambdaQueryWrapper<PointsRechargeInfo>()
+                .lt(PointsRechargeInfo::getCreateTime, expiredTime)
+                .eq(PointsRechargeInfo::getRechargeStatus, PoRechargeStatusEnum.RECHARGE_STATUS_0.getValue()));
+        //更新为过期
+        list.forEach(item -> {
+            item.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_3.getValue());
+        });
+        return this.updateBatchById(list) ? 1 : 0;
     }
 
 }

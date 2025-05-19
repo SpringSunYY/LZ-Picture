@@ -1,5 +1,6 @@
 package com.lz.points.service;
 
+import java.util.Date;
 import java.util.List;
 import com.lz.points.model.domain.PaymentOrderInfo;
 import com.lz.points.model.vo.paymentOrderInfo.PaymentOrderInfoVo;
@@ -79,4 +80,11 @@ public interface IPaymentOrderInfoService extends IService<PaymentOrderInfo>
      * @return PaymentOrderInfoVO集合
      */
     List<PaymentOrderInfoVo> convertVoList(List<PaymentOrderInfo> paymentOrderInfoList);
+
+    /**
+     * 自动更新过期订单
+     *
+     * @param expiredTime 超时时间
+     */
+    int autoUpdateExpiredOrder(Date expiredTime);
 }

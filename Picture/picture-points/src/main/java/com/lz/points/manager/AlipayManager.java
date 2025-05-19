@@ -140,11 +140,11 @@ public class AlipayManager {
             // request.putOtherTextParam("app_auth_token", "<-- 请填写应用授权令牌 -->");
 
             AlipayTradeQueryResponse response = alipayClient.execute(request);
-            System.err.println("response = " + JSON.toJSONString(response));
-            System.out.println("body" + response.getBody());
+//            System.err.println("response = " + JSON.toJSONString(response));
+//            System.out.println("body" + response.getBody());
 
             if (response.isSuccess()) {
-                System.out.println("调用成功");
+//                System.out.println("调用成功");
                 //获取到body内部alipay_trade_query_response
                 JSONObject jsonObject = JSONObject.parseObject(response.getBody());
                 String alipayTradeQueryResponse = jsonObject.get("alipay_trade_query_response").toString();

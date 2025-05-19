@@ -130,7 +130,9 @@ public class PayServiceImpl implements IPayService {
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         BeanUtils.copyProperties(deviceInfo, orderInfo);
         orderInfo.setIpAddr(deviceInfo.getIpaddr());
-        paymentOrderInfoService.insertPaymentOrderInfo(orderInfo);
+        Date nowDate = DateUtils.getNowDate();
+        orderInfo.setCreateTime(nowDate);
+        paymentOrderInfoService.save(orderInfo);
         //充值记录信息
         PointsRechargeInfo rechargeInfo = new PointsRechargeInfo();
         rechargeInfo.setRechargeId(IdUtils.snowflakeId().toString());
@@ -150,7 +152,8 @@ public class PayServiceImpl implements IPayService {
         rechargeInfo.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_0.getValue());
         BeanUtils.copyProperties(deviceInfo, rechargeInfo);
         rechargeInfo.setIpAddr(deviceInfo.getIpaddr());
-        pointsRechargeInfoService.insertPointsRechargeInfo(rechargeInfo);
+        rechargeInfo.setCreateTime(nowDate);
+        pointsRechargeInfoService.save(rechargeInfo);
     }
 
     @Override
@@ -249,24 +252,24 @@ public class PayServiceImpl implements IPayService {
         if (PayConstants.TRADE_SUCCESS.equals(response.getTradeStatus())) {
             paymentOrderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_1.getValue());
             rechargeInfo.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
-            System.out.println("支付成功");
+//            System.out.println("支付成功");
         }
         if (PayConstants.TRADE_FINISHED.equals(response.getTradeStatus())) {
             paymentOrderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_1.getValue());
             rechargeInfo.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
-            System.out.println("支付成功");
+//            System.out.println("支付成功");
         }
         if (PayConstants.TRADE_CLOSED.equals(response.getTradeStatus())) {
             paymentOrderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_3.getValue());
             rechargeInfo.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_3.getValue());
-            System.out.println("支付关闭");
+//            System.out.println("支付关闭");
         }
         if (PayConstants.WAIT_BUYER_PAY.equals(response.getTradeStatus())) {
             rechargeInfo.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_0.getValue());
             paymentOrderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_0.getValue());
-            System.out.println("尚未支付");
+//            System.out.println("尚未支付");
         }
-        System.out.println("paymentResponse = " + JSON.toJSONString(response));
+//        System.out.println("paymentResponse = " + JSON.toJSONString(response));
         //查询到用户账户
         AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userId);
         //判断用户账户是否存在

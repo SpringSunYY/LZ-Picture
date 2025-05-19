@@ -55,7 +55,7 @@ public class UserPayController extends BaseUserInfoController {
 
         HashMap<String, String> map = new HashMap<>();
         for (String s : parameterMap.keySet()) {
-            System.out.println(s + "--" + parameterMap.get(s)[0]);
+//            System.out.println(s + "--" + parameterMap.get(s)[0]);
             map.put(s, parameterMap.get(s)[0]);
         }
         String redirectUrl = payService.alipayCallback(map);
