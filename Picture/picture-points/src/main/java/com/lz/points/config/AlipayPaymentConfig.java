@@ -80,4 +80,14 @@ public class AlipayPaymentConfig {
      */
     @Value("${alipay.timeoutExpress}")
     private String timeoutExpress;
+    /**
+     * 连接超时时间
+     */
+    @Value("${alipay.connectTimeout}")
+    private Integer connectTimeout;
+    /**
+     * 读取超时
+     */
+    @Value("${alipay.readTimeout}")
+    private Integer readTimeout;
 }

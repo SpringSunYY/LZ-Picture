@@ -1,5 +1,6 @@
 package com.lz.points.model.dto.paymentOrderInfo;
 
+import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,10 +21,11 @@ import com.lz.points.model.domain.PaymentOrderInfo;
  * 支付订单Query对象 po_payment_order_info
  *
  * @author YY
- * @date 2025-05-17
+ * @date 2025-05-19
  */
 @Data
 public class PaymentOrderInfoQuery implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -37,6 +39,11 @@ public class PaymentOrderInfoQuery implements Serializable {
     private String userId;
 
     /**
+     * 订单类型
+     */
+    private String orderType;
+
+    /**
      * 订单状态
      */
     private String orderStatus;
@@ -45,26 +52,6 @@ public class PaymentOrderInfoQuery implements Serializable {
      * 支付方式
      */
     private String paymentType;
-
-    /**
-     * 订单总金额
-     */
-    private BigDecimal totalAmount;
-
-    /**
-     * 实付金额
-     */
-    private BigDecimal buyerPayAmount;
-
-    /**
-     * 实收金额
-     */
-    private BigDecimal receiptAmount;
-
-    /**
-     * 平台优惠金额
-     */
-    private BigDecimal discountAmount;
 
     /**
      * 第三方支付平台
@@ -101,11 +88,6 @@ public class PaymentOrderInfoQuery implements Serializable {
      * 支付返回Msg
      */
     private String paymentMsg;
-
-    /**
-     * 支付返回额外信息
-     */
-    private String paymentExtend;
 
     /**
      * 创建时间

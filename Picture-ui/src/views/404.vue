@@ -26,7 +26,7 @@
   </a-layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { HomeOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 

@@ -47,6 +47,8 @@ public class AlipayManager {
         alipayConfig.setAlipayPublicKey(config.getPublicKey());
         alipayConfig.setCharset(config.getCharset());
         alipayConfig.setSignType(config.getSignType());
+//        alipayConfig.setConnectTimeout(config.getConnectTimeout());
+//        alipayConfig.setReadTimeout(config.getReadTimeout());
         return alipayConfig;
     }
 

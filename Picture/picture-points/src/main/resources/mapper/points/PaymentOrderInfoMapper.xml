@@ -7,6 +7,7 @@
     <resultMap type="PaymentOrderInfo" id="PaymentOrderInfoResult">
         <result property="orderId" column="order_id"/>
         <result property="userId" column="user_id"/>
+        <result property="orderType" column="order_type"/>
         <result property="orderStatus" column="order_status"/>
         <result property="paymentType" column="payment_type"/>
         <result property="totalAmount" column="total_amount"/>
@@ -36,6 +37,7 @@
     <sql id="selectPaymentOrderInfoVo">
         select order_id,
                user_id,
+               order_type,
                order_status,
                payment_type,
                total_amount,
@@ -68,12 +70,9 @@
         <where>
             <if test="orderId != null  and orderId != ''">and order_id = #{orderId}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="orderType != null  and orderType != ''">and order_type = #{orderType}</if>
             <if test="orderStatus != null  and orderStatus != ''">and order_status = #{orderStatus}</if>
             <if test="paymentType != null  and paymentType != ''">and payment_type = #{paymentType}</if>
-            <if test="totalAmount != null ">and total_amount = #{totalAmount}</if>
-            <if test="buyerPayAmount != null ">and buyer_pay_amount = #{buyerPayAmount}</if>
-            <if test="receiptAmount != null ">and receipt_amount = #{receiptAmount}</if>
-            <if test="discountAmount != null ">and discount_amount = #{discountAmount}</if>
             <if test="thirdParty != null  and thirdParty != ''">and third_party = #{thirdParty}</if>
             <if test="thirdUserId != null  and thirdUserId != ''">and third_user_id = #{thirdUserId}</if>
             <if test="thirdPartyOrder != null  and thirdPartyOrder != ''">and third_party_order = #{thirdPartyOrder}
@@ -85,7 +84,6 @@
             <if test="paymentStatus != null  and paymentStatus != ''">and payment_status = #{paymentStatus}</if>
             <if test="paymentCode != null  and paymentCode != ''">and payment_code = #{paymentCode}</if>
             <if test="paymentMsg != null  and paymentMsg != ''">and payment_msg = #{paymentMsg}</if>
-            <if test="paymentExtend != null  and paymentExtend != ''">and payment_extend = #{paymentExtend}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
@@ -113,6 +111,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="orderId != null">order_id,</if>
             <if test="userId != null and userId != ''">user_id,</if>
+            <if test="orderType != null and orderType != ''">order_type,</if>
             <if test="orderStatus != null and orderStatus != ''">order_status,</if>
             <if test="paymentType != null and paymentType != ''">payment_type,</if>
             <if test="totalAmount != null">total_amount,</if>
@@ -141,6 +140,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="orderId != null">#{orderId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="orderType != null and orderType != ''">#{orderType},</if>
             <if test="orderStatus != null and orderStatus != ''">#{orderStatus},</if>
             <if test="paymentType != null and paymentType != ''">#{paymentType},</if>
             <if test="totalAmount != null">#{totalAmount},</if>
@@ -172,6 +172,7 @@
         update po_payment_order_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="orderType != null and orderType != ''">order_type = #{orderType},</if>
             <if test="orderStatus != null and orderStatus != ''">order_status = #{orderStatus},</if>
             <if test="paymentType != null and paymentType != ''">payment_type = #{paymentType},</if>
             <if test="totalAmount != null">total_amount = #{totalAmount},</if>

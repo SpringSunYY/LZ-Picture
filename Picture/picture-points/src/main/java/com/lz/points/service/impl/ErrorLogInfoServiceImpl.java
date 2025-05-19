@@ -6,13 +6,18 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
+import com.alipay.api.AlipayApiException;
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.ip.IpUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,6 +33,7 @@ import com.lz.points.model.vo.errorLogInfo.ErrorLogInfoVo;
  * @author YY
  * @date 2025-05-19
  */
+@Slf4j
 @Service
 public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, ErrorLogInfo> implements IErrorLogInfoService {
     @Resource
@@ -117,11 +123,17 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
         String userId = errorLogInfoQuery.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
+        String orderType = errorLogInfoQuery.getOrderType();
+        queryWrapper.eq(StringUtils.isNotEmpty(orderType), "order_type", orderType);
+
         String methodType = errorLogInfoQuery.getMethodType();
         queryWrapper.eq(StringUtils.isNotEmpty(methodType), "method_type", methodType);
 
         String thirdParty = errorLogInfoQuery.getThirdParty();
         queryWrapper.like(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);
+
+        String thirdPartyOrder = errorLogInfoQuery.getThirdPartyOrder();
+        queryWrapper.eq(StringUtils.isNotEmpty(thirdPartyOrder), "third_party_order", thirdPartyOrder);
 
         String errorType = errorLogInfoQuery.getErrorType();
         queryWrapper.eq(StringUtils.isNotEmpty(errorType), "error_type", errorType);
@@ -161,7 +173,6 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
 
         Date resolveTime = errorLogInfoQuery.getResolveTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginResolveTime")) && StringUtils.isNotNull(params.get("endResolveTime")), "resolve_time", params.get("beginResolveTime"), params.get("endResolveTime"));
-
         return queryWrapper;
     }
 
@@ -171,6 +182,28 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
             return Collections.emptyList();
         }
         return errorLogInfoList.stream().map(ErrorLogInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public int saveErrorLogInfo(String userId, String paymentType, String payType, String orderType, String errorType, String errorCode, String errorMsg, Object result) {
+        try {
+            ErrorLogInfo errorLogInfo = new ErrorLogInfo();
+            errorLogInfo.setUserId(userId);
+            errorLogInfo.setMethodType(paymentType);
+            errorLogInfo.setThirdParty(payType);
+            errorLogInfo.setOrderType(orderType);
+            errorLogInfo.setErrorType(errorType);
+            errorLogInfo.setErrorCode(errorCode);
+            errorLogInfo.setErrorMsg(errorMsg);
+            errorLogInfo.setPaymentExtend(JSON.toJSONString(result));
+            errorLogInfo.setCreateTime(DateUtils.getNowDate());
+            DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+            BeanUtils.copyProperties(deviceInfo, errorLogInfo);
+            return this.save(errorLogInfo) ? 1 : 0;
+        } catch (Exception e) {
+            log.error("时间：{},保存异常信息失败:{}", DateUtils.getNowDate(), JSON.toJSONString(e));
+        }
+        return 0;
     }
 
 }

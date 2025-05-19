@@ -17,6 +17,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="订单类型" prop="orderType">
+        <el-select v-model="queryParams.orderType" style="width: 200px" placeholder="请选择订单类型" clearable>
+          <el-option
+              v-for="dict in po_order_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="支付方式" prop="methodType">
         <el-select v-model="queryParams.methodType" style="width: 200px" placeholder="请选择支付方式" clearable>
           <el-option
@@ -27,10 +37,18 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="第三方支付平台" prop="thirdParty">
+      <el-form-item label="支付平台" prop="thirdParty">
         <el-input
             v-model="queryParams.thirdParty"
             placeholder="请输入第三方支付平台"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="平台订单" prop="thirdPartyOrder">
+        <el-input
+            v-model="queryParams.thirdPartyOrder"
+            placeholder="请输入第三方支付平台订单号"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -43,7 +61,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="返回Code" prop="errorCode">
+      <el-form-item label="Code" prop="errorCode">
         <el-input
             v-model="queryParams.errorCode"
             placeholder="请输入返回Code"
@@ -51,7 +69,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="返回Msg" prop="errorMsg">
+      <el-form-item label="Msg" prop="errorMsg">
         <el-input
             v-model="queryParams.errorMsg"
             placeholder="请输入返回Msg"
@@ -59,7 +77,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="相关订单编号" prop="relatedOrderId">
+      <el-form-item label="订单编号" prop="relatedOrderId">
         <el-input
             v-model="queryParams.relatedOrderId"
             placeholder="请输入相关订单编号"
@@ -67,17 +85,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="异常记录时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeCreateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
-      <el-form-item label="设备唯一标识" prop="deviceId">
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入设备唯一标识"
@@ -85,7 +93,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -134,6 +142,16 @@
               :value="dict.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="记录时间" style="width: 308px">
+        <el-date-picker
+            v-model="daterangeCreateTime"
+            value-format="YYYY-MM-DD"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+        ></el-date-picker>
       </el-form-item>
       <el-form-item label="解决时间" style="width: 308px">
         <el-date-picker
@@ -203,56 +221,63 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="支付方式" align="center" prop="methodType" v-if="columns[2].visible">
+      <el-table-column label="订单类型" align="center" prop="orderType" v-if="columns[2].visible">
+        <template #default="scope">
+          <dict-tag :options="po_order_type" :value="scope.row.orderType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="支付方式" align="center" prop="methodType" v-if="columns[3].visible">
         <template #default="scope">
           <dict-tag :options="po_payment_type" :value="scope.row.methodType"/>
         </template>
       </el-table-column>
-      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[3].visible"
+      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="异常类型" align="center" prop="errorType" v-if="columns[4].visible">
+      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[5].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="异常类型" align="center" prop="errorType" v-if="columns[6].visible">
         <template #default="scope">
           <dict-tag :options="po_error_log_type" :value="scope.row.errorType"/>
         </template>
       </el-table-column>
-      <el-table-column label="返回Code" align="center" prop="errorCode" v-if="columns[5].visible"
+      <el-table-column label="返回Code" align="center" prop="errorCode" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="返回Msg" align="center" prop="errorMsg" v-if="columns[6].visible"
+      <el-table-column label="返回Msg" align="center" prop="errorMsg" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="额外信息" align="center" prop="paymentExtend" v-if="columns[7].visible"
+      <el-table-column label="额外信息" align="center" prop="paymentExtend" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="相关订单编号" align="center" prop="relatedOrderId" v-if="columns[8].visible"
+      <el-table-column label="相关订单编号" align="center" prop="relatedOrderId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="异常记录时间" align="center" prop="createTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="异常记录时间" align="center" prop="createTime" width="180" v-if="columns[11].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[10].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[11].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[12].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[13].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[14].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[15].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="解决状态" align="center" prop="resolveStatus" v-if="columns[16].visible">
+      <el-table-column label="解决状态" align="center" prop="resolveStatus" v-if="columns[18].visible">
         <template #default="scope">
           <dict-tag :options="po_error_resolve_status" :value="scope.row.resolveStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="解决时间" align="center" prop="resolveTime" width="180" v-if="columns[17].visible"
+      <el-table-column label="解决时间" align="center" prop="resolveTime" width="180" v-if="columns[19].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.resolveTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[18].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -280,6 +305,16 @@
         <el-form-item label="用户编号" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户编号"/>
         </el-form-item>
+        <el-form-item label="订单类型" prop="orderType">
+          <el-select v-model="form.orderType" placeholder="请选择订单类型">
+            <el-option
+                v-for="dict in po_order_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="支付方式" prop="methodType">
           <el-select v-model="form.methodType" placeholder="请选择支付方式">
             <el-option
@@ -293,20 +328,24 @@
         <el-form-item label="第三方支付平台" prop="thirdParty">
           <el-input v-model="form.thirdParty" placeholder="请输入第三方支付平台"/>
         </el-form-item>
+        <el-form-item label="第三方支付平台订单号" prop="thirdPartyOrder">
+          <el-input v-model="form.thirdPartyOrder" placeholder="请输入第三方支付平台订单号"/>
+        </el-form-item>
         <el-form-item label="异常类型" prop="errorType">
           <el-input v-model="form.errorType" placeholder="请输入异常类型"/>
         </el-form-item>
-        <el-form-item label="返回Code" prop="errorCode">
-          <el-input v-model="form.errorCode" placeholder="请输入返回Code"/>
-        </el-form-item>
-        <el-form-item label="返回Msg" prop="errorMsg">
-          <el-input v-model="form.errorMsg" placeholder="请输入返回Msg"/>
-        </el-form-item>
-        <el-form-item label="额外信息" prop="paymentExtend">
-          <el-input v-model="form.paymentExtend" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
         <el-form-item label="相关订单编号" prop="relatedOrderId">
           <el-input v-model="form.relatedOrderId" placeholder="请输入相关订单编号"/>
+        </el-form-item>
+        <el-form-item label="解决状态" prop="resolveStatus">
+          <el-radio-group v-model="form.resolveStatus">
+            <el-radio
+                v-for="dict in po_error_resolve_status"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="解决时间" prop="resolveTime">
           <el-date-picker clearable
@@ -340,7 +379,11 @@ import {
 } from "@/api/points/errorLogInfo";
 
 const {proxy} = getCurrentInstance();
-const {po_error_resolve_status, po_payment_type} = proxy.useDict('po_error_resolve_status', 'po_payment_type');
+const {
+  po_error_resolve_status,
+  po_payment_type,
+  po_order_type
+} = proxy.useDict('po_error_resolve_status', 'po_payment_type', 'po_order_type');
 
 const errorLogInfoList = ref([]);
 const open = ref(false);
@@ -361,8 +404,10 @@ const data = reactive({
     pageSize: 10,
     errorId: null,
     userId: null,
+    orderType: null,
     methodType: null,
     thirdParty: null,
+    thirdPartyOrder: null,
     errorType: null,
     errorCode: null,
     errorMsg: null,
@@ -378,6 +423,9 @@ const data = reactive({
     resolveTime: null,
   },
   rules: {
+    orderType: [
+      {required: true, message: "订单类型不能为空", trigger: "change"}
+    ],
     methodType: [
       {required: true, message: "支付方式不能为空", trigger: "change"}
     ],
@@ -399,25 +447,27 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '异常编号', visible: true},
+    {key: 0, label: '异常编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
-    {key: 2, label: '支付方式', visible: true},
-    {key: 3, label: '第三方支付平台', visible: true},
-    {key: 4, label: '异常类型', visible: true},
-    {key: 5, label: '返回Code', visible: true},
-    {key: 6, label: '返回Msg', visible: true},
-    {key: 7, label: '额外信息', visible: true},
-    {key: 8, label: '相关订单编号', visible: true},
-    {key: 9, label: '异常记录时间', visible: true},
-    {key: 10, label: '设备唯一标识', visible: true},
-    {key: 11, label: '浏览器类型', visible: true},
-    {key: 12, label: '操作系统', visible: true},
-    {key: 13, label: '平台', visible: true},
-    {key: 14, label: 'IP地址', visible: true},
-    {key: 15, label: 'IP属地', visible: true},
-    {key: 16, label: '解决状态', visible: true},
-    {key: 17, label: '解决时间', visible: true},
-    {key: 18, label: '备注', visible: true},
+    {key: 2, label: '订单类型', visible: true},
+    {key: 3, label: '支付方式', visible: true},
+    {key: 4, label: '第三方支付平台', visible: true},
+    {key: 5, label: '第三方支付平台订单号', visible: false},
+    {key: 6, label: '异常类型', visible: true},
+    {key: 7, label: '返回Code', visible: true},
+    {key: 8, label: '返回Msg', visible: true},
+    {key: 9, label: '额外信息', visible: false},
+    {key: 10, label: '相关订单编号', visible: true},
+    {key: 11, label: '异常记录时间', visible: true},
+    {key: 12, label: '设备唯一标识', visible: false},
+    {key: 13, label: '浏览器类型', visible: false},
+    {key: 14, label: '操作系统', visible: false},
+    {key: 15, label: '平台', visible: false},
+    {key: 16, label: 'IP地址', visible: false},
+    {key: 17, label: 'IP属地', visible: false},
+    {key: 18, label: '解决状态', visible: true},
+    {key: 19, label: '解决时间', visible: true},
+    {key: 20, label: '备注', visible: false},
   ],
 });
 
@@ -453,8 +503,10 @@ function reset() {
   form.value = {
     errorId: null,
     userId: null,
+    orderType: null,
     methodType: null,
     thirdParty: null,
+    thirdPartyOrder: null,
     errorType: null,
     errorCode: null,
     errorMsg: null,

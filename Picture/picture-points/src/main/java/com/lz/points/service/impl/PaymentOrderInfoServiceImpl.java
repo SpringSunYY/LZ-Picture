@@ -120,23 +120,14 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
         String userId = paymentOrderInfoQuery.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
+        String orderType = paymentOrderInfoQuery.getOrderType();
+        queryWrapper.eq(StringUtils.isNotEmpty(orderType), "order_type", orderType);
+
         String orderStatus = paymentOrderInfoQuery.getOrderStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(orderStatus), "order_status", orderStatus);
 
         String paymentType = paymentOrderInfoQuery.getPaymentType();
         queryWrapper.eq(StringUtils.isNotEmpty(paymentType), "payment_type", paymentType);
-
-        BigDecimal totalAmount = paymentOrderInfoQuery.getTotalAmount();
-        queryWrapper.eq(StringUtils.isNotNull(totalAmount), "total_amount", totalAmount);
-
-        BigDecimal buyerPayAmount = paymentOrderInfoQuery.getBuyerPayAmount();
-        queryWrapper.eq(StringUtils.isNotNull(buyerPayAmount), "buyer_pay_amount", buyerPayAmount);
-
-        BigDecimal receiptAmount = paymentOrderInfoQuery.getReceiptAmount();
-        queryWrapper.eq(StringUtils.isNotNull(receiptAmount), "receipt_amount", receiptAmount);
-
-        BigDecimal discountAmount = paymentOrderInfoQuery.getDiscountAmount();
-        queryWrapper.eq(StringUtils.isNotNull(discountAmount), "discount_amount", discountAmount);
 
         String thirdParty = paymentOrderInfoQuery.getThirdParty();
         queryWrapper.eq(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);
@@ -159,8 +150,6 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
         String paymentMsg = paymentOrderInfoQuery.getPaymentMsg();
         queryWrapper.eq(StringUtils.isNotEmpty(paymentMsg), "payment_msg", paymentMsg);
 
-        String paymentExtend = paymentOrderInfoQuery.getPaymentExtend();
-        queryWrapper.eq(StringUtils.isNotEmpty(paymentExtend), "payment_extend", paymentExtend);
 
         Date createTime = paymentOrderInfoQuery.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
@@ -191,6 +180,7 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
 
         return queryWrapper;
     }
+
 
     @Override
     public List<PaymentOrderInfoVo> convertVoList(List<PaymentOrderInfo> paymentOrderInfoList) {

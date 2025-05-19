@@ -1,5 +1,6 @@
 package com.lz.points.model.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -19,11 +20,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 异常捕获对象 po_error_log_info
  *
  * @author YY
- * @date 2025-05-19
+ * @date 2025-05-20
  */
 @TableName("po_error_log_info")
 @Data
 public class ErrorLogInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -40,6 +42,12 @@ public class ErrorLogInfo implements Serializable {
     private String userId;
 
     /**
+     * 订单类型
+     */
+    @Excel(name = "订单类型")
+    private String orderType;
+
+    /**
      * 支付方式
      */
     @Excel(name = "支付方式")
@@ -50,6 +58,12 @@ public class ErrorLogInfo implements Serializable {
      */
     @Excel(name = "第三方支付平台")
     private String thirdParty;
+
+    /**
+     * 第三方支付平台订单号
+     */
+    @Excel(name = "第三方支付平台订单号")
+    private String thirdPartyOrder;
 
     /**
      * 异常类型

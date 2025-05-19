@@ -82,6 +82,9 @@ public class PayServiceImpl implements IPayService {
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    @Resource
+    private IErrorLogInfoService errorLogInfoService;
+
     @Override
     public AlipayPcPaymentVo alipayWeb(PayRequest payRequest) {
         //首先查询套餐详情
@@ -132,6 +135,7 @@ public class PayServiceImpl implements IPayService {
 //        orderInfo.setIpAddr(deviceInfo.getIpaddr());
         Date nowDate = DateUtils.getNowDate();
         orderInfo.setCreateTime(nowDate);
+        orderInfo.setOrderType(PoOrderTypeEnum.ORDER_TYPE_0.getValue());
         paymentOrderInfoService.save(orderInfo);
         //充值记录信息
         PointsRechargeInfo rechargeInfo = new PointsRechargeInfo();
@@ -165,21 +169,36 @@ public class PayServiceImpl implements IPayService {
                     alipayPaymentConfig.getCharset(),
                     alipayPaymentConfig.getSignType());
         } catch (AlipayApiException e) {
-            log.error("时间：{}获取支付宝签名失败：{}", DateUtils.getNowDate(), e);
+            log.error("时间：{}获取支付宝签名失败：{}", DateUtils.getNowDate(), JSON.toJSONString(e));
 //            throw new RuntimeException("获取支付宝签名失败！！！");
+            //记录日志
+            errorLogInfoService.saveErrorLogInfo(null,
+                    PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                    ALIPAY_WEB,
+                    PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
+                    null, null, e);
             return alipayPaymentConfig.getRedirectUrl();
         }
 
-        System.out.println("sign = " + sign);
         if (!sign) {
             log.error("时间：{}签名验证失败：{}", DateUtils.getNowDate(), sign);
+            //记录日志
+            errorLogInfoService.saveErrorLogInfo(null,
+                    PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                    ALIPAY_WEB,
+                    PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
+                    null, null, sign);
             return alipayPaymentConfig.getRedirectUrl();
-        } else {
-            //转换map为json
-            String json = JSON.toJSONString(map);
-            //转换JSON为阿里支付回调请求参数实体
-            AlipayCallbackRequest alipayCallbackRequest = JSON.parseObject(json, AlipayCallbackRequest.class); //转换map为json
-            AlipayTradeQueryResponse response = alipayManager.query(alipayCallbackRequest.getOutTradeNo(), alipayCallbackRequest.getTradeNo());
+        }
+        //转换map为json
+        String json = JSON.toJSONString(map);
+        //转换JSON为阿里支付回调请求参数实体
+        AlipayCallbackRequest alipayCallbackRequest = JSON.parseObject(json, AlipayCallbackRequest.class); //转换map为json
+        AlipayTradeQueryResponse response = null;
+        try {
+            response = alipayManager.query(alipayCallbackRequest.getOutTradeNo(), alipayCallbackRequest.getTradeNo());
             if (response.isSuccess()) {
                 //执行积分充值
                 PaymentOrderInfo paymentOrderInfo = executePointsRecharge(response);
@@ -188,10 +207,32 @@ public class PayServiceImpl implements IPayService {
                     return null;
                 }
                 redisCache.deleteObject(POINTS_ORDER_DETAIL + paymentOrderInfo.getOrderId() + COMMON_SEPARATOR_CACHE + paymentOrderInfo.getUserId());
-                return alipayPaymentConfig.getRedirectUrl();
+            } else {
+                //失败
+                log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), response.getMsg());
+                //记录日志
+                errorLogInfoService.saveErrorLogInfo(null,
+                        PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                        ALIPAY_WEB,
+                        PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                        PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
+                        StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
+                        StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
+                        response);
             }
-            return alipayPaymentConfig.getRedirectUrl();
+        } catch (Exception e) {
+            log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), JSON.toJSONString(e));
+            //记录日志
+            errorLogInfoService.saveErrorLogInfo(null,
+                    PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                    ALIPAY_WEB,
+                    PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
+                    StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
+                    StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
+                    StringUtils.isNotNull(response) ? response : e);
         }
+        return alipayPaymentConfig.getRedirectUrl();
     }
 
     private PaymentOrderInfo executePointsRecharge(AlipayTradeQueryResponse response) {

@@ -7,8 +7,10 @@
     <resultMap type="ErrorLogInfo" id="ErrorLogInfoResult">
         <result property="errorId" column="error_id"/>
         <result property="userId" column="user_id"/>
+        <result property="orderType" column="order_type"/>
         <result property="methodType" column="method_type"/>
         <result property="thirdParty" column="third_party"/>
+        <result property="thirdPartyOrder" column="third_party_order"/>
         <result property="errorType" column="error_type"/>
         <result property="errorCode" column="error_code"/>
         <result property="errorMsg" column="error_msg"/>
@@ -29,8 +31,10 @@
     <sql id="selectErrorLogInfoVo">
         select error_id,
                user_id,
+               order_type,
                method_type,
                third_party,
+               third_party_order,
                error_type,
                error_code,
                error_msg,
@@ -54,8 +58,11 @@
         <where>
             <if test="errorId != null  and errorId != ''">and error_id = #{errorId}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="orderType != null  and orderType != ''">and order_type = #{orderType}</if>
             <if test="methodType != null  and methodType != ''">and method_type = #{methodType}</if>
             <if test="thirdParty != null  and thirdParty != ''">and third_party like concat('%', #{thirdParty}, '%')
+            </if>
+            <if test="thirdPartyOrder != null  and thirdPartyOrder != ''">and third_party_order = #{thirdPartyOrder}
             </if>
             <if test="errorType != null  and errorType != ''">and error_type = #{errorType}</if>
             <if test="errorCode != null  and errorCode != ''">and error_code = #{errorCode}</if>
@@ -76,6 +83,7 @@
                 #{params.endResolveTime}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectErrorLogInfoByErrorId" parameterType="String" resultMap="ErrorLogInfoResult">
@@ -88,8 +96,10 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="errorId != null">error_id,</if>
             <if test="userId != null">user_id,</if>
+            <if test="orderType != null and orderType != ''">order_type,</if>
             <if test="methodType != null and methodType != ''">method_type,</if>
             <if test="thirdParty != null and thirdParty != ''">third_party,</if>
+            <if test="thirdPartyOrder != null">third_party_order,</if>
             <if test="errorType != null and errorType != ''">error_type,</if>
             <if test="errorCode != null">error_code,</if>
             <if test="errorMsg != null">error_msg,</if>
@@ -109,8 +119,10 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="errorId != null">#{errorId},</if>
             <if test="userId != null">#{userId},</if>
+            <if test="orderType != null and orderType != ''">#{orderType},</if>
             <if test="methodType != null and methodType != ''">#{methodType},</if>
             <if test="thirdParty != null and thirdParty != ''">#{thirdParty},</if>
+            <if test="thirdPartyOrder != null">#{thirdPartyOrder},</if>
             <if test="errorType != null and errorType != ''">#{errorType},</if>
             <if test="errorCode != null">#{errorCode},</if>
             <if test="errorMsg != null">#{errorMsg},</if>
@@ -133,8 +145,10 @@
         update po_error_log_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
+            <if test="orderType != null and orderType != ''">order_type = #{orderType},</if>
             <if test="methodType != null and methodType != ''">method_type = #{methodType},</if>
             <if test="thirdParty != null and thirdParty != ''">third_party = #{thirdParty},</if>
+            <if test="thirdPartyOrder != null">third_party_order = #{thirdPartyOrder},</if>
             <if test="errorType != null and errorType != ''">error_type = #{errorType},</if>
             <if test="errorCode != null">error_code = #{errorCode},</if>
             <if test="errorMsg != null">error_msg = #{errorMsg},</if>

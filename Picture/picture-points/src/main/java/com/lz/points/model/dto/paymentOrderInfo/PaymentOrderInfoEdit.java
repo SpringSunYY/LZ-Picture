@@ -1,5 +1,6 @@
 package com.lz.points.model.dto.paymentOrderInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,10 +14,11 @@ import com.lz.points.model.domain.PaymentOrderInfo;
  * 支付订单Vo对象 po_payment_order_info
  *
  * @author YY
- * @date 2025-05-17
+ * @date 2025-05-19
  */
 @Data
 public class PaymentOrderInfoEdit implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -30,6 +32,11 @@ public class PaymentOrderInfoEdit implements Serializable {
     private String userId;
 
     /**
+     * 订单类型
+     */
+    private String orderType;
+
+    /**
      * 订单状态
      */
     private String orderStatus;
@@ -40,9 +47,60 @@ public class PaymentOrderInfoEdit implements Serializable {
     private String paymentType;
 
     /**
-     * 删除
+     * 订单总金额
      */
-    private String isDelete;
+    private BigDecimal totalAmount;
+
+    /**
+     * 实付金额
+     */
+    private BigDecimal buyerPayAmount;
+
+    /**
+     * 实收金额
+     */
+    private BigDecimal receiptAmount;
+
+    /**
+     * 平台优惠金额
+     */
+    private BigDecimal discountAmount;
+
+    /**
+     * 第三方支付平台
+     */
+    private String thirdParty;
+
+    /**
+     * 第三方用户编号
+     */
+    private String thirdUserId;
+
+    /**
+     * 第三方支付平台订单号
+     */
+    private String thirdPartyOrder;
+
+    /**
+     * 支付时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date paymentTime;
+
+    /**
+     * 支付状态
+     */
+    private String paymentStatus;
+
+    /**
+     * 支付返回Code
+     */
+    private String paymentCode;
+
+    /**
+     * 支付返回Msg
+     */
+    private String paymentMsg;
 
     /**
      * 备注

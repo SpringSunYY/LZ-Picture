@@ -1,5 +1,6 @@
 package com.lz.points.model.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -20,11 +21,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 支付订单对象 po_payment_order_info
  *
  * @author YY
- * @date 2025-05-17
+ * @date 2025-05-19
  */
 @TableName("po_payment_order_info")
 @Data
 public class PaymentOrderInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -39,6 +41,12 @@ public class PaymentOrderInfo implements Serializable {
      */
     @Excel(name = "用户编号")
     private String userId;
+
+    /**
+     * 订单类型
+     */
+    @Excel(name = "订单类型")
+    private String orderType;
 
     /**
      * 订单状态

@@ -1,5 +1,6 @@
 package com.lz.points.model.dto.errorLogInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,10 +13,11 @@ import com.lz.points.model.domain.ErrorLogInfo;
  * 异常捕获Vo对象 po_error_log_info
  *
  * @author YY
- * @date 2025-05-19
+ * @date 2025-05-20
  */
 @Data
 public class ErrorLogInfoInsert implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,6 +31,11 @@ public class ErrorLogInfoInsert implements Serializable {
     private String userId;
 
     /**
+     * 订单类型
+     */
+    private String orderType;
+
+    /**
      * 支付方式
      */
     private String methodType;
@@ -39,29 +46,24 @@ public class ErrorLogInfoInsert implements Serializable {
     private String thirdParty;
 
     /**
+     * 第三方支付平台订单号
+     */
+    private String thirdPartyOrder;
+
+    /**
      * 异常类型
      */
     private String errorType;
 
     /**
-     * 返回Code
-     */
-    private String errorCode;
-
-    /**
-     * 返回Msg
-     */
-    private String errorMsg;
-
-    /**
-     * 额外信息
-     */
-    private String paymentExtend;
-
-    /**
      * 相关订单编号
      */
     private String relatedOrderId;
+
+    /**
+     * 解决状态
+     */
+    private String resolveStatus;
 
     /**
      * 解决时间

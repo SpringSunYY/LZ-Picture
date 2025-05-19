@@ -1,5 +1,6 @@
 package com.lz.points.model.vo.paymentOrderInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -16,10 +17,11 @@ import com.lz.points.model.domain.PaymentOrderInfo;
  * 支付订单Vo对象 po_payment_order_info
  *
  * @author YY
- * @date 2025-05-17
+ * @date 2025-05-19
  */
 @Data
 public class PaymentOrderInfoVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,6 +35,12 @@ public class PaymentOrderInfoVo implements Serializable {
      */
     @Excel(name = "用户编号")
     private String userId;
+
+    /**
+     * 订单类型
+     */
+    @Excel(name = "订单类型")
+    private String orderType;
 
     /**
      * 订单状态

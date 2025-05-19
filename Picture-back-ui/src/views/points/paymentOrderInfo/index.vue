@@ -17,6 +17,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="订单类型" prop="orderType">
+        <el-select v-model="queryParams.orderType" style="width: 200px" placeholder="请选择订单类型" clearable>
+          <el-option
+              v-for="dict in po_order_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="订单状态" prop="orderStatus">
         <el-select v-model="queryParams.orderStatus" style="width: 200px" placeholder="请选择订单状态" clearable>
           <el-option
@@ -45,7 +55,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="平台用户" prop="thirdUserId">
+      <el-form-item label="用户编号" prop="thirdUserId">
         <el-input
             v-model="queryParams.thirdUserId"
             placeholder="请输入第三方用户编号"
@@ -98,6 +108,16 @@
       <el-form-item label="创建时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeCreateTime"
+            value-format="YYYY-MM-DD"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
+      <el-form-item label="更新时间" style="width: 308px">
+        <el-date-picker
+            v-model="daterangeUpdateTime"
             value-format="YYYY-MM-DD"
             type="daterange"
             range-separator="-"
@@ -221,73 +241,78 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="订单状态" align="center" prop="orderStatus" v-if="columns[2].visible">
+      <el-table-column label="订单类型" align="center" prop="orderType" v-if="columns[2].visible">
+        <template #default="scope">
+          <dict-tag :options="po_order_type" :value="scope.row.orderType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="订单状态" align="center" prop="orderStatus" v-if="columns[3].visible">
         <template #default="scope">
           <dict-tag :options="po_order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="支付方式" align="center" prop="paymentType" v-if="columns[3].visible">
+      <el-table-column label="支付方式" align="center" prop="paymentType" v-if="columns[4].visible">
         <template #default="scope">
           <dict-tag :options="po_payment_type" :value="scope.row.paymentType"/>
         </template>
       </el-table-column>
-      <el-table-column label="订单总金额" align="center" prop="totalAmount" v-if="columns[4].visible"
+      <el-table-column label="订单总金额" align="center" prop="totalAmount" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" v-if="columns[5].visible"
+      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实收金额" align="center" prop="receiptAmount" v-if="columns[6].visible"
+      <el-table-column label="实收金额" align="center" prop="receiptAmount" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台优惠金额" align="center" prop="discountAmount" v-if="columns[7].visible"
+      <el-table-column label="平台优惠金额" align="center" prop="discountAmount" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[8].visible"
+      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方用户编号" align="center" prop="thirdUserId" v-if="columns[9].visible"
+      <el-table-column label="第三方用户编号" align="center" prop="thirdUserId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[10].visible"
+      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="支付时间" align="center" prop="paymentTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="支付时间" align="center" prop="paymentTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.paymentTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="支付状态" align="center" prop="paymentStatus" v-if="columns[12].visible"/>
-      <el-table-column label="支付返回Code" align="center" prop="paymentCode" v-if="columns[13].visible"
+      <el-table-column label="支付状态" align="center" prop="paymentStatus" v-if="columns[13].visible"/>
+      <el-table-column label="支付返回Code" align="center" prop="paymentCode" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="支付返回Msg" align="center" prop="paymentMsg" v-if="columns[14].visible"
+      <el-table-column label="支付返回Msg" align="center" prop="paymentMsg" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="支付返回额外信息" align="center" prop="paymentExtend" v-if="columns[15].visible"
+      <el-table-column label="支付返回额外信息" align="center" prop="paymentExtend" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[16].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[17].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[17].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[18].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[18].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[19].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[20].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[21].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[22].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[23].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[24].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[24].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[25].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[25].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[26].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -315,6 +340,16 @@
         <el-form-item label="用户编号" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户编号"/>
         </el-form-item>
+        <el-form-item label="订单类型" prop="orderType">
+          <el-select v-model="form.orderType" placeholder="请选择订单类型">
+            <el-option
+                v-for="dict in po_order_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="订单状态" prop="orderStatus">
           <el-radio-group v-model="form.orderStatus">
             <el-radio
@@ -335,15 +370,43 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="删除" prop="isDelete">
-          <el-radio-group v-model="form.isDelete">
-            <el-radio
-                v-for="dict in common_delete"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
+        <el-form-item label="订单总金额" prop="totalAmount">
+          <el-input v-model="form.totalAmount" placeholder="请输入订单总金额"/>
+        </el-form-item>
+        <el-form-item label="实付金额" prop="buyerPayAmount">
+          <el-input v-model="form.buyerPayAmount" placeholder="请输入实付金额"/>
+        </el-form-item>
+        <el-form-item label="实收金额" prop="receiptAmount">
+          <el-input v-model="form.receiptAmount" placeholder="请输入实收金额"/>
+        </el-form-item>
+        <el-form-item label="平台优惠金额" prop="discountAmount">
+          <el-input v-model="form.discountAmount" placeholder="请输入平台优惠金额"/>
+        </el-form-item>
+        <el-form-item label="第三方支付平台" prop="thirdParty">
+          <el-input v-model="form.thirdParty" placeholder="请输入第三方支付平台"/>
+        </el-form-item>
+        <el-form-item label="第三方用户编号" prop="thirdUserId">
+          <el-input v-model="form.thirdUserId" placeholder="请输入第三方用户编号"/>
+        </el-form-item>
+        <el-form-item label="第三方支付平台订单号" prop="thirdPartyOrder">
+          <el-input v-model="form.thirdPartyOrder" placeholder="请输入第三方支付平台订单号"/>
+        </el-form-item>
+        <el-form-item label="支付时间" prop="paymentTime">
+          <el-date-picker clearable
+                          v-model="form.paymentTime"
+                          type="date"
+                          value-format="YYYY-MM-DD"
+                          placeholder="请选择支付时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="支付状态" prop="paymentStatus">
+          <el-input v-model="form.paymentStatus" placeholder="请输入支付状态"/>
+        </el-form-item>
+        <el-form-item label="支付返回Code" prop="paymentCode">
+          <el-input v-model="form.paymentCode" placeholder="请输入支付返回Code"/>
+        </el-form-item>
+        <el-form-item label="支付返回Msg" prop="paymentMsg">
+          <el-input v-model="form.paymentMsg" placeholder="请输入支付返回Msg"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -372,8 +435,9 @@ const {proxy} = getCurrentInstance();
 const {
   common_delete,
   po_payment_type,
-  po_order_status
-} = proxy.useDict('common_delete', 'po_payment_type', 'po_order_status');
+  po_order_status,
+  po_order_type
+} = proxy.useDict('common_delete', 'po_payment_type', 'po_order_status', 'po_order_type');
 
 const paymentOrderInfoList = ref([]);
 const open = ref(false);
@@ -395,12 +459,9 @@ const data = reactive({
     pageSize: 10,
     orderId: null,
     userId: null,
+    orderType: null,
     orderStatus: null,
     paymentType: null,
-    totalAmount: null,
-    buyerPayAmount: null,
-    receiptAmount: null,
-    discountAmount: null,
     thirdParty: null,
     thirdUserId: null,
     thirdPartyOrder: null,
@@ -408,7 +469,6 @@ const data = reactive({
     paymentStatus: null,
     paymentCode: null,
     paymentMsg: null,
-    paymentExtend: null,
     createTime: null,
     updateTime: null,
     deviceId: null,
@@ -422,6 +482,9 @@ const data = reactive({
   rules: {
     userId: [
       {required: true, message: "用户编号不能为空", trigger: "blur"}
+    ],
+    orderType: [
+      {required: true, message: "订单类型不能为空", trigger: "change"}
     ],
     orderStatus: [
       {required: true, message: "订单状态不能为空", trigger: "change"}
@@ -441,9 +504,6 @@ const data = reactive({
     createTime: [
       {required: true, message: "创建时间不能为空", trigger: "blur"}
     ],
-    updateTime: [
-      {required: true, message: "更新时间不能为空", trigger: "blur"}
-    ],
     ipAddr: [
       {required: true, message: "IP地址不能为空", trigger: "blur"}
     ],
@@ -455,30 +515,31 @@ const data = reactive({
   columns: [
     {key: 0, label: '订单编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
-    {key: 2, label: '订单状态', visible: true},
-    {key: 3, label: '支付方式', visible: true},
-    {key: 4, label: '订单总金额', visible: true},
-    {key: 5, label: '实付金额', visible: true},
-    {key: 6, label: '实收金额', visible: false},
-    {key: 7, label: '平台优惠金额', visible: false},
-    {key: 8, label: '第三方支付平台', visible: true},
-    {key: 9, label: '第三方用户编号', visible: false},
-    {key: 10, label: '第三方支付平台订单号', visible: false},
-    {key: 11, label: '支付时间', visible: true},
-    {key: 12, label: '支付状态', visible: false},
-    {key: 13, label: '支付返回Code', visible: false},
-    {key: 14, label: '支付返回Msg', visible: false},
-    {key: 15, label: '支付返回额外信息', visible: false},
-    {key: 16, label: '创建时间', visible: true},
-    {key: 17, label: '更新时间', visible: false},
-    {key: 18, label: '设备唯一标识', visible: false},
-    {key: 19, label: '浏览器类型', visible: false},
-    {key: 20, label: '操作系统', visible: false},
-    {key: 21, label: '平台', visible: false},
-    {key: 22, label: 'IP地址', visible: false},
-    {key: 23, label: 'IP属地', visible: false},
-    {key: 24, label: '删除', visible: false},
-    {key: 25, label: '备注', visible: false},
+    {key: 2, label: '订单类型', visible: true},
+    {key: 3, label: '订单状态', visible: true},
+    {key: 4, label: '支付方式', visible: true},
+    {key: 5, label: '订单总金额', visible: true},
+    {key: 6, label: '实付金额', visible: true},
+    {key: 7, label: '实收金额', visible: false},
+    {key: 8, label: '平台优惠金额', visible: false},
+    {key: 9, label: '第三方支付平台', visible: true},
+    {key: 10, label: '第三方用户编号', visible: false},
+    {key: 11, label: '第三方支付平台订单号', visible: false},
+    {key: 12, label: '支付时间', visible: true},
+    {key: 13, label: '支付状态', visible: true},
+    {key: 14, label: '支付返回Code', visible: false},
+    {key: 15, label: '支付返回Msg', visible: false},
+    {key: 16, label: '支付返回额外信息', visible: false},
+    {key: 17, label: '创建时间', visible: true},
+    {key: 18, label: '更新时间', visible: false},
+    {key: 19, label: '设备唯一标识', visible: false},
+    {key: 20, label: '浏览器类型', visible: false},
+    {key: 21, label: '操作系统', visible: false},
+    {key: 22, label: '平台', visible: false},
+    {key: 23, label: 'IP地址', visible: false},
+    {key: 24, label: 'IP属地', visible: false},
+    {key: 25, label: '删除', visible: false},
+    {key: 26, label: '备注', visible: false},
   ],
 });
 
@@ -518,6 +579,7 @@ function reset() {
   form.value = {
     orderId: null,
     userId: null,
+    orderType: null,
     orderStatus: null,
     paymentType: null,
     totalAmount: null,
