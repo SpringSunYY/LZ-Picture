@@ -347,7 +347,7 @@ public class IpUtils {
             platform = "Unknown";
         }
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.setIpaddr(ip);
+        deviceInfo.setIpAddr(ip);
         deviceInfo.setIpAddress(address);
         deviceInfo.setBrowser(browser);
         deviceInfo.setOs(os);

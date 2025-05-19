@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.lz.common.utils.StringUtils;
+
 import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
@@ -23,15 +26,15 @@ import com.lz.points.model.vo.errorLogInfo.ErrorLogInfoVo;
  * 异常捕获Service业务层处理
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-19
  */
 @Service
-public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, ErrorLogInfo> implements IErrorLogInfoService
-{
+public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, ErrorLogInfo> implements IErrorLogInfoService {
     @Resource
     private ErrorLogInfoMapper errorLogInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询异常捕获
      *
@@ -39,8 +42,7 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @return 异常捕获
      */
     @Override
-    public ErrorLogInfo selectErrorLogInfoByErrorId(String errorId)
-    {
+    public ErrorLogInfo selectErrorLogInfoByErrorId(String errorId) {
         return errorLogInfoMapper.selectErrorLogInfoByErrorId(errorId);
     }
 
@@ -51,8 +53,7 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @return 异常捕获
      */
     @Override
-    public List<ErrorLogInfo> selectErrorLogInfoList(ErrorLogInfo errorLogInfo)
-    {
+    public List<ErrorLogInfo> selectErrorLogInfoList(ErrorLogInfo errorLogInfo) {
         return errorLogInfoMapper.selectErrorLogInfoList(errorLogInfo);
     }
 
@@ -63,8 +64,7 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @return 结果
      */
     @Override
-    public int insertErrorLogInfo(ErrorLogInfo errorLogInfo)
-    {
+    public int insertErrorLogInfo(ErrorLogInfo errorLogInfo) {
         errorLogInfo.setCreateTime(DateUtils.getNowDate());
         return errorLogInfoMapper.insertErrorLogInfo(errorLogInfo);
     }
@@ -76,8 +76,7 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @return 结果
      */
     @Override
-    public int updateErrorLogInfo(ErrorLogInfo errorLogInfo)
-    {
+    public int updateErrorLogInfo(ErrorLogInfo errorLogInfo) {
         return errorLogInfoMapper.updateErrorLogInfo(errorLogInfo);
     }
 
@@ -88,8 +87,7 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @return 结果
      */
     @Override
-    public int deleteErrorLogInfoByErrorIds(String[] errorIds)
-    {
+    public int deleteErrorLogInfoByErrorIds(String[] errorIds) {
         return errorLogInfoMapper.deleteErrorLogInfoByErrorIds(errorIds);
     }
 
@@ -100,57 +98,69 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @return 结果
      */
     @Override
-    public int deleteErrorLogInfoByErrorId(String errorId)
-    {
+    public int deleteErrorLogInfoByErrorId(String errorId) {
         return errorLogInfoMapper.deleteErrorLogInfoByErrorId(errorId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<ErrorLogInfo> getQueryWrapper(ErrorLogInfoQuery errorLogInfoQuery){
+    public QueryWrapper<ErrorLogInfo> getQueryWrapper(ErrorLogInfoQuery errorLogInfoQuery) {
         QueryWrapper<ErrorLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = errorLogInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String errorId = errorLogInfoQuery.getErrorId();
-        queryWrapper.eq(StringUtils.isNotEmpty(errorId) ,"error_id",errorId);
+        String errorId = errorLogInfoQuery.getErrorId();
+        queryWrapper.eq(StringUtils.isNotEmpty(errorId), "error_id", errorId);
 
-    String userId = errorLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = errorLogInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String methodId = errorLogInfoQuery.getMethodId();
-        queryWrapper.eq(StringUtils.isNotEmpty(methodId) ,"method_id",methodId);
+        String methodType = errorLogInfoQuery.getMethodType();
+        queryWrapper.eq(StringUtils.isNotEmpty(methodType), "method_type", methodType);
 
-    String errorType = errorLogInfoQuery.getErrorType();
-        queryWrapper.eq(StringUtils.isNotEmpty(errorType) ,"error_type",errorType);
+        String thirdParty = errorLogInfoQuery.getThirdParty();
+        queryWrapper.like(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);
 
-    String relatedOrderId = errorLogInfoQuery.getRelatedOrderId();
-        queryWrapper.eq(StringUtils.isNotEmpty(relatedOrderId) ,"related_order_id",relatedOrderId);
+        String errorType = errorLogInfoQuery.getErrorType();
+        queryWrapper.eq(StringUtils.isNotEmpty(errorType), "error_type", errorType);
 
-    Date createTime = errorLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        String errorCode = errorLogInfoQuery.getErrorCode();
+        queryWrapper.eq(StringUtils.isNotEmpty(errorCode), "error_code", errorCode);
 
-    String deviceId = errorLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String errorMsg = errorLogInfoQuery.getErrorMsg();
+        queryWrapper.eq(StringUtils.isNotEmpty(errorMsg), "error_msg", errorMsg);
 
-    String browser = errorLogInfoQuery.getBrowser();
-        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String relatedOrderId = errorLogInfoQuery.getRelatedOrderId();
+        queryWrapper.eq(StringUtils.isNotEmpty(relatedOrderId), "related_order_id", relatedOrderId);
 
-    String os = errorLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        Date createTime = errorLogInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String platform = errorLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        String deviceId = errorLogInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
 
-    String ipAddr = errorLogInfoQuery.getIpAddr();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddr) ,"ip_addr",ipAddr);
+        String browser = errorLogInfoQuery.getBrowser();
+        queryWrapper.eq(StringUtils.isNotEmpty(browser), "browser", browser);
 
-    String resolveStatus = errorLogInfoQuery.getResolveStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(resolveStatus) ,"resolve_status",resolveStatus);
+        String os = errorLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
 
-    Date resolveTime = errorLogInfoQuery.getResolveTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginResolveTime"))&&StringUtils.isNotNull(params.get("endResolveTime")),"resolve_time",params.get("beginResolveTime"),params.get("endResolveTime"));
+        String platform = errorLogInfoQuery.getPlatform();
+        queryWrapper.like(StringUtils.isNotEmpty(platform), "platform", platform);
+
+        String ipAddr = errorLogInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+
+        String ipAddress = errorLogInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
+
+        String resolveStatus = errorLogInfoQuery.getResolveStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(resolveStatus), "resolve_status", resolveStatus);
+
+        Date resolveTime = errorLogInfoQuery.getResolveTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginResolveTime")) && StringUtils.isNotNull(params.get("endResolveTime")), "resolve_time", params.get("beginResolveTime"), params.get("endResolveTime"));
 
         return queryWrapper;
     }

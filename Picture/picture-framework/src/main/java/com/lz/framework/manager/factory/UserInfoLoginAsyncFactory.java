@@ -42,6 +42,7 @@ public class UserInfoLoginAsyncFactory {
             public void run() {
                 AuthLoginLogInfo authLoginLogInfo = new AuthLoginLogInfo();
                 BeanUtils.copyProperties(deviceInfo, authLoginLogInfo);
+                authLoginLogInfo.setIpaddr(deviceInfo.getIpAddr());
                 authLoginLogInfo.setUserId(userId);
                 authLoginLogInfo.setUserName(username);
                 authLoginLogInfo.setLoginType(type);

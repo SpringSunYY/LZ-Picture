@@ -48,7 +48,7 @@ import static com.lz.points.constant.PayConstants.ALIPAY_WEB;
 import static com.lz.points.constant.PayConstants.WAIT_BUYER_PAY;
 
 /**
- * TODO
+ * 支付
  *
  * @Project: Picture
  * @Author: YY
@@ -129,7 +129,7 @@ public class PayServiceImpl implements IPayService {
         //获取设备信息
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         BeanUtils.copyProperties(deviceInfo, orderInfo);
-        orderInfo.setIpAddr(deviceInfo.getIpaddr());
+//        orderInfo.setIpAddr(deviceInfo.getIpaddr());
         Date nowDate = DateUtils.getNowDate();
         orderInfo.setCreateTime(nowDate);
         paymentOrderInfoService.save(orderInfo);
@@ -151,7 +151,7 @@ public class PayServiceImpl implements IPayService {
         rechargeInfo.setThirdParty(ALIPAY_WEB);
         rechargeInfo.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_0.getValue());
         BeanUtils.copyProperties(deviceInfo, rechargeInfo);
-        rechargeInfo.setIpAddr(deviceInfo.getIpaddr());
+//        rechargeInfo.setIpAddr(deviceInfo.getIpaddr());
         rechargeInfo.setCreateTime(nowDate);
         pointsRechargeInfoService.save(rechargeInfo);
     }

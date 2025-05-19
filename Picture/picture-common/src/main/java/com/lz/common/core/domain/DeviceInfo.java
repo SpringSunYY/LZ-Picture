@@ -20,7 +20,7 @@ public class DeviceInfo implements Serializable {
     /**
      * 登录IP地址
      */
-    private String ipaddr;
+    private String ipAddr;
 
     /**
      * 登录地点

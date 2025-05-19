@@ -1219,24 +1219,27 @@ CREATE TABLE po_points_recharge_info (
 
 捕获此模块充值提现使用积分等异常
 
-| 字段名           | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述         |
-| ---------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
-| error_id         | varchar  | 128  | 主键                       | 否   |          | 异常编号     |
-| user_id          | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号     |
-| method_id        | varchar  | 128  |                            | 否   |          | 支付方式     |
-| error_type       | varchar  | 32   |                            | 否   |          | 异常类型     |
-| error_message    | text     |      |                            | 否   |          | 异常信息     |
-| error_details    | text     |      |                            | 是   |          | 异常详细信息 |
-| related_order_id | varchar  | 128  | 外键                       | 是   |          | 相关订单编号 |
-| create_time      | datetime |      |                            | 否   | 当前时间 | 异常记录时间 |
-| device_id        | varchar  | 255  |                            | 是   |          | 设备唯一标识 |
-| browser          | varchar  | 50   |                            | 是   |          | 浏览器类型   |
-| os               | varchar  | 50   |                            | 是   |          | 操作系统     |
-| platform         | varchar  | 20   |                            | 是   |          | 平台         |
-| ip_addr          | varchar  | 50   |                            | 否   |          | IP地址       |
-| resolve_status   | varchar  | 32   |                            | 否   | 0        | 解决状态     |
-| resolve_time     | datetime |      |                            | 是   |          | 解决时间     |
-| remark           | varchar  | 512  |                            | 是   |          | 备注         |
+| 字段名           | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述           |
+| ---------------- | -------- | ---- | -------------------------- | ---- | -------- | -------------- |
+| error_id         | varchar  | 128  | 主键                       | 否   |          | 异常编号       |
+| user_id          | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号       |
+| method_type      | varchar  | 128  |                            | 否   |          | 支付方式       |
+| third_party      | varchar  | 128  |                            | 否   |          | 第三方支付平台 |
+| error_type       | varchar  | 32   |                            | 否   |          | 异常类型       |
+| error_code       | varchar  | 128  |                            | 是   |          | 返回Code       |
+| error_msg        | varchar  | 128  |                            | 是   |          | 返回Msg        |
+| payment_extend   | text     |      |                            | 是   |          | 额外信息       |
+| related_order_id | varchar  | 128  | 外键                       | 是   |          | 相关订单编号   |
+| create_time      | datetime |      |                            | 否   | 当前时间 | 异常记录时间   |
+| device_id        | varchar  | 255  |                            | 是   |          | 设备唯一标识   |
+| browser          | varchar  | 50   |                            | 是   |          | 浏览器类型     |
+| os               | varchar  | 50   |                            | 是   |          | 操作系统       |
+| platform         | varchar  | 20   |                            | 是   |          | 平台           |
+| ip_addr          | varchar  | 50   |                            | 否   |          | IP地址         |
+| ip_address       | varchar  | 64   |                            | 是   |          | IP属地         |
+| resolve_status   | varchar  | 32   |                            | 否   | 0        | 解决状态       |
+| resolve_time     | datetime |      |                            | 是   |          | 解决时间       |
+| remark           | varchar  | 512  |                            | 是   |          | 备注           |
 
 解决状态：0未处理 1处理中 2已解决
 
@@ -1245,28 +1248,27 @@ CREATE TABLE po_points_recharge_info (
 ```sql
 DROP TABLE IF EXISTS po_error_log_info;
 CREATE TABLE po_error_log_info (
-    error_id VARCHAR(128) NOT NULL COMMENT '异常编号',
-    user_id VARCHAR(128) COMMENT '用户编号',  
-    method_id VARCHAR(128) NOT NULL COMMENT '支付方式',
+    error_id VARCHAR(128) PRIMARY KEY COMMENT '异常编号',
+    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
+    method_type VARCHAR(128) NOT NULL COMMENT '支付方式',
+    third_party VARCHAR(128) NOT NULL COMMENT '第三方支付平台',
     error_type VARCHAR(32) NOT NULL COMMENT '异常类型',
-    error_message TEXT NOT NULL COMMENT '异常信息',
-    error_details TEXT COMMENT '异常详细信息',
-    related_order_id VARCHAR(128) COMMENT '关联订单编号',
+    error_code VARCHAR(128) DEFAULT NULL COMMENT '返回Code',
+    error_msg VARCHAR(128) DEFAULT NULL COMMENT '返回Msg',
+    payment_extend TEXT DEFAULT NULL COMMENT '额外信息',
+    related_order_id VARCHAR(128) DEFAULT NULL COMMENT '相关订单编号',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '异常记录时间',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台（如Web、APP）',
+    device_id VARCHAR(255) DEFAULT NULL COMMENT '设备唯一标识',
+    browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
+    os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+    platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
     ip_addr VARCHAR(50) NOT NULL COMMENT 'IP地址',
-    resolve_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '解决状态（0未处理 1处理中 2已解决）',
-    resolve_time DATETIME COMMENT '解决时间',
-    remark VARCHAR(512) COMMENT '备注',
-    PRIMARY KEY (error_id),
-    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_error_type (error_type),
-    INDEX idx_resolve_status (resolve_status),
-    INDEX idx_create_time (create_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='异常捕获表';
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
+    resolve_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '解决状态',
+    resolve_time DATETIME DEFAULT NULL COMMENT '解决时间',
+    remark VARCHAR(512) DEFAULT NULL COMMENT '备注',
+    CONSTRAINT fk_error_user FOREIGN KEY (user_id) REFERENCES u_user_info(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='异常捕获日志表';
 ```
 
 

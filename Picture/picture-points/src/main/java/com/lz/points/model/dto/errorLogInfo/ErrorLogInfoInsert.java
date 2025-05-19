@@ -12,7 +12,7 @@ import com.lz.points.model.domain.ErrorLogInfo;
  * 异常捕获Vo对象 po_error_log_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-19
  */
 @Data
 public class ErrorLogInfoInsert implements Serializable {
@@ -31,7 +31,12 @@ public class ErrorLogInfoInsert implements Serializable {
     /**
      * 支付方式
      */
-    private String methodId;
+    private String methodType;
+
+    /**
+     * 第三方支付平台
+     */
+    private String thirdParty;
 
     /**
      * 异常类型
@@ -39,49 +44,24 @@ public class ErrorLogInfoInsert implements Serializable {
     private String errorType;
 
     /**
-     * 异常信息
+     * 返回Code
      */
-    private String errorMessage;
+    private String errorCode;
 
     /**
-     * 异常详细信息
+     * 返回Msg
      */
-    private String errorDetails;
+    private String errorMsg;
 
     /**
-     * 关联订单编号
+     * 额外信息
+     */
+    private String paymentExtend;
+
+    /**
+     * 相关订单编号
      */
     private String relatedOrderId;
-
-    /**
-     * 设备唯一标识
-     */
-    private String deviceId;
-
-    /**
-     * 浏览器类型
-     */
-    private String browser;
-
-    /**
-     * 操作系统
-     */
-    private String os;
-
-    /**
-     * 平台（如Web、APP）
-     */
-    private String platform;
-
-    /**
-     * IP地址
-     */
-    private String ipAddr;
-
-    /**
-     * 解决状态（0未处理 1处理中 2已解决）
-     */
-    private String resolveStatus;
 
     /**
      * 解决时间
