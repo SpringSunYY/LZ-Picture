@@ -5,38 +5,34 @@
         <div class="avatar-wrapper">
           <a-avatar
             :size="{ xs: 180, sm: 200, md: 240, lg: 240, xl: 240, xxl: 240 }"
-            :src="userInfo.avatarUrl || '/placeholder.svg?height=240&width=240'"
+            :src="userInfo?.avatarUrl || '/placeholder.svg?height=240&width=240'"
           />
-          <!--          <div class="status-badge" :class="'status-' + userInfo.status">-->
-          <!--            {{ getStatusText(userInfo.status) }}-->
+          <!--          <div class="status-badge" :class="'status-' + user.status">-->
+          <!--            {{ getStatusText(user.status) }}-->
           <!--          </div>-->
         </div>
       </div>
       <div class="user-intro">
-        <h1 class="user-name">{{ userInfo.nickName || '未设置昵称' }}</h1>
-        <p class="user-occupation">{{ userInfo.occupation || '未设置职业' }}</p>
-        <p class="user-bio">{{ userInfo.introductory || '这个人很懒，还没有填写个人简介...' }}</p>
+        <h1 class="user-name">{{ userInfo?.nickName || '未设置昵称' }}</h1>
+        <p class="user-occupation">{{ userInfo?.occupation || '未设置职业' }}</p>
+        <p class="user-bio">{{ userInfo?.introductory || '这个人很懒，还没有填写个人简介...' }}</p>
         <div class="user-meta">
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-mobile-alt"></i></span>
-            {{ userInfo.countryCode ? `+${userInfo.countryCode}` : '' }}
-            {{ userInfo.phone || '未设置' }}
+            {{ userInfo?.countryCode ? `${userInfo?.countryCode}` : '' }}
+            {{ userInfo?.phone || '未设置' }}
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-venus-mars"></i></span>
-            {{ getSexText(userInfo.sex) }}
+            {{ getSexText(userInfo?.sex) }}
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-birthday-cake"></i></span>
-            {{ formatDate(userInfo.birthday) }}
+            {{ formatDate(userInfo?.birthday) }}
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-globe"></i></span>
-            {{ userInfo.preferredLanguageLocale || '未设置' }}
-          </div>
-          <div class="meta-item">
-            <span class="meta-icon"><i class="fas fa-globe"></i></span>
-            {{ userInfo.ipAddress || '未知' }}
+            {{ userInfo?.ipAddress || '未知' }}
           </div>
         </div>
       </div>
@@ -44,19 +40,19 @@
 
     <div class="profile-stats">
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo.pointsBalance || 0 }}</div>
+        <div class="stat-value">{{ userInfo?.pointsBalance || 0 }}</div>
         <div class="stat-label">积分余额</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo.pointsEarned || 0 }}</div>
+        <div class="stat-value">{{ userInfo?.pointsEarned || 0 }}</div>
         <div class="stat-label">赚取积分</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo.pointsUsed || 0 }}</div>
+        <div class="stat-value">{{ userInfo?.pointsUsed || 0 }}</div>
         <div class="stat-label">使用积分</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo.rechargeAmount || 0 }}</div>
+        <div class="stat-value">{{ userInfo?.rechargeAmount || 0 }}</div>
         <div class="stat-label">充值金额(元)</div>
       </div>
     </div>
@@ -67,67 +63,74 @@
           <div class="details-grid">
             <!--            <div class="detail-item">-->
             <!--              <div class="detail-label">用户ID</div>-->
-            <!--              <div class="detail-value">{{ userInfo.userId }}</div>-->
+            <!--              <div class="detail-value">{{ user.userId }}</div>-->
             <!--            </div>-->
             <div class="detail-item">
               <div class="detail-label">用户名</div>
-              <div class="detail-value">{{ userInfo.userName }}</div>
+              <div class="detail-value">{{ userInfo?.userName }}</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">昵称</div>
-              <div class="detail-value">{{ userInfo.nickName }}</div>
+              <div class="detail-value">{{ userInfo?.nickName }}</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">职业</div>
-              <div class="detail-value">{{ userInfo.occupation }}</div>
+              <div class="detail-value">{{ userInfo?.occupation }}</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">手机号码</div>
-              <div class="detail-value">{{ userInfo.phone }}</div>
+              <div class="detail-value">{{ userInfo?.phone }}</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">账户状态</div>
               <div class="detail-value">
-                <a-tag :color="getAccountStatusColor(userInfo.accountStatus)">
-                  {{ getAccountStatusText(userInfo.accountStatus) }}
-                </a-tag>
+                <tags
+                  :values="[userInfo?.status ? getUserStatusLabel(userInfo?.status) : '未知']"
+                  :colors="['green']"
+                />
               </div>
             </div>
             <div class="detail-item">
               <div class="detail-label">性别</div>
               <div class="detail-value">
-                <a-tag color="red">
-                  {{ getSexText(userInfo.sex) }}
-                </a-tag>
+                <tags
+                  :values="[userInfo?.sex ? getUserSexLabel(userInfo?.sex) : '未知']"
+                  :colors="['green', 'red']"
+                />
               </div>
             </div>
             <div class="detail-item">
               <div class="detail-label">IP属地</div>
-              <div class="detail-value">{{ userInfo.ipAddress }}</div>
+              <div class="detail-value">{{ userInfo?.ipAddress }}</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">注册时间</div>
-              <div class="detail-value">{{ formatDate(userInfo.createTime) }}</div>
+              <div class="detail-value">{{ formatDate(userInfo?.createTime) }}</div>
             </div>
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" tab="登录信息">
-          <div class="details-grid">
+          <div class="details-grid" v-for="item in userInfo?.loginLogInfoVos" :key="item.infoId">
             <div class="detail-item">
-              <div class="detail-label">最后登录时间</div>
-              <div class="detail-value">{{ formatDate(userInfo.lastLoginTime) }}</div>
+              <div class="detail-label">登录时间</div>
+              <div class="detail-value">{{ item?.loginTime }}</div>
             </div>
             <div class="detail-item">
-              <div class="detail-label">最后登录IP</div>
-              <div class="detail-value">{{ userInfo.lastLoginIp || '未知' }}</div>
+              <div class="detail-label">登录方式</div>
+              <div class="detail-value">
+                <tags
+                  :values="[item?.loginType ? getLoginTypeLabel(item.loginType) : '未知']"
+                  :colors="['green', 'red']"
+                />
+              </div>
             </div>
             <div class="detail-item">
               <div class="detail-label">IP属地</div>
-              <div class="detail-value">{{ userInfo.ipAddress || '未知' }}</div>
+              <div class="detail-value">{{ item?.loginLocation || '未知' }}</div>
             </div>
             <div class="detail-item">
-              <div class="detail-label">时间</div>
-              <div class="detail-value">{{ formatDate(userInfo.updateTime) }}</div>
+              <div class="detail-label">IP地址</div>
+              <div class="detail-value">{{ item?.ipaddr || '未知' }}</div>
             </div>
           </div>
         </a-tab-pane>
@@ -138,38 +141,26 @@
 
 <script setup lang="ts" name="userinfo">
 import { ref } from 'vue'
+import { getUserSexLabel, getUserStatusLabel, type MyUserInfo } from '@/types/user/user.d.ts'
+import useUserStore from '@/stores/modules/user.ts'
+import { storeToRefs } from 'pinia'
+import { getMyUserInfoByUserName } from '@/api/user/user.ts'
+import { getLoginTypeLabel } from '@/types/user/loginLog.d.ts'
+import Tags from '@/components/Tags.vue'
 
+const userStore = useUserStore()
+const { userName: userName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 // 模拟用户数据
-const userInfo = ref({
-  userId: 'U1001234567',
-  userName: 'zhangsan',
-  phone: '13812345678',
-  countryCode: '86',
-  nickName: '张三',
-  avatarUrl:
-    'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00075T-1909672678168596480-compressed.webp',
-  password: '******',
-  status: '0',
-  salt: '******',
-  sex: '1',
-  birthday: '1990-01-01 00:00:00',
-  occupation: '软件工程师',
-  preferredLanguageLocale: '中文',
-  introductory:
-    '热爱生活，热爱编程。专注于前端开发和用户体验设计，喜欢尝试新技术，空闲时间喜欢摄影和旅行。热爱生活，热爱编程。专注于前端开发和用户体验设计，喜欢尝试新技术，空闲时间喜欢摄影和旅行。热爱生活，热爱编程。专注于前端开发和用户体验设计，喜欢尝试新技术，空闲时间喜欢摄影和旅行。热爱生活，热爱编程。专注于前端开发和用户体验设计，喜欢尝试新技术，空闲时间喜欢摄影和旅行。热爱生活，热爱编程。专注于前端开发和用户体验设计，喜欢尝试新技术，空闲时间喜欢摄影和旅行。',
-  ipAddress: '北京',
-  lastLoginTime: '2023-05-20 15:30:45',
-  lastLoginIp: '192.168.1.1',
-  createTime: '2022-01-01 10:00:00',
-  updateTime: '2023-05-20 15:30:45',
-  isDelete: '0',
-  pointsEarned: 5000,
-  pointsUsed: 3200,
-  rechargeAmount: 1500.0,
-  accountStatus: '0',
-  pointsBalance: 1800,
-})
+const userInfo = ref<MyUserInfo>()
 
+//获取用户信息
+const getMyUserInfo = async () => {
+  const res = await getMyUserInfoByUserName(userName.value)
+  if (res.code === 200) {
+    userInfo.value = res.data
+  }
+}
+getMyUserInfo()
 // 格式化日期
 const formatDate = (dateString) => {
   if (!dateString) return '未知'
@@ -254,6 +245,7 @@ $purple-color: #9c27b0;
   //min-height: 100vh;
   opacity: 0;
   animation: fadeIn 2s ease forwards;
+
   .profile-header {
     display: flex;
     flex-direction: column;
@@ -434,6 +426,7 @@ $purple-color: #9c27b0;
     }
   }
 }
+
 @keyframes fadeIn {
   to {
     opacity: 1;

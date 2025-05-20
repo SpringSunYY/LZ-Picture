@@ -126,7 +126,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user.ts'
-import { getCodeImg, getRegisterCode } from '@/api/userInfo/login.js'
+import { getCodeImg, getRegisterCode } from '@/api/user/login.js'
 
 const router = useRouter()
 const loading = ref(false)

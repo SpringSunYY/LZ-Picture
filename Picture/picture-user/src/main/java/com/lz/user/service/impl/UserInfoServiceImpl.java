@@ -3,6 +3,8 @@ package com.lz.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.core.redis.RedisCache;
+import com.lz.common.enums.ULoginStatus;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.model.domain.MenuInfo;
@@ -10,16 +12,25 @@ import com.lz.config.model.enmus.CMenuStatusEnum;
 import com.lz.config.model.enmus.CMenuTypeEnum;
 import com.lz.config.model.enmus.CMenuVisibleEnum;
 import com.lz.config.service.IMenuInfoService;
+import com.lz.points.model.domain.AccountInfo;
+import com.lz.points.service.IAccountInfoService;
 import com.lz.user.mapper.UserInfoMapper;
+import com.lz.user.model.domain.LoginLogInfo;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.dto.userInfo.UserInfoQuery;
+import com.lz.user.model.vo.loginLogInfo.MyLoginLogInfoVo;
+import com.lz.user.model.vo.userInfo.MyUserInfoVo;
 import com.lz.user.model.vo.userInfo.UserInfoVo;
+import com.lz.user.service.ILoginLogInfoService;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.redis.UserRedisConstants.USER_INFO;
 
 /**
  * 用户信息Service业务层处理
@@ -35,6 +46,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Resource
     private IMenuInfoService menuInfoService;
 
+    @Resource
+    private RedisCache redisCache;
+
+    @Resource
+    private ILoginLogInfoService loginLogInfoService;
+
+    @Resource
+    private IAccountInfoService accountInfoService;
     //region mybatis代码
 
     /**
@@ -190,6 +209,42 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             return menuInfoList.stream().filter(menuInfo -> permissions.contains(menuInfo.getPerms())).collect(Collectors.toList());
         }
         return new LinkedList<>();
+    }
+
+    @Override
+    public MyUserInfoVo getMyUserInfoByUserName(String userName) {
+        //首先查询缓存是否存在
+        String key = USER_INFO + userName;
+        MyUserInfoVo cache = redisCache.getCacheObject(key);
+        if (StringUtils.isNotNull(cache)) {
+            return cache;
+        }
+        UserInfo userInfo = this.getOne(new LambdaQueryWrapper<UserInfo>()
+                .eq(UserInfo::getUserName, userName));
+        if (StringUtils.isNull(userInfo)) {
+            userInfo = new UserInfo();
+            redisCache.setCacheObject(key, userInfo, 60 * 5, TimeUnit.SECONDS);
+            return MyUserInfoVo.objToVo(userInfo);
+        }
+        MyUserInfoVo myUserInfoVo = MyUserInfoVo.objToVo(userInfo);
+        //查询登录日志,最近十条
+        List<LoginLogInfo> loginLogInfoList = loginLogInfoService.list(new LambdaQueryWrapper<LoginLogInfo>()
+                .eq(LoginLogInfo::getUserId, userInfo.getUserId())
+                        .eq(LoginLogInfo::getStatus, ULoginStatus.LOGIN_STATUS_0.getValue())
+                .orderByDesc(LoginLogInfo::getLoginTime)
+                .last("limit 5"));
+        List<MyLoginLogInfoVo> myLoginLogInfoVos = MyLoginLogInfoVo.objToVo(loginLogInfoList);
+        myUserInfoVo.setLoginLogInfoVos(myLoginLogInfoVos);
+        //查询用户账户
+        AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userInfo.getUserId());
+        if (StringUtils.isNotNull(accountInfo)) {
+            myUserInfoVo.setPointsBalance(accountInfo.getPointsBalance());
+            myUserInfoVo.setPointsEarned(accountInfo.getPointsEarned());
+            myUserInfoVo.setPointsUsed(accountInfo.getPointsUsed());
+            myUserInfoVo.setRechargeAmount(accountInfo.getRechargeAmount());
+        }
+        redisCache.setCacheObject(key, myUserInfoVo,  60 * 5, TimeUnit.SECONDS);
+        return myUserInfoVo;
     }
 
 }

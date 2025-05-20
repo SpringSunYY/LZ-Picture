@@ -7,6 +7,7 @@ import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,5 +35,14 @@ public class UserUserInfoController extends BaseUserInfoController {
         //转换为Vo
         List<MenuInfoUserVo> menuInfoList = menu.stream().map(MenuInfoUserVo::objToVo).toList();
         return AjaxResult.success(menuInfoList);
+    }
+
+    @GetMapping(value = "/my/{userName}")
+    public AjaxResult getMyUserInfoByUserName(@PathVariable("userName") String userName) {
+        String loginName = getLoginUser().getUsername();
+        if (!loginName.equals(userName)) {
+            return error("无权限访问");
+        }
+        return AjaxResult.success(userInfoService.getMyUserInfoByUserName(userName));
     }
 }

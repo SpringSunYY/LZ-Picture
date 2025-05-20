@@ -142,7 +142,7 @@ import { message } from 'ant-design-vue'
 import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user'
-import { getCodeImg, getForgetPasswordCode } from '@/api/userInfo/login'
+import { getCodeImg, getForgetPasswordCode } from '@/api/user/login'
 
 const router = useRouter()
 const userStore = useUserStore()

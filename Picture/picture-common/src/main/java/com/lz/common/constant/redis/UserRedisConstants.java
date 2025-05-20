@@ -35,4 +35,9 @@ public class UserRedisConstants {
      * 忘记密码验证码超时时间
      */
     public static final Integer USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 用户自己的信息缓存保存信息
+     */
+    public static final String USER_INFO = "user:info:";
 }

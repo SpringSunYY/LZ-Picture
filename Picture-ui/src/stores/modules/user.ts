@@ -1,4 +1,4 @@
-import { forgetPassword, getInfo, login, logout, register, smsLogin } from '@/api/userInfo/login.ts'
+import { forgetPassword, getInfo, login, logout, register, smsLogin } from '@/api/user/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
 import { isEmpty, isHttp } from '@/utils/validate'
 //@ts-ignore
@@ -49,7 +49,7 @@ const useUserStore = defineStore('user', {
 
     async register(userInfo: USER.RegisterParams): Promise<void> {
       try {
-        // console.log(userInfo)
+        // console.log(user)
         const res = await register(userInfo)
         setToken(res.token)
         this.token = res.token

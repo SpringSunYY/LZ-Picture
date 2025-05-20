@@ -5,6 +5,8 @@ import java.util.Set;
 
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.vo.loginLogInfo.MyLoginLogInfoVo;
+import com.lz.user.model.vo.userInfo.MyUserInfoVo;
 import com.lz.user.model.vo.userInfo.UserInfoVo;
 import com.lz.user.model.dto.userInfo.UserInfoQuery;
 
@@ -86,4 +88,14 @@ public interface IUserInfoService extends IService<UserInfo> {
     List<UserInfoVo> convertVoList(List<UserInfo> userInfoList);
 
     List<MenuInfo> getMenu(Set<String> permissions);
+
+    /**
+     * 根据用户名获取用户自己的信息
+     * @author: YY
+     * @method: getMyUserInfoByUserName
+     * @date: 2025/5/20 23:05
+     * @param userName
+     * @return MyUserInfoVo
+     **/
+    MyUserInfoVo getMyUserInfoByUserName(String userName);
 }

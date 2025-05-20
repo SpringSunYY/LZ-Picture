@@ -93,7 +93,7 @@ import { ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { PhoneOutlined } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/modules/user.ts'
-import { getCodeImg, getSmsLoginCode } from '@/api/userInfo/login.js'
+import { getCodeImg, getSmsLoginCode } from '@/api/user/login.js'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import { useRoute, useRouter } from 'vue-router'
 

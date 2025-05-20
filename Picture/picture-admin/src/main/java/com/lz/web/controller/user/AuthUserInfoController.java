@@ -65,7 +65,6 @@ public class AuthUserInfoController extends BaseUserInfoController {
      */
     @GetMapping("/getInfo")
     public AjaxResult getInfo() {
-        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         LoginUserInfo loginUser = getLoginUser();
         Set<String> permissions = loginUser.getPermissions();
         AuthUserInfo user = loginUser.getUser();

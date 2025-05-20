@@ -1,5 +1,5 @@
 import { constantRoutes } from '@/router'
-import { getMenuInfo } from '@/api/userInfo/menu'
+import { getMenuInfo } from '@/api/user/menu'
 import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
 import { handleTree } from '@/utils/lz.ts'

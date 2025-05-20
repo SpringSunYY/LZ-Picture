@@ -26,6 +26,10 @@
             <groupId>com.lz</groupId>
             <artifactId>picture-user-auth</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-points</artifactId>
+        </dependency>
 
     </dependencies>
 
