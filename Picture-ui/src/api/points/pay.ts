@@ -10,9 +10,13 @@ export function alipayWeb(data: PayRequest): Promise<API.ResponseInfo<AlipayPcPa
   })
 }
 
-export function getOrderInfo(outTradeNo: string): Promise<API.ResponseInfo<PaymentOrderInfoVo>> {
+/**
+ * 获取支付宝支付订单
+ * @param outTradeNo
+ */
+export function getAlipayWebOrder(outTradeNo: string): Promise<API.ResponseInfo<PaymentOrderInfoVo>> {
   return request({
-    url: '/points/pay/order/' + outTradeNo,
+    url: '/points/pay/alipay/web/order/' + outTradeNo,
     method: 'get',
   })
 }

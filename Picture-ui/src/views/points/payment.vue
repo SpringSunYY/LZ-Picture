@@ -231,7 +231,7 @@
 
               <div class="action-buttons">
                 <a-button @click="prevStep">取消支付</a-button>
-                <a-button type="primary" @click="simulatePayment">
+                <a-button type="primary" :loading="finishLoading" @click="finishPay">
                   {{ paymentMethod === 'creditcard' ? '确认支付' : '我已完成支付' }}
                 </a-button>
               </div>
@@ -298,7 +298,7 @@ import { getPointsRechargePackageInfo } from '@/api/points/points.ts'
 import type { PointsRechargePackageInfoVo } from '@/types/points/points.d.ts'
 import SvgIcon from '@/components/SvgIcon.vue'
 import { formatDateTimeByDate, formatDateTimeByStr, formatTime } from '@/utils/common.ts'
-import { alipayWeb, getOrderInfo } from '@/api/points/pay.ts'
+import { alipayWeb, getAlipayWebOrder } from '@/api/points/pay.ts'
 import { type PayRequest, POrderStatusEnum } from '@/types/points/pay.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
@@ -316,6 +316,8 @@ const paymentTimer = ref(300) // 5分钟倒计时
 const timerInterval = ref(null)
 const discount = ref(0) // 优惠金额
 const orderId = ref('')
+
+const finishLoading = ref(false)
 
 const userStore = useUserStore()
 const { userId: userId } = storeToRefs(userStore)
@@ -346,7 +348,7 @@ const startPolling = () => {
   }
   pollingTimer = setInterval(async () => {
     try {
-      const res = await getOrderInfo(outTradeNo.value)
+      const res = await getAlipayWebOrder(outTradeNo.value)
       if (res.code === 200 && res.data) {
         if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_1) {
           message.success('支付成功')
@@ -507,19 +509,19 @@ const startPaymentTimer = () => {
         clearInterval(timerInterval.value)
       }
       message.error('支付超时，请重新尝试')
-      currentStep.value = 1 // 返回到支付方式选择
+      // currentStep.value = 1 // 返回到支付方式选择
     }
   }, 1000)
 }
 
-const simulatePayment = async () => {
+const finishPay = async () => {
   if (outTradeNo.value === '') {
     message.loading('正在创建订单...', 2)
     return
   }
   // 模拟支付过程
   message.loading('正在查询支付...', 2)
-  const res = await getOrderInfo(outTradeNo.value)
+  const res = await getAlipayWebOrder(outTradeNo.value)
 
   if (res.code === 200 && res.data) {
     if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_0) {

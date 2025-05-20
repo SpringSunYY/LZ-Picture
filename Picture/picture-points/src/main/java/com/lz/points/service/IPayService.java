@@ -30,14 +30,16 @@ public interface IPayService {
     String alipayCallback(HashMap<String, String> alipayCallbackRequest);
 
     /**
-     * 获取支付信息
+     * 获取支付信息 数据库存储
      *
      * @param outTradeNo 订单号
-     * @param userId 用户编号
+     * @param userId     用户编号
      * @return UserPaymentOrderInfoVo
      * @author: YY
      * @method: getOrderInfo
      * @date: 2025/5/18 19:24
      **/
-    UserPaymentOrderInfoVo getOrderInfo(String outTradeNo, String userId);
+    UserPaymentOrderInfoVo getAlipayWebOrder(String outTradeNo, String userId);
+
+    UserPaymentOrderInfoVo getAlipayWeb(String outTradeNo, String userId);
 }

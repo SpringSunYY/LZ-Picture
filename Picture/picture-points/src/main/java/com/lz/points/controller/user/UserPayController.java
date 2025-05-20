@@ -1,14 +1,8 @@
 package com.lz.points.controller.user;
 
-import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.utils.StringUtils;
-import com.lz.points.config.AlipayPaymentConfig;
-import com.lz.points.manager.model.AlipayCallbackRequest;
 import com.lz.points.model.dto.pay.PayRequest;
-import com.lz.points.model.vo.paymentOrderInfo.UserPaymentOrderInfoVo;
 import com.lz.points.service.IPayService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -63,11 +57,21 @@ public class UserPayController extends BaseUserInfoController {
     }
 
     /**
-     * 获取订单信息
+     * 获取订单信息,数据库存储
      */
     @PreAuthorize("@uss.hasPermi('points:payment')")
-    @GetMapping("/order/{outTradeNo}")
-    public AjaxResult getOrderInfo(@PathVariable("outTradeNo") String outTradeNo) {
-        return success(payService.getOrderInfo(outTradeNo, getUserId()));
+    @GetMapping("/alipay/web/order/{outTradeNo}")
+    public AjaxResult alipayWebOrder(@PathVariable("outTradeNo") String outTradeNo) {
+        return success(payService.getAlipayWebOrder(outTradeNo, getUserId()));
+    }
+
+    /**
+     *
+     * @param outTradeNo
+     * @return
+     */
+    @GetMapping("/alipay/web/{outTradeNo}")
+    public AjaxResult alipayWeb(@PathVariable("outTradeNo") String outTradeNo) {
+        return success(payService.getAlipayWeb(outTradeNo, getUserId()));
     }
 }
