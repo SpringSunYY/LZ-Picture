@@ -88,18 +88,20 @@ public interface IErrorLogInfoService extends IService<ErrorLogInfo> {
     /**
      * 保存异常记录
      *
-     * @param userId      用户编号
-     * @param paymentType 支付方式
-     * @param payType     支付类型（渠道）
-     * @param errorType   异常类型
-     * @param orderType   订单类型
-     * @param errorCode   异常Code
-     * @param errorMsg    异常消息
-     * @param result      完整异常信息
+     * @param userId          用户编号
+     * @param paymentType     支付方式
+     * @param payType         支付类型（渠道）
+     * @param errorType       异常类型
+     * @param orderType       订单类型
+     * @param errorCode       异常Code
+     * @param errorMsg        异常消息
+     * @param result          完整异常信息
+     * @param thirdPartyOrder 第三方订单编号
+     * @param relatedOrderId  关联订单编号
      * @return int
      * @author: YY
      * @method: saveErrorLogInfo
      * @date: 2025/5/20 00:12
      **/
-    int saveErrorLogInfo(String userId, String paymentType, String payType, String orderType, String errorType, String errorCode, String errorMsg, Object result);
+    int saveErrorLogInfo(String userId, String paymentType, String payType, String orderType, String thirdPartyOrder, String relatedOrderId, String errorType, String errorCode, String errorMsg, Object result);
 }

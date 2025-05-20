@@ -54,12 +54,14 @@
         />
       </el-form-item>
       <el-form-item label="异常类型" prop="errorType">
-        <el-input
-            v-model="queryParams.errorType"
-            placeholder="请输入异常类型"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.errorType" style="width: 200px" placeholder="请选择异常类型" clearable>
+          <el-option
+              v-for="dict in po_error_log_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="Code" prop="errorCode">
         <el-input
@@ -382,8 +384,9 @@ const {proxy} = getCurrentInstance();
 const {
   po_error_resolve_status,
   po_payment_type,
-  po_order_type
-} = proxy.useDict('po_error_resolve_status', 'po_payment_type', 'po_order_type');
+  po_order_type,
+  po_error_log_type
+} = proxy.useDict('po_error_resolve_status', 'po_payment_type', 'po_order_type','po_error_log_type');
 
 const errorLogInfoList = ref([]);
 const open = ref(false);

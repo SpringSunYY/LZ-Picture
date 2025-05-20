@@ -185,10 +185,12 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
     }
 
     @Override
-    public int saveErrorLogInfo(String userId, String paymentType, String payType, String orderType, String errorType, String errorCode, String errorMsg, Object result) {
+    public int saveErrorLogInfo(String userId, String paymentType, String payType, String orderType, String thirdPartyOrder, String relatedOrderId, String errorType, String errorCode, String errorMsg, Object result) {
         try {
             ErrorLogInfo errorLogInfo = new ErrorLogInfo();
             errorLogInfo.setUserId(userId);
+            errorLogInfo.setThirdPartyOrder(thirdPartyOrder);
+            errorLogInfo.setRelatedOrderId(relatedOrderId);
             errorLogInfo.setMethodType(paymentType);
             errorLogInfo.setThirdParty(payType);
             errorLogInfo.setOrderType(orderType);

@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -172,10 +173,13 @@ public class PayServiceImpl implements IPayService {
             log.error("时间：{}获取支付宝签名失败：{}", DateUtils.getNowDate(), JSON.toJSONString(e));
 //            throw new RuntimeException("获取支付宝签名失败！！！");
             //记录日志
-            errorLogInfoService.saveErrorLogInfo(null,
+            errorLogInfoService.saveErrorLogInfo(
+                    null,
                     PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
                     ALIPAY_WEB,
                     PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    null,
+                    null,
                     PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
                     null, null, e);
             return alipayPaymentConfig.getRedirectUrl();
@@ -184,12 +188,17 @@ public class PayServiceImpl implements IPayService {
         if (!sign) {
             log.error("时间：{}签名验证失败：{}", DateUtils.getNowDate(), sign);
             //记录日志
-            errorLogInfoService.saveErrorLogInfo(null,
+            errorLogInfoService.saveErrorLogInfo(
+                    null,
                     PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
                     ALIPAY_WEB,
                     PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    null,
+                    null,
                     PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
-                    null, null, sign);
+                    null,
+                    null,
+                    sign);
             return alipayPaymentConfig.getRedirectUrl();
         }
         //转换map为json
@@ -211,10 +220,13 @@ public class PayServiceImpl implements IPayService {
                 //失败
                 log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), response.getMsg());
                 //记录日志
-                errorLogInfoService.saveErrorLogInfo(null,
+                errorLogInfoService.saveErrorLogInfo(
+                        null,
                         PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
                         ALIPAY_WEB,
                         PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                        alipayCallbackRequest.getTradeNo(),
+                        alipayCallbackRequest.getOutTradeNo(),
                         PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
                         StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
                         StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
@@ -223,14 +235,17 @@ public class PayServiceImpl implements IPayService {
         } catch (Exception e) {
             log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), JSON.toJSONString(e));
             //记录日志
+            boolean notNull = StringUtils.isNotNull(response);
             errorLogInfoService.saveErrorLogInfo(null,
                     PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
                     ALIPAY_WEB,
                     PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
-                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
-                    StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
-                    StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
-                    StringUtils.isNotNull(response) ? response : e);
+                    alipayCallbackRequest.getTradeNo(),
+                    alipayCallbackRequest.getOutTradeNo(),
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
+                    notNull && StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
+                    notNull && StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
+                    notNull ? response : e);
         }
         return alipayPaymentConfig.getRedirectUrl();
     }
