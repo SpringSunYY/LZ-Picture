@@ -10,6 +10,7 @@ import '@/router/permisson'
 import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'
 import UndrawUI from 'undraw-ui'
+import './output.css'
 message.config({
   maxCount: 5, // 最大显示数量
   duration: 3, // 默认持续时间（秒）

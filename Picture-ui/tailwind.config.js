@@ -7,7 +7,7 @@ export default {
   prefix: "",           // 如果你需要为所有的类添加前缀，可以修改这里
   content: [
     "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}"  // 确保 Tailwind 扫描到这些文件
+    "./src/**/*.{vue,js,ts,jsx,tsx}",  // 确保 Tailwind 扫描到这些文件
   ],
   theme: {
     extend: {

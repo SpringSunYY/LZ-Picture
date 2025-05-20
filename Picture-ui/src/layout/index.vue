@@ -67,10 +67,12 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   }
 
   .content {
+    padding-top: 64px;
+    padding-bottom: 60px;
     background: linear-gradient(to right, #fefefe, #fff);
-    margin-top: 64px; /* 顶部预留高度，避免被 header 遮住 */
-    margin-bottom: 28px;
-    padding: 20px;
+    //margin-top: 64px; /* 顶部预留高度，避免被 header 遮住 */
+    //margin-bottom: 28px;
+    //padding: 20px;
   }
 
   .footer {

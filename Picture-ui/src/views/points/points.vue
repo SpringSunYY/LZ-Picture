@@ -1,7 +1,6 @@
 <template>
   <div class="points">
     <a-page-header title="积分充值套餐" sub-title="选择适合您的积分充值方案" />
-
     <div class="filter-section">
       <a-space align="center" :wrap="true">
         <a-input-search
