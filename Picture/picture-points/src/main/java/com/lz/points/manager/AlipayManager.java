@@ -1,12 +1,10 @@
 package com.lz.points.manager;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson2.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
@@ -145,17 +143,18 @@ public class AlipayManager {
 //            System.err.println("response = " + JSON.toJSONString(response));
 //            System.out.println("body" + response.getBody());
 
+            JSONObject jsonObject = JSONObject.parseObject(response.getBody());
+            String alipayTradeQueryResponse = jsonObject.get("alipay_trade_query_response").toString();
             if (response.isSuccess()) {
 //                System.out.println("调用成功");
                 //获取到body内部alipay_trade_query_response
-                JSONObject jsonObject = JSONObject.parseObject(response.getBody());
-                String alipayTradeQueryResponse = jsonObject.get("alipay_trade_query_response").toString();
                 return JSONObject.parseObject(alipayTradeQueryResponse, AlipayTradeQueryResponse.class);
             } else {
                 log.error("时间{}-调用失败:{}", DateUtils.getNowDate(), response);
                 // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
                 // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
                 // System.out.println(diagnosisUrl);
+                return JSONObject.parseObject(alipayTradeQueryResponse, AlipayTradeQueryResponse.class);
             }
         } catch (AlipayApiException e) {
             log.error("时间：{}，获取支付宝签名失败！！！", DateUtils.getNowDate(), e);

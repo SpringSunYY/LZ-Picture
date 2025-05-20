@@ -18,4 +18,9 @@ public class PointsRedisConstants {
      * 超时时间
      */
     public static final Integer POINTS_ORDER_DETAIL_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 订单锁
+     */
+    public static final String POINTS_ORDER_LOCK = "points:pay:order:lock:";
 }

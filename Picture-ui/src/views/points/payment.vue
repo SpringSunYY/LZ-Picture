@@ -298,7 +298,7 @@ import { getPointsRechargePackageInfo } from '@/api/points/points.ts'
 import type { PointsRechargePackageInfoVo } from '@/types/points/points.d.ts'
 import SvgIcon from '@/components/SvgIcon.vue'
 import { formatDateTimeByDate, formatDateTimeByStr, formatTime } from '@/utils/common.ts'
-import { alipayWeb, getAlipayWebOrder } from '@/api/points/pay.ts'
+import { alipayWeb, getAlipayWeb, getAlipayWebOrder } from '@/api/points/pay.ts'
 import { type PayRequest, POrderStatusEnum } from '@/types/points/pay.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
@@ -521,8 +521,15 @@ const finishPay = async () => {
   }
   // 模拟支付过程
   message.loading('正在查询支付...', 2)
-  const res = await getAlipayWebOrder(outTradeNo.value)
-
+  finishLoading.value = true
+  const res = await getAlipayWeb(outTradeNo.value)
+  setTimeout(async () => {
+    finishLoading.value = false
+  }, 3000)
+  if (res.code === 200 && !res.data) {
+    message.warning('请先支付', 2)
+    return
+  }
   if (res.code === 200 && res.data) {
     if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_0) {
       message.warning('请先支付', 2)

@@ -74,8 +74,8 @@ public class SecurityConfig {
     /**
      * 允许匿名访问的地址
      */
-    @Autowired
-    private PermitAllUrlProperties permitAllUrl;
+    @Resource(name = "permitAllUrlProperties")
+    private PermitAllUrlProperties permitAllUrlProperties;
 
     /**
      * 身份验证实现
@@ -124,7 +124,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 注解标记允许匿名访问的url
                 .authorizeHttpRequests((requests) -> {
-                    permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
+                    permitAllUrlProperties.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                     // 对于登录login 注册register 验证码captchaImage 允许匿名访问
                     requests.requestMatchers("/admin/login", "/admin/logout", "/admin/register", "/admin/captchaImage").permitAll()
                             .requestMatchers("/user/login", "user/captchaImage", "user/getSmsLoginCode",

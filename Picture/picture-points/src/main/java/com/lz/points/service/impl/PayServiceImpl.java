@@ -34,6 +34,8 @@ import com.lz.userauth.utils.UserInfoSecurityUtils;
 import io.lettuce.core.RedisClient;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -42,9 +44,11 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ORDER_DETAIL;
+import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ORDER_LOCK;
 import static com.lz.points.constant.PayConstants.ALIPAY_WEB;
 import static com.lz.points.constant.PayConstants.WAIT_BUYER_PAY;
 
@@ -87,7 +91,7 @@ public class PayServiceImpl implements IPayService {
     private IErrorLogInfoService errorLogInfoService;
 
     @Resource
-    private RedisClient redisClient;
+    private RedissonClient redissonClient;
 
     @Override
     public AlipayPcPaymentVo alipayWeb(PayRequest payRequest) {
@@ -208,15 +212,15 @@ public class PayServiceImpl implements IPayService {
         String json = JSON.toJSONString(map);
         //转换JSON为阿里支付回调请求参数实体
         AlipayCallbackRequest alipayCallbackRequest = JSON.parseObject(json, AlipayCallbackRequest.class); //转换map为json
-        getAlipayOrder(alipayCallbackRequest.getOutTradeNo(),  alipayCallbackRequest.getTradeNo());
+        getAlipayOrder(alipayCallbackRequest.getOutTradeNo(), alipayCallbackRequest.getTradeNo());
         return alipayPaymentConfig.getRedirectUrl();
     }
 
     private PaymentOrderInfo getAlipayOrder(String outTradeNo, String tradeNo) {
         AlipayTradeQueryResponse response = null;
         try {
-            response = alipayManager.query(outTradeNo,tradeNo);
-            if (response.isSuccess()) {
+            response = alipayManager.query(outTradeNo, tradeNo);
+            if (StringUtils.isNotNull(response) && StringUtils.isNotNull(response.isSuccess()) && response.isSuccess()) {
                 //执行积分充值
                 PaymentOrderInfo paymentOrderInfo = executePointsRecharge(response);
                 //删除缓存
@@ -224,7 +228,10 @@ public class PayServiceImpl implements IPayService {
                     redisCache.deleteObject(POINTS_ORDER_DETAIL + paymentOrderInfo.getOrderId() + COMMON_SEPARATOR_CACHE + paymentOrderInfo.getUserId());
                     return paymentOrderInfo;
                 }
-            } else {
+            }else if(StringUtils.isNotNull(response)&&response.getCode().equals("40004")){
+                return null;
+            }
+            else {
                 //失败
                 log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), response.getMsg());
                 //记录日志
@@ -237,7 +244,7 @@ public class PayServiceImpl implements IPayService {
                         outTradeNo,
                         PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
                         StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
-                        StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
+                        StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() + (StringUtils.isNotEmpty(response.getSubMsg()) ? response.getSubMsg() : "") : "",
                         response);
             }
         } catch (Exception e) {
@@ -252,8 +259,8 @@ public class PayServiceImpl implements IPayService {
                     outTradeNo,
                     PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
                     notNull && StringUtils.isNotEmpty(response.getCode()) ? response.getCode() : "",
-                    notNull && StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() : "",
-                    notNull ? response : e);
+                    notNull && StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() + (StringUtils.isNotEmpty(response.getSubMsg()) ? response.getSubMsg() : "") : "",
+                    notNull ? response : e.getMessage());
         }
         return null;
     }
@@ -271,8 +278,28 @@ public class PayServiceImpl implements IPayService {
             log.error("时间:{}该订单已经支付成功:{}", nowDate, response.getOutTradeNo());
             return paymentOrderInfo;
         }
-        //创建锁保证只有一个线程进入
-//        redisClient.
+        RLock rLock = redissonClient.getLock(POINTS_ORDER_LOCK + response.getOutTradeNo());
+        boolean locked = false;
+        try {
+            locked = rLock.tryLock(5, 30, TimeUnit.SECONDS);
+            if (locked) {
+                return updatePaymentOrderInfo(response, paymentOrderInfo, nowDate);
+            }
+            // 没有获取锁，返回信息
+            return paymentOrderInfo;
+
+        } catch (InterruptedException e) {
+            log.error("获取锁被中断，订单: {}", response.getOutTradeNo(), e);
+            Thread.currentThread().interrupt();
+            return paymentOrderInfo;
+        } finally {
+            if (locked) {
+                rLock.unlock();
+            }
+        }
+    }
+
+    private PaymentOrderInfo updatePaymentOrderInfo(AlipayTradeQueryResponse response, PaymentOrderInfo paymentOrderInfo, Date nowDate) {
         //查询到对应的积分充值记录
         String userId = paymentOrderInfo.getUserId();
         PointsRechargeInfo rechargeInfo = pointsRechargeInfoService.getOne(new LambdaQueryWrapper<PointsRechargeInfo>()
@@ -408,6 +435,6 @@ public class PayServiceImpl implements IPayService {
     @Override
     public UserPaymentOrderInfoVo getAlipayWeb(String outTradeNo, String userId) {
         PaymentOrderInfo alipayOrder = getAlipayOrder(outTradeNo, null);
-        return null;
+        return UserPaymentOrderInfoVo.objToVo(alipayOrder);
     }
 }

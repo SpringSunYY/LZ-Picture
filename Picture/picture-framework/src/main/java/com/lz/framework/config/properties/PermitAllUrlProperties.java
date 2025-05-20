@@ -20,7 +20,7 @@ import com.lz.common.annotation.Anonymous;
 
 /**
  * 设置Anonymous注解允许匿名访问的url
- * 
+ *
  * @author YY
  */
 @Configuration
@@ -37,7 +37,7 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
     @Override
     public void afterPropertiesSet()
     {
-        RequestMappingHandlerMapping mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
+        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
 
         map.keySet().forEach(info -> {
