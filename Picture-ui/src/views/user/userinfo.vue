@@ -24,11 +24,11 @@
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-venus-mars"></i></span>
-            {{ getSexText(userInfo?.sex) }}
+            {{ userInfo?.sex ? getUserSexLabel(userInfo?.sex) : '未知' }}
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-birthday-cake"></i></span>
-            {{ formatDate(userInfo?.birthday) }}
+            {{ userInfo?.birthday }}
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-globe"></i></span>
@@ -59,7 +59,10 @@
 
     <div class="profile-details">
       <a-tabs default-active-key="1">
-        <a-tab-pane key="1" tab="账户信息">
+        <template #rightExtra>
+          <a-button>Right Extra Action</a-button>
+        </template>
+        <a-tab-pane key="1" tab="基本信息">
           <div class="details-grid">
             <!--            <div class="detail-item">-->
             <!--              <div class="detail-label">用户ID</div>-->
@@ -105,7 +108,7 @@
             </div>
             <div class="detail-item">
               <div class="detail-label">注册时间</div>
-              <div class="detail-value">{{ formatDate(userInfo?.createTime) }}</div>
+              <div class="detail-value">{{ userInfo?.createTime }}</div>
             </div>
           </div>
         </a-tab-pane>
@@ -161,61 +164,6 @@ const getMyUserInfo = async () => {
   }
 }
 getMyUserInfo()
-// 格式化日期
-const formatDate = (dateString) => {
-  if (!dateString) return '未知'
-  return dateString
-}
-
-// 获取性别文本
-const getSexText = (sex) => {
-  const sexMap = {
-    0: '未知',
-    1: '男',
-    2: '女',
-  }
-  return sexMap[sex] || '未知'
-}
-
-// 获取状态文本
-const getStatusText = (status) => {
-  const statusMap = {
-    0: '正常',
-    1: '异常',
-    2: '禁用',
-  }
-  return statusMap[status] || '未知'
-}
-
-// 获取状态颜色
-const getStatusColor = (status) => {
-  const colorMap = {
-    0: 'green',
-    1: 'orange',
-    2: 'red',
-  }
-  return colorMap[status] || 'default'
-}
-
-// 获取账户状态文本
-const getAccountStatusText = (status) => {
-  const statusMap = {
-    0: '正常',
-    1: '异常',
-    2: '禁用',
-  }
-  return statusMap[status] || '未知'
-}
-
-// 获取账户状态颜色
-const getAccountStatusColor = (status) => {
-  const colorMap = {
-    0: 'green',
-    1: 'orange',
-    2: 'red',
-  }
-  return colorMap[status] || 'default'
-}
 </script>
 
 <style lang="scss" scoped>

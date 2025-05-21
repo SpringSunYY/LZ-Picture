@@ -41,6 +41,18 @@ export interface MyUserInfo {
   /** 创建时间（格式：yyyy-MM-dd HH:mm:ss） */
   createTime: string
 
+  /** 赚取总积分  */
+  pointsEarned: number
+
+  /** 使用总积分 */
+  pointsUsed: number
+
+  /** 剩余积分 */
+  pointsBalance: number
+
+  /** 充值金额 */
+  rechargeAmount: number
+
   /** 登录日志列表 */
   loginLogInfoVos: MyLoginLogInfo[]
 }

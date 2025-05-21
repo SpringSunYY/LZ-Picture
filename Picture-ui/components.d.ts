@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AuroraBackground: typeof import('./src/components/AuroraBackground.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
     DirectionAwareHover: typeof import('./src/components/DirectionAwareHover.vue')['default']
