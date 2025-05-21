@@ -181,7 +181,6 @@
         <a-form-item label="生日" name="birthday">
           <a-date-picker
             v-model:value="formState.birthday"
-            format="YYYY-MM-DD"
             placeholder="请选择生日"
             style="width: 100%"
           />
@@ -227,7 +226,7 @@ import { getLoginTypeLabel } from '@/types/user/loginLog.d.ts'
 import Tags from '@/components/Tags.vue'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { data } from 'autoprefixer'
+import dayjs from 'dayjs';
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -274,7 +273,7 @@ const handleUpdateUserInfo = () => {
     userId: userInfo.value?.userId || '',
     nickName: userInfo.value?.nickName || '',
     sex: userInfo.value?.sex || '0',
-    birthday: userInfo.value?.birthday || null,
+    birthday: userInfo.value?.birthday ? dayjs(userInfo.value.birthday) : null,
     occupation: userInfo.value?.occupation || '',
     introductory: userInfo.value?.introductory || '',
   }
