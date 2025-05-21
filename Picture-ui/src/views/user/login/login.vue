@@ -9,7 +9,7 @@
             </div>
           </a-col>
           <a-col :span="12" style="align-content: center">
-            <h2>荔智云图登录</h2>
+            <h1 class="text-2xl font-bold text-gray-500">荔枝云图登录</h1>
           </a-col>
         </a-row>
       </div>
@@ -29,7 +29,7 @@
         </a-form-item>
 
         <a-form-item name="password">
-          <a-input-password v-model:value="loginForm.password" placeholder="密码" size="large">
+          <a-input-password v-model:value="loginForm.password" placeholder="密码" size="large" :maxLength="20">
             <template #prefix>
               <LockOutlined />
             </template>
@@ -90,9 +90,21 @@ const rules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-      message: '至少8位且包含字母和数字',
+      pattern: '^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$',
+      message: '密码长度8~20包含字母和数字，可使用符号但不能使用表情',
       trigger: 'blur',
+      validator: (_, value) => {
+        if (value.length < 8) {
+          return Promise.reject('密码长度至少为8位')
+        }
+        // 检查是否包含表情符号
+        const emojiRegex =
+          /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
+        if (emojiRegex.test(value)) {
+          return Promise.reject('密码不能包含表情符号')
+        }
+        return Promise.resolve()
+      },
     },
   ],
 }

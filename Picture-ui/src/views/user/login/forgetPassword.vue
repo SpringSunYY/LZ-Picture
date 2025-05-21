@@ -9,7 +9,7 @@
             </div>
           </a-col>
           <a-col :span="12" style="align-content: center">
-            <h2>忘记密码</h2>
+            <h1 class="text-4xl font-bold text-gray-500">忘记密码</h1>
           </a-col>
         </a-row>
       </div>
@@ -97,6 +97,7 @@
               <a-input-password
                 v-model:value="forgotPasswordForm.newPassword"
                 placeholder="新密码"
+                :maxLength="20"
                 size="large"
               >
                 <template #prefix>
@@ -111,6 +112,7 @@
               <a-input-password
                 v-model:value="forgotPasswordForm.confirmPassword"
                 placeholder="确认新密码"
+                :maxLength="20"
                 size="large"
               >
                 <template #prefix>
@@ -195,14 +197,44 @@ const rules = {
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     {
-      pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-      message: '至少8位且包含字母和数字',
+      pattern: "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$",
+      message: '密码长度8~20包含字母和数字，可使用符号但不能使用表情',
       trigger: 'blur',
+      validator: (_, value) => {
+        // 检查长度是否至少8位
+        if (value.length < 8) {
+          return Promise.reject('密码长度至少为8位');
+        }
+        // 检查是否包含表情符号
+        const emojiRegex =
+          /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
+        if (emojiRegex.test(value)) {
+          return Promise.reject('密码不能包含表情符号')
+        }
+        return Promise.resolve()
+      },
     },
   ],
   confirmPassword: [
     { required: true, message: '请确认新密码', trigger: 'blur' },
     { validator: validateConfirmPassword, trigger: 'blur' },
+    {
+      pattern: "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$",
+      message: '密码长度8~20包含字母和数字，可使用符号但不能使用表情',
+      trigger: 'blur',
+      validator: (_, value) => {
+        if (value.length < 8) {
+          return Promise.reject('密码长度至少为8位');
+        }
+        // 检查是否包含表情符号
+        const emojiRegex =
+          /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
+        if (emojiRegex.test(value)) {
+          return Promise.reject('密码不能包含表情符号')
+        }
+        return Promise.resolve()
+      },
+    },
   ],
   code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
 }

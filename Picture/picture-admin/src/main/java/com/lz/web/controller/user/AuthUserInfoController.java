@@ -158,7 +158,6 @@ public class AuthUserInfoController extends BaseUserInfoController {
 
     @PostMapping("/forgetPassword")
     public AjaxResult forgetPassword(@RequestBody @Validated ForgetPasswordBody forgetPasswordBody) {
-        AjaxResult ajaxResult = new AjaxResult();
         checkPassword(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword());
         //校验验证码
         loginService.checkSmsCode(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE, forgetPasswordBody.getCountryCode(), forgetPasswordBody.getPhone(), forgetPasswordBody.getSmsCode());
@@ -167,16 +166,23 @@ public class AuthUserInfoController extends BaseUserInfoController {
     }
 
     private void checkPassword(String password, String confirmPassword) {
+        //校验密码格式是否正确
         if (StringUtils.isEmpty(password) || StringUtils.isEmpty(confirmPassword)) {
             throw new ServiceException("密码不能为空！！！");
+        }
+        //校验长度
+        if (password.length() < 8 || password.length() > 20) {
+            throw new ServiceException("密码长度在8~20之间");
         }
         //校验两次密码是否正确
         if (!password.equals(confirmPassword)) {
             throw new ServiceException("两次密码不一致");
         }
-        //校验长度
-        if (password.length() < 6 || password.length() > 20) {
-            throw new ServiceException("密码长度在6~20之间");
+        //校验密码格式是否正确
+        //至少8位且包含字母和数字，可使用符号但不能使用表情
+        String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$";
+        if (!password.matches(regex)) {
+            throw new ServiceException("密码格式不正确");
         }
     }
 

@@ -9,7 +9,7 @@
             </div>
           </a-col>
           <a-col :span="12" style="align-content: center">
-            <h2>短信登录</h2>
+            <h1 class="text-4xl font-bold text-gray-500">短信登录</h1>
           </a-col>
         </a-row>
       </div>
