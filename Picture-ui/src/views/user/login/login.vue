@@ -29,7 +29,12 @@
         </a-form-item>
 
         <a-form-item name="password">
-          <a-input-password v-model:value="loginForm.password" placeholder="密码" size="large" :maxLength="20">
+          <a-input-password
+            v-model:value="loginForm.password"
+            placeholder="密码"
+            size="large"
+            :maxLength="20"
+          >
             <template #prefix>
               <LockOutlined />
             </template>
@@ -44,7 +49,7 @@
       </a-form>
 
       <div class="login-footer">
-        <a-checkbox v-model:checked="rememberMe">记住我</a-checkbox>
+        <a-checkbox v-model:checked="loginForm.rememberMe">记住我</a-checkbox>
         <div class="footer-links" @mouseover="showMenu = true" @mouseleave="showMenu = false">
           <div v-if="!showMenu" class="more-text">更多</div>
           <div v-else class="menu-links">
@@ -60,32 +65,31 @@
 
 <script setup lang="ts" name="UserLogin">
 import { UserSwitchOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import useUserStore from '@/stores/modules/user.ts'
 import Cookies from 'js-cookie'
-import { encrypt } from '@/utils/jsencrypt.js'
+import { encrypt, decrypt, safeDecrypt } from '@/utils/jsencrypt.js'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
-const rememberMe = ref(false)
 const showMenu = ref(false)
 
 const loginForm = ref({
-  username: 'admin',
-  password: '123456yy',
+  username: '',
+  password: '',
   rememberMe: false,
-  code: '',
+  code: ''
 })
 // 注册开关
 const register = ref(true)
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 32, message: '长度4-32个字符', trigger: 'blur' },
+    { min: 4, max: 32, message: '长度4-32个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -104,9 +108,9 @@ const rules = {
           return Promise.reject('密码不能包含表情符号')
         }
         return Promise.resolve()
-      },
-    },
-  ],
+      }
+    }
+  ]
 }
 
 const redirect = ref(undefined)
@@ -116,17 +120,17 @@ watch(
   (newRoute) => {
     redirect.value = newRoute.query && newRoute.query.redirect
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 const handleSubmit = async () => {
   if (loginForm.value.rememberMe) {
     Cookies.set('username', loginForm.value.username, { expires: 30 })
-    Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
+    // Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
     Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 })
   } else {
     Cookies.remove('username')
-    Cookies.remove('password')
+    // Cookies.remove('password')
     Cookies.remove('rememberMe')
   }
   try {
@@ -149,6 +153,19 @@ const handleSubmit = async () => {
   }
 }
 
+const getCookies = () => {
+  const savedUsername = Cookies.get('username')
+  // const savedPassword = Cookies.get('password')
+  const savedRememberMe = Cookies.get('rememberMe') === 'true'
+  // console.log(savedPassword)
+  if (savedUsername && savedRememberMe) {
+    loginForm.value.username = savedUsername
+    // loginForm.value.password = decrypt(savedPassword) // 解密
+    loginForm.value.rememberMe = true
+  }
+}
+
+getCookies()
 const handleFinishFailed = (errors) => {
   console.log('验证失败:', errors)
 }

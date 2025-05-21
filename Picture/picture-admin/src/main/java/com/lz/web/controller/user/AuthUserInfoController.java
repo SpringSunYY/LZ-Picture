@@ -86,7 +86,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
         boolean captchaEnabled = "true".equals(configInfoCache);
         smsLoginBody.setCaptchaEnabled(captchaEnabled);
         String smsLoginCode = loginService.getSmsCode(smsLoginBody.getPhone(), smsLoginBody.getCountryCode(), smsLoginBody.getCode(), smsLoginBody.isCaptchaEnabled(), smsLoginBody.getUuid());
-//        System.err.println(smsLoginCode);
+        System.err.println(smsLoginCode);
         return AjaxResult.success("验证码发送成功");
     }
 
@@ -133,8 +133,6 @@ public class AuthUserInfoController extends BaseUserInfoController {
         checkPassword(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword());
         //校验验证码
         loginService.checkSmsCode(UserRedisConstants.USER_SMS_REGISTER_CODE, registerLoginBody.getCountryCode(), registerLoginBody.getPhone(), registerLoginBody.getSmsCode());
-        System.out.println("registerLoginBody.getCountryCode() = " + registerLoginBody.getCountryCode());
-        System.out.println("registerLoginBody = " + registerLoginBody.getPhone());
         //查询此用户是否存在
         AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(registerLoginBody.getPhone(), registerLoginBody.getCountryCode());
         if (StringUtils.isNotNull(authUserInfo)) {
