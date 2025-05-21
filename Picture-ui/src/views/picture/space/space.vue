@@ -148,7 +148,6 @@ import PictureInfoList from '@/components/PictureInfoList.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-
 const { p_space_status } = proxy?.useDict('p_space_status')
 
 // 新增状态管理

@@ -60,7 +60,7 @@
     <div class="profile-details">
       <a-tabs default-active-key="1">
         <template #rightExtra>
-          <a-button>Right Extra Action</a-button>
+          <a-button @click="handleUpdateUserInfo">修改信息</a-button>
         </template>
         <a-tab-pane key="1" tab="基本信息">
           <div class="details-grid">
@@ -139,17 +139,82 @@
         </a-tab-pane>
       </a-tabs>
     </div>
+
+    <!--修改用户信息-->
+    <a-modal v-model:open="open" :footer="null" :width="600" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip title="请输入您的基本信息">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formState"
+        @finish="handleSubmit"
+        ref="formRef"
+        labelAlign="left"
+        :rules="rules"
+        :label-col="{ span: 5 }"
+        :wrapper-col="{ span: 18 }"
+      >
+        <a-form-item label="昵称" name="nickName">
+          <a-input
+            v-model:value="formState.nickName"
+            showCount
+            :maxlength="16"
+            placeholder="请输入昵称"
+          />
+        </a-form-item>
+        <a-form-item label="性别" name="sex">
+          <a-radio-group v-model:value="formState.sex" name="radioGroup">
+            <a-radio v-for="dict in u_user_sex" :value="dict.dictValue" :key="dict.dictValue">
+              {{ dict.dictLabel }}
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="职业" name="occupation">
+          <a-input
+            v-model:value="formState.occupation"
+            showCount
+            :maxlength="16"
+            placeholder="请输入职业"
+          />
+        </a-form-item>
+        <a-form-item label="个人简介" name="introductory">
+          <a-textarea
+            v-model:value="formState.introductory"
+            placeholder="请输入个人简介"
+            :rows="5"
+            showCount
+            :maxlength="512"
+          />
+        </a-form-item>
+        <div class="form-footer">
+          <a-button @click="open = false">取消</a-button>
+          <a-button type="primary" html-type="submit" :loading="submitting"> 提交</a-button>
+        </div>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts" name="userinfo">
-import { ref } from 'vue'
+import { getCurrentInstance, ref } from 'vue'
 import { getUserSexLabel, getUserStatusLabel, type MyUserInfo } from '@/types/user/user.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { getMyUserInfoByUserName } from '@/api/user/user.ts'
 import { getLoginTypeLabel } from '@/types/user/loginLog.d.ts'
 import Tags from '@/components/Tags.vue'
+import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+
+const instance = getCurrentInstance()
+const proxy = instance?.proxy
+const { u_user_sex } = proxy?.useDict('u_user_sex')
 
 const userStore = useUserStore()
 const { userName: userName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -164,6 +229,45 @@ const getMyUserInfo = async () => {
   }
 }
 getMyUserInfo()
+
+const open = ref(false)
+const title = ref('修改用户信息')
+const submitting = ref(false)
+const formState = ref({
+  nickName: '',
+  sex: '0',
+  occupation: '',
+  introductory: '',
+})
+
+const rules = {
+  nickName: [
+    { required: true, message: '请输入昵称', trigger: 'blur' },
+    { min: 2, max: 16, message: '长度在 2 到 16 个字符', trigger: 'blur' },
+  ],
+  sex: [{ required: true, message: '请选择性别', trigger: 'blur' }],
+
+}
+
+const handleUpdateUserInfo = () => {
+  //清除原来的数据
+  formState.value = {}
+  formState.value = {
+    ...formState.value,
+    nickName: userInfo.value?.nickName || '',
+    sex: userInfo.value?.sex || '0',
+  }
+  console.log(formState)
+  open.value = true
+}
+//修改用户信息
+const handleSubmit = async (formState) => {
+  // const res = await updateMyUserInfo(formState)
+  // if (res.code === 200) {
+  //   message.success('修改成功')
+  //   Object.assign(userInfo.value, res.data)
+  // }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -184,6 +288,34 @@ $green-color: #4caf50;
 $blue-color: #2196f3;
 $red-color: #f44336;
 $purple-color: #9c27b0;
+
+.custom-modal-title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+
+  .title-tip-icon {
+    margin-left: 8px;
+    color: rgba(57, 57, 57, 0.45);
+    cursor: help;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #1890ff;
+    }
+  }
+}
+
+.form-footer {
+  text-align: right;
+  padding: 16px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-btn {
+    margin-left: 10px;
+  }
+}
 
 .user-profile {
   max-width: 1440px;
