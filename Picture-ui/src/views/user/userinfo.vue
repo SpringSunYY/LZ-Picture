@@ -14,7 +14,9 @@
       </div>
       <div class="user-intro">
         <h1 class="user-name">{{ userInfo?.nickName || '未设置昵称' }}</h1>
-        <p class="user-occupation">{{ userInfo?.occupation || '未设置职业' }}</p>
+        <p class="user-occupation" style="color: #00ff95">
+          {{ userInfo?.occupation || '未设置职业' }}
+        </p>
         <p class="user-bio">{{ userInfo?.introductory || '这个人很懒，还没有填写个人简介...' }}</p>
         <div class="user-meta">
           <div class="meta-item">
@@ -176,6 +178,14 @@
             </a-radio>
           </a-radio-group>
         </a-form-item>
+        <a-form-item label="生日" name="birthday">
+          <a-date-picker
+            v-model:value="formState.birthday"
+            format="YYYY-MM-DD"
+            placeholder="请选择生日"
+            style="width: 100%"
+          />
+        </a-form-item>
         <a-form-item label="职业" name="occupation">
           <a-input
             v-model:value="formState.occupation"
@@ -204,13 +214,20 @@
 
 <script setup lang="ts" name="userinfo">
 import { getCurrentInstance, ref } from 'vue'
-import { getUserSexLabel, getUserStatusLabel, type MyUserInfo } from '@/types/user/user.d.ts'
+import {
+  getUserSexLabel,
+  getUserStatusLabel,
+  type MyUserInfo,
+  type UserInfoUpdate,
+} from '@/types/user/user.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
-import { getMyUserInfoByUserName } from '@/api/user/user.ts'
+import { getMyUserInfoByUserName, updateUserInfo } from '@/api/user/user.ts'
 import { getLoginTypeLabel } from '@/types/user/loginLog.d.ts'
 import Tags from '@/components/Tags.vue'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import { data } from 'autoprefixer'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -233,11 +250,13 @@ getMyUserInfo()
 const open = ref(false)
 const title = ref('修改用户信息')
 const submitting = ref(false)
-const formState = ref({
+const formState = ref<UserInfoUpdate>({
+  userId: '',
   nickName: '',
   sex: '0',
   occupation: '',
   introductory: '',
+  birthday: null,
 })
 
 const rules = {
@@ -246,27 +265,31 @@ const rules = {
     { min: 2, max: 16, message: '长度在 2 到 16 个字符', trigger: 'blur' },
   ],
   sex: [{ required: true, message: '请选择性别', trigger: 'blur' }],
-
 }
 
 const handleUpdateUserInfo = () => {
   //清除原来的数据
   formState.value = {}
   formState.value = {
-    ...formState.value,
+    userId: userInfo.value?.userId || '',
     nickName: userInfo.value?.nickName || '',
     sex: userInfo.value?.sex || '0',
+    birthday: userInfo.value?.birthday || null,
+    occupation: userInfo.value?.occupation || '',
+    introductory: userInfo.value?.introductory || '',
   }
   console.log(formState)
   open.value = true
 }
 //修改用户信息
-const handleSubmit = async (formState) => {
-  // const res = await updateMyUserInfo(formState)
-  // if (res.code === 200) {
-  //   message.success('修改成功')
-  //   Object.assign(userInfo.value, res.data)
-  // }
+const handleSubmit = async () => {
+  console.log(formState.value)
+  const res = await updateUserInfo(formState.value)
+  if (res.code === 200) {
+    message.success('修改成功')
+    await getMyUserInfo()
+    open.value = false
+  }
 }
 </script>
 

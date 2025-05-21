@@ -88,7 +88,7 @@ public class MyUserInfoVo implements Serializable {
     /**
      * 生日
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**

@@ -98,4 +98,14 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @return MyUserInfoVo
      **/
     MyUserInfoVo getMyUserInfoByUserName(String userName);
+
+    /**
+     * 用户更新基本信息
+     * @author: YY
+     * @method: userUpdateUserInfo
+     * @date: 2025/5/21 11:31
+     * @param userInfo
+     * @return int
+     **/
+    int userUpdateUserInfo(UserInfo userInfo);
 }

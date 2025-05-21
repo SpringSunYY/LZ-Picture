@@ -3,13 +3,12 @@ package com.lz.user.controller.user;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.model.vo.menuInfo.MenuInfoUserVo;
+import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.dto.userInfo.UserInfoUpdate;
 import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -28,6 +27,9 @@ public class UserUserInfoController extends BaseUserInfoController {
     @Resource
     private IUserInfoService userInfoService;
 
+    /**
+     * 获取用户菜单
+     */
     @GetMapping(value = "/menu")
     public AjaxResult getMenu() {
         Set<String> permissions = getLoginUser().getPermissions();
@@ -37,6 +39,9 @@ public class UserUserInfoController extends BaseUserInfoController {
         return AjaxResult.success(menuInfoList);
     }
 
+    /**
+     * 获取当前用户信息
+     */
     @GetMapping(value = "/my/{userName}")
     public AjaxResult getMyUserInfoByUserName(@PathVariable("userName") String userName) {
         String loginName = getLoginUser().getUsername();
@@ -44,5 +49,18 @@ public class UserUserInfoController extends BaseUserInfoController {
             return error("无权限访问");
         }
         return AjaxResult.success(userInfoService.getMyUserInfoByUserName(userName));
+    }
+
+    /**
+     * 更新用户基本信息
+     */
+    @PutMapping(value = "/update")
+    public AjaxResult updateUserInfo(@RequestBody UserInfoUpdate userInfoUpdate) {
+        String userId = getUserId();
+        if (!userId.equals(userInfoUpdate.getUserId())) {
+            return error("无权限访问");
+        }
+        UserInfo userInfo = UserInfoUpdate.editToObj(userInfoUpdate);
+        return AjaxResult.success(userInfoService.userUpdateUserInfo(userInfo));
     }
 }

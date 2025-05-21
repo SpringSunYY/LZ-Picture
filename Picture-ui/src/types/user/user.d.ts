@@ -27,7 +27,7 @@ export interface MyUserInfo {
   sex: string
 
   /** 生日（格式：yyyy-MM-dd HH:mm:ss） */
-  birthday: string
+  birthday: date
 
   /** 职业 */
   occupation: string
@@ -39,7 +39,7 @@ export interface MyUserInfo {
   ipAddress: string
 
   /** 创建时间（格式：yyyy-MM-dd HH:mm:ss） */
-  createTime: string
+  createTime: date
 
   /** 赚取总积分  */
   pointsEarned: number
@@ -75,6 +75,29 @@ export interface MyLoginLogInfo {
 
   /** 登录时间（格式：yyyy-MM-dd HH:mm:ss） */
   loginTime: string
+}
+
+/**
+ * 用户信息修改参数
+ */
+export interface UserInfoUpdate {
+  /** 用户ID */
+  userId: string
+
+  /** 昵称 */
+  nickName: string
+
+  /** 性别（0=未知 1=男 2=女） */
+  sex: string
+
+  /** 生日（格式：yyyy-MM-dd） */
+  birthday?: date
+
+  /** 职业 */
+  occupation?: string
+
+  /** 个人简介 */
+  introductory?: string
 }
 
 // 枚举定义 用户状态枚举
