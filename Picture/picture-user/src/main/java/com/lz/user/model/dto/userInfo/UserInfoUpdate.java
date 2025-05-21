@@ -2,6 +2,9 @@ package com.lz.user.model.dto.userInfo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.user.model.domain.UserInfo;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -23,16 +26,21 @@ public class UserInfoUpdate implements Serializable {
     /**
      * 用户ID
      */
+    @NotEmpty(message = "用户编号不能为空")
     private String userId;
 
     /**
      * 昵称
      */
+    @NotEmpty(message = "昵称不能为空")
+    @Size(min = 2, max = 20, message = "昵称长度在2-20个字符之间")
     private String nickName;
 
     /**
      * 性别（0=未知 1=男 2=女）
      */
+    @NotEmpty(message = "性别不能为空")
+    @Size(min = 1, max = 1, message = "性别长度错误")
     private String sex;
 
     /**

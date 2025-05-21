@@ -129,6 +129,12 @@ import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user.ts'
 import { getCodeImg, getRegisterCode } from '@/api/user/login.js'
+import {
+  passwordPattern,
+  passwordPatternMessage,
+  validateConfirmPassword,
+  validatePassword,
+} from '@/types/user/validators.d.ts'
 
 const router = useRouter()
 const loading = ref(false)
@@ -153,15 +159,8 @@ const registerForm = ref({
   password: '', // 移除 confirmPassword
   code: '', // 根据业务需要决定是否保留
   uuid: '',
+  confirmPassword: '',
 })
-
-// 验证规则
-const validateConfirmPassword = (rule, value) => {
-  if (value !== registerForm.value.password) {
-    return Promise.reject('两次密码不一致')
-  }
-  return Promise.resolve()
-}
 
 const rules = {
   countryCode: [{ required: true, message: '请选择国家码', trigger: 'change' }],
@@ -179,43 +178,24 @@ const rules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$",
-      message: '密码长度8~20包含字母和数字，可使用符号但不能使用表情',
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: (_, value) => {
-        if (value.length < 8) {
-          return Promise.reject('密码长度至少为8位');
-        }
-        // 检查是否包含表情符号
-        const emojiRegex =
-          /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
-        if (emojiRegex.test(value)) {
-          return Promise.reject('密码不能包含表情符号')
-        }
-        return Promise.resolve()
-      },
+      validator: validatePassword,
     },
   ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
-      pattern: "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$",
-      message: '密码长度8~20包含字母和数字，可使用符号但不能使用表情',
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: (_, value) => {
-        if (value.length < 8) {
-          return Promise.reject('密码长度至少为8位');
-        }
-        // 检查是否包含表情符号
-        const emojiRegex =
-          /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
-        if (emojiRegex.test(value)) {
-          return Promise.reject('密码不能包含表情符号')
-        }
-        return Promise.resolve()
-      },
+      validator: validatePassword,
     },
-    { validator: validateConfirmPassword, trigger: 'blur' },
+    {
+      validator: (_: any, value: string) => validateConfirmPassword(registerForm.value.password, value),
+      trigger: 'blur',
+    },
   ],
   code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
 }

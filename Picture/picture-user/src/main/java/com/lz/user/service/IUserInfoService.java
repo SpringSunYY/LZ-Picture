@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.user.model.domain.UserInfo;
-import com.lz.user.model.vo.loginLogInfo.MyLoginLogInfoVo;
+import com.lz.user.model.dto.userInfo.UserPasswordUploadRequest;
 import com.lz.user.model.vo.userInfo.MyUserInfoVo;
 import com.lz.user.model.vo.userInfo.UserInfoVo;
 import com.lz.user.model.dto.userInfo.UserInfoQuery;
@@ -91,21 +91,34 @@ public interface IUserInfoService extends IService<UserInfo> {
 
     /**
      * 根据用户名获取用户自己的信息
+     *
+     * @param userName
+     * @return MyUserInfoVo
      * @author: YY
      * @method: getMyUserInfoByUserName
      * @date: 2025/5/20 23:05
-     * @param userName
-     * @return MyUserInfoVo
      **/
     MyUserInfoVo getMyUserInfoByUserName(String userName);
 
     /**
      * 用户更新基本信息
+     *
+     * @param userInfo
+     * @return int
      * @author: YY
      * @method: userUpdateUserInfo
      * @date: 2025/5/21 11:31
-     * @param userInfo
-     * @return int
      **/
     int userUpdateUserInfo(UserInfo userInfo);
+
+    /**
+     * 用户更新密码
+     *
+     * @param request 用户请求
+     * @return int
+     * @author: YY
+     * @method: userUpdateUserInfoPassword
+     * @date: 2025/5/21 23:35
+     **/
+    int userUpdateUserInfoPassword(UserPasswordUploadRequest request);
 }

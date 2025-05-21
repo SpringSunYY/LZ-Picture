@@ -62,7 +62,11 @@
     <div class="profile-details">
       <a-tabs default-active-key="1">
         <template #rightExtra>
-          <a-button @click="handleUpdateUserInfo">修改信息</a-button>
+          <a-space :size="[8, 16]" wrap style="max-width: 350px">
+            <a-button @click="handleUpdateUserInfo">修改信息</a-button>
+            <a-button @click="handleUpdatePassword">修改密码</a-button>
+            <a-button @click="handleUpdateUserInfo">修改支付密码</a-button>
+          </a-space>
         </template>
         <a-tab-pane key="1" tab="基本信息">
           <div class="details-grid">
@@ -208,6 +212,78 @@
         </div>
       </a-form>
     </a-modal>
+
+    <a-modal
+      v-model:open="openPassword"
+      :footer="null"
+      :rules="rulesPassword"
+      :width="500"
+      centered
+      destroyOnClose
+    >
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          修改密码
+          <a-tooltip title="一定要记住你的密码哦">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="passwordForm"
+        @finish="handleSubmitPassword"
+        ref="formRef"
+        labelAlign="left"
+        :rules="rulesPassword"
+      >
+        <!-- 旧密码 -->
+        <a-form-item name="oldPassword" label="旧的密码">
+          <a-input-password
+            v-model:value="passwordForm.oldPassword"
+            placeholder="旧密码"
+            :maxLength="20"
+            size="large"
+          >
+            <template #prefix>
+              <lock-outlined />
+            </template>
+          </a-input-password>
+        </a-form-item>
+        <!-- 新密码 -->
+        <a-form-item name="password" label="新的密码">
+          <a-input-password
+            v-model:value="passwordForm.password"
+            placeholder="新密码"
+            :maxLength="20"
+            size="large"
+          >
+            <template #prefix>
+              <lock-outlined />
+            </template>
+          </a-input-password>
+        </a-form-item>
+
+        <!-- 确认密码 -->
+        <a-form-item name="confirmPassword" label="确认密码">
+          <a-input-password
+            v-model:value="passwordForm.confirmPassword"
+            placeholder="确认新密码"
+            :maxLength="20"
+            size="large"
+          >
+            <template #prefix>
+              <lock-outlined />
+            </template>
+          </a-input-password>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" html-type="submit" block size="large" :loading="passwordLoading">
+            重置密码
+          </a-button>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -218,15 +294,22 @@ import {
   getUserStatusLabel,
   type MyUserInfo,
   type UserInfoUpdate,
+  type UserPasswordUploadRequest,
 } from '@/types/user/user.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
-import { getMyUserInfoByUserName, updateUserInfo } from '@/api/user/user.ts'
+import { getMyUserInfoByUserName, updateUserInfo, updateUserInfoPassword } from '@/api/user/user.ts'
 import { getLoginTypeLabel } from '@/types/user/loginLog.d.ts'
 import Tags from '@/components/Tags.vue'
-import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { LockOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'
+import {
+  passwordPattern,
+  passwordPatternMessage,
+  validateConfirmPassword,
+  validatePassword,
+} from '@/types/user/validators.d.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -266,6 +349,67 @@ const rules = {
   sex: [{ required: true, message: '请选择性别', trigger: 'blur' }],
 }
 
+const openPassword = ref(false)
+const passwordLoading = ref(false)
+const passwordForm = ref<UserPasswordUploadRequest>({
+  userId: '',
+  password: '',
+  confirmPassword: '',
+  oldPassword: '',
+})
+const rulesPassword = {
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    {
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
+      trigger: 'blur',
+      validator: validatePassword,
+    },
+  ],
+  oldPassword: [
+    { required: true, message: '请输入旧密码', trigger: 'blur' },
+    {
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
+      trigger: 'blur',
+      validator: validatePassword,
+    },
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
+      trigger: 'blur',
+      validator: validatePassword,
+    },
+    {
+      validator: (_: any, value: string) =>
+        validateConfirmPassword(passwordForm.value.password, value),
+      trigger: 'blur',
+    },
+  ],
+}
+const handleUpdatePassword = () => {
+  openPassword.value = true
+  title.value = '修改密码'
+}
+const handleSubmitPassword = async () => {
+  passwordLoading.value = true
+  passwordForm.value.userId = userInfo.value?.userId || ''
+  try {
+    const res = await updateUserInfoPassword(passwordForm.value)
+    if (res.code === 200&&res.data===1) {
+      message.success('修改密码成功')
+      openPassword.value = false
+    }else {
+      message.error('修改密码失败')
+    }
+  } finally {
+    passwordLoading.value = false
+  }
+}
 const handleUpdateUserInfo = () => {
   //清除原来的数据
   formState.value = {}

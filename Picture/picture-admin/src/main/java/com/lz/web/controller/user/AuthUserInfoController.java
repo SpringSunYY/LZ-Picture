@@ -5,10 +5,9 @@ import com.lz.common.constant.Constants;
 import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.common.core.domain.model.LoginUserInfo;
-import com.lz.common.exception.ServiceException;
+import com.lz.userauth.utils.PasswordUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.config.service.IConfigInfoService;
@@ -130,7 +129,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
         if (StringUtils.isEmpty(registerLoginBody.getSmsCode()) || StringUtils.isEmpty(registerLoginBody.getPhone()) || StringUtils.isEmpty(registerLoginBody.getPassword()) || StringUtils.isEmpty(registerLoginBody.getConfirmPassword())) {
             return AjaxResult.error("请输入手机号和密码");
         }
-        checkPassword(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword());
+        PasswordUtils.checkPasswordFormate(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword());
         //校验验证码
         loginService.checkSmsCode(UserRedisConstants.USER_SMS_REGISTER_CODE, registerLoginBody.getCountryCode(), registerLoginBody.getPhone(), registerLoginBody.getSmsCode());
         //查询此用户是否存在
@@ -156,33 +155,13 @@ public class AuthUserInfoController extends BaseUserInfoController {
 
     @PostMapping("/forgetPassword")
     public AjaxResult forgetPassword(@RequestBody @Validated ForgetPasswordBody forgetPasswordBody) {
-        checkPassword(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword());
+        PasswordUtils.checkPasswordFormate(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword());
         //校验验证码
         loginService.checkSmsCode(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE, forgetPasswordBody.getCountryCode(), forgetPasswordBody.getPhone(), forgetPasswordBody.getSmsCode());
         AuthUserInfo authUserInfo = authUserInfoService.forgetPassword(forgetPasswordBody);
         return AjaxResult.success("修改成功");
     }
 
-    private void checkPassword(String password, String confirmPassword) {
-        //校验密码格式是否正确
-        if (StringUtils.isEmpty(password) || StringUtils.isEmpty(confirmPassword)) {
-            throw new ServiceException("密码不能为空！！！");
-        }
-        //校验长度
-        if (password.length() < 8 || password.length() > 20) {
-            throw new ServiceException("密码长度在8~20之间");
-        }
-        //校验两次密码是否正确
-        if (!password.equals(confirmPassword)) {
-            throw new ServiceException("两次密码不一致");
-        }
-        //校验密码格式是否正确
-        //至少8位且包含字母和数字，可使用符号但不能使用表情
-        String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$";
-        if (!password.matches(regex)) {
-            throw new ServiceException("密码格式不正确");
-        }
-    }
 
     @PostMapping("/logout")
     public AjaxResult logout(HttpServletRequest request) {

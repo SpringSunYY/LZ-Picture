@@ -1,5 +1,6 @@
 package com.lz.common.core.domain.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("u_user_info")
 @Data
 public class AuthUserInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

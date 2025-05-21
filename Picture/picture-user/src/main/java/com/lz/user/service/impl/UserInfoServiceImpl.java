@@ -18,11 +18,14 @@ import com.lz.user.mapper.UserInfoMapper;
 import com.lz.user.model.domain.LoginLogInfo;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.dto.userInfo.UserInfoQuery;
+import com.lz.user.model.dto.userInfo.UserPasswordUploadRequest;
 import com.lz.user.model.vo.loginLogInfo.MyLoginLogInfoVo;
 import com.lz.user.model.vo.userInfo.MyUserInfoVo;
 import com.lz.user.model.vo.userInfo.UserInfoVo;
 import com.lz.user.service.ILoginLogInfoService;
 import com.lz.user.service.IUserInfoService;
+import com.lz.userauth.model.domain.EncryptionPassword;
+import com.lz.userauth.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -230,7 +233,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         //查询登录日志,最近十条
         List<LoginLogInfo> loginLogInfoList = loginLogInfoService.list(new LambdaQueryWrapper<LoginLogInfo>()
                 .eq(LoginLogInfo::getUserId, userInfo.getUserId())
-                        .eq(LoginLogInfo::getStatus, ULoginStatus.LOGIN_STATUS_0.getValue())
+                .eq(LoginLogInfo::getStatus, ULoginStatus.LOGIN_STATUS_0.getValue())
                 .orderByDesc(LoginLogInfo::getLoginTime)
                 .last("limit 5"));
         List<MyLoginLogInfoVo> myLoginLogInfoVos = MyLoginLogInfoVo.objToVo(loginLogInfoList);
@@ -243,7 +246,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             myUserInfoVo.setPointsUsed(accountInfo.getPointsUsed());
             myUserInfoVo.setRechargeAmount(accountInfo.getRechargeAmount());
         }
-        redisCache.setCacheObject(key, myUserInfoVo,  60 * 5, TimeUnit.SECONDS);
+        redisCache.setCacheObject(key, myUserInfoVo, 60 * 5, TimeUnit.SECONDS);
         return myUserInfoVo;
     }
 
@@ -259,6 +262,26 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         //删除缓存
         redisCache.deleteObject(USER_INFO + userInfoDb.getUserName());
         return 1;
+    }
+
+    @Override
+    public int userUpdateUserInfoPassword(UserPasswordUploadRequest request) {
+        //先查询用户
+        UserInfo userInfo = userInfoMapper.selectUserInfoByUserId(request.getUserId());
+        if (StringUtils.isNull(userInfo)) {
+            return 0;
+        }
+        //获取密码以及加密方式
+        String password = userInfo.getPassword();
+        String salt = userInfo.getSalt();
+        if (!PasswordUtils.checkPasswordFormate(salt, request.getOldPassword(), password)) {
+            return 0;
+        }
+        //密码校验成功 更新密码
+        EncryptionPassword encrypted = PasswordUtils.encryptPassword(request.getPassword());
+        userInfo.setPassword(encrypted.getPassword());
+        userInfo.setSalt(encrypted.getSalt());
+        return userInfoMapper.updateById(userInfo);
     }
 
 }

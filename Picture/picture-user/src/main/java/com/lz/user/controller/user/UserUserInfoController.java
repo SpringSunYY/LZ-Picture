@@ -5,12 +5,15 @@ import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.model.vo.menuInfo.MenuInfoUserVo;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.dto.userInfo.UserInfoUpdate;
+import com.lz.user.model.dto.userInfo.UserPasswordUploadRequest;
+import com.lz.user.model.enums.UUserSexEnum;
 import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -60,7 +63,25 @@ public class UserUserInfoController extends BaseUserInfoController {
         if (!userId.equals(userInfoUpdate.getUserId())) {
             return error("无权限访问");
         }
+        Optional<UUserSexEnum> enumByValue = UUserSexEnum.getEnumByValue(userInfoUpdate.getSex());
+        if (enumByValue.isEmpty()) {
+            return error("性别参数错误");
+        }
         UserInfo userInfo = UserInfoUpdate.editToObj(userInfoUpdate);
         return AjaxResult.success(userInfoService.userUpdateUserInfo(userInfo));
+    }
+
+    /**
+     * 更新用户基本信息
+     */
+    @PutMapping(value = "/password")
+    public AjaxResult updatePassword(@RequestBody UserPasswordUploadRequest userPasswordUploadRequest) {
+        String userId = getUserId();
+        System.out.println("userId = " + userId);
+        System.out.println("userPasswordUploadRequest = " + userPasswordUploadRequest);
+        if (!userId.equals(userPasswordUploadRequest.getUserId())) {
+            return error("无权限访问");
+        }
+        return AjaxResult.success(userInfoService.userUpdateUserInfoPassword(userPasswordUploadRequest));
     }
 }

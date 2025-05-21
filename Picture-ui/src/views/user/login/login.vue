@@ -64,13 +64,13 @@
 </template>
 
 <script setup lang="ts" name="UserLogin">
-import { UserSwitchOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { ref, watch, onMounted } from 'vue'
+import { LockOutlined, UserSwitchOutlined } from '@ant-design/icons-vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import useUserStore from '@/stores/modules/user.ts'
 import Cookies from 'js-cookie'
-import { encrypt, decrypt, safeDecrypt } from '@/utils/jsencrypt.js'
+import { passwordPattern, passwordPatternMessage, validatePassword } from '@/types/user/validators.d.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -82,35 +82,24 @@ const loginForm = ref({
   username: '',
   password: '',
   rememberMe: false,
-  code: ''
+  code: '',
 })
 // 注册开关
 const register = ref(true)
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 32, message: '长度4-32个字符', trigger: 'blur' }
+    { min: 4, max: 32, message: '长度4-32个字符', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: '^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$',
-      message: '密码长度8~20包含字母和数字，可使用符号但不能使用表情',
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: (_, value) => {
-        if (value.length < 8) {
-          return Promise.reject('密码长度至少为8位')
-        }
-        // 检查是否包含表情符号
-        const emojiRegex =
-          /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
-        if (emojiRegex.test(value)) {
-          return Promise.reject('密码不能包含表情符号')
-        }
-        return Promise.resolve()
-      }
-    }
-  ]
+      validator: validatePassword,
+    },
+  ],
 }
 
 const redirect = ref(undefined)
@@ -120,7 +109,7 @@ watch(
   (newRoute) => {
     redirect.value = newRoute.query && newRoute.query.redirect
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const handleSubmit = async () => {
