@@ -64,6 +64,7 @@
         :loading="loading"
         @change="handleTableChange"
         row-key="behaviorId"
+        :scroll="{ x: 1000 }"
       >
         <!-- 行为类型列自定义渲染 -->
         <template #bodyCell="{ column, text, record }">
