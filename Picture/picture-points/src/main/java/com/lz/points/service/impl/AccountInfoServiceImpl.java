@@ -149,7 +149,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
     @Override
     public int userUpdateAccountInfoPassword(AccountPasswordUploadRequest request) {
         //校验密码格式是否正确
-        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword());
+        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword(),6,10);
         //首先查询是否有账号
         AccountInfo accountInfoDb = this.selectAccountInfoByUserId(request.getUserId());
         if (StringUtils.isNull(accountInfoDb)) {

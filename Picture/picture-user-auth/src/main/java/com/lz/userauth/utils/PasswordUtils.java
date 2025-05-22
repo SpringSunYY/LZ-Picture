@@ -25,14 +25,14 @@ public class PasswordUtils {
      * @method: checkPasswordFormate
      * @date: 2025/5/22 01:25
      **/
-    public static void checkPasswordFormate(String password, String confirmPassword) {
+    public static void checkPasswordFormate(String password, String confirmPassword, int minLength, int maxLength) {
         //校验密码格式是否正确
         if (StringUtils.isEmpty(password) || StringUtils.isEmpty(confirmPassword)) {
             throw new ServiceException("密码不能为空！！！");
         }
         //校验长度
-        if (password.length() < 8 || password.length() > 20) {
-            throw new ServiceException("密码长度在8~20之间");
+        if (password.length() < minLength || password.length() > maxLength) {
+            throw new ServiceException(StringUtils.format("密码长度在{}~{}之间", minLength, maxLength));
         }
         //校验两次密码是否正确
         if (!password.equals(confirmPassword)) {
@@ -40,9 +40,9 @@ public class PasswordUtils {
         }
         //校验密码格式是否正确
         //至少8位且包含字母和数字，可使用符号但不能使用表情
-        String regex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{}|;':\",./<>?`~ ]{8,20}$";
+        String regex = "^[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{}|;':\",./<>?`~ ]{" + minLength + "," + maxLength + "}$";
         if (!password.matches(regex)) {
-            throw new ServiceException("密码格式不正确,至少8位且包含字母和数字，可使用符号但不能使用表情");
+            throw new ServiceException(StringUtils.format("密码格式不正确,密码长度在{}~{}之间,可以使用普通符号但不能表情",minLength,maxLength));
         }
     }
 

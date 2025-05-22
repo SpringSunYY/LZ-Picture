@@ -426,28 +426,22 @@ const rulesPassword = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 8, 20),
     },
   ],
   oldPassword: [
     { required: true, message: '请输入旧密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 8, 20),
     },
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: '请输入确认密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 8, 20),
     },
     {
       validator: (_: any, value: string) =>
@@ -468,8 +462,14 @@ const handleSubmitPassword = async () => {
     if (res.code === 200 && res.data === 1) {
       message.success('修改密码成功')
       openPassword.value = false
+      passwordForm.value = {
+        userId: '',
+        password: '',
+        confirmPassword: '',
+        oldPassword: '',
+      }
     } else {
-      message.error('修改密码失败')
+      message.error('修改密码失败，请检查密码是否正确')
     }
   } finally {
     passwordLoading.value = false
@@ -489,28 +489,22 @@ const rulesAccountPassword = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 6, 10),
     },
   ],
   oldPassword: [
     { required: true, message: '请输入旧密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 6, 10),
     },
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: '请输入确认密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 6, 10),
     },
     {
       validator: (_: any, value: string) =>
@@ -529,10 +523,16 @@ const handleSubmitAccountPassword = async () => {
   try {
     const res = await updateAccountPassword(accountPasswordForm.value)
     if (res.code === 200 && res.data === 1) {
-      message.success('修改密码成功')
+      message.success('修改账户密码成功')
       openAccountPassword.value = false
+      accountPasswordForm.value = {
+        userId: '',
+        password: '',
+        confirmPassword: '',
+        oldPassword: '',
+      }
     } else {
-      message.error('修改密码失败')
+      message.error('修改密码失败,请检查密码是否正确')
     }
   } finally {
     accountPasswordLoading.value = false

@@ -267,7 +267,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public int userUpdateUserInfoPassword(UserPasswordUploadRequest request) {
         //校验密码格式是否正确
-        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword());
+        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword(),8,  20);
         //先查询用户
         UserInfo userInfo = userInfoMapper.selectUserInfoByUserId(request.getUserId());
         if (StringUtils.isNull(userInfo)) {

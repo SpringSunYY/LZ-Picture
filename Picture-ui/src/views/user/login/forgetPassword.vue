@@ -145,12 +145,7 @@ import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user'
 import { getCodeImg, getForgetPasswordCode } from '@/api/user/login'
-import {
-  passwordPattern,
-  passwordPatternMessage,
-  validateConfirmPassword,
-  validatePassword,
-} from '@/types/user/validators'
+import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -194,19 +189,15 @@ const rules = {
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 8, 20),
     },
   ],
   confirmPassword: [
     { required: true, message: '请确认新密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 8, 20),
     },
     {
       validator: (_, value) => validateConfirmPassword(forgotPasswordForm.value.newPassword, value),

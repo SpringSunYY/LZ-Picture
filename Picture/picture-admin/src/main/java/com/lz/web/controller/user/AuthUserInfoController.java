@@ -129,7 +129,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
         if (StringUtils.isEmpty(registerLoginBody.getSmsCode()) || StringUtils.isEmpty(registerLoginBody.getPhone()) || StringUtils.isEmpty(registerLoginBody.getPassword()) || StringUtils.isEmpty(registerLoginBody.getConfirmPassword())) {
             return AjaxResult.error("请输入手机号和密码");
         }
-        PasswordUtils.checkPasswordFormate(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword());
+        PasswordUtils.checkPasswordFormate(registerLoginBody.getPassword(), registerLoginBody.getConfirmPassword(), 8, 20);
         //校验验证码
         loginService.checkSmsCode(UserRedisConstants.USER_SMS_REGISTER_CODE, registerLoginBody.getCountryCode(), registerLoginBody.getPhone(), registerLoginBody.getSmsCode());
         //查询此用户是否存在
@@ -155,7 +155,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
 
     @PostMapping("/forgetPassword")
     public AjaxResult forgetPassword(@RequestBody @Validated ForgetPasswordBody forgetPasswordBody) {
-        PasswordUtils.checkPasswordFormate(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword());
+        PasswordUtils.checkPasswordFormate(forgetPasswordBody.getPassword(), forgetPasswordBody.getConfirmPassword(),  8, 20);
         //校验验证码
         loginService.checkSmsCode(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE, forgetPasswordBody.getCountryCode(), forgetPasswordBody.getPhone(), forgetPasswordBody.getSmsCode());
         AuthUserInfo authUserInfo = authUserInfoService.forgetPassword(forgetPasswordBody);

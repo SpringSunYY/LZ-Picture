@@ -94,10 +94,8 @@ const rules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: passwordPattern,
-      message: passwordPatternMessage,
       trigger: 'blur',
-      validator: validatePassword,
+      validator: (_: any, value: string) => validatePassword(value, 8, 20),
     },
   ],
 }
