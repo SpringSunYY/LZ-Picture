@@ -242,7 +242,7 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
                         .eq(StringUtils.isNotEmpty(userBehaviorInfoQuery.getTargetType()), UserBehaviorInfo::getTargetType, userBehaviorInfoQuery.getTargetType())
                         .like(StringUtils.isNotEmpty(userBehaviorInfoQuery.getTargetContent()), UserBehaviorInfo::getTargetContent, userBehaviorInfoQuery.getTargetContent())
                         .apply(beginCreateTime != null && endCreateTime != null,
-                                "date_format(create_time,'yyyy-MM-dd') between {0} and {1}",
+                                "create_time between {0} and {1}",
                                 beginCreateTime, endCreateTime)
                         .orderBy(StringUtils.isNotEmpty(userBehaviorInfoQuery.getIsAsc()),
                                 userBehaviorInfoQuery.getIsAsc().equalsIgnoreCase("asc"),

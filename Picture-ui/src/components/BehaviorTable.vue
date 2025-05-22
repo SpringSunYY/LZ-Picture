@@ -1,9 +1,12 @@
 <template>
   <div class="user-behavior-table">
     <a-card title="用户行为信息" :bordered="false">
-      <!-- 搜索区域 -->
-      <a-row :gutter="16" class="mb-4">
-        <a-col :span="6">
+      <a-form
+        layout="inline"
+        :model="behaviorQuery"
+      >
+        <!-- 搜索区域 -->
+        <a-form-item>
           <a-input-search
             style="min-width: 200px"
             v-model:value="behaviorQuery.targetContent"
@@ -11,35 +14,46 @@
             @search="handleSearch"
             enter-button
           />
-        </a-col>
-        <a-col :span="6">
+        </a-form-item>
+        <a-form-item>
           <a-select
-            style="min-width: 200px; width: 100%"
+            style="width: 200px"
             v-model:value="behaviorQuery.behaviorType"
             placeholder="选择行为类型"
             @change="handleSearch"
             allow-clear
           >
-            <a-select-option value="VIEW">浏览</a-select-option>
-            <a-select-option value="LIKE">点赞</a-select-option>
-            <a-select-option value="COMMENT">评论</a-select-option>
-            <a-select-option value="SHARE">分享</a-select-option>
-            <a-select-option value="COLLECT">收藏</a-select-option>
+            <a-select-option v-for="dict in p_user_behavior_type" :value="dict.dictValue || ''">
+              {{ dict.dictLabel }}
+            </a-select-option>
           </a-select>
-        </a-col>
-        <a-col :span="6">
+        </a-form-item>
+        <a-form-item>
+          <a-select
+            style="width: 200px"
+            v-model:value="behaviorQuery.targetType"
+            placeholder="选择目标类型"
+            @change="handleSearch"
+            allow-clear
+          >
+            <a-select-option
+              v-for="dict in p_user_behavior_target_type"
+              :value="dict.dictValue || ''"
+            >
+              {{ dict.dictLabel }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item>
           <a-range-picker
             v-model:value="dateRange"
             @change="handleSearch"
             format="YYYY-MM-DD"
             style="width: 100%; min-width: 200px"
           />
-        </a-col>
-        <a-col :span="6">
-          <a-button type="primary" @click="resetSearch">重置</a-button>
-        </a-col>
-      </a-row>
-
+        </a-form-item>
+        <a-button type="primary" @click="resetSearch">重置</a-button>
+      </a-form>
       <!-- 表格 -->
       <a-table
         :columns="columns"
@@ -98,20 +112,27 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import type { UserBehaviorInfoQuery, UserBehaviorInfoVo } from '@/types/picture/userBehaviorInfo'
 import { listUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 
+const instance = getCurrentInstance()
+const proxy = instance?.proxy
+const { p_user_behavior_type, p_user_behavior_target_type } = proxy?.useDict(
+  'p_user_behavior_type',
+  'p_user_behavior_target_type'
+)
+
 const behaviorList = ref<UserBehaviorInfoVo[]>()
 const behaviorQuery = ref<UserBehaviorInfoQuery>({
   pageNum: 1,
   pageSize: 10,
-  isAsc: 'desc',
-  behaviorType: '',
+  isAsc: 'asc',
+  behaviorType: null,
   targetContent: '',
-  targetType: '',
+  targetType: null
 })
 
 // 分页配置
@@ -121,14 +142,14 @@ const pagination = ref({
   total: 0,
   showSizeChanger: true,
   showQuickJumper: true,
-  showTotal: (total) => `共 ${total} 条记录`,
+  showTotal: (total) => `共 ${total} 条记录`
 })
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 const loading = ref(false)
 const getBehaviorList = () => {
   loading.value = true
   behaviorQuery.value.params = {}
-  if (dateRange.value != null && dateRange.value != []) {
+  if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
     console.log('dateRange', dateRange.value)
     behaviorQuery.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD')
     behaviorQuery.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD')
@@ -146,75 +167,77 @@ const columns = [
   {
     title: '封面',
     dataIndex: 'targetCover',
-    width: 100,
+    width: 100
   },
   {
     title: '目标内容',
     dataIndex: 'targetContent',
-    width: 200,
+    width: 200
   },
   {
     title: '目标类型',
     dataIndex: 'targetType',
-    width: 100,
+    width: 100
   },
   {
     title: '行为类型',
     dataIndex: 'behaviorType',
-    width: 100,
+    width: 100
   },
   {
     title: '分享链接',
     dataIndex: 'shareLink',
     width: 150,
-    ellipsis: true,
+    ellipsis: true
   },
   {
     title: '标签',
     dataIndex: 'tags',
-    width: 150,
+    width: 150
   },
   {
     title: '创建时间',
     dataIndex: 'createTime',
     width: 180,
-    sorter: true,
+    sorter: true
   },
   {
     title: '操作',
     dataIndex: 'action',
     fixed: 'right',
-    width: 120,
-  },
+    width: 120
+  }
 ]
 
 
-// 状态定义
-const searchText = ref('')
-const searchBehaviorType = ref(null)
-
 // 处理表格变化（分页、排序、筛选）
 const handleTableChange = (pag, filters, sorter) => {
-  loading.value = true
   // 更新分页信息
   pagination.value.current = pag.current
   pagination.value.pageSize = pag.pageSize
   behaviorQuery.value.pageNum = pagination.value.current
   behaviorQuery.value.pageSize = pagination.value.pageSize
+  //判断是升序还是降序
+  behaviorQuery.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
   getBehaviorList()
 }
 
 // 搜索处理
 const handleSearch = () => {
   pagination.value.current = 1
-  console.log(dateRange.value)
   getBehaviorList()
 }
 
 // 重置搜索
 const resetSearch = () => {
-  searchText.value = ''
-  searchBehaviorType.value = null
+  behaviorQuery.value = {
+    pageNum: 1,
+    pageSize: 10,
+    isAsc: 'desc',
+    behaviorType: null,
+    targetContent: '',
+    targetType: null
+  }
   dateRange.value = null
   pagination.value.current = 1
   handleSearch()
@@ -233,7 +256,7 @@ const getBehaviorTypeColor = (type) => {
     LIKE: 'red',
     COMMENT: 'green',
     SHARE: 'purple',
-    COLLECT: 'orange',
+    COLLECT: 'orange'
   }
   return colorMap[type] || 'default'
 }
@@ -245,7 +268,7 @@ const getBehaviorTypeText = (type) => {
     LIKE: '点赞',
     COMMENT: '评论',
     SHARE: '分享',
-    COLLECT: '收藏',
+    COLLECT: '收藏'
   }
   return textMap[type] || type
 }

@@ -115,10 +115,10 @@ export interface UserBehaviorInfoQuery {
   userId?: string
 
   /** 行为类型 */
-  behaviorType?: string
+  behaviorType?: string | null
 
   /** 目标类型 */
-  targetType?: string
+  targetType?: string | null
 
   /** 目标内容 */
   targetContent?: string

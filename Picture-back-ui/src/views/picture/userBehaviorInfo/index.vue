@@ -424,8 +424,8 @@ function getList() {
   loading.value = true;
   queryParams.value.params = {};
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
-    queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
-    queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
+    queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0].concat(" 00:00:00");
+    queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1].concat(" 23:59:59");
   }
   listUserBehaviorInfo(queryParams.value).then(response => {
     userBehaviorInfoList.value = response.rows;
