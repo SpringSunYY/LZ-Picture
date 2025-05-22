@@ -3,6 +3,7 @@ package com.lz.picture.controller.admin;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lz.common.config.OssConfig;
 import com.lz.config.service.IConfigInfoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +46,9 @@ public class SpaceInfoController extends BaseController {
     @Resource
     private IConfigInfoService configInfoService;
 
+    @Resource
+    private OssConfig ossConfig;
+
     /**
      * 查询空间信息列表
      */
@@ -57,8 +61,9 @@ public class SpaceInfoController extends BaseController {
         List<SpaceInfoVo> listVo = list.stream().map(SpaceInfoVo::objToVo).collect(Collectors.toList());
         //压缩图片
         String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        String dnsUrl = ossConfig.getDnsUrl();
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
         });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

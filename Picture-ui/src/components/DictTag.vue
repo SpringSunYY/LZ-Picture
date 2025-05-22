@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <template v-for="(item, index) in options" :key="item.dictValue">
       <template v-if="values.includes(String(item.dictValue))">
         <span v-if="(item.listClass === 'default' || !item.listClass) && !item.listClass" :index="index"
@@ -18,7 +18,7 @@
     <template v-if="unmatch && showValue">
       {{ handleArray(unmatchArray) }}
     </template>
-  </div>
+  </span>
 </template>
 
 <script setup lang="ts">

@@ -26,7 +26,7 @@
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-venus-mars"></i></span>
-            {{ userInfo?.sex ? getUserSexLabel(userInfo?.sex) : '未知' }}
+            <dict-tag :options="u_user_sex" :value="userInfo?.sex" />
           </div>
           <div class="meta-item">
             <span class="meta-icon"><i class="fas fa-birthday-cake"></i></span>
@@ -93,19 +93,13 @@
             <div class="detail-item">
               <div class="detail-label">账户状态</div>
               <div class="detail-value">
-                <tags
-                  :values="[userInfo?.status ? getUserStatusLabel(userInfo?.status) : '未知']"
-                  :colors="['green']"
-                />
+                <dict-tag :options="u_user_status" :value="userInfo?.status" />
               </div>
             </div>
             <div class="detail-item">
               <div class="detail-label">性别</div>
               <div class="detail-value">
-                <tags
-                  :values="[userInfo?.sex ? getUserSexLabel(userInfo?.sex) : '未知']"
-                  :colors="['green', 'red']"
-                />
+                <dict-tag :options="u_user_sex" :value="userInfo?.sex" />
               </div>
             </div>
             <div class="detail-item">
@@ -127,10 +121,7 @@
             <div class="detail-item">
               <div class="detail-label">登录方式</div>
               <div class="detail-value">
-                <tags
-                  :values="[item?.loginType ? getLoginTypeLabel(item.loginType) : '未知']"
-                  :colors="['green', 'red']"
-                />
+                <dict-tag :options="u_login_type" :value="item?.loginType" />
               </div>
             </div>
             <div class="detail-item">
@@ -143,8 +134,7 @@
             </div>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="充值记录">
-        </a-tab-pane>
+        <a-tab-pane key="3" tab="充值记录"></a-tab-pane>
         <a-tab-pane key="4" tab="行为记录">
           <BehaviorTable></BehaviorTable>
         </a-tab-pane>
@@ -360,8 +350,6 @@
 <script setup lang="ts" name="userinfo">
 import { getCurrentInstance, ref } from 'vue'
 import {
-  getUserSexLabel,
-  getUserStatusLabel,
   type MyUserInfo,
   type UserInfoUpdate,
   type UserPasswordUploadRequest,
@@ -369,8 +357,6 @@ import {
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { getMyUserInfoByUserName, updateUserInfo, updateUserInfoPassword } from '@/api/user/user.ts'
-import { getLoginTypeLabel } from '@/types/user/loginLog.d.ts'
-import Tags from '@/components/Tags.vue'
 import { LockOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -378,10 +364,15 @@ import { validateConfirmPassword, validatePassword } from '@/types/user/validato
 import type { AccountPasswordUploadRequest } from '@/types/points/account.d.ts'
 import { updateAccountPassword } from '@/api/points/account.ts'
 import BehaviorTable from '@/components/BehaviorTable.vue'
+import DictTag from '@/components/DictTag.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { u_user_sex } = proxy?.useDict('u_user_sex')
+const { u_user_sex, u_user_status, u_login_type } = proxy?.useDict(
+  'u_user_sex',
+  'u_user_status',
+  'u_login_type',
+)
 
 const userStore = useUserStore()
 const { userName: userName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -797,7 +788,6 @@ $purple-color: #9c27b0;
 
         .detail-value {
           font-size: 16px;
-          color: $text-primary;
           font-weight: 500;
         }
       }

@@ -25,11 +25,8 @@
               <a-divider type="vertical" />
               <span>{{ space.totalCount }}个文件</span>
               <a-divider type="vertical" />
-              <Tags
-                :values="[getPSpaceStatusLabel(space?.spaceStatus ?? '')]"
-                :colors="['#1890ff']"
-              />
-              <Tags :values="[getPSpaceTypeLabel(space?.spaceType ?? '')]" :colors="['#00ff0d']" />
+              <dict-tag :options="p_space_status" :value="space?.spaceStatus" />
+              <dict-tag :options="p_space_type" :value="space?.spaceType" />
               <a-button
                 v-if="checkUser(space.userId ?? '') && checkPermiSingle('picture:space:update')"
                 style="float: right"
@@ -137,7 +134,7 @@ import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { getCurrentInstance, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.d.ts'
-import { getPSpaceStatusLabel, getPSpaceTypeLabel } from '@/types/picture/space.d.ts'
+import { getPSpaceTypeLabel } from '@/types/picture/space.d.ts'
 import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags.vue'
@@ -145,10 +142,11 @@ import { formatSize } from '@/utils/common.ts'
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'
+import DictTag from '@/components/DictTag.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { p_space_status } = proxy?.useDict('p_space_status')
+const { p_space_status, p_space_type } = proxy?.useDict('p_space_status', 'p_space_type')
 
 // 新增状态管理
 const open = ref(false)

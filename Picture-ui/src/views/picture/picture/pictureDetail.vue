@@ -57,7 +57,7 @@
           <Tags
             v-if="picture?.pictureTags"
             :values="picture?.pictureTags"
-            :colors="['pink', 'red', 'orange', 'green', 'cyan']"
+            :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
           />
         </a-card>
         <a-card title="" :bordered="false" class="card action-card">
