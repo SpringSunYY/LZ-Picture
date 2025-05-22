@@ -77,10 +77,11 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         List<UserSpaceInfoVo> listVo = list.stream().map(UserSpaceInfoVo::objToVo).collect(Collectors.toList());
         //压缩图片
         String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        String dnsUrl = ossConfig.getDnsUrl();
         listVo.stream()
                 .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
                 .forEach(vo -> {
-                    vo.setSpaceAvatar(ossConfig.getDnsUrl() + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+                    vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
                 });
         TableDataInfo dataTable = getDataTable(list);
         dataTable.setTotal(list.size());

@@ -1,13 +1,13 @@
 package com.lz.points.service;
 
-import java.util.List;
-
-import com.lz.points.model.domain.AccountInfo;
-import com.lz.points.model.vo.accountInfo.AccountInfoVo;
-import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.points.model.domain.AccountInfo;
+import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
+import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
+import com.lz.points.model.vo.accountInfo.AccountInfoVo;
+
+import java.util.List;
 
 /**
  * 积分账户Service接口
@@ -94,4 +94,15 @@ public interface IAccountInfoService extends IService<AccountInfo> {
      * @date: 2025/5/18 21:12
      **/
     AccountInfo selectAccountInfoByUserId(String userId);
+
+    /**
+     * 用户更新账户密码
+     *
+     * @param accountPasswordUploadRequest 更新账号实体
+     * @return int
+     * @author: YY
+     * @method: userUpdateAccountInfoPassword
+     * @date: 2025/5/22 09:00
+     **/
+    int userUpdateAccountInfoPassword(AccountPasswordUploadRequest accountPasswordUploadRequest);
 }

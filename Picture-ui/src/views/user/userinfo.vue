@@ -65,7 +65,7 @@
           <a-space :size="[8, 16]" wrap style="max-width: 350px">
             <a-button @click="handleUpdateUserInfo">修改信息</a-button>
             <a-button @click="handleUpdatePassword">修改密码</a-button>
-            <a-button @click="handleUpdateUserInfo">修改支付密码</a-button>
+            <a-button @click="handleUpdateAccountPassword">修改支付密码</a-button>
           </a-space>
         </template>
         <a-tab-pane key="1" tab="基本信息">
@@ -213,18 +213,11 @@
       </a-form>
     </a-modal>
 
-    <a-modal
-      v-model:open="openPassword"
-      :footer="null"
-      :rules="rulesPassword"
-      :width="500"
-      centered
-      destroyOnClose
-    >
+    <a-modal v-model:open="openPassword" :footer="null" :width="500" centered destroyOnClose>
       <template #title>
         <div class="custom-modal-title">
           <span style="color: #1890ff; margin-right: 8px">🚀</span>
-          修改密码
+          {{ title }}
           <a-tooltip title="一定要记住你的密码哦">
             <question-circle-outlined class="title-tip-icon" />
           </a-tooltip>
@@ -284,6 +277,76 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-modal v-model:open="openAccountPassword" :footer="null" :width="500" centered destroyOnClose>
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip title="初始账户密码已经通过短信发送至您的手机，一定要记住你的密码哦">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="accountPasswordForm"
+        @finish="handleSubmitAccountPassword"
+        ref="formRef"
+        labelAlign="left"
+        :rules="rulesAccountPassword"
+      >
+        <!-- 旧密码 -->
+        <a-form-item name="oldPassword" label="旧的密码">
+          <a-input-password
+            v-model:value="accountPasswordForm.oldPassword"
+            placeholder="旧密码"
+            :maxLength="20"
+            size="large"
+          >
+            <template #prefix>
+              <lock-outlined />
+            </template>
+          </a-input-password>
+        </a-form-item>
+        <!-- 新密码 -->
+        <a-form-item name="password" label="新的密码">
+          <a-input-password
+            v-model:value="accountPasswordForm.password"
+            placeholder="新密码"
+            :maxLength="20"
+            size="large"
+          >
+            <template #prefix>
+              <lock-outlined />
+            </template>
+          </a-input-password>
+        </a-form-item>
+
+        <!-- 确认密码 -->
+        <a-form-item name="confirmPassword" label="确认密码">
+          <a-input-password
+            v-model:value="accountPasswordForm.confirmPassword"
+            placeholder="确认新密码"
+            :maxLength="20"
+            size="large"
+          >
+            <template #prefix>
+              <lock-outlined />
+            </template>
+          </a-input-password>
+        </a-form-item>
+        <a-form-item>
+          <a-button
+            type="primary"
+            html-type="submit"
+            block
+            size="large"
+            :loading="accountPasswordLoading"
+          >
+            重置密码
+          </a-button>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -310,6 +373,8 @@ import {
   validateConfirmPassword,
   validatePassword,
 } from '@/types/user/validators.d.ts'
+import type { AccountPasswordUploadRequest } from '@/types/points/account.d.ts'
+import { updateAccountPassword } from '@/api/points/account.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -400,16 +465,80 @@ const handleSubmitPassword = async () => {
   passwordForm.value.userId = userInfo.value?.userId || ''
   try {
     const res = await updateUserInfoPassword(passwordForm.value)
-    if (res.code === 200&&res.data===1) {
+    if (res.code === 200 && res.data === 1) {
       message.success('修改密码成功')
       openPassword.value = false
-    }else {
+    } else {
       message.error('修改密码失败')
     }
   } finally {
     passwordLoading.value = false
   }
 }
+
+//账户密码
+const openAccountPassword = ref(false)
+const accountPasswordLoading = ref(false)
+const accountPasswordForm = ref<AccountPasswordUploadRequest>({
+  userId: '',
+  password: '',
+  confirmPassword: '',
+  oldPassword: '',
+})
+const rulesAccountPassword = {
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    {
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
+      trigger: 'blur',
+      validator: validatePassword,
+    },
+  ],
+  oldPassword: [
+    { required: true, message: '请输入旧密码', trigger: 'blur' },
+    {
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
+      trigger: 'blur',
+      validator: validatePassword,
+    },
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      pattern: passwordPattern,
+      message: passwordPatternMessage,
+      trigger: 'blur',
+      validator: validatePassword,
+    },
+    {
+      validator: (_: any, value: string) =>
+        validateConfirmPassword(accountPasswordForm.value.password, value),
+      trigger: 'blur',
+    },
+  ],
+}
+const handleUpdateAccountPassword = () => {
+  openAccountPassword.value = true
+  title.value = '修改账户密码'
+}
+const handleSubmitAccountPassword = async () => {
+  accountPasswordLoading.value = true
+  accountPasswordForm.value.userId = userInfo.value?.userId || ''
+  try {
+    const res = await updateAccountPassword(accountPasswordForm.value)
+    if (res.code === 200 && res.data === 1) {
+      message.success('修改密码成功')
+      openAccountPassword.value = false
+    } else {
+      message.error('修改密码失败')
+    }
+  } finally {
+    accountPasswordLoading.value = false
+  }
+}
+
 const handleUpdateUserInfo = () => {
   //清除原来的数据
   formState.value = {}

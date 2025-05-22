@@ -12,6 +12,9 @@ import com.lz.common.utils.StringUtils;
 import java.math.BigDecimal;
 
 import com.lz.common.utils.DateUtils;
+import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
+import com.lz.userauth.model.domain.EncryptionPassword;
+import com.lz.userauth.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -141,6 +144,27 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
     @Override
     public AccountInfo selectAccountInfoByUserId(String userId) {
         return this.getOne(new LambdaQueryWrapper<AccountInfo>().eq(AccountInfo::getUserId, userId));
+    }
+
+    @Override
+    public int userUpdateAccountInfoPassword(AccountPasswordUploadRequest request) {
+        //校验密码格式是否正确
+        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword());
+        //首先查询是否有账号
+        AccountInfo accountInfoDb = this.selectAccountInfoByUserId(request.getUserId());
+        if (StringUtils.isNull(accountInfoDb)) {
+            return 0;
+        }
+        //获取密码以及加密方式
+        String password = accountInfoDb.getPassword();
+        String salt = accountInfoDb.getSalt();
+        if (!PasswordUtils.checkPassword(salt, request.getOldPassword(), password)) {
+            return 0;
+        }
+        EncryptionPassword encrypted = PasswordUtils.encryptPassword(request.getPassword());
+        accountInfoDb.setPassword(encrypted.getPassword());
+        accountInfoDb.setSalt(encrypted.getSalt());
+        return accountInfoMapper.updateById(accountInfoDb);
     }
 
 }

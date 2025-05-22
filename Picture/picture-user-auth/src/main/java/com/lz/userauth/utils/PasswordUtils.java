@@ -40,9 +40,9 @@ public class PasswordUtils {
         }
         //校验密码格式是否正确
         //至少8位且包含字母和数字，可使用符号但不能使用表情
-        String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$";
+        String regex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{}|;':\",./<>?`~ ]{8,20}$";
         if (!password.matches(regex)) {
-            throw new ServiceException("密码格式不正确");
+            throw new ServiceException("密码格式不正确,至少8位且包含字母和数字，可使用符号但不能使用表情");
         }
     }
 
@@ -78,7 +78,7 @@ public class PasswordUtils {
      * @method: checkPassword
      * @date: 2025/5/22 01:25
      **/
-    public static boolean checkPasswordFormate(String salt, String password, String encryptionPassword) {
+    public static boolean checkPassword(String salt, String password, String encryptionPassword) {
         //根据加密方式对密码进行校验
         if ("bcrypt".equals(salt)) {
             return UserInfoSecurityUtils.matchesEncryptPassword(password, encryptionPassword);

@@ -77,8 +77,6 @@ public class UserUserInfoController extends BaseUserInfoController {
     @PutMapping(value = "/password")
     public AjaxResult updatePassword(@RequestBody UserPasswordUploadRequest userPasswordUploadRequest) {
         String userId = getUserId();
-        System.out.println("userId = " + userId);
-        System.out.println("userPasswordUploadRequest = " + userPasswordUploadRequest);
         if (!userId.equals(userPasswordUploadRequest.getUserId())) {
             return error("无权限访问");
         }
