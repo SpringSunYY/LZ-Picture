@@ -83,10 +83,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
                 .forEach(vo -> {
                     vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
                 });
-        TableDataInfo dataTable = getDataTable(list);
-        dataTable.setTotal(list.size());
-        dataTable.setRows(listVo);
-        return dataTable;
+        return getDataTable(list, listVo.size());
     }
 
     @PreAuthorize("@uss.hasPermi('picture:space')")

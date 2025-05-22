@@ -1,18 +1,26 @@
 package com.lz.picture.controller.user;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.constant.HttpStatus;
+import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.exception.ServiceException;
+import com.lz.common.utils.StringUtils;
+import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.UserBehaviorInfo;
+import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoAdd;
+import com.lz.picture.model.vo.userBehaviorInfo.MyUserBehaviorInfoVo;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.user.controller.admin.UserInfoController;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 用户行为Controller
@@ -26,6 +34,9 @@ public class UserUserBehaviorInfoController extends BaseUserInfoController {
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
 
+    @Resource
+    private IConfigInfoService configInfoService;
+
     /**
      * 新增用户行为
      */
@@ -35,5 +46,35 @@ public class UserUserBehaviorInfoController extends BaseUserInfoController {
         UserBehaviorInfo userBehaviorInfo = UserBehaviorInfoAdd.addToObj(userBehaviorInfoInsert);
         userBehaviorInfo.setUserId(getUserId());
         return success(userBehaviorInfoService.userInsertUserBehaviorInfo(userBehaviorInfo));
+    }
+
+    /**
+     * 查看用户行为
+     */
+    @PreAuthorize("@uss.hasPermi('picture:userBehaviorInfo')")
+    @GetMapping("/list")
+    public TableDataInfo list(MyUserBehaviorInfoQuery userBehaviorInfoQuery) {
+        if (StringUtils.isNull(userBehaviorInfoQuery.getPageSize())) {
+            userBehaviorInfoQuery.setPageSize(50);
+        }
+        if (userBehaviorInfoQuery.getPageSize() > 50) {
+            userBehaviorInfoQuery.setPageSize(50);
+        }
+        userBehaviorInfoQuery.setUserId(getUserId());
+        Page<UserBehaviorInfo> page = userBehaviorInfoService.selectMyUserBehaviorInfoList(userBehaviorInfoQuery);
+        //压缩图片
+        String p = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.PICTURE_COVER_P);
+        for (UserBehaviorInfo userBehaviorInfo : page.getRecords()) {
+            if (StringUtils.isNotEmpty(userBehaviorInfo.getTargetCover())) {
+                userBehaviorInfo.setTargetCover(userBehaviorInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + p);
+            }
+        }
+        List<MyUserBehaviorInfoVo> myUserBehaviorInfoVos = MyUserBehaviorInfoVo.objToVo(page.getRecords());
+        TableDataInfo tableDataInfo = new TableDataInfo();
+        tableDataInfo.setRows(myUserBehaviorInfoVos);
+        tableDataInfo.setTotal(page.getTotal());
+        tableDataInfo.setCode(HttpStatus.SUCCESS);
+        tableDataInfo.setMsg("查询成功");
+        return tableDataInfo;
     }
 }

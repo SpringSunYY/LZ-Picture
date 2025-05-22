@@ -2,7 +2,9 @@ package com.lz.picture.service;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.picture.model.domain.UserBehaviorInfo;
+import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
@@ -105,4 +107,15 @@ public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo> {
      * return: java.util.List<com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo>
      **/
     List<UserBehaviorInfoStaticVo> staticBehaviorInfo(UserBehaviorInfo behaviorInfo);
+
+    /**
+     * 用户自己查询行为记录
+     *
+     * @param userBehaviorInfoQuery 查询条件
+     * @return Page<UserBehaviorInfo>
+     * @author: YY
+     * @method: selectMyUserBehaviorInfoList
+     * @date: 2025/5/22 16:41
+     **/
+    Page<UserBehaviorInfo> selectMyUserBehaviorInfoList(MyUserBehaviorInfoQuery userBehaviorInfoQuery);
 }

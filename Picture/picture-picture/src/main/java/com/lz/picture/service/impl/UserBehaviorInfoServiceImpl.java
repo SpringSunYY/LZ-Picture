@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 
@@ -13,6 +15,7 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
+import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
 import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeScoreEnum;
@@ -208,6 +211,43 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
         Optional<PUserBehaviorTypeScoreEnum> scoreOptional = PUserBehaviorTypeScoreEnum.getEnumByValue(behaviorTypeValue.getValue());
         ThrowUtils.throwIf(scoreOptional.isEmpty(), "行为类型分数未配置");
         userBehaviorInfo.setScore(scoreOptional.get().getScore());
+    }
+
+    @Override
+    public Page<UserBehaviorInfo> selectMyUserBehaviorInfoList(MyUserBehaviorInfoQuery userBehaviorInfoQuery) {
+        // 提取基础参数
+        Integer pageNum = userBehaviorInfoQuery.getPageNum();
+        Integer pageSize = userBehaviorInfoQuery.getPageSize();
+        Map<String, Object> params = userBehaviorInfoQuery.getParams();
+
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        // 构建查询条件
+        return this.page(
+                new Page<>(pageNum, pageSize),
+                new LambdaQueryWrapper<UserBehaviorInfo>()
+                        .eq(StringUtils.isNotEmpty(userBehaviorInfoQuery.getUserId()), UserBehaviorInfo::getUserId, userBehaviorInfoQuery.getUserId())
+                        .eq(StringUtils.isNotEmpty(userBehaviorInfoQuery.getBehaviorType()), UserBehaviorInfo::getBehaviorType, userBehaviorInfoQuery.getBehaviorType())
+                        .eq(StringUtils.isNotEmpty(userBehaviorInfoQuery.getTargetType()), UserBehaviorInfo::getTargetType, userBehaviorInfoQuery.getTargetType())
+                        .like(StringUtils.isNotEmpty(userBehaviorInfoQuery.getTargetContent()), UserBehaviorInfo::getTargetContent, userBehaviorInfoQuery.getTargetContent())
+                        .apply(beginCreateTime != null && endCreateTime != null,
+                                "date_format(create_time,'yyyy-MM-dd') between {0} and {1}",
+                                beginCreateTime, endCreateTime)
+                        .orderBy(StringUtils.isNotEmpty(userBehaviorInfoQuery.getIsAsc()),
+                                userBehaviorInfoQuery.getIsAsc().equalsIgnoreCase("asc"),
+                                UserBehaviorInfo::getCreateTime)
+        );
     }
 
 }

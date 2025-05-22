@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * web userinfo层通用数据处理
- * 
+ *
  * @author YY
  */
 @Data
@@ -82,13 +82,13 @@ public class BaseUserInfoController
      * 响应请求分页数据
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected TableDataInfo getDataTable(List<?> list)
+    protected TableDataInfo getDataTable(List<?> list,  long total)
     {
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
         rspData.setMsg("查询成功");
         rspData.setRows(list);
-        rspData.setTotal(new PageInfo(list).getTotal());
+        rspData.setTotal(total);
         return rspData;
     }
 
@@ -115,7 +115,7 @@ public class BaseUserInfoController
     {
         return AjaxResult.success(message);
     }
-    
+
     /**
      * 返回成功消息
      */
@@ -142,7 +142,7 @@ public class BaseUserInfoController
 
     /**
      * 响应返回结果
-     * 
+     *
      * @param rows 影响行数
      * @return 操作结果
      */
@@ -153,7 +153,7 @@ public class BaseUserInfoController
 
     /**
      * 响应返回结果
-     * 
+     *
      * @param result 结果
      * @return 操作结果
      */

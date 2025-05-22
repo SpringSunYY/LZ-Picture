@@ -143,6 +143,12 @@
             </div>
           </div>
         </a-tab-pane>
+        <a-tab-pane key="3" tab="充值记录">
+        </a-tab-pane>
+        <a-tab-pane key="4" tab="行为记录">
+          <BehaviorTable></BehaviorTable>
+        </a-tab-pane>
+        <a-tab-pane key="5" tab="浏览记录"></a-tab-pane>
       </a-tabs>
     </div>
 
@@ -212,7 +218,7 @@
         </div>
       </a-form>
     </a-modal>
-
+    <!--修改密码-->
     <a-modal v-model:open="openPassword" :footer="null" :width="500" centered destroyOnClose>
       <template #title>
         <div class="custom-modal-title">
@@ -277,6 +283,7 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <!--修改账户密码-->
     <a-modal v-model:open="openAccountPassword" :footer="null" :width="500" centered destroyOnClose>
       <template #title>
         <div class="custom-modal-title">
@@ -367,14 +374,10 @@ import Tags from '@/components/Tags.vue'
 import { LockOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import {
-  passwordPattern,
-  passwordPatternMessage,
-  validateConfirmPassword,
-  validatePassword,
-} from '@/types/user/validators.d.ts'
+import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
 import type { AccountPasswordUploadRequest } from '@/types/points/account.d.ts'
 import { updateAccountPassword } from '@/api/points/account.ts'
+import BehaviorTable from '@/components/BehaviorTable.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

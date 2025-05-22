@@ -2,9 +2,9 @@ package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
-import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.UserViewLog;
@@ -84,7 +84,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
             userPictureInfoQuery.setPageSize(50);
         }
         if (userPictureInfoQuery.getPageSize() > 50) {
-            throw new ServiceException("请求参数异常！！！");
+            userPictureInfoQuery.setPageSize(50);
         }
         PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
         //限定审核通过 状态为正常
@@ -99,10 +99,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         for (UserPictureInfoVo vo : userPictureInfoVos) {
             vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
         }
-        TableDataInfo tableDataInfo = new TableDataInfo();
-        tableDataInfo.setRows(userPictureInfoVos);
-        tableDataInfo.setTotal(page.getTotal());
-        return tableDataInfo;
+        return getDataTable(userPictureInfoVos, page.getTotal());
     }
 
     @PreAuthorize("@uss.hasPermi('picture:list')")

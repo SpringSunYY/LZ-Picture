@@ -61,4 +61,9 @@ public class UserConfigKeyConstants {
      * 用户查看自己原图密钥时间
      */
     public static final String PICTURE_LOOK_ORIGINAL_TIMEOUT = "picture:look:original:timeout";
+
+    /**
+     * 用户自己浏览记录、行为记录封面压缩倍率百分比
+     */
+    public static final String PICTURE_COVER_P = "picture:cover:p";
 }
