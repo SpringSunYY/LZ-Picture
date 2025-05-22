@@ -48,10 +48,6 @@ public class MyUserBehaviorInfoVo implements Serializable {
      */
     private String targetContent;
 
-    /**
-     * 分享链接
-     */
-    private String shareLink;
 
     /**
      * 空间
@@ -73,7 +69,6 @@ public class MyUserBehaviorInfoVo implements Serializable {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
 
     /**
      * 对象转封装类

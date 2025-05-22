@@ -13,6 +13,8 @@ import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -21,7 +23,8 @@ import java.util.List;
  * @author YY
  */
 @Data
-public class SysDictDataVo extends BaseEntity {
+public class SysDictDataVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
 

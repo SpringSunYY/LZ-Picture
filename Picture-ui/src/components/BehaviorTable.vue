@@ -1,10 +1,7 @@
 <template>
   <div class="user-behavior-table">
     <a-card title="用户行为信息" :bordered="false">
-      <a-form
-        layout="inline"
-        :model="behaviorQuery"
-      >
+      <a-form layout="inline" :model="behaviorQuery">
         <!-- 搜索区域 -->
         <a-form-item>
           <a-input-search
@@ -23,7 +20,11 @@
             @change="handleSearch"
             allow-clear
           >
-            <a-select-option v-for="dict in p_user_behavior_type" :value="dict.dictValue || ''">
+            <a-select-option
+              v-for="dict in p_user_behavior_type"
+              :key="dict.dictValue"
+              :value="dict.dictValue || ''"
+            >
               {{ dict.dictLabel }}
             </a-select-option>
           </a-select>
@@ -38,6 +39,7 @@
           >
             <a-select-option
               v-for="dict in p_user_behavior_target_type"
+              :key="dict.dictValue"
               :value="dict.dictValue || ''"
             >
               {{ dict.dictLabel }}
@@ -66,7 +68,11 @@
         <!-- 行为类型列自定义渲染 -->
         <template #bodyCell="{ column, text, record }">
           <template v-if="column.dataIndex === 'behaviorType'">
-            <a-tag :color="getBehaviorTypeColor(text)">{{ getBehaviorTypeText(text) }}</a-tag>
+            <dict-tag :options="p_user_behavior_type" :value="text" />
+          </template>
+
+          <template v-if="column.dataIndex === 'targetType'">
+            <dict-tag :options="p_user_behavior_target_type" :value="text" />
           </template>
 
           <!-- 目标内容列自定义渲染 -->
@@ -78,14 +84,17 @@
 
           <!-- 封面列自定义渲染 -->
           <template v-if="column.dataIndex === 'targetCover'">
-            <a-image v-if="text" :width="50" :src="text" :preview="{ src: text }" alt="封面" />
+            <a-image v-if="text" :width="50" :src="text" :preview="{ src: text }" alt="封面失效" />
             <span v-else>-</span>
           </template>
 
           <!-- 标签列自定义渲染 -->
           <template v-if="column.dataIndex === 'tags'">
             <template v-if="text">
-              <a-tag v-for="tag in text.split(',')" :key="tag" color="blue">{{ tag }}</a-tag>
+              <tags
+                :values="text.split(';')"
+                :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
+              />
             </template>
             <span v-else>-</span>
           </template>
@@ -115,24 +124,31 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import type { UserBehaviorInfoQuery, UserBehaviorInfoVo } from '@/types/picture/userBehaviorInfo'
+import {
+  PUserBehaviorTargetTypeEnum,
+  type UserBehaviorInfoQuery,
+  type UserBehaviorInfoVo,
+} from '@/types/picture/userBehaviorInfo.d.ts'
 import { listUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
+import DictTag from '@/components/DictTag.vue'
+import Tags from '@/components/Tags.vue'
+import { useRouter } from 'vue-router'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
 const { p_user_behavior_type, p_user_behavior_target_type } = proxy?.useDict(
   'p_user_behavior_type',
-  'p_user_behavior_target_type'
+  'p_user_behavior_target_type',
 )
 
 const behaviorList = ref<UserBehaviorInfoVo[]>()
 const behaviorQuery = ref<UserBehaviorInfoQuery>({
   pageNum: 1,
   pageSize: 10,
-  isAsc: 'asc',
+  isAsc: 'desc',
   behaviorType: null,
   targetContent: '',
-  targetType: null
+  targetType: null,
 })
 
 // 分页配置
@@ -142,7 +158,7 @@ const pagination = ref({
   total: 0,
   showSizeChanger: true,
   showQuickJumper: true,
-  showTotal: (total) => `共 ${total} 条记录`
+  showTotal: (total) => `共 ${total} 条记录`,
 })
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 const loading = ref(false)
@@ -167,48 +183,41 @@ const columns = [
   {
     title: '封面',
     dataIndex: 'targetCover',
-    width: 100
+    width: 100,
   },
   {
     title: '目标内容',
     dataIndex: 'targetContent',
-    width: 200
+    width: 200,
   },
   {
     title: '目标类型',
     dataIndex: 'targetType',
-    width: 100
+    width: 100,
   },
   {
     title: '行为类型',
     dataIndex: 'behaviorType',
-    width: 100
-  },
-  {
-    title: '分享链接',
-    dataIndex: 'shareLink',
-    width: 150,
-    ellipsis: true
+    width: 100,
   },
   {
     title: '标签',
     dataIndex: 'tags',
-    width: 150
+    width: 150,
   },
   {
     title: '创建时间',
     dataIndex: 'createTime',
     width: 180,
-    sorter: true
+    sorter: true,
   },
   {
     title: '操作',
     dataIndex: 'action',
     fixed: 'right',
-    width: 120
-  }
+    width: 120,
+  },
 ]
-
 
 // 处理表格变化（分页、排序、筛选）
 const handleTableChange = (pag, filters, sorter) => {
@@ -236,41 +245,28 @@ const resetSearch = () => {
     isAsc: 'desc',
     behaviorType: null,
     targetContent: '',
-    targetType: null
+    targetType: null,
   }
   dateRange.value = null
   pagination.value.current = 1
   handleSearch()
 }
 
+// 路由跳转
+const router = useRouter()
 // 查看详情
 const viewDetail = (record) => {
-  message.info(`查看行为ID: ${record.behaviorId} 的详情`)
-  console.log('查看详情:', record)
-}
-
-// 获取行为类型颜色
-const getBehaviorTypeColor = (type) => {
-  const colorMap = {
-    VIEW: 'blue',
-    LIKE: 'red',
-    COMMENT: 'green',
-    SHARE: 'purple',
-    COLLECT: 'orange'
+  //如果是图片
+  if (record.targetType === PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0) {
+    const routeData = router.resolve({
+      path: '/pictureDetail',
+      query: { pictureId: record.targetId },
+    })
+    window.open(routeData.href, '_blank')
+  } else {
+    message.info(`查看行为ID: ${record.behaviorId} 的详情`)
+    console.log('查看详情:', record)
   }
-  return colorMap[type] || 'default'
-}
-
-// 获取行为类型文本
-const getBehaviorTypeText = (type) => {
-  const textMap = {
-    VIEW: '浏览',
-    LIKE: '点赞',
-    COMMENT: '评论',
-    SHARE: '分享',
-    COLLECT: '收藏'
-  }
-  return textMap[type] || type
 }
 
 // 组件挂载时初始化

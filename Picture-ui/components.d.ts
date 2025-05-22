@@ -11,6 +11,7 @@ declare module 'vue' {
     BehaviorTable: typeof import('./src/components/BehaviorTable.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
+    DictTag: typeof import('./src/components/DictTag.vue')['default']
     DirectionAwareHover: typeof import('./src/components/DirectionAwareHover.vue')['default']
     FancyImage: typeof import('./src/components/FancyImage.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']

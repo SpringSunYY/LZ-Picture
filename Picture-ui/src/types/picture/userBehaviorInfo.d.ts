@@ -91,9 +91,6 @@ export interface UserBehaviorInfoVo {
   /** 目标内容 */
   targetContent?: string
 
-  /** 分享链接 */
-  shareLink?: string
-
   /** 空间 */
   spaceId?: string
 
@@ -169,3 +166,34 @@ function getUserBehaviorByValue(value: string): PUserBehaviorType | undefined {
 }
 
 export { PUserBehaviorType, getUserBehaviorLabel, getUserBehaviorByValue }
+
+// 枚举定义 用户行为目标类型枚举
+export enum PUserBehaviorTargetTypeEnum {
+  USER_BEHAVIOR_TARGET_TYPE_0 = '0', // 图片
+  USER_BEHAVIOR_TARGET_TYPE_1 = '1', // 空间
+  USER_BEHAVIOR_TARGET_TYPE_2 = '2', // 用户
+}
+
+// 获取标签的函数 用户行为目标类型枚举
+export function getUserBehaviorTargetTypeLabel(value: string): string | undefined {
+  switch (value) {
+    case PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0:
+      return '图片'
+    case PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_1:
+      return '空间'
+    case PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_2:
+      return '用户'
+    default:
+      return undefined
+  }
+}
+
+// 获取枚举值的函数（根据字符串值） 用户行为目标类型枚举
+export function getUserBehaviorTargetTypeByValue(
+  value: string,
+): PUserBehaviorTargetTypeEnum | undefined {
+  if (Object.values(PUserBehaviorTargetTypeEnum).includes(value as PUserBehaviorTargetTypeEnum)) {
+    return value as PUserBehaviorTargetTypeEnum
+  }
+  return undefined
+}
