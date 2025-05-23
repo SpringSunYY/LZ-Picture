@@ -1,9 +1,10 @@
 package com.lz.framework.security.filter;
 
-import java.io.IOException;
-import java.util.Collection;
-
+import com.lz.common.core.domain.model.LoginUser;
 import com.lz.common.core.domain.model.LoginUserInfo;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.common.utils.StringUtils;
+import com.lz.framework.web.service.TokenService;
 import com.lz.framework.web.service.UserInfoTokenService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -17,12 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.lz.common.core.domain.model.LoginUser;
-import com.lz.common.utils.SecurityUtils;
-import com.lz.common.utils.StringUtils;
-import com.lz.framework.web.service.TokenService;
 
-import static io.lettuce.core.MigrateArgs.Builder.auth;
+import java.io.IOException;
+import java.util.Collection;
 
 /**
  * token过滤器 验证token有效性
@@ -41,9 +39,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        logger.info("请求地址:" + request.getRequestURI());
+//        logger.info("请求地址:" + request.getRequestURI());
         if (request.getRequestURI().startsWith("/user")) {
-            log.info("前台接口请求:" + request.getRequestURI());
+//            log.info("前台接口请求:" + request.getRequestURI());
             LoginUserInfo loginUserInfo = userInfoTokenService.getLoginUser(request);
 //            System.out.println("loginUserInfo = " + loginUserInfo);
             if (StringUtils.isNotNull(loginUserInfo) && StringUtils.isNull(SecurityUtils.getAuthentication())) {
@@ -51,7 +49,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 auth(loginUserInfo, loginUserInfo.getAuthorities(), request);
             }
         } else {
-            logger.info("后台接口请求:" + request.getRequestURI());
+//            logger.info("后台接口请求:" + request.getRequestURI());
             LoginUser loginUser = tokenService.getLoginUser(request);
             if (StringUtils.isNotNull(loginUser) && StringUtils.isNull(SecurityUtils.getAuthentication())) {
                 tokenService.verifyToken(loginUser);

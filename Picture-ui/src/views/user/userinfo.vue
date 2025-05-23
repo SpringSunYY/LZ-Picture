@@ -68,7 +68,7 @@
             <a-button @click="handleUpdateAccountPassword">修改支付密码</a-button>
           </a-space>
         </template>
-        <a-tab-pane key="1" tab="基本信息">
+        <a-tab-pane key="1" v-if="checkLogin()" tab="基本信息">
           <div class="details-grid">
             <!--            <div class="detail-item">-->
             <!--              <div class="detail-label">用户ID</div>-->
@@ -112,7 +112,7 @@
             </div>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="登录信息">
+        <a-tab-pane key="2" v-if="checkLogin()" tab="登录信息">
           <div class="details-grid" v-for="item in userInfo?.loginLogInfoVos" :key="item.infoId">
             <div class="detail-item">
               <div class="detail-label">登录时间</div>
@@ -373,7 +373,7 @@ import { updateAccountPassword } from '@/api/points/account.ts'
 import UserBehaviorTable from '@/components/UserBehaviorTable.vue'
 import DictTag from '@/components/DictTag.vue'
 import PointsRechargeTable from '@/components/PointsRechargeTable.vue'
-import { checkPermiSingle } from '@/utils/permission.ts'
+import { checkLogin, checkPermiSingle } from '@/utils/permission.ts'
 import UserViewInfoTable from '@/components/UserViewInfoTable.vue'
 import UserPointsUsageLog from '@/components/UserPointsUsageLog.vue'
 

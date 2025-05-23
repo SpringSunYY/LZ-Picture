@@ -10,6 +10,7 @@ import com.lz.user.model.enums.UUserSexEnum;
 import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class UserUserInfoController extends BaseUserInfoController {
     /**
      * 获取用户菜单
      */
+    @PreAuthorize("@uss.hasLogin()")
     @GetMapping(value = "/menu")
     public AjaxResult getMenu() {
         Set<String> permissions = getLoginUser().getPermissions();
@@ -45,18 +47,16 @@ public class UserUserInfoController extends BaseUserInfoController {
     /**
      * 获取当前用户信息
      */
+    @PreAuthorize("@uss.hasLogin()")
     @GetMapping(value = "/my/{userName}")
     public AjaxResult getMyUserInfoByUserName(@PathVariable("userName") String userName) {
-        String loginName = getLoginUser().getUsername();
-        if (!loginName.equals(userName)) {
-            return error("无权限访问");
-        }
         return AjaxResult.success(userInfoService.getMyUserInfoByUserName(userName));
     }
 
     /**
      * 更新用户基本信息
      */
+    @PreAuthorize("@uss.hasLogin()")
     @PutMapping(value = "/update")
     public AjaxResult updateUserInfo(@RequestBody UserInfoUpdate userInfoUpdate) {
         String userId = getUserId();
@@ -74,6 +74,7 @@ public class UserUserInfoController extends BaseUserInfoController {
     /**
      * 更新用户基本信息
      */
+    @PreAuthorize("@uss.hasLogin()")
     @PutMapping(value = "/password")
     public AjaxResult updatePassword(@RequestBody UserPasswordUploadRequest userPasswordUploadRequest) {
         String userId = getUserId();

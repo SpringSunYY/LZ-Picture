@@ -85,3 +85,10 @@ export function checkPermiSingle(value: string): boolean {
 export function checkUser(userId: string): boolean {
   return useUserStore().userId === userId
 }
+
+/**
+ * 判断用户是否登录
+ */
+export function checkLogin(): boolean {
+  return !!useUserStore().userId
+}

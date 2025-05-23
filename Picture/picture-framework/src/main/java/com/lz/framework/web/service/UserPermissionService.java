@@ -24,6 +24,18 @@ public class UserPermissionService {
     private IMenuInfoService menuInfoService;
 
     /**
+     * 判断用户是否登录
+     */
+    public boolean hasLogin() {
+        try {
+            UserInfoSecurityUtils.getLoginUser();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * 验证用户是否具备某权限
      *
      * @param permission 权限字符串
@@ -98,6 +110,6 @@ public class UserPermissionService {
         if (!checkMenu(permission)) {
             return false;
         }
-        return permissions.contains(Constants.ALL_PERMISSION) || permissions.contains(StringUtils.trim(permission)) ;
+        return permissions.contains(Constants.ALL_PERMISSION) || permissions.contains(StringUtils.trim(permission));
     }
 }
