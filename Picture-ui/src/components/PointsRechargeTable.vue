@@ -88,6 +88,7 @@ const { po_recharge_status, po_payment_type } = proxy?.useDict(
 const queryParams = ref<UserPointsRechargeInfoQuery>({
   pageNum: 1,
   pageSize: 10,
+  isAsc: 'desc',
   rechargeStatus: null,
   paymentType: null,
   params: {},
