@@ -1,4 +1,4 @@
-package com.lz.points.model.dto.pointsUsageLog;
+package com.lz.points.model.dto.pointsUsageLogInfo;
 
 import java.util.Map;
 import java.io.Serializable;
@@ -8,15 +8,15 @@ import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.points.model.domain.PointsUsageLog;
+import com.lz.points.model.domain.PointsUsageLogInfo;
 /**
- * 积分使用记录Query对象 po_points_usage_log
+ * 积分使用记录Query对象 po_points_usage_log_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-23
  */
 @Data
-public class PointsUsageLogQuery implements Serializable
+public class PointsUsageLogInfoQuery implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +25,12 @@ public class PointsUsageLogQuery implements Serializable
 
     /** 用户编号 */
     private String userId;
+
+    /** 给予用户编号 */
+    private String giveUserId;
+
+    /** 日志类型（0充值 1消费 2提成 3提现） */
+    private String logType;
 
     /** 使用类型（0下载图片 1AI服务） */
     private String usageType;
@@ -66,15 +72,15 @@ public class PointsUsageLogQuery implements Serializable
     /**
      * 对象转封装类
      *
-     * @param pointsUsageLogQuery 查询对象
-     * @return PointsUsageLog
+     * @param pointsUsageLogInfoQuery 查询对象
+     * @return PointsUsageLogInfo
      */
-    public static PointsUsageLog queryToObj(PointsUsageLogQuery pointsUsageLogQuery) {
-        if (pointsUsageLogQuery == null) {
+    public static PointsUsageLogInfo queryToObj(PointsUsageLogInfoQuery pointsUsageLogInfoQuery) {
+        if (pointsUsageLogInfoQuery == null) {
             return null;
         }
-        PointsUsageLog pointsUsageLog = new PointsUsageLog();
-        BeanUtils.copyProperties(pointsUsageLogQuery, pointsUsageLog);
-        return pointsUsageLog;
+        PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
+        BeanUtils.copyProperties(pointsUsageLogInfoQuery, pointsUsageLogInfo);
+        return pointsUsageLogInfo;
     }
 }

@@ -2,11 +2,13 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.lz.points.mapper.PointsUsageLogMapper">
+<mapper namespace="com.lz.points.mapper.PointsUsageLogInfoMapper">
     
-    <resultMap type="PointsUsageLog" id="PointsUsageLogResult">
+    <resultMap type="PointsUsageLogInfo" id="PointsUsageLogInfoResult">
         <result property="logId"    column="log_id"    />
         <result property="userId"    column="user_id"    />
+        <result property="giveUserId"    column="give_user_id"    />
+        <result property="logType"    column="log_type"    />
         <result property="usageType"    column="usage_type"    />
         <result property="targetId"    column="target_id"    />
         <result property="pointsBefore"    column="points_before"    />
@@ -23,19 +25,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="isDelete"    column="is_delete"    />
     </resultMap>
 
-    <sql id="selectPointsUsageLogVo">
-        select log_id, user_id, usage_type, target_id, points_before, points_used, points_after, device_id, browser, os, platform, ip_addr, remark, create_time, update_time, is_delete from po_points_usage_log
+    <sql id="selectPointsUsageLogInfoVo">
+        select log_id, user_id, give_user_id, log_type, usage_type, target_id, points_before, points_used, points_after, device_id, browser, os, platform, ip_addr, remark, create_time, update_time, is_delete from po_points_usage_log_info
     </sql>
 
-    <select id="selectPointsUsageLogList" parameterType="PointsUsageLog" resultMap="PointsUsageLogResult">
-        <include refid="selectPointsUsageLogVo"/>
+    <select id="selectPointsUsageLogInfoList" parameterType="PointsUsageLogInfo" resultMap="PointsUsageLogInfoResult">
+        <include refid="selectPointsUsageLogInfoVo"/>
         <where>  
             <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="giveUserId != null  and giveUserId != ''"> and give_user_id = #{giveUserId}</if>
+            <if test="logType != null  and logType != ''"> and log_type = #{logType}</if>
             <if test="usageType != null  and usageType != ''"> and usage_type = #{usageType}</if>
             <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
             <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser = #{browser}</if>
+            <if test="browser != null  and browser != ''"> and browser like concat('%', #{browser}, '%')</if>
             <if test="os != null  and os != ''"> and os = #{os}</if>
             <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
             <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
@@ -45,16 +49,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectPointsUsageLogByLogId" parameterType="String" resultMap="PointsUsageLogResult">
-        <include refid="selectPointsUsageLogVo"/>
+    <select id="selectPointsUsageLogInfoByLogId" parameterType="String" resultMap="PointsUsageLogInfoResult">
+        <include refid="selectPointsUsageLogInfoVo"/>
         where log_id = #{logId}
     </select>
 
-    <insert id="insertPointsUsageLog" parameterType="PointsUsageLog">
-        insert into po_points_usage_log
+    <insert id="insertPointsUsageLogInfo" parameterType="PointsUsageLogInfo">
+        insert into po_points_usage_log_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="logId != null">log_id,</if>
             <if test="userId != null and userId != ''">user_id,</if>
+            <if test="giveUserId != null">give_user_id,</if>
+            <if test="logType != null">log_type,</if>
             <if test="usageType != null and usageType != ''">usage_type,</if>
             <if test="targetId != null">target_id,</if>
             <if test="pointsBefore != null">points_before,</if>
@@ -73,6 +79,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="logId != null">#{logId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="giveUserId != null">#{giveUserId},</if>
+            <if test="logType != null">#{logType},</if>
             <if test="usageType != null and usageType != ''">#{usageType},</if>
             <if test="targetId != null">#{targetId},</if>
             <if test="pointsBefore != null">#{pointsBefore},</if>
@@ -90,10 +98,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updatePointsUsageLog" parameterType="PointsUsageLog">
-        update po_points_usage_log
+    <update id="updatePointsUsageLogInfo" parameterType="PointsUsageLogInfo">
+        update po_points_usage_log_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="giveUserId != null">give_user_id = #{giveUserId},</if>
+            <if test="logType != null">log_type = #{logType},</if>
             <if test="usageType != null and usageType != ''">usage_type = #{usageType},</if>
             <if test="targetId != null">target_id = #{targetId},</if>
             <if test="pointsBefore != null">points_before = #{pointsBefore},</if>
@@ -112,12 +122,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where log_id = #{logId}
     </update>
 
-    <delete id="deletePointsUsageLogByLogId" parameterType="String">
-        delete from po_points_usage_log where log_id = #{logId}
+    <delete id="deletePointsUsageLogInfoByLogId" parameterType="String">
+        delete from po_points_usage_log_info where log_id = #{logId}
     </delete>
 
-    <delete id="deletePointsUsageLogByLogIds" parameterType="String">
-        delete from po_points_usage_log where log_id in 
+    <delete id="deletePointsUsageLogInfoByLogIds" parameterType="String">
+        delete from po_points_usage_log_info where log_id in 
         <foreach item="logId" collection="array" open="(" separator="," close=")">
             #{logId}
         </foreach>

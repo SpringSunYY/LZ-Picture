@@ -1429,7 +1429,7 @@ CREATE TABLE po_withdrawal_order_info
 
 
 
-#### 积分使用记录表：po_points_usage_log
+#### 积分使用记录表：po_points_usage_log_infoS
 
 记录积分的使用流水，充值消费都会有
 
@@ -1437,7 +1437,9 @@ CREATE TABLE po_withdrawal_order_info
 | ------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
 | log_id        | varchar  | 128  | 主键                       | 否   |          | 记录编号     |
 | user_id       | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号     |
-| usage_type    | varchar  | 4    |                            | 否   |          | 使用类型     |
+| give_user_id  | varchar  | 128  | 外键 (u_user_info:user_id) | 是   |          | 给予用户编号 |
+| log_type      | char     | 1    |                            | 是   |          | 日志类型     |
+| usage_type    | varchar  | 1    |                            | 是   |          | 使用类型     |
 | target_id     | varchar  | 128  |                            | 是   |          | 目标编号     |
 | points_before | int      |      |                            | 否   | 0        | 使用前积分   |
 | points_used   | int      |      |                            | 否   | 0        | 消费的积分   |
@@ -1452,19 +1454,23 @@ CREATE TABLE po_withdrawal_order_info
 | update_time   | datetime |      |                            | 否   | 当前时间 | 更新时间     |
 | is_delete     | char     | 1    |                            | 否   | 0        | 删除         |
 
-使用类型：0下载图片 1AI
+日志类型：0充值 1消费 2提成 3提现 也就是用户此类型属于什么
+
+使用类型：0下载图片 1AI扩图 AI生成图片 也就是用户如果消耗积分，此使用类型是什么，比如下载图片、AI使用消耗积分的类型
 
 使用目标：比如下载了某一张图片，图片的编号
 
-同时，如果用户下载某一张图片，那创作者也会获得积分，会给创作者按照分成添加积分
+给予用户编号：如果用户下载某一张图片，那创作者也会获得积分，会给创作者按照分成添加积分，记录该用户（也就是给予用户），同时作者也会添加对应的记录，此时用户编号是作者，给予用户是下载图片的人
 
 ```sql
-DROP TABLE IF EXISTS po_points_usage_log;
-CREATE TABLE po_points_usage_log
+DROP TABLE IF EXISTS po_points_usage_log_info;
+CREATE TABLE po_points_usage_log_info
 (
     log_id        VARCHAR(128) NOT NULL COMMENT '记录编号',
     user_id       VARCHAR(128) NOT NULL COMMENT '用户编号',
-    usage_type    VARCHAR(4)   NOT NULL COMMENT '使用类型（0下载图片 1AI服务）',
+    give_user_id  VARCHAR(128)          DEFAULT NULL COMMENT '给予用户编号',
+    log_type      CHAR(1) COMMENT '日志类型（0充值 1消费 2提成 3提现）',
+    usage_type    VARCHAR(1)   NOT NULL COMMENT '使用类型（0下载图片 1AI服务）',
     target_id     VARCHAR(128) COMMENT '目标编号',
     points_before INT          NOT NULL DEFAULT 0 COMMENT '使用前积分',
     points_used   INT          NOT NULL DEFAULT 0 COMMENT '消费积分',
@@ -1480,8 +1486,10 @@ CREATE TABLE po_points_usage_log
     is_delete     CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
     PRIMARY KEY (log_id),
     FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
-    INDEX idx_usage_type (usage_type),
-    INDEX idx_user_usage (user_id, usage_type),
+    CONSTRAINT fk_give_user_id FOREIGN KEY (give_user_id) REFERENCES u_user_info (user_id),
+    INDEX idx_points_usage_usage_type (usage_type),
+    INDEX idx_points_usage_user_id (user_id),
+    index idx_points_usage_give_user_id (give_user_id),
     INDEX idx_target (target_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='积分使用记录表';

@@ -1,16 +1,16 @@
 package com.lz.points.mapper;
 
 import java.util.List;
-import com.lz.points.model.domain.PointsUsageLog;
+import com.lz.points.model.domain.PointsUsageLogInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * 积分使用记录Mapper接口
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-23
  */
-public interface PointsUsageLogMapper extends BaseMapper<PointsUsageLog>
+public interface PointsUsageLogInfoMapper extends BaseMapper<PointsUsageLogInfo>
 {
     /**
      * 查询积分使用记录
@@ -18,31 +18,31 @@ public interface PointsUsageLogMapper extends BaseMapper<PointsUsageLog>
      * @param logId 积分使用记录主键
      * @return 积分使用记录
      */
-    public PointsUsageLog selectPointsUsageLogByLogId(String logId);
+    public PointsUsageLogInfo selectPointsUsageLogInfoByLogId(String logId);
 
     /**
      * 查询积分使用记录列表
      *
-     * @param pointsUsageLog 积分使用记录
+     * @param pointsUsageLogInfo 积分使用记录
      * @return 积分使用记录集合
      */
-    public List<PointsUsageLog> selectPointsUsageLogList(PointsUsageLog pointsUsageLog);
+    public List<PointsUsageLogInfo> selectPointsUsageLogInfoList(PointsUsageLogInfo pointsUsageLogInfo);
 
     /**
      * 新增积分使用记录
      *
-     * @param pointsUsageLog 积分使用记录
+     * @param pointsUsageLogInfo 积分使用记录
      * @return 结果
      */
-    public int insertPointsUsageLog(PointsUsageLog pointsUsageLog);
+    public int insertPointsUsageLogInfo(PointsUsageLogInfo pointsUsageLogInfo);
 
     /**
      * 修改积分使用记录
      *
-     * @param pointsUsageLog 积分使用记录
+     * @param pointsUsageLogInfo 积分使用记录
      * @return 结果
      */
-    public int updatePointsUsageLog(PointsUsageLog pointsUsageLog);
+    public int updatePointsUsageLogInfo(PointsUsageLogInfo pointsUsageLogInfo);
 
     /**
      * 删除积分使用记录
@@ -50,7 +50,7 @@ public interface PointsUsageLogMapper extends BaseMapper<PointsUsageLog>
      * @param logId 积分使用记录主键
      * @return 结果
      */
-    public int deletePointsUsageLogByLogId(String logId);
+    public int deletePointsUsageLogInfoByLogId(String logId);
 
     /**
      * 批量删除积分使用记录
@@ -58,5 +58,5 @@ public interface PointsUsageLogMapper extends BaseMapper<PointsUsageLog>
      * @param logIds 需要删除的数据主键集合
      * @return 结果
      */
-    public int deletePointsUsageLogByLogIds(String[] logIds);
+    public int deletePointsUsageLogInfoByLogIds(String[] logIds);
 }

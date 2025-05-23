@@ -12,14 +12,14 @@ import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 /**
- * 积分使用记录对象 po_points_usage_log
+ * 积分使用记录对象 po_points_usage_log_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-23
  */
-@TableName("po_points_usage_log")
+@TableName("po_points_usage_log_info")
 @Data
-public class PointsUsageLog implements Serializable
+public class PointsUsageLogInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -31,6 +31,14 @@ public class PointsUsageLog implements Serializable
     /** 用户编号 */
         @Excel(name = "用户编号")
     private String userId;
+
+    /** 给予用户编号 */
+        @Excel(name = "给予用户编号")
+    private String giveUserId;
+
+    /** 日志类型（0充值 1消费 2提成 3提现） */
+        @Excel(name = "日志类型", readConverterExp = "0=充值,1=消费,2=提成,3=提现")
+    private String logType;
 
     /** 使用类型（0下载图片 1AI服务） */
         @Excel(name = "使用类型", readConverterExp = "0=下载图片,1=AI服务")

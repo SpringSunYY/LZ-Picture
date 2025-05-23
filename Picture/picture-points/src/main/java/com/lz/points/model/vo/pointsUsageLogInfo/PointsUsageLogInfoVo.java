@@ -1,4 +1,4 @@
-package com.lz.points.model.vo.pointsUsageLog;
+package com.lz.points.model.vo.pointsUsageLogInfo;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -6,15 +6,15 @@ import lombok.Data;
 import com.lz.common.annotation.Excel;
 import org.springframework.beans.BeanUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.points.model.domain.PointsUsageLog;
+import com.lz.points.model.domain.PointsUsageLogInfo;
 /**
- * 积分使用记录Vo对象 po_points_usage_log
+ * 积分使用记录Vo对象 po_points_usage_log_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-05-23
  */
 @Data
-public class PointsUsageLogVo implements Serializable
+public class PointsUsageLogInfoVo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +25,14 @@ public class PointsUsageLogVo implements Serializable
     /** 用户编号 */
     @Excel(name = "用户编号")
     private String userId;
+
+    /** 给予用户编号 */
+    @Excel(name = "给予用户编号")
+    private String giveUserId;
+
+    /** 日志类型（0充值 1消费 2提成 3提现） */
+    @Excel(name = "日志类型", readConverterExp = "0=充值,1=消费,2=提成,3=提现")
+    private String logType;
 
     /** 使用类型（0下载图片 1AI服务） */
     @Excel(name = "使用类型", readConverterExp = "0=下载图片,1=AI服务")
@@ -88,15 +96,15 @@ public class PointsUsageLogVo implements Serializable
      /**
      * 对象转封装类
      *
-     * @param pointsUsageLog PointsUsageLog实体对象
-     * @return PointsUsageLogVo
+     * @param pointsUsageLogInfo PointsUsageLogInfo实体对象
+     * @return PointsUsageLogInfoVo
      */
-    public static PointsUsageLogVo objToVo(PointsUsageLog pointsUsageLog) {
-        if (pointsUsageLog == null) {
+    public static PointsUsageLogInfoVo objToVo(PointsUsageLogInfo pointsUsageLogInfo) {
+        if (pointsUsageLogInfo == null) {
             return null;
         }
-        PointsUsageLogVo pointsUsageLogVo = new PointsUsageLogVo();
-        BeanUtils.copyProperties(pointsUsageLog, pointsUsageLogVo);
-        return pointsUsageLogVo;
+        PointsUsageLogInfoVo pointsUsageLogInfoVo = new PointsUsageLogInfoVo();
+        BeanUtils.copyProperties(pointsUsageLogInfo, pointsUsageLogInfoVo);
+        return pointsUsageLogInfoVo;
     }
 }
