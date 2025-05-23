@@ -1,54 +1,77 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.points.mapper.PointsUsageLogInfoMapper">
-    
+
     <resultMap type="PointsUsageLogInfo" id="PointsUsageLogInfoResult">
-        <result property="logId"    column="log_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="giveUserId"    column="give_user_id"    />
-        <result property="logType"    column="log_type"    />
-        <result property="usageType"    column="usage_type"    />
-        <result property="targetId"    column="target_id"    />
-        <result property="pointsBefore"    column="points_before"    />
-        <result property="pointsUsed"    column="points_used"    />
-        <result property="pointsAfter"    column="points_after"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="browser"    column="browser"    />
-        <result property="os"    column="os"    />
-        <result property="platform"    column="platform"    />
-        <result property="ipAddr"    column="ip_addr"    />
-        <result property="remark"    column="remark"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="isDelete"    column="is_delete"    />
+        <result property="logId" column="log_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="giveUserId" column="give_user_id"/>
+        <result property="logType" column="log_type"/>
+        <result property="usageType" column="usage_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="pointsBefore" column="points_before"/>
+        <result property="pointsUsed" column="points_used"/>
+        <result property="pointsAfter" column="points_after"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="platform" column="platform"/>
+        <result property="ipAddr" column="ip_addr"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
     </resultMap>
 
     <sql id="selectPointsUsageLogInfoVo">
-        select log_id, user_id, give_user_id, log_type, usage_type, target_id, points_before, points_used, points_after, device_id, browser, os, platform, ip_addr, remark, create_time, update_time, is_delete from po_points_usage_log_info
+        select log_id,
+               user_id,
+               give_user_id,
+               log_type,
+               usage_type,
+               target_id,
+               points_before,
+               points_used,
+               points_after,
+               device_id,
+               browser,
+               os,
+               platform,
+               ip_addr,
+               remark,
+               create_time,
+               update_time,
+               is_delete
+        from po_points_usage_log_info
     </sql>
 
     <select id="selectPointsUsageLogInfoList" parameterType="PointsUsageLogInfo" resultMap="PointsUsageLogInfoResult">
         <include refid="selectPointsUsageLogInfoVo"/>
-        <where>  
-            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="giveUserId != null  and giveUserId != ''"> and give_user_id = #{giveUserId}</if>
-            <if test="logType != null  and logType != ''"> and log_type = #{logType}</if>
-            <if test="usageType != null  and usageType != ''"> and usage_type = #{usageType}</if>
-            <if test="targetId != null  and targetId != ''"> and target_id = #{targetId}</if>
-            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser like concat('%', #{browser}, '%')</if>
-            <if test="os != null  and os != ''"> and os = #{os}</if>
-            <if test="platform != null  and platform != ''"> and platform = #{platform}</if>
-            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        <where>
+            <if test="logId != null  and logId != ''">and log_id = #{logId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="giveUserId != null  and giveUserId != ''">and give_user_id = #{giveUserId}</if>
+            <if test="logType != null  and logType != ''">and log_type = #{logType}</if>
+            <if test="usageType != null  and usageType != ''">and usage_type = #{usageType}</if>
+            <if test="targetId != null  and targetId != ''">and target_id = #{targetId}</if>
+            <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''">and browser like concat('%', #{browser}, '%')</if>
+            <if test="os != null  and os != ''">and os = #{os}</if>
+            <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectPointsUsageLogInfoByLogId" parameterType="String" resultMap="PointsUsageLogInfoResult">
         <include refid="selectPointsUsageLogInfoVo"/>
         where log_id = #{logId}
@@ -75,7 +98,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="logId != null">#{logId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
@@ -95,7 +118,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePointsUsageLogInfo" parameterType="PointsUsageLogInfo">
@@ -123,11 +146,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePointsUsageLogInfoByLogId" parameterType="String">
-        delete from po_points_usage_log_info where log_id = #{logId}
+        delete
+        from po_points_usage_log_info
+        where log_id = #{logId}
     </delete>
 
     <delete id="deletePointsUsageLogInfoByLogIds" parameterType="String">
-        delete from po_points_usage_log_info where log_id in 
+        delete from po_points_usage_log_info where log_id in
         <foreach item="logId" collection="array" open="(" separator="," close=")">
             #{logId}
         </foreach>
