@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
 import com.lz.points.model.domain.PointsRechargePackageInfo;
+import com.lz.points.model.dto.pointsRechargeInfo.UserPointsRechargeInfoQuery;
 import com.lz.points.model.enums.PoRechargeStatusEnum;
 import com.lz.points.service.IPointsRechargePackageInfoService;
 import jakarta.annotation.Resource;
@@ -229,6 +231,57 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
             item.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_3.getValue());
         });
         return this.updateBatchById(list) ? 1 : 0;
+    }
+
+    @Override
+    public Page<PointsRechargeInfo> selectMyPointsRechargeInfoList(UserPointsRechargeInfoQuery userPointsRechargeInfoQuery) {
+        // 提取基础参数
+        Integer pageNum = userPointsRechargeInfoQuery.getPageNum();
+        Integer pageSize = userPointsRechargeInfoQuery.getPageSize();
+        Map<String, Object> params = userPointsRechargeInfoQuery.getParams();
+
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        Page<PointsRechargeInfo> rechargeInfoPage = this.page(
+                new Page<>(pageNum, pageSize),
+                new LambdaQueryWrapper<PointsRechargeInfo>()
+                        .eq(StringUtils.isNotEmpty(userPointsRechargeInfoQuery.getUserId()), PointsRechargeInfo::getUserId, userPointsRechargeInfoQuery.getUserId())
+                        .eq(StringUtils.isNotEmpty(userPointsRechargeInfoQuery.getPaymentType()), PointsRechargeInfo::getPaymentType, userPointsRechargeInfoQuery.getPaymentType())
+                        .eq(StringUtils.isNotEmpty(userPointsRechargeInfoQuery.getRechargeStatus()), PointsRechargeInfo::getRechargeStatus, userPointsRechargeInfoQuery.getRechargeStatus())
+                        .apply(StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                                "create_time between {0} and {1}",
+                                beginCreateTime, endCreateTime)
+                        .orderBy(StringUtils.isNotEmpty(userPointsRechargeInfoQuery.getIsAsc()),
+                                userPointsRechargeInfoQuery.getIsAsc().equals("asc"),
+                                PointsRechargeInfo::getCreateTime)
+
+        );
+        //获取所有的套餐编号
+        List<String> packageIds = rechargeInfoPage.getRecords().stream().map(PointsRechargeInfo::getPackageId).toList();
+        if (StringUtils.isNotEmpty(packageIds)) {
+            //查询所有的套餐信息
+            List<PointsRechargePackageInfo> pointsRechargePackageInfos = pointsRechargePackageInfoService.list(new LambdaQueryWrapper<PointsRechargePackageInfo>()
+                    .in(PointsRechargePackageInfo::getPackageId, packageIds));
+            //根据套餐编号获取套餐名称
+            Map<String, String> packageIdNameMap = pointsRechargePackageInfos.stream().collect(
+                    Collectors.toMap(PointsRechargePackageInfo::getPackageId, PointsRechargePackageInfo::getPackageName)
+            );
+            for (PointsRechargeInfo rechargeInfo : rechargeInfoPage.getRecords()) {
+                rechargeInfo.setPackageName(packageIdNameMap.get(rechargeInfo.getPackageId()));
+            }
+        }
+        return rechargeInfoPage;
     }
 
 }

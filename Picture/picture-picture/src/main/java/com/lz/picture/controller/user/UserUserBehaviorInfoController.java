@@ -70,11 +70,6 @@ public class UserUserBehaviorInfoController extends BaseUserInfoController {
             }
         }
         List<MyUserBehaviorInfoVo> myUserBehaviorInfoVos = MyUserBehaviorInfoVo.objToVo(page.getRecords());
-        TableDataInfo tableDataInfo = new TableDataInfo();
-        tableDataInfo.setRows(myUserBehaviorInfoVos);
-        tableDataInfo.setTotal(page.getTotal());
-        tableDataInfo.setCode(HttpStatus.SUCCESS);
-        tableDataInfo.setMsg("查询成功");
-        return tableDataInfo;
+        return getDataTable(myUserBehaviorInfoVos, page.getTotal());
     }
 }

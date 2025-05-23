@@ -1,11 +1,13 @@
 package com.lz.points.model.dto.pointsRechargeInfo;
 
+import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.core.page.PageDomain;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +26,7 @@ import com.lz.points.model.domain.PointsRechargeInfo;
  */
 @Data
 public class PointsRechargeInfoQuery implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

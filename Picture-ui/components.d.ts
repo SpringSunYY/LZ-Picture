@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    BehaviorTable: typeof import('./src/components/BehaviorTable.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
     DictTag: typeof import('./src/components/DictTag.vue')['default']
@@ -18,6 +17,7 @@ declare module 'vue' {
     PictureInfoList: typeof import('./src/components/PictureInfoList.vue')['default']
     PictureOutPainting: typeof import('./src/components/PictureOutPainting.vue')['default']
     PictureUpload: typeof import('./src/components/PictureUpload.vue')['default']
+    PointsRechargeTable: typeof import('./src/components/PointsRechargeTable.vue')['default']
     RippleButton: typeof import('./src/components/RippleButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
@@ -28,5 +28,6 @@ declare module 'vue' {
     UCommentNav: typeof import('undraw-ui')['UCommentNav']
     UCommentScroll: typeof import('undraw-ui')['UCommentScroll']
     UFold: typeof import('undraw-ui')['UFold']
+    UserBehaviorTable: typeof import('./src/components/UserBehaviorTable.vue')['default']
   }
 }

@@ -3,6 +3,8 @@ package com.lz.points.model.vo.pointsRechargeInfo;
 import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -62,17 +64,12 @@ public class UserPointsRechargeInfoVo implements Serializable {
     private Long rechargeCount;
 
     /**
-     * 支付方式
+     * 支付方式 字典类型po_payment_type
      */
     private String paymentType;
 
     /**
-     * 第三方支付平台
-     */
-    private String thirdParty;
-
-    /**
-     * 充值状态
+     * 充值状态 字典类型po_recharge_status
      */
     private String rechargeStatus;
 
@@ -102,5 +99,15 @@ public class UserPointsRechargeInfoVo implements Serializable {
         UserPointsRechargeInfoVo userPointsRechargeInfoVo = new UserPointsRechargeInfoVo();
         BeanUtils.copyProperties(pointsRechargeInfo, userPointsRechargeInfoVo);
         return userPointsRechargeInfoVo;
+    }
+
+    /**
+     * 列表转封装类
+     *
+     * @param pointsRechargeInfoList PointsRechargeInfo实体对象列表
+     * @return PointsRechargeInfoVo列表
+     */
+    public static List<UserPointsRechargeInfoVo> objToVo(List<PointsRechargeInfo> pointsRechargeInfoList) {
+        return pointsRechargeInfoList.stream().map(UserPointsRechargeInfoVo::objToVo).collect(Collectors.toList());
     }
 }

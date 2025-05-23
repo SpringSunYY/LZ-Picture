@@ -2,21 +2,25 @@ package com.lz.points.service;
 
 import java.util.Date;
 import java.util.List;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.points.model.domain.PointsRechargeInfo;
+import com.lz.points.model.dto.pointsRechargeInfo.UserPointsRechargeInfoQuery;
 import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
 import com.lz.points.model.dto.pointsRechargeInfo.PointsRechargeInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 积分充值记录Service接口
  *
  * @author YY
  * @date 2025-03-25
  */
-public interface IPointsRechargeInfoService extends IService<PointsRechargeInfo>
-{
+public interface IPointsRechargeInfoService extends IService<PointsRechargeInfo> {
     //region mybatis代码
+
     /**
      * 查询积分充值记录
      *
@@ -65,6 +69,7 @@ public interface IPointsRechargeInfoService extends IService<PointsRechargeInfo>
      */
     public int deletePointsRechargeInfoByRechargeId(String rechargeId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -87,4 +92,15 @@ public interface IPointsRechargeInfoService extends IService<PointsRechargeInfo>
      * @param expiredTime 过期时间
      */
     int autoUpdateExpiredOrder(Date expiredTime);
+
+    /**
+     * 用户查询自己的充值记录
+     *
+     * @param userPointsRechargeInfoQuery
+     * @return Page<PointsRechargeInfo>
+     * @author: YY
+     * @method: selectMyPointsRechargeInfoList
+     * @date: 2025/5/23 17:52
+     **/
+    Page<PointsRechargeInfo> selectMyPointsRechargeInfoList(UserPointsRechargeInfoQuery userPointsRechargeInfoQuery);
 }

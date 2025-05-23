@@ -134,9 +134,11 @@
             </div>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="充值记录"></a-tab-pane>
-        <a-tab-pane key="4" tab="行为记录">
-          <BehaviorTable></BehaviorTable>
+        <a-tab-pane v-if="checkPermiSingle('points')" key="3" tab="充值记录">
+          <PointsRechargeTable></PointsRechargeTable>
+        </a-tab-pane>
+        <a-tab-pane v-if="checkPermiSingle('picture:userBehaviorInfo')" key="4" tab="行为记录">
+          <UserBehaviorTable></UserBehaviorTable>
         </a-tab-pane>
         <a-tab-pane key="5" tab="浏览记录"></a-tab-pane>
       </a-tabs>
@@ -363,8 +365,10 @@ import dayjs from 'dayjs'
 import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
 import type { AccountPasswordUploadRequest } from '@/types/points/account.d.ts'
 import { updateAccountPassword } from '@/api/points/account.ts'
-import BehaviorTable from '@/components/BehaviorTable.vue'
+import UserBehaviorTable from '@/components/UserBehaviorTable.vue'
 import DictTag from '@/components/DictTag.vue'
+import PointsRechargeTable from '@/components/PointsRechargeTable.vue'
+import { checkPermiSingle } from '@/utils/permission.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
