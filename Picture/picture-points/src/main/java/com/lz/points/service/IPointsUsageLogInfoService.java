@@ -1,21 +1,26 @@
 package com.lz.points.service;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.model.domain.PointsUsageLogInfo;
+import com.lz.points.model.dto.pointsUsageLogInfo.UserPointsUsageLogInfoQuery;
 import com.lz.points.model.vo.pointsUsageLogInfo.PointsUsageLogInfoVo;
 import com.lz.points.model.dto.pointsUsageLogInfo.PointsUsageLogInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 积分使用记录Service接口
  *
  * @author YY
  * @date 2025-05-23
  */
-public interface IPointsUsageLogInfoService extends IService<PointsUsageLogInfo>
-{
+public interface IPointsUsageLogInfoService extends IService<PointsUsageLogInfo> {
     //region mybatis代码
+
     /**
      * 查询积分使用记录
      *
@@ -64,6 +69,7 @@ public interface IPointsUsageLogInfoService extends IService<PointsUsageLogInfo>
      */
     public int deletePointsUsageLogInfoByLogId(String logId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +85,15 @@ public interface IPointsUsageLogInfoService extends IService<PointsUsageLogInfo>
      * @return PointsUsageLogInfoVO集合
      */
     List<PointsUsageLogInfoVo> convertVoList(List<PointsUsageLogInfo> pointsUsageLogInfoList);
+
+    /**
+     * 用户查询积分使用记录列表
+     *
+     * @param userPointsUsageLogInfoQuery 查询条件对象
+     * @return Page<PointsUsageLogInfo>
+     * @author: YY
+     * @method: selectMyPointsUsageLogInfoList
+     * @date: 2025/5/24 00:25
+     **/
+    Page<PointsUsageLogInfo> selectMyPointsUsageLogInfoList(UserPointsUsageLogInfoQuery userPointsUsageLogInfoQuery);
 }

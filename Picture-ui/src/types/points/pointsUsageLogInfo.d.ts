@@ -1,4 +1,57 @@
 /**
+ * 用户积分使用记录响应对象
+ */
+export interface UserPointsUsageLogInfoVo {
+  /** 日志类型（0=充值, 1=消费, 2=提成, 3=提现） */
+  logType: string;
+
+  /** 使用类型（0=下载图片, 1=AI服务） */
+  usageType: string;
+
+  /** 目标编号 */
+  targetId: string;
+
+  /** 使用前积分 */
+  pointsBefore: number;
+
+  /** 消费积分 */
+  pointsUsed: number;
+
+  /** 使用后积分 */
+  pointsAfter: number;
+
+  /** 创建时间（格式：yyyy-MM-dd HH:mm:ss） */
+  createTime: string;
+}
+
+
+/**
+ * 用户积分使用记录查询参数
+ */
+export interface UserPointsUsageLogInfoQuery {
+  /** 用户编号 */
+  userId?: string;
+
+  /** 日志类型（0=充值, 1=消费, 2=提成, 3=提现） */
+  logType?: string | null;
+
+  /** 使用类型（0=下载图片, 1=AI服务） */
+  usageType?: string |null;
+
+  /** 创建时间（格式：yyyy-MM-dd） */
+  createTime?: string;
+
+  /** 额外参数（可用于扩展条件） */
+  params?: Record<string, any>;
+
+  /** 当前页码 */
+  pageNum?: number;
+
+  /** 每页条数 */
+  pageSize?: number;
+}
+
+/**
  * 积分使用记录类型枚举
  * 表示积分日志的记录类型，如充值、消费、提成、提现。
  */

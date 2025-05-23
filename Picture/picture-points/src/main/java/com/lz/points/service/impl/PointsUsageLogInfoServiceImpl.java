@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
+import com.lz.points.model.domain.PointsRechargeInfo;
+import com.lz.points.model.dto.pointsUsageLogInfo.UserPointsUsageLogInfoQuery;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -163,6 +168,40 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
             return Collections.emptyList();
         }
         return pointsUsageLogInfoList.stream().map(PointsUsageLogInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<PointsUsageLogInfo> selectMyPointsUsageLogInfoList(UserPointsUsageLogInfoQuery userPointsUsageLogInfoQuery) {
+        // 提取基础参数
+        Integer pageNum = userPointsUsageLogInfoQuery.getPageNum();
+        Integer pageSize = userPointsUsageLogInfoQuery.getPageSize();
+        Map<String, Object> params = userPointsUsageLogInfoQuery.getParams();
+
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        return this.page(new Page<>(pageNum, pageSize),
+                new LambdaQueryWrapper<PointsUsageLogInfo>()
+                        .eq(StringUtils.isNotEmpty(userPointsUsageLogInfoQuery.getUserId()), PointsUsageLogInfo::getUserId, userPointsUsageLogInfoQuery.getUserId())
+                        .eq(StringUtils.isNotEmpty(userPointsUsageLogInfoQuery.getLogType()), PointsUsageLogInfo::getLogType, userPointsUsageLogInfoQuery.getLogType())
+                        .eq(StringUtils.isNotEmpty(userPointsUsageLogInfoQuery.getUsageType()), PointsUsageLogInfo::getUsageType, userPointsUsageLogInfoQuery.getUsageType())
+                        .apply(StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                                "create_time between {0} and {1}",
+                                beginCreateTime,  endCreateTime)
+                        .orderBy(StringUtils.isNotEmpty(userPointsUsageLogInfoQuery.getIsAsc()),
+                                userPointsUsageLogInfoQuery.getIsAsc().equals("asc"),
+                                PointsUsageLogInfo::getCreateTime)
+                );
     }
 
 }
