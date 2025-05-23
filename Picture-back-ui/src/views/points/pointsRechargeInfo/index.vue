@@ -81,6 +81,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="支付方式" prop="paymentType">
+        <el-select v-model="queryParams.paymentType" style="width: 200px" placeholder="请选择支付方式" clearable>
+          <el-option
+              v-for="dict in po_payment_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="支付平台" prop="thirdParty">
         <el-input
             v-model="queryParams.thirdParty"
@@ -259,48 +269,53 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="数量" align="center" prop="rechargeCount" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[10].visible"
+      <el-table-column label="支付方式" align="center" prop="paymentType" v-if="columns[10].visible">
+        <template #default="scope">
+          <dict-tag :options="po_payment_type" :value="scope.row.paymentType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[11].visible"
+      <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="充值状态" align="center" prop="rechargeStatus" v-if="columns[12].visible">
+      <el-table-column label="充值状态" align="center" prop="rechargeStatus" v-if="columns[13].visible">
         <template #default="scope">
           <dict-tag :options="po_recharge_status" :value="scope.row.rechargeStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="充值时间" align="center" prop="createTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="充值时间" align="center" prop="createTime" width="180" v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="到账时间" align="center" prop="arrivalTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="到账时间" align="center" prop="arrivalTime" width="180" v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.arrivalTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[15].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[16].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[17].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[18].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[19].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[20].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[21].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[22].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[23].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[24].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -349,6 +364,16 @@
         <el-form-item label="数量" prop="rechargeCount">
           <el-input v-model="form.rechargeCount" placeholder="请输入数量"/>
         </el-form-item>
+        <el-form-item label="支付方式" prop="paymentType">
+          <el-radio-group v-model="form.paymentType">
+            <el-radio
+                v-for="dict in po_payment_type"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="充值状态" prop="rechargeStatus">
           <el-radio-group v-model="form.rechargeStatus">
             <el-radio
@@ -393,7 +418,11 @@ import {
 } from "@/api/points/pointsRechargeInfo";
 
 const {proxy} = getCurrentInstance();
-const {common_delete, po_recharge_status} = proxy.useDict('common_delete', 'po_recharge_status');
+const {
+  po_payment_type,
+  common_delete,
+  po_recharge_status
+} = proxy.useDict('po_payment_type', 'common_delete', 'po_recharge_status');
 
 const pointsRechargeInfoList = ref([]);
 const open = ref(false);
@@ -462,6 +491,9 @@ const data = reactive({
     thirdParty: [
       {required: true, message: "第三方支付平台不能为空", trigger: "blur"}
     ],
+    paymentType: [
+      {required: true, message: "支付方式不能为空", trigger: "change"}
+    ],
     rechargeStatus: [
       {required: true, message: "充值状态不能为空", trigger: "change"}
     ],
@@ -487,20 +519,21 @@ const data = reactive({
     {key: 7, label: '充值金额', visible: true},
     {key: 8, label: '实付金额', visible: true},
     {key: 9, label: '数量', visible: false},
-    {key: 10, label: '第三方支付平台', visible: true},
-    {key: 11, label: '第三方支付平台订单号', visible: false},
-    {key: 12, label: '充值状态', visible: true},
-    {key: 13, label: '充值时间', visible: true},
-    {key: 14, label: '到账时间', visible: false},
-    {key: 15, label: '更新时间', visible: false},
-    {key: 16, label: '设备唯一标识', visible: false},
-    {key: 17, label: '浏览器类型', visible: false},
-    {key: 18, label: '操作系统', visible: false},
-    {key: 19, label: '平台', visible: false},
-    {key: 20, label: 'IP地址', visible: false},
-    {key: 21, label: 'IP属地', visible: false},
-    {key: 22, label: '备注', visible: false},
-    {key: 23, label: '删除', visible: false},
+    {key: 10, label: '支付方式', visible: true},
+    {key: 11, label: '第三方支付平台', visible: true},
+    {key: 12, label: '第三方支付平台订单号', visible: false},
+    {key: 13, label: '充值状态', visible: true},
+    {key: 14, label: '充值时间', visible: true},
+    {key: 15, label: '到账时间', visible: false},
+    {key: 16, label: '更新时间', visible: false},
+    {key: 17, label: '设备唯一标识', visible: false},
+    {key: 18, label: '浏览器类型', visible: false},
+    {key: 19, label: '操作系统', visible: false},
+    {key: 20, label: '平台', visible: false},
+    {key: 21, label: 'IP地址', visible: false},
+    {key: 22, label: 'IP属地', visible: false},
+    {key: 23, label: '备注', visible: false},
+    {key: 24, label: '删除', visible: false},
   ],
 });
 

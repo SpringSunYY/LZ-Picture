@@ -145,6 +145,9 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
         Long rechargeCount = pointsRechargeInfoQuery.getRechargeCount();
         queryWrapper.eq(StringUtils.isNotNull(rechargeCount), "recharge_count", rechargeCount);
 
+        String paymentType = pointsRechargeInfoQuery.getPaymentType();
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentType) ,"payment_type",paymentType);
+
         String thirdParty = pointsRechargeInfoQuery.getThirdParty();
         queryWrapper.eq(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);
 

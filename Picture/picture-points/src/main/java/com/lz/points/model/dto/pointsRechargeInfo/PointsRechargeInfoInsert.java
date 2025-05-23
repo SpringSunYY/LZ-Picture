@@ -60,6 +60,11 @@ public class PointsRechargeInfoInsert implements Serializable {
     private Long rechargeCount;
 
     /**
+     * 支付方式
+     */
+    private String paymentType;
+
+    /**
      * 充值状态
      */
     private String rechargeStatus;

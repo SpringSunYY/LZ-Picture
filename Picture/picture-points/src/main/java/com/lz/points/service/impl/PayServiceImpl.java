@@ -157,6 +157,7 @@ public class PayServiceImpl implements IPayService {
         rechargeInfo.setTotalCount(points + bonus);
         rechargeInfo.setPointsCount(points);
         rechargeInfo.setBonusCount(bonus);
+        rechargeInfo.setPaymentType(PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue());
         rechargeInfo.setPriceCount(request.getTotalAmount());
         rechargeInfo.setBuyerPayAmount(new BigDecimal(BigInteger.ZERO));
         rechargeInfo.setThirdParty(ALIPAY_WEB);

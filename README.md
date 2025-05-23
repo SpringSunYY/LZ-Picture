@@ -1038,8 +1038,8 @@ CREATE TABLE po_payment_method_info (
 | order_id          | varchar  | 128  | 主键                       | 否   |          | 订单编号             |
 | user_id           | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号             |
 | order_type        | char     | 1    |                            | 否   |          | 使用场景             |
-| order_status      | varchar  | 32   |                            | 否   | 0        | 订单状态             |
-| payment_type      | varchar  | 128  |                            | 否   |          | 支付方式             |
+| order_status      | char     | 32   |                            | 否   | 0        | 订单状态             |
+| payment_type      | varchar  | 1    |                            | 否   |          | 支付方式             |
 | total_amount      | decimal  | 10,2 |                            | 否   | 0.00     | 订单总金额           |
 | buyer_pay_amount  | decimal  | 10,2 |                            | 是   | 0.00     | 实付金额             |
 | receipt_amount    | decimal  | 10,2 |                            | 是   | 0.00     | 实收金额             |
@@ -1079,8 +1079,8 @@ CREATE TABLE po_payment_order_info (
     order_id VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '订单编号',
     user_id VARCHAR(128) NOT NULL  COMMENT '用户编号',
     order_type CHAR(1) NOT NULL COMMENT '订单类型',
-    order_status VARCHAR(32) NOT NULL DEFAULT '0' COMMENT '订单状态',
-    payment_type VARCHAR(128) NOT NULL COMMENT '支付方式',
+    order_status CHAR(32) NOT NULL DEFAULT '0' COMMENT '订单状态',
+    payment_type VARCHAR(1) NOT NULL COMMENT '支付方式',
     total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '订单总金额',
     buyer_pay_amount DECIMAL(10,2) DEFAULT 0.00 COMMENT '实付金额',
     receipt_amount DECIMAL(10,2) DEFAULT 0.00 COMMENT '实收金额',
@@ -1176,6 +1176,7 @@ CREATE TABLE po_points_recharge_package_info (
 | price_count       | decimal  | 10,2 |                                                  | 否   | 0.00     | 充值金额             |
 | buyer_pay_amount  | decimal  | 10,2 |                                                  | 是   | 0.00     | 实付金额             |
 | recharge_count    | int      |      |                                                  | 否   | 0        | 数量                 |
+| payment_type      | varchar  | 128  |                                                  | 否   |          | 支付方式             |
 | third_party       | varchar  | 128  |                                                  | 否   |          | 第三方支付平台       |
 | third_party_order | varchar  | 128  |                                                  | 是   |          | 第三方支付平台订单号 |
 | recharge_status   | varchar  | 32   |                                                  | 否   |          | 充值状态             |

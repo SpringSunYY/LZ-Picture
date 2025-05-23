@@ -77,6 +77,11 @@ public class PointsRechargeInfoQuery implements Serializable {
     private Long rechargeCount;
 
     /**
+     * 支付方式
+     */
+    private String paymentType;
+
+    /**
      * 第三方支付平台
      */
     private String thirdParty;

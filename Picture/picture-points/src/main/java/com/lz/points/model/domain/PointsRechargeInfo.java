@@ -89,6 +89,12 @@ public class PointsRechargeInfo implements Serializable {
     private Long rechargeCount;
 
     /**
+     * 支付方式
+     */
+    @Excel(name = "支付方式")
+    private String paymentType;
+
+    /**
      * 第三方支付平台
      */
     @Excel(name = "第三方支付平台")

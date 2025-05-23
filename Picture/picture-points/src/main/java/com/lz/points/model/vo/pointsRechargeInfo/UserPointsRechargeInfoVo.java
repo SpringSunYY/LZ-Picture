@@ -1,16 +1,13 @@
 package com.lz.points.model.vo.pointsRechargeInfo;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
-import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import com.lz.common.annotation.Excel;
 import org.springframework.beans.BeanUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.points.model.domain.PointsRechargeInfo;
 
 /**
@@ -20,8 +17,7 @@ import com.lz.points.model.domain.PointsRechargeInfo;
  * @date 2025-05-17
  */
 @Data
-public class PointsRechargeInfoVo implements Serializable {
-    @Serial
+public class UserPointsRechargeInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -35,19 +31,6 @@ public class PointsRechargeInfoVo implements Serializable {
      */
     @Excel(name = "套餐编号")
     private String packageId;
-
-    /**
-     * 用户编号
-     */
-    @Excel(name = "用户编号")
-    private String userId;
-
-    /**
-     * 订单编号
-     */
-    @Excel(name = "订单编号")
-    private String orderId;
-
     /**
      * 总数
      */
@@ -87,7 +70,6 @@ public class PointsRechargeInfoVo implements Serializable {
     /**
      * 支付方式
      */
-    @Excel(name = "支付方式")
     private String paymentType;
 
     /**
@@ -95,12 +77,6 @@ public class PointsRechargeInfoVo implements Serializable {
      */
     @Excel(name = "第三方支付平台")
     private String thirdParty;
-
-    /**
-     * 第三方支付平台订单号
-     */
-    @Excel(name = "第三方支付平台订单号")
-    private String thirdPartyOrder;
 
     /**
      * 充值状态
@@ -122,61 +98,6 @@ public class PointsRechargeInfoVo implements Serializable {
     @Excel(name = "到账时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date arrivalTime;
 
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    private Date updateTime;
-
-    /**
-     * 设备唯一标识
-     */
-    @Excel(name = "设备唯一标识")
-    private String deviceId;
-
-    /**
-     * 浏览器类型
-     */
-    @Excel(name = "浏览器类型")
-    private String browser;
-
-    /**
-     * 操作系统
-     */
-    @Excel(name = "操作系统")
-    private String os;
-
-    /**
-     * 平台
-     */
-    @Excel(name = "平台")
-    private String platform;
-
-    /**
-     * IP地址
-     */
-    @Excel(name = "IP地址")
-    private String ipAddr;
-
-    /**
-     * IP属地
-     */
-    @Excel(name = "IP属地")
-    private String ipAddress;
-
-    /**
-     * 备注
-     */
-    @Excel(name = "备注")
-    private String remark;
-
-    /**
-     * 删除
-     */
-    @Excel(name = "删除")
-    private String isDelete;
-
 
     /**
      * 对象转封装类
@@ -184,12 +105,12 @@ public class PointsRechargeInfoVo implements Serializable {
      * @param pointsRechargeInfo PointsRechargeInfo实体对象
      * @return PointsRechargeInfoVo
      */
-    public static PointsRechargeInfoVo objToVo(PointsRechargeInfo pointsRechargeInfo) {
+    public static UserPointsRechargeInfoVo objToVo(PointsRechargeInfo pointsRechargeInfo) {
         if (pointsRechargeInfo == null) {
             return null;
         }
-        PointsRechargeInfoVo pointsRechargeInfoVo = new PointsRechargeInfoVo();
-        BeanUtils.copyProperties(pointsRechargeInfo, pointsRechargeInfoVo);
-        return pointsRechargeInfoVo;
+        UserPointsRechargeInfoVo userPointsRechargeInfoVo = new UserPointsRechargeInfoVo();
+        BeanUtils.copyProperties(pointsRechargeInfo, userPointsRechargeInfoVo);
+        return userPointsRechargeInfoVo;
     }
 }
