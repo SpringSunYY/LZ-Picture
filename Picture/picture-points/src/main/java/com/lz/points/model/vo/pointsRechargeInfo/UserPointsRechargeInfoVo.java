@@ -23,48 +23,42 @@ public class UserPointsRechargeInfoVo implements Serializable {
     /**
      * 充值记录编号
      */
-    @Excel(name = "充值记录编号")
     private String rechargeId;
 
     /**
      * 套餐编号
      */
-    @Excel(name = "套餐编号")
     private String packageId;
+    private String packageName;
+
     /**
      * 总数
      */
-    @Excel(name = "总数")
     private Long totalCount;
 
     /**
      * 充值积分数量
      */
-    @Excel(name = "充值积分数量")
     private Long pointsCount;
 
     /**
      * 赠送数量
      */
-    @Excel(name = "赠送数量")
     private Long bonusCount;
 
     /**
      * 充值金额
      */
-    @Excel(name = "充值金额")
     private BigDecimal priceCount;
 
     /**
      * 实付金额
      */
-    @Excel(name = "实付金额")
     private BigDecimal buyerPayAmount;
 
     /**
      * 数量
      */
-    @Excel(name = "数量")
     private Long rechargeCount;
 
     /**
@@ -75,27 +69,23 @@ public class UserPointsRechargeInfoVo implements Serializable {
     /**
      * 第三方支付平台
      */
-    @Excel(name = "第三方支付平台")
     private String thirdParty;
 
     /**
      * 充值状态
      */
-    @Excel(name = "充值状态")
     private String rechargeStatus;
 
     /**
      * 充值时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "充值时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 到账时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "到账时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date arrivalTime;
 
 

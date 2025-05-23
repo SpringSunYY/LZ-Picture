@@ -14,7 +14,9 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.utils.DateUtils;
+import com.lz.points.model.domain.PointsRechargePackageInfo;
 import com.lz.points.model.enums.PoRechargeStatusEnum;
+import com.lz.points.service.IPointsRechargePackageInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -35,6 +37,9 @@ import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
 public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInfoMapper, PointsRechargeInfo> implements IPointsRechargeInfoService {
     @Resource
     private PointsRechargeInfoMapper pointsRechargeInfoMapper;
+
+    @Resource
+    private IPointsRechargePackageInfoService pointsRechargePackageInfoService;
 
     //region mybatis代码
 
@@ -57,7 +62,22 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      */
     @Override
     public List<PointsRechargeInfo> selectPointsRechargeInfoList(PointsRechargeInfo pointsRechargeInfo) {
-        return pointsRechargeInfoMapper.selectPointsRechargeInfoList(pointsRechargeInfo);
+        List<PointsRechargeInfo> pointsRechargeInfos = pointsRechargeInfoMapper.selectPointsRechargeInfoList(pointsRechargeInfo);
+        //获取所有的套餐编号
+        List<String> packageIds = pointsRechargeInfos.stream().map(PointsRechargeInfo::getPackageId).toList();
+        if (StringUtils.isNotEmpty(packageIds)) {
+            //查询所有的套餐信息
+            List<PointsRechargePackageInfo> pointsRechargePackageInfos = pointsRechargePackageInfoService.list(new LambdaQueryWrapper<PointsRechargePackageInfo>()
+                    .in(PointsRechargePackageInfo::getPackageId, packageIds));
+            //根据套餐编号获取套餐名称
+            Map<String, String> packageIdNameMap = pointsRechargePackageInfos.stream().collect(
+                    Collectors.toMap(PointsRechargePackageInfo::getPackageId, PointsRechargePackageInfo::getPackageName)
+            );
+            for (PointsRechargeInfo rechargeInfo : pointsRechargeInfos) {
+                rechargeInfo.setPackageName(packageIdNameMap.get(rechargeInfo.getPackageId()));
+            }
+        }
+        return pointsRechargeInfos;
     }
 
     /**
@@ -146,7 +166,7 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
         queryWrapper.eq(StringUtils.isNotNull(rechargeCount), "recharge_count", rechargeCount);
 
         String paymentType = pointsRechargeInfoQuery.getPaymentType();
-        queryWrapper.eq(StringUtils.isNotEmpty(paymentType) ,"payment_type",paymentType);
+        queryWrapper.eq(StringUtils.isNotEmpty(paymentType), "payment_type", paymentType);
 
         String thirdParty = pointsRechargeInfoQuery.getThirdParty();
         queryWrapper.eq(StringUtils.isNotEmpty(thirdParty), "third_party", thirdParty);

@@ -39,6 +39,10 @@ public class PointsRechargeInfo implements Serializable {
      */
     @Excel(name = "套餐编号")
     private String packageId;
+    @Excel(name = "套餐名称")
+    @TableField(exist = false)
+    private String packageName;
+
 
     /**
      * 用户编号

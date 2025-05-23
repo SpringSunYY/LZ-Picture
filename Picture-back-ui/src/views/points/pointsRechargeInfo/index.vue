@@ -251,7 +251,7 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="充值记录编号" align="center" prop="rechargeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="套餐编号" align="center" prop="packageId" v-if="columns[1].visible"
+      <el-table-column label="套餐名称" align="center" prop="packageName" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
