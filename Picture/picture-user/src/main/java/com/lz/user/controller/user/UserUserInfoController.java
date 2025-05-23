@@ -1,6 +1,7 @@
 package com.lz.user.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.utils.StringUtils;
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.model.vo.menuInfo.MenuInfoUserVo;
 import com.lz.user.model.domain.UserInfo;
@@ -50,7 +51,14 @@ public class UserUserInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasLogin()")
     @GetMapping(value = "/my/{userName}")
     public AjaxResult getMyUserInfoByUserName(@PathVariable("userName") String userName) {
-        return AjaxResult.success(userInfoService.getMyUserInfoByUserName(userName));
+        if (StringUtils.isEmpty(userName)) {
+            return error("无权限访问");
+        }
+        String username = getUsername();
+        if (!username.equals(userName)) {
+            return error("无权限访问");
+        }
+        return AjaxResult.success(userInfoService.getMyUserInfoByUserName(username));
     }
 
     /**
