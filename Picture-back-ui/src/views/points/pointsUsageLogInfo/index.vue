@@ -17,7 +17,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="给予用户编号" prop="giveUserId">
+      <el-form-item label="给予用户" prop="giveUserId">
         <el-input
             v-model="queryParams.giveUserId"
             placeholder="请输入给予用户编号"
@@ -53,7 +53,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="设备唯一标识" prop="deviceId">
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入设备唯一标识"
@@ -61,7 +61,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -114,12 +114,14 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item label="删除" prop="isDelete">
-        <el-input
-            v-model="queryParams.isDelete"
-            placeholder="请输入删除"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
+          <el-option
+              v-for="dict in common_delete"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -293,7 +295,14 @@
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="删除" prop="isDelete">
-          <el-input v-model="form.isDelete" placeholder="请输入删除"/>
+          <el-radio-group v-model="form.isDelete">
+            <el-radio
+                v-for="dict in common_delete"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -317,9 +326,10 @@ import {
 
 const {proxy} = getCurrentInstance();
 const {
+  common_delete,
   po_points_usage_log_type,
   po_points_usage_type
-} = proxy.useDict('po_points_usage_log_type', 'po_points_usage_type');
+} = proxy.useDict('common_delete', 'po_points_usage_log_type', 'po_points_usage_type');
 
 const pointsUsageLogInfoList = ref([]);
 const open = ref(false);
@@ -379,29 +389,29 @@ const data = reactive({
       {required: true, message: "更新时间不能为空", trigger: "blur"}
     ],
     isDelete: [
-      {required: true, message: "删除不能为空", trigger: "blur"}
+      {required: true, message: "删除不能为空", trigger: "change"}
     ]
   },
   //表格展示列
   columns: [
-    {key: 0, label: '记录编号', visible: true},
+    {key: 0, label: '记录编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
-    {key: 2, label: '给予用户编号', visible: true},
+    {key: 2, label: '给予用户编号', visible: false},
     {key: 3, label: '日志类型', visible: true},
     {key: 4, label: '使用类型', visible: true},
     {key: 5, label: '目标编号', visible: true},
     {key: 6, label: '使用前积分', visible: true},
     {key: 7, label: '消费积分', visible: true},
     {key: 8, label: '使用后积分', visible: true},
-    {key: 9, label: '设备唯一标识', visible: true},
-    {key: 10, label: '浏览器类型', visible: true},
-    {key: 11, label: '操作系统', visible: true},
-    {key: 12, label: '平台', visible: true},
-    {key: 13, label: 'IP地址', visible: true},
-    {key: 14, label: '备注', visible: true},
+    {key: 9, label: '设备唯一标识', visible: false},
+    {key: 10, label: '浏览器类型', visible: false},
+    {key: 11, label: '操作系统', visible: false},
+    {key: 12, label: '平台', visible: false},
+    {key: 13, label: 'IP地址', visible: false},
+    {key: 14, label: '备注', visible: false},
     {key: 15, label: '创建时间', visible: true},
-    {key: 16, label: '更新时间', visible: true},
-    {key: 17, label: '删除', visible: true},
+    {key: 16, label: '更新时间', visible: false},
+    {key: 17, label: '删除', visible: false},
   ],
 });
 

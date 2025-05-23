@@ -21,10 +21,7 @@ import com.lz.points.manager.AlipayManager;
 import com.lz.points.manager.model.AlipayCallbackRequest;
 import com.lz.points.manager.model.AlipayPcPaymentRequest;
 import com.lz.points.manager.model.AlipayPcPaymentResponse;
-import com.lz.points.model.domain.AccountInfo;
-import com.lz.points.model.domain.PaymentOrderInfo;
-import com.lz.points.model.domain.PointsRechargeInfo;
-import com.lz.points.model.domain.PointsRechargePackageInfo;
+import com.lz.points.model.domain.*;
 import com.lz.points.model.dto.pay.PayRequest;
 import com.lz.points.model.enums.*;
 import com.lz.points.model.vo.pay.AlipayPcPaymentVo;
@@ -90,6 +87,9 @@ public class PayServiceImpl implements IPayService {
     private IErrorLogInfoService errorLogInfoService;
 
     @Resource
+    private IPointsUsageLogInfoService pointsUsageLogInfoService;
+
+    @Resource
     private RedissonClient redissonClient;
 
     @Override
@@ -143,7 +143,7 @@ public class PayServiceImpl implements IPayService {
         Date nowDate = DateUtils.getNowDate();
         orderInfo.setCreateTime(nowDate);
         orderInfo.setOrderType(PoOrderTypeEnum.ORDER_TYPE_0.getValue());
-        paymentOrderInfoService.save(orderInfo);
+
         //充值记录信息
         PointsRechargeInfo rechargeInfo = new PointsRechargeInfo();
         rechargeInfo.setRechargeId(IdUtils.snowflakeId().toString());
@@ -165,7 +165,12 @@ public class PayServiceImpl implements IPayService {
         BeanUtils.copyProperties(deviceInfo, rechargeInfo);
 //        rechargeInfo.setIpAddr(deviceInfo.getIpaddr());
         rechargeInfo.setCreateTime(nowDate);
-        pointsRechargeInfoService.save(rechargeInfo);
+
+        transactionTemplate.execute(result -> {
+            paymentOrderInfoService.save(orderInfo);
+            pointsRechargeInfoService.save(rechargeInfo);
+            return true;
+        });
     }
 
     @Override
@@ -220,7 +225,7 @@ public class PayServiceImpl implements IPayService {
         AlipayTradeQueryResponse response = null;
         try {
             response = alipayManager.query(outTradeNo, tradeNo);
-            if (StringUtils.isNotNull(response) && StringUtils.isNotNull(response.isSuccess()) && response.isSuccess()) {
+            if (StringUtils.isNotNull(response) && response.isSuccess()) {
                 //执行积分充值
                 PaymentOrderInfo paymentOrderInfo = executePointsRecharge(response);
                 //删除缓存
@@ -228,10 +233,9 @@ public class PayServiceImpl implements IPayService {
                     redisCache.deleteObject(POINTS_ORDER_DETAIL + paymentOrderInfo.getOrderId() + COMMON_SEPARATOR_CACHE + paymentOrderInfo.getUserId());
                     return paymentOrderInfo;
                 }
-            }else if(StringUtils.isNotNull(response)&&response.getCode().equals("40004")){
+            } else if (StringUtils.isNotNull(response) && response.getCode().equals("40004")) {
                 return null;
-            }
-            else {
+            } else {
                 //失败
                 log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), response.getMsg());
                 //记录日志
@@ -395,17 +399,39 @@ public class PayServiceImpl implements IPayService {
             accountInfo.setUpdateTime(nowDate);
             accountInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         }
+
+        //积分使用记录
+        PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
+        //用户使用前积分 就是用户原本余额
+        pointsUsageLogInfo.setPointsBefore(accountInfo.getPointsBalance());
+        pointsUsageLogInfo.setLogType(PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_0.getValue());
+        pointsUsageLogInfo.setUserId(rechargeInfo.getUserId());
+        pointsUsageLogInfo.setTargetId(rechargeInfo.getRechargeId());
+        //消费积分 这里就是充值的积分
+        pointsUsageLogInfo.setPointsUsed(rechargeInfo.getTotalCount());
+        pointsUsageLogInfo.setDeviceId(rechargeInfo.getDeviceId());
+        pointsUsageLogInfo.setBrowser(rechargeInfo.getBrowser());
+        pointsUsageLogInfo.setOs(rechargeInfo.getOs());
+        pointsUsageLogInfo.setPlatform(rechargeInfo.getPlatform());
+        pointsUsageLogInfo.setIpAddr(rechargeInfo.getIpAddr());
+        pointsUsageLogInfo.setCreateTime(rechargeInfo.getArrivalTime());
+        pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+
         //判断是成功还是失败
         if (PayConstants.TRADE_SUCCESS.equals(response.getTradeStatus()) || PayConstants.TRADE_FINISHED.equals(response.getTradeStatus())) {
             //成功
             accountInfo.setPointsBalance(accountInfo.getPointsBalance() + rechargeInfo.getTotalCount());
             accountInfo.setRechargeAmount(accountInfo.getRechargeAmount().add(rechargeInfo.getPriceCount()));
         }
+        //用户使用后积分 就是添加后的用户积分，如果支付未成功也是原积分
+        pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance());
+
         final AccountInfo accountInfoFinal = accountInfo;
         transactionTemplate.execute(task -> {
             pointsRechargeInfoService.updateById(rechargeInfo);
             accountInfoService.saveOrUpdate(accountInfoFinal);
             paymentOrderInfoService.updateById(paymentOrderInfo);
+            pointsUsageLogInfoService.save(pointsUsageLogInfo);
             return null;
         });
         return paymentOrderInfo;
