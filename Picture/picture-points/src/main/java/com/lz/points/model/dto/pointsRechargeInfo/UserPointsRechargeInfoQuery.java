@@ -6,13 +6,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.common.core.page.PageDomain;
 import com.lz.points.model.domain.PointsRechargeInfo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
+
 
 /**
  * 用户积分充值记录查询
@@ -20,6 +21,7 @@ import java.util.Map;
  * @author YY
  * @date 2025-05-17
  */
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class UserPointsRechargeInfoQuery extends PageDomain implements Serializable {
     @Serial

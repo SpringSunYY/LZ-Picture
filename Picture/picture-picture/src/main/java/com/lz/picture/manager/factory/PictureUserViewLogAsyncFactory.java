@@ -7,7 +7,7 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.spring.SpringUtils;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
-import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
+import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
 import com.lz.picture.service.IUserViewLogInfoService;
 import com.lz.user.model.domain.UserInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +39,15 @@ public class PictureUserViewLogAsyncFactory {
      * return: java.util.TimerTask
      **/
     public static TimerTask recordUserViewLog(String userId, String targetType, double score, DeviceInfo deviceInfo, Object jsonResult, Date nowDate) {
-        UserViewLogTargetInfo userViewLogTargetInfo = new UserViewLogTargetInfo();
+        UserViewLogTargetInfoDto userViewLogTargetInfoDto = new UserViewLogTargetInfoDto();
 
         //获取目标id和内容
-        getTargetInfo(targetType, userViewLogTargetInfo, jsonResult);
+        getTargetInfo(targetType, userViewLogTargetInfoDto, jsonResult);
         return new TimerTask() {
             @Override
             public void run() {
                 //插入用户浏览记录
-                SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, score, userViewLogTargetInfo, nowDate, deviceInfo);
+                SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, score, userViewLogTargetInfoDto, nowDate, deviceInfo);
             }
         };
     }
@@ -63,20 +63,20 @@ public class PictureUserViewLogAsyncFactory {
      * param: jsonResult
      * return: void
      **/
-    private static void getTargetInfo(String targetType, UserViewLogTargetInfo userViewLogTargetInfo, Object jsonResult) {
+    private static void getTargetInfo(String targetType, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Object jsonResult) {
         //获取到返回结构的data
         JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(jsonResult));
         JSONObject data = jsonObject.getJSONObject("data");
         //判断目标类型
         switch (targetType) {
             case "0":
-                getTargetIdAndContentByPicture(data, userViewLogTargetInfo);
+                getTargetIdAndContentByPicture(data, userViewLogTargetInfoDto);
                 break;
             case "1":
-                getTargetIdAndContentBySpace(data, userViewLogTargetInfo);
+                getTargetIdAndContentBySpace(data, userViewLogTargetInfoDto);
                 break;
             case "2":
-                getTargetIdAndContentByUserInfo(data, userViewLogTargetInfo);
+                getTargetIdAndContentByUserInfo(data, userViewLogTargetInfoDto);
                 break;
             default:
                 break;
@@ -93,11 +93,11 @@ public class PictureUserViewLogAsyncFactory {
      * param: userViewLogTargetInfo
      * return: void
      **/
-    private static void getTargetIdAndContentByUserInfo(JSONObject data, UserViewLogTargetInfo userViewLogTargetInfo) {
+    private static void getTargetIdAndContentByUserInfo(JSONObject data, UserViewLogTargetInfoDto userViewLogTargetInfoDto) {
         UserInfo userInfo = JSONObject.parseObject(JSON.toJSONString(data), UserInfo.class);
-        userViewLogTargetInfo.setTargetId(userInfo.getUserId());
-        userViewLogTargetInfo.setTargetContent(userInfo.getNickName());
-        userViewLogTargetInfo.setTargetCover(userInfo.getAvatarUrl());
+        userViewLogTargetInfoDto.setTargetId(userInfo.getUserId());
+        userViewLogTargetInfoDto.setTargetContent(userInfo.getNickName());
+        userViewLogTargetInfoDto.setTargetCover(userInfo.getAvatarUrl());
     }
 
     /**
@@ -110,12 +110,12 @@ public class PictureUserViewLogAsyncFactory {
      * param: userViewLogTargetInfo
      * return: void
      **/
-    private static void getTargetIdAndContentBySpace(JSONObject data, UserViewLogTargetInfo userViewLogTargetInfo) {
+    private static void getTargetIdAndContentBySpace(JSONObject data, UserViewLogTargetInfoDto userViewLogTargetInfoDto) {
         SpaceInfo spaceInfo = JSONObject.parseObject(JSON.toJSONString(data), SpaceInfo.class);
-        userViewLogTargetInfo.setSpaceId(spaceInfo.getSpaceId());
-        userViewLogTargetInfo.setTargetId(spaceInfo.getSpaceId());
-        userViewLogTargetInfo.setTargetContent(spaceInfo.getSpaceName());
-        userViewLogTargetInfo.setTargetCover(spaceInfo.getSpaceAvatar());
+        userViewLogTargetInfoDto.setSpaceId(spaceInfo.getSpaceId());
+        userViewLogTargetInfoDto.setTargetId(spaceInfo.getSpaceId());
+        userViewLogTargetInfoDto.setTargetContent(spaceInfo.getSpaceName());
+        userViewLogTargetInfoDto.setTargetCover(spaceInfo.getSpaceAvatar());
     }
 
     /**
@@ -128,16 +128,16 @@ public class PictureUserViewLogAsyncFactory {
      * param: userViewLogTargetInfo
      * return: void
      **/
-    private static void getTargetIdAndContentByPicture(JSONObject data, UserViewLogTargetInfo userViewLogTargetInfo) {
+    private static void getTargetIdAndContentByPicture(JSONObject data, UserViewLogTargetInfoDto userViewLogTargetInfoDto) {
         UserPictureDetailInfoVo pictureInfo = JSONObject.parseObject(JSON.toJSONString(data), UserPictureDetailInfoVo.class);
         //获取图片信息
         if (StringUtils.isNotEmpty(pictureInfo.getPictureTags())) {
-            userViewLogTargetInfo.setTags(String.join(SEPARATION, pictureInfo.getPictureTags()));
+            userViewLogTargetInfoDto.setTags(String.join(SEPARATION, pictureInfo.getPictureTags()));
         }
-        userViewLogTargetInfo.setTargetId(pictureInfo.getPictureId());
-        userViewLogTargetInfo.setTargetContent(pictureInfo.getName());
-        userViewLogTargetInfo.setTargetCover(pictureInfo.getThumbnailUrl());
-        userViewLogTargetInfo.setCategoryId(pictureInfo.getCategoryId());
-        userViewLogTargetInfo.setSpaceId(pictureInfo.getSpaceId());
+        userViewLogTargetInfoDto.setTargetId(pictureInfo.getPictureId());
+        userViewLogTargetInfoDto.setTargetContent(pictureInfo.getName());
+        userViewLogTargetInfoDto.setTargetCover(pictureInfo.getThumbnailUrl());
+        userViewLogTargetInfoDto.setCategoryId(pictureInfo.getCategoryId());
+        userViewLogTargetInfoDto.setSpaceId(pictureInfo.getSpaceId());
     }
 }

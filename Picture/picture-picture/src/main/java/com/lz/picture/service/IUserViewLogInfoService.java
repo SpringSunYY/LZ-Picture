@@ -3,14 +3,16 @@ package com.lz.picture.service;
 import java.util.Date;
 import java.util.List;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.picture.model.domain.UserViewLogInfo;
+import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
 import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
+import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
 
 /**
  * 用户浏览记录Service接口
@@ -94,7 +96,17 @@ public interface IUserViewLogInfoService extends IService<UserViewLogInfo> {
      * @param score                 分数
      * @param nowDate               当前时间
      * @param deviceInfo            设备信息
-     * @param userViewLogTargetInfo 目标信息
+     * @param userViewLogTargetInfoDto 目标信息
      */
-    void recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfo userViewLogTargetInfo, Date nowDate, DeviceInfo deviceInfo);
+    void recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo);
+
+    /**
+     * 用户查询浏览记录
+     * @author: YY
+     * @method: selectMyUserViewLogInfoList
+     * @date: 2025/5/23 21:24
+     * @param myUserViewLogInfoQuery 查询条件
+     * @return Page<UserViewLogInfo>
+     **/
+    Page<UserViewLogInfo> selectMyUserViewLogInfoList(MyUserViewLogInfoQuery myUserViewLogInfoQuery);
 }

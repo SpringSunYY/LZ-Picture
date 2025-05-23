@@ -35,14 +35,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="分数" prop="score">-->
-<!--        <el-input-->
-<!--            v-model="queryParams.score"-->
-<!--            placeholder="请输入分数"-->
-<!--            clearable-->
-<!--            @keyup.enter="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="分数" prop="score">-->
+      <!--        <el-input-->
+      <!--            v-model="queryParams.score"-->
+      <!--            placeholder="请输入分数"-->
+      <!--            clearable-->
+      <!--            @keyup.enter="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="图片分类" prop="categoryId">
         <el-input
             v-model="queryParams.categoryId"
@@ -59,14 +59,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="图片标签" prop="tags">-->
-<!--        <el-input-->
-<!--            v-model="queryParams.tags"-->
-<!--            placeholder="请输入图片标签"-->
-<!--            clearable-->
-<!--            @keyup.enter="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="图片标签" prop="tags">-->
+      <!--        <el-input-->
+      <!--            v-model="queryParams.tags"-->
+      <!--            placeholder="请输入图片标签"-->
+      <!--            clearable-->
+      <!--            @keyup.enter="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="查看时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeCreateTime"

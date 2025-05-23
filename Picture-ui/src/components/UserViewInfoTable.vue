@@ -1,48 +1,30 @@
 <template>
-  <div class="user-behavior-table">
-    <a-card title="我的行为信息" :bordered="false">
+  <div class="user-view-log">
+    <a-card title="我的浏览记录" :bordered="false">
       <a-form layout="inline" :model="queryParams">
-        <!-- 搜索区域 -->
         <a-form-item>
           <a-input-search
-            style="min-width: 200px"
             v-model:value="queryParams.targetContent"
             placeholder="搜索目标内容"
             @search="handleSearch"
             enter-button
+            style="min-width: 200px"
           />
         </a-form-item>
         <a-form-item>
           <a-select
-            style="width: 200px"
-            v-model:value="queryParams.behaviorType"
-            placeholder="选择行为类型"
-            @change="handleSearch"
-            allow-clear
-          >
-            <a-select-option
-              v-for="dict in p_user_behavior_type"
-              :key="dict.dictValue"
-              :value="dict.dictValue || ''"
-            >
-              {{ dict.dictLabel }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-select
-            style="width: 200px"
             v-model:value="queryParams.targetType"
-            placeholder="选择目标类型"
-            @change="handleSearch"
+            placeholder="目标类型"
             allow-clear
+            @change="handleSearch"
+            style="width: 200px"
           >
             <a-select-option
-              v-for="dict in p_user_behavior_target_type"
-              :key="dict.dictValue"
-              :value="dict.dictValue || ''"
+              v-for="item in p_view_log_target_type"
+              :key="item.dictValue"
+              :value="item.dictValue"
             >
-              {{ dict.dictLabel }}
+              {{ item.dictLabel }}
             </a-select-option>
           </a-select>
         </a-form-item>
@@ -56,39 +38,25 @@
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
-      <!-- 表格 -->
+
       <a-table
         :columns="columns"
-        :data-source="behaviorList"
+        :data-source="viewLogList"
         :pagination="pagination"
         :loading="loading"
         @change="handleTableChange"
-        row-key="behaviorId"
+        row-key="viewId"
         :scroll="{ x: 1000 }"
       >
-        <!-- 行为类型列自定义渲染 -->
         <template #bodyCell="{ column, text, record }">
-          <template v-if="column.dataIndex === 'behaviorType'">
-            <dict-tag :options="p_user_behavior_type" :value="text" />
-          </template>
-
           <template v-if="column.dataIndex === 'targetType'">
-            <dict-tag :options="p_user_behavior_target_type" :value="text" />
+            <dict-tag :options="p_view_log_target_type" :value="text" />
           </template>
-
-          <!-- 目标内容列自定义渲染 -->
           <template v-if="column.dataIndex === 'targetContent'">
             <a-tooltip :title="text">
-              <span>{{ text && text.length > 20 ? text.substring(0, 20) + '...' : text }}</span>
+              <span>{{ text?.length > 20 ? text.slice(0, 20) + '...' : text }}</span>
             </a-tooltip>
           </template>
-
-          <!-- 封面列自定义渲染 -->
-          <template v-if="column.dataIndex === 'targetCover'">
-            <a-image v-if="text" :width="60" :src="text" :preview="{ src: text }" />
-            <span v-else>-</span>
-          </template>
-
           <!-- 标签列自定义渲染 -->
           <template v-if="column.dataIndex === 'tags'">
             <template v-if="text">
@@ -99,7 +67,10 @@
             </template>
             <span v-else>-</span>
           </template>
-
+          <template v-if="column.dataIndex === 'targetCover'">
+            <a-image v-if="text" :width="60" :src="text" :preview="{ src: text }" />
+            <span v-else>-</span>
+          </template>
           <!-- 操作列 -->
           <template v-if="column.dataIndex === 'action'">
             <a-space>
@@ -123,47 +94,51 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import dayjs from 'dayjs'
-import {
-  PUserBehaviorTargetTypeEnum,
-  type UserBehaviorInfoQuery,
-  type UserBehaviorInfoVo,
-} from '@/types/picture/userBehaviorInfo.d.ts'
-import { listUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import DictTag from '@/components/DictTag.vue'
 import Tags from '@/components/Tags.vue'
+import { listUserViewLogInfo } from '@/api/picture/userViewLogInfo.ts'
+import {
+  PViewLogTargetTypeEnum,
+  type UserViewLogInfoVo,
+  type UserViewLogQuery,
+} from '@/types/picture/userViewLogInfo.d.ts'
+import dayjs from 'dayjs'
+import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { p_user_behavior_type, p_user_behavior_target_type } = proxy?.useDict(
-  'p_user_behavior_type',
-  'p_user_behavior_target_type',
-)
+const { p_view_log_target_type } = proxy?.useDict('p_view_log_target_type')
 
-const behaviorList = ref<UserBehaviorInfoVo[]>()
-const queryParams = ref<UserBehaviorInfoQuery>({
-  pageNum: 1,
-  pageSize: 10,
-  isAsc: 'desc',
-  behaviorType: null,
-  targetContent: '',
-  targetType: null,
-})
-
-// 分页配置
+const viewLogList = ref<UserViewLogInfoVo[]>([])
+const loading = ref(false)
 const pagination = ref({
   current: 1,
   pageSize: 10,
   total: 0,
+  showTotal: (total: number) => `共 ${total} 条记录`,
   showSizeChanger: true,
   showQuickJumper: true,
-  showTotal: (total) => `共 ${total} 条记录`,
 })
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
-const loading = ref(false)
-const getBehaviorList = () => {
+const queryParams = ref<UserViewLogQuery>({
+  pageNum: 1,
+  pageSize: 10,
+  isAsc: 'desc',
+  targetContent: '',
+  targetType: null,
+})
+
+const columns = [
+  { title: '封面', dataIndex: 'targetCover' },
+  { title: '目标内容', dataIndex: 'targetContent' },
+  { title: '目标类型', dataIndex: 'targetType' },
+  { title: '标签', dataIndex: 'tags' },
+  { title: '查看时间', dataIndex: 'createTime', width: 180, sorter: true },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
+]
+
+const getUserViewLogInfo = () => {
   loading.value = true
   queryParams.value.params = {}
   if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
@@ -171,49 +146,25 @@ const getBehaviorList = () => {
     queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD')
     queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD')
   }
-  listUserBehaviorInfo(queryParams.value).then((res) => {
-    behaviorList.value = res?.rows || []
+  listUserViewLogInfo(queryParams.value).then((res) => {
+    viewLogList.value = res?.rows || []
     pagination.value.total = res?.total || 0
     loading.value = false
   })
 }
-// 表格列定义
-const columns = [
-  { title: '封面', dataIndex: 'targetCover' },
-  { title: '目标内容', dataIndex: 'targetContent' },
-  { title: '目标类型', dataIndex: 'targetType' },
-  { title: '行为类型', dataIndex: 'behaviorType' },
-  { title: '标签', dataIndex: 'tags' },
-  { title: '创建时间', dataIndex: 'createTime', width: 180, sorter: true },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
-]
 
-// 处理表格变化（分页、排序、筛选）
-const handleTableChange = (pag, filters, sorter) => {
-  // 更新分页信息
-  pagination.value.current = pag.current
-  pagination.value.pageSize = pag.pageSize
-  queryParams.value.pageNum = pagination.value.current
-  queryParams.value.pageSize = pagination.value.pageSize
-  //判断是升序还是降序
-  queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
-  getBehaviorList()
-}
-
-// 搜索处理
 const handleSearch = () => {
   pagination.value.current = 1
-  getBehaviorList()
+  queryParams.value.pageNum = 1
+  getUserViewLogInfo()
 }
 
-// 重置搜索
 const resetSearch = () => {
   queryParams.value = {
     pageNum: 1,
     pageSize: 10,
-    isAsc: 'desc',
-    behaviorType: null,
     targetContent: '',
+    isAsc: 'desc',
     targetType: null,
   }
   dateRange.value = null
@@ -221,12 +172,22 @@ const resetSearch = () => {
   handleSearch()
 }
 
+const handleTableChange = (pag, filters, sorter) => {
+  pagination.value.current = pag.current
+  pagination.value.pageSize = pag.pageSize
+  queryParams.value.pageNum = pag.current
+  queryParams.value.pageSize = pag.pageSize
+  //判断是升序还是降序
+  queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
+  getUserViewLogInfo()
+}
+
 // 路由跳转
 const router = useRouter()
 // 查看详情
 const viewDetail = (record) => {
   //如果是图片
-  if (record.targetType === PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0) {
+  if (record.targetType === PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0) {
     const routeData = router.resolve({
       path: '/pictureDetail',
       query: { pictureId: record.targetId },
@@ -238,10 +199,5 @@ const viewDetail = (record) => {
   }
 }
 
-// 组件挂载时初始化
-onMounted(() => {
-  getBehaviorList()
-})
+onMounted(getUserViewLogInfo)
 </script>
-
-<style scoped lang="scss"></style>

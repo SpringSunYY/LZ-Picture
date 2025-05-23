@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.userViewLogInfo;
 
+import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import com.lz.picture.model.domain.UserViewLogInfo;
  */
 @Data
 public class UserViewLogInfoQuery implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

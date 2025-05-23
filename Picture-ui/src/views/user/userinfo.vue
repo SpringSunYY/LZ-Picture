@@ -140,7 +140,9 @@
         <a-tab-pane v-if="checkPermiSingle('picture:userBehaviorInfo')" key="4" tab="行为记录">
           <UserBehaviorTable></UserBehaviorTable>
         </a-tab-pane>
-        <a-tab-pane key="5" tab="浏览记录"></a-tab-pane>
+        <a-tab-pane v-if="checkPermiSingle('picture:list')" key="5" tab="浏览记录">
+          <UserViewInfoTable></UserViewInfoTable>
+        </a-tab-pane>
       </a-tabs>
     </div>
 
@@ -369,6 +371,7 @@ import UserBehaviorTable from '@/components/UserBehaviorTable.vue'
 import DictTag from '@/components/DictTag.vue'
 import PointsRechargeTable from '@/components/PointsRechargeTable.vue'
 import { checkPermiSingle } from '@/utils/permission.ts'
+import UserViewInfoTable from '@/components/UserViewInfoTable.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

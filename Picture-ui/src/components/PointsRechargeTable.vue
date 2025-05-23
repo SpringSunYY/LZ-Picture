@@ -1,10 +1,10 @@
 <template>
   <div class="points-recharge-table">
     <a-card title="积分充值记录" :bordered="false">
-      <a-form layout="inline" :model="query">
+      <a-form layout="inline" :model="queryParams">
         <a-form-item>
           <a-select
-            v-model:value="query.rechargeStatus"
+            v-model:value="queryParams.rechargeStatus"
             placeholder="充值状态"
             allow-clear
             @change="handleSearch"
@@ -21,7 +21,7 @@
         </a-form-item>
         <a-form-item>
           <a-select
-            v-model:value="query.paymentType"
+            v-model:value="queryParams.paymentType"
             placeholder="支付方式"
             allow-clear
             @change="handleSearch"
@@ -85,7 +85,7 @@ const { po_recharge_status, po_payment_type } = proxy?.useDict(
   'po_recharge_status',
   'po_payment_type',
 )
-const query = ref<UserPointsRechargeInfoQuery>({
+const queryParams = ref<UserPointsRechargeInfoQuery>({
   pageNum: 1,
   pageSize: 10,
   rechargeStatus: null,
@@ -112,33 +112,25 @@ const columns = [
   { title: '充值积分', dataIndex: 'pointsCount', width: 100 },
   { title: '赠送积分', dataIndex: 'bonusCount', width: 100 },
   { title: '实付金额', dataIndex: 'buyerPayAmount', width: 100 },
-  {
-    title: '支付方式',
-    dataIndex: 'paymentType',
-    width: 120,
-  },
-  {
-    title: '充值状态',
-    dataIndex: 'rechargeStatus',
-    width: 100,
-  },
+  { title: '支付方式', dataIndex: 'paymentType', width: 120 },
+  { title: '充值状态', dataIndex: 'rechargeStatus', width: 100 },
   { title: '充值时间', dataIndex: 'createTime', width: 180, sorter: true },
   { title: '到账时间', dataIndex: 'arrivalTime', width: 180 },
 ]
 
 const getRechargeList = async () => {
   loading.value = true
-  query.value.params = {}
+  queryParams.value.params = {}
   if (dateRange.value) {
-    query.value.params['beginCreateTime'] = dateRange.value[0]
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0]
       .format('YYYY-MM-DD')
       .concat(' 00:00:00')
-    query.value.params['endCreateTime'] = dateRange.value[1]
+    queryParams.value.params['endCreateTime'] = dateRange.value[1]
       .format('YYYY-MM-DD')
       .concat(' 23:59:59')
   }
 
-  const res = await listRechargeInfo(query.value)
+  const res = await listRechargeInfo(queryParams.value)
   rechargeList.value = res?.rows || []
   pagination.value.total = res?.total || 0
   loading.value = false
@@ -146,12 +138,12 @@ const getRechargeList = async () => {
 
 const handleSearch = () => {
   pagination.value.current = 1
-  query.value.pageNum = 1
+  queryParams.value.pageNum = 1
   getRechargeList()
 }
 
 const resetSearch = () => {
-  query.value = {
+  queryParams.value = {
     pageNum: 1,
     pageSize: 10,
     rechargeStatus: null,
@@ -165,10 +157,10 @@ const resetSearch = () => {
 const handleTableChange = (pag, filters, sorter) => {
   pagination.value.current = pag.current
   pagination.value.pageSize = pag.pageSize
-  query.value.pageNum = pag.current
-  query.value.pageSize = pag.pageSize
+  queryParams.value.pageNum = pag.current
+  queryParams.value.pageSize = pag.pageSize
   //判断是升序还是降序
-  query.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
+  queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
   getRechargeList()
 }
 

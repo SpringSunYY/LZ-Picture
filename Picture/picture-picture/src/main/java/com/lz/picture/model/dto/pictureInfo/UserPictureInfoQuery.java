@@ -21,7 +21,7 @@ import java.util.Map;
  * @author YY
  * date 2025-04-09
  */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class UserPictureInfoQuery extends PageDomain implements Serializable {
     @Serial

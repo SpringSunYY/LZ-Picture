@@ -7,13 +7,15 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 
 import com.lz.common.utils.DateUtils;
 import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
-import com.lz.picture.model.vo.userViewLogInfo.UserViewLogTargetInfo;
+import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
+import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
 import com.lz.picture.service.IPictureTagInfoService;
 import com.lz.picture.service.IPictureTagRelInfoService;
 import jakarta.annotation.Resource;
@@ -178,7 +180,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
     }
 
     @Override
-    public void recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfo userViewLogTargetInfo, Date nowDate, DeviceInfo deviceInfo) {
+    public void recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo) {
         //判断今天有没有浏览记录，如果有就不插入了
         List<UserViewLogInfo> list = this.list(new LambdaQueryWrapper<UserViewLogInfo>()
                 .eq(UserViewLogInfo::getUserId, userId)
@@ -186,7 +188,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
                 .apply(StringUtils.isNotNull(nowDate),
                         "DATE_FORMAT(create_time, '%Y-%m-%d') = {0}",
                         DateUtils.parseDateToStr("yyyy-MM-dd", nowDate))
-                .eq(UserViewLogInfo::getTargetId, userViewLogTargetInfo.getTargetId())
+                .eq(UserViewLogInfo::getTargetId, userViewLogTargetInfoDto.getTargetId())
                 .eq(UserViewLogInfo::getTargetType, targetType));
         UserViewLogInfo userViewLogInfo = new UserViewLogInfo();
         //如果存在
@@ -194,7 +196,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
             userViewLogInfo = list.getFirst();
         } else {
             //更新标签
-            List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>().eq(PictureTagRelInfo::getPictureId, userViewLogTargetInfo.getTargetId()));
+            List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>().eq(PictureTagRelInfo::getPictureId, userViewLogTargetInfoDto.getTargetId()));
             if (StringUtils.isNotEmpty(tagRelInfos)) {
                 List<String> tagIds = tagRelInfos.stream().map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
                 List<PictureTagInfo> tagInfos = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getTagId, tagIds));
@@ -207,20 +209,56 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         //赋值
         userViewLogInfo.setUserId(userId);
         userViewLogInfo.setTargetType(targetType);
-        userViewLogInfo.setTargetId(userViewLogTargetInfo.getTargetId());
+        userViewLogInfo.setTargetId(userViewLogTargetInfoDto.getTargetId());
         userViewLogInfo.setScore(score);
         userViewLogInfo.setCreateTime(nowDate);
-        userViewLogInfo.setTargetContent(userViewLogTargetInfo.getTargetContent());
-        userViewLogInfo.setCategoryId(userViewLogTargetInfo.getCategoryId());
-        userViewLogInfo.setSpaceId(userViewLogTargetInfo.getSpaceId());
-        userViewLogInfo.setTags(userViewLogTargetInfo.getTags());
-        userViewLogInfo.setTargetCover(userViewLogTargetInfo.getTargetCover());
+        userViewLogInfo.setTargetContent(userViewLogTargetInfoDto.getTargetContent());
+        userViewLogInfo.setCategoryId(userViewLogTargetInfoDto.getCategoryId());
+        userViewLogInfo.setSpaceId(userViewLogTargetInfoDto.getSpaceId());
+        userViewLogInfo.setTags(userViewLogTargetInfoDto.getTags());
+        userViewLogInfo.setTargetCover(userViewLogTargetInfoDto.getTargetCover());
         userViewLogInfo.setDeviceId(deviceInfo.getDeviceId());
         userViewLogInfo.setBrowser(deviceInfo.getBrowser());
         userViewLogInfo.setOs(deviceInfo.getOs());
         userViewLogInfo.setPlatform(deviceInfo.getOs());
         userViewLogInfo.setIpAddress(deviceInfo.getIpAddress());
         this.saveOrUpdate(userViewLogInfo);
+    }
+
+    @Override
+    public Page<UserViewLogInfo> selectMyUserViewLogInfoList(MyUserViewLogInfoQuery myUserViewLogInfoQuery) {
+        // 提取基础参数
+        Integer pageNum = myUserViewLogInfoQuery.getPageNum();
+        Integer pageSize = myUserViewLogInfoQuery.getPageSize();
+        Map<String, Object> params = myUserViewLogInfoQuery.getParams();
+
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        return this.page(
+                new Page<>(pageNum, pageSize),
+                new LambdaQueryWrapper<UserViewLogInfo>()
+                        .eq(StringUtils.isNotEmpty(myUserViewLogInfoQuery.getUserId()), UserViewLogInfo::getUserId, myUserViewLogInfoQuery.getUserId())
+                        .eq(StringUtils.isNotEmpty(myUserViewLogInfoQuery.getTargetType()), UserViewLogInfo::getTargetType, myUserViewLogInfoQuery.getTargetType())
+                        .like(StringUtils.isNotEmpty(myUserViewLogInfoQuery.getTargetContent()), UserViewLogInfo::getTargetContent, myUserViewLogInfoQuery.getTargetContent())
+                        .apply(
+                                StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                                "create_time between {0} and {1}",
+                                beginCreateTime, endCreateTime)
+                        .orderBy(StringUtils.isNotEmpty(myUserViewLogInfoQuery.getIsAsc()),
+                                myUserViewLogInfoQuery.getIsAsc().equals("asc"),
+                                UserViewLogInfo::getCreateTime)
+        );
     }
 
 }

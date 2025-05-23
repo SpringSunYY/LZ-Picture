@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
@@ -24,12 +25,12 @@ import com.lz.picture.model.vo.userActionLogInfo.UserActionLogInfoVo;
  * @date 2025-03-24
  */
 @Service
-public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoMapper, UserActionLogInfo> implements IUserActionLogInfoService
-{
+public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoMapper, UserActionLogInfo> implements IUserActionLogInfoService {
     @Resource
     private UserActionLogInfoMapper userActionLogInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询用户行为日志
      *
@@ -37,8 +38,7 @@ public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoM
      * @return 用户行为日志
      */
     @Override
-    public UserActionLogInfo selectUserActionLogInfoByActionId(String actionId)
-    {
+    public UserActionLogInfo selectUserActionLogInfoByActionId(String actionId) {
         return userActionLogInfoMapper.selectUserActionLogInfoByActionId(actionId);
     }
 
@@ -49,8 +49,7 @@ public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoM
      * @return 用户行为日志
      */
     @Override
-    public List<UserActionLogInfo> selectUserActionLogInfoList(UserActionLogInfo userActionLogInfo)
-    {
+    public List<UserActionLogInfo> selectUserActionLogInfoList(UserActionLogInfo userActionLogInfo) {
         return userActionLogInfoMapper.selectUserActionLogInfoList(userActionLogInfo);
     }
 
@@ -61,8 +60,7 @@ public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoM
      * @return 结果
      */
     @Override
-    public int insertUserActionLogInfo(UserActionLogInfo userActionLogInfo)
-    {
+    public int insertUserActionLogInfo(UserActionLogInfo userActionLogInfo) {
         userActionLogInfo.setCreateTime(DateUtils.getNowDate());
         return userActionLogInfoMapper.insertUserActionLogInfo(userActionLogInfo);
     }
@@ -74,8 +72,7 @@ public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoM
      * @return 结果
      */
     @Override
-    public int updateUserActionLogInfo(UserActionLogInfo userActionLogInfo)
-    {
+    public int updateUserActionLogInfo(UserActionLogInfo userActionLogInfo) {
         return userActionLogInfoMapper.updateUserActionLogInfo(userActionLogInfo);
     }
 
@@ -86,8 +83,7 @@ public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoM
      * @return 结果
      */
     @Override
-    public int deleteUserActionLogInfoByActionIds(String[] actionIds)
-    {
+    public int deleteUserActionLogInfoByActionIds(String[] actionIds) {
         return userActionLogInfoMapper.deleteUserActionLogInfoByActionIds(actionIds);
     }
 
@@ -98,54 +94,54 @@ public class UserActionLogInfoServiceImpl extends ServiceImpl<UserActionLogInfoM
      * @return 结果
      */
     @Override
-    public int deleteUserActionLogInfoByActionId(String actionId)
-    {
+    public int deleteUserActionLogInfoByActionId(String actionId) {
         return userActionLogInfoMapper.deleteUserActionLogInfoByActionId(actionId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<UserActionLogInfo> getQueryWrapper(UserActionLogInfoQuery userActionLogInfoQuery){
+    public QueryWrapper<UserActionLogInfo> getQueryWrapper(UserActionLogInfoQuery userActionLogInfoQuery) {
         QueryWrapper<UserActionLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = userActionLogInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String actionId = userActionLogInfoQuery.getActionId();
-        queryWrapper.eq(StringUtils.isNotEmpty(actionId) ,"action_id",actionId);
+        String actionId = userActionLogInfoQuery.getActionId();
+        queryWrapper.eq(StringUtils.isNotEmpty(actionId), "action_id", actionId);
 
-    String searchId = userActionLogInfoQuery.getSearchId();
-        queryWrapper.eq(StringUtils.isNotEmpty(searchId) ,"search_id",searchId);
+        String searchId = userActionLogInfoQuery.getSearchId();
+        queryWrapper.eq(StringUtils.isNotEmpty(searchId), "search_id", searchId);
 
-    String userId = userActionLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = userActionLogInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String actionType = userActionLogInfoQuery.getActionType();
-        queryWrapper.eq(StringUtils.isNotEmpty(actionType) ,"action_type",actionType);
+        String actionType = userActionLogInfoQuery.getActionType();
+        queryWrapper.eq(StringUtils.isNotEmpty(actionType), "action_type", actionType);
 
-    String targetType = userActionLogInfoQuery.getTargetType();
-        queryWrapper.eq(StringUtils.isNotEmpty(targetType) ,"target_type",targetType);
+        String targetType = userActionLogInfoQuery.getTargetType();
+        queryWrapper.eq(StringUtils.isNotEmpty(targetType), "target_type", targetType);
 
-    String targetId = userActionLogInfoQuery.getTargetId();
-        queryWrapper.eq(StringUtils.isNotEmpty(targetId) ,"target_id",targetId);
+        String targetId = userActionLogInfoQuery.getTargetId();
+        queryWrapper.eq(StringUtils.isNotEmpty(targetId), "target_id", targetId);
 
-    Date createTime = userActionLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = userActionLogInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String deviceId = userActionLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String deviceId = userActionLogInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
 
-    String browser = userActionLogInfoQuery.getBrowser();
-        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String browser = userActionLogInfoQuery.getBrowser();
+        queryWrapper.eq(StringUtils.isNotEmpty(browser), "browser", browser);
 
-    String os = userActionLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        String os = userActionLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
 
-    String platform = userActionLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        String platform = userActionLogInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
 
-    String ipAddress = userActionLogInfoQuery.getIpAddress();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddress) ,"ip_address",ipAddress);
+        String ipAddress = userActionLogInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 
         return queryWrapper;
     }
