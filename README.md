@@ -1353,6 +1353,8 @@ CREATE TABLE po_risk_control_log_info
 
 #### 提现记录表：po_withdrawal_order_info
 
+TODO 需要修改结构
+
 | 字段名                    | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述             |
 | ------------------------- | -------- | ---- | -------------------------- | ---- | -------- | ---------------- |
 | withdrawal_id             | varchar  | 128  | 主键                       | 否   |          | 提现订单编号     |
@@ -1376,6 +1378,7 @@ CREATE TABLE po_risk_control_log_info
 | os                        | varchar  | 50   |                            | 是   |          | 操作系统         |
 | platform                  | varchar  | 20   |                            | 是   |          | 平台             |
 | ip_addr                   | varchar  | 50   |                            | 否   |          | IP地址           |
+| ip_address                | varchar  | 64   |                            | 是   |          | IP属地           |
 | create_time               | datetime |      |                            | 否   | 当前时间 | 创建时间         |
 | update_time               | datetime |      |                            | 否   | 当前时间 | 更新时间         |
 | fail_reason               | varchar  | 500  |                            | 是   |          | 提现失败原因     |
@@ -1429,7 +1432,7 @@ CREATE TABLE po_withdrawal_order_info
 
 
 
-#### 积分使用记录表：po_points_usage_log_infoS
+#### 积分使用记录表：po_points_usage_log_info
 
 记录积分的使用流水，充值消费都会有
 
@@ -1449,6 +1452,7 @@ CREATE TABLE po_withdrawal_order_info
 | os            | varchar  | 50   |                            | 是   |          | 操作系统     |
 | platform      | varchar  | 20   |                            | 是   |          | 平台         |
 | ip_addr       | varchar  | 50   |                            | 否   |          | IP地址       |
+| ip_address    | varchar  | 64   |                            | 是   |          | IP属地       |
 | remark        | varchar  | 512  |                            | 是   |          | 备注         |
 | create_time   | datetime |      |                            | 否   | 当前时间 | 创建时间     |
 | update_time   | datetime |      |                            | 否   | 当前时间 | 更新时间     |
@@ -1480,6 +1484,7 @@ CREATE TABLE po_points_usage_log_info
     os            VARCHAR(50) COMMENT '操作系统',
     platform      VARCHAR(20) COMMENT '平台',
     ip_addr       VARCHAR(50)  NOT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
     remark        VARCHAR(512) COMMENT '备注',
     create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -2275,6 +2280,7 @@ CREATE TABLE p_picture_tag_rel_info
 | browser              | varchar  | 50   |                                   | 是   |          | 浏览器类型   |
 | os                   | varchar  | 50   |                                   | 是   |          | 操作系统     |
 | platform             | varchar  | 20   |                                   | 是   |          | 平台         |
+| ip_addr              | varchar  | 50   |                                   | 是   |          | IP地址       |
 | ip_address           | varchar  | 64   |                                   | 是   |          | IP属地       |
 | points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
 | is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
@@ -2308,7 +2314,8 @@ CREATE TABLE p_picture_download_log
     category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
     tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
     space_id             VARCHAR(128) COMMENT '空间编号',
-    download_ip          VARCHAR(64)  NOT NULL COMMENT '下载IP地址',
+    ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
     device_id            VARCHAR(255) COMMENT '设备唯一标识',
     browser              VARCHAR(50) COMMENT '浏览器类型',
     os                   VARCHAR(50) COMMENT '操作系统',
@@ -2357,6 +2364,7 @@ CREATE TABLE p_picture_download_log
 | browser         | varchar  | 50   |                            | 是   |          | 浏览器类型   |
 | os              | varchar  | 50   |                            | 是   |          | 操作系统     |
 | platform        | varchar  | 20   |                            | 是   |          | 平台         |
+| ip_addr         | varchar  | 50   |                            | 是   |          | IP地址       |
 | ip_address      | varchar  | 64   |                            | 是   |          | IP属地       |
 | click_count     | int      |      |                            | 否   | 0        | 点击次数     |
 | favorite_count  | int      |      |                            | 否   | 0        | 收藏数       |
@@ -2431,6 +2439,7 @@ CREATE TABLE p_search_log_info (
 | browser     | varchar  | 50   |                                    | 是   |          | 浏览器类型   |
 | os          | varchar  | 50   |                                    | 是   |          | 操作系统     |
 | platform    | varchar  | 20   |                                    | 是   |          | 平台         |
+| ip_addr     | varchar  | 50   |                                    | 是   |          | IP地址       |
 | ip_address  | varchar  | 64   |                                    | 是   |          | IP属地       |
 
 行为类型：0点击 1收藏 2下载 3关注用户 4查看空间。。。
@@ -2600,6 +2609,7 @@ CREATE TABLE p_picture_comment_like_info (
 | browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
 | os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
 | platform       | varchar  | 20   |                                           | 是   |          | 平台         |
+| ip_addr        | varchar  | 50   |                                           | 是   |          | IP地址       |
 | ip_address     | varchar  | 64   |                                           | 是   |          | IP属地       |
 
 行为类型：0点赞 1收藏 2转发
@@ -2663,6 +2673,7 @@ CREATE TABLE `p_user_behavior_info` (
 | browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
 | os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
 | platform       | varchar  | 20   |                                           | 是   |          | 平台         |
+| ip_addr        | varchar  | 50   |                                           | 是   |          | IP地址       |
 | ip_address     | varchar  | 64   |                                           | 是   |          | IP属地       |
 
 目标类型：0图片 2用户 1空间

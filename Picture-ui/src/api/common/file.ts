@@ -38,7 +38,7 @@ export function urlUploadFile(data: UrlUploadRequest):Promise<API.ResponseInfo<P
   })
 }
 
-export function pictureDownload(pictureId: string) {
+export function pictureDownload(pictureId: string):Promise<API.ResponseInfo<Blob>> {
   return request({
     url: '/picture/file/download/' + pictureId,
     headers: {
