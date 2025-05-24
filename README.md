@@ -2271,11 +2271,11 @@ CREATE TABLE p_picture_tag_rel_info
 | space_id             | varchar  | 128  | 外键 (p_space:space_id)           | 是   |          | 空间编号     |
 | category_id          | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类     |
 | tags                 | varchar  | 256  |                                   | 是   |          | 图片标签     |
-| download_ip          | varchar  | 64   |                                   | 是   |          | IP 地址      |
 | device_id            | varchar  | 255  |                                   | 是   |          | 设备唯一标识 |
 | browser              | varchar  | 50   |                                   | 是   |          | 浏览器类型   |
 | os                   | varchar  | 50   |                                   | 是   |          | 操作系统     |
 | platform             | varchar  | 20   |                                   | 是   |          | 平台         |
+| ip_address           | varchar  | 64   |                                   | 是   |          | IP属地       |
 | points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
 | is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
 | points_author_gain   | int      |      |                                   | 否   | 0        | 作者获得积分 |

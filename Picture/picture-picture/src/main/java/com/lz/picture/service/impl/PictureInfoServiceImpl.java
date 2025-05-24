@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.redis.PictureRedisConstants;
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
@@ -14,6 +15,7 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
@@ -25,6 +27,12 @@ import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
+import com.lz.points.model.domain.AccountInfo;
+import com.lz.points.model.domain.PointsUsageLogInfo;
+import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
+import com.lz.points.model.enums.PoPointsUsageTypeEnum;
+import com.lz.points.service.IAccountInfoService;
+import com.lz.points.service.IPointsUsageLogInfoService;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.vo.userInfo.UserVo;
 import com.lz.user.service.IUserInfoService;
@@ -92,6 +100,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private OssConfig ossConfig;
+
+    @Resource
+    private IAccountInfoService accountInfoService;
+
+    @Resource
+    private IPointsUsageLogInfoService pointsUsageLogInfoService;
+
+    @Resource
+    private IPictureDownloadLogService pictureDownloadLogService;
 
     //region mybatis代码
 
@@ -779,5 +796,66 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
             return spaceInfoService.updateById(spaceInfo);
         });
+    }
+
+    @Override
+    public PictureInfo verifyPictureInfo(String pictureId, String userId) {
+        //校验用户当前是否输入密码
+        ThrowUtils.throwIf(accountInfoService.getVerifyPassword(userId) != 1, "请输入密码");
+        //查询图片信息
+        PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
+        //判断本人是否是作者
+        if (!pictureInfo.getUserId().equals(userId)) {
+            //不是作者 需要更新账号积分、积分使用记录、下载记录
+            //首先判断图片状态,如果图片状态为公开，且没有删除，则可以下载
+            ThrowUtils.throwIf(!PPictureStatusEnum.PICTURE_STATUS_0.getValue().equals(pictureInfo.getPictureStatus())
+                            || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()),
+                    "图片不存在");
+            //判断用户积分是否足够 查询用户账户是否存在，存在判断积分
+            AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userId);
+            ThrowUtils.throwIf(StringUtils.isNull(accountInfo)
+                    || accountInfo.getPointsEarned() < pictureInfo.getPointsNeed(), "积分不足");
+            //新增积分使用记录
+            PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
+            pointsUsageLogInfo.setUserId(userId);
+            pointsUsageLogInfo.setGiveUserId(pictureInfo.getUserId());
+            pointsUsageLogInfo.setLogType(PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue());
+            pointsUsageLogInfo.setUsageType(PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_0.getValue());
+            pointsUsageLogInfo.setTargetId(pictureId);
+            pointsUsageLogInfo.setPointsBefore(accountInfo.getPointsBalance());
+            pointsUsageLogInfo.setPointsUsed(pictureInfo.getPointsNeed());
+            pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance() - pictureInfo.getPointsNeed());
+            DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+            BeanUtils.copyProperties(deviceInfo, pointsUsageLogInfo);
+            pointsUsageLogInfo.setCreateTime(DateUtils.getNowDate());
+            pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+
+            //下载记录
+            PictureDownloadLog pictureDownloadLog = new PictureDownloadLog();
+            pictureDownloadLog.setUserId(userId);
+            pictureDownloadLog.setPictureId(pictureId);
+            pictureDownloadLog.setCategoryId(pictureInfo.getCategoryId());
+//            pictureDownloadLog.setTags();
+//            pictureDownloadLog.setSpaceId(pictureInfo.getSpaceId());
+//            BeanUtils.copyProperties(deviceInfo,pictureDownloadLog);
+//            pictureDownloadLog.setDownloadIp();
+//            pictureDownloadLog.setPointsCost(pictureInfo.getPointsNeed());
+//            pictureDownloadLog.setIsFree();
+//            pictureDownloadLog.setPointsAuthorGain();
+//            pictureDownloadLog.setPointsOfficialGain();
+//            pictureDownloadLog.setPointsSpaceGain();
+//            pictureDownloadLog.setProportion();
+//            pictureDownloadLog.setCreateTime();
+//            pictureDownloadLog.setDownloadStatus();
+//            pictureDownloadLog.setFailReason();
+//            pictureDownloadLog.setDownloadType();
+//            pictureDownloadLog.setReferSource();
+
+        } else {
+            //是作者 只需要新增下载记录
+            PictureDownloadLog pictureDownloadLog = new PictureDownloadLog();
+        }
+        return pictureInfo;
     }
 }

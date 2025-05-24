@@ -144,4 +144,16 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date 2025/4/26 20:40
      **/
     UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo);
+
+    /**
+     * 校验图片
+     *
+     * @param pictureId 图片编号
+     * @param userId    用户编号
+     * @return PictureInfo
+     * @author: YY
+     * @method: verifyPictureInfo
+     * @date: 2025/5/24 20:30
+     **/
+    PictureInfo verifyPictureInfo(String pictureId, String userId);
 }
