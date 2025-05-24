@@ -221,6 +221,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         userViewLogInfo.setBrowser(deviceInfo.getBrowser());
         userViewLogInfo.setOs(deviceInfo.getOs());
         userViewLogInfo.setPlatform(deviceInfo.getOs());
+        userViewLogInfo.setIpAddr(deviceInfo.getIpAddr());
         userViewLogInfo.setIpAddress(deviceInfo.getIpAddress());
         this.saveOrUpdate(userViewLogInfo);
     }

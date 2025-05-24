@@ -98,6 +98,11 @@ public class UserViewLogInfoQuery implements Serializable {
     private String platform;
 
     /**
+     * IP地址
+     */
+    private String ipAddr;
+
+    /**
      * IP属地
      */
     private String ipAddress;

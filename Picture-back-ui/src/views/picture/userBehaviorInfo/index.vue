@@ -310,21 +310,6 @@
         <el-form-item label="封面" prop="targetCover">
           <image-upload v-model="form.targetCover"/>
         </el-form-item>
-        <el-form-item label="设备唯一标识" prop="deviceId">
-          <el-input v-model="form.deviceId" placeholder="请输入设备唯一标识"/>
-        </el-form-item>
-        <el-form-item label="浏览器类型" prop="browser">
-          <el-input v-model="form.browser" placeholder="请输入浏览器类型"/>
-        </el-form-item>
-        <el-form-item label="操作系统" prop="os">
-          <el-input v-model="form.os" placeholder="请输入操作系统"/>
-        </el-form-item>
-        <el-form-item label="平台" prop="platform">
-          <el-input v-model="form.platform" placeholder="请输入平台"/>
-        </el-form-item>
-        <el-form-item label="IP属地" prop="ipAddress">
-          <el-input v-model="form.ipAddress" placeholder="请输入IP属地"/>
-        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">

@@ -2700,6 +2700,7 @@ CREATE TABLE p_user_view_log_info (
     browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
     os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
     platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
+    ip_addr VARCHAR(50) DEFAULT NULL COMMENT 'IP地址',
     ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
     FOREIGN KEY (user_id) REFERENCES u_user_info(user_id),
     FOREIGN KEY (category_id) REFERENCES p_picture_category_info(category_id)

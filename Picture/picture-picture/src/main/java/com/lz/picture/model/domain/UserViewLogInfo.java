@@ -1,5 +1,6 @@
 package com.lz.picture.model.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("p_user_view_log_info")
 @Data
 public class UserViewLogInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -116,6 +118,12 @@ public class UserViewLogInfo implements Serializable {
      */
     @Excel(name = "平台")
     private String platform;
+
+    /**
+     * IP地址
+     */
+    @Excel(name = "IP地址")
+    private String ipAddr;
 
     /**
      * IP属地

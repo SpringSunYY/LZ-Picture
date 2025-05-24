@@ -114,6 +114,12 @@ public class UserViewLogInfoVo implements Serializable {
     private String platform;
 
     /**
+     * IP地址
+     */
+    @Excel(name = "IP地址")
+    private String ipAddr;
+
+    /**
      * IP属地
      */
     @Excel(name = "IP属地")

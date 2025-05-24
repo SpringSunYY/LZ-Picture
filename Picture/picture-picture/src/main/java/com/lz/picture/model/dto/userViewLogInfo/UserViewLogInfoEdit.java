@@ -67,30 +67,6 @@ public class UserViewLogInfoEdit implements Serializable {
      */
     private String targetCover;
 
-    /**
-     * 设备唯一标识
-     */
-    private String deviceId;
-
-    /**
-     * 浏览器类型
-     */
-    private String browser;
-
-    /**
-     * 操作系统
-     */
-    private String os;
-
-    /**
-     * 平台
-     */
-    private String platform;
-
-    /**
-     * IP属地
-     */
-    private String ipAddress;
 
     /**
      * 对象转封装类

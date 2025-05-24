@@ -109,6 +109,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="IP地址" prop="ipAddr">
+        <el-input
+            v-model="queryParams.ipAddr"
+            placeholder="请输入IP地址"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="IP属地" prop="ipAddress">
         <el-input
             v-model="queryParams.ipAddress"
@@ -211,7 +219,9 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="平台" align="center" prop="platform" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[15].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[15].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -270,21 +280,6 @@
         <el-form-item label="封面" prop="targetCover">
           <image-upload v-model="form.targetCover"/>
         </el-form-item>
-        <el-form-item label="设备唯一标识" prop="deviceId">
-          <el-input v-model="form.deviceId" placeholder="请输入设备唯一标识"/>
-        </el-form-item>
-        <el-form-item label="浏览器类型" prop="browser">
-          <el-input v-model="form.browser" placeholder="请输入浏览器类型"/>
-        </el-form-item>
-        <el-form-item label="操作系统" prop="os">
-          <el-input v-model="form.os" placeholder="请输入操作系统"/>
-        </el-form-item>
-        <el-form-item label="平台" prop="platform">
-          <el-input v-model="form.platform" placeholder="请输入平台"/>
-        </el-form-item>
-        <el-form-item label="IP属地" prop="ipAddress">
-          <el-input v-model="form.ipAddress" placeholder="请输入IP属地"/>
-        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -338,6 +333,7 @@ const data = reactive({
     browser: null,
     os: null,
     platform: null,
+    ipAddr: null,
     ipAddress: null
   },
   rules: {
@@ -371,7 +367,8 @@ const data = reactive({
     {key: 12, label: '浏览器类型', visible: false},
     {key: 13, label: '操作系统', visible: false},
     {key: 14, label: '平台', visible: false},
-    {key: 15, label: 'IP属地', visible: false},
+    {key: 15, label: 'IP地址', visible: false},
+    {key: 16, label: 'IP属地', visible: false},
   ],
 });
 
@@ -416,6 +413,7 @@ function reset() {
     browser: null,
     os: null,
     platform: null,
+    ipAddr: null,
     ipAddress: null
   };
   proxy.resetForm("userViewLogInfoRef");

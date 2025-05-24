@@ -20,6 +20,7 @@
         <result property="browser" column="browser"/>
         <result property="os" column="os"/>
         <result property="platform" column="platform"/>
+        <result property="ipAddr" column="ip_addr"/>
         <result property="ipAddress" column="ip_address"/>
     </resultMap>
 
@@ -39,6 +40,7 @@
                browser,
                os,
                platform,
+               ip_addr,
                ip_address
         from p_user_view_log_info
     </sql>
@@ -62,6 +64,7 @@
             <if test="browser != null  and browser != ''">and browser = #{browser}</if>
             <if test="os != null  and os != ''">and os = #{os}</if>
             <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
             <if test="ipAddress != null  and ipAddress != ''">and ip_address = #{ipAddress}</if>
         </where>
         order by create_time desc
@@ -90,6 +93,7 @@
             <if test="browser != null">browser,</if>
             <if test="os != null">os,</if>
             <if test="platform != null">platform,</if>
+            <if test="ipAddr != null">ip_addr,</if>
             <if test="ipAddress != null">ip_address,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -108,6 +112,7 @@
             <if test="browser != null">#{browser},</if>
             <if test="os != null">#{os},</if>
             <if test="platform != null">#{platform},</if>
+            <if test="ipAddr != null">#{ipAddr},</if>
             <if test="ipAddress != null">#{ipAddress},</if>
         </trim>
     </insert>
@@ -129,6 +134,7 @@
             <if test="browser != null">browser = #{browser},</if>
             <if test="os != null">os = #{os},</if>
             <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddr != null">ip_addr = #{ipAddr},</if>
             <if test="ipAddress != null">ip_address = #{ipAddress},</if>
         </trim>
         where view_id = #{viewId}
