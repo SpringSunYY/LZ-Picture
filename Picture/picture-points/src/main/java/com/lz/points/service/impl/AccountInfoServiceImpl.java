@@ -4,9 +4,11 @@ import java.util.*;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
@@ -25,6 +27,8 @@ import com.lz.points.service.IAccountInfoService;
 import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
 import com.lz.points.model.vo.accountInfo.AccountInfoVo;
 
+import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ACCOUNT_PASSWORD_CHECK;
+
 /**
  * 积分账户Service业务层处理
  *
@@ -35,6 +39,9 @@ import com.lz.points.model.vo.accountInfo.AccountInfoVo;
 public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, AccountInfo> implements IAccountInfoService {
     @Resource
     private AccountInfoMapper accountInfoMapper;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -149,7 +156,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
     @Override
     public int userUpdateAccountInfoPassword(AccountPasswordUploadRequest request) {
         //校验密码格式是否正确
-        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword(),6,10);
+        PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword(), 6, 10);
         //首先查询是否有账号
         AccountInfo accountInfoDb = this.selectAccountInfoByUserId(request.getUserId());
         if (StringUtils.isNull(accountInfoDb)) {
@@ -165,6 +172,33 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         accountInfoDb.setPassword(encrypted.getPassword());
         accountInfoDb.setSalt(encrypted.getSalt());
         return accountInfoMapper.updateById(accountInfoDb);
+    }
+
+    @Override
+    public int auth(String userId) {
+        //从缓存里面获取账号是否存在
+        Boolean cache = redisCache.getCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId);
+        return StringUtils.isNotNull(cache) && cache ? 1 : 0;
+    }
+
+    @Override
+    public int verifyPassword(String userId, String password) {
+        //首先查询是否有账号
+        AccountInfo accountInfoDb = this.selectAccountInfoByUserId(userId);
+        if (StringUtils.isNull(accountInfoDb)) {
+            return 0;
+        }
+        //获取密码以及加密方式
+        String salt = accountInfoDb.getSalt();
+        System.out.println("salt = " + salt);
+        System.out.println("accountInfoDb = " + accountInfoDb.getPassword());
+        System.out.println("password = " + password);
+        if (!PasswordUtils.checkPassword(salt, password, accountInfoDb.getPassword())) {
+            return 0;
+        } else {
+            redisCache.setCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId, true, 60 * 60, TimeUnit.SECONDS);
+            return 1;
+        }
     }
 
 }

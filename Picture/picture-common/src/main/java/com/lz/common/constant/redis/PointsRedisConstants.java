@@ -23,4 +23,9 @@ public class PointsRedisConstants {
      * 订单锁
      */
     public static final String POINTS_ORDER_LOCK = "points:pay:order:lock:";
+
+    /**
+     * 密码校验存储key
+     */
+    public static final String POINTS_ACCOUNT_PASSWORD_CHECK = "points:account:password:check:";
 }

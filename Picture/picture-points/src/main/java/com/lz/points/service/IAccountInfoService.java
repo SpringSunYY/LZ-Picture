@@ -105,4 +105,27 @@ public interface IAccountInfoService extends IService<AccountInfo> {
      * @date: 2025/5/22 09:00
      **/
     int userUpdateAccountInfoPassword(AccountPasswordUploadRequest accountPasswordUploadRequest);
+
+    /**
+     * 校验用户是否近期输入密码
+     *
+     * @param userId
+     * @return int
+     * @author: YY
+     * @method: auth
+     * @date: 2025/5/24 14:45
+     **/
+    int auth(String userId);
+
+    /**
+     * 校验用户密码
+     *
+     * @param userId
+     * @param password
+     * @return int
+     * @author: YY
+     * @method: verifyPassword
+     * @date: 2025/5/24 14:51
+     **/
+    int verifyPassword(String userId, String password);
 }

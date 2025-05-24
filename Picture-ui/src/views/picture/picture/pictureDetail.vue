@@ -99,8 +99,9 @@
             </a-tooltip>
             <a-tooltip title="Download">
               <a-button
+                :loading="downloadPictureLoading"
                 class="icon-button"
-                @click="downloadImage(picture.pictureId, picture?.name + '.' + picture?.picFormat)"
+                @click="downloadPicture"
               >
                 <template #icon>
                   <SvgIcon name="download" />
@@ -140,6 +141,7 @@ import Comment from '@/components/Comment/Comment.vue'
 import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
+import { usePasswordVerify } from '@/utils/auth.ts'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -224,6 +226,21 @@ const addUserBehavior = (behaviorType: string) => {
   })
 }
 
+//下载图片
+const downloadPictureLoading = ref(false)
+const { verify } = usePasswordVerify()
+const downloadPicture = async () => {
+  const verified = await verify('下载图片')
+  if (!verified) return
+  message.success('图片下载中...',5)
+  message.info('请不要刷新页面', 5)
+  downloadPictureLoading.value = true
+  const res = await downloadImage(
+    picture.value.pictureId,
+    picture.value?.name + '.' + picture.value?.picFormat,
+  )
+  downloadPictureLoading.value = false
+}
 getPictureInfo()
 </script>
 
