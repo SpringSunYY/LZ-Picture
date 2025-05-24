@@ -8,12 +8,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
 
 import com.lz.common.utils.DateUtils;
+import com.lz.config.service.IConfigInfoService;
 import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
 import com.lz.userauth.model.domain.EncryptionPassword;
 import com.lz.userauth.utils.PasswordUtils;
@@ -27,6 +30,7 @@ import com.lz.points.service.IAccountInfoService;
 import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
 import com.lz.points.model.vo.accountInfo.AccountInfoVo;
 
+import static com.lz.common.constant.config.UserConfigKeyConstants.POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT;
 import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ACCOUNT_PASSWORD_CHECK;
 
 /**
@@ -42,6 +46,9 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
 
     @Resource
     private RedisCache redisCache;
+
+    @Resource
+    private IConfigInfoService configInfoService;
 
     //region mybatis代码
 
@@ -176,7 +183,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
     }
 
     @Override
-    public int auth(String userId) {
+    public int getVerifyPassword(String userId) {
         //从缓存里面获取账号是否存在
         Boolean cache = redisCache.getCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId);
         return StringUtils.isNotNull(cache) && cache ? 1 : 0;
@@ -187,14 +194,21 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         //首先查询是否有账号
         AccountInfo accountInfoDb = this.selectAccountInfoByUserId(userId);
         if (StringUtils.isNull(accountInfoDb)) {
-            return 0;
+            throw new ServiceException("您当前还没有账户，请先购买积分，平台会为您创建账户！！！", HttpStatus.NO_CONTENT);
         }
         //获取密码以及加密方式
         String salt = accountInfoDb.getSalt();
         if (!PasswordUtils.checkPassword(salt, password, accountInfoDb.getPassword())) {
             return 0;
         } else {
-            redisCache.setCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId, true, 60 * 60, TimeUnit.SECONDS);
+            String infoInCache = configInfoService.getConfigInfoInCache(POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT);
+            Integer timeout = null;
+            try {
+                timeout = Integer.parseInt(infoInCache);
+            } catch (Exception e) {
+                timeout = 60 * 60;
+            }
+            redisCache.setCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId, true, timeout, TimeUnit.SECONDS);
             return 1;
         }
     }

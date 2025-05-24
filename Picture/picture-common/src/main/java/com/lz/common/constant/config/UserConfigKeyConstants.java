@@ -66,4 +66,9 @@ public class UserConfigKeyConstants {
      * 用户自己浏览记录、行为记录封面压缩倍率百分比
      */
     public static final String PICTURE_COVER_P = "picture:cover:p";
+
+    /**
+     * 用户账户密码免校验时间
+     */
+    public static final String POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT = "points:account:verify:password:timeout";
 }

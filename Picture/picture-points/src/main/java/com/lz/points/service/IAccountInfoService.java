@@ -115,7 +115,7 @@ public interface IAccountInfoService extends IService<AccountInfo> {
      * @method: auth
      * @date: 2025/5/24 14:45
      **/
-    int auth(String userId);
+    int getVerifyPassword(String userId);
 
     /**
      * 校验用户密码

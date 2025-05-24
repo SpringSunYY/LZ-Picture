@@ -48,9 +48,9 @@ public class UserAccountInfoController extends BaseUserInfoController {
      */
     @PreAuthorize("@uss.hasLogin()")
     @GetMapping(value = "/verifyPassword")
-    public AjaxResult getAuth() {
+    public AjaxResult getVerifyPassword() {
         String userId = getUserId();
-        return AjaxResult.success(accountInfoService.auth(userId));
+        return AjaxResult.success(accountInfoService.getVerifyPassword(userId));
     }
 
     /**
