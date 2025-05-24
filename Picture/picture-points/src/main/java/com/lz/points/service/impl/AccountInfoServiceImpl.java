@@ -171,6 +171,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         EncryptionPassword encrypted = PasswordUtils.encryptPassword(request.getPassword());
         accountInfoDb.setPassword(encrypted.getPassword());
         accountInfoDb.setSalt(encrypted.getSalt());
+        redisCache.deleteObject(POINTS_ACCOUNT_PASSWORD_CHECK + request.getUserId());
         return accountInfoMapper.updateById(accountInfoDb);
     }
 
@@ -190,9 +191,6 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         }
         //获取密码以及加密方式
         String salt = accountInfoDb.getSalt();
-        System.out.println("salt = " + salt);
-        System.out.println("accountInfoDb = " + accountInfoDb.getPassword());
-        System.out.println("password = " + password);
         if (!PasswordUtils.checkPassword(salt, password, accountInfoDb.getPassword())) {
             return 0;
         } else {

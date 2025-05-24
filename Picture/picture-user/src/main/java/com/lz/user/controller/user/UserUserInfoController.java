@@ -2,6 +2,7 @@ package com.lz.user.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.sign.RsaUtils;
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.model.vo.menuInfo.MenuInfoUserVo;
 import com.lz.user.model.domain.UserInfo;
@@ -84,11 +85,14 @@ public class UserUserInfoController extends BaseUserInfoController {
      */
     @PreAuthorize("@uss.hasLogin()")
     @PutMapping(value = "/password")
-    public AjaxResult updatePassword(@RequestBody UserPasswordUploadRequest userPasswordUploadRequest) {
+    public AjaxResult updatePassword(@RequestBody UserPasswordUploadRequest userPasswordUploadRequest) throws Exception {
         String userId = getUserId();
         if (!userId.equals(userPasswordUploadRequest.getUserId())) {
             return error("无权限访问");
         }
+        userPasswordUploadRequest.setPassword(RsaUtils.decryptUserByPrivateKey(userPasswordUploadRequest.getPassword()));
+        userPasswordUploadRequest.setOldPassword(RsaUtils.decryptUserByPrivateKey(userPasswordUploadRequest.getOldPassword()));
+        userPasswordUploadRequest.setConfirmPassword(RsaUtils.decryptUserByPrivateKey(userPasswordUploadRequest.getConfirmPassword()));
         return AjaxResult.success(userInfoService.userUpdateUserInfoPassword(userPasswordUploadRequest));
     }
 }

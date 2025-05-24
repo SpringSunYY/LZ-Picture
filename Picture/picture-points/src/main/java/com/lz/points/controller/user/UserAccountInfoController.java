@@ -1,6 +1,7 @@
 package com.lz.points.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.utils.sign.RsaUtils;
 import com.lz.points.model.dto.accountInfo.AccountAuthDto;
 import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
 import com.lz.points.service.IAccountInfoService;
@@ -25,15 +26,18 @@ public class UserAccountInfoController extends BaseUserInfoController {
     private IAccountInfoService accountInfoService;
 
     /**
-     * 更新用户基本信息
+     * 更新用户账户密码
      */
     @PreAuthorize("@uss.hasLogin()")
     @PutMapping(value = "/password")
-    public AjaxResult updatePassword(@RequestBody AccountPasswordUploadRequest accountPasswordUploadRequest) {
+    public AjaxResult updatePassword(@RequestBody AccountPasswordUploadRequest accountPasswordUploadRequest) throws Exception {
         String userId = getUserId();
         if (!userId.equals(accountPasswordUploadRequest.getUserId())) {
             return error("无权限访问");
         }
+        accountPasswordUploadRequest.setPassword(RsaUtils.decryptUserByPrivateKey(accountPasswordUploadRequest.getPassword()));
+        accountPasswordUploadRequest.setOldPassword(RsaUtils.decryptUserByPrivateKey(accountPasswordUploadRequest.getOldPassword()));
+        accountPasswordUploadRequest.setConfirmPassword(RsaUtils.decryptUserByPrivateKey(accountPasswordUploadRequest.getConfirmPassword()));
         return AjaxResult.success(accountInfoService.userUpdateAccountInfoPassword(accountPasswordUploadRequest));
     }
 
@@ -57,9 +61,9 @@ public class UserAccountInfoController extends BaseUserInfoController {
      */
     @PreAuthorize("@uss.hasLogin()")
     @PostMapping(value = "/verifyPassword")
-    public AjaxResult verifyPassword(@RequestBody AccountAuthDto accountAuthDto) {
+    public AjaxResult verifyPassword(@RequestBody AccountAuthDto accountAuthDto) throws Exception {
         String userId = getUserId();
-        String password = accountAuthDto.getPassword();
+        String password = RsaUtils.decryptUserByPrivateKey(accountAuthDto.getPassword());
         return AjaxResult.success(accountInfoService.verifyPassword(userId, password));
     }
 }

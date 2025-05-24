@@ -18,7 +18,7 @@
         >
         </a-menu>
       </a-col>
-      <a-col flex="120px">
+      <a-col flex="200px">
         <div class="user-login-status">
           <div v-if="userName">
             <a-dropdown>

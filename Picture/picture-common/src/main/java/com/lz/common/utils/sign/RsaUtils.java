@@ -43,6 +43,34 @@ public class RsaUtils
             "SQWaA2gbaIbC3CAP8naZS3rDbMF1iSUWYL6bFHfi8jJSjlU5tE1oXBKOooUHnA5F\n" +
             "KRmnmEP5m6gaAUGKfzxaK0j6";
 
+    //Rsa 用户私钥
+    public static String userPrivateKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCZipMnAjs0WoaI\n" +
+            "CVLTl2t8xI6Bf7GNDhImkLf3Rbf67KDLazn8Eaaipk+ivmDPIczO97juE0a6S1yh\n" +
+            "gp8Vs658lAPgCQPVN1ohpmG6pHM5wGFZJipS/k6Zo2HEMsckft5h79K05ZgdeocU\n" +
+            "HR6d2Z4pukMPzVO16kIBZSLMAQtfWJZn4d3vW1ubklM3T6qBmJyt0zi9o5Wg/nuV\n" +
+            "QyeGfa0LqVIhdOUv+vN4BJnW9OXJeWdLG7x8g6THwul39MUeK8UEz9NPGkS/oyGl\n" +
+            "4mGXNK5lDLMIcga4LfWbpFww623TwgCnIk060CFp8d2x4JcW3nc66PAx3cAGkVnz\n" +
+            "OyiZYkQfAgMBAAECggEAca7UvXE9fMn6Cgc9OEVI5Jx0FxYA1Duy3LMSQxdv3W4O\n" +
+            "sA64ZBZ9lrglBo6HB1YzWpq4Zi4HlC/wafVY7KyZaMv/AoYqPFg7d+bFPXg9iGkU\n" +
+            "qvlDJSf98muyG56tLCxzY3g6Po4wTsNF+HKHFMDoBmVO+ghBDtRgAsBrPzkWvoSn\n" +
+            "QMydlQHkn7WDmNUJoY5V08P9uyeKlLW2v9ZJZoj2Tf//1zPdiqY4G0ujUVIlEr1y\n" +
+            "A0ronJWKTL/9Gqrvo9T9y/lxygKOgj37DDfjyJ4zihKqPoNDpkZKWjJ59ONsgT2m\n" +
+            "U/0CKFn7874LdNLLMc4GxM+PecglD5o5p8EnKJmYoQKBgQDMNA/9hjXrZi/rxbpf\n" +
+            "Zm2oj2RHaABTOWdGApTf0KAhwo+zFisT97ixQDCYJ0bpV8l82wimB4cj8chQc5pq\n" +
+            "Ajagz6KgRiqXjYoHjkLH+djrgrVxNKAXY6dPWnnLE1oX7y6zikS6CBWTUPlMNFYP\n" +
+            "+vNSIYjZulkXqC/UIof1kRRVGwKBgQDAfMYBEc3KA6eP6CLhmUd88HuN7Ej4xm0B\n" +
+            "lpRRI5wD1MS236C8ho1UFZRTPn8qyBHEJzOAm4e0Szxod1e/gKLv0zh66hpddumH\n" +
+            "b6urwrNA2KSZCixe6h1XpLnFTnS70RCc5PegNiWLo/cza1wPF+cMRF7yWkWArONB\n" +
+            "z6FJ5hexTQKBgQCPQEqjaL50p9ggRzKqcDmnUQhhC3WG7LMlKvRzWnCrnkiesoN/\n" +
+            "231mYwh0BMG7Oklv3Fxh1NAaCCilP6PokCrwfxiv5OlGLhXRnRv+G6jv9l8AzpEs\n" +
+            "N02M3oSoUKgYOEOD0hDKjJdOJDTvH5vsU/jT+hB95TtQ3DzJTXwhaihgVwKBgGfW\n" +
+            "Z5JIInWqBwiQt9BvuariqCRlpO/fSwqiSpyC0zUV4JCujq1lAHStt3g4rK1NhJgG\n" +
+            "dbgZLtnKBGpuhv2dzUgG798Ozu5AqbYQPdHIlJ6UwCZ24HzLWsze5gBUVJDFNWsN\n" +
+            "8a+RxitQZphsgBr8T/3EHFws6nWBzo7ADUgqQfm5AoGAdQ/NQ3jco4Spu6b2ZcsH\n" +
+            "pqkvpYJe3SVFXCZtXmnB9JceJ856dPtTjkBjP+n3SpQlT7cT6OJPFw6I76B6p627\n" +
+            "rnWcnTlvJL+DXVcTjmuEW1kKWpm3oMPT4D7EWhV42mFFWx5y8JeGsmHNk3bffvPH\n" +
+            "SnZQ8eEUcH7E1Dmzc71QpCo=";
+
     /**
      * 私钥解密
      *
@@ -53,6 +81,17 @@ public class RsaUtils
     public static String decryptByPrivateKey(String text) throws Exception
     {
         return decryptByPrivateKey(privateKey, text);
+    }
+
+    /**
+     * 私钥解密
+     *
+     * @param privateKeyString 私钥
+     * @param text             待解密的文本
+     * @return 解密后的文本
+     */
+    public static String decryptUserByPrivateKey(String text) throws Exception {
+        return decryptByPrivateKey(userPrivateKey, text);
     }
 
     /**

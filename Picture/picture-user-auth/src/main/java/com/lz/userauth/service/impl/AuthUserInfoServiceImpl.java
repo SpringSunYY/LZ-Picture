@@ -96,14 +96,27 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
 
         authUserInfo.setPhone(phone);
         authUserInfo.setCountryCode(countryCode);
-        authUserInfo.setUserName("LZ-" + phone + "-" + RandomUtil.randomString(6));
-        authUserInfo.setNickName("LZ-" + phone);
+        String name = generateName(phone);
+        authUserInfo.setUserName(name);
+        authUserInfo.setNickName(name);
         authUserInfo.setStatus(UUserStatusEnum.USER_STATUS_0.getValue());
         authUserInfo.setCreateTime(DateUtils.getNowDate());
         authUserInfo.setUserId(IdUtils.fastSimpleUUID());
         authUserInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         authUserInfoMapper.insert(authUserInfo);
         return authUserInfo;
+    }
+
+    private String generateName(String phone) {
+        //保证名字唯一
+        String name = "LZ-" + phone.substring(phone.length() - 4) + "-" + RandomUtil.randomString(6);
+        AuthUserInfo authUserInfo = authUserInfoMapper.selectOne(new LambdaQueryWrapper<AuthUserInfo>()
+                .eq(AuthUserInfo::getUserName, name));
+        if (StringUtils.isNotNull(authUserInfo)) {
+            return generateName(phone);
+        } else {
+            return name;
+        }
     }
 
     @Override

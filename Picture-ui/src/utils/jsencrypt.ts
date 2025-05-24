@@ -2,10 +2,13 @@
 import JSEncrypt from 'jsencrypt'
 
 // 必须包含完整的 PEM 格式头尾
-const publicKey = `-----BEGIN PUBLIC KEY-----
-MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKoR8mX0rGKLqzcWmOzbfj64K8ZIgOdH
-nzkXSOVOZbFu/TJhZ7rFAN+eaGkl3C4buccQd/EjEsj9ir7ijT7h96MCAwEAAQ==
------END PUBLIC KEY-----`
+const publicKey = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmYqTJwI7NFqGiAlS05dr
+fMSOgX+xjQ4SJpC390W3+uygy2s5/BGmoqZPor5gzyHMzve47hNGuktcoYKfFbOu
+fJQD4AkD1TdaIaZhuqRzOcBhWSYqUv5OmaNhxDLHJH7eYe/StOWYHXqHFB0endme
+KbpDD81TtepCAWUizAELX1iWZ+Hd71tbm5JTN0+qgZicrdM4vaOVoP57lUMnhn2t
+C6lSIXTlL/rzeASZ1vTlyXlnSxu8fIOkx8Lpd/TFHivFBM/TTxpEv6MhpeJhlzSu
+ZQyzCHIGuC31m6RcMOtt08IApyJNOtAhafHdseCXFt53OujwMd3ABpFZ8zsomWJE
+HwIDAQAB`
 
 const privateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIBVAIBADANBgkqhkiGw0BAQEFAASCAT4wggE6AgEAAkEAqhHyZfSsYourNxaY

@@ -1,6 +1,7 @@
 import { http as request } from '@/utils'
 import type { API } from '@/types/common'
 import type { USER } from '@/types/user'
+import { encrypt } from '@/utils/jsencrypt.ts'
 
 // 登录方法
 export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
@@ -11,7 +12,12 @@ export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
       repeatSubmit: false,
     },
     method: 'post',
-    data: data,
+    data: {
+      username: encrypt(data.username),
+      password: encrypt(data.password),
+      code: data.code,
+      uuid: data.uuid,
+    },
   })
 }
 
@@ -51,10 +57,16 @@ export function getSmsLoginCode(query: USER.SmsLoginParams): Promise<API.Respons
       isToken: false,
     },
     method: 'get',
-    params: query,
+    params: {
+      countryCode: encrypt(query.countryCode),
+      phone: encrypt(query.phone),
+      code: query.code,
+      uuid: query.uuid,
+    },
     timeout: 20000,
   })
 }
+
 // 获取短信注册验证码
 export function getRegisterCode(query: USER.RegisterParams): Promise<API.ResponseInfo> {
   return request({
@@ -63,10 +75,16 @@ export function getRegisterCode(query: USER.RegisterParams): Promise<API.Respons
       isToken: false,
     },
     method: 'get',
-    params: query,
+    params: {
+      countryCode: encrypt(query.countryCode),
+      phone: encrypt(query.phone),
+      code: query.code,
+      uuid: query.uuid,
+    },
     timeout: 20000,
   })
 }
+
 // 获取短信注册验证码
 export function getForgetPasswordCode(query: USER.ForgetPasswordParams): Promise<API.ResponseInfo> {
   return request({
@@ -75,7 +93,12 @@ export function getForgetPasswordCode(query: USER.ForgetPasswordParams): Promise
       isToken: false,
     },
     method: 'get',
-    params: query,
+    params: {
+      countryCode: encrypt(query.countryCode),
+      phone: encrypt(query.phone),
+      code: query.code,
+      uuid: query.uuid,
+    },
     timeout: 20000,
   })
 }
@@ -87,7 +110,13 @@ export function smsLogin(data: USER.SmsLoginParams): Promise<USER.LoginResponse>
       isToken: false,
     },
     method: 'post',
-    data: data,
+    data: {
+      countryCode: encrypt(data.countryCode),
+      phone: encrypt(data.phone),
+      smsCode: encrypt(data.smsCode),
+      code: data.code,
+      uuid: data.uuid,
+    },
     timeout: 20000,
   })
 }
@@ -99,7 +128,15 @@ export function register(data: USER.RegisterParams): Promise<USER.LoginResponse>
       isToken: false,
     },
     method: 'post',
-    data: data,
+    data: {
+      countryCode: encrypt(data.countryCode),
+      phone: encrypt(data.phone),
+      smsCode: encrypt(data.smsCode),
+      password: encrypt(data.password),
+      confirmPassword: encrypt(data.confirmPassword),
+      code: data.code,
+      uuid: data.uuid,
+    },
     timeout: 20000,
   })
 }
@@ -111,7 +148,15 @@ export function forgetPassword(data: USER.ForgetPasswordParams): Promise<USER.Lo
       isToken: false,
     },
     method: 'post',
-    data: data,
+    data: {
+      countryCode: encrypt(data.countryCode),
+      phone: encrypt(data.phone),
+      smsCode: encrypt(data.smsCode),
+      password: encrypt(data.password),
+      confirmPassword: encrypt(data.confirmPassword),
+      code: data.code,
+      uuid: data.uuid,
+    },
     timeout: 20000,
   })
 }

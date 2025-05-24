@@ -21,6 +21,9 @@ export function updateUserInfo(data: UserInfoUpdate): Promise<API.ResponseInfo<n
 
 // 用户更新密码
 export function updateUserInfoPassword(data: UserPasswordUploadRequest): Promise<API.ResponseInfo<number>> {
+  data.password = encrypt(data.password)
+  data.confimPassword = encrypt(data.confirmPassword)
+  data.oldPassword = encrypt(data.oldPassword)
   return request({
     url: '/user/userInfo/password',
     method: 'put',
