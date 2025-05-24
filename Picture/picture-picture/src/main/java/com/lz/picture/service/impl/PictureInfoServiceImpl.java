@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
+import static com.lz.picture.manager.factory.PictureUserViewLogAsyncFactory.SEPARATION;
 
 /**
  * 图片信息Service业务层处理
@@ -108,7 +109,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     private IPointsUsageLogInfoService pointsUsageLogInfoService;
 
     @Resource
-    private IPictureDownloadLogInfoService iPictureDownloadLogInfoService;
+    private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
 
     //region mybatis代码
 
@@ -805,39 +806,89 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //查询图片信息
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
-        //判断本人是否是作者
-        if (!pictureInfo.getUserId().equals(userId)) {
-            //不是作者 需要更新账号积分、积分使用记录、下载记录
-            //首先判断图片状态,如果图片状态为公开，且没有删除，则可以下载
-            ThrowUtils.throwIf(!PPictureStatusEnum.PICTURE_STATUS_0.getValue().equals(pictureInfo.getPictureStatus())
-                            || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()),
-                    "图片不存在");
-            //判断用户积分是否足够 查询用户账户是否存在，存在判断积分
-            AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userId);
-            ThrowUtils.throwIf(StringUtils.isNull(accountInfo)
-                    || accountInfo.getPointsEarned() < pictureInfo.getPointsNeed(), "积分不足");
-            //新增积分使用记录
-            PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
-            pointsUsageLogInfo.setUserId(userId);
-            pointsUsageLogInfo.setGiveUserId(pictureInfo.getUserId());
-            pointsUsageLogInfo.setLogType(PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue());
-            pointsUsageLogInfo.setUsageType(PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_0.getValue());
-            pointsUsageLogInfo.setTargetId(pictureId);
-            pointsUsageLogInfo.setPointsBefore(accountInfo.getPointsBalance());
-            pointsUsageLogInfo.setPointsUsed(pictureInfo.getPointsNeed());
-            pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance() - pictureInfo.getPointsNeed());
-            DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
-            BeanUtils.copyProperties(deviceInfo, pointsUsageLogInfo);
-            pointsUsageLogInfo.setCreateTime(DateUtils.getNowDate());
-            pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
 
-            //下载记录
+        //下载记录
+        PictureDownloadLogInfo pictureDownloadLogInfo = new PictureDownloadLogInfo();
+        pictureDownloadLogInfo.setUserId(userId);
+        pictureDownloadLogInfo.setPictureId(pictureId);
+        pictureDownloadLogInfo.setCategoryId(pictureInfo.getCategoryId());
+        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
 
-
-        } else {
-            //是作者 只需要新增下载记录
-//            PictureDownloadLog pictureDownloadLog = new PictureDownloadLog();
+        //查询标签信息
+        List<PictureTagRelInfo> pictureTagRelInfoList = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                .eq(PictureTagRelInfo::getPictureId, pictureId));
+        if (StringUtils.isNotEmpty(pictureTagRelInfoList)) {
+            List<String> tagIds = pictureTagRelInfoList.stream()
+                    .map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
+            List<PictureTagInfo> pictureTagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
+                    .in(PictureTagInfo::getTagId, tagIds));
+            List<String> tagNames = pictureTagInfoList.stream()
+                    .map(PictureTagInfo::getName).collect(Collectors.toList());
+            pictureDownloadLogInfo.setTags(String.join(SEPARATION, tagNames));
         }
+        pictureDownloadLogInfo.setSpaceId(pictureInfo.getSpaceId());
+        //所需总积分
+        Long totalPoints = pictureInfo.getPointsNeed();
+        pictureDownloadLogInfo.setPointsCost(totalPoints);
+        pictureDownloadLogInfo.setCreateTime(DateUtils.getNowDate());
+        pictureDownloadLogInfo.setDownloadStatus(PDownloadStatusEnum.DOWNLOAD_STATUS_0.getValue());
+        pictureDownloadLogInfo.setDownloadType(PDownloadTypeEnum.DOWNLOAD_TYPE_0.getValue());
+        pictureDownloadLogInfo.setReferSource(PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_1.getValue());
+        BeanUtils.copyProperties(deviceInfo, pictureDownloadLogInfo);
+        //判断本人是否是作者
+        if (pictureInfo.getUserId().equals(userId)) {
+            pictureDownloadLogInfo.setPointsCost(0L);
+            //是作者
+            pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
+            return pictureInfo;
+        }
+        //不是作者 需要更新账号积分、积分使用记录、下载记录、如果不是免费需要给作者充值
+        //首先判断图片状态,如果图片状态为公开，且没有删除，则可以下载
+        ThrowUtils.throwIf(!PPictureStatusEnum.PICTURE_STATUS_0.getValue().equals(pictureInfo.getPictureStatus())
+                        || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()),
+                "图片不存在");
+        //判断用户积分是否足够 查询用户账户是否存在，存在判断积分
+        AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userId);
+
+        ThrowUtils.throwIf(StringUtils.isNull(accountInfo)
+                || accountInfo.getPointsBalance() < totalPoints, "积分不足");
+
+        if (totalPoints == 0) {
+            pictureDownloadLogInfo.setIsFree(PDownloadIsFreeEnum.DOWNLOAD_IS_FREE_0.getValue());
+        } else {
+            //获取官方、空间比例
+            String officialProPortionStr = configInfoService.getConfigInfoInCache(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION);
+            double officialProportion = Double.parseDouble(officialProPortionStr);
+            String spaceProportionStr = configInfoService.getConfigInfoInCache(PICTURE_DOWNLOAD_SPACE_PROPORTION);
+            double spaceProportion = Double.parseDouble(spaceProportionStr);
+            double authorProportion = 1 - officialProportion - spaceProportion;
+            pictureDownloadLogInfo.setPointsAuthorGain((long) (totalPoints * authorProportion));
+            pictureDownloadLogInfo.setPointsOfficialGain((long) (totalPoints * officialProportion));
+            pictureDownloadLogInfo.setPointsSpaceGain((long) (totalPoints * spaceProportion));
+            pictureDownloadLogInfo.setAuthorProportion(authorProportion);
+            pictureDownloadLogInfo.setOfficialProportion(officialProportion);
+            pictureDownloadLogInfo.setSpaceProportion(spaceProportion);
+            pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
+                    userId,
+                    null,
+                    PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue(),
+                    PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_0.getValue(),
+                    pictureId,
+                    -totalPoints,
+                    deviceInfo);
+            //作者获取积分记录
+            pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
+                    pictureInfo.getUserId(),
+                    userId,
+                    PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_2.getValue(),
+                    PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_0.getValue(),
+                    pictureId,
+                    pictureDownloadLogInfo.getPointsAuthorGain(),
+                    deviceInfo
+            );
+        }
+        pictureDownloadLogInfo.setDownloadId(IdUtils.fastUUID());
+        pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
         return pictureInfo;
     }
 }

@@ -1,18 +1,35 @@
 package com.lz.points.service.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.model.dto.pointsUsageLogInfo.UserPointsUsageLogInfoQuery;
+import com.lz.points.model.enums.PoAccountStatusEnum;
+import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
+import com.lz.points.service.IAccountInfoService;
+import com.lz.points.service.IErrorLogInfoService;
+import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -21,6 +38,9 @@ import com.lz.points.model.domain.PointsUsageLogInfo;
 import com.lz.points.service.IPointsUsageLogInfoService;
 import com.lz.points.model.dto.pointsUsageLogInfo.PointsUsageLogInfoQuery;
 import com.lz.points.model.vo.pointsUsageLogInfo.PointsUsageLogInfoVo;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_USAGE_LOG_INFO_LOCK;
 
 /**
  * 积分使用记录Service业务层处理
@@ -28,10 +48,21 @@ import com.lz.points.model.vo.pointsUsageLogInfo.PointsUsageLogInfoVo;
  * @author YY
  * @date 2025-05-23
  */
+@Slf4j
 @Service
 public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInfoMapper, PointsUsageLogInfo> implements IPointsUsageLogInfoService {
     @Resource
     private PointsUsageLogInfoMapper pointsUsageLogInfoMapper;
+
+    @Resource
+    private IAccountInfoService accountInfoService;
+
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     //region mybatis代码
 
@@ -200,6 +231,88 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
                                 userPointsUsageLogInfoQuery.getIsAsc().equals("asc"),
                                 PointsUsageLogInfo::getCreateTime)
         );
+    }
+
+    @Override
+    public int updateAccountByPointsRechargeInfo(String userId, String giveUserId, String logType, String usageType, String targetId, Long points, DeviceInfo deviceInfo) {
+        //首先查到账户
+        //查询到用户账户
+        AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userId);
+        Date nowDate = DateUtils.getNowDate();
+        //判断用户账户是否存在
+        if (StringUtils.isNull(accountInfo)) {
+            //创建账户
+            accountInfo = new AccountInfo();
+            accountInfo.setUserId(userId);
+            //生成默认密码
+            String password = RandomUtil.randomString(8);
+            //随机为用户设置加密方式 md5、bcrypt 随机数，如果是1，则使用bcrypt加密，否则使用md5加密
+            if (new Random().nextInt(2) == 1) {
+                accountInfo.setPassword(UserInfoSecurityUtils.encodeEncryptPassword(password));
+                accountInfo.setSalt("bcrypt");
+            } else {
+                accountInfo.setPassword(UserInfoSecurityUtils.encodeMd5Password(password));
+                accountInfo.setSalt("md5");
+            }
+            //后续发送短信或者信息通知用户默认密码
+            accountInfo.setPointsEarned(0L);
+            accountInfo.setPointsUsed(0L);
+            accountInfo.setRechargeAmount(new BigDecimal(BigInteger.ZERO));
+            accountInfo.setPointsBalance(0L);
+            accountInfo.setAccountStatus(PoAccountStatusEnum.ACCOUNT_STATUS_0.getValue());
+            accountInfo.setCreateTime(nowDate);
+            accountInfo.setUpdateTime(nowDate);
+            accountInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        }
+        //积分使用记录
+        PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
+        pointsUsageLogInfo.setUserId(userId);
+        pointsUsageLogInfo.setGiveUserId(giveUserId);
+        pointsUsageLogInfo.setLogType(logType);
+        pointsUsageLogInfo.setUsageType(usageType);
+        pointsUsageLogInfo.setTargetId(targetId);
+        pointsUsageLogInfo.setPointsBefore(accountInfo.getPointsBalance());
+        pointsUsageLogInfo.setPointsUsed(points);
+        //这里是＋ 需要减就传过来负数
+        pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance() + points);
+        accountInfo.setPointsBalance(accountInfo.getPointsBalance() + points);
+        //如果传过来赠送用户编号，则表示是提成积分。并且是提成
+        if (StringUtils.isNotEmpty(giveUserId)
+                && PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_2.getValue().equals(logType)) {
+            accountInfo.setPointsEarned(accountInfo.getPointsEarned() + points);
+        }
+        //如果是消费
+        if (PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue().equals(logType)) {
+            //注意，此处消费传过来本来就要是负数，所以这里的积分需要转换为正数
+            accountInfo.setPointsUsed(accountInfo.getPointsUsed() + (-points));
+        }
+
+        //基本信息
+        BeanUtils.copyProperties(deviceInfo, pointsUsageLogInfo);
+        pointsUsageLogInfo.setCreateTime(nowDate);
+        pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        //加锁，防止积分冲突
+        RLock rLock = redissonClient.getLock(POINTS_USAGE_LOG_INFO_LOCK + userId);
+        boolean locked = false;
+        try {
+            locked = rLock.tryLock(5, 30, TimeUnit.SECONDS);
+            if (locked) {
+                AccountInfo finalAccountInfo = accountInfo;
+                transactionTemplate.execute(res -> {
+                    //插入积分使用记录和更新用户账户
+                    this.save(pointsUsageLogInfo);
+                    return accountInfoService.saveOrUpdate(finalAccountInfo);
+                });
+            }
+            return 1;
+        } catch (InterruptedException e) {
+            log.error("获取锁失败", e);
+            throw new ServiceException("积分充值失败！！！");
+        } finally {
+            if (locked) {
+                rLock.unlock();
+            }
+        }
     }
 
 }

@@ -28,6 +28,7 @@ import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.service.IPointsRechargeInfoService;
 import com.lz.points.model.dto.pointsRechargeInfo.PointsRechargeInfoQuery;
 import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * 积分充值记录Service业务层处理

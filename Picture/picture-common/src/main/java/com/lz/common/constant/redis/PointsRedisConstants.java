@@ -28,4 +28,9 @@ public class PointsRedisConstants {
      * 密码校验存储key
      */
     public static final String POINTS_ACCOUNT_PASSWORD_CHECK = "points:account:password:check:";
+
+    /**
+     * 积分使用记录充值锁
+     */
+    public static final String POINTS_USAGE_LOG_INFO_LOCK = "points:usage:log:info:lock:";
 }

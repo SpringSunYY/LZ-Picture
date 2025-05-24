@@ -3,6 +3,7 @@ package com.lz.points.service;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.model.domain.PointsUsageLogInfo;
 import com.lz.points.model.dto.pointsUsageLogInfo.UserPointsUsageLogInfoQuery;
@@ -96,4 +97,21 @@ public interface IPointsUsageLogInfoService extends IService<PointsUsageLogInfo>
      * @date: 2025/5/24 00:25
      **/
     Page<PointsUsageLogInfo> selectMyPointsUsageLogInfoList(UserPointsUsageLogInfoQuery userPointsUsageLogInfoQuery);
+
+    /**
+     * 根据充值信息更新用户积分
+     *
+     * @param userId     用户编号
+     * @param giveUserId 赠送用户编号
+     * @param logType    日志类型
+     * @param usageType  使用类型
+     * @param targetId   目标ID
+     * @param points 使用积分
+     * @param deviceInfo 设备信息
+     * @return int
+     * @author: YY
+     * @method: updateAccountByPointsRechargeInfo
+     * @date: 2025/5/25 00:06
+     **/
+    int updateAccountByPointsRechargeInfo(String userId, String giveUserId, String logType, String usageType, String targetId, Long points, DeviceInfo deviceInfo);
 }

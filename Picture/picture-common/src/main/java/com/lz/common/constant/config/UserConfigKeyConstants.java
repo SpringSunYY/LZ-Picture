@@ -71,4 +71,13 @@ public class UserConfigKeyConstants {
      * 用户账户密码免校验时间
      */
     public static final String POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT = "points:account:verify:password:timeout";
+
+    /**
+     * 图片下载官方分成比例
+     */
+    public static final String PICTURE_DOWNLOAD_OFFICIAL_PROPORTION = "picture:download:official:proportion";
+    /**
+     * 图片下载空间分成比例
+     */
+    public static final String PICTURE_DOWNLOAD_SPACE_PROPORTION = "picture:download:space:proportion";
 }

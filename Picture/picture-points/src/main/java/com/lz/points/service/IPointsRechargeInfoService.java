@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.model.dto.pointsRechargeInfo.UserPointsRechargeInfoQuery;
 import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;

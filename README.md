@@ -2281,6 +2281,7 @@ CREATE TABLE p_picture_tag_rel_info
 | points_author_gain   | int      |      |                                   | 否   | 0        | 作者获得积分 |
 | points_official_gain | int      |      |                                   | 否   | 0        | 官方获得积分 |
 | points_space_gain    | int      |      |                                   | 是   | 0        | 空间获得积分 |
+| author_proportion    | double   |      |                                   | 是   | 0        | 作者分成比例 |
 | official_proportion  | double   |      |                                   | 是   | 0        | 官方分成比例 |
 | space_proportion     | double   |      |                                   | 是   | 0        | 空间分成比例 |
 | create_time          | datetime |      |                                   | 否   | 当前时间 | 下载时间     |
@@ -2305,6 +2306,8 @@ CREATE TABLE p_picture_tag_rel_info
 
 下载状态：1失败 0成功
 
+作者比例=1-官方比例-空间比例
+
 ```sql
 DROP TABLE IF EXISTS p_picture_download_log_info;
 CREATE TABLE p_picture_download_log_info
@@ -2320,6 +2323,7 @@ CREATE TABLE p_picture_download_log_info
     points_author_gain   INT          NOT NULL DEFAULT 0 COMMENT '作者分成积分',
     points_official_gain INT          NOT NULL DEFAULT 0 COMMENT '平台分成积分',
     points_space_gain    INT                   DEFAULT 0 COMMENT '空间分成积分',
+    author_proportion           DOUBLE COMMENT '作者分成比例',
     official_proportion           DOUBLE COMMENT '官方分成比例',
     space_proportion           DOUBLE COMMENT '空间分成比例',
     create_time          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下载时间',

@@ -65,7 +65,7 @@ public class AccountInfo implements Serializable {
     /**
      * 充值总金额（元）
      */
-    @Excel(name = "充值总金额", readConverterExp = "元=")
+    @Excel(name = "充值总金额", readConverterExp = "元")
     private BigDecimal rechargeAmount;
 
     /**
