@@ -1474,7 +1474,7 @@ CREATE TABLE po_points_usage_log_info
     user_id       VARCHAR(128) NOT NULL COMMENT '用户编号',
     give_user_id  VARCHAR(128)          DEFAULT NULL COMMENT '给予用户编号',
     log_type      CHAR(1) COMMENT '日志类型（0充值 1消费 2提成 3提现）',
-    usage_type    VARCHAR(1)   NOT NULL COMMENT '使用类型（0下载图片 1AI服务）',
+    usage_type    VARCHAR(1)    COMMENT '使用类型（0下载图片 1AI服务）',
     target_id     VARCHAR(128) COMMENT '目标编号',
     points_before INT          NOT NULL DEFAULT 0 COMMENT '使用前积分',
     points_used   INT          NOT NULL DEFAULT 0 COMMENT '消费积分',

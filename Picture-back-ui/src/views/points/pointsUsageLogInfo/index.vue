@@ -93,6 +93,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="IP属地" prop="ipAddress">
+        <el-input
+            v-model="queryParams.ipAddress"
+            placeholder="请输入IP属地"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="创建时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeCreateTime"
@@ -211,21 +219,23 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[14].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[15].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[15].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[16].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[17].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[17].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[18].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -408,10 +418,11 @@ const data = reactive({
     {key: 11, label: '操作系统', visible: false},
     {key: 12, label: '平台', visible: false},
     {key: 13, label: 'IP地址', visible: false},
-    {key: 14, label: '备注', visible: false},
-    {key: 15, label: '创建时间', visible: true},
-    {key: 16, label: '更新时间', visible: false},
-    {key: 17, label: '删除', visible: false},
+    {key: 14, label: 'IP属地', visible: false},
+    {key: 15, label: '备注', visible: false},
+    {key: 16, label: '创建时间', visible: true},
+    {key: 17, label: '更新时间', visible: false},
+    {key: 18, label: '删除', visible: false},
   ],
 });
 

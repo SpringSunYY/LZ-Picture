@@ -110,6 +110,12 @@ public class PointsUsageLogInfo implements Serializable {
     private String ipAddr;
 
     /**
+     * IP属地
+     */
+    @Excel(name = "IP属地")
+    private String ipAddress;
+
+    /**
      * 备注
      */
     @Excel(name = "备注")

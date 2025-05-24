@@ -29,12 +29,12 @@ import com.lz.points.model.vo.pointsUsageLogInfo.PointsUsageLogInfoVo;
  * @date 2025-05-23
  */
 @Service
-public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInfoMapper, PointsUsageLogInfo> implements IPointsUsageLogInfoService
-{
+public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInfoMapper, PointsUsageLogInfo> implements IPointsUsageLogInfoService {
     @Resource
     private PointsUsageLogInfoMapper pointsUsageLogInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询积分使用记录
      *
@@ -42,8 +42,7 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @return 积分使用记录
      */
     @Override
-    public PointsUsageLogInfo selectPointsUsageLogInfoByLogId(String logId)
-    {
+    public PointsUsageLogInfo selectPointsUsageLogInfoByLogId(String logId) {
         return pointsUsageLogInfoMapper.selectPointsUsageLogInfoByLogId(logId);
     }
 
@@ -54,8 +53,7 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @return 积分使用记录
      */
     @Override
-    public List<PointsUsageLogInfo> selectPointsUsageLogInfoList(PointsUsageLogInfo pointsUsageLogInfo)
-    {
+    public List<PointsUsageLogInfo> selectPointsUsageLogInfoList(PointsUsageLogInfo pointsUsageLogInfo) {
         return pointsUsageLogInfoMapper.selectPointsUsageLogInfoList(pointsUsageLogInfo);
     }
 
@@ -66,8 +64,7 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @return 结果
      */
     @Override
-    public int insertPointsUsageLogInfo(PointsUsageLogInfo pointsUsageLogInfo)
-    {
+    public int insertPointsUsageLogInfo(PointsUsageLogInfo pointsUsageLogInfo) {
         pointsUsageLogInfo.setCreateTime(DateUtils.getNowDate());
         return pointsUsageLogInfoMapper.insertPointsUsageLogInfo(pointsUsageLogInfo);
     }
@@ -79,9 +76,8 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @return 结果
      */
     @Override
-    public int updatePointsUsageLogInfo(PointsUsageLogInfo pointsUsageLogInfo)
-    {
-      pointsUsageLogInfo.setUpdateTime(DateUtils.getNowDate());
+    public int updatePointsUsageLogInfo(PointsUsageLogInfo pointsUsageLogInfo) {
+        pointsUsageLogInfo.setUpdateTime(DateUtils.getNowDate());
         return pointsUsageLogInfoMapper.updatePointsUsageLogInfo(pointsUsageLogInfo);
     }
 
@@ -92,8 +88,7 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @return 结果
      */
     @Override
-    public int deletePointsUsageLogInfoByLogIds(String[] logIds)
-    {
+    public int deletePointsUsageLogInfoByLogIds(String[] logIds) {
         return pointsUsageLogInfoMapper.deletePointsUsageLogInfoByLogIds(logIds);
     }
 
@@ -104,60 +99,63 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @return 结果
      */
     @Override
-    public int deletePointsUsageLogInfoByLogId(String logId)
-    {
+    public int deletePointsUsageLogInfoByLogId(String logId) {
         return pointsUsageLogInfoMapper.deletePointsUsageLogInfoByLogId(logId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PointsUsageLogInfo> getQueryWrapper(PointsUsageLogInfoQuery pointsUsageLogInfoQuery){
+    public QueryWrapper<PointsUsageLogInfo> getQueryWrapper(PointsUsageLogInfoQuery pointsUsageLogInfoQuery) {
         QueryWrapper<PointsUsageLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = pointsUsageLogInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String logId = pointsUsageLogInfoQuery.getLogId();
-        queryWrapper.eq(StringUtils.isNotEmpty(logId) ,"log_id",logId);
+        String logId = pointsUsageLogInfoQuery.getLogId();
+        queryWrapper.eq(StringUtils.isNotEmpty(logId), "log_id", logId);
 
-    String userId = pointsUsageLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = pointsUsageLogInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String giveUserId = pointsUsageLogInfoQuery.getGiveUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(giveUserId) ,"give_user_id",giveUserId);
+        String giveUserId = pointsUsageLogInfoQuery.getGiveUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(giveUserId), "give_user_id", giveUserId);
 
-    String logType = pointsUsageLogInfoQuery.getLogType();
-        queryWrapper.eq(StringUtils.isNotEmpty(logType) ,"log_type",logType);
+        String logType = pointsUsageLogInfoQuery.getLogType();
+        queryWrapper.eq(StringUtils.isNotEmpty(logType), "log_type", logType);
 
-    String usageType = pointsUsageLogInfoQuery.getUsageType();
-        queryWrapper.eq(StringUtils.isNotEmpty(usageType) ,"usage_type",usageType);
+        String usageType = pointsUsageLogInfoQuery.getUsageType();
+        queryWrapper.eq(StringUtils.isNotEmpty(usageType), "usage_type", usageType);
 
-    String targetId = pointsUsageLogInfoQuery.getTargetId();
-        queryWrapper.eq(StringUtils.isNotEmpty(targetId) ,"target_id",targetId);
+        String targetId = pointsUsageLogInfoQuery.getTargetId();
+        queryWrapper.eq(StringUtils.isNotEmpty(targetId), "target_id", targetId);
 
-    String deviceId = pointsUsageLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String deviceId = pointsUsageLogInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
 
-    String browser = pointsUsageLogInfoQuery.getBrowser();
-        queryWrapper.like(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String browser = pointsUsageLogInfoQuery.getBrowser();
+        queryWrapper.like(StringUtils.isNotEmpty(browser), "browser", browser);
 
-    String os = pointsUsageLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        String os = pointsUsageLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
 
-    String platform = pointsUsageLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        String platform = pointsUsageLogInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
 
-    String ipAddr = pointsUsageLogInfoQuery.getIpAddr();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddr) ,"ip_addr",ipAddr);
+        String ipAddr = pointsUsageLogInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
 
-    Date createTime = pointsUsageLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        String ipAddress = pointsUsageLogInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 
-    Date updateTime = pointsUsageLogInfoQuery.getUpdateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime"))&&StringUtils.isNotNull(params.get("endUpdateTime")),"update_time",params.get("beginUpdateTime"),params.get("endUpdateTime"));
+        Date createTime = pointsUsageLogInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String isDelete = pointsUsageLogInfoQuery.getIsDelete();
-        queryWrapper.eq(StringUtils.isNotEmpty(isDelete) ,"is_delete",isDelete);
+        Date updateTime = pointsUsageLogInfoQuery.getUpdateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
+
+        String isDelete = pointsUsageLogInfoQuery.getIsDelete();
+        queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 
         return queryWrapper;
     }
@@ -197,11 +195,11 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
                         .eq(StringUtils.isNotEmpty(userPointsUsageLogInfoQuery.getUsageType()), PointsUsageLogInfo::getUsageType, userPointsUsageLogInfoQuery.getUsageType())
                         .apply(StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
                                 "create_time between {0} and {1}",
-                                beginCreateTime,  endCreateTime)
+                                beginCreateTime, endCreateTime)
                         .orderBy(StringUtils.isNotEmpty(userPointsUsageLogInfoQuery.getIsAsc()),
                                 userPointsUsageLogInfoQuery.getIsAsc().equals("asc"),
                                 PointsUsageLogInfo::getCreateTime)
-                );
+        );
     }
 
 }

@@ -2,6 +2,8 @@ package com.lz.points.model.dto.pointsUsageLogInfo;
 
 import java.util.Map;
 import java.io.Serializable;
+
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.BeanUtils;
@@ -52,6 +54,11 @@ public class PointsUsageLogInfoQuery implements Serializable
 
     /** IP地址 */
     private String ipAddr;
+
+    /**
+     * IP属地
+     */
+    private String ipAddress;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")

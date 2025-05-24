@@ -414,6 +414,7 @@ public class PayServiceImpl implements IPayService {
         pointsUsageLogInfo.setOs(rechargeInfo.getOs());
         pointsUsageLogInfo.setPlatform(rechargeInfo.getPlatform());
         pointsUsageLogInfo.setIpAddr(rechargeInfo.getIpAddr());
+        pointsUsageLogInfo.setIpAddress(rechargeInfo.getIpAddress());
         pointsUsageLogInfo.setCreateTime(rechargeInfo.getArrivalTime());
         pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
 
