@@ -1,4 +1,4 @@
-package com.lz.picture.model.vo.pictureDownloadLog;
+package com.lz.picture.model.vo.pictureDownloadLogInfo;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -6,15 +6,15 @@ import lombok.Data;
 import com.lz.common.annotation.Excel;
 import org.springframework.beans.BeanUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.PictureDownloadLog;
+import com.lz.picture.model.domain.PictureDownloadLogInfo;
 /**
- * 图片下载记录Vo对象 p_picture_download_log
+ * 图片下载记录Vo对象 p_picture_download_log_info
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-05-24
  */
 @Data
-public class PictureDownloadLogVo implements Serializable
+public class PictureDownloadLogInfoVo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -35,32 +35,12 @@ public class PictureDownloadLogVo implements Serializable
     private String categoryId;
 
     /** 图片标签（格式："标签1","标签2"） */
-    @Excel(name = "图片标签" )
+    @Excel(name = "图片标签")
     private String tags;
 
     /** 空间编号 */
     @Excel(name = "空间编号")
     private String spaceId;
-
-    /** 下载IP地址 */
-    @Excel(name = "下载IP地址")
-    private String downloadIp;
-
-    /** 设备唯一标识 */
-    @Excel(name = "设备唯一标识")
-    private String deviceId;
-
-    /** 浏览器类型 */
-    @Excel(name = "浏览器类型")
-    private String browser;
-
-    /** 操作系统 */
-    @Excel(name = "操作系统")
-    private String os;
-
-    /** 平台（Web/APP） */
-    @Excel(name = "平台", readConverterExp = "W=eb/APP")
-    private String platform;
 
     /** 消耗积分 */
     @Excel(name = "消耗积分")
@@ -82,9 +62,13 @@ public class PictureDownloadLogVo implements Serializable
     @Excel(name = "空间分成积分")
     private Long pointsSpaceGain;
 
-    /** 分成比例（如0.3表示30%） */
-    @Excel(name = "分成比例", readConverterExp = "如=0.3表示30%")
-    private Long proportion;
+    /** 官方分成比例 */
+    @Excel(name = "官方分成比例")
+    private Long officialProportion;
+
+    /** 空间分成比例 */
+    @Excel(name = "空间分成比例")
+    private Long spaceProportion;
 
     /** 下载时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -107,19 +91,43 @@ public class PictureDownloadLogVo implements Serializable
     @Excel(name = "来源", readConverterExp = "0=其他,1=详情,2=分享")
     private String referSource;
 
+    /** IP地址 */
+    @Excel(name = "IP地址")
+    private String ipAddr;
+
+    /** IP属地 */
+    @Excel(name = "IP属地")
+    private String ipAddress;
+
+    /** 设备唯一标识 */
+    @Excel(name = "设备唯一标识")
+    private String deviceId;
+
+    /** 浏览器类型 */
+    @Excel(name = "浏览器类型")
+    private String browser;
+
+    /** 操作系统 */
+    @Excel(name = "操作系统")
+    private String os;
+
+    /** 平台 */
+    @Excel(name = "平台")
+    private String platform;
+
 
      /**
      * 对象转封装类
      *
-     * @param pictureDownloadLog PictureDownloadLog实体对象
-     * @return PictureDownloadLogVo
+     * @param pictureDownloadLogInfo PictureDownloadLogInfo实体对象
+     * @return PictureDownloadLogInfoVo
      */
-    public static PictureDownloadLogVo objToVo(PictureDownloadLog pictureDownloadLog) {
-        if (pictureDownloadLog == null) {
+    public static PictureDownloadLogInfoVo objToVo(PictureDownloadLogInfo pictureDownloadLogInfo) {
+        if (pictureDownloadLogInfo == null) {
             return null;
         }
-        PictureDownloadLogVo pictureDownloadLogVo = new PictureDownloadLogVo();
-        BeanUtils.copyProperties(pictureDownloadLog, pictureDownloadLogVo);
-        return pictureDownloadLogVo;
+        PictureDownloadLogInfoVo pictureDownloadLogInfoVo = new PictureDownloadLogInfoVo();
+        BeanUtils.copyProperties(pictureDownloadLogInfo, pictureDownloadLogInfoVo);
+        return pictureDownloadLogInfoVo;
     }
 }

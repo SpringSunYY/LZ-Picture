@@ -2276,23 +2276,24 @@ CREATE TABLE p_picture_tag_rel_info
 | space_id             | varchar  | 128  | 外键 (p_space:space_id)           | 是   |          | 空间编号     |
 | category_id          | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类     |
 | tags                 | varchar  | 256  |                                   | 是   |          | 图片标签     |
+| points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
+| is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
+| points_author_gain   | int      |      |                                   | 否   | 0        | 作者获得积分 |
+| points_official_gain | int      |      |                                   | 否   | 0        | 官方获得积分 |
+| points_space_gain    | int      |      |                                   | 是   | 0        | 空间获得积分 |
+| official_proportion  | double   |      |                                   | 是   | 0        | 官方分成比例 |
+| space_proportion     | double   |      |                                   | 是   | 0        | 空间分成比例 |
+| create_time          | datetime |      |                                   | 否   | 当前时间 | 下载时间     |
+| download_status      | char     | 1    |                                   | 否   |          | 下载状态     |
+| fail_reason          | varchar  | 255  |                                   | 是   |          | 失败原因     |
+| download_type        | char     | 1    |                                   | 否   |          | 下载方式     |
+| refer_source         | char     | 1    |                                   | 是   |          | 来源         |
 | device_id            | varchar  | 255  |                                   | 是   |          | 设备唯一标识 |
 | browser              | varchar  | 50   |                                   | 是   |          | 浏览器类型   |
 | os                   | varchar  | 50   |                                   | 是   |          | 操作系统     |
 | platform             | varchar  | 20   |                                   | 是   |          | 平台         |
 | ip_addr              | varchar  | 50   |                                   | 是   |          | IP地址       |
 | ip_address           | varchar  | 64   |                                   | 是   |          | IP属地       |
-| points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
-| is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
-| points_author_gain   | int      |      |                                   | 否   | 0        | 作者获得积分 |
-| points_official_gain | int      |      |                                   | 否   | 0        | 官方获得积分 |
-| points_space_gain    | int      |      |                                   | 是   | 0        | 空间获得积分 |
-| proportion           | double   |      |                                   | 是   | 0        | 分成         |
-| create_time          | datetime |      |                                   | 否   | 当前时间 | 下载时间     |
-| download_status      | char     | 1    |                                   | 否   |          | 下载状态     |
-| fail_reason          | varchar  | 255  |                                   | 是   |          | 失败原因     |
-| download_type        | char     | 1    |                                   | 否   |          | 下载方式     |
-| refer_source         | char     | 1    |                                   | 是   |          | 来源         |
 
 消耗积分（0 表示免费）
 
@@ -2305,8 +2306,8 @@ CREATE TABLE p_picture_tag_rel_info
 下载状态：1失败 0成功
 
 ```sql
-DROP TABLE IF EXISTS p_picture_download_log;
-CREATE TABLE p_picture_download_log
+DROP TABLE IF EXISTS p_picture_download_log_info;
+CREATE TABLE p_picture_download_log_info
 (
     download_id          VARCHAR(128) NOT NULL COMMENT '下载编号',
     user_id              VARCHAR(128) NOT NULL COMMENT '用户编号',
@@ -2314,23 +2315,24 @@ CREATE TABLE p_picture_download_log
     category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
     tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
     space_id             VARCHAR(128) COMMENT '空间编号',
-    ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
-    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
-    device_id            VARCHAR(255) COMMENT '设备唯一标识',
-    browser              VARCHAR(50) COMMENT '浏览器类型',
-    os                   VARCHAR(50) COMMENT '操作系统',
-    platform             VARCHAR(20) COMMENT '平台（Web/APP）',
     points_cost          INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',
     is_free              CHAR(1)      NOT NULL DEFAULT '0' COMMENT '是否免费（0是 1否）',
     points_author_gain   INT          NOT NULL DEFAULT 0 COMMENT '作者分成积分',
     points_official_gain INT          NOT NULL DEFAULT 0 COMMENT '平台分成积分',
     points_space_gain    INT                   DEFAULT 0 COMMENT '空间分成积分',
-    proportion           DOUBLE COMMENT '分成比例（如0.3表示30%）',
+    official_proportion           DOUBLE COMMENT '官方分成比例',
+    space_proportion           DOUBLE COMMENT '空间分成比例',
     create_time          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下载时间',
     download_status      CHAR(1)      NOT NULL DEFAULT '1' COMMENT '下载状态（1失败 0成功）',
     fail_reason          VARCHAR(255) COMMENT '失败原因',
     download_type        CHAR(1)      NOT NULL COMMENT '下载方式（0手动 1API 2批量）',
     refer_source         CHAR(1) COMMENT '来源（0其他 1详情 2分享）',
+    ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
+    device_id            VARCHAR(255) COMMENT '设备唯一标识',
+    browser              VARCHAR(50) COMMENT '浏览器类型',
+    os                   VARCHAR(50) COMMENT '操作系统',
+    platform             VARCHAR(20) COMMENT '平台',
     PRIMARY KEY (download_id),
     FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     FOREIGN KEY (picture_id) REFERENCES p_picture_info (picture_id),

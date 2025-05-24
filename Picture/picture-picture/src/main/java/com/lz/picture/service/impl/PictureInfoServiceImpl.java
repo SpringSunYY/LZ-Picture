@@ -108,7 +108,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     private IPointsUsageLogInfoService pointsUsageLogInfoService;
 
     @Resource
-    private IPictureDownloadLogService pictureDownloadLogService;
+    private IPictureDownloadLogInfoService iPictureDownloadLogInfoService;
 
     //region mybatis代码
 
@@ -832,29 +832,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
 
             //下载记录
-            PictureDownloadLog pictureDownloadLog = new PictureDownloadLog();
-            pictureDownloadLog.setUserId(userId);
-            pictureDownloadLog.setPictureId(pictureId);
-            pictureDownloadLog.setCategoryId(pictureInfo.getCategoryId());
-//            pictureDownloadLog.setTags();
-//            pictureDownloadLog.setSpaceId(pictureInfo.getSpaceId());
-//            BeanUtils.copyProperties(deviceInfo,pictureDownloadLog);
-//            pictureDownloadLog.setDownloadIp();
-//            pictureDownloadLog.setPointsCost(pictureInfo.getPointsNeed());
-//            pictureDownloadLog.setIsFree();
-//            pictureDownloadLog.setPointsAuthorGain();
-//            pictureDownloadLog.setPointsOfficialGain();
-//            pictureDownloadLog.setPointsSpaceGain();
-//            pictureDownloadLog.setProportion();
-//            pictureDownloadLog.setCreateTime();
-//            pictureDownloadLog.setDownloadStatus();
-//            pictureDownloadLog.setFailReason();
-//            pictureDownloadLog.setDownloadType();
-//            pictureDownloadLog.setReferSource();
+
 
         } else {
             //是作者 只需要新增下载记录
-            PictureDownloadLog pictureDownloadLog = new PictureDownloadLog();
+//            PictureDownloadLog pictureDownloadLog = new PictureDownloadLog();
         }
         return pictureInfo;
     }
