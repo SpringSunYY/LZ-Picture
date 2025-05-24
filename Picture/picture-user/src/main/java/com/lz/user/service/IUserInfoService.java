@@ -109,7 +109,7 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @method: userUpdateUserInfo
      * @date: 2025/5/21 11:31
      **/
-    int userUpdateUserInfo(UserInfo userInfo);
+    UserInfo userUpdateUserInfo(UserInfo userInfo);
 
     /**
      * 用户更新密码

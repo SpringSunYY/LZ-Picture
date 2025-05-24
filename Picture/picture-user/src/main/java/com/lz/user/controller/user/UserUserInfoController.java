@@ -1,10 +1,13 @@
 package com.lz.user.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.domain.model.AuthUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.sign.RsaUtils;
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.model.vo.menuInfo.MenuInfoUserVo;
+import com.lz.framework.web.service.UserInfoTokenService;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.dto.userInfo.UserInfoUpdate;
 import com.lz.user.model.dto.userInfo.UserPasswordUploadRequest;
@@ -14,6 +17,8 @@ import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.lz.userauth.service.IAuthUserInfoService;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +37,12 @@ import java.util.Set;
 public class UserUserInfoController extends BaseUserInfoController {
     @Resource
     private IUserInfoService userInfoService;
+
+    @Resource
+    private UserInfoTokenService userInfoTokenService;
+
+    @Resource
+    private IAuthUserInfoService authUserInfoService;
 
     /**
      * 获取用户菜单
@@ -77,7 +88,18 @@ public class UserUserInfoController extends BaseUserInfoController {
             return error("性别参数错误");
         }
         UserInfo userInfo = UserInfoUpdate.editToObj(userInfoUpdate);
-        return AjaxResult.success(userInfoService.userUpdateUserInfo(userInfo));
+        //更新tokens信息
+        UserInfo info = userInfoService.userUpdateUserInfo(userInfo);
+        if (StringUtils.isNull(info)) {
+            return AjaxResult.success(0);
+        }
+        LoginUserInfo loginUser = getLoginUser();
+        AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByUserName(info.getUserName());
+        Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
+        LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
+        loginUserInfo.setToken(loginUser.getToken());
+        userInfoTokenService.refreshToken(loginUserInfo);
+        return AjaxResult.success(1);
     }
 
     /**

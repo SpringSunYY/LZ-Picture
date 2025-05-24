@@ -212,8 +212,8 @@ public class UserInfoLoginService {
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(smsCode)) {
             throw new ServiceException("号码、国家码、短信验证码不能为空");
         }
-        System.out.println("countryCode = " + countryCode);
-        System.out.println("phone = " + phone);
+//        System.out.println("countryCode = " + countryCode);
+//        System.out.println("phone = " + phone);
         //校验验证码
         checkSmsCode(UserRedisConstants.USER_SMS_LOGIN_CODE, countryCode, phone, smsCode);
         //根据国家号码编号和号码获取用户

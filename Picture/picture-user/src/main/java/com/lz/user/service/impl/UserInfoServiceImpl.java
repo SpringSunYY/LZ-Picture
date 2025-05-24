@@ -251,17 +251,18 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
-    public int userUpdateUserInfo(UserInfo userInfo) {
+    public UserInfo userUpdateUserInfo(UserInfo userInfo) {
         //查询用户信息
         UserInfo userInfoDb = userInfoMapper.selectUserInfoByUserId(userInfo.getUserId());
         if (StringUtils.isNull(userInfoDb)) {
-            return 0;
+            return null;
         }
         userInfo.setUpdateTime(DateUtils.getNowDate());
         userInfoMapper.updateById(userInfo);
+        userInfo.setUserName(userInfoDb.getUserName());
         //删除缓存
         redisCache.deleteObject(USER_INFO + userInfoDb.getUserName());
-        return 1;
+        return userInfo;
     }
 
     @Override

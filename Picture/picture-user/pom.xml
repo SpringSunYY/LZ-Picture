@@ -22,9 +22,10 @@
             <groupId>com.lz</groupId>
             <artifactId>picture-common</artifactId>
         </dependency>
+        <!-- 核心模块-->
         <dependency>
             <groupId>com.lz</groupId>
-            <artifactId>picture-user-auth</artifactId>
+            <artifactId>picture-framework</artifactId>
         </dependency>
         <dependency>
             <groupId>com.lz</groupId>
