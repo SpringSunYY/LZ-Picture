@@ -45,14 +45,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="分数" prop="score">-->
-<!--        <el-input-->
-<!--            v-model="queryParams.score"-->
-<!--            placeholder="请输入分数"-->
-<!--            clearable-->
-<!--            @keyup.enter="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="分数" prop="score">-->
+      <!--        <el-input-->
+      <!--            v-model="queryParams.score"-->
+      <!--            placeholder="请输入分数"-->
+      <!--            clearable-->
+      <!--            @keyup.enter="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="图片分类" prop="categoryId">
         <el-input
             v-model="queryParams.categoryId"
@@ -69,14 +69,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="图片标签" prop="tags">-->
-<!--        <el-input-->
-<!--            v-model="queryParams.tags"-->
-<!--            placeholder="请输入图片标签"-->
-<!--            clearable-->
-<!--            @keyup.enter="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="图片标签" prop="tags">-->
+      <!--        <el-input-->
+      <!--            v-model="queryParams.tags"-->
+      <!--            placeholder="请输入图片标签"-->
+      <!--            clearable-->
+      <!--            @keyup.enter="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="创建时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeCreateTime"
@@ -115,6 +115,14 @@
         <el-input
             v-model="queryParams.platform"
             placeholder="请输入平台"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="IP地址" prop="ipAddr">
+        <el-input
+            v-model="queryParams.ipAddr"
+            placeholder="请输入IP地址"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -228,7 +236,9 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="平台" align="center" prop="platform" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[17].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[17].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -372,6 +382,7 @@ const data = reactive({
     browser: null,
     os: null,
     platform: null,
+    ipAddr: null,
     ipAddress: null
   },
   rules: {
@@ -413,7 +424,8 @@ const data = reactive({
     {key: 14, label: '浏览器类型', visible: false},
     {key: 15, label: '操作系统', visible: false},
     {key: 16, label: '平台', visible: false},
-    {key: 17, label: 'IP属地', visible: false},
+    {key: 17, label: 'IP地址', visible: false},
+    {key: 18, label: 'IP属地', visible: false},
   ],
 });
 
@@ -460,7 +472,8 @@ function reset() {
     browser: null,
     os: null,
     platform: null,
-    ipAddress: null
+    ipAddress: null,
+    ipAddr: null
   };
   proxy.resetForm("userBehaviorInfoRef");
 }

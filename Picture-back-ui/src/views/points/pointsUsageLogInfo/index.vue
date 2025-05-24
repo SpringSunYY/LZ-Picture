@@ -369,6 +369,7 @@ const data = reactive({
     os: null,
     platform: null,
     ipAddr: null,
+    ipAddress: null,
     createTime: null,
     updateTime: null,
     isDelete: null
@@ -470,6 +471,7 @@ function reset() {
     os: null,
     platform: null,
     ipAddr: null,
+    ipAddress: null,
     remark: null,
     createTime: null,
     updateTime: null,

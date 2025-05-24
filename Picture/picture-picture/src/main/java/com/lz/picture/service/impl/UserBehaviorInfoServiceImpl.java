@@ -170,6 +170,9 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
         String platform = userBehaviorInfoQuery.getPlatform();
         queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
 
+        String ipAddr = userBehaviorInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+
         String ipAddress = userBehaviorInfoQuery.getIpAddress();
         queryWrapper.eq(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 

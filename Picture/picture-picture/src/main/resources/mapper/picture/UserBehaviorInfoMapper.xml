@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.UserBehaviorInfoMapper">
-    
+
     <resultMap type="UserBehaviorInfo" id="UserBehaviorInfoResult">
-        <result property="behaviorId"    column="behavior_id"    />
-        <result property="behaviorType"    column="behavior_type"    />
-        <result property="userId"    column="user_id"    />
-        <result property="targetType"    column="target_type"    />
-        <result property="targetId"    column="target_id"    />
-        <result property="targetContent"    column="target_content"    />
-        <result property="score"    column="score"    />
-        <result property="shareLink"    column="share_link"    />
-        <result property="categoryId"    column="category_id"    />
-        <result property="spaceId"    column="space_id"    />
-        <result property="tags"    column="tags"    />
-        <result property="targetCover"    column="target_cover"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="browser"    column="browser"    />
-        <result property="os"    column="os"    />
-        <result property="platform"    column="platform"    />
-        <result property="ipAddress"    column="ip_address"    />
+        <result property="behaviorId" column="behavior_id"/>
+        <result property="behaviorType" column="behavior_type"/>
+        <result property="userId" column="user_id"/>
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="targetContent" column="target_content"/>
+        <result property="score" column="score"/>
+        <result property="shareLink" column="share_link"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="spaceId" column="space_id"/>
+        <result property="tags" column="tags"/>
+        <result property="targetCover" column="target_cover"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="platform" column="platform"/>
+        <result property="ipAddr" column="ip_addr"/>
+        <result property="ipAddress" column="ip_address"/>
     </resultMap>
 
     <sql id="selectUserBehaviorInfoVo">
-        select behavior_id, behavior_type, user_id, target_type, target_id, target_content, score, share_link, category_id, space_id, tags, target_cover, create_time, device_id, browser, os, platform, ip_address from p_user_behavior_info
+        select behavior_id,
+               behavior_type,
+               user_id,
+               target_type,
+               target_id,
+               target_content,
+               score,
+               share_link,
+               category_id,
+               space_id,
+               tags,
+               target_cover,
+               create_time,
+               device_id,
+               browser,
+               os,
+               platform,
+               ip_addr,
+               ip_address
+        from p_user_behavior_info
     </sql>
 
     <select id="selectUserBehaviorInfoList" parameterType="UserBehaviorInfo" resultMap="UserBehaviorInfoResult">
@@ -49,11 +69,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="browser != null  and browser != ''">and browser = #{browser}</if>
             <if test="os != null  and os != ''">and os = #{os}</if>
             <if test="platform != null  and platform != ''">and platform = #{platform}</if>
-            <if test="ipAddress != null  and ipAddress != ''">and ip_address = #{ipAddress}</if>
+            <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
+            <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%',#{ipAddress},'%')</if>
         </where>
         order by create_time desc
     </select>
-    
+
     <select id="selectUserBehaviorInfoByBehaviorId" parameterType="String" resultMap="UserBehaviorInfoResult">
         <include refid="selectUserBehaviorInfoVo"/>
         where behavior_id = #{behaviorId}
@@ -76,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="browser != null  and browser != ''">and browser = #{browser}</if>
             <if test="os != null  and os != ''">and os = #{os}</if>
             <if test="platform != null  and platform != ''">and platform = #{platform}</if>
+            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr like concat('%', #{ipAddr}, '%')</if>
             <if test="ipAddress != null  and ipAddress != ''">and ip_address = #{ipAddress}</if>
         </where>
         group by behavior_type
@@ -101,8 +123,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="browser != null">browser,</if>
             <if test="os != null">os,</if>
             <if test="platform != null">platform,</if>
+            <if test="ipAddr != null">ip_addr,</if>
             <if test="ipAddress != null">ip_address,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="behaviorId != null">#{behaviorId},</if>
             <if test="behaviorType != null and behaviorType != ''">#{behaviorType},</if>
@@ -121,8 +144,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="browser != null">#{browser},</if>
             <if test="os != null">#{os},</if>
             <if test="platform != null">#{platform},</if>
+            <if test="ipAddr != null">#{ipAddr},</if>
             <if test="ipAddress != null">#{ipAddress},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateUserBehaviorInfo" parameterType="UserBehaviorInfo">
@@ -144,17 +168,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="browser != null">browser = #{browser},</if>
             <if test="os != null">os = #{os},</if>
             <if test="platform != null">platform = #{platform},</if>
+            <if test="ipAddr != null">ip_addr = #{ipAddr},</if>
             <if test="ipAddress != null">ip_address = #{ipAddress},</if>
         </trim>
         where behavior_id = #{behaviorId}
     </update>
 
     <delete id="deleteUserBehaviorInfoByBehaviorId" parameterType="String">
-        delete from p_user_behavior_info where behavior_id = #{behaviorId}
+        delete
+        from p_user_behavior_info
+        where behavior_id = #{behaviorId}
     </delete>
 
     <delete id="deleteUserBehaviorInfoByBehaviorIds" parameterType="String">
-        delete from p_user_behavior_info where behavior_id in 
+        delete from p_user_behavior_info where behavior_id in
         <foreach item="behaviorId" collection="array" open="(" separator="," close=")">
             #{behaviorId}
         </foreach>
