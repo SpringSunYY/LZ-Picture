@@ -140,10 +140,13 @@
         <a-tab-pane v-if="checkPermiSingle('points')" key="4" tab="积分使用记录">
           <UserPointsUsageLog></UserPointsUsageLog>
         </a-tab-pane>
-        <a-tab-pane v-if="checkPermiSingle('picture:userBehaviorInfo')" key="5" tab="行为记录">
+        <a-tab-pane v-if="checkPermiSingle('picture:download')" key="5" tab="图片下载记录">
+          <PictureDownloadLogInfoTable></PictureDownloadLogInfoTable>
+        </a-tab-pane>
+        <a-tab-pane v-if="checkPermiSingle('picture:userBehaviorInfo')" key="6" tab="行为记录">
           <UserBehaviorTable></UserBehaviorTable>
         </a-tab-pane>
-        <a-tab-pane v-if="checkPermiSingle('picture:list')" key="6" tab="浏览记录">
+        <a-tab-pane v-if="checkPermiSingle('picture:list')" key="7" tab="浏览记录">
           <UserViewInfoTable></UserViewInfoTable>
         </a-tab-pane>
       </a-tabs>
@@ -376,6 +379,7 @@ import PointsRechargeTable from '@/components/PointsRechargeTable.vue'
 import { checkLogin, checkPermiSingle } from '@/utils/permission.ts'
 import UserViewInfoTable from '@/components/UserViewInfoTable.vue'
 import UserPointsUsageLog from '@/components/UserPointsUsageLog.vue'
+import PictureDownloadLogInfoTable from '@/components/PictureDownloadLogInfoTable.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

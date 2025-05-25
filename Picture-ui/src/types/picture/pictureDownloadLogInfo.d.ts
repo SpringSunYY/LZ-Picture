@@ -1,56 +1,60 @@
 /**
- * 是否免费下载枚举
+ * 用户图片下载记录查询参数
  */
-export enum PDownloadIsFreeEnum {
-  DOWNLOAD_IS_FREE_0 = '0', // 是
-  DOWNLOAD_IS_FREE_1 = '1', // 否
-}
+export interface PictureDownloadLogInfoQuery {
+  /** 用户编号 */
+  userId?: string;
 
-export function getDownloadIsFreeLabel(value: string): string | undefined {
-  switch (value) {
-    case PDownloadIsFreeEnum.DOWNLOAD_IS_FREE_0:
-      return '是'
-    case PDownloadIsFreeEnum.DOWNLOAD_IS_FREE_1:
-      return '否'
-    default:
-      return undefined
-  }
-}
+  /** 图片名称 */
+  pictureName?: string;
 
-export function getDownloadIsFreeByValue(value: string): PDownloadIsFreeEnum | undefined {
-  if (Object.values(PDownloadIsFreeEnum).includes(value as PDownloadIsFreeEnum)) {
-    return value as PDownloadIsFreeEnum
-  }
-  return undefined
+  /** 下载状态（1=失败，0=成功） */
+  downloadStatus?: string;
+
+  /** 下载方式（0=手动，1=API，2=批量） */
+  downloadType?: string;
+
+  /** 来源（0=其他，1=详情页，2=分享页） */
+  referSource?: string;
+
+  /** 额外查询参数 */
+  params?: Record<string, any>;
+
+  /** 当前页码 */
+  pageNum?: number;
+
+  /** 每页条数 */
+  pageSize?: number;
 }
 
 /**
- * 下载来源类型枚举
+ * 用户图片下载记录视图对象
  */
-export enum PDownloadReferSourceEnum {
-  DOWNLOAD_REFER_SOURCE_0 = '0', // 其他
-  DOWNLOAD_REFER_SOURCE_1 = '1', // 详情
-  DOWNLOAD_REFER_SOURCE_2 = '2', // 分享
+export interface PictureDownloadLogInfoVo {
+  /** 图片编号 */
+  pictureId: string;
+
+  /** 图片名称 */
+  pictureName: string;
+
+  /** 缩略图URL */
+  thumbnailUrl: string;
+
+  /** 图片标签（格式："标签1","标签2"） */
+  tags: string;
+
+  /** 消耗积分 */
+  pointsCost: number;
+
+  /** 下载状态（1=失败，0=成功） */
+  downloadStatus: string;
+
+  /** 下载方式（0=手动，1=API，2=批量） */
+  downloadType: string;
+
+  /** 来源（0=其他，1=详情，2=分享） */
+  referSource: string;
+
+  /** 下载时间 */
+  createTime: string; // 建议作为字符串处理，方便格式化展示
 }
-
-export function getDownloadReferSourceLabel(value: string): string | undefined {
-  switch (value) {
-    case PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_0:
-      return '其他'
-    case PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_1:
-      return '详情'
-    case PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_2:
-      return '分享'
-    default:
-      return undefined
-  }
-}
-
-export function getDownloadReferSourceByValue(value: string): PDownloadReferSourceEnum | undefined {
-  if (Object.values(PDownloadReferSourceEnum).includes(value as PDownloadReferSourceEnum)) {
-    return value as PDownloadReferSourceEnum
-  }
-  return undefined
-}
-
-

@@ -1,5 +1,6 @@
 package com.lz.points.model.vo.pointsUsageLogInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import com.lz.points.model.domain.PointsUsageLogInfo;
  */
 @Data
 public class PointsUsageLogInfoVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

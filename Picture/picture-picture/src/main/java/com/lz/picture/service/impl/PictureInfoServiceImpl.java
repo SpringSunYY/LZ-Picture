@@ -828,6 +828,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureDownloadLogInfo.setSpaceId(pictureInfo.getSpaceId());
         //所需总积分
         Long totalPoints = pictureInfo.getPointsNeed();
+        pictureDownloadLogInfo.setPictureName(pictureInfo.getName());
+        if (StringUtils.isEmpty(pictureInfo.getDnsUrl())) {
+            pictureDownloadLogInfo.setThumbnailUrl(ossConfig.getDnsUrl() + pictureInfo.getThumbnailUrl());
+        } else {
+            pictureDownloadLogInfo.setThumbnailUrl(pictureInfo.getDnsUrl() + pictureInfo.getThumbnailUrl());
+        }
         pictureDownloadLogInfo.setPointsCost(totalPoints);
         pictureDownloadLogInfo.setCreateTime(DateUtils.getNowDate());
         pictureDownloadLogInfo.setDownloadStatus(PDownloadStatusEnum.DOWNLOAD_STATUS_0.getValue());
@@ -838,6 +844,16 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (pictureInfo.getUserId().equals(userId)) {
             pictureDownloadLogInfo.setPointsCost(0L);
             //是作者
+            //如果已经下载过就不再新增下载记录
+            List<PictureDownloadLogInfo> list = pictureDownloadLogInfoService.list(new LambdaQueryWrapper<PictureDownloadLogInfo>()
+                    .eq(PictureDownloadLogInfo::getUserId, userId)
+                    .eq(PictureDownloadLogInfo::getPictureId, pictureId));
+            if (StringUtils.isNotEmpty(list)) {
+                return pictureInfo;
+            }
+            pictureDownloadLogInfo.setAuthorProportion(0.0);
+            pictureDownloadLogInfo.setOfficialProportion(0.0);
+            pictureDownloadLogInfo.setSpaceProportion(0.0);
             pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
             return pictureInfo;
         }

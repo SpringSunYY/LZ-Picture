@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.BeanUtils;
@@ -44,6 +45,11 @@ public class PictureDownloadLogInfoQuery implements Serializable {
      * 图片分类
      */
     private String categoryId;
+
+    /**
+     * 图片名称
+     */
+    private String pictureName;
 
     /**
      * 空间编号

@@ -1,7 +1,10 @@
 package com.lz.picture.service;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.picture.model.domain.PictureDownloadLogInfo;
+import com.lz.picture.model.dto.pictureDownloadLogInfo.UserPictureDownloadLogInfoQuery;
 import com.lz.picture.model.vo.pictureDownloadLogInfo.PictureDownloadLogInfoVo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoQuery;
 
@@ -79,4 +82,14 @@ public interface IPictureDownloadLogInfoService extends IService<PictureDownload
      * @return PictureDownloadLogInfoVO集合
      */
     List<PictureDownloadLogInfoVo> convertVoList(List<PictureDownloadLogInfo> pictureDownloadLogInfoList);
+
+    /**
+     * 用户自己查询下载记录列表
+     * @author: YY
+     * @method: selectUserPictureDownloadLogInfoList
+     * @date: 2025/5/25 23:18
+     * @param pictureDownloadLogInfo 查询条件
+     * @return Page<PictureDownloadLogInfo>
+     **/
+    Page<PictureDownloadLogInfo> selectUserPictureDownloadLogInfoList(UserPictureDownloadLogInfoQuery pictureDownloadLogInfo);
 }

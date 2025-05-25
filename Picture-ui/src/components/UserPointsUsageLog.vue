@@ -53,7 +53,7 @@
         :pagination="pagination"
         :loading="loading"
         @change="handleTableChange"
-        row-key="targetId"
+        row-key="logId"
         :scroll="{ x: 1000 }"
       >
         <template #bodyCell="{ column, text }">

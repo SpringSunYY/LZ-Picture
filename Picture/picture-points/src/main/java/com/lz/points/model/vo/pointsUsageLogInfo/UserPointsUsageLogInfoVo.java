@@ -23,6 +23,11 @@ public class UserPointsUsageLogInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 记录编号
+     */
+    private String logId;
+
+    /**
      * 日志类型（0充值 1消费 2提成 3提现） 字典类型po_points_usage_log_type
      */
     @Excel(name = "日志类型", readConverterExp = "0=充值,1=消费,2=提成,3=提现")

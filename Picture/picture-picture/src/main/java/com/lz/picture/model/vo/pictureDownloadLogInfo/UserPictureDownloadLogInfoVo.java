@@ -9,10 +9,11 @@ import org.springframework.beans.BeanUtils;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 图片下载记录Vo对象 p_picture_download_log_info
- *
+ * 用户自己的记录
  * @author YY
  * @date 2025-05-24
  */
@@ -24,14 +25,7 @@ public class UserPictureDownloadLogInfoVo implements Serializable {
     /**
      * 下载编号
      */
-    @Excel(name = "下载编号")
     private String downloadId;
-
-    /**
-     * 用户编号
-     */
-    @Excel(name = "用户编号")
-    private String userId;
 
     /**
      * 图片编号
@@ -39,15 +33,17 @@ public class UserPictureDownloadLogInfoVo implements Serializable {
     @Excel(name = "图片编号")
     private String pictureId;
 
-
-    /** 图片名称 */
+    /**
+     * 图片名称
+     */
     @Excel(name = "图片名称")
     private String pictureName;
 
-    /** 缩略图URL */
+    /**
+     * 缩略图URL
+     */
     @Excel(name = "缩略图URL")
     private String thumbnailUrl;
-
 
     /**
      * 图片标签（格式："标签1","标签2"）
@@ -55,14 +51,29 @@ public class UserPictureDownloadLogInfoVo implements Serializable {
     @Excel(name = "图片标签")
     private String tags;
 
-
     /**
      * 消耗积分
      */
     @Excel(name = "消耗积分")
     private Long pointsCost;
 
+    /**
+     * 下载状态（1失败 0成功） 字典类型 p_download_status
+     */
+    @Excel(name = "下载状态", readConverterExp = "1=失败,0=成功")
+    private String downloadStatus;
 
+    /**
+     * 下载方式（0手动 1API 2批量） 字典类型：p_download_type
+     */
+    @Excel(name = "下载方式", readConverterExp = "0=手动,1=API,2=批量")
+    private String downloadType;
+
+    /**
+     * 来源（0其他 1详情 2分享） 字典类型：p_download_refer_source
+     */
+    @Excel(name = "来源", readConverterExp = "0=其他,1=详情,2=分享")
+    private String referSource;
 
     /**
      * 下载时间
@@ -71,11 +82,6 @@ public class UserPictureDownloadLogInfoVo implements Serializable {
     @Excel(name = "下载时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-    /**
-     * 下载状态（1失败 0成功）
-     */
-    @Excel(name = "下载状态", readConverterExp = "1=失败,0=成功")
-    private String downloadStatus;
 
 
     /**
@@ -91,5 +97,20 @@ public class UserPictureDownloadLogInfoVo implements Serializable {
         UserPictureDownloadLogInfoVo pictureDownloadLogInfoVo = new UserPictureDownloadLogInfoVo();
         BeanUtils.copyProperties(pictureDownloadLogInfo, pictureDownloadLogInfoVo);
         return pictureDownloadLogInfoVo;
+    }
+
+    /**
+     * 对象封装列表
+     * @author: YY
+     * @method: objToVo
+     * @date: 2025/5/25 23:10
+     * @param pictureDownloadLogInfoList PictureDownloadLogInfo实体对象列表
+     * @return List<UserPictureDownloadLogInfoVo>
+     **/
+    public static List<UserPictureDownloadLogInfoVo> objToVo(List<PictureDownloadLogInfo> pictureDownloadLogInfoList) {
+        if (pictureDownloadLogInfoList == null) {
+            return null;
+        }
+        return pictureDownloadLogInfoList.stream().map(UserPictureDownloadLogInfoVo::objToVo).toList();
     }
 }

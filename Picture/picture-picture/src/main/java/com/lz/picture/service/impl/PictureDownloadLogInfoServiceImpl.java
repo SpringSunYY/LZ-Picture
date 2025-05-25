@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
+import com.lz.picture.model.dto.pictureDownloadLogInfo.UserPictureDownloadLogInfoQuery;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,12 +28,12 @@ import com.lz.picture.model.vo.pictureDownloadLogInfo.PictureDownloadLogInfoVo;
  * @date 2025-05-24
  */
 @Service
-public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownloadLogInfoMapper, PictureDownloadLogInfo> implements IPictureDownloadLogInfoService
-{
+public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownloadLogInfoMapper, PictureDownloadLogInfo> implements IPictureDownloadLogInfoService {
     @Resource
     private PictureDownloadLogInfoMapper pictureDownloadLogInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询图片下载记录
      *
@@ -37,8 +41,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
      * @return 图片下载记录
      */
     @Override
-    public PictureDownloadLogInfo selectPictureDownloadLogInfoByDownloadId(String downloadId)
-    {
+    public PictureDownloadLogInfo selectPictureDownloadLogInfoByDownloadId(String downloadId) {
         return pictureDownloadLogInfoMapper.selectPictureDownloadLogInfoByDownloadId(downloadId);
     }
 
@@ -49,8 +52,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
      * @return 图片下载记录
      */
     @Override
-    public List<PictureDownloadLogInfo> selectPictureDownloadLogInfoList(PictureDownloadLogInfo pictureDownloadLogInfo)
-    {
+    public List<PictureDownloadLogInfo> selectPictureDownloadLogInfoList(PictureDownloadLogInfo pictureDownloadLogInfo) {
         return pictureDownloadLogInfoMapper.selectPictureDownloadLogInfoList(pictureDownloadLogInfo);
     }
 
@@ -61,8 +63,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
      * @return 结果
      */
     @Override
-    public int insertPictureDownloadLogInfo(PictureDownloadLogInfo pictureDownloadLogInfo)
-    {
+    public int insertPictureDownloadLogInfo(PictureDownloadLogInfo pictureDownloadLogInfo) {
         pictureDownloadLogInfo.setCreateTime(DateUtils.getNowDate());
         return pictureDownloadLogInfoMapper.insertPictureDownloadLogInfo(pictureDownloadLogInfo);
     }
@@ -74,8 +75,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
      * @return 结果
      */
     @Override
-    public int updatePictureDownloadLogInfo(PictureDownloadLogInfo pictureDownloadLogInfo)
-    {
+    public int updatePictureDownloadLogInfo(PictureDownloadLogInfo pictureDownloadLogInfo) {
         return pictureDownloadLogInfoMapper.updatePictureDownloadLogInfo(pictureDownloadLogInfo);
     }
 
@@ -86,8 +86,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
      * @return 结果
      */
     @Override
-    public int deletePictureDownloadLogInfoByDownloadIds(String[] downloadIds)
-    {
+    public int deletePictureDownloadLogInfoByDownloadIds(String[] downloadIds) {
         return pictureDownloadLogInfoMapper.deletePictureDownloadLogInfoByDownloadIds(downloadIds);
     }
 
@@ -98,69 +97,69 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
      * @return 结果
      */
     @Override
-    public int deletePictureDownloadLogInfoByDownloadId(String downloadId)
-    {
+    public int deletePictureDownloadLogInfoByDownloadId(String downloadId) {
         return pictureDownloadLogInfoMapper.deletePictureDownloadLogInfoByDownloadId(downloadId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PictureDownloadLogInfo> getQueryWrapper(PictureDownloadLogInfoQuery pictureDownloadLogInfoQuery){
+    public QueryWrapper<PictureDownloadLogInfo> getQueryWrapper(PictureDownloadLogInfoQuery pictureDownloadLogInfoQuery) {
         QueryWrapper<PictureDownloadLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = pictureDownloadLogInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String downloadId = pictureDownloadLogInfoQuery.getDownloadId();
-        queryWrapper.eq(StringUtils.isNotEmpty(downloadId) ,"download_id",downloadId);
+        String downloadId = pictureDownloadLogInfoQuery.getDownloadId();
+        queryWrapper.eq(StringUtils.isNotEmpty(downloadId), "download_id", downloadId);
 
-    String userId = pictureDownloadLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = pictureDownloadLogInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String pictureId = pictureDownloadLogInfoQuery.getPictureId();
-        queryWrapper.eq(StringUtils.isNotEmpty(pictureId) ,"picture_id",pictureId);
+        String pictureId = pictureDownloadLogInfoQuery.getPictureId();
+        queryWrapper.eq(StringUtils.isNotEmpty(pictureId), "picture_id", pictureId);
 
-    String categoryId = pictureDownloadLogInfoQuery.getCategoryId();
-        queryWrapper.eq(StringUtils.isNotEmpty(categoryId) ,"category_id",categoryId);
+        String categoryId = pictureDownloadLogInfoQuery.getCategoryId();
+        queryWrapper.eq(StringUtils.isNotEmpty(categoryId), "category_id", categoryId);
 
-    String spaceId = pictureDownloadLogInfoQuery.getSpaceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(spaceId) ,"space_id",spaceId);
+        String spaceId = pictureDownloadLogInfoQuery.getSpaceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(spaceId), "space_id", spaceId);
 
-    Long pointsCost = pictureDownloadLogInfoQuery.getPointsCost();
-        queryWrapper.eq( StringUtils.isNotNull(pointsCost),"points_cost",pointsCost);
+        Long pointsCost = pictureDownloadLogInfoQuery.getPointsCost();
+        queryWrapper.eq(StringUtils.isNotNull(pointsCost), "points_cost", pointsCost);
 
-    String isFree = pictureDownloadLogInfoQuery.getIsFree();
-        queryWrapper.eq(StringUtils.isNotEmpty(isFree) ,"is_free",isFree);
+        String isFree = pictureDownloadLogInfoQuery.getIsFree();
+        queryWrapper.eq(StringUtils.isNotEmpty(isFree), "is_free", isFree);
 
-    Date createTime = pictureDownloadLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = pictureDownloadLogInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String downloadStatus = pictureDownloadLogInfoQuery.getDownloadStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(downloadStatus) ,"download_status",downloadStatus);
+        String downloadStatus = pictureDownloadLogInfoQuery.getDownloadStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(downloadStatus), "download_status", downloadStatus);
 
-    String downloadType = pictureDownloadLogInfoQuery.getDownloadType();
-        queryWrapper.eq(StringUtils.isNotEmpty(downloadType) ,"download_type",downloadType);
+        String downloadType = pictureDownloadLogInfoQuery.getDownloadType();
+        queryWrapper.eq(StringUtils.isNotEmpty(downloadType), "download_type", downloadType);
 
-    String referSource = pictureDownloadLogInfoQuery.getReferSource();
-        queryWrapper.eq(StringUtils.isNotEmpty(referSource) ,"refer_source",referSource);
+        String referSource = pictureDownloadLogInfoQuery.getReferSource();
+        queryWrapper.eq(StringUtils.isNotEmpty(referSource), "refer_source", referSource);
 
-    String ipAddr = pictureDownloadLogInfoQuery.getIpAddr();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddr) ,"ip_addr",ipAddr);
+        String ipAddr = pictureDownloadLogInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
 
-    String ipAddress = pictureDownloadLogInfoQuery.getIpAddress();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddress) ,"ip_address",ipAddress);
+        String ipAddress = pictureDownloadLogInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
 
-    String deviceId = pictureDownloadLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        String deviceId = pictureDownloadLogInfoQuery.getDeviceId();
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
 
-    String browser = pictureDownloadLogInfoQuery.getBrowser();
-        queryWrapper.like(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        String browser = pictureDownloadLogInfoQuery.getBrowser();
+        queryWrapper.like(StringUtils.isNotEmpty(browser), "browser", browser);
 
-    String os = pictureDownloadLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        String os = pictureDownloadLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
 
-    String platform = pictureDownloadLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        String platform = pictureDownloadLogInfoQuery.getPlatform();
+        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
 
         return queryWrapper;
     }
@@ -171,6 +170,43 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
             return Collections.emptyList();
         }
         return pictureDownloadLogInfoList.stream().map(PictureDownloadLogInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<PictureDownloadLogInfo> selectUserPictureDownloadLogInfoList(UserPictureDownloadLogInfoQuery query) {
+        //提取基础参数
+        // 提取基础参数
+        Integer pageNum = query.getPageNum();
+        Integer pageSize = query.getPageSize();
+        Map<String, Object> params = query.getParams();
+
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+        return this.page(
+                new Page<PictureDownloadLogInfo>(pageNum, pageSize),
+                new LambdaQueryWrapper<PictureDownloadLogInfo>()
+                        .eq(StringUtils.isNotEmpty(query.getUserId()), PictureDownloadLogInfo::getUserId, query.getUserId())
+                        .like(StringUtils.isNotEmpty(query.getPictureName()), PictureDownloadLogInfo::getPictureName, query.getPictureName())
+                        .eq(StringUtils.isNotEmpty(query.getDownloadStatus()), PictureDownloadLogInfo::getDownloadStatus, query.getDownloadStatus())
+                        .eq(StringUtils.isNotEmpty(query.getDownloadType()), PictureDownloadLogInfo::getDownloadType, query.getDownloadType())
+                        .eq(StringUtils.isNotEmpty(query.getReferSource()), PictureDownloadLogInfo::getReferSource, query.getReferSource())
+                        .apply(StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                                "create_time between {0} and {1}",
+                                beginCreateTime, endCreateTime)
+                        .orderBy(StringUtils.isNotEmpty(query.getIsAsc()),
+                                query.getIsAsc().equals("asc"),
+                                PictureDownloadLogInfo::getCreateTime)
+        );
     }
 
 }
