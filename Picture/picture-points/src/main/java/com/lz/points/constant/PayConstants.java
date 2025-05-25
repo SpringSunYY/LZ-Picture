@@ -1,7 +1,7 @@
 package com.lz.points.constant;
 
 /**
- * TODO
+ * 支付constants
  *
  * @Project: Picture
  * @Author: YY

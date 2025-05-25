@@ -5,7 +5,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 /**
- * TODO
+ * 图片模块定时任务
  *
  * @Project: Picture
  * @Author: YY

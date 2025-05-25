@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 
 /**
- * TODO
+ * 支付测试
  *
  * @Project: Picture
  * @Author: YY

@@ -577,7 +577,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //查询标签信息
         userPictureDetailInfoVo.setPictureTags(pictureTagRelInfoService.getPictureTagNames(pictureId));
-        //查询点赞、收藏、分享数
+        //查询点赞、收藏、分享数 TODO 优化，无需再查询
         getPictureStatics(pictureId, userPictureDetailInfoVo);
 
         return userPictureDetailInfoVo;

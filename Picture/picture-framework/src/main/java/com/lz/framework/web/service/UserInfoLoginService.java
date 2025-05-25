@@ -46,7 +46,6 @@ import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
  *
  * @author YY
  */
-//TODO 登录记录
 @Component
 public class UserInfoLoginService {
     // 是否允许账户多终端同时登录（true允许 false不允许）

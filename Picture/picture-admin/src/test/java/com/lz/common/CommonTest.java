@@ -23,7 +23,6 @@ public class CommonTest {
 
     @Test
     public void testSendSms() {
-        //TODO 待短信签名审核完成后，再进行测试
         SmsBody smsBody = new SmsBody();
 //        smsBody.setCode("123456");
         String jsonString = JSONObject.toJSONString(smsBody);
