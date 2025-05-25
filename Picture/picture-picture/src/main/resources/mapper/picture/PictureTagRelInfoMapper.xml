@@ -6,11 +6,13 @@
 
     <resultMap type="PictureTagRelInfo" id="PictureTagRelInfoResult">
         <result property="pictureId" column="picture_id"/>
+        <result property="pictureName" column="picture_name"/>
         <result property="tagId" column="tag_id"/>
+        <result property="tagName" column="tag_name"/>
     </resultMap>
 
     <sql id="selectPictureTagRelInfoVo">
-        select picture_id, tag_id
+        select picture_id, picture_name, tag_id, tag_name
         from p_picture_tag_rel_info
     </sql>
 
@@ -18,7 +20,11 @@
         <include refid="selectPictureTagRelInfoVo"/>
         <where>
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="pictureName != null  and pictureName != ''">and picture_name like concat('%', #{pictureName},
+                '%')
+            </if>
             <if test="tagId != null  and tagId != ''">and tag_id = #{tagId}</if>
+            <if test="tagName != null  and tagName != ''">and tag_name like concat('%', #{tagName}, '%')</if>
         </where>
     </select>
 
@@ -31,18 +37,24 @@
         insert into p_picture_tag_rel_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">picture_id,</if>
+            <if test="pictureName != null and pictureName != ''">picture_name,</if>
             <if test="tagId != null">tag_id,</if>
+            <if test="tagName != null and tagName != ''">tag_name,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">#{pictureId},</if>
+            <if test="pictureName != null and pictureName != ''">#{pictureName},</if>
             <if test="tagId != null">#{tagId},</if>
+            <if test="tagName != null and tagName != ''">#{tagName},</if>
         </trim>
     </insert>
 
     <update id="updatePictureTagRelInfo" parameterType="PictureTagRelInfo">
         update p_picture_tag_rel_info
         <trim prefix="SET" suffixOverrides=",">
+            <if test="pictureName != null and pictureName != ''">picture_name = #{pictureName},</if>
             <if test="tagId != null">tag_id = #{tagId},</if>
+            <if test="tagName != null and tagName != ''">tag_name = #{tagName},</if>
         </trim>
         where picture_id = #{pictureId}
     </update>
