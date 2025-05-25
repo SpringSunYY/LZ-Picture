@@ -1814,6 +1814,9 @@ CREATE TABLE ai_conversation_log_info
 | max_count        | bigint   | 20   |                           | 是   | 1000       | 最大文件数                    |
 | total_size       | bigint   | 20   |                           | 是   | 0          | 已用容量                      |
 | total_count      | bigint   | 20   |                           | 是   | 0          | 文件总数                      |
+| look_count       | bigint   |      | 索引                      | 否   | 0          | 查看次数                      |
+| collect_count    | bigint   |      | 索引                      | 否   | 0          | 收藏次数                      |
+| download_count   | bigint   |      | 索引                      | 否   | 0          | 下载次数                      |
 | space_status     | char     | 1    |                           | 否   |            | 空间状态                      |
 | user_id          | varchar  | 128  | 外键(u_user_info:user_id) | 否   |            | 用户                          |
 | space_desc       | varchar  | 512  |                           | 是   |            | 空间描述                      |
@@ -1861,6 +1864,9 @@ CREATE TABLE p_space_info
     max_count        BIGINT                DEFAULT 1000 COMMENT '最大文件数',
     total_size       BIGINT                DEFAULT 0 COMMENT '已用容量（字节）',
     total_count      BIGINT                DEFAULT 0 COMMENT '文件总数',
+    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
+    collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',
     user_id          VARCHAR(128) NOT NULL COMMENT '所属用户',
     space_desc       VARCHAR(512) COMMENT '空间描述',
     space_status     CHAR(1)      NOT NULL COMMENT '空间状态',
@@ -2173,6 +2179,11 @@ CREATE TABLE p_picture_tag_info (
 | review_user_id | bigint   |      |                                   | 是   |                | 审核人 编号         |
 | review_time    | datetime |      |                                   | 是   |                | 审核时间            |
 | thumbnail_url  | varchar  | 512  |                                   | 是   |                | 缩略图 url          |
+| look_count     | bigint   |      | 索引                              | 否   | 0              | 查看次数            |
+| collect_count  | bigint   |      | 索引                              | 否   | 0              | 收藏次数            |
+| like_count     | bigint   |      | 索引                              | 否   | 0              | 点赞次数            |
+| share_count    | bigint   |      | 索引                              | 否   | 0              | 分享次数            |
+| download_count | bigint   |      | 索引                              | 否   | 0              | 下载次数            |
 | more_info      | text     |      |                                   | 是   |                | 更多信息            |
 | space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间 编号           |
 | folder_id      | varchar  | 128  |                                   | 是   |                | 文件夹              |
@@ -2213,6 +2224,11 @@ CREATE TABLE p_picture_info
     review_user_id BIGINT COMMENT '审核人编号',
     review_time    DATETIME COMMENT '审核时间',
     thumbnail_url  VARCHAR(512) COMMENT '缩略图URL',
+    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
+    collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+    like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
+    share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',    
     more_info      TEXT         COMMENT '更多信息',
     space_id       VARCHAR(128) COMMENT '所属空间编号',
     folder_id      VARCHAR(128) COMMENT '所属文件夹编号',
@@ -2292,7 +2308,7 @@ CREATE TABLE p_picture_tag_rel_info
 | download_status      | char     | 1    |                                   | 否   |          | 下载状态     |
 | fail_reason          | varchar  | 255  |                                   | 是   |          | 失败原因     |
 | download_type        | char     | 1    |                                   | 否   |          | 下载方式     |
-| has_staitcs          | char     | 1    |                                   | 否   |          | 是否统计     |
+| has_statistics       | char     | 1    |                                   | 否   |          | 是否统计     |
 | refer_source         | char     | 1    |                                   | 是   |          | 来源         |
 | device_id            | varchar  | 255  |                                   | 是   |          | 设备唯一标识 |
 | browser              | varchar  | 50   |                                   | 是   |          | 浏览器类型   |
@@ -2336,7 +2352,7 @@ CREATE TABLE p_picture_download_log_info
     fail_reason          VARCHAR(255) COMMENT '失败原因',
     download_type        CHAR(1)      NOT NULL COMMENT '下载方式（0手动 1API 2批量）',
     refer_source         CHAR(1) COMMENT '来源（0其他 1详情 2分享）',
-   	has_staitcs      CHAR(1) NOT NULL COMMENT '是否统计',
+   	has_statistics      CHAR(1) NOT NULL COMMENT '是否统计',
     ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
     ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
     device_id            VARCHAR(255) COMMENT '设备唯一标识',
@@ -2617,7 +2633,7 @@ CREATE TABLE p_picture_comment_like_info (
 | tags           | varchar  | 256  |                                           | 是   |          | 图片标签     |
 | target_cover   | varchar  | 512  |                                           | 是   |          | 封面         |
 | create_time    | datetime |      |                                           | 否   | 当前时间 | 转发时间     |
-| has_staitcs    | char     | 1    |                                           | 否   |          | 是否统计     |
+| has_statistics | char     | 1    |                                           | 否   |          | 是否统计     |
 | device_id      | varchar  | 256  |                                           | 是   |          | 设备唯一标识 |
 | browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
 | os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
@@ -2651,7 +2667,7 @@ CREATE TABLE `p_user_behavior_info` (
   `tags` VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
   `target_cover` VARCHAR(512) DEFAULT NULL COMMENT '封面',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
-  `has_staitcs`      CHAR(1) NOT NULL COMMENT '是否统计',
+  `has_statistics`      CHAR(1) NOT NULL COMMENT '是否统计',
   `device_id` VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
   `browser` VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
   `os` VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
@@ -2683,7 +2699,7 @@ CREATE TABLE `p_user_behavior_info` (
 | tags           | varchar  | 256  |                                           | 是   |          | 图片标签     |
 | target_cover   | varchar  | 512  |                                           | 是   |          | 封面         |
 | create_time    | datetime |      |                                           | 否   | 当前时间 | 查看时间     |
-| has_staitcs    | char     | 1    |                                           | 否   |          | 是否统计     |
+| has_statistics | char     | 1    |                                           | 否   |          | 是否统计     |
 | device_id      | varchar  | 256  |                                           | 是   |          | 设备唯一标识 |
 | browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
 | os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
@@ -2711,7 +2727,7 @@ CREATE TABLE p_user_view_log_info (
     tags VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
     target_cover VARCHAR(512) DEFAULT NULL COMMENT '封面',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '查看时间',
-    has_staitcs      CHAR(1) NOT NULL COMMENT '是否统计',
+    has_statistics      CHAR(1) NOT NULL COMMENT '是否统计',
     device_id VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
     browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
     os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',

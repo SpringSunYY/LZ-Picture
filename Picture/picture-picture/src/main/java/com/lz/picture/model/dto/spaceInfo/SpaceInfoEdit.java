@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.picture.model.domain.SpaceInfo;
@@ -36,6 +37,15 @@ public class SpaceInfoEdit implements Serializable
 
     /** 最大容量（字节） */
     private Long maxSize;
+
+    /** 查看次数 */
+    private Long lookCount;
+
+    /** 收藏次数 */
+    private Long collectCount;
+
+    /** 下载次数 */
+    private Long downloadCount;
 
     /** 最大文件数 */
     private Long maxCount;

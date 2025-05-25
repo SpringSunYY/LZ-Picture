@@ -1,9 +1,11 @@
 package com.lz.picture.model.dto.pictureInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import com.lz.picture.model.domain.PictureInfo;
@@ -16,6 +18,7 @@ import com.lz.picture.model.domain.PictureInfo;
  */
 @Data
 public class PictureInfoEdit implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -93,6 +96,34 @@ public class PictureInfoEdit implements Serializable {
      */
     private String reviewMessage;
 
+
+
+    /**
+     * 查看次数
+     */
+    @Excel(name = "查看次数")
+    private Long lookCount;
+
+    /**
+     * 收藏次数
+     */
+    private Long collectCount;
+
+    /**
+     * 点赞次数
+     */
+    private Long likeCount;
+
+    /**
+     * 分享次数
+     */
+    private Long shareCount;
+
+
+    /**
+     * 下载次数
+     */
+    private Long downloadCount;
 
     /**
      * 更多信息

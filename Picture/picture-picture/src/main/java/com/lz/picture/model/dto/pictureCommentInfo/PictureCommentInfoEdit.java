@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.pictureCommentInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +14,7 @@ import com.lz.picture.model.domain.PictureCommentInfo;
 @Data
 public class PictureCommentInfoEdit implements Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /** 评论编号 */

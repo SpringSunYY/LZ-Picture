@@ -1,5 +1,6 @@
 package com.lz.picture.model.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("p_space_info")
 @Data
 public class SpaceInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -68,6 +70,24 @@ public class SpaceInfo implements Serializable {
      */
     @Excel(name = "最大文件数")
     private Long maxCount;
+
+    /**
+     * 查看次数
+     */
+    @Excel(name = "查看次数")
+    private Long lookCount;
+
+    /**
+     * 收藏次数
+     */
+    @Excel(name = "收藏次数")
+    private Long collectCount;
+
+    /**
+     * 下载次数
+     */
+    @Excel(name = "下载次数")
+    private Long downloadCount;
 
     /**
      * 已用容量（字节）

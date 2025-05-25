@@ -323,18 +323,33 @@
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[22].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[23].visible"
+
+      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[24].visible"
+
+      <el-table-column label="点赞次数" align="center" prop="likeCount" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[25].visible">
+
+      <el-table-column label="分享次数" align="center" prop="shareCount" v-if="columns[24].visible"
+                       :show-overflow-tooltip="true"/>
+
+      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[25].visible"
+                       :show-overflow-tooltip="true"/>
+
+      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[26].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[27].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[28].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[29].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[26].visible"
+      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[30].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -424,6 +439,21 @@
         </el-form-item>
         <el-form-item label="审核信息" prop="reviewMessage">
           <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+        <el-form-item label="查看次数" prop="lookCount">
+          <el-input-number :min="0" v-model="form.lookCount" placeholder="请输入查看次数"/>
+        </el-form-item>
+        <el-form-item label="收藏次数" prop="collectCount">
+          <el-input-number :min="0" v-model="form.collectCount" placeholder="请输入收藏次数"/>
+        </el-form-item>
+        <el-form-item label="点赞次数" prop="likeCount">
+          <el-input-number :min="0" v-model="form.likeCount" placeholder="请输入点赞次数"/>
+        </el-form-item>
+        <el-form-item label="分享次数" prop="shareCount">
+          <el-input-number :min="0" v-model="form.shareCount" placeholder="请输入分享次数"/>
+        </el-form-item>
+        <el-form-item label="下载次数" prop="downloadCount">
+          <el-input-number :min="0" v-model="form.downloadCount" placeholder="请输入下载次数"/>
         </el-form-item>
         <!--        <el-form-item label="审核人" prop="reviewUserId">-->
         <!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人"/>-->
@@ -558,15 +588,15 @@ const data = reactive({
   //表格展示列
   columns: [
     {key: 0, label: '图片', visible: false},
-    {key: 1, label: '图片', visible: false},
+    {key: 1, label: '原图', visible: false},
     {key: 2, label: '图片名称', visible: true},
     {key: 3, label: '域名URL', visible: false},
     {key: 4, label: '简介', visible: false},
     {key: 5, label: '分类', visible: true},
     {key: 6, label: '图片体积', visible: true},
-    {key: 7, label: '图片宽度', visible: true},
-    {key: 8, label: '图片高度', visible: true},
-    {key: 9, label: '宽高比例', visible: true},
+    {key: 7, label: '图片宽度', visible: false},
+    {key: 8, label: '图片高度', visible: false},
+    {key: 9, label: '宽高比例', visible: false},
     {key: 10, label: '图片格式', visible: true},
     {key: 11, label: '所需积分', visible: true},
     {key: 12, label: '上传用户', visible: false},
@@ -578,12 +608,16 @@ const data = reactive({
     {key: 18, label: '审核信息', visible: false},
     {key: 19, label: '审核人', visible: false},
     {key: 20, label: '审核时间', visible: false},
-    {key: 21, label: '缩略图', visible: true},
-    {key: 22, label: '所属空间', visible: false},
-    {key: 23, label: '文件夹', visible: false},
-    {key: 24, label: '更多信息', visible: false},
-    {key: 25, label: '删除', visible: false},
-    {key: 26, label: '删除时间', visible: false},
+    {key: 21, label: '查看次数', visible: true},
+    {key: 22, label: '收藏次数', visible: true},
+    {key: 23, label: '点赞次数', visible: true},
+    {key: 24, label: '分享次数', visible: true},
+    {key: 25, label: '下载次数', visible: true},
+    {key: 26, label: '所属空间', visible: false},
+    {key: 27, label: '文件夹', visible: false},
+    {key: 28, label: '更多信息', visible: false},
+    {key: 29, label: '删除', visible: false},
+    {key: 30, label: '删除时间', visible: false},
   ],
 });
 
@@ -651,6 +685,11 @@ function reset() {
     reviewUserId: null,
     reviewTime: null,
     thumbnailUrl: null,
+    lookCount: null,
+    collectCount: null,
+    likeCount: null,
+    shareCount: null,
+    downloadCount: null,
     spaceId: null,
     folderId: null,
     moreInfo: null,

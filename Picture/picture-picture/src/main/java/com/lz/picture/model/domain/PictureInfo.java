@@ -1,5 +1,6 @@
 package com.lz.picture.model.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("p_picture_info")
 @Data
 public class PictureInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -163,6 +165,27 @@ public class PictureInfo implements Serializable {
      */
     @Excel(name = "缩略图URL")
     private String thumbnailUrl;
+
+    /** 查看次数 */
+    @Excel(name = "查看次数")
+    private Long lookCount;
+
+    /** 收藏次数 */
+    @Excel(name = "收藏次数")
+    private Long collectCount;
+
+    /** 点赞次数 */
+    @Excel(name = "点赞次数")
+    private Long likeCount;
+
+    /** 分享次数 */
+    @Excel(name = "分享次数")
+    private Long shareCount;
+
+
+    /** 下载次数 */
+    @Excel(name = "下载次数")
+    private Long downloadCount;
 
     /**
      * 所属空间编号

@@ -191,48 +191,54 @@
       </el-table-column>
       <el-table-column label="文件总数" align="center" prop="totalCount" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="所属用户" align="center" prop="userId" v-if="columns[9].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间描述" align="center" prop="spaceDesc" v-if="columns[10].visible"
+      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间状态" align="center" prop="spaceStatus" v-if="columns[11].visible">
+      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[11].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="所属用户" align="center" prop="userId" v-if="columns[12].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="空间描述" align="center" prop="spaceDesc" v-if="columns[13].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="空间状态" align="center" prop="spaceStatus" v-if="columns[14].visible">
         <template #default="scope">
           <dict-tag :options="p_space_status" :value="scope.row.spaceStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="空间类型" align="center" prop="spaceType" v-if="columns[12].visible">
+      <el-table-column label="空间类型" align="center" prop="spaceType" v-if="columns[15].visible">
         <template #default="scope">
           <dict-tag :options="p_space_type" :value="scope.row.spaceType"/>
         </template>
       </el-table-column>
-      <el-table-column label="成员上限" align="center" prop="memberLimit" v-if="columns[13].visible"
+      <el-table-column label="成员上限" align="center" prop="memberLimit" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="当前成员数" align="center" prop="currentMembers" v-if="columns[14].visible"
+      <el-table-column label="当前成员数" align="center" prop="currentMembers" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[15].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[18].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最后上传时间" align="center" prop="lastUpdateTime" width="180" v-if="columns[16].visible"
+      <el-table-column label="最后上传时间" align="center" prop="lastUpdateTime" width="180" v-if="columns[19].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.lastUpdateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" v-if="columns[17].visible"
+      <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" v-if="columns[20].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[18].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[21].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[19].visible"
+      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[22].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -321,17 +327,15 @@
         <el-form-item label="成员上限" prop="memberLimit">
           <el-input v-model="form.memberLimit" placeholder="请输入成员上限"/>
         </el-form-item>
-        <!--        <el-form-item label="当前成员数" prop="currentMembers">-->
-        <!--          <el-input v-model="form.currentMembers" placeholder="请输入当前成员数"/>-->
-        <!--        </el-form-item>-->
-        <!--        <el-form-item label="最后上传时间" prop="lastUpdateTime">-->
-        <!--          <el-date-picker clearable-->
-        <!--                          v-model="form.lastUpdateTime"-->
-        <!--                          type="date"-->
-        <!--                          value-format="YYYY-MM-DD"-->
-        <!--                          placeholder="请选择最后上传时间">-->
-        <!--          </el-date-picker>-->
-        <!--        </el-form-item>-->
+        <el-form-item label="查看次数" prop="lookCount">
+          <el-input-number :min="0" v-model="form.lookCount" placeholder="请输入查看次数"/>
+        </el-form-item>
+        <el-form-item label="收藏次数" prop="collectCount">
+          <el-input-number :min="0" v-model="form.collectCount" placeholder="请输入收藏次数"/>
+        </el-form-item>
+        <el-form-item label="下载次数" prop="downloadCount">
+          <el-input-number :min="0" v-model="form.downloadCount" placeholder="请输入下载次数"/>
+        </el-form-item>
         <el-form-item label="删除" prop="isDelete">
           <el-radio-group v-model="form.isDelete">
             <el-radio
@@ -430,17 +434,20 @@ const data = reactive({
     {key: 6, label: '最大文件数', visible: false},
     {key: 7, label: '已用容量', visible: true},
     {key: 8, label: '文件总数', visible: true},
-    {key: 9, label: '所属用户', visible: true},
-    {key: 10, label: '空间描述', visible: false},
-    {key: 11, label: '空间状态', visible: true},
-    {key: 12, label: '空间类型', visible: true},
-    {key: 13, label: '成员上限', visible: false},
-    {key: 14, label: '当前成员数', visible: false},
-    {key: 15, label: '创建时间', visible: true},
-    {key: 16, label: '最后上传时间', visible: false},
-    {key: 17, label: '最后更新时间', visible: false},
-    {key: 18, label: '删除', visible: false},
-    {key: 19, label: '删除时间', visible: false},
+    {key: 9, label: '查看次数', visible: true},
+    {key: 10, label: '收藏次数', visible: true},
+    {key: 11, label: '下载次数', visible: true},
+    {key: 12, label: '所属用户', visible: true},
+    {key: 13, label: '空间描述', visible: false},
+    {key: 14, label: '空间状态', visible: true},
+    {key: 15, label: '空间类型', visible: true},
+    {key: 16, label: '成员上限', visible: false},
+    {key: 17, label: '当前成员数', visible: false},
+    {key: 18, label: '创建时间', visible: true},
+    {key: 19, label: '最后上传时间', visible: false},
+    {key: 20, label: '最后更新时间', visible: false},
+    {key: 21, label: '删除', visible: false},
+    {key: 22, label: '删除时间', visible: false},
   ],
 });
 
@@ -491,6 +498,9 @@ function reset() {
     maxCount: null,
     totalSize: null,
     totalCount: null,
+    lookCount: null,
+    collectCount: null,
+    downloadCount: null,
     userId: null,
     spaceDesc: null,
     spaceStatus: null,
