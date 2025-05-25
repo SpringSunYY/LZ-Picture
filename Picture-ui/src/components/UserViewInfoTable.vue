@@ -61,7 +61,7 @@
           <template v-if="column.dataIndex === 'tags'">
             <template v-if="text">
               <tags
-                :values="text.split(';')"
+                :values="text.split(COMMON_SEPARATION)"
                 :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
               />
             </template>
@@ -105,6 +105,7 @@ import {
 import dayjs from 'dayjs'
 import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
+import { COMMON_SEPARATION } from '@/types/common.d.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

@@ -93,7 +93,7 @@
           <template v-if="column.dataIndex === 'tags'">
             <template v-if="text">
               <tags
-                :values="text.split(';')"
+                :values="text.split(COMMON_SEPARATION)"
                 :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
               />
             </template>
@@ -134,6 +134,7 @@ import { listUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import DictTag from '@/components/DictTag.vue'
 import Tags from '@/components/Tags.vue'
 import { useRouter } from 'vue-router'
+import { COMMON_SEPARATION } from '@/types/common.d.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

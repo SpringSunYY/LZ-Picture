@@ -11,47 +11,47 @@ export type UserInfo = {
 }
 /* eslint-disable */
 declare namespace API {
-  interface ResponseInfo<T =any> {
+  interface ResponseInfo<T = any> {
     rows?: Array<T>
     data?: T
     msg?: string
-    code: number,
+    code: number
     total?: number
   }
 }
 
 export type Dict = {
   /** 字典编码 */
-  dictCode?: number;
-
+  dictCode?: number
 
   /** 字典标签 */
-  dictLabel: string;
+  dictLabel: string
 
   /** 字典键值 */
-  dictValue: string;
+  dictValue: string
 
   /** 字典类型 */
-  dictType?: string;
+  dictType?: string
 
   /** 样式属性（其他样式扩展） */
-  cssClass?: string;
+  cssClass?: string
 
   /** 表格字典样式 */
-  listClass?: string;
-};
-
+  listClass?: string
+}
 
 /**
  * 分页信息
  */
 export interface PageDomain {
   /** 当前页码 */
-  pageNum: number;
+  pageNum: number
   /** 每页大小 */
-  pageSize: number;
+  pageSize: number
   /** 排序列 */
-  orderByColumn?: string;
+  orderByColumn?: string
   /** 排序方向（asc 或 desc） */
-  isAsc?: string;
+  isAsc?: string
 }
+
+export const COMMON_SEPARATION = ';'

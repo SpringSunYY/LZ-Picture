@@ -421,6 +421,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 tagInfoList.remove(tagInfo);
             }
         }
+        //图片新增的标签
         List<PictureTagInfo> addTagInfoList = new ArrayList<>();
         //遍历剩下的tagInfoList，如果标签不存在，则添加新的标签
         for (PictureTagInfo info : tagInfoList) {
@@ -450,9 +451,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 pictureTagInfoService.saveOrUpdateBatch(addTagInfoList);
             }
             //插入关联信息
+            String pictureName = pictureInfo.getName();
             addTagInfoList.forEach(tagInfo -> {
                 PictureTagRelInfo rel = new PictureTagRelInfo();
                 rel.setPictureId(pictureInfo.getPictureId());
+                rel.setPictureName(pictureName);
+                rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
                 pictureTagRelInfos.add(rel);
             });
@@ -570,17 +574,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setUserInfoVo(userVo);
         }
         //查询标签信息
-        List<PictureTagRelInfo> pictureTagRelInfoList = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
-                .eq(PictureTagRelInfo::getPictureId, pictureId));
-        if (StringUtils.isNotEmpty(pictureTagRelInfoList)) {
-            List<String> tagIds = pictureTagRelInfoList.stream()
-                    .map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
-            List<PictureTagInfo> pictureTagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
-                    .in(PictureTagInfo::getTagId, tagIds));
-            List<String> tagNames = pictureTagInfoList.stream()
-                    .map(PictureTagInfo::getName).collect(Collectors.toList());
-            userPictureDetailInfoVo.setPictureTags(tagNames);
-        }
+        userPictureDetailInfoVo.setPictureTags(pictureTagRelInfoService.getPictureTagNames(pictureId));
         //查询点赞、收藏、分享数
         getPictureStatics(pictureId, userPictureDetailInfoVo);
 
@@ -721,6 +715,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .stream()
                 .map(PictureTagRelInfo::getTagId)
                 .toList();
+        //原来拥有的标签
         List<String> tagRelTagNames = new ArrayList<>();
         //判断是否有关联
         if (StringUtils.isNotEmpty(tagRelTagIds)) {
@@ -743,6 +738,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 tag = tag.substring(0, 16);
             }
         });
+        //查询数据库内标签
         List<PictureTagInfo> tagInfoList;
         if (!StringUtils.isEmpty(tags)) {
             tagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getName, tags));
@@ -765,7 +761,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 BeanUtils.copyBeanProp(pictureTagInfo, info);
                 //如果标签之前有过关联这不需要给使用次数加1
                 if (!tagRelTagNames.contains(info.getName())) {
-                    info.setUsageCount(info.getUsageCount() + 1);
+                    pictureTagInfo.setUsageCount(info.getUsageCount() + 1);
                 }
                 addTagInfoList.add(pictureTagInfo);
                 tags.remove(info.getName());
@@ -787,10 +783,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             if (StringUtils.isNotEmpty(addTagInfoList)) {
                 pictureTagInfoService.saveOrUpdateBatch(addTagInfoList);
             }
+            String pictureName = pictureInfo.getName();
             //插入关联信息
             addTagInfoList.forEach(tagInfo -> {
                 PictureTagRelInfo rel = new PictureTagRelInfo();
+                rel.setPictureName(pictureName);
                 rel.setPictureId(pictureInfo.getPictureId());
+                rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
                 pictureTagRelInfos.add(rel);
             });
@@ -815,17 +814,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
 
         //查询标签信息
-        List<PictureTagRelInfo> pictureTagRelInfoList = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
-                .eq(PictureTagRelInfo::getPictureId, pictureId));
-        if (StringUtils.isNotEmpty(pictureTagRelInfoList)) {
-            List<String> tagIds = pictureTagRelInfoList.stream()
-                    .map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
-            List<PictureTagInfo> pictureTagInfoList = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
-                    .in(PictureTagInfo::getTagId, tagIds));
-            List<String> tagNames = pictureTagInfoList.stream()
-                    .map(PictureTagInfo::getName).collect(Collectors.toList());
-            pictureDownloadLogInfo.setTags(String.join(SEPARATION, tagNames));
-        }
+        pictureDownloadLogInfo.setTags(pictureTagRelInfoService.getPictureTagNamesStr(pictureId));
         pictureDownloadLogInfo.setSpaceId(pictureInfo.getSpaceId());
         //所需总积分
         Long totalPoints = pictureInfo.getPointsNeed();

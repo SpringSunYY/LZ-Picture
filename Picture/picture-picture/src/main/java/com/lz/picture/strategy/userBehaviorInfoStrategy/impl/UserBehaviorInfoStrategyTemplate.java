@@ -93,26 +93,7 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
         userBehaviorInfo.setSpaceId(pictureInfo.getSpaceId());
         userBehaviorInfo.setCategoryId(pictureInfo.getCategoryId());
         //查询标签关联
-        List<String> relTagList = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
-                        .eq(PictureTagRelInfo::getPictureId, userBehaviorInfo.getTargetId()))
-                .stream()
-                .map(PictureTagRelInfo::getTagId).toList();
-        if (StringUtils.isEmpty(relTagList)) {
-            return userBehaviorInfo;
-        }
-        //查询标签名称
-        List<String> tags = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
-                        .in(PictureTagInfo::getTagId, relTagList))
-                .stream()
-                .filter(tag -> {
-                    return PTagStatusEnum.TAG_STATUS_0.getValue().equals(tag.getTagsStatus());
-                })
-                .map(PictureTagInfo::getName)
-                .toList();
-        if (StringUtils.isEmpty(tags)) {
-            return userBehaviorInfo;
-        }
-        userBehaviorInfo.setTags(String.join(COMMON_SEPARATOR, tags));
+        userBehaviorInfo.setTags(pictureTagRelInfoService.getPictureTagNamesStr(userBehaviorInfo.getTargetId()));
         return userBehaviorInfo;
     }
 

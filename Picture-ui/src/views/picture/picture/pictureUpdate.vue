@@ -186,6 +186,7 @@ import type { PictureInfo } from '@/types/picture/picture'
 import { addPictureInfo } from '@/api/picture/picture.ts'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { findPathById } from '@/utils/common.ts'
+import { useRouter } from 'vue-router'
 
 const title = ref('图片上传')
 //空间
@@ -290,6 +291,7 @@ const handleSuccess = (modelValue: any) => {
   formState.picSize = modelValue.meta.size
 }
 
+const router = useRouter()
 // 提交处理
 const handleSubmit = async () => {
   submitting.value = true
@@ -303,6 +305,10 @@ const handleSubmit = async () => {
   addPictureInfo(formState).then((res) => {
     if (res.code === 200) {
       message.success('添加成功')
+      //路由至我的空间
+      router.push({
+        path: '/picture/space',
+      })
     }
   })
   // 处理分类路径

@@ -98,7 +98,7 @@ const formatPictureListByRow = () => {
 
   const containerWidth = container.clientWidth
   const baseHeight = Number(pictureHeight.value) || 250
-  console.log('baseHeight', baseHeight)
+  // console.log('baseHeight', baseHeight)
   const spacing = 8
   const rows: any[][] = []
   let tempRow: any[] = []

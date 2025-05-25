@@ -222,7 +222,7 @@ import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
 import type { PictureInfoUpdate } from '@/types/picture/picture'
 import { getMyPictureDetailInfo, updatePictureInfo } from '@/api/picture/picture.ts'
 import { EditOutlined, FullscreenOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import PictureOutPainting from '@/components/PictureOutPainting.vue'
 import type { PictureFileResponse } from '@/types/file'
 import { findPathById } from '@/utils/common.ts'
@@ -364,17 +364,17 @@ const updatePicture = async () => {
       }
     })
     .finally(() => {
+      // 处理分类路径
+      if (formState.categoryId) {
+        const selectedPath = findPathById(pictureCategoryList.value, formState.categoryId)
+        if (selectedPath) {
+          formState.categoryId = selectedPath // 设置为数组形式 ['1', '1-1', '1-1-1']
+        } else {
+          console.warn('未找到匹配的分类路径')
+        }
+      }
       loading.value = false
     })
-  // 处理分类路径
-  if (formState.categoryId) {
-    const selectedPath = findPathById(pictureCategoryList.value, formState.categoryId)
-    if (selectedPath) {
-      formState.categoryId = selectedPath // 设置为数组形式 ['1', '1-1', '1-1-1']
-    } else {
-      console.warn('未找到匹配的分类路径')
-    }
-  }
 }
 
 // 选择操作

@@ -1,21 +1,23 @@
 package com.lz.picture.service;
 
 import java.util.List;
+
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.vo.pictureTagRelInfo.PictureTagRelInfoVo;
 import com.lz.picture.model.dto.pictureTagRelInfo.PictureTagRelInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 图片标签关联Service接口
  *
  * @author YY
  * @date 2025-03-24
  */
-public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo>
-{
+public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo> {
     //region mybatis代码
+
     /**
      * 查询图片标签关联
      *
@@ -64,6 +66,7 @@ public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo>
      */
     public int deletePictureTagRelInfoByPictureId(String pictureId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,25 @@ public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo>
      * @return PictureTagRelInfoVO集合
      */
     List<PictureTagRelInfoVo> convertVoList(List<PictureTagRelInfo> pictureTagRelInfoList);
+
+    /**
+     * 查询到该图片关联的标签名称
+     *
+     * @param pictureId 图片编号
+     * @return List<String>
+     * @author: YY
+     * @method: getPictureTagNames
+     * @date: 2025/5/25 19:56
+     **/
+    public List<String> getPictureTagNames(String pictureId);
+
+    /**
+     * 查询到该图片关联的标签名称
+     * @author: YY
+     * @method: getPictureTagNamesStr
+     * @date: 2025/5/25 20:04
+     * @param pictureId 图片编号
+     * @return String
+     **/
+    public String getPictureTagNamesStr(String pictureId);
 }
