@@ -106,6 +106,12 @@ public class UserBehaviorInfo implements Serializable {
     private Date createTime;
 
     /**
+     * 是否统计（0否 1是）
+     */
+    @Excel(name = "是否统计", readConverterExp = "0=否,1=是")
+    private String hasStatistics;
+
+    /**
      * 设备唯一标识
      */
     @Excel(name = "设备唯一标识")

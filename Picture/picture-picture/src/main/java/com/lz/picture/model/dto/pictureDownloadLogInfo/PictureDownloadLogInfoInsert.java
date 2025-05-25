@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.pictureDownloadLogInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +14,7 @@ import com.lz.picture.model.domain.PictureDownloadLogInfo;
 @Data
 public class PictureDownloadLogInfoInsert implements Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /** 下载编号 */
@@ -29,6 +31,11 @@ public class PictureDownloadLogInfoInsert implements Serializable
 
     /** 是否免费（0是 1否） */
     private String isFree;
+
+    /**
+     * 是否统计（0否 1是）
+     */
+    private String hasStatistics;
 
     /**
      * 对象转封装类

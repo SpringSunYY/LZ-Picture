@@ -18,6 +18,7 @@
         <result property="tags" column="tags"/>
         <result property="targetCover" column="target_cover"/>
         <result property="createTime" column="create_time"/>
+        <result property="hasStatistics"    column="has_statistics"    />
         <result property="deviceId" column="device_id"/>
         <result property="browser" column="browser"/>
         <result property="os" column="os"/>
@@ -40,6 +41,7 @@
                tags,
                target_cover,
                create_time,
+               has_statistics,
                device_id,
                browser,
                os,
@@ -65,6 +67,7 @@
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
+            <if test="hasStatistics != null  and hasStatistics != ''">and has_statistics = #{hasStatistics}</if>
             <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
             <if test="browser != null  and browser != ''">and browser = #{browser}</if>
             <if test="os != null  and os != ''">and os = #{os}</if>
@@ -93,6 +96,7 @@
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
+            <if test="hasStatistics != null  and hasStatistics != ''">and has_statistics = #{hasStatistics}</if>
             <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
             <if test="browser != null  and browser != ''">and browser = #{browser}</if>
             <if test="os != null  and os != ''">and os = #{os}</if>
@@ -119,6 +123,7 @@
             <if test="tags != null">tags,</if>
             <if test="targetCover != null">target_cover,</if>
             <if test="createTime != null">create_time,</if>
+            <if test="hasStatistics != null">has_statistics,</if>
             <if test="deviceId != null">device_id,</if>
             <if test="browser != null">browser,</if>
             <if test="os != null">os,</if>
@@ -140,6 +145,7 @@
             <if test="tags != null">#{tags},</if>
             <if test="targetCover != null">#{targetCover},</if>
             <if test="createTime != null">#{createTime},</if>
+            <if test="hasStatistics != null">#{hasStatistics},</if>
             <if test="deviceId != null">#{deviceId},</if>
             <if test="browser != null">#{browser},</if>
             <if test="os != null">#{os},</if>
@@ -164,6 +170,7 @@
             <if test="tags != null">tags = #{tags},</if>
             <if test="targetCover != null">target_cover = #{targetCover},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="hasStatistics != null">has_statistics = #{hasStatistics},</if>
             <if test="deviceId != null">device_id = #{deviceId},</if>
             <if test="browser != null">browser = #{browser},</if>
             <if test="os != null">os = #{os},</if>

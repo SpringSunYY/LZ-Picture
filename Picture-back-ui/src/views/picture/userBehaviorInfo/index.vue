@@ -87,6 +87,16 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
+      <el-form-item label="是否统计" prop="hasStatistics">
+        <el-select v-model="queryParams.hasStatistics" style="width: 200px" placeholder="请选择是否统计" clearable>
+          <el-option
+              v-for="dict in common_has_statistics"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
@@ -228,17 +238,22 @@
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[13].visible"
+      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[13].visible">
+        <template #default="scope">
+          <dict-tag :options="common_has_statistics" :value="scope.row.hasStatistics"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[14].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[15].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[16].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[17].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[18].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -310,6 +325,15 @@
         <el-form-item label="封面" prop="targetCover">
           <image-upload v-model="form.targetCover"/>
         </el-form-item>
+        <el-form-item label="是否统计" prop="hasStatistics">
+          <el-radio-group v-model="form.hasStatistics">
+            <el-radio
+                v-for="dict in common_has_statistics"
+                :key="dict.value"
+                :value="dict.value"
+            >{{dict.label}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -333,8 +357,9 @@ import {
 const {proxy} = getCurrentInstance();
 const {
   p_user_behavior_type,
-  p_user_behavior_target_type
-} = proxy.useDict('p_user_behavior_type', 'p_user_behavior_target_type');
+  p_user_behavior_target_type,
+  common_has_statistics
+} = proxy.useDict('p_user_behavior_type', 'p_user_behavior_target_type','common_has_statistics');
 
 const userBehaviorInfoList = ref([]);
 const open = ref(false);
@@ -363,6 +388,7 @@ const data = reactive({
     spaceId: null,
     tags: null,
     createTime: null,
+    hasStatistics: null,
     deviceId: null,
     browser: null,
     os: null,
@@ -405,12 +431,13 @@ const data = reactive({
     {key: 10, label: '图片标签', visible: false},
     {key: 11, label: '封面', visible: true},
     {key: 12, label: '创建时间', visible: true},
-    {key: 13, label: '设备唯一标识', visible: false},
-    {key: 14, label: '浏览器类型', visible: false},
-    {key: 15, label: '操作系统', visible: false},
-    {key: 16, label: '平台', visible: false},
-    {key: 17, label: 'IP地址', visible: false},
-    {key: 18, label: 'IP属地', visible: false},
+    {key: 13, label: '是否统计', visible: false},
+    {key: 14, label: '设备唯一标识', visible: false},
+    {key: 15, label: '浏览器类型', visible: false},
+    {key: 16, label: '操作系统', visible: false},
+    {key: 17, label: '平台', visible: false},
+    {key: 18, label: 'IP地址', visible: false},
+    {key: 19, label: 'IP属地', visible: false},
   ],
 });
 
@@ -453,6 +480,7 @@ function reset() {
     tags: null,
     targetCover: null,
     createTime: null,
+    hasStatistics: null,
     deviceId: null,
     browser: null,
     os: null,

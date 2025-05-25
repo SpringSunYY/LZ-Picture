@@ -142,6 +142,12 @@ public class PictureDownloadLogInfo implements Serializable {
     private String referSource;
 
     /**
+     * 是否统计（0否 1是）
+     */
+    @Excel(name = "是否统计", readConverterExp = "0=否,1=是")
+    private String hasStatistics;
+
+    /**
      * IP地址
      */
     @Excel(name = "IP地址")

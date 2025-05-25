@@ -67,6 +67,11 @@ public class UserViewLogInfoEdit implements Serializable {
      */
     private String targetCover;
 
+    /**
+     * 是否统计（0否 1是）
+     */
+    private String hasStatistics;
+
 
     /**
      * 对象转封装类

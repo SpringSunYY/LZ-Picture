@@ -78,6 +78,11 @@ public class UserViewLogInfoQuery implements Serializable {
     private Date createTime;
 
     /**
+     * 是否统计（0否 1是）
+     */
+    private String hasStatistics;
+
+    /**
      * 设备唯一标识
      */
     private String deviceId;
