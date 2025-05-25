@@ -2292,6 +2292,7 @@ CREATE TABLE p_picture_tag_rel_info
 | download_status      | char     | 1    |                                   | 否   |          | 下载状态     |
 | fail_reason          | varchar  | 255  |                                   | 是   |          | 失败原因     |
 | download_type        | char     | 1    |                                   | 否   |          | 下载方式     |
+| has_staitcs          | char     | 1    |                                   | 否   |          | 是否统计     |
 | refer_source         | char     | 1    |                                   | 是   |          | 来源         |
 | device_id            | varchar  | 255  |                                   | 是   |          | 设备唯一标识 |
 | browser              | varchar  | 50   |                                   | 是   |          | 浏览器类型   |
@@ -2335,6 +2336,7 @@ CREATE TABLE p_picture_download_log_info
     fail_reason          VARCHAR(255) COMMENT '失败原因',
     download_type        CHAR(1)      NOT NULL COMMENT '下载方式（0手动 1API 2批量）',
     refer_source         CHAR(1) COMMENT '来源（0其他 1详情 2分享）',
+   	has_staitcs      CHAR(1) NOT NULL COMMENT '是否统计',
     ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
     ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
     device_id            VARCHAR(255) COMMENT '设备唯一标识',
@@ -2615,6 +2617,7 @@ CREATE TABLE p_picture_comment_like_info (
 | tags           | varchar  | 256  |                                           | 是   |          | 图片标签     |
 | target_cover   | varchar  | 512  |                                           | 是   |          | 封面         |
 | create_time    | datetime |      |                                           | 否   | 当前时间 | 转发时间     |
+| has_staitcs    | char     | 1    |                                           | 否   |          | 是否统计     |
 | device_id      | varchar  | 256  |                                           | 是   |          | 设备唯一标识 |
 | browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
 | os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
@@ -2648,6 +2651,7 @@ CREATE TABLE `p_user_behavior_info` (
   `tags` VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
   `target_cover` VARCHAR(512) DEFAULT NULL COMMENT '封面',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
+  `has_staitcs`      CHAR(1) NOT NULL COMMENT '是否统计',
   `device_id` VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
   `browser` VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
   `os` VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
@@ -2679,6 +2683,7 @@ CREATE TABLE `p_user_behavior_info` (
 | tags           | varchar  | 256  |                                           | 是   |          | 图片标签     |
 | target_cover   | varchar  | 512  |                                           | 是   |          | 封面         |
 | create_time    | datetime |      |                                           | 否   | 当前时间 | 查看时间     |
+| has_staitcs    | char     | 1    |                                           | 否   |          | 是否统计     |
 | device_id      | varchar  | 256  |                                           | 是   |          | 设备唯一标识 |
 | browser        | varchar  | 50   |                                           | 是   |          | 浏览器类型   |
 | os             | varchar  | 50   |                                           | 是   |          | 操作系统     |
@@ -2706,6 +2711,7 @@ CREATE TABLE p_user_view_log_info (
     tags VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
     target_cover VARCHAR(512) DEFAULT NULL COMMENT '封面',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '查看时间',
+    has_staitcs      CHAR(1) NOT NULL COMMENT '是否统计',
     device_id VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
     browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
     os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',

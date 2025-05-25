@@ -233,15 +233,15 @@ const sendSmsCode = () => {
     if (res.code === 200) {
       message.success('短信验证码已发送')
       countdown.value = 60
+      timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) clearInterval(timer)
+      }, 1000)
     } else {
       getCode()
       message.error(res.msg)
     }
   })
-  timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) clearInterval(timer)
-  }, 1000)
 }
 
 // 提交注册

@@ -88,7 +88,7 @@
   </div>
 </template>
 
-<script setup name="UserSmsLogin">
+<script setup name="UserSmsLogin" lang="ts">
 import { ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { PhoneOutlined } from '@ant-design/icons-vue'
@@ -186,15 +186,15 @@ const sendSmsCode = () => {
     if (res.code === 200) {
       message.success('短信验证码已发送')
       countdown.value = 60
+      timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) clearInterval(timer)
+      }, 1000)
     } else {
       getCode()
       message.error('图形验证码错误')
     }
   })
-  timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) clearInterval(timer)
-  }, 1000)
 }
 
 // 修改提交逻辑

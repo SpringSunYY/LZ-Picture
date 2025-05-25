@@ -240,7 +240,7 @@ const sendVerificationCode = async () => {
     }
 
     // 调用发送接口
-    await getForgetPasswordCode({
+    const res = await getForgetPasswordCode({
       countryCode: forgotPasswordForm.value.countryCode,
       phone: forgotPasswordForm.value.phone,
       code: forgotPasswordForm.value.code,
@@ -249,7 +249,9 @@ const sendVerificationCode = async () => {
       password: forgotPasswordForm.value.newPassword,
       confirmPassword: forgotPasswordForm.value.confirmPassword,
     })
-
+    if (res.code !== 200) {
+      message.error(res.msg)
+    }
     message.success('验证码已发送')
     isSending.value = true
     countdown.value = 60
