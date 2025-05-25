@@ -19,6 +19,7 @@ import com.lz.picture.model.domain.PictureCategoryInfo;
 import com.lz.picture.service.IPictureCategoryInfoService;
 import com.lz.picture.model.dto.pictureCategoryInfo.PictureCategoryInfoQuery;
 import com.lz.picture.model.vo.pictureCategoryInfo.PictureCategoryInfoVo;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * 图片分类信息Service业务层处理
@@ -30,6 +31,9 @@ import com.lz.picture.model.vo.pictureCategoryInfo.PictureCategoryInfoVo;
 public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryInfoMapper, PictureCategoryInfo> implements IPictureCategoryInfoService {
     @Resource
     private PictureCategoryInfoMapper pictureCategoryInfoMapper;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     //region mybatis代码
 
@@ -147,6 +151,26 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
             return Collections.emptyList();
         }
         return pictureCategoryInfoList.stream().map(PictureCategoryInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public int updatePictureCategoryInfo(String categoryId, String categoryIdOld) {
+        //判断是否和存入数据库数据一样，如果一样则不更新
+        if (categoryId.equals(categoryIdOld)) {
+            return 0;
+        }
+        PictureCategoryInfo newCategory = selectPictureCategoryInfoByCategoryId(categoryId);
+        newCategory.setUsageCount(newCategory.getUsageCount() + 1);
+        PictureCategoryInfo oldCategory = selectPictureCategoryInfoByCategoryId(categoryIdOld);
+        oldCategory.setUsageCount(oldCategory.getUsageCount() - 1);
+        if (oldCategory.getUsageCount() < 0) {
+            oldCategory.setUsageCount(0L);
+        }
+        transactionTemplate.execute(result -> {
+            this.updateById(newCategory);
+            return this.updateById(oldCategory);
+        });
+        return 1;
     }
 
 }

@@ -28,7 +28,6 @@ import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
 import com.lz.points.model.domain.AccountInfo;
-import com.lz.points.model.domain.PointsUsageLogInfo;
 import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
 import com.lz.points.model.enums.PoPointsUsageTypeEnum;
 import com.lz.points.service.IAccountInfoService;
@@ -49,7 +48,6 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
-import static com.lz.picture.manager.factory.PictureUserViewLogAsyncFactory.SEPARATION;
 
 /**
  * 图片信息Service业务层处理
@@ -283,6 +281,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public int userInsertPictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
+        //查询分类是否存在
+        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+        ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
+        categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
         //更新空间信息
         spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
@@ -302,9 +304,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue()));
         pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
         int i = pictureInfoMapper.insertPictureInfo(pictureInfo);
-        //异步更新图片空间、标签、标签关联
+
+        //异步更新图片空间、标签、标签关联、分类
         executorService.execute(() -> {
-            implementPictureAdd(pictureInfo, spaceInfo);
+            implementPictureAdd(pictureInfo, spaceInfo, categoryInfo);
         });
         //异步更新文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateNormalFileLog(pictureInfo));
@@ -351,9 +354,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             ThrowUtils.throwIf(StringUtils.isNull(pictureInfoById), HttpStatus.NO_CONTENT, "图片不存在");
             pictureInfo.setUserId(pictureInfoById.getUserId());
         }
-        //查询分类是否存在
-        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
-        ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
@@ -399,7 +399,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * param: spaceInfo
      * return: void
      **/
-    private void implementPictureAdd(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
+    private void implementPictureAdd(PictureInfo pictureInfo, SpaceInfo spaceInfo, PictureCategoryInfo categoryInfo) {
         //查询标签是否存在
         List<String> tags = pictureInfo.getTags();
         //校验标签长度，如果超过16，则截取
@@ -461,6 +461,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 pictureTagRelInfos.add(rel);
             });
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
+            pictureCategoryInfoService.updateById(categoryInfo);
             return spaceInfoService.updateById(spaceInfo);
         });
     }
@@ -647,6 +648,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
+        //查询分类是否存在
+        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+        ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
         //查询在数据库内内容
         PictureInfo pictureInfoDb = pictureInfoMapper.selectPictureInfoByPictureId(pictureInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb), HttpStatus.NO_CONTENT, "图片不存在");
@@ -690,10 +694,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setPicScale(picScale);
         pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue()));
         pictureInfoMapper.updatePictureInfo(pictureInfo);
-        //异步更新文件日志的信息
-        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
+        //异步更新分类信息
+        executorService.execute(() -> {
+            pictureCategoryInfoService.updatePictureCategoryInfo(categoryInfo.getCategoryId(), pictureInfoDb.getCategoryId());
+        });
+        //异步更新文件日志的信息
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
         //查询用户现在所拥有的信息
         return userMySelectPictureInfoByPictureId(pictureInfo.getPictureId(), pictureInfo.getUserId());
     }
@@ -709,6 +717,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @date 2025/4/26 21:07
      **/
     private void implementPictureUpdate(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
+
+
         //获取图片原有关联
         List<String> tagRelTagIds = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
                         .eq(PictureTagRelInfo::getPictureId, pictureInfo.getPictureId()))
