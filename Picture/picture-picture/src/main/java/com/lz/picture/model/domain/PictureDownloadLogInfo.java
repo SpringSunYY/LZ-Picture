@@ -1,5 +1,6 @@
 package com.lz.picture.model.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Date;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @TableName("p_picture_download_log_info")
 @Data
 public class PictureDownloadLogInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -48,6 +50,18 @@ public class PictureDownloadLogInfo implements Serializable {
      */
     @Excel(name = "图片分类")
     private String categoryId;
+
+    /**
+     * 图片名称
+     */
+    @Excel(name = "图片名称")
+    private String pictureName;
+
+    /**
+     * 缩略图URL
+     */
+    @Excel(name = "缩略图URL")
+    private String thumbnailUrl;
 
     /**
      * 图片标签（格式："标签1","标签2"）

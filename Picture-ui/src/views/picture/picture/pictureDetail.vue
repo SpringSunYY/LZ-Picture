@@ -239,6 +239,7 @@ const downloadPicture = async () => {
     picture.value.pictureId,
     picture.value?.name + '.' + picture.value?.picFormat,
   )
+  message.success('资源获取成功，之后可以在下载记录中下载原图',5)
   downloadPictureLoading.value = false
 }
 getPictureInfo()

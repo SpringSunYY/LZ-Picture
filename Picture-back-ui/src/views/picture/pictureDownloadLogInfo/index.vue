@@ -33,6 +33,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="图片名称" prop="pictureName">
+        <el-input
+            v-model="queryParams.pictureName"
+            placeholder="请输入图片名称"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="空间编号" prop="spaceId">
         <el-input
             v-model="queryParams.spaceId"
@@ -227,68 +235,75 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片分类" align="center" prop="categoryId" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片标签" align="center" prop="tags" v-if="columns[4].visible"
+      <el-table-column label="图片名称" align="center" prop="pictureName" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间编号" align="center" prop="spaceId" v-if="columns[5].visible"
+      <el-table-column label="缩略图URL" align="center" prop="thumbnailUrl" width="100" v-if="columns[5].visible">
+        <template #default="scope">
+          <image-preview :src="scope.row.thumbnailUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="图片标签" align="center" prop="tags" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="消耗积分" align="center" prop="pointsCost" v-if="columns[6].visible"
+      <el-table-column label="空间编号" align="center" prop="spaceId" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="是否免费" align="center" prop="isFree" v-if="columns[7].visible">
+      <el-table-column label="消耗积分" align="center" prop="pointsCost" v-if="columns[8].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="是否免费" align="center" prop="isFree" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="p_download_is_free" :value="scope.row.isFree"/>
         </template>
       </el-table-column>
-      <el-table-column label="作者分成积分" align="center" prop="pointsAuthorGain" v-if="columns[8].visible"
+      <el-table-column label="作者分成积分" align="center" prop="pointsAuthorGain" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台分成积分" align="center" prop="pointsOfficialGain" v-if="columns[9].visible"
+      <el-table-column label="平台分成积分" align="center" prop="pointsOfficialGain" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间分成积分" align="center" prop="pointsSpaceGain" v-if="columns[10].visible"
+      <el-table-column label="空间分成积分" align="center" prop="pointsSpaceGain" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="作者分成比例" align="center" prop="authorProportion" v-if="columns[11].visible"
+      <el-table-column label="作者分成比例" align="center" prop="authorProportion" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="官方分成比例" align="center" prop="officialProportion" v-if="columns[12].visible"
+      <el-table-column label="官方分成比例" align="center" prop="officialProportion" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间分成比例" align="center" prop="spaceProportion" v-if="columns[13].visible"
+      <el-table-column label="空间分成比例" align="center" prop="spaceProportion" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载时间" align="center" prop="createTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="下载时间" align="center" prop="createTime" width="180" v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="下载状态" align="center" prop="downloadStatus" v-if="columns[15].visible">
+      <el-table-column label="下载状态" align="center" prop="downloadStatus" v-if="columns[17].visible">
         <template #default="scope">
           <dict-tag :options="p_download_status" :value="scope.row.downloadStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[16].visible"
+      <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载方式" align="center" prop="downloadType" v-if="columns[17].visible">
+      <el-table-column label="下载方式" align="center" prop="downloadType" v-if="columns[19].visible">
         <template #default="scope">
           <dict-tag :options="p_download_type" :value="scope.row.downloadType"/>
         </template>
       </el-table-column>
-      <el-table-column label="来源" align="center" prop="referSource" v-if="columns[18].visible">
+      <el-table-column label="来源" align="center" prop="referSource" v-if="columns[20].visible">
         <template #default="scope">
           <dict-tag :options="p_download_refer_source" :value="scope.row.referSource"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[19].visible">
+      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[21].visible">
         <template #default="scope">
           <dict-tag :options="common_has_statistics" :value="scope.row.hasStatistics"/>
         </template>
       </el-table-column>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[20].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[21].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[22].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[24].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[23].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[25].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[24].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[26].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[25].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[27].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -338,7 +353,8 @@
                 v-for="dict in common_has_statistics"
                 :key="dict.value"
                 :value="dict.value"
-            >{{dict.label}}</el-radio>
+            >{{ dict.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -368,7 +384,7 @@ const {
   p_download_status,
   p_download_is_free,
   common_has_statistics
-} = proxy.useDict('p_download_type', 'p_download_refer_source', 'p_download_status', 'p_download_is_free','common_has_statistics');
+} = proxy.useDict('p_download_type', 'p_download_refer_source', 'p_download_status', 'p_download_is_free', 'common_has_statistics');
 
 const pictureDownloadLogInfoList = ref([]);
 const open = ref(false);
@@ -446,28 +462,30 @@ const data = reactive({
     {key: 1, label: '用户编号', visible: true},
     {key: 2, label: '图片编号', visible: true},
     {key: 3, label: '图片分类', visible: true},
-    {key: 4, label: '图片标签', visible: false},
-    {key: 5, label: '空间编号', visible: true},
-    {key: 6, label: '消耗积分', visible: true},
-    {key: 7, label: '是否免费', visible: false},
-    {key: 8, label: '作者分成积分', visible: true},
-    {key: 9, label: '平台分成积分', visible: true},
-    {key: 10, label: '空间分成积分', visible: true},
-    {key: 11, label: '作者分成比例', visible: false},
-    {key: 12, label: '官方分成比例', visible: false},
-    {key: 13, label: '空间分成比例', visible: false},
-    {key: 14, label: '下载时间', visible: true},
-    {key: 15, label: '下载状态', visible: true},
-    {key: 16, label: '失败原因', visible: false},
-    {key: 17, label: '下载方式', visible: true},
-    {key: 18, label: '来源', visible: false},
-    {key: 19, label: '是否统计', visible: false},
-    {key: 20, label: 'IP地址', visible: false},
-    {key: 21, label: 'IP属地', visible: false},
-    {key: 22, label: '设备唯一标识', visible: false},
-    {key: 23, label: '浏览器类型', visible: false},
-    {key: 24, label: '操作系统', visible: false},
-    {key: 25, label: '平台', visible: false},
+    {key: 4, label: '图片名称', visible: true},
+    {key: 5, label: '缩略图URL', visible: true},
+    {key: 6, label: '图片标签', visible: false},
+    {key: 7, label: '空间编号', visible: true},
+    {key: 8, label: '消耗积分', visible: true},
+    {key: 9, label: '是否免费', visible: false},
+    {key: 10, label: '作者分成积分', visible: true},
+    {key: 11, label: '平台分成积分', visible: true},
+    {key: 12, label: '空间分成积分', visible: true},
+    {key: 13, label: '作者分成比例', visible: false},
+    {key: 14, label: '官方分成比例', visible: false},
+    {key: 15, label: '空间分成比例', visible: false},
+    {key: 16, label: '下载时间', visible: true},
+    {key: 17, label: '下载状态', visible: true},
+    {key: 18, label: '失败原因', visible: false},
+    {key: 19, label: '下载方式', visible: true},
+    {key: 20, label: '来源', visible: false},
+    {key: 21, label: '是否统计', visible: false},
+    {key: 22, label: 'IP地址', visible: false},
+    {key: 23, label: 'IP属地', visible: false},
+    {key: 24, label: '设备唯一标识', visible: false},
+    {key: 25, label: '浏览器类型', visible: false},
+    {key: 26, label: '操作系统', visible: false},
+    {key: 27, label: '平台', visible: false},
   ],
 });
 
@@ -501,6 +519,8 @@ function reset() {
     userId: null,
     pictureId: null,
     categoryId: null,
+    pictureName: null,
+    thumbnailUrl: null,
     tags: null,
     spaceId: null,
     pointsCost: null,

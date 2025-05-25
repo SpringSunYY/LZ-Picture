@@ -2295,6 +2295,8 @@ CREATE TABLE p_picture_tag_rel_info
 | picture_id           | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号     |
 | space_id             | varchar  | 128  | 外键 (p_space:space_id)           | 是   |          | 空间编号     |
 | category_id          | varchar  | 128  | 外键(p_category_info:category_id) | 否   |          | 图片分类     |
+| picture_name         | varchar  | 32   |                                   | 否   |          | 图片名称     |
+| thumbnail_url        | varchar  | 512  |                                   | 是   |          | 缩略图 url   |
 | tags                 | varchar  | 256  |                                   | 是   |          | 图片标签     |
 | points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
 | is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
@@ -2337,6 +2339,8 @@ CREATE TABLE p_picture_download_log_info
     user_id              VARCHAR(128) NOT NULL COMMENT '用户编号',
     picture_id           VARCHAR(128)       NOT NULL COMMENT '图片编号',
     category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
+    picture_name VARCHAR(32) NOT NULL COMMENT '图片名称',
+    thumbnail_url VARCHAR(512) COMMENT '缩略图URL',
     tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
     space_id             VARCHAR(128) COMMENT '空间编号',
     points_cost          INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',

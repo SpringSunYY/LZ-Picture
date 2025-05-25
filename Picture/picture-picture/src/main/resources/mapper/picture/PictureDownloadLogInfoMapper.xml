@@ -9,6 +9,8 @@
         <result property="userId" column="user_id"/>
         <result property="pictureId" column="picture_id"/>
         <result property="categoryId" column="category_id"/>
+        <result property="pictureName" column="picture_name"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
         <result property="tags" column="tags"/>
         <result property="spaceId" column="space_id"/>
         <result property="pointsCost" column="points_cost"/>
@@ -38,6 +40,8 @@
                user_id,
                picture_id,
                category_id,
+               picture_name,
+               thumbnail_url,
                tags,
                space_id,
                points_cost,
@@ -71,6 +75,7 @@
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
             <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="pictureName != null  and pictureName != ''"> and picture_name like concat('%', #{pictureName}, '%')</if>
             <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
             <if test="pointsCost != null ">and points_cost = #{pointsCost}</if>
             <if test="isFree != null  and isFree != ''">and is_free = #{isFree}</if>
@@ -104,6 +109,8 @@
             <if test="userId != null and userId != ''">user_id,</if>
             <if test="pictureId != null and pictureId != ''">picture_id,</if>
             <if test="categoryId != null and categoryId != ''">category_id,</if>
+            <if test="pictureName != null">picture_name,</if>
+            <if test="thumbnailUrl != null">thumbnail_url,</if>
             <if test="tags != null">tags,</if>
             <if test="spaceId != null">space_id,</if>
             <if test="pointsCost != null">points_cost,</if>
@@ -132,6 +139,8 @@
             <if test="userId != null and userId != ''">#{userId},</if>
             <if test="pictureId != null and pictureId != ''">#{pictureId},</if>
             <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
+            <if test="pictureName != null">#{pictureName},</if>
+            <if test="thumbnailUrl != null">#{thumbnailUrl},</if>
             <if test="tags != null">#{tags},</if>
             <if test="spaceId != null">#{spaceId},</if>
             <if test="pointsCost != null">#{pointsCost},</if>
@@ -163,6 +172,8 @@
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="pictureId != null and pictureId != ''">picture_id = #{pictureId},</if>
             <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
+            <if test="pictureName != null">picture_name = #{pictureName},</if>
+            <if test="thumbnailUrl != null">thumbnail_url = #{thumbnailUrl},</if>
             <if test="tags != null">tags = #{tags},</if>
             <if test="spaceId != null">space_id = #{spaceId},</if>
             <if test="pointsCost != null">points_cost = #{pointsCost},</if>
