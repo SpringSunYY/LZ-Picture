@@ -45,6 +45,11 @@
             <artifactId>picture-points</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-picture</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

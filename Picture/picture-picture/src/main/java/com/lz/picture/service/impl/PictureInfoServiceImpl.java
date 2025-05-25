@@ -9,6 +9,7 @@ import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.utils.DateUtils;
@@ -839,6 +840,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureDownloadLogInfo.setDownloadStatus(PDownloadStatusEnum.DOWNLOAD_STATUS_0.getValue());
         pictureDownloadLogInfo.setDownloadType(PDownloadTypeEnum.DOWNLOAD_TYPE_0.getValue());
         pictureDownloadLogInfo.setReferSource(PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_1.getValue());
+        pictureDownloadLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
         BeanUtils.copyProperties(deviceInfo, pictureDownloadLogInfo);
         //判断本人是否是作者
         if (pictureInfo.getUserId().equals(userId)) {

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.utils.StringUtils;
 
 import com.lz.common.utils.DateUtils;
@@ -79,6 +80,7 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
      */
     @Override
     public int insertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+        userBehaviorInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
         userBehaviorInfo.setCreateTime(DateUtils.getNowDate());
         return userBehaviorInfoMapper.insertUserBehaviorInfo(userBehaviorInfo);
     }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.utils.StringUtils;
 
 import com.lz.common.utils.DateUtils;
@@ -195,16 +196,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         if (StringUtils.isNotEmpty(list)) {
             userViewLogInfo = list.getFirst();
         } else {
-            //更新标签
-            List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>().eq(PictureTagRelInfo::getPictureId, userViewLogTargetInfoDto.getTargetId()));
-            if (StringUtils.isNotEmpty(tagRelInfos)) {
-                List<String> tagIds = tagRelInfos.stream().map(PictureTagRelInfo::getTagId).collect(Collectors.toList());
-                List<PictureTagInfo> tagInfos = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>().in(PictureTagInfo::getTagId, tagIds));
-                tagInfos.forEach(tagInfo -> {
-                    tagInfo.setLookCount(tagInfo.getLookCount() + 1);
-                });
-                pictureTagInfoService.updateBatchById(tagInfos);
-            }
+            userViewLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
         }
         //赋值
         userViewLogInfo.setUserId(userId);
