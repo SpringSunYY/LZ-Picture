@@ -203,6 +203,9 @@ export interface PictureDetailInfoVo {
   /** 图片标签 */
   pictureTags?: string[]
 
+  /** 查看次数  */
+  lookCount?: number
+
   /** 喜欢总数 */
   likeCount?: number
   /** 是否喜欢 */

@@ -26,6 +26,7 @@ import com.lz.picture.model.domain.*;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
 import com.lz.points.model.domain.AccountInfo;
@@ -494,9 +495,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      */
     private void isBehavior(String pictureId, String userId, UserPictureDetailInfoVo userPictureDetailInfoVo) {
         String behaviorKey = PICTURE_USER_BEHAVIOR + userId + ":" + PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue() + ":" + pictureId;
-        ArrayList<UserBehaviorInfo> userBehaviorInfos = new ArrayList<>();
+        List<UserBehaviorInfoCache> userBehaviorInfoCaches = new ArrayList<>();
         if (redisCache.hasKey(behaviorKey)) {
-            userBehaviorInfos = redisCache.getCacheObject(behaviorKey);
+            userBehaviorInfoCaches = redisCache.getCacheObject(behaviorKey);
         } else {
             List<UserBehaviorInfo> list = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
                     .eq(UserBehaviorInfo::getUserId, userId)
@@ -504,12 +505,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue())
                     .in(UserBehaviorInfo::getBehaviorType, Arrays.asList(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue(), PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())));
             if (StringUtils.isNotEmpty(list)) {
-                userBehaviorInfos.addAll(list);
+                userBehaviorInfoCaches = UserBehaviorInfoCache.objToVo(list);
             }
         }
 
-        if (StringUtils.isNotEmpty(userBehaviorInfos)) {
-            for (UserBehaviorInfo info : userBehaviorInfos) {
+        if (StringUtils.isNotEmpty(userBehaviorInfoCaches)) {
+            for (UserBehaviorInfoCache info : userBehaviorInfoCaches) {
                 if (info.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
                     userPictureDetailInfoVo.setIsLike(true);
                 }
@@ -517,7 +518,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     userPictureDetailInfoVo.setIsCollect(true);
                 }
             }
-            redisCache.setCacheObject(behaviorKey, userBehaviorInfos, 5, TimeUnit.MINUTES);
+            redisCache.setCacheObject(behaviorKey, userBehaviorInfoCaches, 5, TimeUnit.MINUTES);
         }
     }
 
@@ -577,9 +578,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //查询标签信息
         userPictureDetailInfoVo.setPictureTags(pictureTagRelInfoService.getPictureTagNames(pictureId));
-        //查询点赞、收藏、分享数 TODO 优化，无需再查询
-        getPictureStatics(pictureId, userPictureDetailInfoVo);
-
         return userPictureDetailInfoVo;
     }
 
@@ -618,9 +616,30 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     @Override
-    public void resetPictureInfoCache(String pictureId) {
+    public void resetPictureInfoCacheByBehavior(String pictureId, String behaviorType, Boolean exist) {
         String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
-        UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+        UserPictureDetailInfoVo userPictureDetailInfoVo = null;
+        if (redisCache.hasKey(key)) {
+            userPictureDetailInfoVo = redisCache.getCacheObject(key);
+        } else {
+            userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+            userPictureDetailInfoVo.setPictureUrl(null);
+        }
+        if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
+            if (exist) {
+                userPictureDetailInfoVo.setLikeCount(userPictureDetailInfoVo.getLikeCount() - 1);
+            } else {
+                userPictureDetailInfoVo.setLikeCount(userPictureDetailInfoVo.getLikeCount() + 1);
+            }
+        } else if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())) {
+            if (exist) {
+                userPictureDetailInfoVo.setCollectCount(userPictureDetailInfoVo.getCollectCount() - 1);
+            } else {
+                userPictureDetailInfoVo.setCollectCount(userPictureDetailInfoVo.getCollectCount() + 1);
+            }
+        } else if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue())) {
+            userPictureDetailInfoVo.setShareCount(userPictureDetailInfoVo.getShareCount() + 1);
+        }
         //存入缓存 五分钟即可
         redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
     }
@@ -718,8 +737,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @date 2025/4/26 21:07
      **/
     private void implementPictureUpdate(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
-
-
         //获取图片原有关联
         List<String> tagRelTagIds = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
                         .eq(PictureTagRelInfo::getPictureId, pictureInfo.getPictureId()))

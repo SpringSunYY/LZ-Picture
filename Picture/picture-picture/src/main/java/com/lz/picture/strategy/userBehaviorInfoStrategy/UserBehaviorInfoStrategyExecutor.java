@@ -26,7 +26,7 @@ public class UserBehaviorInfoStrategyExecutor {
 //    @Resource
 //    private ApplicationContext applicationContext;
 
-    public UserBehaviorInfo executeGetUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+    public Boolean executeGetUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         ThrowUtils.throwIf(StringUtils.isNull(userBehaviorInfo), "用户行为参数错误");
         //根据注解获取对应的策略
         for (UserBehaviorInfoStrategyService userBehaviorInfoStrategyService : userBehaviorInfoStrategyServices) {

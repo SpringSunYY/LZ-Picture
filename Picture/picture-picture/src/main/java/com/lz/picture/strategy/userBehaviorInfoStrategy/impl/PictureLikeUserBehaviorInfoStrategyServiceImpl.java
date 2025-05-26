@@ -15,7 +15,7 @@ import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategy
 public class PictureLikeUserBehaviorInfoStrategyServiceImpl extends UserBehaviorInfoStrategyTemplate {
 
     @Override
-    public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+    public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         return super.getUserBehaviorInfo(userBehaviorInfo);
     }
 

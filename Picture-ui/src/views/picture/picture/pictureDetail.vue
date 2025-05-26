@@ -62,6 +62,18 @@
         </a-card>
         <a-card title="" :bordered="false" class="card action-card">
           <a-space-compact direction="horizontal" align="center" style="padding: 0" :wrap="true">
+            <a-tooltip title="View">
+              <a-button class="icon-button" @click="clickLook">
+                <FireOutlined
+                  :style="{
+                    color: '#999',
+                    verticalAlign: 'middle',
+                    fontSize: '18px',
+                  }"
+                />
+                {{ picture?.lookCount || 0 }}
+              </a-button>
+            </a-tooltip>
             <a-tooltip title="Like">
               <a-button class="icon-button" @click="addUserBehavior('0')">
                 <LikeOutlined
@@ -135,6 +147,7 @@ import {
   LikeOutlined,
   ShareAltOutlined,
   StarOutlined,
+  FireOutlined,
 } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import Comment from '@/components/Comment/Comment.vue'
@@ -178,51 +191,52 @@ const getPictureInfo = () => {
   })
 }
 const addUserBehavior = (behaviorType: string) => {
-  // console.log('behaviorType', behaviorType)
+  console.log('behaviorType', behaviorType)
   const targetType = '0'
-  let meg = '点赞成功'
+  let msg = '点赞成功'
 
   addUserBehaviorInfo({
     behaviorType: behaviorType,
     targetType: targetType,
     targetId: pictureId.value,
   }).then((res) => {
-    if (res.code === 200 && (res.data != undefined || res.data != null)) {
+    if (res.code === 200 && res.data != undefined && res.data) {
       switch (behaviorType) {
         case '0':
-          meg = '点赞成功'
+          msg = '点赞成功'
+          console.log('msg', msg)
           picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
           picture.value.isLike = !picture.value.isLike
           break
         case '1':
-          meg = '收藏成功'
+          msg = '收藏成功'
           picture.value.collectCount = Number(picture.value?.collectCount || 0) + 1
           picture.value.isCollect = !picture.value.isCollect
           break
         case '2':
-          meg = '分享成功'
+          msg = '分享成功'
+          console.log('msg', msg)
           picture.value.shareCount = Number(picture.value?.shareCount || 0) + 1
           break
       }
     } else {
       switch (behaviorType) {
         case '0':
-          meg = '取消点赞成功'
+          msg = '取消点赞成功'
           picture.value.likeCount = Number(picture.value?.likeCount || 0) - 1
           picture.value.isLike = !picture.value.isLike
           break
         case '1':
-          meg = '取消收藏成功'
+          msg = '取消收藏成功'
           picture.value.collectCount = Number(picture.value?.collectCount || 0) - 1
           picture.value.isCollect = !picture.value.isCollect
           break
         case '2':
-          meg = '取消分享成功'
-          picture.value.shareCount = Number(picture.value?.shareCount || 0) - 1
+          msg = '分享成功'
           break
       }
     }
-    message.success(meg)
+    message.success(msg)
   })
 }
 
@@ -232,15 +246,19 @@ const { verify } = usePasswordVerify()
 const downloadPicture = async () => {
   const verified = await verify('下载图片')
   if (!verified) return
-  message.success('图片下载中...',5)
+  message.success('图片下载中...', 5)
   message.info('请不要刷新页面', 5)
   downloadPictureLoading.value = true
   const res = await downloadImage(
     picture.value.pictureId,
     picture.value?.name + '.' + picture.value?.picFormat,
   )
-  message.success('资源获取成功，之后可以在下载记录中下载原图',5)
+  message.success('资源获取成功，之后可以在下载记录中下载原图', 5)
   downloadPictureLoading.value = false
+}
+
+const clickLook = () => {
+  message.success('点我干嘛呀😒😒😒😒😒',1)
 }
 getPictureInfo()
 </script>

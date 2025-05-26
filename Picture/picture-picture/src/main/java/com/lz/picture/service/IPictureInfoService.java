@@ -103,7 +103,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId, String userId);
 
     /**
-     * description: 重新设置缓存
+     * description: 重新设置缓存,根据行为
      * author: YY
      * method: resetPictureInfoCache
      * date: 2025/4/15 00:04
@@ -111,7 +111,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * param: pictureId 图片id
      * return: void
      **/
-    void resetPictureInfoCache(String pictureId);
+    void resetPictureInfoCacheByBehavior(String pictureId, String behaviorType, Boolean exist);
 
     /**
      * 用户自己查看图片信息

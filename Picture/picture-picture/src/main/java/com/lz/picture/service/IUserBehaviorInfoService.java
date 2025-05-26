@@ -95,7 +95,7 @@ public interface IUserBehaviorInfoService extends IService<UserBehaviorInfo> {
      * param: userBehaviorInfo
      * return: UserBehaviorInfo
      **/
-    UserBehaviorInfo userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
+    Boolean userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
 
     /**
      * description: 查询每种类型的行为总数

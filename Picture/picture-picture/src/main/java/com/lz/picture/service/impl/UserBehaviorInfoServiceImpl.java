@@ -190,7 +190,7 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
     }
 
     @Override
-    public UserBehaviorInfo userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+    public Boolean userInsertUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         //校验数据 获取分数
         checkType(userBehaviorInfo);
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();

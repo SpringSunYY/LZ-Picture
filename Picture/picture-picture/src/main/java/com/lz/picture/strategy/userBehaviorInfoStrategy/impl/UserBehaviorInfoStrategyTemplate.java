@@ -7,10 +7,7 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.domain.PictureTagInfo;
-import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.model.enums.PTagStatusEnum;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IPictureTagInfoService;
 import com.lz.picture.service.IPictureTagRelInfoService;
@@ -19,10 +16,8 @@ import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategy
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
 import java.util.TimerTask;
 
-import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 
 /**
@@ -98,29 +93,27 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
     }
 
     @Override
-    public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
-        //执行前操作 判断是否存在
-        if (judgeExist(userBehaviorInfo)) {
-            return null;
-        }
+    public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+        //执行前操作 判断是否存在 如果是已经存在，就给之前的数据删除了
+        boolean exist = judgeExist(userBehaviorInfo);
         UserBehaviorInfo info = getDetailInfo(userBehaviorInfo);
-        //插入数据库 如果存在
-        if (StringUtils.isNotNull(info)) {
+        //插入数据库 如果记录不存在
+        if (StringUtils.isNotNull(info) && !exist) {
             info.setBehaviorId(IdUtils.snowflakeId().toString());
             userBehaviorInfoService.insertUserBehaviorInfo(info);
         }
         //重新获取信息 异步去更新缓存
-        asyncUpdate(info);
-        return info;
+        asyncUpdate(info, exist);
+        return !exist;
     }
 
-    public void asyncUpdate(UserBehaviorInfo info) {
+    public void asyncUpdate(UserBehaviorInfo info,Boolean exist) {
         PictureAsyncManager.me().execute(new TimerTask() {
             @Override
             public void run() {
-                String behaviorKey = PICTURE_USER_BEHAVIOR + info.getUserId() + ":" + info.getBehaviorType() + ":" + info.getTargetId();
+                String behaviorKey = PICTURE_USER_BEHAVIOR + info.getUserId() + ":" + info.getTargetType() + ":" + info.getTargetId();
                 redisCache.deleteObject(behaviorKey);
-                pictureInfoService.resetPictureInfoCache(info.getTargetId());
+                pictureInfoService.resetPictureInfoCacheByBehavior(info.getTargetId(), info.getBehaviorType(),exist);
             }
         });
     }

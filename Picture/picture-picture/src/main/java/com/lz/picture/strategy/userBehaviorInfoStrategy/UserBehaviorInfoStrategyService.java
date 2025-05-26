@@ -12,5 +12,5 @@ import com.lz.picture.model.domain.UserBehaviorInfo;
  * Version: 1.0
  */
 public interface UserBehaviorInfoStrategyService {
-    public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
+    public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo);
 }

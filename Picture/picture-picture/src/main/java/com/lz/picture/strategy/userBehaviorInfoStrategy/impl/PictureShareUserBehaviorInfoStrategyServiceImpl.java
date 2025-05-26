@@ -32,18 +32,19 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
     private IPictureInfoService pictureInfoService;
 
     @Override
-    public UserBehaviorInfo getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
+    public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         //判断今天是否分享过
         //如果不存在则添加，也就是分享记录每天只记录一次
-        boolean b = !judgeExist(userBehaviorInfo);
+        boolean exist = judgeExist(userBehaviorInfo);
         UserBehaviorInfo detailInfo = getDetailInfo(userBehaviorInfo);
-        if (b) {
+        //如果不为空表示今天没有需要新增
+        if (!exist) {
             detailInfo.setBehaviorId(IdUtils.snowflakeId().toString());
             userBehaviorInfoService.insertUserBehaviorInfo(detailInfo);
-            //重新获取信息 异步去更新缓存
-            asyncUpdate(userBehaviorInfo);
         }
-        return detailInfo;
+        //重新获取信息 异步去更新缓存
+        asyncUpdate(userBehaviorInfo, exist);
+        return true;
     }
 
     @Override
@@ -59,14 +60,4 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
         //存在表示要删除 不存在则是要添加
         return StringUtils.isNotNull(behaviorInfo);
     }
-    @Override
-    public void asyncUpdate(UserBehaviorInfo info) {
-        PictureAsyncManager.me().execute(new TimerTask() {
-            @Override
-            public void run() {
-                pictureInfoService.resetPictureInfoCache(info.getTargetId());
-            }
-        });
-    }
-
 }
