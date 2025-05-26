@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.lz.common.utils.StringUtils;
+
 import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -22,15 +25,15 @@ import com.lz.user.model.vo.informInfo.InformInfoVo;
  * 用户通知记录Service业务层处理
  *
  * @author YY
- * @date 2025-03-17
+ * @date 2025-05-27
  */
 @Service
-public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformInfo> implements IInformInfoService
-{
+public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformInfo> implements IInformInfoService {
     @Resource
     private InformInfoMapper informInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询用户通知记录
      *
@@ -38,8 +41,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @return 用户通知记录
      */
     @Override
-    public InformInfo selectInformInfoByRecordId(String recordId)
-    {
+    public InformInfo selectInformInfoByRecordId(String recordId) {
         return informInfoMapper.selectInformInfoByRecordId(recordId);
     }
 
@@ -50,8 +52,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @return 用户通知记录
      */
     @Override
-    public List<InformInfo> selectInformInfoList(InformInfo informInfo)
-    {
+    public List<InformInfo> selectInformInfoList(InformInfo informInfo) {
         return informInfoMapper.selectInformInfoList(informInfo);
     }
 
@@ -62,8 +63,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @return 结果
      */
     @Override
-    public int insertInformInfo(InformInfo informInfo)
-    {
+    public int insertInformInfo(InformInfo informInfo) {
         return informInfoMapper.insertInformInfo(informInfo);
     }
 
@@ -74,8 +74,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @return 结果
      */
     @Override
-    public int updateInformInfo(InformInfo informInfo)
-    {
+    public int updateInformInfo(InformInfo informInfo) {
         return informInfoMapper.updateInformInfo(informInfo);
     }
 
@@ -86,8 +85,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @return 结果
      */
     @Override
-    public int deleteInformInfoByRecordIds(String[] recordIds)
-    {
+    public int deleteInformInfoByRecordIds(String[] recordIds) {
         return informInfoMapper.deleteInformInfoByRecordIds(recordIds);
     }
 
@@ -98,45 +96,54 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @return 结果
      */
     @Override
-    public int deleteInformInfoByRecordId(String recordId)
-    {
+    public int deleteInformInfoByRecordId(String recordId) {
         return informInfoMapper.deleteInformInfoByRecordId(recordId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<InformInfo> getQueryWrapper(InformInfoQuery informInfoQuery){
+    public QueryWrapper<InformInfo> getQueryWrapper(InformInfoQuery informInfoQuery) {
         QueryWrapper<InformInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = informInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String recordId = informInfoQuery.getRecordId();
-        queryWrapper.eq(StringUtils.isNotEmpty(recordId) ,"record_id",recordId);
+        String recordId = informInfoQuery.getRecordId();
+        queryWrapper.eq(StringUtils.isNotEmpty(recordId), "record_id", recordId);
 
-    Long templateId = informInfoQuery.getTemplateId();
-        queryWrapper.eq( StringUtils.isNotNull(templateId),"template_id",templateId);
+        Long templateKey = informInfoQuery.getTemplateKey();
+        queryWrapper.eq(StringUtils.isNotNull(templateKey), "template_key", templateKey);
 
-    String userId = informInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String templateType = informInfoQuery.getTemplateType();
+        queryWrapper.eq(StringUtils.isNotEmpty(templateType), "template_type", templateType);
 
-    String informType = informInfoQuery.getInformType();
-        queryWrapper.eq(StringUtils.isNotEmpty(informType) ,"inform_type",informType);
+        String locale = informInfoQuery.getLocale();
+        queryWrapper.eq(StringUtils.isNotEmpty(locale), "locale", locale);
 
-    Integer status = informInfoQuery.getStatus();
-        queryWrapper.eq( StringUtils.isNotNull(status),"status",status);
+        String userId = informInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    Integer isRead = informInfoQuery.getIsRead();
-        queryWrapper.eq( StringUtils.isNotNull(isRead),"is_read",isRead);
+        String informType = informInfoQuery.getInformType();
+        queryWrapper.eq(StringUtils.isNotEmpty(informType), "inform_type", informType);
 
-    Date readTime = informInfoQuery.getReadTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginReadTime"))&&StringUtils.isNotNull(params.get("endReadTime")),"read_time",params.get("beginReadTime"),params.get("endReadTime"));
+        Integer status = informInfoQuery.getStatus();
+        queryWrapper.eq(StringUtils.isNotNull(status), "status", status);
 
-    Date sendTime = informInfoQuery.getSendTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginSendTime"))&&StringUtils.isNotNull(params.get("endSendTime")),"send_time",params.get("beginSendTime"),params.get("endSendTime"));
+        Integer isRead = informInfoQuery.getIsRead();
+        queryWrapper.eq(StringUtils.isNotNull(isRead), "is_read", isRead);
 
-    Integer isDeleted = informInfoQuery.getIsDeleted();
-        queryWrapper.eq( StringUtils.isNotNull(isDeleted),"is_deleted",isDeleted);
+        Date readTime = informInfoQuery.getReadTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginReadTime")) && StringUtils.isNotNull(params.get("endReadTime")), "read_time", params.get("beginReadTime"), params.get("endReadTime"));
+
+        Long retryCount = informInfoQuery.getRetryCount();
+        queryWrapper.eq(StringUtils.isNotNull(retryCount), "retry_count", retryCount);
+
+        Date sendTime = informInfoQuery.getSendTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginSendTime")) && StringUtils.isNotNull(params.get("endSendTime")), "send_time", params.get("beginSendTime"), params.get("endSendTime"));
+
+        Integer isDelete = informInfoQuery.getIsDelete();
+        queryWrapper.eq(StringUtils.isNotNull(isDelete), "is_delete", isDelete);
 
         return queryWrapper;
     }

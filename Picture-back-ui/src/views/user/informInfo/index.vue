@@ -1,26 +1,44 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="通知记录" prop="recordId">
+      <el-form-item label="通知记录编号" prop="recordId">
         <el-input
             v-model="queryParams.recordId"
-            placeholder="请输入通知记录"
+            placeholder="请输入通知记录编号"
             clearable
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="模板" prop="templateId">
+      <el-form-item label="模板KEY" prop="templateKey">
         <el-input
-            v-model="queryParams.templateId"
-            placeholder="请输入模板"
+            v-model="queryParams.templateKey"
+            placeholder="请输入模板KEY"
             clearable
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="用户" prop="userId">
+      <el-form-item label="模版类型" prop="templateType">
+        <el-select v-model="queryParams.templateType" style="width: 200px" placeholder="请选择模版类型" clearable>
+          <el-option
+              v-for="dict in c_template_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="语言" prop="locale">
+        <el-input
+            v-model="queryParams.locale"
+            placeholder="请输入语言"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="用户编号" prop="userId">
         <el-input
             v-model="queryParams.userId"
-            placeholder="请输入用户"
+            placeholder="请输入用户编号"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -48,7 +66,7 @@
       <el-form-item label="是否已读" prop="isRead">
         <el-select v-model="queryParams.isRead" style="width: 200px" placeholder="请选择是否已读" clearable>
           <el-option
-              v-for="dict in u_inform_is_read"
+              v-for="dict in u_inform_type"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -65,6 +83,14 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
+      <el-form-item label="重试次数" prop="retryCount">
+        <el-input
+            v-model="queryParams.retryCount"
+            placeholder="请输入重试次数"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="发送时间" style="width: 308px">
         <el-date-picker
             v-model="daterangeSendTime"
@@ -75,8 +101,8 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="逻辑删除标记" prop="isDeleted">
-        <el-select v-model="queryParams.isDeleted" style="width: 200px" placeholder="请选择逻辑删除标记" clearable>
+      <el-form-item label="删除" prop="isDelete">
+        <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
           <el-option
               v-for="dict in common_delete"
               :key="dict.value"
@@ -139,48 +165,55 @@
 
     <el-table v-loading="loading" :data="informInfoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="通知记录" align="center" prop="recordId" v-if="columns[0].visible"
+      <el-table-column label="通知记录编号" align="center" prop="recordId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="模板" align="center" prop="templateId" v-if="columns[1].visible"
+      <el-table-column label="模板KEY" align="center" prop="templateKey" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="用户" align="center" prop="userId" v-if="columns[2].visible"
+      <el-table-column label="模版类型" align="center" prop="templateType" v-if="columns[2].visible">
+        <template #default="scope">
+          <dict-tag :options="c_template_type" :value="scope.row.templateType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="语言" align="center" prop="locale" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实际发送内容" align="center" prop="content" v-if="columns[3].visible"
+      <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="通知类型" align="center" prop="informType" v-if="columns[4].visible">
+      <el-table-column label="实际发送内容" align="center" prop="content" v-if="columns[5].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="通知类型" align="center" prop="informType" v-if="columns[6].visible">
         <template #default="scope">
           <dict-tag :options="c_template_type" :value="scope.row.informType"/>
         </template>
       </el-table-column>
-      <el-table-column label="发送状态" align="center" prop="status" v-if="columns[5].visible">
+      <el-table-column label="发送状态" align="center" prop="status" v-if="columns[7].visible">
         <template #default="scope">
           <dict-tag :options="u_inform_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否已读" align="center" prop="isRead" v-if="columns[6].visible">
+      <el-table-column label="是否已读" align="center" prop="isRead" v-if="columns[8].visible">
         <template #default="scope">
-          <dict-tag :options="u_inform_is_read" :value="scope.row.isRead"/>
+          <dict-tag :options="u_inform_type" :value="scope.row.isRead"/>
         </template>
       </el-table-column>
-      <el-table-column label="读取时间" align="center" prop="readTime" width="180" v-if="columns[7].visible"
+      <el-table-column label="读取时间" align="center" prop="readTime" width="180" v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.readTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="重试次数" align="center" prop="retryCount" v-if="columns[8].visible"
+      <el-table-column label="重试次数" align="center" prop="retryCount" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="发送时间" align="center" prop="sendTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="发送时间" align="center" prop="sendTime" width="180" v-if="columns[11].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.sendTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[10].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="逻辑删除标记" align="center" prop="isDeleted" v-if="columns[11].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[13].visible">
         <template #default="scope">
-          <dict-tag :options="common_delete" :value="scope.row.isDeleted"/>
+          <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -206,11 +239,24 @@
     <!-- 添加或修改用户通知记录对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="informInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="模板" prop="templateId">
-          <el-input v-model="form.templateId" placeholder="请输入模板"/>
+        <el-form-item label="模板KEY" prop="templateKey">
+          <el-input v-model="form.templateKey" placeholder="请输入模板KEY"/>
         </el-form-item>
-        <el-form-item label="用户" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户"/>
+        <el-form-item label="模版类型" prop="templateType">
+          <el-select v-model="form.templateType" placeholder="请选择模版类型">
+            <el-option
+                v-for="dict in c_template_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="语言" prop="locale">
+          <el-input v-model="form.locale" placeholder="请输入语言"/>
+        </el-form-item>
+        <el-form-item label="用户编号" prop="userId">
+          <el-input v-model="form.userId" placeholder="请输入用户编号"/>
         </el-form-item>
         <el-form-item label="实际发送内容" prop="content">
           <el-input v-model="form.content" type="textarea" placeholder="请输入内容"/>
@@ -238,7 +284,7 @@
         <el-form-item label="是否已读" prop="isRead">
           <el-radio-group v-model="form.isRead">
             <el-radio
-                v-for="dict in u_inform_is_read"
+                v-for="dict in u_inform_type"
                 :key="dict.value"
                 :value="parseInt(dict.value)"
             >{{ dict.label }}
@@ -253,6 +299,9 @@
                           placeholder="请选择读取时间">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="重试次数" prop="retryCount">
+          <el-input v-model="form.retryCount" placeholder="请输入重试次数"/>
+        </el-form-item>
         <el-form-item label="发送时间" prop="sendTime">
           <el-date-picker clearable
                           v-model="form.sendTime"
@@ -264,15 +313,15 @@
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="逻辑删除标记" prop="isDeleted">
-          <el-select v-model="form.isDeleted" placeholder="请选择逻辑删除标记">
-            <el-option
+        <el-form-item label="删除" prop="isDelete">
+          <el-radio-group v-model="form.isDelete">
+            <el-radio
                 v-for="dict in common_delete"
                 :key="dict.value"
-                :label="dict.label"
                 :value="parseInt(dict.value)"
-            ></el-option>
-          </el-select>
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -292,9 +341,9 @@ const {proxy} = getCurrentInstance();
 const {
   common_delete,
   u_inform_status,
-  c_template_type,
-  u_inform_is_read
-} = proxy.useDict('common_delete', 'u_inform_status', 'c_template_type', 'u_inform_is_read');
+  u_inform_type,
+  c_template_type
+} = proxy.useDict('common_delete', 'u_inform_status', 'u_inform_type', 'c_template_type');
 
 const informInfoList = ref([]);
 const open = ref(false);
@@ -314,21 +363,30 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     recordId: null,
-    templateId: null,
+    templateKey: null,
+    templateType: null,
+    locale: null,
     userId: null,
     informType: null,
     status: null,
     isRead: null,
     readTime: null,
+    retryCount: null,
     sendTime: null,
-    isDeleted: null
+    isDelete: null
   },
   rules: {
-    templateId: [
-      {required: true, message: "模板不能为空", trigger: "blur"}
+    templateKey: [
+      {required: true, message: "模板KEY不能为空", trigger: "blur"}
+    ],
+    templateType: [
+      {required: true, message: "模版类型不能为空", trigger: "change"}
+    ],
+    locale: [
+      {required: true, message: "语言不能为空", trigger: "blur"}
     ],
     userId: [
-      {required: true, message: "用户不能为空", trigger: "blur"}
+      {required: true, message: "用户编号不能为空", trigger: "blur"}
     ],
     content: [
       {required: true, message: "实际发送内容不能为空", trigger: "blur"}
@@ -348,24 +406,26 @@ const data = reactive({
     sendTime: [
       {required: true, message: "发送时间不能为空", trigger: "blur"}
     ],
-    isDeleted: [
-      {required: true, message: "逻辑删除标记不能为空", trigger: "change"}
+    isDelete: [
+      {required: true, message: "删除不能为空", trigger: "change"}
     ]
   },
   //表格展示列
   columns: [
-    {key: 0, label: '通知记录', visible: true},
-    {key: 1, label: '模板', visible: true},
-    {key: 2, label: '用户', visible: true},
-    {key: 3, label: '实际发送内容', visible: true},
-    {key: 4, label: '通知类型', visible: true},
-    {key: 5, label: '发送状态', visible: true},
-    {key: 6, label: '是否已读', visible: true},
-    {key: 7, label: '读取时间', visible: true},
-    {key: 8, label: '重试次数', visible: true},
-    {key: 9, label: '发送时间', visible: true},
-    {key: 10, label: '备注', visible: true},
-    {key: 11, label: '逻辑删除标记', visible: true},
+    {key: 0, label: '通知记录编号', visible: true},
+    {key: 1, label: '模板KEY', visible: true},
+    {key: 2, label: '模版类型', visible: true},
+    {key: 3, label: '语言', visible: true},
+    {key: 4, label: '用户编号', visible: true},
+    {key: 5, label: '实际发送内容', visible: true},
+    {key: 6, label: '通知类型', visible: true},
+    {key: 7, label: '发送状态', visible: true},
+    {key: 8, label: '是否已读', visible: true},
+    {key: 9, label: '读取时间', visible: true},
+    {key: 10, label: '重试次数', visible: true},
+    {key: 11, label: '发送时间', visible: true},
+    {key: 12, label: '备注', visible: true},
+    {key: 13, label: '删除', visible: true},
   ],
 });
 
@@ -400,7 +460,9 @@ function cancel() {
 function reset() {
   form.value = {
     recordId: null,
-    templateId: null,
+    templateKey: null,
+    templateType: null,
+    locale: null,
     userId: null,
     content: null,
     informType: null,
@@ -410,7 +472,7 @@ function reset() {
     retryCount: null,
     sendTime: null,
     remark: null,
-    isDeleted: null
+    isDelete: null
   };
   proxy.resetForm("informInfoRef");
 }

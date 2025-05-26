@@ -795,21 +795,23 @@ CREATE TABLE u_user_binding_info (
 
 #### 用户通知表：u_inform_info
 
-| 字段名        | 类型         | 长度 | 键类型/索引                                | Null | 默认值   | 描述                |
-| ------------- | ------------ | ---- | ------------------------------------------ | ---- | -------- | ------------------- |
-| record_id     | varchar      | 128  | 主键                                       | 否   |          | 编号                |
-| template_id   | bigint       |      | 外键（c_inform_template_info:template_id） | 否   |          | 关联的模板编号      |
-| user_id       | varchar(128) | 128  | 外键(u_user_info：user_id)                 | 否   |          | 用户                |
-| content       | text         |      |                                            | 否   |          | 实际发送内容        |
-| inform_type   | varchar(32)  | 32   |                                            | 否   |          | 通知类型            |
-| status        | tinyint      | 1    |                                            | 否   |          | 发送状态            |
-| is_read       | tinyint      | 1    |                                            | 否   | 0        | 是否已读            |
-| read_time     | datetime     |      |                                            | 是   |          | 读取时间            |
-| retry_count   | int          |      |                                            | 否   |          | 重试次数            |
-| response_info | text         |      |                                            | 是   |          | 返回信息            |
-| send_time     | datetime     |      | 索引                                       | 否   | 当前时间 | 发送时间            |
-| remark        | varchar(500) | 500  |                                            | 是   |          | 备注                |
-| is_delete     | char         | 1    |                                            | 否   |          | 删除(0否 1是) 默认0 |
+| 字段名        | 类型         | 长度 | 键类型/索引                       | Null | 默认值   | 描述                |
+| ------------- | ------------ | ---- | --------------------------------- | ---- | -------- | ------------------- |
+| record_id     | varchar      | 128  | 主键                              | 否   |          | 编号                |
+| template_key  | varchar      | 128  |                                   | 否   |          | 模版KEY             |
+| locale        | varchar      | 8    | 外键（c_i18n_locale_info:locale） | 否   |          | 语言 默认zh-CN      |
+| template_type | char         | 2    |                                   | 否   |          | 模版类型            |
+| user_id       | varchar(128) | 128  | 外键(u_user_info：user_id)        | 否   |          | 用户                |
+| content       | text         |      |                                   | 否   |          | 实际发送内容        |
+| inform_type   | varchar(32)  | 32   |                                   | 否   |          | 通知类型            |
+| status        | tinyint      | 1    |                                   | 否   |          | 发送状态            |
+| is_read       | tinyint      | 1    |                                   | 否   | 0        | 是否已读            |
+| read_time     | datetime     |      |                                   | 是   |          | 读取时间            |
+| retry_count   | int          |      |                                   | 否   |          | 重试次数            |
+| response_info | text         |      |                                   | 是   |          | 返回信息            |
+| send_time     | datetime     |      | 索引                              | 否   | 当前时间 | 发送时间            |
+| remark        | varchar(500) | 500  |                                   | 是   |          | 备注                |
+| is_delete     | char         | 1    |                                   | 否   |          | 删除(0否 1是) 默认0 |
 
  发送状态： 0=待发送，1=已发送，2=发送失败，3=已撤回
 
@@ -817,32 +819,34 @@ CREATE TABLE u_user_binding_info (
 
 ```sql
 DROP TABLE IF EXISTS u_inform_info;
-CREATE TABLE u_inform_info (
-    record_id VARCHAR(128) NOT NULL COMMENT '通知记录编号',
-    template_id BIGINT NOT NULL COMMENT '模板编号',
-    user_id VARCHAR(128) NOT NULL COMMENT '用户编号',
-    content TEXT NOT NULL COMMENT '实际发送内容',
-    inform_type VARCHAR(32) NOT NULL COMMENT '通知类型',
-    status TINYINT(1) NOT NULL DEFAULT 0 COMMENT '发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回）',
-    is_read TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否已读（0=未读 1=已读）',
-    read_time DATETIME COMMENT '读取时间',
-    retry_count INT NOT NULL DEFAULT 0 COMMENT '重试次数',
-    send_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
-    remark VARCHAR(500) COMMENT '备注',
-    is_delete TINYINT(1) NOT NULL DEFAULT 0 COMMENT '删除（0=正常 1=删除）',
+CREATE TABLE u_inform_info
+(
+    record_id    VARCHAR(128) NOT NULL COMMENT '通知记录编号',
+    template_key BIGINT       NOT NULL COMMENT '模板KEY',
+    template_type            char          not null comment '模版类型（1短信 2邮件 3站内通知 4APP推送 5微信模板）',
+    locale                   varchar(8)    not null comment '语言（默认zh-CN）',
+    user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
+    content      TEXT         NOT NULL COMMENT '实际发送内容',
+    inform_type  VARCHAR(32)  NOT NULL COMMENT '通知类型',
+    status       TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回）',
+    is_read      TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '是否已读（0=未读 1=已读）',
+    read_time    DATETIME COMMENT '读取时间',
+    retry_count  INT          NOT NULL DEFAULT 0 COMMENT '重试次数',
+    send_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
+    remark       VARCHAR(500) COMMENT '备注',
+    is_delete    TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '删除（0=正常 1=删除）',
     PRIMARY KEY (record_id),
-    INDEX idx_send_time (send_time),  
-    INDEX idx_user_status (user_id, status),  
-    INDEX idx_channel_status (channel, status), 
-    CONSTRAINT fk_inform_template 
-        FOREIGN KEY (template_id) 
-        REFERENCES c_inform_template_info(template_id)
-        ON UPDATE CASCADE,
-    CONSTRAINT fk_inform_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户通知记录表';
+    INDEX idx_send_time (send_time),
+    INDEX idx_user_status (user_id, status),
+    CONSTRAINT fk_inform_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id)
+            ON UPDATE CASCADE,
+            constraint fk_inform_locale
+            foreign key (locale) references c_i18n_locale_info (locale)
+            on update cascade
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户通知记录表';
 ```
 
 

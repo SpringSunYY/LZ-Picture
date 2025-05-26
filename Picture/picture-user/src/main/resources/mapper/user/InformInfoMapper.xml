@@ -1,48 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.user.mapper.InformInfoMapper">
-    
+
     <resultMap type="InformInfo" id="InformInfoResult">
-        <result property="recordId"    column="record_id"    />
-        <result property="templateId"    column="template_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="content"    column="content"    />
-        <result property="informType"    column="inform_type"    />
-        <result property="status"    column="status"    />
-        <result property="isRead"    column="is_read"    />
-        <result property="readTime"    column="read_time"    />
-        <result property="retryCount"    column="retry_count"    />
-        <result property="sendTime"    column="send_time"    />
-        <result property="remark"    column="remark"    />
-        <result property="isDeleted"    column="is_deleted"    />
+        <result property="recordId" column="record_id"/>
+        <result property="templateKey" column="template_key"/>
+        <result property="templateType" column="template_type"/>
+        <result property="locale" column="locale"/>
+        <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="informType" column="inform_type"/>
+        <result property="status" column="status"/>
+        <result property="isRead" column="is_read"/>
+        <result property="readTime" column="read_time"/>
+        <result property="retryCount" column="retry_count"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="remark" column="remark"/>
+        <result property="isDelete" column="is_delete"/>
     </resultMap>
 
     <sql id="selectInformInfoVo">
-        select record_id, template_id, user_id, content, inform_type, status, is_read, read_time, retry_count, send_time, remark, is_deleted from u_inform_info
+        select record_id,
+               template_key,
+               template_type,
+               locale,
+               user_id,
+               content,
+               inform_type,
+               status,
+               is_read,
+               read_time,
+               retry_count,
+               send_time,
+               remark,
+               is_delete
+        from u_inform_info
     </sql>
 
     <select id="selectInformInfoList" parameterType="InformInfo" resultMap="InformInfoResult">
         <include refid="selectInformInfoVo"/>
         <where>
             <if test="recordId != null  and recordId != ''">and record_id = #{recordId}</if>
-            <if test="templateId != null ">and template_id = #{templateId}</if>
+            <if test="templateKey != null ">and template_key = #{templateKey}</if>
+            <if test="templateType != null  and templateType != ''">and template_type = #{templateType}</if>
+            <if test="locale != null  and locale != ''">and locale = #{locale}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
             <if test="informType != null  and informType != ''">and inform_type = #{informType}</if>
             <if test="status != null ">and status = #{status}</if>
             <if test="isRead != null ">and is_read = #{isRead}</if>
             <if test="params.beginReadTime != null and params.beginReadTime != '' and params.endReadTime != null and params.endReadTime != ''">
-                and read_time between #{params.beginReadTime} and #{params.endReadTime}
+                and DATE_FORMAT(read_time, '%Y-%m-%d') between #{params.beginReadTime} and #{params.endReadTime}
             </if>
+            <if test="retryCount != null ">and retry_count = #{retryCount}</if>
             <if test="params.beginSendTime != null and params.beginSendTime != '' and params.endSendTime != null and params.endSendTime != ''">
-                and send_time between #{params.beginSendTime} and #{params.endSendTime}
+                and DATE_FORMAT(send_time, '%Y-%m-%d') between #{params.beginSendTime} and #{params.endSendTime}
             </if>
-            <if test="isDeleted != null ">and is_deleted = #{isDeleted}</if>
+            <if test="isDelete != null ">and is_delete = #{isDelete}</if>
         </where>
-        order by send_time desc
     </select>
-    
+
     <select id="selectInformInfoByRecordId" parameterType="String" resultMap="InformInfoResult">
         <include refid="selectInformInfoVo"/>
         where record_id = #{recordId}
@@ -52,7 +70,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into u_inform_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="recordId != null">record_id,</if>
-            <if test="templateId != null">template_id,</if>
+            <if test="templateKey != null">template_key,</if>
+            <if test="templateType != null and templateType != ''">template_type,</if>
+            <if test="locale != null and locale != ''">locale,</if>
             <if test="userId != null and userId != ''">user_id,</if>
             <if test="content != null and content != ''">content,</if>
             <if test="informType != null and informType != ''">inform_type,</if>
@@ -62,11 +82,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="retryCount != null">retry_count,</if>
             <if test="sendTime != null">send_time,</if>
             <if test="remark != null">remark,</if>
-            <if test="isDeleted != null">is_deleted,</if>
-         </trim>
+            <if test="isDelete != null">is_delete,</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="recordId != null">#{recordId},</if>
-            <if test="templateId != null">#{templateId},</if>
+            <if test="templateKey != null">#{templateKey},</if>
+            <if test="templateType != null and templateType != ''">#{templateType},</if>
+            <if test="locale != null and locale != ''">#{locale},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
             <if test="content != null and content != ''">#{content},</if>
             <if test="informType != null and informType != ''">#{informType},</if>
@@ -76,14 +98,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="retryCount != null">#{retryCount},</if>
             <if test="sendTime != null">#{sendTime},</if>
             <if test="remark != null">#{remark},</if>
-            <if test="isDeleted != null">#{isDeleted},</if>
-         </trim>
+            <if test="isDelete != null">#{isDelete},</if>
+        </trim>
     </insert>
 
     <update id="updateInformInfo" parameterType="InformInfo">
         update u_inform_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="templateId != null">template_id = #{templateId},</if>
+            <if test="templateKey != null">template_key = #{templateKey},</if>
+            <if test="templateType != null and templateType != ''">template_type = #{templateType},</if>
+            <if test="locale != null and locale != ''">locale = #{locale},</if>
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="informType != null and informType != ''">inform_type = #{informType},</if>
@@ -93,17 +117,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="retryCount != null">retry_count = #{retryCount},</if>
             <if test="sendTime != null">send_time = #{sendTime},</if>
             <if test="remark != null">remark = #{remark},</if>
-            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+            <if test="isDelete != null">is_delete = #{isDelete},</if>
         </trim>
         where record_id = #{recordId}
     </update>
 
     <delete id="deleteInformInfoByRecordId" parameterType="String">
-        delete from u_inform_info where record_id = #{recordId}
+        delete
+        from u_inform_info
+        where record_id = #{recordId}
     </delete>
 
     <delete id="deleteInformInfoByRecordIds" parameterType="String">
-        delete from u_inform_info where record_id in 
+        delete from u_inform_info where record_id in
         <foreach item="recordId" collection="array" open="(" separator="," close=")">
             #{recordId}
         </foreach>
