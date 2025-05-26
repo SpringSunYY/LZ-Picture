@@ -14,4 +14,14 @@ public interface IPictureAutoTask {
      *
      */
     void autoUpdateUserViewLogInfo();
+
+    /**
+     * 自动更新图片下载信息
+     * @author: YY
+     * @method: autoUpdatePictureDownloadLogInfo
+     * @date: 2025/5/26 14:06
+     * @param
+     * @return void
+     **/
+    void autoUpdatePictureDownloadLogInfo();
 }

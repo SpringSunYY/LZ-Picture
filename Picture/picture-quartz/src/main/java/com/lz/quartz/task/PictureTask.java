@@ -19,4 +19,8 @@ public class PictureTask {
     public void autoUpdateUserViewLogInfo() {
         pictureAutoTask.autoUpdateUserViewLogInfo();
     }
+
+    public void autoUpdatePictureDownloadLogInfo() {
+        pictureAutoTask.autoUpdatePictureDownloadLogInfo();
+    }
 }
