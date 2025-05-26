@@ -18,12 +18,24 @@
         >
         </a-menu>
       </a-col>
-      <a-col flex="200px">
+      <a-col flex="250px">
         <div class="user-login-status">
-          <div v-if="userName">
+          <a-space :size="24" v-if="userName" align="middle">
+            <a-badge
+              title="通知信息，点击查看"
+              count="4"
+              :number-style="{
+                backgroundColor: '#fff',
+                color: '#00ff3d',
+                boxShadow: '0 0 0 1px #d9d9d9 inset',
+              }"
+            >
+              <notification-outlined style="font-size: 24px" />
+            </a-badge>
+
             <a-dropdown>
               <ASpace @click="showDrawer">
-                <a-avatar :src="avatar" />
+                <a-avatar :size="36" :src="avatar" />
                 {{ nickName ?? '未知' }}
               </ASpace>
               <template #overlay>
@@ -35,7 +47,7 @@
                 </a-menu>
               </template>
             </a-dropdown>
-          </div>
+          </a-space>
           <div v-else>
             <a-button type="primary" href="/user/login">登录/注册</a-button>
           </div>
@@ -66,7 +78,7 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
-import { LogoutOutlined } from '@ant-design/icons-vue'
+import { LogoutOutlined, NotificationOutlined } from '@ant-design/icons-vue'
 import { MenuProps, message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'

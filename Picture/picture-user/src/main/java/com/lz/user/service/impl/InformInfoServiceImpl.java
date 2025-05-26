@@ -113,13 +113,16 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         queryWrapper.eq(StringUtils.isNotEmpty(recordId), "record_id", recordId);
 
         Long templateKey = informInfoQuery.getTemplateKey();
-        queryWrapper.eq(StringUtils.isNotNull(templateKey), "template_key", templateKey);
+        queryWrapper.like(StringUtils.isNotNull(templateKey), "template_key", templateKey);
 
         String templateType = informInfoQuery.getTemplateType();
         queryWrapper.eq(StringUtils.isNotEmpty(templateType), "template_type", templateType);
 
         String locale = informInfoQuery.getLocale();
         queryWrapper.eq(StringUtils.isNotEmpty(locale), "locale", locale);
+
+        String informTitle = informInfoQuery.getInformTitle();
+        queryWrapper.like(StringUtils.isNotEmpty(informTitle), "inform_title", informTitle);
 
         String userId = informInfoQuery.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);

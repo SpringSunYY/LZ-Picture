@@ -31,29 +31,9 @@ public class InformInfoEdit implements Serializable {
     private Long templateKey;
 
     /**
-     * 模版类型（1短信 2邮件 3站内通知 4APP推送 5微信模板）
+     * 通知标题
      */
-    private String templateType;
-
-    /**
-     * 语言（默认zh-CN）
-     */
-    private String locale;
-
-    /**
-     * 用户编号
-     */
-    private String userId;
-
-    /**
-     * 实际发送内容
-     */
-    private String content;
-
-    /**
-     * 通知类型
-     */
-    private String informType;
+    private String informTitle;
 
     /**
      * 发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回）

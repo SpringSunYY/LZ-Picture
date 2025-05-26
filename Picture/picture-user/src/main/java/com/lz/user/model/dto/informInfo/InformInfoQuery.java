@@ -48,6 +48,11 @@ public class InformInfoQuery implements Serializable {
     private String locale;
 
     /**
+     * 通知标题
+     */
+    private String informTitle;
+
+    /**
      * 用户编号
      */
     private String userId;

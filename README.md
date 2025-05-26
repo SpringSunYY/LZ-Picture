@@ -801,6 +801,7 @@ CREATE TABLE u_user_binding_info (
 | template_key  | varchar      | 128  |                                   | 否   |          | 模版KEY             |
 | locale        | varchar      | 8    | 外键（c_i18n_locale_info:locale） | 否   |          | 语言 默认zh-CN      |
 | template_type | char         | 2    |                                   | 否   |          | 模版类型            |
+| inform_title  | varchar      | 128  |                                   | 否   |          | 通知标题            |
 | user_id       | varchar(128) | 128  | 外键(u_user_info：user_id)        | 否   |          | 用户                |
 | content       | text         |      |                                   | 否   |          | 实际发送内容        |
 | inform_type   | varchar(32)  | 32   |                                   | 否   |          | 通知类型            |
@@ -825,6 +826,7 @@ CREATE TABLE u_inform_info
     template_key BIGINT       NOT NULL COMMENT '模板KEY',
     template_type            char          not null comment '模版类型（1短信 2邮件 3站内通知 4APP推送 5微信模板）',
     locale                   varchar(8)    not null comment '语言（默认zh-CN）',
+    inform_title VARCHAR(128) NOT NULL COMMENT '通知标题',
     user_id      VARCHAR(128) NOT NULL COMMENT '用户编号',
     content      TEXT         NOT NULL COMMENT '实际发送内容',
     inform_type  VARCHAR(32)  NOT NULL COMMENT '通知类型',

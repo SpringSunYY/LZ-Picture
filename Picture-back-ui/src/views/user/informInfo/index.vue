@@ -35,6 +35,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="通知标题" prop="informTitle">
+        <el-input
+            v-model="queryParams.informTitle"
+            placeholder="请输入通知标题"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="用户编号" prop="userId">
         <el-input
             v-model="queryParams.userId"
@@ -176,42 +184,44 @@
       </el-table-column>
       <el-table-column label="语言" align="center" prop="locale" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[4].visible"
+      <el-table-column label="通知标题" align="center" prop="informTitle" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实际发送内容" align="center" prop="content" v-if="columns[5].visible"
+      <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="通知类型" align="center" prop="informType" v-if="columns[6].visible">
+      <el-table-column label="实际发送内容" align="center" prop="content" v-if="columns[6].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="通知类型" align="center" prop="informType" v-if="columns[7].visible">
         <template #default="scope">
           <dict-tag :options="c_template_type" :value="scope.row.informType"/>
         </template>
       </el-table-column>
-      <el-table-column label="发送状态" align="center" prop="status" v-if="columns[7].visible">
+      <el-table-column label="发送状态" align="center" prop="status" v-if="columns[8].visible">
         <template #default="scope">
           <dict-tag :options="u_inform_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否已读" align="center" prop="isRead" v-if="columns[8].visible">
+      <el-table-column label="是否已读" align="center" prop="isRead" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="u_inform_type" :value="scope.row.isRead"/>
         </template>
       </el-table-column>
-      <el-table-column label="读取时间" align="center" prop="readTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="读取时间" align="center" prop="readTime" width="180" v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.readTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="重试次数" align="center" prop="retryCount" v-if="columns[10].visible"
+      <el-table-column label="重试次数" align="center" prop="retryCount" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="发送时间" align="center" prop="sendTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="发送时间" align="center" prop="sendTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.sendTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" v-if="columns[12].visible"
+      <el-table-column label="备注" align="center" prop="remark" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[13].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[14].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -242,34 +252,8 @@
         <el-form-item label="模板KEY" prop="templateKey">
           <el-input v-model="form.templateKey" placeholder="请输入模板KEY"/>
         </el-form-item>
-        <el-form-item label="模版类型" prop="templateType">
-          <el-select v-model="form.templateType" placeholder="请选择模版类型">
-            <el-option
-                v-for="dict in c_template_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="语言" prop="locale">
-          <el-input v-model="form.locale" placeholder="请输入语言"/>
-        </el-form-item>
-        <el-form-item label="用户编号" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户编号"/>
-        </el-form-item>
-        <el-form-item label="实际发送内容" prop="content">
-          <el-input v-model="form.content" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
-        <el-form-item label="通知类型" prop="informType">
-          <el-select v-model="form.informType" placeholder="请选择通知类型">
-            <el-option
-                v-for="dict in c_template_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
+        <el-form-item label="通知标题" prop="informTitle">
+          <el-input v-model="form.informTitle" placeholder="请输入通知标题"/>
         </el-form-item>
         <el-form-item label="发送状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -366,6 +350,7 @@ const data = reactive({
     templateKey: null,
     templateType: null,
     locale: null,
+    informTitle: null,
     userId: null,
     informType: null,
     status: null,
@@ -384,6 +369,9 @@ const data = reactive({
     ],
     locale: [
       {required: true, message: "语言不能为空", trigger: "blur"}
+    ],
+    informTitle: [
+      {required: true, message: "通知标题不能为空", trigger: "blur"}
     ],
     userId: [
       {required: true, message: "用户编号不能为空", trigger: "blur"}
@@ -416,16 +404,17 @@ const data = reactive({
     {key: 1, label: '模板KEY', visible: true},
     {key: 2, label: '模版类型', visible: true},
     {key: 3, label: '语言', visible: true},
-    {key: 4, label: '用户编号', visible: true},
-    {key: 5, label: '实际发送内容', visible: true},
-    {key: 6, label: '通知类型', visible: true},
-    {key: 7, label: '发送状态', visible: true},
-    {key: 8, label: '是否已读', visible: true},
-    {key: 9, label: '读取时间', visible: true},
-    {key: 10, label: '重试次数', visible: true},
-    {key: 11, label: '发送时间', visible: true},
-    {key: 12, label: '备注', visible: true},
-    {key: 13, label: '删除', visible: true},
+    {key: 4, label: '通知标题', visible: true},
+    {key: 5, label: '用户编号', visible: true},
+    {key: 6, label: '实际发送内容', visible: true},
+    {key: 7, label: '通知类型', visible: true},
+    {key: 8, label: '发送状态', visible: true},
+    {key: 9, label: '是否已读', visible: true},
+    {key: 10, label: '读取时间', visible: true},
+    {key: 11, label: '重试次数', visible: true},
+    {key: 12, label: '发送时间', visible: true},
+    {key: 13, label: '备注', visible: true},
+    {key: 14, label: '删除', visible: true},
   ],
 });
 
@@ -463,6 +452,7 @@ function reset() {
     templateKey: null,
     templateType: null,
     locale: null,
+    informTitle: null,
     userId: null,
     content: null,
     informType: null,
