@@ -31,6 +31,7 @@
     "nprogress": "0.2.0",
     "pinia": "2.1.7",
     "splitpanes": "3.1.5",
+    "vditor": "^3.11.0",
     "vue": "3.4.31",
     "vue-cropper": "1.1.1",
     "vue-router": "4.4.0",

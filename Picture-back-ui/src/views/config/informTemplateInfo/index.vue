@@ -264,7 +264,7 @@
     />
 
     <!-- 添加或修改通知模版对话框 -->
-    <el-dialog :title="title" v-model="open" width="1000px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="1200px" append-to-body>
       <el-form ref="informTemplateInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-row :gutter="40">
           <el-col :span="6">
@@ -347,8 +347,9 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="内容" prop="content">
-              <el-input type="textarea" placeholder="请输入内容，例：例：你好我是${userName},我想对你说${tell}" :rows="5"
-                        v-model="form.content" :min-height="192"/>
+              <!--              <el-input type="textarea" placeholder="请输入内容，例：例：你好我是${userName},我想对你说${tell}" :rows="5"-->
+              <!--                        v-model="form.content" :min-height="192"/>-->
+              <MarkdownEditor :key="form.templateId" ref="markdownEditorRef" v-model="form.content"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -356,10 +357,8 @@
               <el-input v-model="form.variables" :rows="5" type="textarea"
                         placeholder="请输入变量列表,例：{&quot;userName&quot;: &quot;YY&quot;, &quot;tell&quot;: &quot;你好&quot;}"/>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="事例" prop="example">
-              <el-input :readonly="true" :rows="5" v-model="form.example" type="textarea" placeholder="请生成事例"/>
+              <MarkdownView v-model="form.example"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -420,6 +419,8 @@ import {
   updateInformTemplateInfo
 } from "@/api/config/informTemplateInfo";
 import {listI18nLocaleInfo} from "@/api/config/i18nLocaleInfo.js";
+import MarkdownEditor from "@/components/MarkdownEditor/index.vue";
+import MarkdownView from "@/components/MarkdownView/index.vue"
 
 const {proxy} = getCurrentInstance();
 const {
