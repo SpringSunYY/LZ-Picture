@@ -4,17 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.*;
+import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
+import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
 import com.lz.picture.model.enums.PViewLogTargetTypeEnum;
 import com.lz.picture.service.*;
 import jakarta.annotation.Resource;
-import jdk.jfr.Category;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.picture.manager.factory.PictureUserViewLogAsyncFactory.SEPARATION;
@@ -34,6 +32,9 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
 
     @Resource
     private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
+
+    @Resource
+    private IUserBehaviorInfoService userBehaviorInfoService;
 
     @Resource
     private IPictureInfoService pictureInfoService;
@@ -352,4 +353,113 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
                 }).toList();
     }
     //endregion
+
+    //region 更新用户收藏
+    @Override
+    public void autoUpdateUserBehaviorInfo() {
+        //首先更新空间，空间只有收藏
+        //获取到需要更新的空间列表
+        List<UserBehaviorInfo> spaceBehaviorList = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
+                .eq(UserBehaviorInfo::getBehaviorType, PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())
+                .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_1.getValue())
+                .eq(UserBehaviorInfo::getHasStatistics, CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue()));
+        if (StringUtils.isNotEmpty(spaceBehaviorList)) {
+            spaceBehaviorList.forEach(spaceBehavior -> {
+                spaceBehavior.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_1.getValue());
+            });
+        }
+        List<SpaceInfo> spaceInfos = getAutoSpaceInfByBehavior(spaceBehaviorList);
+        //其次是图片，图片有点赞、分享、收藏
+        //查询到所有要有未统计、且目标类型是图片的用户行为列表
+        List<UserBehaviorInfo> pictureBehaviorList = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
+                .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue())
+                .eq(UserBehaviorInfo::getHasStatistics, CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue()));
+        if (StringUtils.isEmpty(pictureBehaviorList)) {
+            pictureBehaviorList.forEach(pictureBehavior -> {
+                pictureBehavior.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_1.getValue());
+            });
+        }
+        List<PictureInfo> pictureInfos = getAutoPictureInfByBehavior(pictureBehaviorList);
+        transactionTemplate.execute(result -> {
+            if (StringUtils.isNotEmpty(spaceInfos)) {
+                spaceInfoService.updateBatchById(spaceInfos);
+            }
+            if (StringUtils.isNotEmpty(pictureInfos)) {
+                pictureInfoService.updateBatchById(pictureInfos);
+            }
+            if (StringUtils.isEmpty(spaceBehaviorList)) {
+                userBehaviorInfoService.updateBatchById(spaceBehaviorList);
+            }
+            if (StringUtils.isEmpty(pictureBehaviorList)) {
+                userBehaviorInfoService.updateBatchById(pictureBehaviorList);
+            }
+            return true;
+        });
+    }
+
+    private List<PictureInfo> getAutoPictureInfByBehavior(List<UserBehaviorInfo> pictureBehaviorList) {
+        //图片有点赞、分享、收藏
+        if (StringUtils.isEmpty(pictureBehaviorList)) {
+            return null;
+        }
+        //查询到所有的图片
+        List<String> pictureIds = pictureBehaviorList.stream()
+                .map(UserBehaviorInfo::getTargetId)
+                .distinct()
+                .toList();
+        List<PictureInfo> pictureInfos = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
+                .in(PictureInfo::getPictureId, pictureIds));
+        if (StringUtils.isEmpty(pictureInfos)) {
+            return null;
+        }
+        //根据用户行为类型+目标编号分组，统计每种行为出现的次数 例如"1": { "1001": 5, "1002": 3 },
+        Map<String, Map<String, Long>> behaviorCountMap = pictureBehaviorList.stream()
+                .filter(userBehaviorInfo -> PUserBehaviorTypeEnum.getEnumByValue(userBehaviorInfo.getBehaviorType()).isPresent())
+                .collect(Collectors.groupingBy(UserBehaviorInfo::getBehaviorType, Collectors.groupingBy(UserBehaviorInfo::getTargetId, Collectors.counting())));
+        return pictureInfos.stream()
+                .map(pictureInfo -> {
+                    PictureInfo info = new PictureInfo();
+                    info.setPictureId(pictureInfo.getPictureId());
+                    info.setLikeCount(pictureInfo.getLikeCount() + behaviorCountMap.getOrDefault(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue(), new HashMap<>()).getOrDefault(pictureInfo.getPictureId(), 0L));
+                    info.setCollectCount(pictureInfo.getCollectCount() + behaviorCountMap.getOrDefault(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue(), new HashMap<>()).getOrDefault(pictureInfo.getPictureId(), 0L));
+                    info.setShareCount(pictureInfo.getShareCount() + behaviorCountMap.getOrDefault(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue(), new HashMap<>()).getOrDefault(pictureInfo.getPictureId(), 0L));
+                    return info;
+                }).toList();
+    }
+
+    /**
+     * 查询到所有的需要更新的空间列表
+     *
+     * @return
+     */
+    private List<SpaceInfo> getAutoSpaceInfByBehavior(List<UserBehaviorInfo> spaceBehaviorList) {
+        if (StringUtils.isEmpty(spaceBehaviorList)) {
+            return null;
+        }
+        //去重空间编号，并判断每个空间编号有多少个收藏记录，且空间编号不为空的 targetId
+        Map<String, Long> collectCountMap = spaceBehaviorList.stream()
+                .filter(userBehaviorInfo -> StringUtils.isNotEmpty(userBehaviorInfo.getTargetId()))
+                .collect(Collectors.groupingBy(UserBehaviorInfo::getTargetId, Collectors.counting()));
+        if (StringUtils.isEmpty(collectCountMap)) {
+            return null;
+        }
+        List<String> spaceIds = collectCountMap.keySet().stream().toList();
+        List<SpaceInfo> spaceInfos = new ArrayList<>(spaceIds.size());
+        if (StringUtils.isNotEmpty(spaceIds)) {
+            spaceInfos = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>()
+                    .in(SpaceInfo::getSpaceId, spaceIds));
+        } else {
+            return null;
+        }
+        if (StringUtils.isEmpty(spaceInfos)) {
+            return null;
+        }
+        return spaceInfos.stream()
+                .map(spaceInfo -> {
+                    SpaceInfo info = new SpaceInfo();
+                    info.setSpaceId(spaceInfo.getSpaceId());
+                    info.setCollectCount(spaceInfo.getCollectCount() + collectCountMap.get(spaceInfo.getSpaceId()));
+                    return info;
+                }).toList();
+    }
 }

@@ -11,17 +11,28 @@ package com.lz.picture.service;
 public interface IPictureAutoTask {
     /**
      * 自动更新用户浏览信息
-     *
      */
     void autoUpdateUserViewLogInfo();
 
     /**
      * 自动更新图片下载信息
+     *
+     * @param
+     * @return void
      * @author: YY
      * @method: autoUpdatePictureDownloadLogInfo
      * @date: 2025/5/26 14:06
-     * @param
-     * @return void
      **/
     void autoUpdatePictureDownloadLogInfo();
+
+    /**
+     * 自动更新行为收藏信息
+     *
+     * @param
+     * @return void
+     * @author: YY
+     * @method: autoUpdateUserBehaviorCollectInfo
+     * @date: 2025/5/26 14:57
+     **/
+    void autoUpdateUserBehaviorInfo();
 }

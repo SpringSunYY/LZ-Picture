@@ -15,12 +15,26 @@ import org.springframework.stereotype.Component;
 @Component("pictureTask")
 public class PictureTask {
     @Resource
-    private IPictureAutoTask  pictureAutoTask;
+    private IPictureAutoTask pictureAutoTask;
+
+    /**
+     * 自动更新查看记录信息
+     */
     public void autoUpdateUserViewLogInfo() {
         pictureAutoTask.autoUpdateUserViewLogInfo();
     }
 
+    /**
+     * 自动更新下载记录信息
+     */
     public void autoUpdatePictureDownloadLogInfo() {
         pictureAutoTask.autoUpdatePictureDownloadLogInfo();
+    }
+
+    /**
+     * 自动更新用户行为
+     */
+    public void autoUpdateUserBehaviorInfo() {
+        pictureAutoTask.autoUpdateUserBehaviorInfo();
     }
 }
