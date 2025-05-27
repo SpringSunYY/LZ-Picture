@@ -4,6 +4,8 @@ import com.lz.common.utils.StringUtils;
 import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.config.service.IInformTemplateInfoService;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.service.IInformInfoService;
 import jakarta.annotation.Resource;
@@ -61,18 +63,21 @@ public class InformTemplateInfoTest {
     }
 
     @Test
-    public void testSendInform(){
+    public void testSendInform() {
         HashMap<String, String> params = new HashMap<>();
         params.put("userName", "YY");
         params.put("tell", "你好");
         params.put("you", "你是谁");
-        params.put("to",  "18888888888");
-        informInfoService.sendInform(
-                "1",
-                "login_sms_code",
-                "zh",
-                CTemplateTypeEnum.TEMPLATE_TYPE_2.getValue(),
-                UInformTypeEnum.INFORM_TYPE_0.getValue(),
-                params);
+        params.put("to", "18888888888");
+//        informInfoService.sendInform(
+//                "1",
+//                "login_sms_code",
+//                "zh",
+//                CTemplateTypeEnum.TEMPLATE_TYPE_2.getValue(),
+//                UInformTypeEnum.INFORM_TYPE_0.getValue(),
+//                params);
+
+        UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform("1", "login_sms_code", "zh", CTemplateTypeEnum.TEMPLATE_TYPE_2.getValue(), UInformTypeEnum.INFORM_TYPE_0.getValue(), params));
+        ;
     }
 }

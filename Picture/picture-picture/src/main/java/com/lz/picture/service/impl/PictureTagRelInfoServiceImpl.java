@@ -19,7 +19,8 @@ import com.lz.picture.service.IPictureTagRelInfoService;
 import com.lz.picture.model.dto.pictureTagRelInfo.PictureTagRelInfoQuery;
 import com.lz.picture.model.vo.pictureTagRelInfo.PictureTagRelInfoVo;
 
-import static com.lz.picture.manager.factory.PictureUserViewLogAsyncFactory.SEPARATION;
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+
 
 /**
  * 图片标签关联Service业务层处理
@@ -139,7 +140,7 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
     @Override
     public String getPictureTagNamesStr(String pictureId) {
         List<String> pictureTagNames = getPictureTagNames(pictureId);
-        return String.join(SEPARATION, pictureTagNames);
+        return String.join(COMMON_SEPARATOR, pictureTagNames);
     }
 
 }

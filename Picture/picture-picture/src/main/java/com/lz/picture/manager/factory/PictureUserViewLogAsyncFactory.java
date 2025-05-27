@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Date;
 import java.util.TimerTask;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+
 /**
  * 图片用户浏览异步任务异步工厂（产生任务用）
  *
@@ -23,7 +25,6 @@ import java.util.TimerTask;
 @Slf4j
 public class PictureUserViewLogAsyncFactory {
 
-    public static final String SEPARATION = ";";
 
     /**
      * description: 记录图片浏览记录
@@ -132,7 +133,7 @@ public class PictureUserViewLogAsyncFactory {
         UserPictureDetailInfoVo pictureInfo = JSONObject.parseObject(JSON.toJSONString(data), UserPictureDetailInfoVo.class);
         //获取图片信息
         if (StringUtils.isNotEmpty(pictureInfo.getPictureTags())) {
-            userViewLogTargetInfoDto.setTags(String.join(SEPARATION, pictureInfo.getPictureTags()));
+            userViewLogTargetInfoDto.setTags(String.join(COMMON_SEPARATOR, pictureInfo.getPictureTags()));
         }
         userViewLogTargetInfoDto.setTargetId(pictureInfo.getPictureId());
         userViewLogTargetInfoDto.setTargetContent(pictureInfo.getName());

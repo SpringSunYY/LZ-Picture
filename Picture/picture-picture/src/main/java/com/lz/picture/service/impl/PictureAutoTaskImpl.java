@@ -15,7 +15,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.lz.picture.manager.factory.PictureUserViewLogAsyncFactory.SEPARATION;
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+
 
 /**
  * 图片模块自动任务
@@ -106,7 +107,7 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
         //并且标签存储的是字符串，需要使用;分割，每个标签总数
         List<String> tagTotalNames = userViewLogInfos.stream()
                 .filter(userViewLogInfo -> StringUtils.isNotEmpty(userViewLogInfo.getTags()))
-                .map(userViewLogInfo -> userViewLogInfo.getTags().split(SEPARATION))
+                .map(userViewLogInfo -> userViewLogInfo.getTags().split(COMMON_SEPARATOR))
                 .flatMap(Arrays::stream)
                 .filter(StringUtils::isNotEmpty)
                 .toList();
@@ -252,7 +253,7 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
         //标签存储是字符串，需要使用;分割，每个标签总数
         List<String> tagTotalNames = pictureDownloadLogInfos.stream()
                 .filter(pictureDownloadLogInfo -> StringUtils.isNotEmpty(pictureDownloadLogInfo.getTags()))
-                .map(pictureDownloadLogInfo -> pictureDownloadLogInfo.getTags().split(SEPARATION))
+                .map(pictureDownloadLogInfo -> pictureDownloadLogInfo.getTags().split(COMMON_SEPARATOR))
                 .flatMap(Arrays::stream)
                 .filter(StringUtils::isNotEmpty)
                 .toList();
