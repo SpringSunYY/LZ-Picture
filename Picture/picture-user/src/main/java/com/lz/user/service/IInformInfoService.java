@@ -1,21 +1,24 @@
 package com.lz.user.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.lz.user.model.domain.InformInfo;
 import com.lz.user.model.vo.informInfo.InformInfoVo;
 import com.lz.user.model.dto.informInfo.InformInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 用户通知记录Service接口
  *
  * @author YY
  * @date 2025-03-17
  */
-public interface IInformInfoService extends IService<InformInfo>
-{
+public interface IInformInfoService extends IService<InformInfo> {
     //region mybatis代码
+
     /**
      * 查询用户通知记录
      *
@@ -64,6 +67,7 @@ public interface IInformInfoService extends IService<InformInfo>
      */
     public int deleteInformInfoByRecordId(String recordId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +83,17 @@ public interface IInformInfoService extends IService<InformInfo>
      * @return InformInfoVO集合
      */
     List<InformInfoVo> convertVoList(List<InformInfo> informInfoList);
+
+    /**
+     * 发送通知
+     *
+     * @param userId      用户id
+     * @param local       语言
+     * @param templateKey 模板key
+     * @param templateType 模板类型
+     * @param informType  通知类型
+     * @param params      参数
+     * @return 结果
+     */
+    int sendInform(String userId, String templateKey, String local, String templateType, String informType, Map<String, String> params);
 }

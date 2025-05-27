@@ -6,11 +6,17 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.config.model.domain.InformTemplateInfo;
+import com.lz.config.service.IInformTemplateInfoService;
+import com.lz.user.model.enums.UInformIsReadEnum;
+import com.lz.user.model.enums.UInformStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -31,6 +37,9 @@ import com.lz.user.model.vo.informInfo.InformInfoVo;
 public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformInfo> implements IInformInfoService {
     @Resource
     private InformInfoMapper informInfoMapper;
+
+    @Resource
+    private IInformTemplateInfoService informTemplateInfoService;
 
     //region mybatis代码
 
@@ -112,7 +121,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         String recordId = informInfoQuery.getRecordId();
         queryWrapper.eq(StringUtils.isNotEmpty(recordId), "record_id", recordId);
 
-        Long templateKey = informInfoQuery.getTemplateKey();
+        String templateKey = informInfoQuery.getTemplateKey();
         queryWrapper.like(StringUtils.isNotNull(templateKey), "template_key", templateKey);
 
         String templateType = informInfoQuery.getTemplateType();
@@ -130,10 +139,10 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         String informType = informInfoQuery.getInformType();
         queryWrapper.eq(StringUtils.isNotEmpty(informType), "inform_type", informType);
 
-        Integer status = informInfoQuery.getStatus();
+        String status = informInfoQuery.getStatus();
         queryWrapper.eq(StringUtils.isNotNull(status), "status", status);
 
-        Integer isRead = informInfoQuery.getIsRead();
+        String isRead = informInfoQuery.getIsRead();
         queryWrapper.eq(StringUtils.isNotNull(isRead), "is_read", isRead);
 
         Date readTime = informInfoQuery.getReadTime();
@@ -145,7 +154,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         Date sendTime = informInfoQuery.getSendTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginSendTime")) && StringUtils.isNotNull(params.get("endSendTime")), "send_time", params.get("beginSendTime"), params.get("endSendTime"));
 
-        Integer isDelete = informInfoQuery.getIsDelete();
+        String isDelete = informInfoQuery.getIsDelete();
         queryWrapper.eq(StringUtils.isNotNull(isDelete), "is_delete", isDelete);
 
         return queryWrapper;
@@ -157,6 +166,29 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
             return Collections.emptyList();
         }
         return informInfoList.stream().map(InformInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public int sendInform(String userId, String templateKey, String local, String templateType, String informType, Map<String, String> params) {
+        //查询到对应的模板
+        InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(templateKey, local, templateType);
+        if (StringUtils.isNull(informTemplateInfoByKeyLocaleType)) {
+            return 0;
+        }
+        InformInfo informInfo = new InformInfo();
+        informInfo.setInformType(informType);
+        informInfo.setStatus(UInformStatusEnum.INFORM_STATUS_1.getValue());
+        informInfo.setIsRead(UInformIsReadEnum.INFORM_IS_READ_0.getValue());
+        informInfo.setRetryCount(0L);
+        informInfo.setSendTime(DateUtils.getNowDate());
+        informInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        informInfo.setTemplateKey(informTemplateInfoByKeyLocaleType.getTemplateKey());
+        informInfo.setTemplateType(informTemplateInfoByKeyLocaleType.getTemplateType());
+        informInfo.setLocale(informTemplateInfoByKeyLocaleType.getLocale());
+        informInfo.setInformTitle(informTemplateInfoByKeyLocaleType.getInformTitle());
+        informInfo.setUserId(userId);
+        informInfo.setContent(StringUtils.parseTemplate(informTemplateInfoByKeyLocaleType.getContent(), params));
+        return this.save(informInfo) ? 1 : 0;
     }
 
 }

@@ -74,7 +74,7 @@
       <el-form-item label="是否已读" prop="isRead">
         <el-select v-model="queryParams.isRead" style="width: 200px" placeholder="请选择是否已读" clearable>
           <el-option
-              v-for="dict in u_inform_type"
+              v-for="dict in u_inform_is_read"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -202,7 +202,7 @@
       </el-table-column>
       <el-table-column label="是否已读" align="center" prop="isRead" v-if="columns[9].visible">
         <template #default="scope">
-          <dict-tag :options="u_inform_type" :value="scope.row.isRead"/>
+          <dict-tag :options="u_inform_is_read" :value="scope.row.isRead"/>
         </template>
       </el-table-column>
       <el-table-column label="读取时间" align="center" prop="readTime" width="180" v-if="columns[10].visible"
@@ -326,8 +326,9 @@ const {
   common_delete,
   u_inform_status,
   u_inform_type,
-  c_template_type
-} = proxy.useDict('common_delete', 'u_inform_status', 'u_inform_type', 'c_template_type');
+  c_template_type,
+  u_inform_is_read
+} = proxy.useDict('common_delete', 'u_inform_status', 'u_inform_type', 'c_template_type', 'u_inform_is_read');
 
 const informInfoList = ref([]);
 const open = ref(false);
@@ -400,7 +401,7 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '通知记录编号', visible: true},
+    {key: 0, label: '通知记录编号', visible: false},
     {key: 1, label: '模板KEY', visible: true},
     {key: 2, label: '模版类型', visible: true},
     {key: 3, label: '语言', visible: true},
@@ -410,11 +411,11 @@ const data = reactive({
     {key: 7, label: '通知类型', visible: true},
     {key: 8, label: '发送状态', visible: true},
     {key: 9, label: '是否已读', visible: true},
-    {key: 10, label: '读取时间', visible: true},
-    {key: 11, label: '重试次数', visible: true},
+    {key: 10, label: '读取时间', visible: false},
+    {key: 11, label: '重试次数', visible: false},
     {key: 12, label: '发送时间', visible: true},
-    {key: 13, label: '备注', visible: true},
-    {key: 14, label: '删除', visible: true},
+    {key: 13, label: '备注', visible: false},
+    {key: 14, label: '删除', visible: false},
   ],
 });
 

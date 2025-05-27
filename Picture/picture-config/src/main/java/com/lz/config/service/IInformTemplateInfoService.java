@@ -56,11 +56,13 @@ public interface IInformTemplateInfoService extends IService<InformTemplateInfo>
      * author: YY
      * method: getInformTemplateInfoByNameLocaleType
      * date: 2025/3/16 15:21
-     * param:
-     * param: informTemplateInfo
-     * return: com.lz.config.model.domain.InformTemplateInfo
+     *
+     * @param templateType 通知模版类型
+     * @param templateKey  通知模版key
+     * @param locale       语言
+     *                     return: com.lz.config.model.domain.InformTemplateInfo
      **/
-    InformTemplateInfo getInformTemplateInfoByKeyLocaleType(InformTemplateInfo informTemplateInfo);
+    InformTemplateInfo getInformTemplateInfoByKeyLocaleType(String templateKey, String locale, String templateType);
 
     /**
      * 批量删除通知模版

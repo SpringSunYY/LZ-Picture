@@ -76,7 +76,7 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
     @Override
     public int insertInformTemplateInfo(InformTemplateInfo informTemplateInfo) {
         //获取存在数据库内的数据
-        InformTemplateInfo old = getInformTemplateInfoByKeyLocaleType(informTemplateInfo);
+        InformTemplateInfo old = getInformTemplateInfoByKeyLocaleType(informTemplateInfo.getTemplateKey(), informTemplateInfo.getLocale(), informTemplateInfo.getTemplateType());
         if (StringUtils.isNotNull(old)) {
             throw new ServiceException("此语言通知模版key已存在");
         }
@@ -109,7 +109,7 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
         //获取自己老的此数据
         InformTemplateInfo myOld = informTemplateInfoMapper.selectInformTemplateInfoByTemplateId(informTemplateInfo.getTemplateId());
         //获取存在数据库内的数据
-        InformTemplateInfo old = getInformTemplateInfoByKeyLocaleType(informTemplateInfo);
+        InformTemplateInfo old = getInformTemplateInfoByKeyLocaleType(informTemplateInfo.getTemplateKey(), informTemplateInfo.getLocale(), informTemplateInfo.getTemplateType());
         //判断如果我的老的存在数据库内的不相同并且和传过来的名称不同于旧数据
         if (StringUtils.isNotNull(old)
                 && !myOld.getTemplateId().equals(old.getTemplateId())) {
@@ -133,10 +133,11 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
      * return: com.lz.config.model.domain.InformTemplateInfo
      **/
     @Override
-    public InformTemplateInfo getInformTemplateInfoByKeyLocaleType(InformTemplateInfo informTemplateInfo) {
-        return this.getOne(new LambdaQueryWrapper<InformTemplateInfo>().eq(InformTemplateInfo::getTemplateKey, informTemplateInfo.getTemplateKey())
-                .eq(InformTemplateInfo::getLocale, informTemplateInfo.getLocale())
-                .eq(InformTemplateInfo::getTemplateType, informTemplateInfo.getTemplateType()));
+    public InformTemplateInfo getInformTemplateInfoByKeyLocaleType(String templateKey, String locale, String templateType) {
+        return this.getOne(new LambdaQueryWrapper<InformTemplateInfo>()
+                .eq(InformTemplateInfo::getTemplateKey, templateKey)
+                .eq(InformTemplateInfo::getLocale, locale)
+                .eq(InformTemplateInfo::getTemplateType, templateType));
     }
 
     /**
@@ -219,7 +220,7 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
         queryWrapper.eq(StringUtils.isNotEmpty(channel), "channel", channel);
 
         String informTitle = informTemplateInfoQuery.getInformTitle();
-        queryWrapper.like(StringUtils.isNotEmpty(informTitle) ,"inform_title",informTitle);
+        queryWrapper.like(StringUtils.isNotEmpty(informTitle), "inform_title", informTitle);
 
         String status = informTemplateInfoQuery.getStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(status), "status", status);

@@ -28,7 +28,7 @@ public class InformInfoEdit implements Serializable {
     /**
      * 模板KEY
      */
-    private Long templateKey;
+    private String templateKey;
 
     /**
      * 通知标题
@@ -38,12 +38,12 @@ public class InformInfoEdit implements Serializable {
     /**
      * 发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回）
      */
-    private Integer status;
+    private String status;
 
     /**
      * 是否已读（0=未读 1=已读）
      */
-    private Integer isRead;
+    private String isRead;
 
     /**
      * 读取时间
@@ -70,7 +70,7 @@ public class InformInfoEdit implements Serializable {
     /**
      * 删除（0=正常 1=删除）
      */
-    private Integer isDelete;
+    private String isDelete;
 
     /**
      * 对象转封装类

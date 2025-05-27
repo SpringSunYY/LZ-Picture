@@ -28,7 +28,7 @@ public class InformInfoVo implements Serializable
 
     /** 模板KEY */
     @Excel(name = "模板KEY")
-    private Long templateKey;
+    private String templateKey;
 
     /** 模版类型（1短信 2邮件 3站内通知 4APP推送 5微信模板） */
     @Excel(name = "模版类型", readConverterExp = "1=短信,2=邮件,3=站内通知,4=APP推送,5=微信模板")
@@ -56,11 +56,11 @@ public class InformInfoVo implements Serializable
 
     /** 发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回） */
     @Excel(name = "发送状态", readConverterExp = "0=待发送,1=已发送,2=发送失败,3=已撤回")
-    private Integer status;
+    private String status;
 
     /** 是否已读（0=未读 1=已读） */
     @Excel(name = "是否已读", readConverterExp = "0=未读,1=已读")
-    private Integer isRead;
+    private String isRead;
 
     /** 读取时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -82,7 +82,7 @@ public class InformInfoVo implements Serializable
 
     /** 删除（0=正常 1=删除） */
     @Excel(name = "删除", readConverterExp = "0=正常,1=删除")
-    private Integer isDelete;
+    private String isDelete;
 
 
     /**

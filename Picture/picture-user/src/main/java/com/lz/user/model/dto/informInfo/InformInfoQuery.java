@@ -35,7 +35,7 @@ public class InformInfoQuery implements Serializable {
     /**
      * 模板KEY
      */
-    private Long templateKey;
+    private String templateKey;
 
     /**
      * 模版类型（1短信 2邮件 3站内通知 4APP推送 5微信模板）
@@ -65,12 +65,12 @@ public class InformInfoQuery implements Serializable {
     /**
      * 发送状态（0=待发送 1=已发送 2=发送失败 3=已撤回）
      */
-    private Integer status;
+    private String status;
 
     /**
      * 是否已读（0=未读 1=已读）
      */
-    private Integer isRead;
+    private String isRead;
 
     /**
      * 读取时间
@@ -92,7 +92,7 @@ public class InformInfoQuery implements Serializable {
     /**
      * 删除（0=正常 1=删除）
      */
-    private Integer isDelete;
+    private String isDelete;
 
     /**
      * 请求参数
