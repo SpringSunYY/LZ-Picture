@@ -24,12 +24,11 @@ const headers = {Authorization: "Bearer " + getToken()}
 onMounted(() => {
   if (vditorRef.value) {
     vditorInstance = new Vditor(vditorRef.value, {
+      contenteditable: true,
       height: 300,
       width: '100%',
       placeholder: '请输入内容...',
-      toolbar: [
-        'fullscreen', 'both', 'preview', 'outline', 'export', 'help'
-      ],
+      toolbar: ['fullscreen', 'preview', 'outline', 'export', 'help'],
       cache: {
         enable: false
       },

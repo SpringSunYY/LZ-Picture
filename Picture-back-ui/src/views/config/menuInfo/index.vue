@@ -274,7 +274,7 @@
 
     <!-- 添加或修改菜单信息对话框 -->
     <el-dialog :title="title" v-model="open" width="650px" append-to-body>
-      <el-form ref="menuInfoRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="menuInfoRef" :model="form" :rules="rules" label-width="90px">
         <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item label="父菜单" prop="parentId">
@@ -312,11 +312,27 @@
           </el-col>
           <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
             <el-form-item label="路由地址" prop="path">
+              <template #label>
+               <span class="custom-label">
+                 路由地址
+                 <el-tooltip effect="light" placement="top" content="例：picture/space,前端的路由地址">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.path" placeholder="请输入路由地址"/>
             </el-form-item>
           </el-col>
           <el-col :span="12" v-if="form.menuType==='C'">
             <el-form-item label="组件路径" prop="component">
+              <template #label>
+               <span class="custom-label">
+                 组件路径
+                 <el-tooltip effect="light" placement="top" content="例：picture/space,前端的文件地址，自动查找views下面的文件夹，精确到具体文件">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.component" placeholder="请输入组件路径"/>
             </el-form-item>
           </el-col>
@@ -392,11 +408,27 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="权限标识" prop="perms">
+              <template #label>
+               <span class="custom-label">
+                 权限标识
+                 <el-tooltip effect="light" placement="top" content="例：picture:space,所需要的权限，不能随意修改">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.perms" placeholder="请输入权限标识"/>
             </el-form-item>
           </el-col>
           <el-col :span="12" v-if="form.menuType === 'C' ||form.menuType==='M'">
             <el-form-item label="菜单图标" prop="icon">
+              <template #label>
+               <span class="custom-label">
+                 菜单图标
+                 <el-tooltip effect="light" placement="top" content="例：space，前端拥有的SVG图标">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.icon" placeholder="请输入菜单图标"/>
             </el-form-item>
           </el-col>
@@ -427,6 +459,7 @@ import {
   initMenuInfoCache
 } from "@/api/config/menuInfo";
 import {initConfigInfoCache} from "@/api/config/configInfo.js";
+import {QuestionFilled} from "@element-plus/icons-vue";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -671,3 +704,16 @@ function handleRefreshCache() {
 
 getList();
 </script>
+<style>
+.custom-label {
+  display: inline-flex; /* 保持内联弹性布局 */
+  align-items: center; /* 垂直居中 */
+}
+
+.tooltip-icon {
+  width: 14px;
+  height: 14px;
+  color: #F56C6C;
+  margin-left: 5px;
+}
+</style>

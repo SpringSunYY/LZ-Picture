@@ -7,12 +7,13 @@
     <resultMap type="InformTemplateInfo" id="InformTemplateInfoResult">
         <result property="templateId" column="template_id"/>
         <result property="templateName" column="template_name"/>
-        <result property="templateType"    column="template_type"    />
+        <result property="templateType" column="template_type"/>
         <result property="locale" column="locale"/>
         <result property="channel" column="channel"/>
         <result property="templateType" column="template_type"/>
         <result property="serviceTemplateId" column="service_template_id"/>
         <result property="serviceSignName" column="service_sign_name"/>
+        <result property="informTitle" column="inform_title"/>
         <result property="extendConfig" column="extend_config"/>
         <result property="templateVersion" column="template_version"/>
         <result property="templateVersionHistory" column="template_version_history"/>
@@ -37,6 +38,7 @@
                template_type,
                service_template_id,
                service_sign_name,
+               inform_title,
                extend_config,
                template_version,
                template_version_history,
@@ -60,7 +62,9 @@
             <if test="templateName != null  and templateName != ''">and template_name like concat('%', #{templateName},
                 '%')
             </if>
-            <if test="templateKey != null  and templateKey != ''"> and template_key like concat('%', #{templateKey},'%') </if>
+            <if test="templateKey != null  and templateKey != ''">and template_key like concat('%',
+                #{templateKey},'%')
+            </if>
             <if test="locale != null  and locale != ''">and locale = #{locale}</if>
             <if test="channel != null  and channel != ''">and channel = #{channel}</if>
             <if test="templateType != null  and templateType != ''">and template_type = #{templateType}</if>
@@ -69,6 +73,8 @@
             </if>
             <if test="serviceSignName != null  and serviceSignName != ''">and service_sign_name like concat('%',
                 #{serviceSignName}, '%')
+            </if>
+            <if test="informTitle != null  and informTitle != ''">and inform_title like concat('%', #{informTitle}, '%')
             </if>
             <if test="status != null  and status != ''">and status = #{status}</if>
             <if test="createBy != null  and createBy != ''">and create_by like concat('%', #{createBy}, '%')</if>
@@ -98,6 +104,7 @@
             <if test="templateType != null and templateType != ''">template_type,</if>
             <if test="serviceTemplateId != null">service_template_id,</if>
             <if test="serviceSignName != null">service_sign_name,</if>
+            <if test="informTitle != null">inform_title,</if>
             <if test="extendConfig != null">extend_config,</if>
             <if test="templateVersion != null">template_version,</if>
             <if test="templateVersionHistory != null and templateVersionHistory != ''">template_version_history,</if>
@@ -120,6 +127,7 @@
             <if test="templateType != null and templateType != ''">#{templateType},</if>
             <if test="serviceTemplateId != null">#{serviceTemplateId},</if>
             <if test="serviceSignName != null">#{serviceSignName},</if>
+            <if test="informTitle != null">#{informTitle},</if>
             <if test="extendConfig != null">#{extendConfig},</if>
             <if test="templateVersion != null">#{templateVersion},</if>
             <if test="templateVersionHistory != null and templateVersionHistory != ''">#{templateVersionHistory},</if>
@@ -146,6 +154,7 @@
             <if test="templateType != null and templateType != ''">template_type = #{templateType},</if>
             <if test="serviceTemplateId != null">service_template_id = #{serviceTemplateId},</if>
             <if test="serviceSignName != null">service_sign_name = #{serviceSignName},</if>
+            <if test="informTitle != null">inform_title = #{informTitle},</if>
             <if test="extendConfig != null">extend_config = #{extendConfig},</if>
             <if test="templateVersion != null">template_version = #{templateVersion},</if>
             <if test="templateVersionHistory != null and templateVersionHistory != ''">template_version_history =

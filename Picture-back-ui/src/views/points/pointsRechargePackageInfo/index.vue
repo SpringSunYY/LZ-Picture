@@ -148,7 +148,8 @@
           <dict-tag :options="po_package_is_long_term" :value="scope.row.isLongTerm"/>
         </template>
       </el-table-column>
-      <el-table-column label="排序权重" align="center" prop="sortOrder" v-if="columns[7].visible" :show-overflow-tooltip="true"/>
+      <el-table-column label="排序权重" align="center" prop="sortOrder" v-if="columns[7].visible"
+                       :show-overflow-tooltip="true"/>
       <el-table-column label="生效时间" align="center" prop="startTime" width="180" v-if="columns[8].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
@@ -238,7 +239,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="排序权重" prop="sortOrder">
-          <el-input-number :min="0" :max="10" v-model="form.sortOrder" placeholder="请输入排序权重" />
+          <el-input-number :min="0" :max="10" v-model="form.sortOrder" placeholder="请输入排序权重"/>
         </el-form-item>
         <el-form-item label="生效时间" prop="startTime">
           <el-date-picker clearable

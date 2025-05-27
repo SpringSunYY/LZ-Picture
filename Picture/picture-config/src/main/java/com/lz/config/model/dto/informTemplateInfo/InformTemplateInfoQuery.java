@@ -62,6 +62,11 @@ public class InformTemplateInfoQuery implements Serializable {
     private String serviceSignName;
 
     /**
+     * 通知标题
+     */
+    private String informTitle;
+
+    /**
      * 状态（0=待审核 1=已启用 2=已禁用 3=审核失败）
      */
     private String status;

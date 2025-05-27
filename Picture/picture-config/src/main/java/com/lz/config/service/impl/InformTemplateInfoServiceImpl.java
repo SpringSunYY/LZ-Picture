@@ -218,6 +218,9 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
         String channel = informTemplateInfoQuery.getChannel();
         queryWrapper.eq(StringUtils.isNotEmpty(channel), "channel", channel);
 
+        String informTitle = informTemplateInfoQuery.getInformTitle();
+        queryWrapper.like(StringUtils.isNotEmpty(informTitle) ,"inform_title",informTitle);
+
         String status = informTemplateInfoQuery.getStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(status), "status", status);
 

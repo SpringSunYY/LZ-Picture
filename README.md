@@ -437,6 +437,7 @@ CREATE TABLE c_i18n_message_info (
 | template_type           | char     | 2    |                                   | 否   |          | 模版类型                               |
 | service_template_id     | varchar  | 64   |                                   | 是   |          | 服务商模版编号                         |
 | service_sign_name       | varchar  | 64   |                                   | 是   |          | 服务商签名                             |
+| inform_title            | varchar  | 128  |                                   | 否   |          | 通知标题                               |
 | extend_config           | varchar  | 1024 |                                   | 是   |          | 扩展配置                               |
 | templat_version         | int      |      |                                   | 否   |          | 版本                                   |
 | templat_version_history | text     |      |                                   | 否   |          | 历史版本                               |
@@ -473,6 +474,7 @@ create table c_inform_template_info
     template_type            char          not null comment '模版类型（1短信 2邮件 3站内通知 4APP推送 5微信模板）',
     service_template_id      varchar(64)   null comment '服务商模版编号',
     service_sign_name        varchar(64)   null comment '服务商签名',
+    inform_title VARCHAR(128) NOT NULL COMMENT '通知标题',
     extend_config            varchar(1024) null comment '扩展配置',
     template_version         int           not null comment '版本',
     template_version_history text          not null comment '历史版本',

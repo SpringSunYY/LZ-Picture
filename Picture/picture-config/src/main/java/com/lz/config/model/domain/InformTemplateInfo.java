@@ -75,6 +75,12 @@ public class InformTemplateInfo implements Serializable {
     private String serviceSignName;
 
     /**
+     * 通知标题
+     */
+    @Excel(name = "通知标题")
+    private String informTitle;
+
+    /**
      * 扩展配置
      */
     @Excel(name = "扩展配置")
