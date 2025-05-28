@@ -3,8 +3,8 @@ import { message } from 'ant-design-vue'
 
 export async function downloadImage(pictureId: string, fileName?: string) {
   try {
-    const response = await pictureDownload(pictureId).then((blob) => {
-      console.log('blob', blob)
+     await pictureDownload(pictureId).then((blob) => {
+      // console.log('blob', blob)
       // 如果是 JSON 类型，说明是错误信息
       if (blob.type !== 'application/octet-stream') {
         const reader = new FileReader()

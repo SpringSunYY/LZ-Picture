@@ -26,16 +26,16 @@ public class InformInfoAsyncFactory {
             public void run() {
                 //如果传过来的local为空，则查询用户的偏好语言
                 if (StringUtils.isEmpty(local)) {
-                    System.out.println("用户没有设置语言，使用默认语言");
+//                    System.out.println("用户没有设置语言，使用默认语言");
                     UserInfo userInfo = SpringUtils.getBean(IUserInfoService.class).selectUserInfoByUserId(userId);
                     String effectiveLocal = userInfo.getPreferredLanguageLocale();
-                    System.out.println("用户偏好语言：" + effectiveLocal);
+//                    System.out.println("用户偏好语言：" + effectiveLocal);
                     int i = SpringUtils.getBean(IInformInfoService.class).sendInform(userId, templateKey, effectiveLocal, templateType, informType, params);
-                    System.out.println("发送消息结果：" + i);
+//                    System.out.println("发送消息结果：" + i);
                 } else {
                     //发送消息
                     int i = SpringUtils.getBean(IInformInfoService.class).sendInform(userId, templateKey, local, templateType, informType, params);
-                    System.out.println("发送消息结果：" + i);
+//                    System.out.println("发送消息结果：" + i);
                 }
             }
         };

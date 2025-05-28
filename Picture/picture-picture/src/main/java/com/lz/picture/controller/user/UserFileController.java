@@ -15,6 +15,7 @@ import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +37,7 @@ import java.nio.charset.StandardCharsets;
  */
 @RestController
 @RequestMapping("/user/picture/file")
+@Slf4j
 public class UserFileController extends BaseUserInfoController {
     @Resource
     private PictureUploadManager pictureUploadManager;
@@ -110,7 +112,7 @@ public class UserFileController extends BaseUserInfoController {
 
     @PreAuthorize("@uss.hasPermi('picture:download')")
     @GetMapping("/download/{pictureId}")
-    public AjaxResult downloadPicture(@PathVariable("pictureId") String pictureId, HttpServletResponse response) {
+    public void downloadPicture(@PathVariable("pictureId") String pictureId, HttpServletResponse response) {
         try {
             // 校验图片
             PictureInfo pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId());
@@ -132,15 +134,13 @@ public class UserFileController extends BaseUserInfoController {
                 }
                 out.flush();
             }
-            return success();
         } catch (IOException e) {
-            // 记录日志（可选）
-            // log.error("文件下载失败", e);
-            return AjaxResult.error(e.getMessage());
+             log.error("文件下载失败", e);
         } catch (Exception e) {
             response.setHeader("X-Error", "true");
             // 其他可能的异常统一处理
-            return AjaxResult.error(e.getMessage());
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }
