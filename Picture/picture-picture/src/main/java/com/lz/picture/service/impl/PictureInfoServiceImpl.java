@@ -18,6 +18,7 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
@@ -34,7 +35,10 @@ import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
 import com.lz.points.model.enums.PoPointsUsageTypeEnum;
 import com.lz.points.service.IAccountInfoService;
 import com.lz.points.service.IPointsUsageLogInfoService;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.model.vo.userInfo.UserVo;
 import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
@@ -48,8 +52,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
+import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 
 /**
  * 图片信息Service业务层处理
@@ -923,6 +929,25 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         pictureDownloadLogInfo.setDownloadId(IdUtils.fastUUID());
         pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
+        //发送消息
+        HashMap<String, String> params = new HashMap<>();
+        /*
+         {
+             "points":100,
+             "pictureName":"懒羊羊呀懒羊羊",
+             "createTime":"2025-05-25 10:14:15"
+         }
+         */
+        params.put("points", String.valueOf(totalPoints));
+        params.put("pictureName", pictureInfo.getName());
+        params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, pictureDownloadLogInfo.getCreateTime()));
+        UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                userId,
+                DOWNLOAD_PICTURE,
+                null,
+                CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                params));
         return pictureInfo;
     }
 }

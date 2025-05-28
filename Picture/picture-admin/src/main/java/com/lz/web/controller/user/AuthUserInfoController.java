@@ -8,6 +8,10 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.utils.sign.RsaUtils;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
+import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.userauth.utils.PasswordUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
@@ -23,7 +27,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Set;
+
+import static com.lz.common.constant.config.LocaleConstants.ZH_CN;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.USER_REGISTER;
 
 /**
  * 用户信息Controller
@@ -134,7 +142,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
      * @return
      */
     @PostMapping("/register")
-    public AjaxResult register(@RequestBody RegisterLoginBody registerLoginBody) throws Exception {
+    public AjaxResult register(@RequestBody RegisterLoginBody registerLoginBody,HttpServletRequest request) throws Exception {
         AjaxResult ajax = AjaxResult.success();
         if (StringUtils.isEmpty(registerLoginBody.getSmsCode()) || StringUtils.isEmpty(registerLoginBody.getPhone()) || StringUtils.isEmpty(registerLoginBody.getPassword()) || StringUtils.isEmpty(registerLoginBody.getConfirmPassword())) {
             return AjaxResult.error("请输入手机号和密码");
@@ -152,7 +160,19 @@ public class AuthUserInfoController extends BaseUserInfoController {
         if (StringUtils.isNotNull(authUserInfo)) {
             throw new RuntimeException("该手机已经注册");
         }
+        String acceptLanguage = request.getHeader("Accept-Language");
+        registerLoginBody.setPreferredLanguageLocale(StringUtils.isNotEmpty(acceptLanguage) ? acceptLanguage.split(",")[0] : ZH_CN);
         AuthUserInfo userInfo = authUserInfoService.register(registerLoginBody);
+        //发送注册成功信息
+        HashMap<String, String> params = new HashMap<>();
+        params.put("userName", userInfo.getUserName());
+        UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                userInfo.getUserId(),
+                USER_REGISTER,
+                StringUtils.isNotEmpty(userInfo.getPreferredLanguageLocale()) ? userInfo.getPreferredLanguageLocale() : ZH_CN,
+                CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                params));
         // 生成令牌
         String token = loginService.userInfoLogin(userInfo.getUserName(), registerLoginBody.getPassword());
         ajax.put(Constants.TOKEN, token);

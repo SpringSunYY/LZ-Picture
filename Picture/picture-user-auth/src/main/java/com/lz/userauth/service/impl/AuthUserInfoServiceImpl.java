@@ -103,6 +103,7 @@ public class AuthUserInfoServiceImpl extends ServiceImpl<AuthUserInfoMapper, Aut
         authUserInfo.setCreateTime(DateUtils.getNowDate());
         authUserInfo.setUserId(IdUtils.fastSimpleUUID());
         authUserInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        authUserInfo.setPreferredLanguageLocale(registerLoginBody.getPreferredLanguageLocale());
         authUserInfoMapper.insert(authUserInfo);
         return authUserInfo;
     }

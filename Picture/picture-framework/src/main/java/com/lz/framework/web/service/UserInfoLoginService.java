@@ -247,8 +247,8 @@ public class UserInfoLoginService {
         String registerCode = StringUtils.generateCode();
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_REGISTER_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         //发送短信验证码
-        SmsResponse smsResponse = smsTemplate.sendCode(UserConfigConstants.SMS_REGISTER_CODE, registerCode, phone, "zh");
-        System.out.println("smsResponse = " + smsResponse);
+        smsTemplate.sendCode(UserConfigConstants.SMS_REGISTER_CODE, registerCode, phone, "zh");
+//        System.out.println("smsResponse = " + smsResponse);
         return registerCode;
     }
 
@@ -257,7 +257,7 @@ public class UserInfoLoginService {
             throw new ServiceException("参数异常");
         }
         String redisKey = key + countryCode + ":" + phone;
-        System.out.println("redisKey = " + redisKey);
+//        System.out.println("redisKey = " + redisKey);
         String registerCode = redisCache.getCacheObject(redisKey);
         if (StringUtils.isEmpty(registerCode)) {
             throw new ServiceException("短信验证码已过期");

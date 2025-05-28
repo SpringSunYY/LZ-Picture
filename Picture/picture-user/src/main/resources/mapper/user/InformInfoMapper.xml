@@ -64,6 +64,7 @@
             </if>
             <if test="isDelete != null ">and is_delete = #{isDelete}</if>
         </where>
+        order by send_time desc
     </select>
 
     <select id="selectInformInfoByRecordId" parameterType="String" resultMap="InformInfoResult">

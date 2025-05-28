@@ -50,4 +50,9 @@ public class RegisterLoginBody {
      * 确认密码
      */
     private String confirmPassword;
+
+    /**
+     * 偏好语言
+     */
+    private String preferredLanguageLocale;
 }

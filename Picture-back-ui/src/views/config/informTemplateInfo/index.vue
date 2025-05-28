@@ -365,7 +365,8 @@
               <template #label>
                <span class="custom-label">
                  内容
-                 <el-tooltip effect="light" placement="top" content="请输入内容，例：例：你好我是${userName},我想对你说${tell}">
+                 <el-tooltip effect="light" placement="top"
+                             content="请输入内容，例：例：你好我是${userName},我想对你说${tell}">
                    <QuestionFilled class="tooltip-icon"/>
                  </el-tooltip>
                </span>
@@ -378,6 +379,15 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="变量列表" prop="variables">
+              <template #label>
+               <span class="custom-label">
+                 变量列表
+                 <el-tooltip effect="light" placement="top"
+                             content="请输入变量列表,例：{&quot;userName&quot;: &quot;YY&quot;, &quot;tell&quot;: &quot;你好&quot;}">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.variables" :rows="5" type="textarea"
                         placeholder="请输入变量列表,例：{&quot;userName&quot;: &quot;YY&quot;, &quot;tell&quot;: &quot;你好&quot;}"/>
             </el-form-item>
@@ -651,6 +661,7 @@ function reset() {
     remark: null,
     saveVersion: false
   };
+  templateVersion.value = form.value.templateVersion
   proxy.resetForm("informTemplateInfoRef");
 }
 

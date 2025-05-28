@@ -14,6 +14,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.config.model.domain.InformTemplateInfo;
+import com.lz.config.model.enmus.CTemplateStatusEnum;
 import com.lz.config.service.IInformTemplateInfoService;
 import com.lz.user.model.enums.UInformIsReadEnum;
 import com.lz.user.model.enums.UInformStatusEnum;
@@ -172,7 +173,8 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
     public int sendInform(String userId, String templateKey, String local, String templateType, String informType, Map<String, String> params) {
         //查询到对应的模板
         InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(templateKey, local, templateType);
-        if (StringUtils.isNull(informTemplateInfoByKeyLocaleType)) {
+        if (StringUtils.isNull(informTemplateInfoByKeyLocaleType)
+        ||!informTemplateInfoByKeyLocaleType.getStatus().equals(CTemplateStatusEnum.TEMPLATE_STATUS_0.getValue())) {
             return 0;
         }
         InformInfo informInfo = new InformInfo();
