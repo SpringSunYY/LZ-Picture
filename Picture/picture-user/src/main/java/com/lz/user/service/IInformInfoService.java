@@ -3,7 +3,9 @@ package com.lz.user.service;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.user.model.domain.InformInfo;
+import com.lz.user.model.dto.informInfo.UserInformInfoQuery;
 import com.lz.user.model.vo.informInfo.InformInfoVo;
 import com.lz.user.model.dto.informInfo.InformInfoQuery;
 
@@ -87,13 +89,24 @@ public interface IInformInfoService extends IService<InformInfo> {
     /**
      * 发送通知
      *
-     * @param userId      用户id
-     * @param local       语言
-     * @param templateKey 模板key
+     * @param userId       用户id
+     * @param local        语言
+     * @param templateKey  模板key
      * @param templateType 模板类型
-     * @param informType  通知类型
-     * @param params      参数
+     * @param informType   通知类型
+     * @param params       参数
      * @return 结果
      */
     int sendInform(String userId, String templateKey, String local, String templateType, String informType, Map<String, String> params);
+
+    /**
+     * 查询用户通知列表
+     *
+     * @param userInformInfoQuery 查询条件
+     * @return Page<InformInfo>
+     * @author: YY
+     * @method: selectUserInformInfoList
+     * @date: 2025/5/28 23:33
+     **/
+    Page<InformInfo> selectUserInformInfoList(UserInformInfoQuery userInformInfoQuery);
 }

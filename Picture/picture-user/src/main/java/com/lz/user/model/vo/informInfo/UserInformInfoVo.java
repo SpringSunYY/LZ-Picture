@@ -56,7 +56,7 @@ public class UserInformInfoVo implements Serializable {
      * 是否已读（0=未读 1=已读）
      */
     @Excel(name = "是否已读", readConverterExp = "0=未读,1=已读")
-    private Integer isRead;
+    private String isRead;
 
 
     /**

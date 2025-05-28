@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.model.enmus.CTemplateStatusEnum;
 import com.lz.config.service.IInformTemplateInfoService;
+import com.lz.user.model.dto.informInfo.UserInformInfoQuery;
 import com.lz.user.model.enums.UInformIsReadEnum;
 import com.lz.user.model.enums.UInformStatusEnum;
 import jakarta.annotation.Resource;
@@ -174,7 +177,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         //查询到对应的模板
         InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(templateKey, local, templateType);
         if (StringUtils.isNull(informTemplateInfoByKeyLocaleType)
-        ||!informTemplateInfoByKeyLocaleType.getStatus().equals(CTemplateStatusEnum.TEMPLATE_STATUS_0.getValue())) {
+                || !informTemplateInfoByKeyLocaleType.getStatus().equals(CTemplateStatusEnum.TEMPLATE_STATUS_0.getValue())) {
             return 0;
         }
         InformInfo informInfo = new InformInfo();
@@ -191,6 +194,24 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         informInfo.setUserId(userId);
         informInfo.setContent(StringUtils.parseTemplate(informTemplateInfoByKeyLocaleType.getContent(), params));
         return this.save(informInfo) ? 1 : 0;
+    }
+
+    @Override
+    public Page<InformInfo> selectUserInformInfoList(UserInformInfoQuery userInformInfoQuery) {
+        // 提取基础参数
+        Integer pageNum = userInformInfoQuery.getPageNum();
+        Integer pageSize = userInformInfoQuery.getPageSize();
+
+        return this.page(new Page<>(pageNum, pageSize),
+                new LambdaQueryWrapper<InformInfo>()
+                        .eq(StringUtils.isNotEmpty(userInformInfoQuery.getUserId()), InformInfo::getUserId, userInformInfoQuery.getUserId())
+                        .like(StringUtils.isNotEmpty(userInformInfoQuery.getInformTitle()), InformInfo::getInformTitle, userInformInfoQuery.getInformTitle())
+                        .eq(StringUtils.isNotEmpty(userInformInfoQuery.getInformType()), InformInfo::getInformType, userInformInfoQuery.getInformType())
+                        .eq(StringUtils.isNotEmpty(userInformInfoQuery.getIsRead()), InformInfo::getIsRead, userInformInfoQuery.getIsRead())
+                        .eq(StringUtils.isNotEmpty(userInformInfoQuery.getTemplateType()), InformInfo::getTemplateType, userInformInfoQuery.getTemplateType())
+                        .eq(InformInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                        .eq(InformInfo::getStatus, UInformStatusEnum.INFORM_STATUS_1.getValue())
+                        .orderBy(true, false, InformInfo::getSendTime));
     }
 
 }

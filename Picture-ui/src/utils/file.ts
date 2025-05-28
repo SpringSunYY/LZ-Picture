@@ -6,6 +6,7 @@ export async function downloadImage(pictureId: string, fileName?: string) {
      await pictureDownload(pictureId).then((blob) => {
       // console.log('blob', blob)
       // 如果是 JSON 类型，说明是错误信息
+       //@ts-ignore
       if (blob.type !== 'application/octet-stream') {
         const reader = new FileReader()
         return new Promise((resolve, reject) => {
@@ -19,11 +20,13 @@ export async function downloadImage(pictureId: string, fileName?: string) {
             }
           }
           reader.onerror = () => reject(reader.error)
+          //@ts-ignore
           reader.readAsText(blob)
           return
         })
       } else {
         // 处理正常的文件下载
+        //@ts-ignore
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url

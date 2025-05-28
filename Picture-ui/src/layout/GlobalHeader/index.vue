@@ -20,7 +20,7 @@
       </a-col>
       <a-col flex="250px">
         <div class="user-login-status">
-          <a-space :size="24" v-if="userName" align="middle">
+          <a-space :size="24" v-if="userName" align="center">
             <a-badge
               title="通知信息，点击查看"
               count="4"

@@ -270,7 +270,7 @@
             <el-radio
                 v-for="dict in u_inform_type"
                 :key="dict.value"
-                :value="parseInt(dict.value)"
+                :value="dict.value"
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
@@ -302,7 +302,7 @@
             <el-radio
                 v-for="dict in common_delete"
                 :key="dict.value"
-                :value="parseInt(dict.value)"
+                :value="dict.value"
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
