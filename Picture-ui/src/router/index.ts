@@ -26,6 +26,17 @@ export const constantRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/informDetail',
+    name: 'informDetail',
+    component: () => import('@/views/user/inform/informDetail.vue'),
+    meta: {
+      title: '消息详情',
+      cacheKey: 'informDetail',
+      isHidden: true,
+      isCache: false,
+    },
+  },
+  {
     path: '/points/payment',
     name: 'PointsPayment',
     component: () => import('@/views/points/payment.vue'),

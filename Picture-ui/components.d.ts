@@ -14,6 +14,7 @@ declare module 'vue' {
     DirectionAwareHover: typeof import('./src/components/DirectionAwareHover.vue')['default']
     DownloadLogInfoTable: typeof import('./src/components/DownloadLogInfoTable.vue')['default']
     FancyImage: typeof import('./src/components/FancyImage.vue')['default']
+    MarkdownView: typeof import('./src/components/MarkdownView.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']
     PictureDownloadLogInfoTable: typeof import('./src/components/PictureDownloadLogInfoTable.vue')['default']
     PictureInfoList: typeof import('./src/components/PictureInfoList.vue')['default']

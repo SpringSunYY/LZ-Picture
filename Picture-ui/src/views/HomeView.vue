@@ -39,7 +39,7 @@
     <Picture />
   </div>
 </template>
-<script setup name="HomeView">
+<script setup lang="ts" name="HomeView">
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
 </script>

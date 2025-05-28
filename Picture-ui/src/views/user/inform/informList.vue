@@ -159,7 +159,7 @@ const resetSearch = () => {
   handleTabChange(activeKey.value)
 }
 const goDetail = (item: any) => {
-  router.push({ name: 'UserInformDetail', query: { id: item.recordId } })
+  router.push({ name: 'informDetail', query: { recordId: item.recordId } })
 }
 </script>
 

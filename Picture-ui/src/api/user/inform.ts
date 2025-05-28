@@ -10,3 +10,11 @@ export function listInformInfo(params: InformInfoQuery): Promise<API.ResponseInf
     params: params,
   })
 }
+
+//查看用户通知信息
+export function getInformInfo(recordId: string): Promise<API.ResponseInfo<InformInfoVo>> {
+  return request({
+    url: '/user/informInfo/' + recordId,
+    method: 'get',
+  })
+}
