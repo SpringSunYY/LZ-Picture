@@ -373,8 +373,8 @@
               </template>
               <!--              <el-input type="textarea" placeholder="请输入内容，例：例：你好我是${userName},我想对你说${tell}" :rows="5"-->
               <!--                        v-model="form.content" :min-height="192"/>-->
-              <MarkdownEditor :key="markdownKey" ref="markdownEditorRef"
-                              v-model="form.content"/>
+             <MarkdownEditor v-model="form.content"  theme="light"
+                         previewTheme="github" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -392,7 +392,7 @@
                         placeholder="请输入变量列表,例：{&quot;userName&quot;: &quot;YY&quot;, &quot;tell&quot;: &quot;你好&quot;}"/>
             </el-form-item>
             <el-form-item label="事例" prop="example">
-              <MarkdownView v-model="form.example"/>
+              <MarkdownBaseEditor v-model="form.example"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -456,6 +456,8 @@ import {listI18nLocaleInfo} from "@/api/config/i18nLocaleInfo.js";
 import MarkdownEditor from "@/components/MarkdownEditor/index.vue";
 import MarkdownView from "@/components/MarkdownView/index.vue"
 import {QuestionFilled} from "@element-plus/icons-vue";
+import MyMdEditor from "@/components/MyMdEditor/index.vue";
+import MarkdownBaseEditor from "@/components/MarkdownBaseEditor/MarkdownBaseEditor.vue";
 
 const {proxy} = getCurrentInstance();
 const {

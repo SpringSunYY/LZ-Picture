@@ -1,126 +1,181 @@
 <template>
-  <div id="vditor" ref="vditorRef"/>
+  <div class="markdown-editor">
+    <MdEditor
+        v-model="content"
+        :theme="theme"
+        :previewTheme="previewTheme"
+        :preview="true"
+        language="zh-CN"
+        :toolbars="toolbars"
+        :onUploadImg="handleUploadImg"
+        :showCodeRowNumber="true"
+        :footers="['markdownTotal', '=', 'scrollSwitch']"
+        @onSave="handleSave"
+        :show-toolbar-name="true"
+    />
+  </div>
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue'
-import Vditor from 'vditor'
-import 'vditor/dist/index.css'
-import {getToken} from "@/utils/auth"
-import {ElMessage} from "element-plus"
+import {ref, watch} from 'vue'
+import {MdEditor} from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import {getToken} from '@/utils/auth'
+import {ElLoading, ElMessage} from "element-plus"
 
 const props = defineProps({
-  modelValue: String  // 修改为标准的v-model prop名称
+  modelValue: String,
+  theme: {
+    type: String,
+    default: 'light', // 或 'dark'
+  },
+  previewTheme: {
+    type: String,
+    default: 'github', // 可选 'vuepress'、'mk-cute' 等
+  },
+  fileSize: {
+    type: Number,
+    default: 5
+  },
+  fileType: {
+    type: Array,
+    default: () => ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
+  }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'save'])
+const content = ref(props.modelValue)
 
-const vditorRef = ref(null)
-let vditorInstance = null
-const baseUrl = ref(import.meta.env.VITE_APP_BASE_API)
-const uploadImgUrl = ref(baseUrl.value + "/common/upload")
-const headers = {Authorization: "Bearer " + getToken()}
+watch(
+    () => props.modelValue,
+    (val) => {
+      if (val !== content.value) content.value = val
+    }
+)
 
-onMounted(() => {
-  if (vditorRef.value) {
-    vditorInstance = new Vditor(vditorRef.value, {
-      hint: {
-        emojiTail: '',
-        emoji: {},
-        extend: [
-          {
-            key: '$',
-            hint: (key) => {
-              return ['${variable}'] // 自定义提示
-            }
-          }
-        ]
-      },
-      resize: {
-        enable: true,  // 启用调整大小
-        position: 'bottom' // 调整手柄位置
-      },
-      height: 500,
-      placeholder: '请输入内容...',
-      mode: 'sv',
-      toolbar: [
-        'headings', 'bold', 'italic', 'strike', 'link', '|',
-        'list', 'ordered-list', 'check', 'outdent', 'indent', '|',
-        'quote', 'line', 'code', 'inline-code', 'insert-before', 'insert-after', '|',
-        'upload', 'table', '|',
-        'undo', 'redo', '|',
-        'fullscreen', 'edit-mode', 'both', 'preview', 'outline', '|', 'export', 'help'
-      ],
-      cache: {
-        enable: false
-      },
-      upload: {
-        url: uploadImgUrl.value,
-        async: false,
-        fieldName: 'file',
-        max: 5 * 1024 * 1024,
-        accept: 'image/*',
-        linkToImgUrl: '',
-        filename(name) {
-          return name.replace(/\s/g, '_')
+watch(content, (val) => {
+  emit('update:modelValue', val)
+})
+
+// 工具栏配置（与官网一致）
+const toolbars = [
+  'image',
+  'pageFullscreen',
+  'fullscreen',
+  'preview',
+  'bold',
+  'underline',
+  'italic',
+  '-',
+  'title',
+  'strikeThrough',
+  'sub',
+  'sup',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  'task',
+  '-',
+  'codeRow',
+  'code',
+  'link',
+  'table',
+  'mermaid',
+  'katex',
+  '-',
+  'revoke',
+  'next',
+  'save',
+  '=',
+  'previewOnly',
+  'htmlPreview',
+  'catalog',
+  'github',
+];
+
+// 上传图片接口地址
+const uploadFileUrl = import.meta.env.VITE_APP_BASE_API + "/common/upload"
+
+async function handleUploadImg(files, callback) {
+  if (!files || !files.length) return;
+
+  const allowedTypes = props.fileType ;
+  const maxSizeMB = props.fileSize;
+  const validFiles = [];
+
+  // 过滤合法文件
+  for (const file of files) {
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(fileExt)) {
+      ElMessage.warning(`文件 "${file.name}" 格式错误，跳过`);
+      continue;
+    }
+
+    if (file.size / 1024 / 1024 > maxSizeMB) {
+      ElMessage.warning(`文件 "${file.name}" 超过 ${maxSizeMB}MB，跳过`);
+      continue;
+    }
+
+    validFiles.push(file);
+  }
+
+  if (!validFiles.length) {
+    ElMessage.error('没有符合要求的图片');
+    return;
+  }
+
+  const loadingInstance = ElLoading.service({text: '上传中...'});
+  const uploadedUrls = [];
+
+  try {
+    for (const file of validFiles) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(uploadFileUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + getToken()
         },
-        headers: headers,
-        success(editor, msg) {
-          try {
-            const response = typeof msg === 'string' ? JSON.parse(msg) : msg
-            if (response.code === 200) {
-              const relativePath = response.fileName
-              const displayUrl = baseUrl.value + relativePath
-              vditorInstance.insertValue(`![${response.originalFilename}](${displayUrl})`)
-              ElMessage.success('图片上传成功')
-            }
-          } catch (e) {
-            console.error('处理上传响应失败:', e)
-          }
-        },
-        error(msg) {
-          console.error('上传失败:', msg)
+        body: formData
+      });
+
+      const result = await res.json();
+
+      if (result.code === 200) {
+        const imgUrl = result.fileName;
+        // const displayUrl = baseUrl.value + imgUrl
+        if (imgUrl && typeof imgUrl === 'string') {
+          uploadedUrls.push(imgUrl);
         }
-      },
-      input(value) {
-        emit('update:modelValue', value)
-        // console.log('vditor input:', value)
-      },
-      after: () => {
-        if (props.modelValue) {
-          vditorInstance.setValue(props.modelValue)
-        }
-        // console.log('Vditor 已初始化完成')
+      } else {
+        ElMessage.warning(`"${file.name}" 上传失败：${result.msg || '未知错误'}`);
       }
-    })
-  }
-})
-const isInitialized = ref(false)
-watch(() => props.modelValue, (newVal, oldVal) => {
-  if (isInitialized.value && vditorInstance && newVal !== oldVal) {
-    nextTick(() => {
-      vditorInstance.setValue(newVal || '')
-      console.log('值更新:', newVal)
-    })
-  }
-}, {immediate: true})
-// 新增方法：销毁编辑器
-const destroyEditor = () => {
-  if (vditorInstance) {
-    vditorInstance.destroy()
-    vditorInstance = null
-    isInitialized.value = false
+    }
+
+    loadingInstance.close();
+
+    if (uploadedUrls.length) {
+      callback(uploadedUrls);
+      ElMessage.success(`成功上传 ${uploadedUrls.length} 张图片`);
+    } else {
+      ElMessage.error('所有图片上传失败');
+    }
+  } catch (err) {
+    loadingInstance.close();
+    ElMessage.error('上传过程中发生异常');
   }
 }
-// 组件卸载时销毁编辑器
-onUnmounted(destroyEditor)
 
+// 保存事件（支持 Ctrl+S）
+const handleSave = () => {
+  emit('save', content.value)
+}
 </script>
-<style scoped>
-.template-var {
-  color: #1890ff;
-  background-color: #f0f9ff;
-  padding: 0 2px;
-  border-radius: 2px;
+
+<style>
+.markdown-editor {
+  width: 100%;
+  height: 100%;
 }
 </style>
