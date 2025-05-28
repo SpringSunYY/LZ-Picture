@@ -61,7 +61,7 @@
           />
         </a-card>
         <a-card title="" :bordered="false" class="card action-card">
-          <a-space-compact direction="horizontal" align="center" style="padding: 0" :wrap="true">
+          <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
             <a-tooltip title="View">
               <a-button class="icon-button" @click="clickLook">
                 <FireOutlined
@@ -112,7 +112,8 @@
             <a-tooltip title="Download">
               <a-button
                 :loading="downloadPictureLoading"
-                class="icon-button"
+                class="icon-button download-bounce"
+                type="warn"
                 @click="downloadPicture"
               >
                 <template #icon>
@@ -124,7 +125,7 @@
                 <span style="font-size: 16px; padding-left: 8px">积分</span>
               </a-button>
             </a-tooltip>
-          </a-space-compact>
+          </a-space>
         </a-card>
         <a-card title="评论" v-if="showComment" :bordered="false" class="card">
           <Comment></Comment>
@@ -258,7 +259,7 @@ const downloadPicture = async () => {
 }
 
 const clickLook = () => {
-  message.success('点我干嘛呀😒😒😒😒😒',1)
+  message.success('点我干嘛呀😒😒😒😒😒', 1)
 }
 getPictureInfo()
 </script>
@@ -294,6 +295,13 @@ getPictureInfo()
 
         .anticon {
           font-size: 18px;
+        }
+      }
+      .download-bounce {
+        animation: bounce 0.5s infinite ease-in-out;
+
+        &:hover {
+          animation-play-state: paused; // 悬停时暂停动画
         }
       }
     }
@@ -338,6 +346,22 @@ getPictureInfo()
         font-weight: 500;
       }
     }
+  }
+}
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.3, 0.1, 0.1, 1); // 下落时缓动
+  }
+  25% {
+    transform: translateY(-12px);
+    animation-timing-function: cubic-bezier(0.1, 0.3, 0.5, 1); // 上升时弹性
+  }
+  50% {
+    transform: translateY(0px); // 反弹高度减少
+  }
+  75% {
+    transform: translateY(-6px); // 二次弹跳
   }
 }
 </style>
