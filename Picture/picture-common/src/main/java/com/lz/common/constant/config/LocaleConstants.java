@@ -10,7 +10,11 @@ package com.lz.common.constant.config;
  */
 public class LocaleConstants {
     /**
+     * 默认语言
+     */
+    public static final String DEFAULT_LOCALE = "zh-CN";
+    /**
      * 中国
      */
-    public static final String ZH_CN = "zh_CN";
+    public static final String ZH_CN = "zh-CN";
 }

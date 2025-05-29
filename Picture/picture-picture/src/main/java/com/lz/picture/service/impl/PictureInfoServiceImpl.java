@@ -53,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
@@ -926,6 +927,26 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     pictureDownloadLogInfo.getPointsAuthorGain(),
                     deviceInfo
             );
+            //发送消息提醒作者赚取积分
+            /*
+                {
+                   "pictureName":"YY",
+                   "points":"10000",
+                   "createTime":"2025-05-26 10:11:12"
+                }
+             */
+            HashMap<String, String> params = new HashMap<>();
+            params.put("points", String.valueOf(pictureDownloadLogInfo.getPointsAuthorGain()));
+            params.put("pictureName", pictureInfo.getName());
+            params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, pictureDownloadLogInfo.getCreateTime()));
+            UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                    pictureInfo.getUserId(),
+                    DOWNLOAD_PICTURE_AUTHOR_PROPORTION,
+                    null,
+                    CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                    UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                    params
+            ));
         }
         pictureDownloadLogInfo.setDownloadId(IdUtils.fastUUID());
         pictureDownloadLogInfoService.save(pictureDownloadLogInfo);

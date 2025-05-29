@@ -22,4 +22,9 @@ public class TemplateInfoKeyConstants {
      * 用户下载图片成功
      */
     public static final String DOWNLOAD_PICTURE = "download_picture";
+
+    /**
+     * 用户下载图片作者分成
+     */
+    public static final String DOWNLOAD_PICTURE_AUTHOR_PROPORTION = "download_picture_author_proportion";
 }

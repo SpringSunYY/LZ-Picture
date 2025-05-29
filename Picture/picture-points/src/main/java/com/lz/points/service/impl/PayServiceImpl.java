@@ -15,6 +15,8 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
+import com.lz.framework.manager.factory.UserInfoLoginAsyncFactory;
 import com.lz.points.config.AlipayPaymentConfig;
 import com.lz.points.constant.PayConstants;
 import com.lz.points.manager.AlipayManager;
@@ -27,6 +29,11 @@ import com.lz.points.model.enums.*;
 import com.lz.points.model.vo.pay.AlipayPcPaymentVo;
 import com.lz.points.model.vo.paymentOrderInfo.UserPaymentOrderInfoVo;
 import com.lz.points.service.*;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
+import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.enums.UInformTypeEnum;
+import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -40,11 +47,14 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.BUY_PACKAGE_SUCCESS;
 import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ORDER_DETAIL;
 import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ORDER_LOCK;
+import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.points.constant.PayConstants.ALIPAY_WEB;
 import static com.lz.points.constant.PayConstants.WAIT_BUYER_PAY;
 
@@ -78,6 +88,9 @@ public class PayServiceImpl implements IPayService {
     private IAccountInfoService accountInfoService;
 
     @Resource
+    private IUserInfoService userInfoService;
+
+    @Resource
     private RedisCache redisCache;
 
     @Resource
@@ -92,6 +105,7 @@ public class PayServiceImpl implements IPayService {
     @Resource
     private RedissonClient redissonClient;
 
+    // region  web支付
     @Override
     public AlipayPcPaymentVo alipayWeb(PayRequest payRequest) {
         //首先查询套餐详情
@@ -173,6 +187,8 @@ public class PayServiceImpl implements IPayService {
         });
     }
 
+    //endregion
+    // region  web回调
     @Override
     public String alipayCallback(HashMap<String, String> map) {
         boolean sign = false;
@@ -423,6 +439,8 @@ public class PayServiceImpl implements IPayService {
             //成功
             accountInfo.setPointsBalance(accountInfo.getPointsBalance() + rechargeInfo.getTotalCount());
             accountInfo.setRechargeAmount(accountInfo.getRechargeAmount().add(rechargeInfo.getPriceCount()));
+            //异步发送消息通知
+            sendInform(rechargeInfo, userId);
         }
         //用户使用后积分 就是添加后的用户积分，如果支付未成功也是原积分
         pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance());
@@ -438,6 +456,38 @@ public class PayServiceImpl implements IPayService {
         return paymentOrderInfo;
     }
 
+    /**
+     * 发送消息
+     *
+     * @param rechargeInfo
+     * @param userId
+     * @return void
+     * @author: YY
+     * @method: sendInform
+     * @date: 2025/5/29 15:34
+     **/
+    private void sendInform(PointsRechargeInfo rechargeInfo, String userId) {
+        PointsRechargePackageInfo packageInfo = pointsRechargePackageInfoService.selectPointsRechargePackageInfoByPackageId(rechargeInfo.getPackageId());
+        UserInfo userInfo = userInfoService.selectUserInfoByUserId(userId);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("userName", userInfo.getUserName());
+        params.put("packageName", packageInfo.getPackageName());
+        params.put("points", rechargeInfo.getTotalCount().toString());
+        params.put("buyerPayAmount", rechargeInfo.getBuyerPayAmount().toString());
+        params.put("totalAmount", rechargeInfo.getPriceCount().toString());
+        params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, rechargeInfo.getArrivalTime()));
+        UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                userId,
+                BUY_PACKAGE_SUCCESS,
+                userInfo.getPreferredLanguageLocale(),
+                CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                params
+        ));
+    }
+
+
+    //endregion
     @Override
     public UserPaymentOrderInfoVo getAlipayWebOrder(String outTradeNo, String userId) {
         String key = POINTS_ORDER_DETAIL + outTradeNo + COMMON_SEPARATOR_CACHE + userId;

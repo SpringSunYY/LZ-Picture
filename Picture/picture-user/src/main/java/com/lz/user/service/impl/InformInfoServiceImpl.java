@@ -31,6 +31,8 @@ import com.lz.user.service.IInformInfoService;
 import com.lz.user.model.dto.informInfo.InformInfoQuery;
 import com.lz.user.model.vo.informInfo.InformInfoVo;
 
+import static com.lz.common.constant.config.LocaleConstants.DEFAULT_LOCALE;
+
 /**
  * 用户通知记录Service业务层处理
  *
@@ -178,7 +180,12 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(templateKey, local, templateType);
         if (StringUtils.isNull(informTemplateInfoByKeyLocaleType)
                 || !informTemplateInfoByKeyLocaleType.getStatus().equals(CTemplateStatusEnum.TEMPLATE_STATUS_0.getValue())) {
-            return 0;
+            //再次查询默认语言，如果没有则返回
+            informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(templateKey, DEFAULT_LOCALE, templateType);
+            if (StringUtils.isNull(informTemplateInfoByKeyLocaleType)
+                    || !informTemplateInfoByKeyLocaleType.getStatus().equals(CTemplateStatusEnum.TEMPLATE_STATUS_0.getValue())) {
+                return 0;
+            }
         }
         InformInfo informInfo = new InformInfo();
         informInfo.setInformType(informType);

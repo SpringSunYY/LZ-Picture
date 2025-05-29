@@ -169,7 +169,7 @@ const goDetail = (item: any) => {
   margin: 0 auto;
 
   .message-card {
-    background: rgba(211, 211, 211, 0.49);
+    background: rgba(211, 211, 211, 0.28);
     padding: 2px 24px;
     margin-bottom: 8px;
     border-radius: 12px;
@@ -180,8 +180,8 @@ const goDetail = (item: any) => {
       box-shadow 0.2s ease;
 
     &:hover {
-      transform: scale(1.06);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      transform: scale(1.03);
+      box-shadow: 0 6px 20px rgba(28, 186, 24, 0.46);
     }
 
     .card-top {
