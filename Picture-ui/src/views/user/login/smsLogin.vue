@@ -22,6 +22,7 @@
                 v-model:value="smsLoginForm.countryCode"
                 size="large"
                 placeholder="+86"
+                :disabled="true"
                 show-search
                 option-filter-prop="label"
               >

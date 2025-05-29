@@ -8,8 +8,23 @@
               <img src="@/assets/logo.png" alt="Logo" />
             </div>
           </a-col>
-          <a-col :span="12" style="align-content: center">
-            <h1 class="text-2xl font-bold text-gray-500">荔枝云图登录</h1>
+          <a-col
+            :span="15"
+            style="
+              display: grid;
+              grid-template-columns: auto max-content;
+              justify-content: center;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <h1 class="text-3xl font-bold text-gray-500">荔枝云图登录</h1>
+            <a-tooltip placement="top">
+              <template #title>
+                可以使用手机号码或者账号登录，如果输入手机号码优先使用手机号码登录哦，如果是账号登录请清空手机号
+              </template>
+              <QuestionCircleOutlined style="color: #1890ff; cursor: pointer; font-size: 18px" />
+            </a-tooltip>
           </a-col>
         </a-row>
       </div>
@@ -20,6 +35,39 @@
         @finish="handleSubmit"
         @finishFailed="handleFinishFailed"
       >
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <!-- 国家码 + 手机号 -->
+            <a-form-item name="countryCode">
+              <a-select
+                v-model:value="loginForm.countryCode"
+                size="large"
+                placeholder="+86"
+                :disabled="true"
+                show-search
+                option-filter-prop="label"
+              >
+                <a-select-option
+                  v-for="country in countryList"
+                  :key="country.dialCode"
+                  :value="country.dialCode"
+                  :label="`${country.name} ${country.dialCode}`"
+                >
+                  {{ country.flag }} {{ country.dialCode }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item name="phone">
+              <a-input v-model:value="loginForm.phone" placeholder="手机号" size="large">
+                <template #prefix>
+                  <PhoneOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-form-item name="username">
           <a-input v-model:value="loginForm.username" placeholder="用户名" size="large">
             <template #prefix>
@@ -64,13 +112,19 @@
 </template>
 
 <script setup lang="ts" name="UserLogin">
-import { LockOutlined, UserSwitchOutlined } from '@ant-design/icons-vue'
+import {
+  LockOutlined,
+  PhoneOutlined,
+  QuestionCircleOutlined,
+  UserSwitchOutlined,
+} from '@ant-design/icons-vue'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import useUserStore from '@/stores/modules/user.ts'
 import Cookies from 'js-cookie'
-import { passwordPattern, passwordPatternMessage, validatePassword } from '@/types/user/validators.d.ts'
+import { validatePassword } from '@/types/user/validators.d.ts'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 
 const route = useRoute()
 const router = useRouter()
@@ -78,7 +132,17 @@ const userStore = useUserStore()
 const loading = ref(false)
 const showMenu = ref(false)
 
+// 国家码数据
+const countryList = ref([
+  { code: 'CN', name: '中国', dialCode: '+86', flag: '🇨🇳' },
+  { code: 'US', name: '美国', dialCode: '+1', flag: '🇺🇸' },
+  { code: 'GB', name: '英国', dialCode: '+44', flag: '🇬🇧' },
+  // 添加更多国家...
+])
+
 const loginForm = ref({
+  phone: '',
+  countryCode: '+86',
   username: '',
   password: '',
   rememberMe: false,
@@ -88,7 +152,7 @@ const loginForm = ref({
 const register = ref(true)
 const rules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { required: false, message: '请输入用户名', trigger: 'blur' },
     { min: 4, max: 32, message: '长度4-32个字符', trigger: 'blur' },
   ],
   password: [
@@ -115,13 +179,31 @@ const handleSubmit = async () => {
     Cookies.set('username', loginForm.value.username, { expires: 30 })
     // Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
     Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 })
+    Cookies.set('countryCode', loginForm.value.countryCode, { expires: 30 })
+    Cookies.set('phone', loginForm.value.phone, { expires: 30 })
   } else {
     Cookies.remove('username')
     // Cookies.remove('password')
     Cookies.remove('rememberMe')
+    Cookies.remove('countryCode')
+    Cookies.remove('phone')
   }
   try {
     loading.value = true
+    //如果手机号和国家码都存在，则需要校验手机号
+    if (
+      loginForm.value.phone &&
+      loginForm.value.phone !== '' &&
+      loginForm.value.countryCode &&
+      loginForm.value.countryCode !== ''
+    ) {
+      const fullNumber = loginForm.value.countryCode + loginForm.value.phone
+      const phoneNumber = parsePhoneNumberFromString(fullNumber)
+      if (!phoneNumber?.isValid()) {
+        message.error('无效的手机号')
+        return
+      }
+    }
     await userStore.login(loginForm.value).then(() => {
       const query = route.query
       const otherQueryParams = Object.keys(query).reduce((acc, cur) => {

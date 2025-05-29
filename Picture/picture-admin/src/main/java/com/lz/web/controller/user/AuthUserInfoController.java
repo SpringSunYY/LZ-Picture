@@ -61,9 +61,18 @@ public class AuthUserInfoController extends BaseUserInfoController {
     public AjaxResult customerLogin(@Validated @RequestBody UserInfoLoginBody loginBody) throws Exception {
         loginBody.setPassword(RsaUtils.decryptUserByPrivateKey(loginBody.getPassword()));
         loginBody.setUsername(RsaUtils.decryptUserByPrivateKey(loginBody.getUsername()));
+        loginBody.setPhone(RsaUtils.decryptUserByPrivateKey(loginBody.getPhone()));
+        loginBody.setCountryCode(RsaUtils.decryptUserByPrivateKey(loginBody.getCountryCode()));
         AjaxResult ajax = AjaxResult.success();
+        String token = "";
         // 生成令牌
-        String token = loginService.userInfoLogin(loginBody.getUsername(), loginBody.getPassword());
+        //如果手机号码和国家码不为空不为空
+        if (StringUtils.isNotEmpty(loginBody.getPhone()) && StringUtils.isNotEmpty(loginBody.getCountryCode())) {
+            ajax = success();
+            token = loginService.phoneLogin(loginBody.getPhone(), loginBody.getCountryCode(), loginBody.getPassword());
+        } else {
+            token = loginService.userInfoLogin(loginBody.getUsername(), loginBody.getPassword());
+        }
         ajax.put(Constants.TOKEN, token);
         return ajax;
     }
@@ -142,7 +151,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
      * @return
      */
     @PostMapping("/register")
-    public AjaxResult register(@RequestBody RegisterLoginBody registerLoginBody,HttpServletRequest request) throws Exception {
+    public AjaxResult register(@RequestBody RegisterLoginBody registerLoginBody, HttpServletRequest request) throws Exception {
         AjaxResult ajax = AjaxResult.success();
         if (StringUtils.isEmpty(registerLoginBody.getSmsCode()) || StringUtils.isEmpty(registerLoginBody.getPhone()) || StringUtils.isEmpty(registerLoginBody.getPassword()) || StringUtils.isEmpty(registerLoginBody.getConfirmPassword())) {
             return AjaxResult.error("请输入手机号和密码");

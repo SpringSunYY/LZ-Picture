@@ -68,10 +68,10 @@ public class PasswordUtils {
     }
 
     /**
-     * 检查密码是否正确
+     * 检查密码是否正确 一样true，不一样false
      *
      * @param salt               加密算法
-     * @param password           原密码
+     * @param password           未加密密码
      * @param encryptionPassword 加密密码
      * @return boolean
      * @author: YY

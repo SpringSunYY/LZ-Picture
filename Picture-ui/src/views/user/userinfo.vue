@@ -582,6 +582,19 @@ const rulesAccountPassword = {
       trigger: 'blur',
     },
   ],
+  smsCode: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
+  countryCode: [{ required: true, message: '请选择国家代码', trigger: 'change' }],
+  phone: [
+    {
+      validator: (_, value) => {
+        const fullNumber = accountPasswordForm.value.countryCode + value
+        const phoneNumber = parsePhoneNumberFromString(fullNumber)
+        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('请输入有效的国际手机号')
+      },
+      trigger: 'blur',
+    },
+  ],
 }
 const handleUpdateAccountPassword = () => {
   openAccountPassword.value = true

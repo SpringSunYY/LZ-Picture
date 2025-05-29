@@ -14,8 +14,10 @@ export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
     },
     method: 'post',
     data: {
-      username: encrypt(data.username),
+      username: encrypt(data?.username ?? ''),
       password: encrypt(data.password),
+      phone: encrypt(data?.phone ?? ''),
+      countryCode: encrypt(data?.countryCode ?? ''),
       code: data.code,
       uuid: data.uuid,
     },

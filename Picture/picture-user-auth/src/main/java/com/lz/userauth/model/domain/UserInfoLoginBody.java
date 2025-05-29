@@ -13,7 +13,6 @@ public class UserInfoLoginBody {
     /**
      * 用户名
      */
-    @NotEmpty(message = "用户名不能为空")
     private String username;
 
     /**
@@ -21,6 +20,16 @@ public class UserInfoLoginBody {
      */
     @NotEmpty(message = "用户密码不能为空")
     private String password;
+
+    /**
+     * 手机号码
+     */
+    private String phone;
+
+    /**
+     * 国家编码
+     */
+    private String countryCode;
 
 
     /**

@@ -38,10 +38,12 @@ export namespace USER {
 
   // 定义用户登录参数类型
   interface LoginParams {
-    username: string
+    username?: string
     password: string
-    code: string
-    uuid: string
+    code?: string
+    uuid?: string
+    countryCode?: string
+    phone?: string
   }
 
   interface SmsLoginParams {

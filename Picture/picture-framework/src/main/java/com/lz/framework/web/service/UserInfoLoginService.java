@@ -23,8 +23,10 @@ import com.lz.framework.security.context.AuthenticationContextHolder;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.userauth.service.IAuthUserInfoService;
+import com.lz.userauth.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -278,5 +280,32 @@ public class UserInfoLoginService {
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_FORGET_PASSWORD_CODE, registerCode, phone, ZH_CN);
         return registerCode;
+    }
+
+    /**
+     * 手机号码登录
+     * @param phone 手机号码
+     * @param countryCode 国家码
+     * @param password 密码
+     * @return String
+     * @author: YY
+     * @method: phoneLogin     手机号码登录
+     * @date: 2025/5/30 02:15
+     **/
+    public String phoneLogin(String phone, String countryCode, String password) {
+        //根据国家号码编号和号码获取用户
+        AuthUserInfo authUserInfo = authUserInfoService.selectUserInfoByPhone(phone, countryCode);
+        if (StringUtils.isNull(authUserInfo)) {
+            throw new ServiceException("号码未注册");
+        }
+        //校验密码是否正确
+        if (!PasswordUtils.checkPassword(authUserInfo.getSalt(), password, authUserInfo.getPassword())) {
+            throw new ServiceException("密码错误");
+        }
+        Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
+        LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_1.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(), "登录成功"));
+        // 生成token
+        return userTokenService.createToken(loginUserInfo);
     }
 }
