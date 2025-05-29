@@ -245,17 +245,20 @@ const addUserBehavior = (behaviorType: string) => {
 const downloadPictureLoading = ref(false)
 const { verify } = usePasswordVerify()
 const downloadPicture = async () => {
-  const verified = await verify('下载图片')
-  if (!verified) return
-  message.success('图片下载中...', 5)
-  message.info('请不要刷新页面', 5)
-  downloadPictureLoading.value = true
-  const res = await downloadImage(
-    picture.value.pictureId,
-    picture.value?.name + '.' + picture.value?.picFormat,
-  )
-  message.success('资源获取成功，之后可以在下载记录中下载原图', 5)
-  downloadPictureLoading.value = false
+  try {
+    const verified = await verify('下载图片')
+    if (!verified) return
+    message.success('图片下载中...', 5)
+    message.info('请不要刷新页面', 5)
+    downloadPictureLoading.value = true
+    const res = await downloadImage(
+      picture.value.pictureId,
+      picture.value?.name + '.' + picture.value?.picFormat,
+    )
+    message.success('资源获取成功，之后可以在下载记录中下载原图', 5)
+  } finally {
+    downloadPictureLoading.value = false
+  }
 }
 
 const clickLook = () => {
@@ -297,6 +300,7 @@ getPictureInfo()
           font-size: 18px;
         }
       }
+
       .download-bounce {
         animation: bounce 0.5s infinite ease-in-out;
 
@@ -348,8 +352,10 @@ getPictureInfo()
     }
   }
 }
+
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0.3, 0.1, 0.1, 1); // 下落时缓动
   }

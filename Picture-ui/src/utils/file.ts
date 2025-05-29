@@ -22,7 +22,7 @@ export async function downloadImage(pictureId: string, fileName?: string) {
           reader.onerror = () => reject(reader.error)
           //@ts-ignore
           reader.readAsText(blob)
-          return
+          throw new Error('文件下载失败，请重试')
         })
       } else {
         // 处理正常的文件下载

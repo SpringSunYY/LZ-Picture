@@ -1,8 +1,10 @@
 package com.lz.picture.controller.user;
 
+import com.alibaba.fastjson.JSON;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.file.FileUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
@@ -135,12 +137,18 @@ public class UserFileController extends BaseUserInfoController {
                 out.flush();
             }
         } catch (IOException e) {
-             log.error("文件下载失败", e);
+            log.error("文件下载失败", e);
         } catch (Exception e) {
-            response.setHeader("X-Error", "true");
-            // 其他可能的异常统一处理
-            response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            try {
+                response.reset(); // 清除之前的响应头和内容
+//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 设置状态码
+                response.setContentType("application/json"); // 设置响应类型为 JSON
+                response.setCharacterEncoding("UTF-8");
+                AjaxResult error = error(e.getMessage());
+                response.getWriter().write(JSON.toJSONString(error)); // 写入错误信息
+            } catch (IOException ioEx) {
+                log.error("写入错误响应失败", ioEx);
+            }
         }
     }
 }
