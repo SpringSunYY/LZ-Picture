@@ -56,21 +56,19 @@ public class UserInformInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('inform')")
     @GetMapping("/{recordId}")
     public AjaxResult getInfo(@PathVariable("recordId") String recordId) {
-        InformInfo informInfo = informInfoService.getOne(new LambdaQueryWrapper<InformInfo>()
-                .eq(InformInfo::getRecordId, recordId)
-                .eq(InformInfo::getUserId, getUserId()));
-
+        InformInfo informInfo = informInfoService.selectInformInfoByRecordIdAndUserId(recordId,getUserId());
         UserInformInfoVo informInfoVo = UserInformInfoVo.objToVo(informInfo);
-        if (StringUtils.isNotNull(informInfo) && informInfo.getIsRead().equals(UInformIsReadEnum.INFORM_IS_READ_0.getValue())) {
-            //查看就为已读
-            informInfoService.getOne(new LambdaQueryWrapper<InformInfo>()
-                    .eq(InformInfo::getRecordId, recordId)
-                    .eq(InformInfo::getUserId, getUserId()));
-            informInfo.setIsRead(UInformIsReadEnum.INFORM_IS_READ_1.getValue());
-            informInfo.setReadTime(DateUtils.getNowDate());
-            informInfoService.updateById(informInfo);
-        }
         return success(informInfoVo);
+    }
+
+    /**
+     * 获取未读信息数
+     * @return
+     */
+    @PreAuthorize("@uss.hasPermi('inform')")
+    @GetMapping("/unread")
+    public AjaxResult getUnReadInformCount() {
+        return success(informInfoService.getUnReadInformCount(getUserId()));
     }
 
 }

@@ -40,4 +40,23 @@ public class UserRedisConstants {
      * 用户自己的信息缓存保存信息
      */
     public static final String USER_INFO = "user:info:";
+
+    /**
+     * 用户未读信息数量
+     */
+    public static final String USER_INFORM_UNREAD_COUNT = "user:inform:unread:count:";
+
+    /**
+     * 用户未读信息数量超时时间
+     */
+    public static final Integer USER_INFORM_UNREAD_COUNT_EXPIRE_TIME = 60 * 60 * 24;
+
+    /**
+     * 用户通知信息缓存保存信息
+     */
+    public static final String USER_INFORM_DETAIL = "user:inform:detail:";
+    /**
+     * 用户通知信息缓存超时时间
+     */
+    public static final Integer USER_INFORM_DETAIL_EXPIRE_TIME = 5 * 60;
 }

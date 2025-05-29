@@ -22,8 +22,9 @@
         <div class="user-login-status">
           <a-space :size="24" v-if="userName" align="center">
             <a-badge
+              @click="clickInform"
               title="通知信息，点击查看"
-              count="4"
+              :count="unreadInformCount"
               :number-style="{
                 backgroundColor: '#fff',
                 color: '#00ff3d',
@@ -86,6 +87,8 @@ import { storeToRefs } from 'pinia'
 import SvgIcon from '@/components/SvgIcon.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
+import { checkLogin } from '@/utils/permission.ts'
+import { getUnReadInformCount } from '@/api/user/inform.ts'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -124,13 +127,22 @@ const doMenuClick = (route: RouteRecordRaw) => {
   })
 }
 const permissionStore = usePermissionStore()
+const unreadInformCount = ref<number>(0)
 // 初始化用户信息
 onMounted(async () => {
   if (userStore.token) {
     userName.value = userStore.userName
     avatar.value = userStore.avatar
+    getUnReadInformCount().then((res) => {
+      if (res.code === 200) {
+        unreadInformCount.value = res.data || 0
+      }
+    })
   }
 })
+const clickInform = () => {
+  router.push('/inform')
+}
 // 递归检查路由隐藏状态
 const checkRouteHidden = (route: RouteRecordRaw | undefined): boolean => {
   if (!route) return false // 确保 route 为空时直接返回 false

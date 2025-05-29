@@ -4,10 +4,12 @@ import java.util.*;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
@@ -31,7 +33,10 @@ import com.lz.user.service.IInformInfoService;
 import com.lz.user.model.dto.informInfo.InformInfoQuery;
 import com.lz.user.model.vo.informInfo.InformInfoVo;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.LocaleConstants.DEFAULT_LOCALE;
+import static com.lz.common.constant.redis.UserRedisConstants.*;
+import static com.lz.userauth.utils.UserInfoSecurityUtils.getUserId;
 
 /**
  * 用户通知记录Service业务层处理
@@ -46,6 +51,9 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
 
     @Resource
     private IInformTemplateInfoService informTemplateInfoService;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -219,6 +227,45 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
                         .eq(InformInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                         .eq(InformInfo::getStatus, UInformStatusEnum.INFORM_STATUS_1.getValue())
                         .orderBy(true, false, InformInfo::getSendTime));
+    }
+
+    @Override
+    public Long getUnReadInformCount(String userId) {
+        if (StringUtils.isEmpty(userId)) {
+            return 0L;
+        }
+        String key = USER_INFORM_UNREAD_COUNT + userId;
+        Long cacheObject = redisCache.getCacheObject(key);
+        if (StringUtils.isNotNull(cacheObject)) {
+            return cacheObject;
+        }
+        long count = this.count(new LambdaQueryWrapper<InformInfo>()
+                .eq(InformInfo::getUserId, userId)
+                .eq(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_0.getValue()));
+        redisCache.setCacheObject(key, count, USER_INFORM_UNREAD_COUNT_EXPIRE_TIME, TimeUnit.SECONDS);
+        return count;
+    }
+
+    @Override
+    public InformInfo selectInformInfoByRecordIdAndUserId(String recordId, String userId) {
+        String key = USER_INFORM_DETAIL + userId + COMMON_SEPARATOR_CACHE + recordId;
+        InformInfo informInfo = redisCache.getCacheObject(key);
+        if (StringUtils.isNotNull(informInfo)) {
+            return informInfo;
+        }
+        informInfo = this.getOne(new LambdaQueryWrapper<InformInfo>()
+                .eq(InformInfo::getRecordId, recordId)
+                .eq(InformInfo::getUserId, userId));
+        if (StringUtils.isNotNull(informInfo) && informInfo.getIsRead().equals(UInformIsReadEnum.INFORM_IS_READ_0.getValue())) {
+            //查看就为已读
+            informInfo.setIsRead(UInformIsReadEnum.INFORM_IS_READ_1.getValue());
+            informInfo.setReadTime(DateUtils.getNowDate());
+            this.updateById(informInfo);
+            //删除缓存未读数
+            redisCache.deleteObject(USER_INFORM_UNREAD_COUNT + userId);
+        }
+        redisCache.setCacheObject(key, informInfo, USER_INFORM_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
+        return informInfo;
     }
 
 }

@@ -18,3 +18,11 @@ export function getInformInfo(recordId: string): Promise<API.ResponseInfo<Inform
     method: 'get',
   })
 }
+
+//获取未读数量
+export function getUnReadInformCount(): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/user/informInfo/unread',
+    method: 'get',
+  })
+}

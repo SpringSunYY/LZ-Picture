@@ -109,4 +109,27 @@ public interface IInformInfoService extends IService<InformInfo> {
      * @date: 2025/5/28 23:33
      **/
     Page<InformInfo> selectUserInformInfoList(UserInformInfoQuery userInformInfoQuery);
+
+    /**
+     * 获取用户未读信息数
+     *
+     * @param userId 用户编号
+     * @return int
+     * @author: YY
+     * @method: getUnReadInformCount
+     * @date: 2025/5/29 22:57
+     **/
+    Long getUnReadInformCount(String userId);
+
+    /**
+     * 用户查询自己的通知记录详情
+     *
+     * @param recordId 通知记录编号
+     * @param userId   用户编号
+     * @return InformInfo
+     * @author: YY
+     * @method: selectInformInfoByRecordIdAndUserId
+     * @date: 2025/5/29 23:04
+     **/
+    InformInfo selectInformInfoByRecordIdAndUserId(String recordId, String userId);
 }
