@@ -178,7 +178,7 @@ const handleSubmit = async () => {
   if (loginForm.value.rememberMe) {
     Cookies.set('username', loginForm.value.username, { expires: 30 })
     // Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
-    Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 })
+    Cookies.set('rememberMe', loginForm.value.rememberMe.toString(), { expires: 30 })
     Cookies.set('countryCode', loginForm.value.countryCode, { expires: 30 })
     Cookies.set('phone', loginForm.value.phone, { expires: 30 })
   } else {
@@ -224,11 +224,15 @@ const handleSubmit = async () => {
 
 const getCookies = () => {
   const savedUsername = Cookies.get('username')
+  const savedPhone= Cookies.get('phone')
+  const savedCountryCode = Cookies.get('countryCode')
   // const savedPassword = Cookies.get('password')
   const savedRememberMe = Cookies.get('rememberMe') === 'true'
   // console.log(savedPassword)
-  if (savedUsername && savedRememberMe) {
-    loginForm.value.username = savedUsername
+  if (savedRememberMe) {
+    loginForm.value.username = savedUsername ??  ''
+    loginForm.value.countryCode = savedCountryCode ?? '+86'
+    loginForm.value.phone = savedPhone ?? ''
     // loginForm.value.password = decrypt(savedPassword) // 解密
     loginForm.value.rememberMe = true
   }
