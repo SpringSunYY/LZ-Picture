@@ -2,10 +2,14 @@ package com.lz.points.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
 import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
+import com.lz.points.model.dto.accountInfo.ResetAccountPasswordBody;
 import com.lz.points.model.vo.accountInfo.AccountInfoVo;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -140,4 +144,41 @@ public interface IAccountInfoService extends IService<AccountInfo> {
      * @date: 2025/5/24 14:51
      **/
     AccountInfo selectUserAccountInfoByUserId(String userId);
+
+    /**
+     * 获取账户密码验证码
+     * @author: YY
+     * @method: getAccountPasswordCode
+     * @date: 2025/5/30 00:20
+     * @param phone 手机号码
+     * @param countryCode 国家代码
+     * @param code 验证码
+     * @param captchaEnabled 验证码是否启用
+     * @param uuid uuid
+     * @return String
+     **/
+    String getAccountPasswordCode(String phone, String countryCode, String code, boolean captchaEnabled, String uuid);
+
+    /**
+     * 校验账户密码验证码
+     * @author: YY
+     * @method: checkSmsCode
+     * @date: 2025/5/30 00:20
+     * @param pointsAccountResetPasswordCode 账户密码验证码
+     * @param countryCode 国家代码
+     * @param phone 手机号
+     * @param smsCode 验证码
+     * @return void
+     **/
+    void checkSmsCode(String pointsAccountResetPasswordCode, String countryCode, String phone, String smsCode);
+
+    /**
+     * 重置账户密码
+     * @author: YY
+     * @method: resetAccountPassword
+     * @date: 2025/5/30 00:20
+     * @param resetAccountPasswordBody 重置账户密码实体
+     * @return AccountInfo
+     **/
+    AccountInfo resetAccountPassword(ResetAccountPasswordBody resetAccountPasswordBody);
 }

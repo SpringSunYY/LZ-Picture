@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AccountRestPassword: typeof import('./src/components/AccountRestPassword.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
     DictTag: typeof import('./src/components/DictTag.vue')['default']

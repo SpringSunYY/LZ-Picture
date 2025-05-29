@@ -270,7 +270,7 @@
         <div class="custom-modal-title">
           <span style="color: #1890ff; margin-right: 8px">🚀</span>
           {{ title }}
-          <a-tooltip title="初始账户密码已经通过短信发送至您的手机，一定要记住你的密码哦">
+          <a-tooltip title="忘记密码可以重置密码，新账户也可以直接重置哦，但是一定要记住你的密码哦">
             <question-circle-outlined class="title-tip-icon" />
           </a-tooltip>
         </div>
@@ -283,20 +283,92 @@
         :rules="rulesAccountPassword"
       >
         <!-- 旧密码 -->
-        <a-form-item name="oldPassword" label="旧的密码">
-          <a-input-password
-            v-model:value="accountPasswordForm.oldPassword"
-            placeholder="旧密码"
-            :maxLength="20"
-            size="large"
-          >
-            <template #prefix>
-              <lock-outlined />
-            </template>
-          </a-input-password>
-        </a-form-item>
+        <!--        <a-form-item name="oldPassword" label="旧的密码">-->
+        <!--          <a-input-password-->
+        <!--            v-model:value="accountPasswordForm.oldPassword"-->
+        <!--            placeholder="旧密码"-->
+        <!--            :maxLength="20"-->
+        <!--            size="large"-->
+        <!--          >-->
+        <!--            <template #prefix>-->
+        <!--              <lock-outlined />-->
+        <!--            </template>-->
+        <!--          </a-input-password>-->
+        <!--        </a-form-item>-->
+        <!-- 国家码选择 -->
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item name="countryCode">
+              <a-select
+                v-model:value="accountPasswordForm.countryCode"
+                size="large"
+                placeholder="+86"
+                show-search
+                :disabled="true"
+                option-filter-prop="label"
+              >
+                <a-select-option
+                  v-for="country in countryList"
+                  :key="country.dialCode"
+                  :value="country.dialCode"
+                  :label="`${country.name} ${country.dialCode}`"
+                >
+                  {{ country.flag }} {{ country.dialCode }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <!-- 手机号输入 -->
+          <a-col :span="16">
+            <a-form-item name="phone">
+              <a-input v-model:value="accountPasswordForm.phone" placeholder="手机号" size="large">
+                <template #prefix>
+                  <phone-outlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <!-- 图形验证码 -->
+        <a-row :gutter="16" v-if="captchaEnabled">
+          <a-col :span="8">
+            <a-form-item name="code">
+              <div class="login-code">
+                <img :src="codeUrl" @click="getCode" class="login-code-img" alt="图形验证码" />
+              </div>
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item name="code">
+              <a-input
+                v-model:value="accountPasswordForm.code"
+                placeholder="图形验证码"
+                size="large"
+              />
+            </a-form-item>
+          </a-col>
+
+          <a-col :span="24">
+            <!-- 短信验证码 -->
+            <a-form-item name="smsCode">
+              <a-input
+                v-model:value="accountPasswordForm.smsCode"
+                placeholder="短信验证码"
+                size="large"
+              >
+                <template #suffix>
+                  <a-button type="primary" :disabled="countdown > 0" @click="sendVerificationCode">
+                    {{ countdown > 0 ? countdown + '秒' : '发送验证码' }}
+                  </a-button>
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <!-- 新密码 -->
-        <a-form-item name="password" label="新的密码">
+        <a-form-item name="password" label="">
           <a-input-password
             v-model:value="accountPasswordForm.password"
             placeholder="新密码"
@@ -310,7 +382,7 @@
         </a-form-item>
 
         <!-- 确认密码 -->
-        <a-form-item name="confirmPassword" label="确认密码">
+        <a-form-item name="confirmPassword" label="">
           <a-input-password
             v-model:value="accountPasswordForm.confirmPassword"
             placeholder="确认新密码"
@@ -348,12 +420,16 @@ import {
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { getMyUserInfoByUserName, updateUserInfo, updateUserInfoPassword } from '@/api/user/user.ts'
-import { LockOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { LockOutlined, PhoneOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
-import type { AccountPasswordUploadRequest } from '@/types/points/account.d.ts'
-import { getAccountInfo, updateAccountPassword } from '@/api/points/account.ts'
+import type { ResetAccountPasswordBody } from '@/types/points/account.d.ts'
+import {
+  getAccountInfo,
+  getAccountPasswordCode,
+  resetAccountPassword,
+} from '@/api/points/account.ts'
 import UserBehaviorTable from '@/components/UserBehaviorTable.vue'
 import DictTag from '@/components/DictTag.vue'
 import PointsRechargeTable from '@/components/PointsRechargeTable.vue'
@@ -363,13 +439,12 @@ import UserPointsUsageLog from '@/components/UserPointsUsageLog.vue'
 import PictureDownloadLogInfoTable from '@/components/PictureDownloadLogInfoTable.vue'
 import type { AccountInfoVo } from '@/types/points/account'
 import UserloginLogTable from '@/components/UserloginLogTable.vue'
+import { getCodeImg } from '@/api/user/login'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { u_user_sex, u_user_status } = proxy?.useDict(
-  'u_user_sex',
-  'u_user_status'
-)
+const { u_user_sex, u_user_status } = proxy?.useDict('u_user_sex', 'u_user_status')
 
 const userStore = useUserStore()
 const { userName: userName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -472,24 +547,24 @@ const handleSubmitPassword = async () => {
 }
 
 //账户密码
+const countryList = ref([
+  { code: 'CN', name: '中国', dialCode: '+86', flag: '🇨🇳' },
+  { code: 'US', name: '美国', dialCode: '+1', flag: '🇺🇸' },
+  { code: 'GB', name: '英国', dialCode: '+44', flag: '🇬🇧' },
+])
 const openAccountPassword = ref(false)
 const accountPasswordLoading = ref(false)
-const accountPasswordForm = ref<AccountPasswordUploadRequest>({
-  userId: '',
+const accountPasswordForm = ref<ResetAccountPasswordBody>({
   password: '',
   confirmPassword: '',
-  oldPassword: '',
+  countryCode: '+86',
+  phone: '',
+  smsCode: '',
+  userId: '',
 })
 const rulesAccountPassword = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    {
-      trigger: 'blur',
-      validator: (_: any, value: string) => validatePassword(value, 6, 10),
-    },
-  ],
-  oldPassword: [
-    { required: true, message: '请输入旧密码', trigger: 'blur' },
     {
       trigger: 'blur',
       validator: (_: any, value: string) => validatePassword(value, 6, 10),
@@ -510,27 +585,96 @@ const rulesAccountPassword = {
 }
 const handleUpdateAccountPassword = () => {
   openAccountPassword.value = true
+  getCode()
   title.value = '修改账户密码'
 }
 const handleSubmitAccountPassword = async () => {
   accountPasswordLoading.value = true
   accountPasswordForm.value.userId = userInfo.value?.userId || ''
   try {
-    const res = await updateAccountPassword(accountPasswordForm.value)
-    if (res.code === 200 && res.data === 1) {
+    const res = await resetAccountPassword(accountPasswordForm.value)
+    if (res.code === 200) {
       message.success('修改账户密码成功')
       openAccountPassword.value = false
       accountPasswordForm.value = {
-        userId: '',
         password: '',
         confirmPassword: '',
-        oldPassword: '',
+        countryCode: '+86',
+        phone: '',
+        smsCode: '',
+        userId: '',
       }
     } else {
       message.error('修改密码失败,请检查密码是否正确')
     }
   } finally {
     accountPasswordLoading.value = false
+  }
+}
+// 获取图形验证码
+const captchaEnabled = ref(true)
+const codeUrl = ref('')
+const countdown = ref(0)
+let timer = null
+const getCode = () => {
+  if (!captchaEnabled.value) return
+  getCodeImg().then((res) => {
+    //@ts-ignore
+    captchaEnabled.value = res.captchaEnabled ?? true
+    if (captchaEnabled.value) {
+      //@ts-ignore
+      codeUrl.value = 'data:image/gif;base64,' + res?.img
+      //@ts-ignore
+      accountPasswordForm.value.uuid = res?.uuid
+    }
+  })
+}
+const isSending = ref(false)
+// 发送验证码
+const sendVerificationCode = async () => {
+  try {
+    // 验证国际手机号
+    const fullNumber = accountPasswordForm.value.countryCode + accountPasswordForm.value.phone
+    const phoneNumber = parsePhoneNumberFromString(fullNumber)
+    if (!phoneNumber?.isValid()) {
+      message.error('手机号格式错误')
+      return
+    }
+
+    // 验证图形验证码
+    if (!accountPasswordForm.value.code) {
+      message.error('请先输入图形验证码')
+      return
+    }
+    accountPasswordForm.value.userId = userInfo.value?.userId || ''
+    // 调用发送接口
+    const res = await getAccountPasswordCode({
+      countryCode: accountPasswordForm.value.countryCode,
+      phone: accountPasswordForm.value.phone,
+      code: accountPasswordForm.value.code,
+      uuid: accountPasswordForm.value.uuid,
+      userId: accountPasswordForm.value.userId,
+    })
+    if (res.code !== 200) {
+      message.error(res.msg)
+    }
+    message.success('验证码已发送')
+    isSending.value = true
+    countdown.value = 60
+    // 倒计时处理
+    timer = setInterval(() => {
+      if (countdown.value > 0) {
+        countdown.value--
+      } else {
+        clearInterval(timer)
+        isSending.value = false
+      }
+    }, 1000)
+  } catch (error) {
+    console.log('验证失败:', error)
+    message.error('验证码发送失败')
+    isSending.value = false
+    getCode() // 刷新图形验证码
   }
 }
 

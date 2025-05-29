@@ -3,7 +3,7 @@ package com.lz.framework.web.service;
 import com.lz.common.constant.CacheConstants;
 import com.lz.common.constant.Constants;
 import com.lz.common.constant.UserConstants;
-import com.lz.common.constant.config.UserConfigConstants;
+import com.lz.common.constant.config.TemplateInfoKeyConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.ULoginStatus;
@@ -16,7 +16,6 @@ import com.lz.common.exception.user.UserPasswordNotMatchException;
 import com.lz.common.utils.MessageUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.manager.sms.SmsTemplate;
-import com.lz.config.manager.sms.model.SmsResponse;
 import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.framework.manager.factory.UserInfoLoginAsyncFactory;
@@ -37,7 +36,8 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.lz.common.constant.config.UserConfigConstants.SMS_LOGIN_CODE;
+import static com.lz.common.constant.config.LocaleConstants.ZH_CN;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.SMS_LOGIN_CODE;
 import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
 
 
@@ -167,7 +167,7 @@ public class UserInfoLoginService {
         String code = StringUtils.generateCode();
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone, code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         // TODO 发送真正验证码 先写死zh
-        smsTemplate.sendCode(UserConfigConstants.SMS_LOGIN_CODE, code, phone, "zh");
+        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_LOGIN_CODE, code, phone, ZH_CN);
         return code;
     }
 
@@ -247,7 +247,7 @@ public class UserInfoLoginService {
         String registerCode = StringUtils.generateCode();
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_REGISTER_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         //发送短信验证码
-        smsTemplate.sendCode(UserConfigConstants.SMS_REGISTER_CODE, registerCode, phone, "zh");
+        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_REGISTER_CODE, registerCode, phone, ZH_CN);
 //        System.out.println("smsResponse = " + smsResponse);
         return registerCode;
     }
@@ -276,7 +276,7 @@ public class UserInfoLoginService {
         validateCaptcha(code, captchaEnabled, uuid);
         String registerCode = StringUtils.generateCode();
         redisCache.setCacheObject(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
-        smsTemplate.sendCode(UserConfigConstants.SMS_FORGET_PASSWORD_CODE, registerCode, phone, "zh");
+        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_FORGET_PASSWORD_CODE, registerCode, phone, ZH_CN);
         return registerCode;
     }
 }

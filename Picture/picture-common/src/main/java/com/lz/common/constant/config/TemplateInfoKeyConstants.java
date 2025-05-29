@@ -10,6 +10,25 @@ package com.lz.common.constant.config;
  */
 public class TemplateInfoKeyConstants {
     /**
+     * 登录短信验证码模版KEY
+     */
+    public static final String SMS_LOGIN_CODE = "sms_login_code";
+
+    /**
+     * 注册发送验证码
+     */
+    public static final String SMS_REGISTER_CODE = "sms_register_code";
+
+    /**
+     * 忘记密码发送验证码
+     */
+    public static final String SMS_FORGET_PASSWORD_CODE = "sms_forget_password_code";
+
+    /**
+     * 账户重置密码
+     */
+    public static final String SMS_ACCOUNT_RESET_PASSWORD_CODE = "sms_account_reset_password_code";
+    /**
      * 用户注册消息成功消息发送
      */
     public static final String USER_REGISTER = "user_register";

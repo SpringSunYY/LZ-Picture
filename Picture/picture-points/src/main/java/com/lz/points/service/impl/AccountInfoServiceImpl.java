@@ -1,36 +1,44 @@
 package com.lz.points.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.constant.CacheConstants;
+import com.lz.common.constant.HttpStatus;
+import com.lz.common.constant.config.TemplateInfoKeyConstants;
+import com.lz.common.core.redis.RedisCache;
+import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.exception.ServiceException;
+import com.lz.common.exception.user.CaptchaException;
+import com.lz.common.exception.user.CaptchaExpireException;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
+import com.lz.config.manager.sms.SmsTemplate;
+import com.lz.config.service.IConfigInfoService;
+import com.lz.points.mapper.AccountInfoMapper;
+import com.lz.points.model.domain.AccountInfo;
+import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
+import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
+import com.lz.points.model.dto.accountInfo.ResetAccountPasswordBody;
+import com.lz.points.model.enums.PoAccountStatusEnum;
+import com.lz.points.model.vo.accountInfo.AccountInfoVo;
+import com.lz.points.service.IAccountInfoService;
+import com.lz.user.model.domain.UserInfo;
+import com.lz.user.service.IUserInfoService;
+import com.lz.userauth.model.domain.EncryptionPassword;
+import com.lz.userauth.utils.PasswordUtils;
+import com.lz.userauth.utils.UserInfoSecurityUtils;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lz.common.constant.HttpStatus;
-import com.lz.common.core.redis.RedisCache;
-import com.lz.common.exception.ServiceException;
-import com.lz.common.utils.StringUtils;
-
-import java.math.BigDecimal;
-
-import com.lz.common.utils.DateUtils;
-import com.lz.config.service.IConfigInfoService;
-import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
-import com.lz.userauth.model.domain.EncryptionPassword;
-import com.lz.userauth.utils.PasswordUtils;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.points.mapper.AccountInfoMapper;
-import com.lz.points.model.domain.AccountInfo;
-import com.lz.points.service.IAccountInfoService;
-import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
-import com.lz.points.model.vo.accountInfo.AccountInfoVo;
-
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
+import static com.lz.common.constant.config.LocaleConstants.ZH_CN;
 import static com.lz.common.constant.config.UserConfigKeyConstants.POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT;
 import static com.lz.common.constant.redis.PointsRedisConstants.*;
 
@@ -50,6 +58,12 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
 
     @Resource
     private IConfigInfoService configInfoService;
+
+    @Resource
+    private SmsTemplate smsTemplate;
+
+    @Resource
+    private IUserInfoService userInfoService;
 
     //region mybatis代码
 
@@ -237,4 +251,88 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         return accountInfo;
     }
 
+    @Override
+    public String getAccountPasswordCode(String phone, String countryCode, String code, boolean captchaEnabled, String uuid) {
+        validateCaptcha(code, captchaEnabled, uuid);
+        //校验用户手机号是否正确
+        UserInfo userInfo = userInfoService.selectUserInfoByUserId(UserInfoSecurityUtils.getUserId());
+        if (!(userInfo.getPhone().equals(phone) && userInfo.getCountryCode().equals(countryCode))) {
+            throw new ServiceException("手机号与用户手机号不一致");
+        }
+        String registerCode = StringUtils.generateCode();
+        redisCache.setCacheObject(POINTS_ACCOUNT_RESET_PASSWORD_CODE + countryCode + COMMON_SEPARATOR_CACHE + phone, registerCode, POINTS_ACCOUNT_RESET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_ACCOUNT_RESET_PASSWORD_CODE, registerCode, phone, ZH_CN);
+        return registerCode;
+    }
+
+    @Override
+    public void checkSmsCode(String key, String countryCode, String phone, String code) {
+        if (StringUtils.isEmpty(key) || StringUtils.isEmpty(phone) || StringUtils.isEmpty(countryCode) || StringUtils.isEmpty(code)) {
+            throw new ServiceException("参数异常");
+        }
+        String redisKey = key + countryCode + ":" + phone;
+//        System.out.println("redisKey = " + redisKey);
+        String registerCode = redisCache.getCacheObject(redisKey);
+        if (StringUtils.isEmpty(registerCode)) {
+            throw new ServiceException("短信验证码已过期");
+        }
+        if (!code.equalsIgnoreCase(registerCode)) {
+            throw new ServiceException("短信验证码不正确");
+        }
+        redisCache.deleteObject(redisKey);
+    }
+
+    /**
+     * description: 校验验证码
+     * author: YY
+     * method: validateCaptcha
+     * date: 2025/3/19 09:09
+     * param:
+     * param: smsLoginBody
+     * param: captchaEnabled
+     * param: uuid
+     * return: void
+     **/
+    private void validateCaptcha(String code, boolean captchaEnabled, String uuid) {
+        if (captchaEnabled) {
+            String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
+            String captcha = redisCache.getCacheObject(verifyKey);
+            if (StringUtils.isEmpty(captcha)) {
+                throw new CaptchaExpireException();
+            }
+            if (!code.equalsIgnoreCase(captcha)) {
+                throw new CaptchaException();
+            }
+        }
+    }
+
+    @Override
+    public AccountInfo resetAccountPassword(ResetAccountPasswordBody resetAccountPasswordBody) {
+        //查询是否有账户
+        AccountInfo accountInfo = this.selectAccountInfoByUserId(UserInfoSecurityUtils.getUserId());
+        if (StringUtils.isNull(accountInfo)) {
+            //没有账户创建一个账户
+            accountInfo = new AccountInfo();
+            accountInfo.setPointsBalance(0L);
+            accountInfo.setPointsEarned(0L);
+            accountInfo.setPointsUsed(0L);
+            accountInfo.setRechargeAmount(new BigDecimal(BigInteger.ZERO));
+            accountInfo.setUserId(UserInfoSecurityUtils.getUserId());
+            accountInfo.setAccountStatus(PoAccountStatusEnum.ACCOUNT_STATUS_0.getValue());
+            accountInfo.setCreateTime(DateUtils.getNowDate());
+            accountInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        }
+        //校验用户手机号是否正确
+        UserInfo userInfo = userInfoService.selectUserInfoByUserId(UserInfoSecurityUtils.getUserId());
+        if (!(userInfo.getPhone().equals(resetAccountPasswordBody.getPhone()) && userInfo.getCountryCode().equals(resetAccountPasswordBody.getCountryCode()))) {
+            throw new ServiceException("手机号与用户手机号不一致");
+        }
+        String password = resetAccountPasswordBody.getPassword();
+        //加密
+        EncryptionPassword encryptionPassword = PasswordUtils.encryptPassword(password);
+        accountInfo.setSalt(encryptionPassword.getSalt());
+        accountInfo.setPassword(encryptionPassword.getPassword());
+        this.saveOrUpdate(accountInfo);
+        return accountInfo;
+    }
 }

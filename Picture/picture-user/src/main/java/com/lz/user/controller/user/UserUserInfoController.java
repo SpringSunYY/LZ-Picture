@@ -108,8 +108,9 @@ public class UserUserInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasLogin()")
     @PutMapping(value = "/password")
     public AjaxResult updatePassword(@RequestBody UserPasswordUploadRequest userPasswordUploadRequest) throws Exception {
-        String userId = getUserId();
-        if (!userId.equals(userPasswordUploadRequest.getUserId())) {
+        userPasswordUploadRequest.setUserId(RsaUtils.decryptUserByPrivateKey(userPasswordUploadRequest.getUserId()));
+        //校验用户
+        if (!getUserId().equals(userPasswordUploadRequest.getUserId())) {
             return error("无权限访问");
         }
         userPasswordUploadRequest.setPassword(RsaUtils.decryptUserByPrivateKey(userPasswordUploadRequest.getPassword()));

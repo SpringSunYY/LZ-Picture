@@ -43,4 +43,14 @@ public class PointsRedisConstants {
      * 账户详情超时时间
      */
     public static final Integer POINTS_ACCOUNT_INFO_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 账户重置密码验证码
+     */
+    public static final String POINTS_ACCOUNT_RESET_PASSWORD_CODE = "points:account:reset:password:code:";
+
+    /**
+     * 账户重置密码验证码超时时间
+     */
+    public static final Integer POINTS_ACCOUNT_RESET_PASSWORD_CODE_EXPIRE_TIME = 5 * 60;
 }
