@@ -839,7 +839,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ThrowUtils.throwIf(accountInfoService.getVerifyPassword(userId) != 1, "请输入密码");
         //查询图片信息
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
-        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo)
+                        || (!pictureInfo.getUserId().equals(userId) && pictureInfo.getPictureStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
+                        || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue()))
+                , "图片不存在");
 
         //下载记录
         PictureDownloadLogInfo pictureDownloadLogInfo = new PictureDownloadLogInfo();
