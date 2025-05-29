@@ -52,28 +52,6 @@ public class MyUserInfoVo implements Serializable {
      */
     private String avatarUrl;
 
-
-    /**
-     * 赚取总积分
-     */
-    private Long pointsEarned;
-
-    /**
-     * 使用总积分
-     */
-    private Long pointsUsed;
-
-    /**
-     * 充值总金额（元）
-     */
-    private BigDecimal rechargeAmount;
-
-
-    /**
-     * 积分余额
-     */
-    private Long pointsBalance;
-
     /**
      * 状态（0=正常 1=异常 2=禁用）
      */
@@ -114,10 +92,6 @@ public class MyUserInfoVo implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-    /**
-     * 登录日志
-     */
-    private List<MyLoginLogInfoVo> loginLogInfoVos;
 
     /**
      * 对象转封装类

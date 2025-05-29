@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.utils.StringUtils;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.user.model.dto.loginLogInfo.UserLoginLogInfoQuery;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -159,6 +163,41 @@ public class LoginLogInfoServiceImpl extends ServiceImpl<LoginLogInfoMapper, Log
             return Collections.emptyList();
         }
         return loginLogInfoList.stream().map(LoginLogInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<LoginLogInfo> selectUserLoginLogInfoList(UserLoginLogInfoQuery userLoginLogInfoQuery) {
+        // 提取基础参数
+        Integer pageNum = userLoginLogInfoQuery.getPageNum();
+        Integer pageSize = userLoginLogInfoQuery.getPageSize();
+        Map<String, Object> params = userLoginLogInfoQuery.getParams();
+
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        return this.page(
+                new Page<LoginLogInfo>(pageNum,pageSize),
+                new LambdaQueryWrapper<LoginLogInfo>()
+                        .eq(StringUtils.isNotEmpty(userLoginLogInfoQuery.getUserId()), LoginLogInfo::getUserId, userLoginLogInfoQuery.getUserId())
+                        .apply(
+                                StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                                "login_time between {0} and {1}",
+                                beginCreateTime, endCreateTime
+                                )
+                        .orderBy(StringUtils.isNotEmpty(userLoginLogInfoQuery.getIsAsc()),
+                                userLoginLogInfoQuery.getIsAsc().equals("asc"),
+                                LoginLogInfo::getLoginTime)
+        );
     }
 
 }

@@ -447,16 +447,16 @@
 <script setup name="InformTemplateInfo">
 import {
   addInformTemplateInfo,
-  delInformTemplateInfo, getExample,
-  getInformTemplateInfo, getInformTemplateInfoByVersion,
+  delInformTemplateInfo,
+  getExample,
+  getInformTemplateInfo,
+  getInformTemplateInfoByVersion,
   listInformTemplateInfo,
   updateInformTemplateInfo
 } from "@/api/config/informTemplateInfo";
 import {listI18nLocaleInfo} from "@/api/config/i18nLocaleInfo.js";
 import MarkdownEditor from "@/components/MarkdownEditor/index.vue";
-import MarkdownView from "@/components/MarkdownView/index.vue"
 import {QuestionFilled} from "@element-plus/icons-vue";
-import MyMdEditor from "@/components/MyMdEditor/index.vue";
 import MarkdownBaseEditor from "@/components/MarkdownBaseEditor/MarkdownBaseEditor.vue";
 
 const {proxy} = getCurrentInstance();

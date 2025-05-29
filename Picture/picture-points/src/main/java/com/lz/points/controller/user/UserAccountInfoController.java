@@ -1,9 +1,12 @@
 package com.lz.points.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.sign.RsaUtils;
+import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.dto.accountInfo.AccountAuthDto;
 import com.lz.points.model.dto.accountInfo.AccountPasswordUploadRequest;
+import com.lz.points.model.vo.accountInfo.UserAccountInfoVo;
 import com.lz.points.service.IAccountInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -65,5 +68,14 @@ public class UserAccountInfoController extends BaseUserInfoController {
         String userId = getUserId();
         String password = RsaUtils.decryptUserByPrivateKey(accountAuthDto.getPassword());
         return AjaxResult.success(accountInfoService.verifyPassword(userId, password));
+    }
+
+    @PreAuthorize("@uss.hasLogin()")
+    @GetMapping()
+    public AjaxResult getAccountInfo() {
+        String userId = getUserId();
+        //查询用户账户
+        AccountInfo accountInfo = accountInfoService.selectUserAccountInfoByUserId(userId);
+        return AjaxResult.success(UserAccountInfoVo.objToVo(accountInfo));
     }
 }

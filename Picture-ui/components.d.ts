@@ -30,6 +30,7 @@ declare module 'vue' {
     UCommentScroll: typeof import('undraw-ui')['UCommentScroll']
     UFold: typeof import('undraw-ui')['UFold']
     UserBehaviorTable: typeof import('./src/components/UserBehaviorTable.vue')['default']
+    UserloginLogTable: typeof import('./src/components/UserloginLogTable.vue')['default']
     UserPointsUsageLog: typeof import('./src/components/UserPointsUsageLog.vue')['default']
     UserViewInfoTable: typeof import('./src/components/UserViewInfoTable.vue')['default']
   }

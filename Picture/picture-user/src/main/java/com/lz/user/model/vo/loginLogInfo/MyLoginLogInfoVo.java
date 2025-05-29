@@ -27,7 +27,7 @@ public class MyLoginLogInfoVo implements Serializable {
     private String infoId;
 
     /**
-     * 登录方式
+     * 登录方式 字典类型u_login_type
      */
     @Excel(name = "登录方式")
     private String loginType;

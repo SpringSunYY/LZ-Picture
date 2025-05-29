@@ -2,6 +2,7 @@ import { http as request } from '@/utils'
 import type { API } from '@/types/common'
 import type { USER } from '@/types/user'
 import { encrypt } from '@/utils/jsencrypt.ts'
+import type { LoginLogInfoQuery, LoginLogInfoVo } from '@/types/user/loginLog'
 
 // 登录方法
 export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
@@ -158,5 +159,13 @@ export function forgetPassword(data: USER.ForgetPasswordParams): Promise<USER.Lo
       uuid: data.uuid,
     },
     timeout: 20000,
+  })
+}
+
+export function listLoginLog(params: LoginLogInfoQuery): Promise<API.ResponseInfo<LoginLogInfoVo>> {
+  return request({
+    url: '/user/loginLogInfo/list',
+    method: 'get',
+    params: params,
   })
 }

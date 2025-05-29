@@ -1,33 +1,27 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonHasStatisticsEnum;
-import com.lz.common.utils.StringUtils;
-
 import com.lz.common.utils.DateUtils;
-import com.lz.picture.model.domain.PictureTagInfo;
-import com.lz.picture.model.domain.PictureTagRelInfo;
-import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
-import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
-import com.lz.picture.service.IPictureTagInfoService;
-import com.lz.picture.service.IPictureTagRelInfoService;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.UserViewLogInfoMapper;
 import com.lz.picture.model.domain.UserViewLogInfo;
-import com.lz.picture.service.IUserViewLogInfoService;
+import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
 import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoQuery;
+import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
+import com.lz.picture.service.IPictureTagInfoService;
+import com.lz.picture.service.IPictureTagRelInfoService;
+import com.lz.picture.service.IUserViewLogInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 用户浏览记录Service业务层处理

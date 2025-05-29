@@ -27,10 +27,6 @@
             <groupId>com.lz</groupId>
             <artifactId>picture-framework</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.lz</groupId>
-            <artifactId>picture-points</artifactId>
-        </dependency>
 
     </dependencies>
 

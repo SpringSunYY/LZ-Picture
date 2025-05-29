@@ -33,4 +33,14 @@ public class PointsRedisConstants {
      * 积分使用记录充值锁
      */
     public static final String POINTS_USAGE_LOG_INFO_LOCK = "points:usage:log:info:lock:";
+
+    /**
+     * 账户详情
+     */
+    public static final String POINTS_ACCOUNT_INFO = "points:account:info:";
+
+    /**
+     * 账户详情超时时间
+     */
+    public static final Integer POINTS_ACCOUNT_INFO_EXPIRE_TIME = 5 * 60;
 }

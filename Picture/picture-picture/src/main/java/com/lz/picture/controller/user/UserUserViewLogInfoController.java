@@ -1,34 +1,22 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lz.common.annotation.Log;
 import com.lz.common.constant.config.UserConfigKeyConstants;
-import com.lz.common.core.controller.BaseController;
-import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
-import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.UserViewLogInfo;
 import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
-import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoEdit;
-import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoInsert;
-import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoQuery;
 import com.lz.picture.model.vo.userViewLogInfo.MyUserViewLogInfoVo;
-import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
 import com.lz.picture.service.IUserViewLogInfoService;
-import com.lz.system.service.ISysConfigService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 
 /**
  * 用户浏览记录Controller

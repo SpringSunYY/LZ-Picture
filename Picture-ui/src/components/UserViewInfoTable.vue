@@ -144,8 +144,8 @@ const getUserViewLogInfo = () => {
   queryParams.value.params = {}
   if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
     console.log('dateRange', dateRange.value)
-    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD')
-    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD')
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
   }
   listUserViewLogInfo(queryParams.value).then((res) => {
     viewLogList.value = res?.rows || []

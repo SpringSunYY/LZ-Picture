@@ -1,21 +1,25 @@
 package com.lz.user.service;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.user.model.domain.LoginLogInfo;
+import com.lz.user.model.dto.loginLogInfo.UserLoginLogInfoQuery;
 import com.lz.user.model.vo.loginLogInfo.LoginLogInfoVo;
 import com.lz.user.model.dto.loginLogInfo.LoginLogInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 /**
  * 用户登录日志Service接口
  *
  * @author YY
  * @date 2025-03-17
  */
-public interface ILoginLogInfoService extends IService<LoginLogInfo>
-{
+public interface ILoginLogInfoService extends IService<LoginLogInfo> {
     //region mybatis代码
+
     /**
      * 查询用户登录日志
      *
@@ -64,6 +68,7 @@ public interface ILoginLogInfoService extends IService<LoginLogInfo>
      */
     public int deleteLoginLogInfoByInfoId(String infoId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +84,12 @@ public interface ILoginLogInfoService extends IService<LoginLogInfo>
      * @return LoginLogInfoVO集合
      */
     List<LoginLogInfoVo> convertVoList(List<LoginLogInfo> loginLogInfoList);
+
+    /**
+     * 分页查询用户登录日志
+     *
+     * @param userLoginLogInfoQuery 查询条件对象
+     * @return 用户登录日志分页信息
+     */
+    Page<LoginLogInfo> selectUserLoginLogInfoList(UserLoginLogInfoQuery userLoginLogInfoQuery);
 }

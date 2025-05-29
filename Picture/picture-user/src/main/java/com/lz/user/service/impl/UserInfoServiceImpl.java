@@ -12,8 +12,6 @@ import com.lz.config.model.enmus.CMenuStatusEnum;
 import com.lz.config.model.enmus.CMenuTypeEnum;
 import com.lz.config.model.enmus.CMenuVisibleEnum;
 import com.lz.config.service.IMenuInfoService;
-import com.lz.points.model.domain.AccountInfo;
-import com.lz.points.service.IAccountInfoService;
 import com.lz.user.mapper.UserInfoMapper;
 import com.lz.user.model.domain.LoginLogInfo;
 import com.lz.user.model.domain.UserInfo;
@@ -55,8 +53,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Resource
     private ILoginLogInfoService loginLogInfoService;
 
-    @Resource
-    private IAccountInfoService accountInfoService;
     //region mybatis代码
 
     /**
@@ -230,22 +226,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             return MyUserInfoVo.objToVo(userInfo);
         }
         MyUserInfoVo myUserInfoVo = MyUserInfoVo.objToVo(userInfo);
-        //查询登录日志,最近十条
-        List<LoginLogInfo> loginLogInfoList = loginLogInfoService.list(new LambdaQueryWrapper<LoginLogInfo>()
-                .eq(LoginLogInfo::getUserId, userInfo.getUserId())
-                .eq(LoginLogInfo::getStatus, ULoginStatus.LOGIN_STATUS_0.getValue())
-                .orderByDesc(LoginLogInfo::getLoginTime)
-                .last("limit 5"));
-        List<MyLoginLogInfoVo> myLoginLogInfoVos = MyLoginLogInfoVo.objToVo(loginLogInfoList);
-        myUserInfoVo.setLoginLogInfoVos(myLoginLogInfoVos);
-        //查询用户账户
-        AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userInfo.getUserId());
-        if (StringUtils.isNotNull(accountInfo)) {
-            myUserInfoVo.setPointsBalance(accountInfo.getPointsBalance());
-            myUserInfoVo.setPointsEarned(accountInfo.getPointsEarned());
-            myUserInfoVo.setPointsUsed(accountInfo.getPointsUsed());
-            myUserInfoVo.setRechargeAmount(accountInfo.getRechargeAmount());
-        }
+//        //查询登录日志,最近十条
+//        List<LoginLogInfo> loginLogInfoList = loginLogInfoService.list(new LambdaQueryWrapper<LoginLogInfo>()
+//                .eq(LoginLogInfo::getUserId, userInfo.getUserId())
+//                .eq(LoginLogInfo::getStatus, ULoginStatus.LOGIN_STATUS_0.getValue())
+//                .orderByDesc(LoginLogInfo::getLoginTime)
+//                .last("limit 5"));
+//        List<MyLoginLogInfoVo> myLoginLogInfoVos = MyLoginLogInfoVo.objToVo(loginLogInfoList);
+//        myUserInfoVo.setLoginLogInfoVos(myLoginLogInfoVos);
         redisCache.setCacheObject(key, myUserInfoVo, 60 * 5, TimeUnit.SECONDS);
         return myUserInfoVo;
     }

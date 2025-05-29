@@ -1,5 +1,6 @@
 package com.lz.points.service.impl;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
 import com.lz.points.model.vo.accountInfo.AccountInfoVo;
 
 import static com.lz.common.constant.config.UserConfigKeyConstants.POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT;
-import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ACCOUNT_PASSWORD_CHECK;
+import static com.lz.common.constant.redis.PointsRedisConstants.*;
 
 /**
  * 积分账户Service业务层处理
@@ -211,6 +212,29 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
             redisCache.setCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId, true, timeout, TimeUnit.SECONDS);
             return 1;
         }
+    }
+
+    @Override
+    public AccountInfo selectUserAccountInfoByUserId(String userId) {
+        AccountInfo cacheObject = redisCache.getCacheObject(POINTS_ACCOUNT_INFO + userId);
+        if (StringUtils.isNotNull(cacheObject)) {
+            return cacheObject;
+        }
+        AccountInfo accountInfo = this.selectAccountInfoByUserId(userId);
+        if (StringUtils.isNotNull(accountInfo)) {
+            accountInfo.setPointsBalance(accountInfo.getPointsBalance());
+            accountInfo.setPointsEarned(accountInfo.getPointsEarned());
+            accountInfo.setPointsUsed(accountInfo.getPointsUsed());
+            accountInfo.setRechargeAmount(accountInfo.getRechargeAmount());
+        } else {
+            accountInfo = new AccountInfo();
+            accountInfo.setPointsBalance(0L);
+            accountInfo.setPointsEarned(0L);
+            accountInfo.setPointsUsed(0L);
+            accountInfo.setRechargeAmount(new BigDecimal(BigInteger.ZERO));
+        }
+        redisCache.setCacheObject(POINTS_ACCOUNT_INFO + userId, accountInfo, POINTS_ACCOUNT_INFO_EXPIRE_TIME, TimeUnit.SECONDS);
+        return accountInfo;
     }
 
 }

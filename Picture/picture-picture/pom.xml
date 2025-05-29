@@ -40,6 +40,11 @@
 
         <dependency>
             <groupId>com.lz</groupId>
+            <artifactId>picture-points</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lz</groupId>
             <artifactId>picture-ai</artifactId>
         </dependency>
 

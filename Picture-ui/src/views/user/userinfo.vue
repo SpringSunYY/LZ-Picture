@@ -42,19 +42,19 @@
 
     <div class="profile-stats">
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo?.pointsBalance || 0 }}</div>
+        <div class="stat-value">{{ accountInfo?.pointsBalance || 0 }}</div>
         <div class="stat-label">积分余额</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo?.pointsEarned || 0 }}</div>
+        <div class="stat-value">{{ accountInfo?.pointsEarned || 0 }}</div>
         <div class="stat-label">赚取积分</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo?.pointsUsed || 0 }}</div>
+        <div class="stat-value">{{ accountInfo?.pointsUsed || 0 }}</div>
         <div class="stat-label">使用积分</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ userInfo?.rechargeAmount || 0 }}</div>
+        <div class="stat-value">{{ accountInfo?.rechargeAmount || 0 }}</div>
         <div class="stat-label">充值金额(元)</div>
       </div>
     </div>
@@ -112,27 +112,8 @@
             </div>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="2" v-if="checkLogin()" tab="登录信息">
-          <div class="details-grid" v-for="item in userInfo?.loginLogInfoVos" :key="item.infoId">
-            <div class="detail-item">
-              <div class="detail-label">登录时间</div>
-              <div class="detail-value">{{ item?.loginTime }}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">登录方式</div>
-              <div class="detail-value">
-                <dict-tag :options="u_login_type" :value="item?.loginType" />
-              </div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">IP属地</div>
-              <div class="detail-value">{{ item?.loginLocation || '未知' }}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">IP地址</div>
-              <div class="detail-value">{{ item?.ipaddr || '未知' }}</div>
-            </div>
-          </div>
+        <a-tab-pane key="2" v-if="checkLogin()" tab="登录日志">
+          <UserloginLogTable></UserloginLogTable>
         </a-tab-pane>
         <a-tab-pane v-if="checkPermiSingle('points')" key="3" tab="充值记录">
           <PointsRechargeTable></PointsRechargeTable>
@@ -372,7 +353,7 @@ import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
 import type { AccountPasswordUploadRequest } from '@/types/points/account.d.ts'
-import { updateAccountPassword } from '@/api/points/account.ts'
+import { getAccountInfo, updateAccountPassword } from '@/api/points/account.ts'
 import UserBehaviorTable from '@/components/UserBehaviorTable.vue'
 import DictTag from '@/components/DictTag.vue'
 import PointsRechargeTable from '@/components/PointsRechargeTable.vue'
@@ -380,22 +361,27 @@ import { checkLogin, checkPermiSingle } from '@/utils/permission.ts'
 import UserViewInfoTable from '@/components/UserViewInfoTable.vue'
 import UserPointsUsageLog from '@/components/UserPointsUsageLog.vue'
 import PictureDownloadLogInfoTable from '@/components/PictureDownloadLogInfoTable.vue'
+import type { AccountInfoVo } from '@/types/points/account'
+import UserloginLogTable from '@/components/UserloginLogTable.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { u_user_sex, u_user_status, u_login_type } = proxy?.useDict(
+const { u_user_sex, u_user_status } = proxy?.useDict(
   'u_user_sex',
-  'u_user_status',
-  'u_login_type',
+  'u_user_status'
 )
 
 const userStore = useUserStore()
 const { userName: userName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
-// 模拟用户数据
+//用户数据
 const userInfo = ref<MyUserInfo>()
-
+//账户数据
+const accountInfo = ref<AccountInfoVo>()
 //获取用户信息
 const getMyUserInfo = async () => {
+  getAccountInfo().then((res) => {
+    accountInfo.value = res.data
+  })
   const res = await getMyUserInfoByUserName(userName.value)
   if (res.code === 200) {
     userInfo.value = res.data

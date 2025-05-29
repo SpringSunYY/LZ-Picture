@@ -1,11 +1,9 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
-import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.UserBehaviorInfo;
@@ -13,7 +11,6 @@ import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoAdd;
 import com.lz.picture.model.vo.userBehaviorInfo.MyUserBehaviorInfoVo;
 import com.lz.picture.service.IUserBehaviorInfoService;
-import com.lz.user.controller.admin.UserInfoController;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;

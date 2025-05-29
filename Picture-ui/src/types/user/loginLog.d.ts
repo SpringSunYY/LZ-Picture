@@ -1,3 +1,47 @@
+/**
+ * 我的登录日志VO对象
+ */
+export interface LoginLogInfoVo {
+  /** 编号 */
+  infoId: string;
+
+  /** 登录方式（字典：u_login_type） */
+  loginType: string;
+
+  /** 登录地点 */
+  loginLocation: string;
+
+  /** 登录IP地址 */
+  ipaddr: string;
+
+  /** 登录时间（格式：yyyy-MM-dd HH:mm:ss） */
+  loginTime: string;
+}
+
+/**
+ * 用户登录日志查询对象
+ */
+export interface LoginLogInfoQuery {
+  /** 用户ID */
+  userId?: string;
+
+  /** 额外参数（可用于扩展条件） */
+  params?: Record<string, any>;
+
+  /** 当前页码 */
+  pageNum?: number;
+
+  /** 每页条数 */
+  pageSize?: number;
+
+
+  /** 排序字段 */
+  orderByColumn?: string
+
+  /** 排序方式（asc 或 desc） */
+  isAsc?: string
+}
+
 // 枚举定义 登录类型枚举
 export enum ULoginTypeEnum {
   LOGIN_TYPE_0 = "0", // 账密

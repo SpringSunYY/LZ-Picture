@@ -128,4 +128,16 @@ public interface IAccountInfoService extends IService<AccountInfo> {
      * @date: 2025/5/24 14:51
      **/
     int verifyPassword(String userId, String password);
+
+    /**
+     * 根据用户ID查询用户账户信息
+     * 并存入缓存
+     *
+     * @param userId 用户编号
+     * @return AccountInfo
+     * @author: YY
+     * @method: selectUserAccountInfoByUserId
+     * @date: 2025/5/24 14:51
+     **/
+    AccountInfo selectUserAccountInfoByUserId(String userId);
 }

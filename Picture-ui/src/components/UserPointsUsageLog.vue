@@ -121,8 +121,8 @@ const getDataList = () => {
   loading.value = true
   queryParams.value.params = {}
   if (dateRange.value) {
-    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD')
-    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD')
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
   }
   listPointsUsageLogInfo(queryParams.value).then((res) => {
     dataList.value = res?.rows || []
