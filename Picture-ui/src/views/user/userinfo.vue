@@ -62,7 +62,8 @@
     <div class="profile-details">
       <a-tabs default-active-key="1">
         <template #rightExtra>
-          <a-space :size="[8, 16]" wrap style="max-width: 350px">
+          <a-space  direction="horizontal" align="center" style="padding: 0" :wrap="true">
+            <a-button @click="handleUpdateUserInfo">修改头像</a-button>
             <a-button @click="handleUpdateUserInfo">修改信息</a-button>
             <a-button @click="handleUpdatePassword">修改密码</a-button>
             <a-button @click="handleUpdateAccountPassword">修改支付密码</a-button>

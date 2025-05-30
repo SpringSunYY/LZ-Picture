@@ -1,7 +1,7 @@
 <template>
   <div id="globalHeader">
     <a-row :wrap="false">
-      <a-col flex="200px">
+      <a-col flex="10em">
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.png" alt="logo" />
@@ -10,15 +10,41 @@
         </RouterLink>
       </a-col>
       <a-col flex="auto">
+        <!-- 桌面模式 -->
         <a-menu
+          v-if="!isMobile"
           v-model:selectedKeys="current"
           mode="horizontal"
           :items="items"
-          @onClick="doMenuClick"
+          @click="doMenuClick"
+        />
+
+        <!-- 移动模式 -->
+        <a-button
+          v-else
+          type="text"
+          @click="menuVisible = true"
+          class="mobile-menu-btn"
         >
-        </a-menu>
+          <MenuOutlined style="font-size: 18px"/>
+        </a-button>
+
+        <!-- 移动端抽屉菜单 -->
+        <a-drawer
+          width="60%"
+          placement="left"
+          v-model:open="menuVisible"
+          :bodyStyle="{ padding: 0 }"
+        >
+          <a-menu
+            v-model:selectedKeys="current"
+            mode="inline"
+            :items="items"
+            @click="() => menuVisible = false"
+          />
+        </a-drawer>
       </a-col>
-      <a-col flex="250px">
+      <a-col flex="5em">
         <div class="user-login-status">
           <a-space :size="24" v-if="userName" align="center">
             <a-badge
@@ -79,7 +105,7 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
-import { LogoutOutlined, NotificationOutlined } from '@ant-design/icons-vue'
+import { LogoutOutlined, NotificationOutlined,MenuOutlined } from '@ant-design/icons-vue'
 import { MenuProps, message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'
@@ -87,7 +113,6 @@ import { storeToRefs } from 'pinia'
 import SvgIcon from '@/components/SvgIcon.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
-import { checkLogin } from '@/utils/permission.ts'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
 
 const userStore = useUserStore()
@@ -122,12 +147,23 @@ router.afterEach((to) => {
 // 路由跳转事件
 const doMenuClick = (route: RouteRecordRaw) => {
   // console.log('点击', route)
+  if (isMobile.value) {
+    menuVisible.value = false
+  }
   router.push({
-    path: route.path,
+    path: route.key,
   })
 }
 const permissionStore = usePermissionStore()
 const unreadInformCount = ref<number>(0)
+
+const isMobile = ref(false)
+const menuVisible = ref(false)
+
+// 检测屏幕尺寸
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth < 768
+}
 // 初始化用户信息
 onMounted(async () => {
   if (userStore.token) {
@@ -139,6 +175,8 @@ onMounted(async () => {
       }
     })
   }
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
 })
 const clickInform = () => {
   router.push('/inform')
@@ -251,22 +289,37 @@ const showDrawer = () => {
 
 <style scoped>
 #globalHeader {
-  margin: 0 4vh;
+  margin: 0 4em;
 
   .title-bar {
     display: flex;
     align-items: center;
+    justify-items: start;
   }
 
   .title {
     color: black;
     font-size: 18px;
-    margin-left: 16px;
     font-family: 'sans-serif';
   }
 
   .logo {
     height: 48px;
+  }
+
+  .mobile-menu-btn {
+    height: 64px;
+    padding: 0 15px;
+    margin-left: -15px;
+  }
+
+  /* 移动端菜单项样式 */
+  .ant-menu-inline {
+    border-right: none;
+  }
+
+  .ant-menu-item {
+    margin: 4px 0;
   }
 }
 </style>

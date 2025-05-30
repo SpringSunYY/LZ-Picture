@@ -167,6 +167,7 @@ const goDetail = (item: any) => {
 .inform-list {
   max-width: 1440px;
   margin: 0 auto;
+  max-width: 90%;
 
   .message-card {
     background: rgba(211, 211, 211, 0.28);

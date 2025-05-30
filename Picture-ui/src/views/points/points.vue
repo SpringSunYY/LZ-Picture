@@ -35,7 +35,7 @@
     <div class="package-list">
       <a-row :gutter="[24, 24]">
         <a-col
-          xs="24" :sm="24" :md="24" :lg="12" :xl="6" :xxl="6"
+          xs="24" :sm="24" :md="12" :lg="12" :xl="6" :xxl="6"
           v-for="pkg in filteredPackages"
           :key="pkg.packageId"
         >
@@ -200,6 +200,7 @@ onMounted(() => {
   }
 
   .package-card {
+    min-width: 380px;
     height: 100%;
     transition: all 0.3s;
     overflow: hidden;

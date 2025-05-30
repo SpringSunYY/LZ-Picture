@@ -190,7 +190,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .picture {
   padding: 8px;
-  //margin: 0 1vh;
+  margin: 0 2vh;
 
   .horizontal-masonry {
     width: 100%;
