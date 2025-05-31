@@ -118,6 +118,18 @@ export interface UserPasswordUploadRequest {
   confirmPassword: string
 }
 
+/**
+ * 用户头像更新请求参数
+ */
+export interface UserInfoUpdateAvatar {
+  /** 用户编号 */
+  userId: string;
+
+  /** 用户头像地址（Base64、URL 或文件路径） */
+  avatarUrl: string;
+}
+
+
 // 枚举定义 用户状态枚举
 export enum UUserStatusEnum {
   USER_STATUS_0 = '0', // 正常

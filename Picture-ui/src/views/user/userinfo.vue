@@ -439,7 +439,12 @@ import {
 } from '@/types/user/user.d.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
-import { getMyUserInfoByUserName, updateUserInfo, updateUserInfoPassword } from '@/api/user/user.ts'
+import {
+  getMyUserInfoByUserName,
+  updateUserInfo,
+  updateUserInfoAvatar,
+  updateUserInfoPassword,
+} from '@/api/user/user.ts'
 import { LockOutlined, PhoneOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -746,9 +751,18 @@ const handleUpdateAvatar = () => {
   openAvatar.value = true
 }
 
-const handleAvatarSuccess = (value: any) => {
+const handleAvatarSuccess = async (value: any) => {
   avatarUrl.value = value
   console.log('上传成功，头像地址：', value)
+  const res = await updateUserInfoAvatar({
+    avatarUrl: value.data?.thumbnailUrl || '',
+    userId: userInfo.value?.userId || '',
+  })
+  if (res.code === 200) {
+    message.success('更新头像成功')
+    await getMyUserInfo()
+    openAvatar.value = false
+  }
 }
 </script>
 

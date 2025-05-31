@@ -187,6 +187,16 @@ const props = defineProps({
     type: Array,
     default: () => ['image/jpeg', 'image/gif', 'image/webp', 'image/png'],
   },
+  //文件日志存储类型
+  type:{
+    type: String,
+    default: '2'
+  },
+  //文件保存文件夹
+  fileDir:{
+    type: String,
+    default: 'avatar'
+  }
 })
 
 const emit = defineEmits(['upload-success'])
@@ -224,6 +234,8 @@ const serverConfig = {
     // 1. 创建 FormData
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('type', props.type)
+    formData.append('fileDir', props.fileDir)
     // 2. 调用您的上传方法
     const request = await coverUploadFile(formData)
       .then((response) => {

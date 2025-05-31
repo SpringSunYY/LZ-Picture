@@ -76,9 +76,17 @@ public class UserFileController extends BaseUserInfoController {
      */
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping("/upload/cover")
-    public AjaxResult uploadCover(@RequestPart("file") MultipartFile multipartFile) {
+    public AjaxResult uploadCover(@RequestPart("file") MultipartFile multipartFile,
+                                  @RequestParam(name = "type", required = false) String type,
+                                  @RequestParam(name = "fileDir", required = false) String fileDir) {
+        if (StringUtils.isEmpty(type)) {
+            type = "1";
+        }
+        if (StringUtils.isEmpty(fileDir)) {
+            fileDir = "cover";
+        }
         // 执行业务上传
-        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadCover(multipartFile, "cover", getLoginUser());
+        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadCover(multipartFile, fileDir, getLoginUser());
         //防止线程变量共享
         PictureFileResponse target = new PictureFileResponse();
         BeanUtils.copyProperties(pictureFileResponse, target);
@@ -86,7 +94,7 @@ public class UserFileController extends BaseUserInfoController {
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(target,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
-                CFileLogTypeEnum.LOG_TYPE_1.getValue()
+                type
         ));
         pictureFileResponse.setPictureUrl(null);
         return success(pictureFileResponse);
@@ -104,11 +112,12 @@ public class UserFileController extends BaseUserInfoController {
         // 执行业务上传
         PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
         //异步执行存入文件日志
-        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(pictureFileResponse,
-                getLoginUser().getUserId(),
-                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
-                CFileLogTypeEnum.LOG_TYPE_0.getValue()
-        ));
+        PictureAsyncManager.me().execute(
+                PictureFileLogAsyncFactory.recordFileLog(pictureFileResponse,
+                        getLoginUser().getUserId(),
+                        CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                        CFileLogTypeEnum.LOG_TYPE_0.getValue()
+                ));
         return success(pictureFileResponse);
     }
 

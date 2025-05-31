@@ -185,7 +185,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     @Override
     public void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo) {
         FileLogInfo fileLogInfo = new FileLogInfo();
-//        BeanUtils.copyProperties(deviceInfo, fileLogInfo);
+        BeanUtils.copyProperties(deviceInfo, fileLogInfo);
         //设置对应值
         fileLogInfo.setUserId(userId);
         fileLogInfo.setDnsUrl(pictureFileResponse.getDnsUrl());

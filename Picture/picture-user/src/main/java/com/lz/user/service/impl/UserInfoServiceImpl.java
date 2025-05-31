@@ -7,15 +7,21 @@ import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.ULoginStatus;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.bean.BeanUtils;
 import com.lz.config.model.domain.MenuInfo;
+import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.enmus.CMenuStatusEnum;
 import com.lz.config.model.enmus.CMenuTypeEnum;
 import com.lz.config.model.enmus.CMenuVisibleEnum;
+import com.lz.config.service.IFileLogInfoService;
 import com.lz.config.service.IMenuInfoService;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.UserFileLogAsyncFactory;
 import com.lz.user.mapper.UserInfoMapper;
 import com.lz.user.model.domain.LoginLogInfo;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.dto.userInfo.UserInfoQuery;
+import com.lz.user.model.dto.userInfo.UserInfoUpdateAvatar;
 import com.lz.user.model.dto.userInfo.UserPasswordUploadRequest;
 import com.lz.user.model.vo.loginLogInfo.MyLoginLogInfoVo;
 import com.lz.user.model.vo.userInfo.MyUserInfoVo;
@@ -50,8 +56,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Resource
     private RedisCache redisCache;
 
+
     @Resource
-    private ILoginLogInfoService loginLogInfoService;
+    private IFileLogInfoService fileLogInfoService;
 
     //region mybatis代码
 
@@ -273,6 +280,23 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfo.setPassword(encrypted.getPassword());
         userInfo.setSalt(encrypted.getSalt());
         return userInfoMapper.updateById(userInfo);
+    }
+
+    @Override
+    public UserInfo userUpdateUserInfoAvatar(UserInfoUpdateAvatar userInfoUpdateAvatar) {
+        //查询用户信息
+        UserInfo userInfoDb = userInfoMapper.selectUserInfoByUserId(userInfoUpdateAvatar.getUserId());
+        if (StringUtils.isNull(userInfoDb)) {
+            return null;
+        }
+        //作为老数据
+        UserInfo userInfoOld = new UserInfo();
+        BeanUtils.copyProperties(userInfoDb,userInfoOld);
+        userInfoDb.setAvatarUrl(userInfoUpdateAvatar.getAvatarUrl());
+        userInfoMapper.updateById(userInfoDb);
+        //更新文件日志 因为老的数据赋值给userInfoOld，新数据重新赋值头像给userInfoDb
+        UserAsyncManager.me().execute(UserFileLogAsyncFactory.updateUserInfoAvatarFileLog(userInfoOld,userInfoDb));
+        return userInfoDb;
     }
 
 }
