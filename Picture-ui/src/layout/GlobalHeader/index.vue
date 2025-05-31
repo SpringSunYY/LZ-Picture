@@ -62,7 +62,7 @@
 
             <a-dropdown>
               <ASpace @click="showDrawer">
-                <a-avatar :size="36" :src="avatar" />
+                <a-avatar :size="36" :src="formatDnsUrl(avatar)" />
                 {{ nickName ?? '未知' }}
               </ASpace>
               <template #overlay>
@@ -90,7 +90,7 @@
       >
         <template #title>
           <a-space align="center">
-            <a-avatar :src="avatar" size="large" />
+            <a-avatar :src="formatDnsUrl(avatar)" size="large" />
             <div>
               <div class="nickname" style="font-size: 14px">{{ userName }}</div>
               <div class="nickname" style="font-size: 12px; color: #616161">{{ nickName }}</div>
@@ -114,6 +114,7 @@ import SvgIcon from '@/components/SvgIcon.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
+import { formatDnsUrl } from '@/utils/common.ts'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态

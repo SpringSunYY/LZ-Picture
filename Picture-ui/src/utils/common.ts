@@ -1,6 +1,18 @@
 // 容量格式化
 import type { PictureCategoryInfoVo } from '@/types/picture/pictureCategory'
 
+//@ts-ignore
+const dnsUrl = import.meta.env.VITE_DNS_URL
+/** 添加 DNS 前缀 */
+export const formatDnsUrl = (url: string) => {
+  if (!url) {
+    return ''
+  }
+  if (url.startsWith('http')) {
+    return url
+  }
+  return dnsUrl + url
+}
 export const formatSize = (bytes: number) => {
   const units = ['B', 'KB', 'MB', 'GB']
   let size = bytes
@@ -54,11 +66,11 @@ export const formatDate = (dateString: string) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
-export const formatDateTimeByStr= (dateString: string) => {
+export const formatDateTimeByStr = (dateString: string) => {
   if (!dateString) return ''
   const date = new Date(dateString)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
- }
+}
 
 export const formatDateTimeByDate = (date: Date) => {
   date = new Date(date)

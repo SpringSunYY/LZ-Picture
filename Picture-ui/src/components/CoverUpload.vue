@@ -26,9 +26,10 @@
 <script lang="ts" setup name="CoverUpload">
 import { ref, watch } from 'vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
 import type { UploadProps } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import { coverUploadFile } from '@/api/common/file.ts'
+import { formatDnsUrl } from '@/utils/common.ts'
 
 const props = defineProps({
   value: { type: String, default: '' }, // 分号拼接的图片 url
@@ -40,8 +41,6 @@ const props = defineProps({
 const emit = defineEmits(['update:value'])
 
 const fileList = ref<UploadProps['fileList']>([])
-
-const dnsUrl = import.meta.env.VITE_DNS_URL
 
 const previewVisible = ref(false)
 const previewImage = ref('')
@@ -119,7 +118,7 @@ watch(
         uid: `${index}`,
         name: `图片${index + 1}`,
         status: 'done',
-        url: dnsUrl + url,
+        url: formatDnsUrl(url),
       }))
     } else {
       fileList.value = []

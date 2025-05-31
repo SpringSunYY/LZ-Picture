@@ -138,7 +138,7 @@ import { getPSpaceTypeLabel } from '@/types/picture/space.d.ts'
 import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
 import Tags from '@/components/Tags.vue'
-import { formatSize } from '@/utils/common.ts'
+import { formatDnsUrl, formatSize } from '@/utils/common.ts'
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'
@@ -178,7 +178,7 @@ const rules = {
 
 // 封面样式处理
 const coverStyle = (space: Space) => ({
-  backgroundImage: `url(${space.spaceAvatar || '/default-space-cover.jpg'})`,
+  backgroundImage: `url(${formatDnsUrl(space.spaceAvatar as string) || '/default-space-cover.jpg'})`,
 })
 
 // 路由跳转

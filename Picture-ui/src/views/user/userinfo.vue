@@ -5,7 +5,7 @@
         <div class="avatar-wrapper">
           <a-avatar
             :size="{ xs: 180, sm: 200, md: 240, lg: 240, xl: 240, xxl: 240 }"
-            :src="userInfo?.avatarUrl || '/placeholder.svg?height=240&width=240'"
+            :src="formatDnsUrl(userInfo?.avatarUrl) || '/placeholder.svg?height=240&width=240'"
           />
           <!--          <div class="status-badge" :class="'status-' + user.status">-->
           <!--            {{ getStatusText(user.status) }}-->
@@ -467,7 +467,7 @@ import UserloginLogTable from '@/components/UserloginLogTable.vue'
 import { getCodeImg } from '@/api/user/login'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import AvatarUpload from '@/components/AvatarUpload.vue'
-import PictureUpload from '@/components/PictureUpload.vue'
+import { formatDnsUrl } from '@/utils/common.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

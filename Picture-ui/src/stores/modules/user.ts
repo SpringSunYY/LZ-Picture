@@ -75,10 +75,6 @@ const useUserStore = defineStore('user', {
 
         // 处理头像路径
         let avatar = user.avatarUrl || ''
-        if (!isHttp(avatar)) {
-          //@ts-ignore
-          avatar = isEmpty(avatar) ? defAva : `${import.meta.env.VITE_APP_BASE_API}${avatar}`
-        }
 
         // 更新用户信息
         this.userId = user.userId
