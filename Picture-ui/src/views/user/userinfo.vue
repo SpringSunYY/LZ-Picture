@@ -62,8 +62,8 @@
     <div class="profile-details">
       <a-tabs default-active-key="1">
         <template #rightExtra>
-          <a-space  direction="horizontal" align="center" style="padding: 0" :wrap="true">
-            <a-button @click="handleUpdateUserInfo">修改头像</a-button>
+          <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
+            <a-button @click="handleUpdateAvatar">修改头像</a-button>
             <a-button @click="handleUpdateUserInfo">修改信息</a-button>
             <a-button @click="handleUpdatePassword">修改密码</a-button>
             <a-button @click="handleUpdateAccountPassword">修改支付密码</a-button>
@@ -133,7 +133,26 @@
         </a-tab-pane>
       </a-tabs>
     </div>
-
+    <!--修改头像-->
+    <a-modal
+      v-model:open="openAvatar"
+      :footer="null"
+      :width="600"
+      :closable="false"
+      centered
+      destroyOnClose
+    >
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip title="请上传您的头像，上传成功后就更新你的头像啦">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <AvatarUpload @upload-success="handleAvatarSuccess" />
+    </a-modal>
     <!--修改用户信息-->
     <a-modal v-model:open="open" :footer="null" :width="600" centered destroyOnClose>
       <!-- 自定义标题插槽 -->
@@ -442,6 +461,8 @@ import type { AccountInfoVo } from '@/types/points/account'
 import UserloginLogTable from '@/components/UserloginLogTable.vue'
 import { getCodeImg } from '@/api/user/login'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import AvatarUpload from '@/components/AvatarUpload.vue'
+import PictureUpload from '@/components/PictureUpload.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -715,6 +736,19 @@ const handleSubmit = async () => {
     await getMyUserInfo()
     open.value = false
   }
+}
+
+//修改头像
+const openAvatar = ref(false)
+const avatarUrl = ref('')
+const handleUpdateAvatar = () => {
+  title.value = '修改头像'
+  openAvatar.value = true
+}
+
+const handleAvatarSuccess = (value: any) => {
+  avatarUrl.value = value
+  console.log('上传成功，头像地址：', value)
 }
 </script>
 
