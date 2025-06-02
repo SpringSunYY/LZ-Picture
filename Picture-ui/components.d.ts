@@ -21,6 +21,7 @@ declare module 'vue' {
     PictureDownloadLogInfoTable: typeof import('./src/components/PictureDownloadLogInfoTable.vue')['default']
     PictureInfoList: typeof import('./src/components/PictureInfoList.vue')['default']
     PictureOutPainting: typeof import('./src/components/PictureOutPainting.vue')['default']
+    PictureSearch: typeof import('./src/components/PictureSearch.vue')['default']
     PictureUpload: typeof import('./src/components/PictureUpload.vue')['default']
     PointsRechargeTable: typeof import('./src/components/PointsRechargeTable.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

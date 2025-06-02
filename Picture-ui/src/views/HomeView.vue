@@ -3,6 +3,7 @@
     <div class="text-center">
       <h1 class="text-4xl font-bold text-blue-500">荔智云图，打造属于我们的图片生态</h1>
     </div>
+    <PictureSearch class="container mx-auto p-8" @search="searchSearch" @input="searchInput"></PictureSearch>
     <div class="container mx-auto p-8">
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 md:grid-cols-2">
         <!-- Basic usage -->
@@ -42,4 +43,12 @@
 <script setup lang="ts" name="HomeView">
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
+import PictureSearch from '@/components/PictureSearch.vue'
+
+const searchSearch = (value: string) => {
+  console.log('searchSearch', value)
+}
+const searchInput = (value: string) => {
+  console.log('searchInput', value)
+}
 </script>
