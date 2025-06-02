@@ -1,9 +1,16 @@
 <template>
   <div class="home-view">
-    <div class="text-center">
+    <div class=" text-center">
       <h1 class="text-4xl font-bold text-blue-500">荔智云图，打造属于我们的图片生态</h1>
     </div>
-    <PictureSearch class="container mx-auto p-8" @search="searchSearch" @input="searchInput"></PictureSearch>
+    <PictureSearch
+      class="container mx-auto p-8"
+      @search="searchSearch"
+      @input="searchInput"
+      :recommendationList="recommendationList"
+      :suggestionList="suggestionList"
+      :searchHistoryName="searchHistoryName"
+    ></PictureSearch>
     <div class="container mx-auto p-8">
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 md:grid-cols-2">
         <!-- Basic usage -->
@@ -44,6 +51,7 @@
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
 import PictureSearch from '@/components/PictureSearch.vue'
+import { ref } from 'vue'
 
 const searchSearch = (value: string) => {
   console.log('searchSearch', value)
@@ -51,4 +59,56 @@ const searchSearch = (value: string) => {
 const searchInput = (value: string) => {
   console.log('searchInput', value)
 }
+
+const searchHistoryName = ref<string>('pictureHistory')
+
+const recommendationList = [
+  {
+    title: '前端开发趋势',
+    description: '2024年最新前端技术趋势和发展方向',
+    image: '/placeholder.svg?height=80&width=120',
+  },
+  {
+    title: '移动端适配',
+    description: '响应式设计和移动端开发最佳实践',
+    image: '/placeholder.svg?height=80&width=120',
+  },
+  {
+    title: '性能优化技巧',
+    description: '网站性能优化的实用方法和工具',
+    image: '/placeholder.svg?height=80&width=120',
+  },
+  {
+    title: '用户体验设计',
+    description: 'UI/UX设计原则和用户体验优化',
+    image:
+      'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/IMG_2892-1909788084984221696-compressed.webp?x-oss-process=image/resize,p_30',
+  },
+  {
+    title: '代码规范',
+    description: '团队协作中的代码规范和最佳实践',
+    image:
+      'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00037T-1910243995154518016-compressed.webp?x-oss-process=image/resize,p_30',
+  },
+  {
+    title: 'AI工具应用',
+    description: '人工智能在开发中的应用和工具推荐',
+    image: '/placeholder.svg?height=80&width=120',
+  },
+]
+
+
+// 静态数据
+const suggestionList = [
+  'Vue.js 教程',
+  'JavaScript 基础',
+  'React 组件',
+  'CSS 动画',
+  'Node.js 开发',
+  'TypeScript 入门',
+  'Webpack 配置',
+  'Git 使用指南',
+  'MongoDB 数据库',
+  'Express 框架',
+]
 </script>

@@ -115,7 +115,7 @@
           <div class="text-xs text-gray-500 px-3 py-2 font-medium">热门推荐</div>
           <div class="grid grid-cols-2 gap-2 px-2">
             <div
-              v-for="(recommendation, index) in recommendations"
+              v-for="(recommendation, index) in recommendationList"
               :key="'rec-' + index"
               @click="selectSuggestion(recommendation.title)"
               class="recommend-item flex flex-col p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors border border-gray-100"
@@ -147,6 +147,22 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
+//定义导入数据
+const props = defineProps({
+  suggestionList: {
+    type: Array,
+    default: () => [],
+  },
+  recommendationList: {
+    type: Array,
+    default: () => [],
+  },
+  searchHistoryName: {
+    type: String,
+    default: 'searchHistory',
+  },
+})
+
 // 定义事件
 const emit = defineEmits(['search', 'input'])
 
@@ -156,60 +172,11 @@ const showDropdown = ref(false)
 const selectedIndex = ref(-1)
 const searchHistory = ref([])
 
-// 静态数据
-const staticSuggestions = [
-  'Vue.js 教程',
-  'JavaScript 基础',
-  'React 组件',
-  'CSS 动画',
-  'Node.js 开发',
-  'TypeScript 入门',
-  'Webpack 配置',
-  'Git 使用指南',
-  'MongoDB 数据库',
-  'Express 框架',
-]
-
-const recommendations = [
-  {
-    title: '前端开发趋势',
-    description: '2024年最新前端技术趋势和发展方向',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-  {
-    title: '移动端适配',
-    description: '响应式设计和移动端开发最佳实践',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-  {
-    title: '性能优化技巧',
-    description: '网站性能优化的实用方法和工具',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-  {
-    title: '用户体验设计',
-    description: 'UI/UX设计原则和用户体验优化',
-    image:
-      'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/IMG_2892-1909788084984221696-compressed.webp?x-oss-process=image/resize,p_30',
-  },
-  {
-    title: '代码规范',
-    description: '团队协作中的代码规范和最佳实践',
-    image:
-      'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00037T-1910243995154518016-compressed.webp?x-oss-process=image/resize,p_30',
-  },
-  {
-    title: 'AI工具应用',
-    description: '人工智能在开发中的应用和工具推荐',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-]
-
 // 计算属性
 const suggestions = computed(() => {
   if (!searchQuery.value) return []
 
-  return staticSuggestions
+  return props.suggestionList
     .filter((item) => item.toLowerCase().includes(searchQuery.value.toLowerCase()))
     .slice(0, 6)
 })
@@ -275,12 +242,12 @@ const addToHistory = (term) => {
   // 添加到开头
   searchHistory.value = [term, ...filtered].slice(0, 10)
   // 保存到本地存储
-  localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value))
+  localStorage.setItem(props.searchHistoryName, JSON.stringify(searchHistory.value))
 }
 
 const clearHistory = () => {
   searchHistory.value = []
-  localStorage.removeItem('searchHistory')
+  localStorage.removeItem(props.searchHistoryName)
 }
 
 const highlightMatch = (text) => {
@@ -301,7 +268,7 @@ const handleClickOutside = (event) => {
 // 生命周期
 onMounted(() => {
   // 从本地存储加载历史记录
-  const saved = localStorage.getItem('searchHistory')
+  const saved = localStorage.getItem(props.searchHistoryName)
   if (saved) {
     searchHistory.value = JSON.parse(saved)
   }
