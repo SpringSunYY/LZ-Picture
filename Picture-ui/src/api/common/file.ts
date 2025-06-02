@@ -1,6 +1,7 @@
 import { http as request } from '@/utils'
 import type { PictureFileResponse, UrlUploadRequest } from '@/types/file'
 import type { API } from '@/types/common'
+import type { PictureDownloadLogInfoRequest } from '@/types/picture/pictureDownloadLogInfo'
 
 export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
   return request({
@@ -14,7 +15,7 @@ export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileRe
   })
 }
 
-export function coverUploadFile(file: any):Promise<API.ResponseInfo<PictureFileResponse>> {
+export function coverUploadFile(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
   return request({
     url: '/picture/file/upload/cover',
     headers: {
@@ -26,7 +27,9 @@ export function coverUploadFile(file: any):Promise<API.ResponseInfo<PictureFileR
   })
 }
 
-export function urlUploadFile(data: UrlUploadRequest):Promise<API.ResponseInfo<PictureFileResponse>> {
+export function urlUploadFile(
+  data: UrlUploadRequest,
+): Promise<API.ResponseInfo<PictureFileResponse>> {
   return request({
     url: '/picture/file/upload/url',
     headers: {
@@ -38,9 +41,21 @@ export function urlUploadFile(data: UrlUploadRequest):Promise<API.ResponseInfo<P
   })
 }
 
-export function pictureDownload(pictureId: string):Promise<API.ResponseInfo<Blob>> {
+export function pictureDownload(pictureId: string): Promise<API.ResponseInfo<Blob>> {
   return request({
     url: '/picture/file/download/' + pictureId,
+    headers: {
+      repeatSubmit: false,
+    },
+    responseType: 'blob',
+    method: 'get',
+    timeout: 60000,
+  })
+}
+
+export function pictureDownloadByLog(downloadId: string): Promise<API.ResponseInfo<Blob>> {
+  return request({
+    url: '/picture/file/download/log/' + downloadId,
     headers: {
       repeatSubmit: false,
     },

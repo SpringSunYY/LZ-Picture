@@ -3,6 +3,7 @@ package com.lz.picture.service;
 import java.util.List;
 
 import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -156,4 +157,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/5/24 20:30
      **/
     PictureInfo verifyPictureInfo(String pictureId, String userId);
+
+    /**
+     * 用户根据自己下载记录校验图片
+     *
+     * @param pictureDownloadLogInfoRequest 图片下载记录信息
+     * @return PictureInfo
+     * @author: YY
+     * @method: verifyPictureInfoByLog
+     * @date: 2025/6/2 16:09
+     **/
+    PictureInfo verifyPictureInfoByLog(PictureDownloadLogInfoRequest pictureDownloadLogInfoRequest);
 }

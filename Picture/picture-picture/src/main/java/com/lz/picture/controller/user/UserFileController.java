@@ -1,24 +1,31 @@
 package com.lz.picture.controller.user;
 
 import com.alibaba.fastjson.JSON;
+import com.lz.common.constant.Constants;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.enums.UserStatus;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.file.FileUtils;
+import com.lz.common.utils.http.HttpUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.file.UrlUploadRequest;
+import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.encoders.UTF8;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -121,6 +128,12 @@ public class UserFileController extends BaseUserInfoController {
         return success(pictureFileResponse);
     }
 
+    /**
+     * 用户下载图片
+     *
+     * @param pictureId 图片id
+     * @param response  响应
+     */
     @PreAuthorize("@uss.hasPermi('picture:download')")
     @GetMapping("/download/{pictureId}")
     public void downloadPicture(@PathVariable("pictureId") String pictureId, HttpServletResponse response) {
@@ -132,6 +145,7 @@ public class UserFileController extends BaseUserInfoController {
             response.reset();
             response.setContentType("application/octet-stream");
             String fileName = FileUtils.getName(pictureInfo.getPictureUrl());
+            response.setCharacterEncoding(Constants.UTF8);
             response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
 
             // 打开 URL 作为输入流
@@ -145,8 +159,6 @@ public class UserFileController extends BaseUserInfoController {
                 }
                 out.flush();
             }
-        } catch (IOException e) {
-            log.error("文件下载失败", e);
         } catch (Exception e) {
             try {
                 response.reset(); // 清除之前的响应头和内容
@@ -160,4 +172,55 @@ public class UserFileController extends BaseUserInfoController {
             }
         }
     }
+
+    /**
+     * 用户下载图片
+     *
+     * @param downloadId 图片下载记录编号
+     * @param response   响应
+     */
+    @GetMapping("/download/log/{downloadId}")
+    public void downloadPictureByLog(@PathVariable("downloadId") String downloadId, HttpServletResponse response) {
+        try {
+            PictureDownloadLogInfoRequest request = new PictureDownloadLogInfoRequest();
+            request.setDownloadId(downloadId);
+            request.setUserId(getUserId());
+            PictureInfo pictureInfo = pictureInfoService.verifyPictureInfoByLog(request);
+            String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+
+            // 设置响应头
+            response.reset();
+            response.setContentType("application/octet-stream");
+            response.setCharacterEncoding("UTF-8");
+
+            String fileName = pictureInfo.getName() + "." + pictureInfo.getPicFormat();
+            fileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+            // 流式传输文件
+            try (InputStream inputStream = new URL(url).openStream()) {
+                OutputStream out = response.getOutputStream();
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = inputStream.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                }
+            }
+
+        } catch (Exception e) {
+            try {
+                log.error("下载图片失败", e);
+                response.reset();
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                AjaxResult error = AjaxResult.error(e.getMessage());
+                ServletOutputStream out = response.getOutputStream();
+                out.write(JSON.toJSONString(error).getBytes(StandardCharsets.UTF_8));
+                out.flush();
+            } catch (IOException ioEx) {
+                log.error("写入错误响应失败", ioEx);
+            }
+        }
+    }
+
 }

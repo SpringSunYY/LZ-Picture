@@ -24,6 +24,7 @@ import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
+import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
@@ -856,7 +857,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureDownloadLogInfo.setSpaceId(pictureInfo.getSpaceId());
         //所需总积分
         Long totalPoints = pictureInfo.getPointsNeed();
-        pictureDownloadLogInfo.setPictureName(pictureInfo.getName());
+        pictureDownloadLogInfo.setPictureName(pictureInfo.getName() + "." + pictureInfo.getPicFormat());
         if (StringUtils.isEmpty(pictureInfo.getDnsUrl())) {
             pictureDownloadLogInfo.setThumbnailUrl(ossConfig.getDnsUrl() + pictureInfo.getThumbnailUrl());
         } else {
@@ -972,6 +973,18 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
                 UInformTypeEnum.INFORM_TYPE_0.getValue(),
                 params));
+        return pictureInfo;
+    }
+
+    @Override
+    public PictureInfo verifyPictureInfoByLog(PictureDownloadLogInfoRequest pictureDownloadLogInfoRequest) {
+        //查询到图片记录
+        PictureDownloadLogInfo pictureDownloadLogInfo = pictureDownloadLogInfoService.selectPictureDownloadLogInfoByDownloadId(pictureDownloadLogInfoRequest.getDownloadId());
+        //是否不存在
+        ThrowUtils.throwIf(StringUtils.isNull(pictureDownloadLogInfo), "此下载记录不属于您！！！");
+        //查询图片是否存在
+        PictureInfo pictureInfo = this.selectPictureInfoByPictureId(pictureDownloadLogInfo.getPictureId());
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo) || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()), "此图片不存在！！！");
         return pictureInfo;
     }
 }
