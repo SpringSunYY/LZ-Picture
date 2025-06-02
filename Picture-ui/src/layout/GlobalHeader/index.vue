@@ -1,7 +1,7 @@
 <template>
   <div id="globalHeader">
     <a-row :wrap="false">
-      <a-col flex="10em">
+      <a-col flex="9em">
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.png" alt="logo" />
@@ -63,7 +63,6 @@
             <a-dropdown>
               <ASpace @click="showDrawer">
                 <a-avatar :size="36" :src="formatDnsUrl(avatar)" />
-                {{ nickName ?? '未知' }}
               </ASpace>
               <template #overlay>
                 <a-menu>
@@ -290,7 +289,7 @@ const showDrawer = () => {
 
 <style scoped>
 #globalHeader {
-  margin: 0 4em;
+  margin: 0 2em;
 
   .title-bar {
     display: flex;
