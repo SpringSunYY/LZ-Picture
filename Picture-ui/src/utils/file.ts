@@ -1,6 +1,5 @@
 import { pictureDownload, pictureDownloadByLog } from '@/api/common/file.ts'
 import { message } from 'ant-design-vue'
-import type { PictureDownloadLogInfoRequest } from '@/types/picture/pictureDownloadLogInfo'
 
 export async function downloadImage(pictureId: string, fileName?: string) {
   try {

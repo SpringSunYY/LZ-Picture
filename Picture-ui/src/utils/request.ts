@@ -73,7 +73,6 @@ http.interceptors.request.use(
       // 获取缓存的请求数据
       const sessionObj = sessionStorage.getItem('sessionObj')
       const cachedRequest = sessionObj ? JSON.parse(sessionObj) : null
-
       if (!cachedRequest) {
         // 如果没有缓存的数据，存储当前请求
         sessionStorage.setItem('sessionObj', JSON.stringify(requestObj))

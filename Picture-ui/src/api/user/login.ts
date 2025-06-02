@@ -1,7 +1,7 @@
 import { http as request } from '@/utils'
 import type { API } from '@/types/common'
 import type { USER } from '@/types/user'
-import { encrypt } from '@/utils/jsencrypt.ts'
+import { encryptBack } from '@/utils/jsencrypt.ts'
 import type { LoginLogInfoQuery, LoginLogInfoVo } from '@/types/user/loginLog'
 
 // 登录方法
@@ -14,10 +14,10 @@ export function login(data: USER.LoginParams): Promise<USER.LoginResponse> {
     },
     method: 'post',
     data: {
-      username: encrypt(data?.username ?? ''),
-      password: encrypt(data.password),
-      phone: encrypt(data?.phone ?? ''),
-      countryCode: encrypt(data?.countryCode ?? ''),
+      username: encryptBack(data?.username ?? ''),
+      password: encryptBack(data.password),
+      phone: encryptBack(data?.phone ?? ''),
+      countryCode: encryptBack(data?.countryCode ?? ''),
       code: data.code,
       uuid: data.uuid,
     },
@@ -61,8 +61,8 @@ export function getSmsLoginCode(query: USER.SmsLoginParams): Promise<API.Respons
     },
     method: 'get',
     params: {
-      countryCode: encrypt(query.countryCode),
-      phone: encrypt(query.phone),
+      countryCode: encryptBack(query.countryCode),
+      phone: encryptBack(query.phone),
       code: query.code,
       uuid: query.uuid,
     },
@@ -79,8 +79,8 @@ export function getRegisterCode(query: USER.RegisterParams): Promise<API.Respons
     },
     method: 'get',
     params: {
-      countryCode: encrypt(query.countryCode),
-      phone: encrypt(query.phone),
+      countryCode: encryptBack(query.countryCode),
+      phone: encryptBack(query.phone),
       code: query.code,
       uuid: query.uuid,
     },
@@ -97,8 +97,8 @@ export function getForgetPasswordCode(query: USER.ForgetPasswordParams): Promise
     },
     method: 'get',
     params: {
-      countryCode: encrypt(query.countryCode),
-      phone: encrypt(query.phone),
+      countryCode: encryptBack(query.countryCode),
+      phone: encryptBack(query.phone),
       code: query.code,
       uuid: query.uuid,
     },
@@ -114,9 +114,9 @@ export function smsLogin(data: USER.SmsLoginParams): Promise<USER.LoginResponse>
     },
     method: 'post',
     data: {
-      countryCode: encrypt(data.countryCode),
-      phone: encrypt(data.phone),
-      smsCode: encrypt(data.smsCode),
+      countryCode: encryptBack(data.countryCode),
+      phone: encryptBack(data.phone),
+      smsCode: encryptBack(data.smsCode),
       code: data.code,
       uuid: data.uuid,
     },
@@ -132,11 +132,11 @@ export function register(data: USER.RegisterParams): Promise<USER.LoginResponse>
     },
     method: 'post',
     data: {
-      countryCode: encrypt(data.countryCode),
-      phone: encrypt(data.phone),
-      smsCode: encrypt(data.smsCode),
-      password: encrypt(data.password),
-      confirmPassword: encrypt(data.confirmPassword),
+      countryCode: encryptBack(data.countryCode),
+      phone: encryptBack(data.phone),
+      smsCode: encryptBack(data.smsCode),
+      password: encryptBack(data.password),
+      confirmPassword: encryptBack(data.confirmPassword),
       code: data.code,
       uuid: data.uuid,
     },
@@ -152,11 +152,11 @@ export function forgetPassword(data: USER.ForgetPasswordParams): Promise<USER.Lo
     },
     method: 'post',
     data: {
-      countryCode: encrypt(data.countryCode),
-      phone: encrypt(data.phone),
-      smsCode: encrypt(data.smsCode),
-      password: encrypt(data.password),
-      confirmPassword: encrypt(data.confirmPassword),
+      countryCode: encryptBack(data.countryCode),
+      phone: encryptBack(data.phone),
+      smsCode: encryptBack(data.smsCode),
+      password: encryptBack(data.password),
+      confirmPassword: encryptBack(data.confirmPassword),
       code: data.code,
       uuid: data.uuid,
     },

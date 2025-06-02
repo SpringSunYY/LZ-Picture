@@ -122,9 +122,9 @@ import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import useUserStore from '@/stores/modules/user.ts'
-import Cookies from 'js-cookie'
 import { validatePassword } from '@/types/user/validators.d.ts'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import { decryptFront, encryptFront } from '@/utils/jsencrypt.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -176,17 +176,18 @@ watch(
 
 const handleSubmit = async () => {
   if (loginForm.value.rememberMe) {
-    Cookies.set('username', loginForm.value.username, { expires: 30 })
-    // Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
-    Cookies.set('rememberMe', loginForm.value.rememberMe.toString(), { expires: 30 })
-    Cookies.set('countryCode', loginForm.value.countryCode, { expires: 30 })
-    Cookies.set('phone', loginForm.value.phone, { expires: 30 })
+    // 使用localStorage存储数据
+    localStorage.setItem('username', encryptFront(loginForm?.value?.username ?? ''))
+    localStorage.setItem('rememberMe', 'true')
+    localStorage.setItem('password', encryptFront(loginForm.value?.password ?? ''))
+    localStorage.setItem('phone', encryptFront(loginForm.value?.phone ?? ''))
+    localStorage.setItem('countryCode', encryptFront(loginForm.value?.countryCode ?? ''))
   } else {
-    Cookies.remove('username')
-    // Cookies.remove('password')
-    Cookies.remove('rememberMe')
-    Cookies.remove('countryCode')
-    Cookies.remove('phone')
+    // 清除localStorage数据
+    localStorage.removeItem('username')
+    localStorage.removeItem('rememberMe')
+    localStorage.removeItem('countryCode')
+    localStorage.removeItem('phone')
   }
   try {
     loading.value = true
@@ -223,17 +224,11 @@ const handleSubmit = async () => {
 }
 
 const getCookies = () => {
-  const savedUsername = Cookies.get('username')
-  const savedPhone= Cookies.get('phone')
-  const savedCountryCode = Cookies.get('countryCode')
-  // const savedPassword = Cookies.get('password')
-  const savedRememberMe = Cookies.get('rememberMe') === 'true'
-  // console.log(savedPassword)
-  if (savedRememberMe) {
-    loginForm.value.username = savedUsername ??  ''
-    loginForm.value.countryCode = savedCountryCode ?? '+86'
-    loginForm.value.phone = savedPhone ?? ''
-    // loginForm.value.password = decrypt(savedPassword) // 解密
+  const remembered = localStorage.getItem('rememberMe') === 'true'
+  if (remembered) {
+    loginForm.value.username = decryptFront(localStorage.getItem('username')) || ''
+    loginForm.value.countryCode = decryptFront(localStorage.getItem('countryCode')) || '+86'
+    loginForm.value.phone = decryptFront(localStorage.getItem('phone')) || ''
     loginForm.value.rememberMe = true
   }
 }

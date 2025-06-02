@@ -6,7 +6,7 @@ import type {
   ResetAccountPasswordCode,
   ResetAccountPasswordBody,
 } from '@/types/points/account'
-import { encrypt } from '@/utils/jsencrypt.ts'
+import { encryptBack } from '@/utils/jsencrypt.ts'
 
 //更新账户密码
 export function updateAccountPassword(
@@ -37,7 +37,7 @@ export function verifyPassword(password: string): Promise<API.ResponseInfo<numbe
   return request({
     url: '/points/accountInfo/verifyPassword',
     method: 'post',
-    data: { password: encrypt(password) },
+    data: { password: encryptBack(password) },
   })
 }
 
@@ -57,11 +57,11 @@ export function getAccountPasswordCode(
     url: '/points/accountInfo/password/code',
     method: 'get',
     params: {
-      countryCode: encrypt(params.countryCode),
-      phone: encrypt(params.phone),
+      countryCode: encryptBack(params.countryCode),
+      phone: encryptBack(params.phone),
       code: params.code,
       uuid: params.uuid,
-      userId: encrypt(params.userId),
+      userId: encryptBack(params.userId),
     },
   })
 }
@@ -73,12 +73,12 @@ export function resetAccountPassword(
     url: '/points/accountInfo/password/reset',
     method: 'post',
     data: {
-      countryCode: encrypt(data.countryCode),
-      phone: encrypt(data.phone),
-      smsCode: encrypt(data.smsCode),
-      password: encrypt(data.password),
-      confirmPassword: encrypt(data.confirmPassword),
-      userId: encrypt(data.userId),
+      countryCode: encryptBack(data.countryCode),
+      phone: encryptBack(data.phone),
+      smsCode: encryptBack(data.smsCode),
+      password: encryptBack(data.password),
+      confirmPassword: encryptBack(data.confirmPassword),
+      userId: encryptBack(data.userId),
       uuid: data.uuid,
     },
   })

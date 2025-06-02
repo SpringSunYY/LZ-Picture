@@ -1,7 +1,7 @@
 import { http as request } from '@/utils'
 import type { API } from '@/types/common'
 import type { MyUserInfo, UserInfoUpdate, UserInfoUpdateAvatar, UserPasswordUploadRequest } from '@/types/user/user'
-import { encrypt } from '@/utils/jsencrypt.ts'
+import { encryptBack } from '@/utils/jsencrypt.ts'
 
 // 获取用户详细信息
 export function getMyUserInfoByUserName(username: string): Promise<API.ResponseInfo<MyUserInfo>> {
@@ -35,10 +35,10 @@ export function updateUserInfoPassword(data: UserPasswordUploadRequest): Promise
     url: '/user/userInfo/password',
     method: 'put',
     data: {
-      password: encrypt(data.password),
-      confirmPassword: encrypt(data.confirmPassword),
-      oldPassword: encrypt(data.oldPassword),
-      userId: encrypt(data.userId),
+      password: encryptBack(data.password),
+      confirmPassword: encryptBack(data.confirmPassword),
+      oldPassword: encryptBack(data.oldPassword),
+      userId: encryptBack(data.userId),
     },
   })
 }
