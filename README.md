@@ -2801,3 +2801,117 @@ CREATE TABLE p_user_report_info
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户举报信息表';
 ```
 
+
+
+
+
+## 留存
+
+### 全局加载器
+
+```vue
+<template>
+  <transition name="fade">
+    <div v-if="isLoading" class="full-screen-loader">
+      <div class="loader-content">
+        <div class="glow-circle"></div>
+        <div class="loader-title">LZ-Picture</div>
+        <div class="loader-subtitle">我始终相信，每一张图片都有属于自己的故事，而你，就是那个抒写故事的人。</div>
+        <div class="loader-subtitle">资源加载中...</div>
+      </div>
+    </div>
+    <div v-else id="app">
+      <Layout />
+    </div>
+  </transition>
+</template>
+
+<script setup lang="ts">
+import Layout from '@/layout/index.vue'
+import { ref, onMounted } from 'vue'
+
+const isLoading = ref(true)
+
+onMounted(async () => {
+  // 模拟初始化数据加载
+  await new Promise(resolve => setTimeout(resolve, 500))
+  isLoading.value = false
+})
+</script>
+
+<style scoped>
+/* 过渡动画 */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+/* 全屏加载容器 */
+.full-screen-loader {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #cacad6, rgba(0, 0, 255, 0.77));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* 中心内容 */
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 1s ease-out forwards;
+  text-align: center;
+}
+
+/* 发光圈动画 */
+.glow-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #4fc3f7, #0288d1);
+  box-shadow: 0 0 20px #4fc3f7, 0 0 40px #0288d1;
+  animation: pulse 1.8s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+/* 标题文字 */
+.loader-title {
+  font-size: 24px;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* 副标题文字 */
+.loader-subtitle {
+  font-size: 16px;
+  color: #555555;
+  opacity: 0.8;
+}
+
+/* 动画效果 */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px #4fc3f7, 0 0 40px #0288d1;
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px #81d4fa, 0 0 60px #03a9f4;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+```
+

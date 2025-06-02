@@ -7,9 +7,10 @@
           <FancyImage :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
             <template #content>
               <div style="position: relative; padding: 40px">
-                <p style="font-size: 5vh; color: #00ff95; text-align: center">{{ picture.name }}</p>
+                <p style="font-size: 5vh; color: #00ff95; text-align: center">{{ picture.name!==''? picture.name:'LZ-Picture' }}</p>
                 <p style="color: white; text-indent: 2em; font-size: 2vh">
-                  {{ picture.introduction || '这张图还没有简介。' }}
+                  {{ picture.introduction !== '' ? picture.introduction : '我始终相信，每一张图片都有属于自己的故事，而你，就是那个抒写故事的人。'
+                  }}
                 </p>
               </div>
             </template>
@@ -22,7 +23,7 @@
         <!-- 作者信息 -->
         <a-card :bordered="false" class="card author-card">
           <a-space align="center" :wrap="true">
-            <a-avatar :src="picture.userInfoVo?.avatarUrl" size="large" />
+            <a-avatar :src="formatDnsUrl(picture.userInfoVo?.avatarUrl)" size="large" />
             <div>
               <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
               <div class="ip-region">IP属地：{{ picture.userInfoVo?.ipAddress || '未知' }}</div>
@@ -35,7 +36,7 @@
             <h1 class="picture-name">{{ picture.name }}</h1>
             <u-fold unfold line="2">
               <p class="picture-desc">
-                {{ picture.introduction || '这张图还没有简介。' }}
+                {{ picture.introduction || '作者还没有抒写他的故事哦。' }}
               </p>
             </u-fold>
           </div>
@@ -142,7 +143,7 @@ import Tags from '@/components/Tags.vue'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
-import { formatSize } from '@/utils/common.ts'
+import { formatDnsUrl, formatSize } from '@/utils/common.ts'
 import {
   CommentOutlined,
   LikeOutlined,
@@ -160,21 +161,21 @@ import { usePasswordVerify } from '@/utils/auth.ts'
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
 const picture = ref<PictureDetailInfoVo>({
-  pictureId: '荔智云图',
+  pictureId: '',
   thumbnailUrl: '',
-  name: '迷雾中的山脉',
-  introduction: '清晨的山林笼罩在薄雾中，宁静而神秘。',
-  categoryName: '自然风光',
-  picSize: 3456789,
-  picWidth: 1920,
-  picHeight: 1080,
-  picScale: 1.78,
-  picFormat: 'jpeg',
-  pointsNeed: 12,
+  name: '',
+  introduction: '',
+  categoryName: '',
+  picSize: 0,
+  picWidth: 0,
+  picHeight: 0,
+  picScale: 0.0,
+  picFormat: '',
+  pointsNeed: 0,
   createTime: '2025-04-10 10:30:00',
   userName: '荔枝',
   userInfoVo: {
-    userId: '1',
+    userId: '-1',
     userName: '荔枝',
     avatarUrl: '',
   },
