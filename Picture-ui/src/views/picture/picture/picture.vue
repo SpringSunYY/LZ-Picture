@@ -1,7 +1,7 @@
 <template>
   <div class="picture">
-    <a-empty description="" v-if="pictureRows.length <= 0"></a-empty>
-    <div class="horizontal-masonry">
+    <a-empty description="" v-if="pictureRows.length <= 0"> </a-empty>
+    <div class="horizontal-masonry" >
       <div class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
         <div
           v-for="item in row"
@@ -17,7 +17,7 @@
     </div>
 
     <!-- 触底加载 -->
-    <div ref="loadMoreTrigger" class="load-more-trigger" v-if="pictureRows.length > 0">
+    <div ref="loadMoreTrigger" class="load-more-trigger">
       <div v-if="loading">加载中...</div>
       <div v-else-if="noMore">没有更多了</div>
     </div>
