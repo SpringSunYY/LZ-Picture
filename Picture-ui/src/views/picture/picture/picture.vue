@@ -24,12 +24,20 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
 import { useConfig } from '@/utils/config.ts'
 import { useRouter } from 'vue-router'
+
+interface Props {
+  name?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  name: '',
+})
 
 const pictureHeight = ref<string>()
 onMounted(async () => {
@@ -43,6 +51,7 @@ const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
 const pictureQuery = ref<PictureInfoQuery>({
   pageNum: 1,
   pageSize: 30,
+  name: props.name || '',
 })
 
 const loading = ref(false)
@@ -71,6 +80,24 @@ async function loadMore() {
     const newData = generatePictureData(res?.rows || [])
     if (newData.length > 0) {
       rawPictureList.value.push(...newData)
+      // pictureQuery.value.pageNum++
+      await nextTick()
+      formatPictureListByRow()
+    } else {
+      noMore.value = true
+    }
+    loading.value = false
+  })
+}
+
+//获取数据
+const getPictureList = () => {
+  if (loading.value || noMore.value) return
+  loading.value = true
+  listPictureInfo(pictureQuery.value).then(async (res) => {
+    const newData = generatePictureData(res?.rows || [])
+    if (newData.length > 0) {
+      rawPictureList.value = newData
       // pictureQuery.value.pageNum++
       await nextTick()
       formatPictureListByRow()
@@ -180,6 +207,29 @@ onMounted(() => {
   setupObserver()
   window.addEventListener('resize', handleResize)
 })
+watch(
+  () => props.name,
+  (newName) => {
+    // 添加防抖避免频繁请求
+    const timer = setTimeout(() => {
+      if (newName !== undefined) {
+        pictureQuery.value.name = newName
+        resetPagination()
+        getPictureList()
+      }
+    }, 300)
+
+    return () => clearTimeout(timer) // 清理副作用
+  },
+  { immediate: true }
+)
+
+const resetPagination = () => {
+  rawPictureList.value = []
+  pictureRows.value = []
+  noMore.value = false
+  pictureQuery.value.pageNum = 1
+}
 
 onBeforeUnmount(() => {
   if (observer) observer.disconnect()

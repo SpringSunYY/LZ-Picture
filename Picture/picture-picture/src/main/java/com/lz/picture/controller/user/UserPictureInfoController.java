@@ -7,6 +7,7 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
+import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
@@ -78,6 +79,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(userPictureDetailInfoVo);
     }
 
+    @SearchLog(searchType = "0", referSource = "0")
     @GetMapping("/list")
     public TableDataInfo list(UserPictureInfoQuery userPictureInfoQuery) {
         if (StringUtils.isNull(userPictureInfoQuery.getPageSize())) {

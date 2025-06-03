@@ -4,7 +4,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 

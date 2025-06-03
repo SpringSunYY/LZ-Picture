@@ -13,8 +13,6 @@
 </template>
 
 <script setup lang="ts" name="Tags">
-import { defineProps } from 'vue'
-
 const props = defineProps({
   values: {
     type: Array,

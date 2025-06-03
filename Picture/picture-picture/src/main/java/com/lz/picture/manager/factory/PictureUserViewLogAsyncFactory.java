@@ -42,11 +42,11 @@ public class PictureUserViewLogAsyncFactory {
     public static TimerTask recordUserViewLog(String userId, String targetType, double score, DeviceInfo deviceInfo, Object jsonResult, Date nowDate) {
         UserViewLogTargetInfoDto userViewLogTargetInfoDto = new UserViewLogTargetInfoDto();
 
-        //获取目标id和内容
-        getTargetInfo(targetType, userViewLogTargetInfoDto, jsonResult);
         return new TimerTask() {
             @Override
             public void run() {
+                //获取目标id和内容
+                getTargetInfo(targetType, userViewLogTargetInfoDto, jsonResult);
                 //插入用户浏览记录
                 SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, score, userViewLogTargetInfoDto, nowDate, deviceInfo);
             }

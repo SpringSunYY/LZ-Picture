@@ -1,6 +1,6 @@
 <template>
   <div class="home-view">
-    <div class=" text-center">
+    <div class="text-center">
       <h1 class="text-4xl font-bold text-blue-500">荔智云图，打造属于我们的图片生态</h1>
     </div>
     <PictureSearch
@@ -44,7 +44,7 @@
         </DirectionAwareHover>
       </div>
     </div>
-    <Picture />
+    <Picture :name="name" />
   </div>
 </template>
 <script setup lang="ts" name="HomeView">
@@ -54,12 +54,14 @@ import PictureSearch from '@/components/PictureSearch.vue'
 import { ref } from 'vue'
 
 const searchSearch = (value: string) => {
-  console.log('searchSearch', value)
+  console.log('searchSearch', value.query)
+  name.value = value.query
 }
 const searchInput = (value: string) => {
   console.log('searchInput', value)
 }
 
+const name = ref<string>('')
 const searchHistoryName = ref<string>('pictureHistory')
 
 const recommendationList = [
@@ -96,7 +98,6 @@ const recommendationList = [
     image: '/placeholder.svg?height=80&width=120',
   },
 ]
-
 
 // 静态数据
 const suggestionList = [
