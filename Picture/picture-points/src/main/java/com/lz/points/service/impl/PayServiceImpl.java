@@ -52,8 +52,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.BUY_PACKAGE_SUCCESS;
-import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ORDER_DETAIL;
-import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ORDER_LOCK;
+import static com.lz.common.constant.redis.PointsRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.points.constant.PayConstants.ALIPAY_WEB;
 import static com.lz.points.constant.PayConstants.WAIT_BUYER_PAY;
@@ -502,7 +501,7 @@ public class PayServiceImpl implements IPayService {
         if (StringUtils.isNotNull(orderInfo)) {
             //存入缓存
             UserPaymentOrderInfoVo userPaymentOrderInfoVo = UserPaymentOrderInfoVo.objToVo(orderInfo);
-            redisCache.setCacheObject(key, userPaymentOrderInfoVo);
+            redisCache.setCacheObject(key, userPaymentOrderInfoVo, POINTS_ORDER_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
             return userPaymentOrderInfoVo;
         }
         //如果还是没有订单信息
