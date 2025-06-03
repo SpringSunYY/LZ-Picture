@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 用户搜索记录对象 p_search_log_info
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-06-03
  */
 @TableName("p_search_log_info")
 @Data
@@ -119,22 +119,10 @@ public class SearchLogInfo implements Serializable {
     private String ipAddress;
 
     /**
-     * 点击次数
+     * IP地址
      */
-    @Excel(name = "点击次数")
-    private Long clickCount;
-
-    /**
-     * 收藏数
-     */
-    @Excel(name = "收藏数")
-    private Long favoriteCount;
-
-    /**
-     * 下载数
-     */
-    @Excel(name = "下载数")
-    private Long downloadCount;
+    @Excel(name = "IP地址")
+    private String ipAddr;
 
     /**
      * 请求参数

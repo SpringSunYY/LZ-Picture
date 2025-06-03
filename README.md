@@ -2406,9 +2406,6 @@ CREATE TABLE p_picture_download_log_info
 | platform        | varchar  | 20   |                            | 是   |          | 平台         |
 | ip_addr         | varchar  | 50   |                            | 是   |          | IP地址       |
 | ip_address      | varchar  | 64   |                            | 是   |          | IP属地       |
-| click_count     | int      |      |                            | 否   | 0        | 点击次数     |
-| favorite_count  | int      |      |                            | 否   | 0        | 收藏数       |
-| download_count  | int      |      |                            | 否   | 0        | 下载数       |
 
 用户编号:如果未登录可为空
 
@@ -2430,92 +2427,34 @@ IP属地：记录哪个省或者省同级单位的搜索，便于比如贵州省
 
 ```sql
 DROP TABLE IF EXISTS p_search_log_info;
-CREATE TABLE p_search_log_info (
-    search_id VARCHAR(128) NOT NULL COMMENT '搜索记录编号',
-    user_id VARCHAR(128) COMMENT '用户编号',
-    keyword VARCHAR(32) NOT NULL COMMENT '搜索关键词',
-    search_type CHAR(1) NOT NULL DEFAULT '0' COMMENT '搜索类型（0图片 1空间 2用户）',
-    refer_source CHAR(1) DEFAULT '0' COMMENT '搜索来源（0首页 1推荐 2搜索页 3AI推荐 4历史搜索）',
-    search_status CHAR(1) NOT NULL DEFAULT '0' COMMENT '搜索状态（0成功 1失败）',
-    fail_reason VARCHAR(256) COMMENT '失败原因',
-    result_count INT NOT NULL DEFAULT 0 COMMENT '返回数量',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '搜索时间',
-    search_duration INT DEFAULT 0 COMMENT '搜索时长（毫秒）',
-    device_id VARCHAR(256) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    ip_address VARCHAR(64) COMMENT 'IP属地',
-    click_count INT NOT NULL DEFAULT 0 COMMENT '点击次数',
-    favorite_count INT NOT NULL DEFAULT 0 COMMENT '收藏数',
-    download_count INT NOT NULL DEFAULT 0 COMMENT '下载数',
-    PRIMARY KEY (search_id),
+CREATE TABLE p_search_log_info
+(
+    search_id       VARCHAR(128) NOT NULL COMMENT '搜索记录编号',
+    user_id         VARCHAR(128) COMMENT '用户编号',
+    keyword         VARCHAR(32)  NOT NULL COMMENT '搜索关键词',
+    search_type     CHAR(1)      NOT NULL DEFAULT '0' COMMENT '搜索类型（0图片 1空间 2用户）',
+    refer_source    CHAR(1)               DEFAULT '0' COMMENT '搜索来源（0首页 1推荐 2搜索页 3AI推荐 4历史搜索）',
+    search_status   CHAR(1)      NOT NULL DEFAULT '0' COMMENT '搜索状态（0成功 1失败）',
+    fail_reason     VARCHAR(256) COMMENT '失败原因',
+    result_count    INT          NOT NULL DEFAULT 0 COMMENT '返回数量',
+    create_time     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '搜索时间',
+    search_duration INT                   DEFAULT 0 COMMENT '搜索时长（毫秒）',
+    device_id       VARCHAR(256) COMMENT '设备唯一标识',
+    browser         VARCHAR(50) COMMENT '浏览器类型',
+    os              VARCHAR(50) COMMENT '操作系统',
+    platform        VARCHAR(20) COMMENT '平台',
+    ip_address      VARCHAR(64) COMMENT 'IP属地',
+    ip_addr         VARCHAR(64) COMMENT 'IP地址',
+        PRIMARY KEY (search_id),
     INDEX idx_search_user (user_id),
     INDEX idx_search_type (search_type),
     INDEX idx_create_time (create_time),
-    CONSTRAINT fk_search_log_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户搜索记录表';
-```
-
-
-
-#### 用户行为日志表：p_user_action_log_info
-
-为搜索记录做日志
-
-| 字段名      | 类型     | 长度 | 键类型                             | Null | 默认值   | 描述         |
-| ----------- | -------- | ---- | ---------------------------------- | ---- | -------- | ------------ |
-| action_id   | varchar  | 128  | 主键                               | 否   | 自增     | 日志编号     |
-| search_id   | varchar  | 128  | 外键 (p_search_log_info:search_id) | 否   |          | 搜索记录编号 |
-| user_id     | varchar  | 128  | 外键 (u_user_info:user_id)         | 是   |          | 用户编号     |
-| action_type | char     | 1    |                                    | 否   |          | 行为类型     |
-| target_type | char     | 1    |                                    | 否   |          | 目标类型     |
-| target_id   | varchar  | 128  |                                    | 否   |          | 目标对象     |
-| create_time | datetime |      |                                    | 否   | 当前时间 | 行为时间     |
-| device_id   | varchar  | 255  |                                    | 是   |          | 设备唯一标识 |
-| browser     | varchar  | 50   |                                    | 是   |          | 浏览器类型   |
-| os          | varchar  | 50   |                                    | 是   |          | 操作系统     |
-| platform    | varchar  | 20   |                                    | 是   |          | 平台         |
-| ip_addr     | varchar  | 50   |                                    | 是   |          | IP地址       |
-| ip_address  | varchar  | 64   |                                    | 是   |          | IP属地       |
-
-行为类型：0点击 1收藏 2下载 3关注用户 4查看空间。。。
-
-目标对象：0图片 1空间 2用户
-
-IP属地：记录哪个省或者省同级单位的搜索，便于比如贵州省的热搜
-
-```sql
-DROP TABLE IF EXISTS p_user_action_log;
-CREATE TABLE p_user_action_log_info (
-    action_id VARCHAR(128) NOT NULL COMMENT '日志编号',
-    search_id VARCHAR(128) COMMENT '搜索记录编号',
-    user_id VARCHAR(128) COMMENT '用户编号',
-    action_type CHAR(1) NOT NULL COMMENT '行为类型（0点击 1收藏 2下载 3关注用户 4查看空间）',
-    target_type CHAR(1) NOT NULL COMMENT '目标类型（0图片 1空间 2用户）',
-    target_id VARCHAR(128) NOT NULL COMMENT '目标对象ID',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '行为时间',
-    device_id VARCHAR(255) COMMENT '设备唯一标识',
-    browser VARCHAR(50) COMMENT '浏览器类型',
-    os VARCHAR(50) COMMENT '操作系统',
-    platform VARCHAR(20) COMMENT '平台',
-    ip_address VARCHAR(64) COMMENT 'IP属地（如贵州省）',
-    PRIMARY KEY (action_id),
-    INDEX idx_user_action (user_id, action_type),
-    INDEX idx_target (target_type, target_id),
-    INDEX idx_create_time (create_time),
-    CONSTRAINT fk_action_log_user 
-        FOREIGN KEY (user_id) 
-        REFERENCES u_user_info(user_id)
-        ON DELETE SET NULL,
-    CONSTRAINT fk_action_log_search 
-        FOREIGN KEY (search_id) 
-        REFERENCES p_search_log_info(search_id)
-        ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户行为日志表';
+    CONSTRAINT fk_search_log_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id)
+            ON DELETE SET NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户搜索记录表';
 ```
 
 

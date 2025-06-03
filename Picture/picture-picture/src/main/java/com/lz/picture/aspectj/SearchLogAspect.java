@@ -1,6 +1,7 @@
 package com.lz.picture.aspectj;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.lz.common.annotation.Log;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.core.domain.entity.SysUser;
@@ -17,7 +18,10 @@ import com.lz.common.utils.ip.IpUtils;
 import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.picture.annotation.SearchLog;
+import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.SearchLogAsyncFactory;
 import com.lz.picture.model.domain.SearchLogInfo;
+import com.lz.picture.model.enums.PSearchStatusEnum;
 import com.lz.system.model.domain.SysOperLog;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -104,26 +108,30 @@ public class SearchLogAspect {
             DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
             BeanUtils.copyProperties(deviceInfo, searchLogInfo);
             searchLogInfo.setUserId(userId);
-
+            searchLogInfo.setSearchType(searchLog.searchType());
+            searchLogInfo.setReferSource(searchLog.referSource());
+            //解析请求参数和返回结果
+            Map<?, ?> paramsMap = ServletUtils.getParamMap(ServletUtils.getRequest());
+            Object name = paramsMap.get("name");
+            searchLogInfo.setKeyword(name.toString());
+            //获取到返回结构的data
+            if (StringUtils.isNotNull(jsonResult)) {
+                JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(jsonResult));
+                Long total = jsonObject.getLong("total");
+                searchLogInfo.setResultCount(total);
+                searchLogInfo.setSearchStatus(PSearchStatusEnum.SEARCH_STATUS_0.getValue());
+            } else {
+                searchLogInfo.setResultCount(0L);
+                searchLogInfo.setSearchStatus(PSearchStatusEnum.SEARCH_STATUS_1.getValue());
+                searchLogInfo.setFailReason(e.getMessage());
+            }
             // 保存数据库
-            System.out.println("searchLogInfo = " + searchLogInfo);
+            PictureAsyncManager.me().execute(SearchLogAsyncFactory.recordSearchLog(searchLogInfo));
         } catch (Exception exp) {
             // 记录本地异常日志
             log.error("异常信息:{}", exp.getMessage());
-            exp.printStackTrace();
         } finally {
             TIME_THREADLOCAL.remove();
         }
-    }
-
-    /**
-     * 获取注解中对方法的描述信息 用于Controller层注解
-     *
-     * @param searchLog 日志
-     * @param operLog   操作日志
-     * @throws Exception
-     */
-    public void getControllerMethodDescription(JoinPoint joinPoint, SearchLog searchLog, SysOperLog operLog, Object jsonResult) throws Exception {
-
     }
 }

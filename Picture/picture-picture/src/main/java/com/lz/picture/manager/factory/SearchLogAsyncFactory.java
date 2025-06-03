@@ -8,8 +8,11 @@ import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.enmus.CFileLogStatusEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.config.service.IFileLogInfoService;
+import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.domain.SearchLogInfo;
 import com.lz.picture.model.domain.SpaceInfo;
+import com.lz.picture.service.ISearchLogInfoService;
 
 import java.util.TimerTask;
 
@@ -22,26 +25,23 @@ import java.util.TimerTask;
  * @Version: 1.0
  */
 public class SearchLogAsyncFactory {
+
     /**
-     * 记录文件日志
+     * 新增用户搜索记录
      *
-     * @param pictureFileResponse 返回图片信息
-     * @param userId              用户编号
-     * @param ossType             存储类型
-     * @param logType             日志类型
+     * @param searchLogInfo 搜索记录
      * @return TimerTask
      * @author: YY
-     * @date: 2025/5/10 22:51
+     * @method: recordSearchLog
+     * @date: 2025/6/3 21:32
      **/
-    public static TimerTask recordSearchLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType) {
-        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+    public static TimerTask recordSearchLog(SearchLogInfo searchLogInfo) {
         return new TimerTask() {
             @Override
             public void run() {
-                //插入文件日志
-                SpringUtils.getBean(IFileLogInfoService.class).recordFileLog(pictureFileResponse, userId, ossType, logType, deviceInfo);
+                //解析返回结果
+                SpringUtils.getBean(ISearchLogInfoService.class).insertSearchLogInfo(searchLogInfo);
             }
         };
     }
-
 }

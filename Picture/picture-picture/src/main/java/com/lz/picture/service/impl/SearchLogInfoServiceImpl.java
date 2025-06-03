@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,15 +23,15 @@ import com.lz.picture.model.vo.searchLogInfo.SearchLogInfoVo;
  * 用户搜索记录Service业务层处理
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-06-03
  */
 @Service
-public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, SearchLogInfo> implements ISearchLogInfoService
-{
+public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, SearchLogInfo> implements ISearchLogInfoService {
     @Resource
     private SearchLogInfoMapper searchLogInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询用户搜索记录
      *
@@ -37,8 +39,7 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 用户搜索记录
      */
     @Override
-    public SearchLogInfo selectSearchLogInfoBySearchId(String searchId)
-    {
+    public SearchLogInfo selectSearchLogInfoBySearchId(String searchId) {
         return searchLogInfoMapper.selectSearchLogInfoBySearchId(searchId);
     }
 
@@ -49,8 +50,7 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 用户搜索记录
      */
     @Override
-    public List<SearchLogInfo> selectSearchLogInfoList(SearchLogInfo searchLogInfo)
-    {
+    public List<SearchLogInfo> selectSearchLogInfoList(SearchLogInfo searchLogInfo) {
         return searchLogInfoMapper.selectSearchLogInfoList(searchLogInfo);
     }
 
@@ -61,8 +61,9 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 结果
      */
     @Override
-    public int insertSearchLogInfo(SearchLogInfo searchLogInfo)
-    {
+    public int insertSearchLogInfo(SearchLogInfo searchLogInfo) {
+        searchLogInfo.setSearchId(IdUtils.fastSimpleUUID());
+        searchLogInfo.setCreateTime(DateUtils.getNowDate());
         searchLogInfo.setCreateTime(DateUtils.getNowDate());
         return searchLogInfoMapper.insertSearchLogInfo(searchLogInfo);
     }
@@ -74,8 +75,7 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 结果
      */
     @Override
-    public int updateSearchLogInfo(SearchLogInfo searchLogInfo)
-    {
+    public int updateSearchLogInfo(SearchLogInfo searchLogInfo) {
         return searchLogInfoMapper.updateSearchLogInfo(searchLogInfo);
     }
 
@@ -86,8 +86,7 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 结果
      */
     @Override
-    public int deleteSearchLogInfoBySearchIds(String[] searchIds)
-    {
+    public int deleteSearchLogInfoBySearchIds(String[] searchIds) {
         return searchLogInfoMapper.deleteSearchLogInfoBySearchIds(searchIds);
     }
 
@@ -98,54 +97,63 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 结果
      */
     @Override
-    public int deleteSearchLogInfoBySearchId(String searchId)
-    {
+    public int deleteSearchLogInfoBySearchId(String searchId) {
         return searchLogInfoMapper.deleteSearchLogInfoBySearchId(searchId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<SearchLogInfo> getQueryWrapper(SearchLogInfoQuery searchLogInfoQuery){
+    public QueryWrapper<SearchLogInfo> getQueryWrapper(SearchLogInfoQuery searchLogInfoQuery) {
         QueryWrapper<SearchLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = searchLogInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String searchId = searchLogInfoQuery.getSearchId();
-        queryWrapper.eq(StringUtils.isNotEmpty(searchId) ,"search_id",searchId);
+        String searchId = searchLogInfoQuery.getSearchId();
+        queryWrapper.eq(StringUtils.isNotEmpty(searchId), "search_id", searchId);
 
-    String userId = searchLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = searchLogInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String keyword = searchLogInfoQuery.getKeyword();
-        queryWrapper.like(StringUtils.isNotEmpty(keyword) ,"keyword",keyword);
+        String keyword = searchLogInfoQuery.getKeyword();
+        queryWrapper.like(StringUtils.isNotEmpty(keyword), "keyword", keyword);
 
-    String searchType = searchLogInfoQuery.getSearchType();
-        queryWrapper.eq(StringUtils.isNotEmpty(searchType) ,"search_type",searchType);
+        String searchType = searchLogInfoQuery.getSearchType();
+        queryWrapper.eq(StringUtils.isNotEmpty(searchType), "search_type", searchType);
 
-    String referSource = searchLogInfoQuery.getReferSource();
-        queryWrapper.eq(StringUtils.isNotEmpty(referSource) ,"refer_source",referSource);
+        String referSource = searchLogInfoQuery.getReferSource();
+        queryWrapper.eq(StringUtils.isNotEmpty(referSource), "refer_source", referSource);
 
-    String searchStatus = searchLogInfoQuery.getSearchStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(searchStatus) ,"search_status",searchStatus);
+        String searchStatus = searchLogInfoQuery.getSearchStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(searchStatus), "search_status", searchStatus);
 
-    Date createTime = searchLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Long resultCount = searchLogInfoQuery.getResultCount();
+        queryWrapper.eq(StringUtils.isNotNull(resultCount), "result_count", resultCount);
 
-    String deviceId = searchLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
+        Date createTime = searchLogInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-    String browser = searchLogInfoQuery.getBrowser();
-        queryWrapper.eq(StringUtils.isNotEmpty(browser) ,"browser",browser);
+        Long searchDuration = searchLogInfoQuery.getSearchDuration();
+        queryWrapper.eq(StringUtils.isNotNull(searchDuration), "search_duration", searchDuration);
 
-    String os = searchLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
+        String deviceId = searchLogInfoQuery.getDeviceId();
+        queryWrapper.like(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
 
-    String platform = searchLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform) ,"platform",platform);
+        String browser = searchLogInfoQuery.getBrowser();
+        queryWrapper.like(StringUtils.isNotEmpty(browser), "browser", browser);
 
-    String ipAddress = searchLogInfoQuery.getIpAddress();
-        queryWrapper.eq(StringUtils.isNotEmpty(ipAddress) ,"ip_address",ipAddress);
+        String os = searchLogInfoQuery.getOs();
+        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
+
+        String platform = searchLogInfoQuery.getPlatform();
+        queryWrapper.like(StringUtils.isNotEmpty(platform), "platform", platform);
+
+        String ipAddress = searchLogInfoQuery.getIpAddress();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
+
+        String ipAddr = searchLogInfoQuery.getIpAddr();
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
 
         return queryWrapper;
     }
