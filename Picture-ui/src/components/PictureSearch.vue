@@ -124,6 +124,7 @@
                 <img
                   :src="recommendation.image"
                   :alt="recommendation.title"
+                  loading="lazy"
                   class="w-full h-20 object-cover rounded-md"
                 />
                 <div class="absolute top-1 right-1">
@@ -147,6 +148,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
+//建议对象
+export interface Recommend {
+  title: string
+  description: string
+  image: string
+}
+
 //定义导入数据
 const props = defineProps({
   suggestionList: {
@@ -154,7 +162,7 @@ const props = defineProps({
     default: () => [],
   },
   recommendationList: {
-    type: Array,
+    type: Array<Recommend>,
     default: () => [],
   },
   searchHistoryName: {

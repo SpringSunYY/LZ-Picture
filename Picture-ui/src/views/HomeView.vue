@@ -50,8 +50,10 @@
 <script setup lang="ts" name="HomeView">
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
-import PictureSearch from '@/components/PictureSearch.vue'
+import PictureSearch, { type Recommend } from '@/components/PictureSearch.vue'
 import { ref } from 'vue'
+import { getSearchRecommend } from '@/api/picture/picture.ts'
+import type { PictureInfoSearchRecommendVo } from '@/types/picture/picture'
 
 const searchSearch = (value: string) => {
   // console.log('searchSearch', value)
@@ -64,41 +66,24 @@ const searchInput = (value: string) => {
 const name = ref<string>('')
 const searchHistoryName = ref<string>('pictureHistory')
 
-const recommendationList = [
-  {
-    title: '前端开发趋势',
-    description: '2024年最新前端技术趋势和发展方向',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-  {
-    title: '移动端适配',
-    description: '响应式设计和移动端开发最佳实践',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-  {
-    title: '性能优化技巧',
-    description: '网站性能优化的实用方法和工具',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-  {
-    title: '用户体验设计',
-    description: 'UI/UX设计原则和用户体验优化',
-    image:
-      'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/IMG_2892-1909788084984221696-compressed.webp?x-oss-process=image/resize,p_30',
-  },
-  {
-    title: '代码规范',
-    description: '团队协作中的代码规范和最佳实践',
-    image:
-      'https://litchi-picture.oss-cn-guangzhou.aliyuncs.com/picture/YY00037T-1910243995154518016-compressed.webp?x-oss-process=image/resize,p_30',
-  },
-  {
-    title: 'AI工具应用',
-    description: '人工智能在开发中的应用和工具推荐',
-    image: '/placeholder.svg?height=80&width=120',
-  },
-]
+const recommendationList = ref<Recommend[]>([])
 
+//获取推荐列表
+const getRecommendationList = () => {
+  getSearchRecommend().then((res) => {
+    //遍历rows，添加到recommendationList中
+    recommendationList.value =
+      res?.rows?.map((item: PictureInfoSearchRecommendVo) => {
+        return {
+          title: item.name,
+          description: item.introduction,
+          image: item.thumbnailUrl,
+        }
+      }) || []
+    console.log('recommendationList', recommendationList.value)
+  })
+}
+getRecommendationList()
 // 静态数据
 const suggestionList = [
   'Vue.js 教程',

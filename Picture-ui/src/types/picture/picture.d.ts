@@ -297,6 +297,20 @@ export interface MyPictureInfoVo {
   thumbnailUrl: string
 }
 
+/**
+ * 图片搜索推荐结果项
+ */
+export interface PictureInfoSearchRecommendVo {
+  /** 图片名称 */
+  name: string
+
+  /** 图片简介 */
+  introduction: string
+
+  /** 缩略图 URL */
+  thumbnailUrl: string
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

@@ -2,6 +2,7 @@ package com.lz.picture.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
@@ -26,6 +27,7 @@ import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.enums.*;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
@@ -56,7 +58,7 @@ import java.util.stream.Collectors;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
-import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
+import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 
 /**
@@ -986,5 +988,33 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         PictureInfo pictureInfo = this.selectPictureInfoByPictureId(pictureDownloadLogInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo) || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()), "此图片不存在！！！");
         return pictureInfo;
+    }
+
+    @Override
+    public List<PictureInfoSearchRecommendVo> getSearchRecommend() {
+        List<PictureInfoSearchRecommendVo> cache = redisCache.getCacheObject(PICTURE_SEARCH_SUGGESTION);
+        if (StringUtils.isNotEmpty(cache)) {
+            return cache;
+        }
+        Page<PictureInfo> page = new Page<>(1, 30);
+        LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
+                .orderByDesc(PictureInfo::getDownloadCount)
+                .orderByDesc(PictureInfo::getShareCount)
+                .orderByDesc(PictureInfo::getLikeCount)
+                .orderByDesc(PictureInfo::getCollectCount)
+                .orderByDesc(PictureInfo::getLookCount);
+
+        List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
+        for (PictureInfo pictureInfo : pictureInfos) {
+            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+        }
+        //转换为vo
+        List<PictureInfoSearchRecommendVo> pictureInfoSearchRecommendVos = PictureInfoSearchRecommendVo.objToVo(pictureInfos);
+        redisCache.setCacheObject(PICTURE_SEARCH_SUGGESTION, pictureInfoSearchRecommendVos, PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME, TimeUnit.SECONDS);
+        return pictureInfoSearchRecommendVos;
     }
 }
