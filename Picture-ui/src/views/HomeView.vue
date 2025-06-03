@@ -50,24 +50,61 @@
 <script setup lang="ts" name="HomeView">
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
-import PictureSearch, { type Recommend } from '@/components/PictureSearch.vue'
+import PictureSearch, {
+  type SearchRecommend,
+  type SearchSuggestion,
+} from '@/components/PictureSearch.vue'
 import { ref } from 'vue'
-import { getSearchRecommend } from '@/api/picture/picture.ts'
-import type { PictureInfoSearchRecommendVo } from '@/types/picture/picture'
+import { getSearchRecommend, getSearchSuggest } from '@/api/picture/picture.ts'
+import type {
+  PictureInfoSearchRecommendVo,
+  PictureInfoSearchSuggestionVo,
+} from '@/types/picture/picture'
 
 const searchSearch = (value: string) => {
   // console.log('searchSearch', value)
   name.value = value
 }
+const searchTimer = ref<number | null>(null)
 const searchInput = (value: string) => {
-  // console.log('searchInput', value)
+  if (!value || !value.trim()) {
+    return
+  }
+  if (searchTimer.value) {
+    clearTimeout(searchTimer.value)
+  }
+  // 清除之前的定时器
+  if (searchTimer.value) {
+    clearTimeout(searchTimer.value)
+  }
+
+  // 设置新的定时器
+  searchTimer.value = setTimeout(() => {
+    getSearchSuggestList(value)
+    searchTimer.value = null
+  }, 500) // 500ms防抖间隔
+}
+// 静态数据
+const suggestionList = ref<SearchSuggestion[]>([])
+const getSearchSuggestList = (value: string) => {
+  console.log('searchInput', value)
+  getSearchSuggest(value).then((res) => {
+    //遍历rows，添加到suggestionList中
+    suggestionList.value =
+      res?.rows?.map((item: PictureInfoSearchSuggestionVo) => {
+        return {
+          name: item.name,
+          id: item.pictureId,
+        }
+      }) || []
+    console.log('suggestionList', suggestionList.value)
+  })
 }
 
 const name = ref<string>('')
 const searchHistoryName = ref<string>('pictureHistory')
 
-const recommendationList = ref<Recommend[]>([])
-
+const recommendationList = ref<SearchRecommend[]>([])
 //获取推荐列表
 const getRecommendationList = () => {
   getSearchRecommend().then((res) => {
@@ -84,17 +121,4 @@ const getRecommendationList = () => {
   })
 }
 getRecommendationList()
-// 静态数据
-const suggestionList = [
-  'Vue.js 教程',
-  'JavaScript 基础',
-  'React 组件',
-  'CSS 动画',
-  'Node.js 开发',
-  'TypeScript 入门',
-  'Webpack 配置',
-  'Git 使用指南',
-  'MongoDB 数据库',
-  'Express 框架',
-]
 </script>

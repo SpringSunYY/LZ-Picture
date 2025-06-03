@@ -6,6 +6,8 @@
         <input
           v-model="searchQuery"
           @input="handleInput"
+          @compositionstart="isComposing = true"
+          @compositionend="isComposing = false"
           @focus="showDropdown = true"
           @keydown.enter="handleSearch"
           @keydown.up.prevent="navigateSuggestions(-1)"
@@ -73,7 +75,7 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               ></path>
             </svg>
-            <span v-html="highlightMatch(suggestion)"></span>
+            <span v-html="highlightMatch(suggestion.name)"></span>
           </div>
         </div>
 
@@ -148,21 +150,28 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-//建议对象
-export interface Recommend {
+//推荐对象
+export interface SearchRecommend {
+  id: number
   title: string
   description: string
   image: string
 }
 
+//建议对象
+export interface SearchSuggestion {
+  id: string
+  name: string
+}
+
 //定义导入数据
 const props = defineProps({
   suggestionList: {
-    type: Array,
+    type: Array<SearchSuggestion>,
     default: () => [],
   },
   recommendationList: {
-    type: Array<Recommend>,
+    type: Array<SearchRecommend>,
     default: () => [],
   },
   searchHistoryName: {
@@ -185,12 +194,14 @@ const suggestions = computed(() => {
   if (!searchQuery.value) return []
 
   return props.suggestionList
-    .filter((item) => item.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    .filter((item) => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
     .slice(0, 6)
 })
 
 // 方法
+const isComposing = ref(false)
 const handleInput = () => {
+  if (isComposing.value) return // 忽略输入法组合过程
   selectedIndex.value = -1
   showDropdown.value = true
   emit('input', searchQuery.value)
@@ -224,7 +235,7 @@ const navigateSuggestions = (direction) => {
   }
 
   if (selectedIndex.value >= 0 && suggestions.value[selectedIndex.value]) {
-    searchQuery.value = suggestions.value[selectedIndex.value]
+    searchQuery.value = suggestions.value[selectedIndex.value].name
   }
 }
 

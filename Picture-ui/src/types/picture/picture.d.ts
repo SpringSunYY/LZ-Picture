@@ -311,6 +311,17 @@ export interface PictureInfoSearchRecommendVo {
   thumbnailUrl: string
 }
 
+/**
+ * 图片搜索建议项
+ */
+export interface PictureInfoSearchSuggestionVo {
+  /** 图片编号 */
+  pictureId: string
+
+  /** 图片名称 */
+  name: string
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

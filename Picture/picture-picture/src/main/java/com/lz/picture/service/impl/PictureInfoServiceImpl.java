@@ -28,6 +28,7 @@ import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchSuggestionVo;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
@@ -55,6 +56,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
@@ -992,7 +994,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Override
     public List<PictureInfoSearchRecommendVo> getSearchRecommend() {
-        List<PictureInfoSearchRecommendVo> cache = redisCache.getCacheObject(PICTURE_SEARCH_SUGGESTION);
+        List<PictureInfoSearchRecommendVo> cache = redisCache.getCacheObject(PICTURE_SEARCH_RECOMMEND);
         if (StringUtils.isNotEmpty(cache)) {
             return cache;
         }
@@ -1009,12 +1011,39 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .orderByDesc(PictureInfo::getLookCount);
 
         List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
+        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (PictureInfo pictureInfo : pictureInfos) {
-            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + p);
         }
         //转换为vo
         List<PictureInfoSearchRecommendVo> pictureInfoSearchRecommendVos = PictureInfoSearchRecommendVo.objToVo(pictureInfos);
-        redisCache.setCacheObject(PICTURE_SEARCH_SUGGESTION, pictureInfoSearchRecommendVos, PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(PICTURE_SEARCH_RECOMMEND, pictureInfoSearchRecommendVos, PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
         return pictureInfoSearchRecommendVos;
+    }
+
+    @Override
+    public List<PictureInfoSearchSuggestionVo> getSearchSuggestion(String name) {
+        String key = PICTURE_SEARCH_SUGGESTION + COMMON_SEPARATOR_CACHE + name;
+        List<PictureInfoSearchSuggestionVo> cache = redisCache.getCacheObject(key);
+        if (StringUtils.isNotEmpty(cache)) {
+            return cache;
+        }
+        Page<PictureInfo> page = new Page<>(1, 15);
+        LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
+                .like(StringUtils.isNotEmpty(name), PictureInfo::getName, name)
+                .orderByDesc(PictureInfo::getDownloadCount)
+                .orderByDesc(PictureInfo::getShareCount)
+                .orderByDesc(PictureInfo::getLikeCount)
+                .orderByDesc(PictureInfo::getCollectCount)
+                .orderByDesc(PictureInfo::getLookCount);
+
+        List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
+        List<PictureInfoSearchSuggestionVo> pictureInfoSearchSuggestionVos = PictureInfoSearchSuggestionVo.objToVo(pictureInfos);
+        redisCache.setCacheObject(key, pictureInfoSearchSuggestionVos, PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME, TimeUnit.SECONDS);
+        return pictureInfoSearchSuggestionVos;
     }
 }

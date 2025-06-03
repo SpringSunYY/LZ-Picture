@@ -5,6 +5,7 @@ import java.util.List;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchSuggestionVo;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
 
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -181,4 +182,14 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      **/
     List<PictureInfoSearchRecommendVo> getSearchRecommend();
 
+    /**
+     * 获取建议
+     *
+     * @param name 图片名称
+     * @return List<PictureInfoSearchSuggestionVo>
+     * @author: YY
+     * @method: getSearchSuggestion
+     * @date: 2025/6/4 00:14
+     **/
+    List<PictureInfoSearchSuggestionVo> getSearchSuggestion(String name);
 }

@@ -14,10 +14,7 @@ import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoUpdate;
 import com.lz.picture.model.enums.PPictureReviewStatusEnum;
 import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.vo.pictureInfo.MyPictureInfoVo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
-import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
-import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
+import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -127,13 +124,15 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @GetMapping("/search/recommend")
     public TableDataInfo getSearchRecommend() {
         List<PictureInfoSearchRecommendVo> list = pictureInfoService.getSearchRecommend();
-        //压缩图片
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
-        for (PictureInfoSearchRecommendVo vo : list) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
-        }
         return getDataTable(list, list.size());
     }
+
+    @GetMapping("/search/suggestion")
+    public TableDataInfo getSearchRecommend(@RequestParam(required = false) String name) {
+        List<PictureInfoSearchSuggestionVo> list = pictureInfoService.getSearchSuggestion(name);
+        return getDataTable(list, list.size());
+    }
+
 
     private List<PictureInfo> getPictureInfos(Page<PictureInfo> page) {
         List<PictureInfo> pictureInfoList = page.getRecords();

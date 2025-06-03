@@ -20,12 +20,22 @@ public class PictureRedisConstants {
     public static final String PICTURE_USER_BEHAVIOR = "picture:user:behavior:";
 
     /**
-     * 图片搜索推荐缓存
+     * 图片搜索建议缓存
      */
     public static final String PICTURE_SEARCH_SUGGESTION = "picture:search:suggestion";
 
     /**
-     * 图片搜索推荐缓存时间
+     * 图片搜索建议缓存时间
      */
     public static final Integer PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 图片搜索推荐
+     */
+    public static final String PICTURE_SEARCH_RECOMMEND = "picture:search:recommend";
+
+    /**
+     * 图片搜索推荐缓存时间
+     */
+    public static final Integer PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME = 5 * 60;
 }

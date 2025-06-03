@@ -4,8 +4,10 @@ import type {
   MyPictureInfoVo,
   PictureDetailInfoVo,
   PictureInfo,
-  PictureInfoQuery, PictureInfoSearchRecommendVo,
-  PictureInfoUpdate
+  PictureInfoQuery,
+  PictureInfoSearchRecommendVo,
+  PictureInfoSearchSuggestionVo,
+  PictureInfoUpdate,
 } from '@/types/picture/picture'
 
 /**
@@ -16,7 +18,7 @@ export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<numb
   return request({
     url: '/picture/pictureInfo',
     method: 'post',
-    data: data
+    data: data,
   })
 }
 
@@ -25,12 +27,12 @@ export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<numb
  * @param data
  */
 export function updatePictureInfo(
-  data: PictureInfoUpdate
+  data: PictureInfoUpdate,
 ): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
   return request({
     url: '/picture/pictureInfo/update',
     method: 'put',
-    data: data
+    data: data,
   })
 }
 
@@ -41,7 +43,7 @@ export function updatePictureInfo(
 export function listPictureInfo(params: PictureInfoQuery): Promise<API.ResponseInfo<PictureInfo>> {
   return request({
     url: '/picture/pictureInfo/list',
-    params: params
+    params: params,
   })
 }
 
@@ -50,11 +52,11 @@ export function listPictureInfo(params: PictureInfoQuery): Promise<API.ResponseI
  * @param params
  */
 export function listMyPictureInfo(
-  params: PictureInfoQuery
+  params: PictureInfoQuery,
 ): Promise<API.ResponseInfo<MyPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/list/my',
-    params: params
+    params: params,
   })
 }
 
@@ -66,7 +68,7 @@ export function deletePictureInfo(data: PictureInfo): Promise<API.ResponseInfo<n
   return request({
     url: '/picture/pictureInfo',
     method: 'delete',
-    data: data
+    data: data,
   })
 }
 
@@ -75,11 +77,11 @@ export function deletePictureInfo(data: PictureInfo): Promise<API.ResponseInfo<n
  * @param pictureId
  */
 export function getPictureDetailInfo(
-  pictureId: string
+  pictureId: string,
 ): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
   return request({
     url: '/picture/pictureInfo/' + pictureId,
-    method: 'get'
+    method: 'get',
   })
 }
 
@@ -88,11 +90,11 @@ export function getPictureDetailInfo(
  * @param pictureId
  */
 export function getMyPictureDetailInfo(
-  pictureId: string
+  pictureId: string,
 ): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
   return request({
     url: '/picture/pictureInfo/my/' + pictureId,
-    method: 'get'
+    method: 'get',
   })
 }
 
@@ -102,6 +104,18 @@ export function getMyPictureDetailInfo(
 export function getSearchRecommend(): Promise<API.ResponseInfo<PictureInfoSearchRecommendVo>> {
   return request({
     url: '/picture/pictureInfo/search/recommend',
-    method: 'get'
+    method: 'get',
+  })
+}
+
+export function getSearchSuggest(
+  name: string,
+): Promise<API.ResponseInfo<PictureInfoSearchSuggestionVo>> {
+  return request({
+    url: '/picture/pictureInfo/search/suggestion',
+    method: 'get',
+    params: {
+      name: name,
+    },
   })
 }
