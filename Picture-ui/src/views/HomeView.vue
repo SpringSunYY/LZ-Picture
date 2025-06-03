@@ -54,11 +54,11 @@ import PictureSearch from '@/components/PictureSearch.vue'
 import { ref } from 'vue'
 
 const searchSearch = (value: string) => {
-  console.log('searchSearch', value.query)
-  name.value = value.query
+  // console.log('searchSearch', value)
+  name.value = value
 }
 const searchInput = (value: string) => {
-  console.log('searchInput', value)
+  // console.log('searchInput', value)
 }
 
 const name = ref<string>('')

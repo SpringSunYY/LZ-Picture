@@ -1,5 +1,6 @@
 <template>
   <div class="picture">
+    <a-empty description="" v-if="pictureRows.length <= 0"></a-empty>
     <div class="horizontal-masonry">
       <div class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
         <div
@@ -16,7 +17,7 @@
     </div>
 
     <!-- 触底加载 -->
-    <div ref="loadMoreTrigger" class="load-more-trigger">
+    <div ref="loadMoreTrigger" class="load-more-trigger" v-if="pictureRows.length > 0">
       <div v-if="loading">加载中...</div>
       <div v-else-if="noMore">没有更多了</div>
     </div>
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
@@ -221,7 +222,7 @@ watch(
 
     return () => clearTimeout(timer) // 清理副作用
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const resetPagination = () => {

@@ -189,17 +189,12 @@ const handleInput = () => {
 }
 
 const handleSearch = () => {
-  if (!searchQuery.value.trim()) return
-
+  // if (!searchQuery.value.trim()) return
   // 添加到历史记录
   addToHistory(searchQuery.value)
 
   // 发出搜索事件给父组件
-  emit('search', {
-    query: searchQuery.value,
-    timestamp: new Date().toISOString(),
-  })
-
+  emit('search', searchQuery.value)
   showDropdown.value = false
 }
 
@@ -229,6 +224,7 @@ const clearSearch = () => {
   searchQuery.value = ''
   showDropdown.value = false
   selectedIndex.value = -1
+  handleSearch()
 }
 
 const hideDropdown = () => {
@@ -237,6 +233,8 @@ const hideDropdown = () => {
 }
 
 const addToHistory = (term) => {
+  //如果传过来参数没有值
+  if (!term) return
   // 移除重复项
   const filtered = searchHistory.value.filter((item) => item !== term)
   // 添加到开头

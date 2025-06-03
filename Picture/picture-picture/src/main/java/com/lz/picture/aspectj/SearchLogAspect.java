@@ -94,7 +94,14 @@ public class SearchLogAspect {
 
     protected void handleLog(final JoinPoint joinPoint, SearchLog searchLog, final Exception e, Object jsonResult) {
         try {
+            //解析请求参数和返回结果
+            Map<?, ?> paramsMap = ServletUtils.getParamMap(ServletUtils.getRequest());
+            Object name = paramsMap.get("name");
+            if (StringUtils.isNull(name)) {
+                return;
+            }
             SearchLogInfo searchLogInfo = new SearchLogInfo();
+            searchLogInfo.setKeyword(name.toString());
             // 设置消耗时间
             searchLogInfo.setSearchDuration(System.currentTimeMillis() - TIME_THREADLOCAL.get());
             //获取登录用户信息，如果没有会抛出登录异常
@@ -110,11 +117,7 @@ public class SearchLogAspect {
             searchLogInfo.setUserId(userId);
             searchLogInfo.setSearchType(searchLog.searchType());
             searchLogInfo.setReferSource(searchLog.referSource());
-            //解析请求参数和返回结果
-            Map<?, ?> paramsMap = ServletUtils.getParamMap(ServletUtils.getRequest());
-            Object name = paramsMap.get("name");
-            searchLogInfo.setKeyword(name.toString());
-            //获取到返回结构的data
+            //获取到返回结构的total
             if (StringUtils.isNotNull(jsonResult)) {
                 JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(jsonResult));
                 Long total = jsonObject.getLong("total");
