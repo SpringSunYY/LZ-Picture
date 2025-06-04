@@ -54,6 +54,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
@@ -750,8 +751,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      **/
     private void implementPictureUpdate(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
         //获取图片原有关联
-        List<String> tagRelTagIds = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
-                        .eq(PictureTagRelInfo::getPictureId, pictureInfo.getPictureId()))
+        List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                .eq(PictureTagRelInfo::getPictureId, pictureInfo.getPictureId()));
+        //根据名称转换为map
+        Map<String, PictureTagRelInfo> tagRelInfoMap = tagRelInfos.stream()
+                .collect(Collectors.toMap(PictureTagRelInfo::getTagId, Function.identity()));
+        List<String> tagRelTagIds = tagRelInfos
                 .stream()
                 .map(PictureTagRelInfo::getTagId)
                 .toList();
@@ -831,6 +836,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 rel.setPictureId(pictureInfo.getPictureId());
                 rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
+                //判断是否之前有关联标签，如果有设置默认记录值下载、浏览、分享、点赞、收藏次数
+                if (tagRelInfoMap.containsKey(tagInfo.getTagId())) {
+                    PictureTagRelInfo tagRelInfo = tagRelInfoMap.get(tagInfo.getTagId());
+                    rel.setLookCount(tagRelInfo.getLookCount());
+                    rel.setCollectCount(tagRelInfo.getCollectCount());
+                    rel.setLikeCount(tagRelInfo.getLikeCount());
+                    rel.setShareCount(tagRelInfo.getShareCount());
+                    rel.setDownloadCount(tagRelInfo.getDownloadCount());
+                }
                 pictureTagRelInfos.add(rel);
             });
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
