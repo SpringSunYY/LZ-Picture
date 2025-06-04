@@ -17,7 +17,6 @@ public interface IPictureAutoTask {
     /**
      * 自动更新图片下载信息
      *
-     * @param
      * @return void
      * @author: YY
      * @method: autoUpdatePictureDownloadLogInfo
@@ -28,7 +27,6 @@ public interface IPictureAutoTask {
     /**
      * 自动更新行为收藏信息
      *
-     * @param
      * @return void
      * @author: YY
      * @method: autoUpdateUserBehaviorCollectInfo

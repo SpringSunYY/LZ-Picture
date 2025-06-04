@@ -27,6 +27,13 @@ public class PictureTagRelInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 关联编号
+     */
+    @Excel(name = "关联编号")
+    @TableId(value = "rel_id", type = IdType.ASSIGN_ID)
+    private String relId;
+
+    /**
      * 图片编号
      */
     @Excel(name = "图片编号")

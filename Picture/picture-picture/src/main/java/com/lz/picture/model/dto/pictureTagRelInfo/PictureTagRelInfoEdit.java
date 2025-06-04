@@ -19,9 +19,9 @@ public class PictureTagRelInfoEdit implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 图片编号
+     * 关联编号
      */
-    private String pictureId;
+    private String relId;
 
     /**
      * 对象转封装类

@@ -44,6 +44,9 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
     private IPictureTagInfoService pictureTagInfoService;
 
     @Resource
+    private IPictureTagRelInfoService pictureTagRelInfoService;
+
+    @Resource
     private IPictureCategoryInfoService pictureCategoryInfoService;
 
     @Resource
@@ -75,6 +78,8 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
         List<PictureCategoryInfo> categoryInfos = getAutoCategoryInfByView(userViewLogInfos);
         //标签
         List<PictureTagInfo> tagInfos = getAutoPictureTagInfByView(userViewLogInfos);
+        //标签关联
+        List<PictureTagRelInfo> pictureTagRelInfos = getAutoPictureTagRelInfByView(userViewLogInfos);
         transactionTemplate.executeWithoutResult(status -> {
             //更新图片信息
             if (StringUtils.isNotEmpty(pictureInfos)) {
@@ -88,9 +93,37 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
             if (StringUtils.isNotEmpty(tagInfos)) {
                 pictureTagInfoService.updateBatchById(tagInfos);
             }
+            //更新标签关联信息
+            if (StringUtils.isNotEmpty(pictureTagRelInfos)) {
+                pictureTagRelInfoService.updateBatchById(pictureTagRelInfos);
+            }
             //更新浏览记录信息
             userViewLogInfoService.updateBatchById(viewLogInfos);
         });
+    }
+
+    private List<PictureTagRelInfo> getAutoPictureTagRelInfByView(List<UserViewLogInfo> userViewLogInfos) {
+        //去重图片编号，并判断每个图片编号有多少个浏览记录，且分类编号不为空
+        // 按 targetId 分组，并统计每组的数量
+        Map<String, Long> viewCountMap = userViewLogInfos.stream()
+                .filter(userViewLogInfo -> StringUtils.isNotEmpty(userViewLogInfo.getTargetId()))
+                .collect(Collectors.groupingBy(UserViewLogInfo::getTargetId, Collectors.counting()));
+        //获取到所有的图片编号去重之后的
+        List<String> pictureIds = viewCountMap.keySet().stream().toList();
+        List<PictureTagRelInfo> tagRelInfos = new ArrayList<>(pictureIds.size());
+        if (StringUtils.isNotEmpty(pictureIds)) {
+            tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                    .in(PictureTagRelInfo::getPictureId, pictureIds));
+        } else {
+            return null;
+        }
+        //只更新需要内容
+        return tagRelInfos.stream().map(pictureTagRelInfo -> {
+            PictureTagRelInfo info = new PictureTagRelInfo();
+            info.setRelId(pictureTagRelInfo.getRelId());
+            info.setLookCount(pictureTagRelInfo.getLookCount() + viewCountMap.get(pictureTagRelInfo.getPictureId()));
+            return info;
+        }).toList();
     }
 
     /**
@@ -225,8 +258,8 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
         List<SpaceInfo> spaceInfos = getAutoSpaceInfByDownload(pictureDownloadLogInfos);
         List<PictureInfo> pictureInfos = getAutoPictureInfByDownload(pictureDownloadLogInfos);
         List<PictureTagInfo> tagInfos = getAutoPictureTagInfByDownload(pictureDownloadLogInfos);
+        List<PictureTagRelInfo> tagRelInfos = getAutoPictureTagRelInfByDownload(pictureDownloadLogInfos);
         transactionTemplate.execute(result -> {
-
             //更新分类
             if (StringUtils.isNotEmpty(categoryInfos)) {
                 pictureCategoryInfoService.updateBatchById(categoryInfos);
@@ -243,9 +276,35 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
             if (StringUtils.isNotEmpty(tagInfos)) {
                 pictureTagInfoService.updateBatchById(tagInfos);
             }
+            //更新标签关联
+            if (StringUtils.isNotEmpty(tagRelInfos)) {
+                pictureTagRelInfoService.updateBatchById(tagRelInfos);
+            }
             //更新下载记录
             return pictureDownloadLogInfoService.updateBatchById(downloadLogInfos);
         });
+    }
+
+    private List<PictureTagRelInfo> getAutoPictureTagRelInfByDownload(List<PictureDownloadLogInfo> pictureDownloadLogInfos) {
+        //去重图片编号，并判断每个图片编号有多少个下载记录，且分类编号不为空
+        Map<String, Long> downloadCountMap = pictureDownloadLogInfos.stream()
+                .filter(pictureDownloadLogInfo -> StringUtils.isNotEmpty(pictureDownloadLogInfo.getPictureId()))
+                .collect(Collectors.groupingBy(PictureDownloadLogInfo::getPictureId, Collectors.counting()));
+        List<String> pictureIds = downloadCountMap.keySet().stream().toList();
+        List<PictureTagRelInfo> pictureTagRelInfos = new ArrayList<>(pictureIds.size());
+        if (StringUtils.isNotEmpty(pictureIds)) {
+            pictureTagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                    .in(PictureTagRelInfo::getPictureId, pictureIds));
+        } else {
+            return null;
+        }
+        return pictureTagRelInfos.stream()
+                .map(pictureTagRelInfo -> {
+                    PictureTagRelInfo info = new PictureTagRelInfo();
+                    info.setRelId(pictureTagRelInfo.getRelId());
+                    info.setDownloadCount(pictureTagRelInfo.getDownloadCount() + downloadCountMap.get(pictureTagRelInfo.getPictureId()));
+                    return info;
+                }).toList();
     }
 
     private List<PictureTagInfo> getAutoPictureTagInfByDownload(List<PictureDownloadLogInfo> pictureDownloadLogInfos) {
@@ -355,7 +414,7 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
     }
     //endregion
 
-    //region 更新用户收藏
+    //region 更新用户行为
     @Override
     public void autoUpdateUserBehaviorInfo() {
         //首先更新空间，空间只有收藏
@@ -381,6 +440,7 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
             });
         }
         List<PictureInfo> pictureInfos = getAutoPictureInfByBehavior(pictureBehaviorList);
+        List<PictureTagRelInfo> pictureTagRelInfos = getAutoPictureTagRelInfByBehavior(pictureBehaviorList);
         transactionTemplate.execute(result -> {
             if (StringUtils.isNotEmpty(spaceInfos)) {
                 spaceInfoService.updateBatchById(spaceInfos);
@@ -394,8 +454,40 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
             if (StringUtils.isEmpty(pictureBehaviorList)) {
                 userBehaviorInfoService.updateBatchById(pictureBehaviorList);
             }
+            if (StringUtils.isNotEmpty(pictureTagRelInfos)) {
+                pictureTagRelInfoService.updateBatchById(pictureTagRelInfos);
+            }
             return true;
         });
+    }
+
+    private List<PictureTagRelInfo> getAutoPictureTagRelInfByBehavior(List<UserBehaviorInfo> pictureBehaviorList) {
+        //图片有点赞、分享、收藏
+        if (StringUtils.isEmpty(pictureBehaviorList)) {
+            return null;
+        }
+        List<String> pictureIds = pictureBehaviorList.stream()
+                .map(UserBehaviorInfo::getTargetId)
+                .distinct()
+                .toList();
+        List<PictureTagRelInfo> pictureTagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                .in(PictureTagRelInfo::getPictureId, pictureIds));
+        if (StringUtils.isEmpty(pictureTagRelInfos)) {
+            return null;
+        }
+        //根据用户行为类型+目标编号分组，统计每种行为出现的次数 例如"1": { "1001": 5, "1002": 3 },
+        Map<String, Map<String, Long>> behaviorCountMap = pictureBehaviorList.stream()
+                .filter(userBehaviorInfo -> PUserBehaviorTypeEnum.getEnumByValue(userBehaviorInfo.getBehaviorType()).isPresent())
+                .collect(Collectors.groupingBy(UserBehaviorInfo::getBehaviorType, Collectors.groupingBy(UserBehaviorInfo::getTargetId, Collectors.counting())));
+        return pictureTagRelInfos.stream()
+                .map(pictureTagRelInfo -> {
+                    PictureTagRelInfo info = new PictureTagRelInfo();
+                    info.setRelId(pictureTagRelInfo.getRelId());
+                    info.setLikeCount(pictureTagRelInfo.getLikeCount() + behaviorCountMap.getOrDefault(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue(), new HashMap<>()).getOrDefault(pictureTagRelInfo.getPictureId(), 0L));
+                    info.setCollectCount(pictureTagRelInfo.getCollectCount() + behaviorCountMap.getOrDefault(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue(), new HashMap<>()).getOrDefault(pictureTagRelInfo.getPictureId(), 0L));
+                    info.setShareCount(pictureTagRelInfo.getShareCount() + behaviorCountMap.getOrDefault(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue(), new HashMap<>()).getOrDefault(pictureTagRelInfo.getPictureId(), 0L));
+                    return info;
+                }).toList();
     }
 
     private List<PictureInfo> getAutoPictureInfByBehavior(List<UserBehaviorInfo> pictureBehaviorList) {

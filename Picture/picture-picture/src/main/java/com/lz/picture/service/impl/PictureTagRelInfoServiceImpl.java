@@ -110,6 +110,9 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
+        String relId = pictureTagRelInfoQuery.getRelId();
+        queryWrapper.eq( StringUtils.isNotNull(relId),"rel_id",relId);
+
         String pictureId = pictureTagRelInfoQuery.getPictureId();
         queryWrapper.eq(StringUtils.isNotEmpty(pictureId), "picture_id", pictureId);
 
