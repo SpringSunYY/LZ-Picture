@@ -9,10 +9,23 @@
         <result property="pictureName" column="picture_name"/>
         <result property="tagId" column="tag_id"/>
         <result property="tagName" column="tag_name"/>
+        <result property="lookCount" column="look_count"/>
+        <result property="collectCount" column="collect_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="shareCount" column="share_count"/>
+        <result property="downloadCount" column="download_count"/>
     </resultMap>
 
     <sql id="selectPictureTagRelInfoVo">
-        select picture_id, picture_name, tag_id, tag_name
+        select picture_id,
+               picture_name,
+               tag_id,
+               tag_name,
+               look_count,
+               collect_count,
+               like_count,
+               share_count,
+               download_count
         from p_picture_tag_rel_info
     </sql>
 
@@ -25,6 +38,11 @@
             </if>
             <if test="tagId != null  and tagId != ''">and tag_id = #{tagId}</if>
             <if test="tagName != null  and tagName != ''">and tag_name like concat('%', #{tagName}, '%')</if>
+            <if test="lookCount != null ">and look_count = #{lookCount}</if>
+            <if test="collectCount != null ">and collect_count = #{collectCount}</if>
+            <if test="likeCount != null ">and like_count = #{likeCount}</if>
+            <if test="shareCount != null ">and share_count = #{shareCount}</if>
+            <if test="downloadCount != null ">and download_count = #{downloadCount}</if>
         </where>
     </select>
 
@@ -40,12 +58,22 @@
             <if test="pictureName != null and pictureName != ''">picture_name,</if>
             <if test="tagId != null">tag_id,</if>
             <if test="tagName != null and tagName != ''">tag_name,</if>
+            <if test="lookCount != null">look_count,</if>
+            <if test="collectCount != null">collect_count,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="shareCount != null">share_count,</if>
+            <if test="downloadCount != null">download_count,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">#{pictureId},</if>
             <if test="pictureName != null and pictureName != ''">#{pictureName},</if>
             <if test="tagId != null">#{tagId},</if>
             <if test="tagName != null and tagName != ''">#{tagName},</if>
+            <if test="lookCount != null">#{lookCount},</if>
+            <if test="collectCount != null">#{collectCount},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="shareCount != null">#{shareCount},</if>
+            <if test="downloadCount != null">#{downloadCount},</if>
         </trim>
     </insert>
 
@@ -55,6 +83,11 @@
             <if test="pictureName != null and pictureName != ''">picture_name = #{pictureName},</if>
             <if test="tagId != null">tag_id = #{tagId},</if>
             <if test="tagName != null and tagName != ''">tag_name = #{tagName},</if>
+            <if test="lookCount != null">look_count = #{lookCount},</if>
+            <if test="collectCount != null">collect_count = #{collectCount},</if>
+            <if test="likeCount != null">like_count = #{likeCount},</if>
+            <if test="shareCount != null">share_count = #{shareCount},</if>
+            <if test="downloadCount != null">download_count = #{downloadCount},</if>
         </trim>
         where picture_id = #{pictureId}
     </update>

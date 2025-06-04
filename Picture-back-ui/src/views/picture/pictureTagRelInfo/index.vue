@@ -95,16 +95,26 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="标签名称" align="center" prop="tagName" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                     v-hasPermi="['picture:pictureTagRelInfo:edit']">修改
-          </el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                     v-hasPermi="['picture:pictureTagRelInfo:remove']">删除
-          </el-button>
-        </template>
-      </el-table-column>
+      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[4].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[5].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="点赞次数" align="center" prop="likeCount" v-if="columns[6].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="分享次数" align="center" prop="shareCount" v-if="columns[7].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[8].visible"
+                       :show-overflow-tooltip="true"/>
+<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--        <template #default="scope">-->
+<!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
+<!--                     v-hasPermi="['picture:pictureTagRelInfo:edit']">修改-->
+<!--          </el-button>-->
+<!--          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"-->
+<!--                     v-hasPermi="['picture:pictureTagRelInfo:remove']">删除-->
+<!--          </el-button>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
     </el-table>
 
     <pagination
@@ -118,12 +128,6 @@
     <!-- 添加或修改图片标签关联对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="pictureTagRelInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="图片名称" prop="pictureName">
-          <el-input v-model="form.pictureName" placeholder="请输入图片名称"/>
-        </el-form-item>
-        <el-form-item label="标签名称" prop="tagName">
-          <el-input v-model="form.tagName" placeholder="请输入标签名称"/>
-        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -164,7 +168,12 @@ const data = reactive({
     pictureId: null,
     pictureName: null,
     tagId: null,
-    tagName: null
+    tagName: null,
+    lookCount: null,
+    collectCount: null,
+    likeCount: null,
+    shareCount: null,
+    downloadCount: null
   },
   rules: {
     pictureName: [
@@ -172,14 +181,34 @@ const data = reactive({
     ],
     tagName: [
       {required: true, message: "标签名称不能为空", trigger: "blur"}
+    ],
+    lookCount: [
+      {required: true, message: "查看次数不能为空", trigger: "blur"}
+    ],
+    collectCount: [
+      {required: true, message: "收藏次数不能为空", trigger: "blur"}
+    ],
+    likeCount: [
+      {required: true, message: "点赞次数不能为空", trigger: "blur"}
+    ],
+    shareCount: [
+      {required: true, message: "分享次数不能为空", trigger: "blur"}
+    ],
+    downloadCount: [
+      {required: true, message: "下载次数不能为空", trigger: "blur"}
     ]
   },
   //表格展示列
   columns: [
     {key: 0, label: '图片编号', visible: true},
     {key: 1, label: '图片名称', visible: true},
-    {key: 2, label: '标签编号', visible: true},
+    {key: 2, label: '标签编号', visible: false},
     {key: 3, label: '标签名称', visible: true},
+    {key: 4, label: '查看次数', visible: true},
+    {key: 5, label: '收藏次数', visible: true},
+    {key: 6, label: '点赞次数', visible: true},
+    {key: 7, label: '分享次数', visible: true},
+    {key: 8, label: '下载次数', visible: true},
   ],
 });
 
@@ -207,7 +236,12 @@ function reset() {
     pictureId: null,
     pictureName: null,
     tagId: null,
-    tagName: null
+    tagName: null,
+    lookCount: null,
+    collectCount: null,
+    likeCount: null,
+    shareCount: null,
+    downloadCount: null
   };
   proxy.resetForm("pictureTagRelInfoRef");
 }

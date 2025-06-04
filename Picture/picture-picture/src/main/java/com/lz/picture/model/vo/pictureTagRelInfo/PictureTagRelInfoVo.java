@@ -14,7 +14,7 @@ import com.lz.picture.model.domain.PictureTagRelInfo;
  * 图片标签关联Vo对象 p_picture_tag_rel_info
  *
  * @author YY
- * @date 2025-05-25
+ * @date 2025-06-04
  */
 @Data
 public class PictureTagRelInfoVo implements Serializable {
@@ -44,6 +44,36 @@ public class PictureTagRelInfoVo implements Serializable {
      */
     @Excel(name = "标签名称")
     private String tagName;
+
+    /**
+     * 查看次数
+     */
+    @Excel(name = "查看次数")
+    private Long lookCount;
+
+    /**
+     * 收藏次数
+     */
+    @Excel(name = "收藏次数")
+    private Long collectCount;
+
+    /**
+     * 点赞次数
+     */
+    @Excel(name = "点赞次数")
+    private Long likeCount;
+
+    /**
+     * 分享次数
+     */
+    @Excel(name = "分享次数")
+    private Long shareCount;
+
+    /**
+     * 下载次数
+     */
+    @Excel(name = "下载次数")
+    private Long downloadCount;
 
 
     /**

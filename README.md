@@ -2258,12 +2258,17 @@ CREATE TABLE p_picture_info
 
 #### 图片标签关联表：p_picture_tag_rel_info
 
-| 字段名       | 类型    | 长度 | 键类型                           | Null | 默认值 | 描述      |
-| ------------ | ------- | ---- | -------------------------------- | ---- | ------ | --------- |
-| picture_id   | varchar | 128  | 外键 (p_picture_info:picture_id) | 否   |        | 图片 编号 |
-| picture_name | varchar | 32   |                                  | 否   |        | 图片名称  |
-| tag_id       | varchar | 128  | 外键 (p_tag_info:tag_id)         | 否   |        | 标签 编号 |
-| tag_name     | varchar | 32   |                                  | 否   |        | 标签名称  |
+| 字段名         | 类型    | 长度 | 键类型                           | Null | 默认值 | 描述      |
+| -------------- | ------- | ---- | -------------------------------- | ---- | ------ | --------- |
+| picture_id     | varchar | 128  | 外键 (p_picture_info:picture_id) | 否   |        | 图片 编号 |
+| picture_name   | varchar | 32   |                                  | 否   |        | 图片名称  |
+| tag_id         | varchar | 128  | 外键 (p_tag_info:tag_id)         | 否   |        | 标签 编号 |
+| tag_name       | varchar | 32   |                                  | 否   |        | 标签名称  |
+| look_count     | bigint  |      | 索引                             | 否   | 0      | 查看次数  |
+| collect_count  | bigint  |      | 索引                             | 否   | 0      | 收藏次数  |
+| like_count     | bigint  |      | 索引                             | 否   | 0      | 点赞次数  |
+| share_count    | bigint  |      | 索引                             | 否   | 0      | 分享次数  |
+| download_count | bigint  |      | 索引                             | 否   | 0      | 下载次数  |
 
 一张图片最多保存5个标签
 
@@ -2275,6 +2280,11 @@ CREATE TABLE p_picture_tag_rel_info
     picture_name VARCHAR(32) NOT NULL COMMENT '图片名称',
     tag_id     VARCHAR(128) NOT NULL COMMENT '标签编号',
     tag_name VARCHAR(32) NOT NULL COMMENT '标签名称',
+    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
+    collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+    like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
+    share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
     PRIMARY KEY (picture_id, tag_id),
     INDEX idx_picture_id (picture_id),
     INDEX idx_tag_id (tag_id),

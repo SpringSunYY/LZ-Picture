@@ -11,7 +11,7 @@ import com.lz.picture.model.domain.PictureTagRelInfo;
  * 图片标签关联Vo对象 p_picture_tag_rel_info
  *
  * @author YY
- * @date 2025-05-25
+ * @date 2025-06-04
  */
 @Data
 public class PictureTagRelInfoInsert implements Serializable {
@@ -22,21 +22,6 @@ public class PictureTagRelInfoInsert implements Serializable {
      * 图片编号
      */
     private String pictureId;
-
-    /**
-     * 图片名称
-     */
-    private String pictureName;
-
-    /**
-     * 标签编号
-     */
-    private String tagId;
-
-    /**
-     * 标签名称
-     */
-    private String tagName;
 
     /**
      * 对象转封装类
