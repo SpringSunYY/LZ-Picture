@@ -108,17 +108,17 @@ const onShowSizeChange = (currentPage: number, size: number) => {
   pictureQuery.value.pageSize = size
   pictureQuery.value.pageNum = 1 // 切换条数后重置到第一页
   current.value = 1
-  getSpaceInfoList()
+  getPictureInfoList()
 }
 
 // 修改现有 onChange 方法保持页码同步
 const onChange = (pageNumber: number) => {
   current.value = pageNumber
   pictureQuery.value.pageNum = pageNumber
-  getSpaceInfoList()
+  getPictureInfoList()
 }
 
-const getSpaceInfoList = () => {
+const getPictureInfoList = () => {
   if (props.currentParentId !== '') {
     pictureQuery.value.folderId = props.currentParentId
   }
@@ -148,10 +148,10 @@ const handleUpdate = (id: string) => {
 
 watchEffect(() => {
   if (props.currentParentId) {
-    getSpaceInfoList()
+    getPictureInfoList()
   }
   if (props.spaceId) {
-    getSpaceInfoList()
+    getPictureInfoList()
   }
 })
 // 封面样式处理
@@ -159,7 +159,10 @@ const coverStyle = (url?: string) => ({
   backgroundImage: `url(${url || '/default-space-cover.jpg'})`,
 })
 
-getSpaceInfoList()
+getPictureInfoList()
+defineExpose({
+  refreshData: getPictureInfoList,
+})
 </script>
 
 <style scoped lang="scss">

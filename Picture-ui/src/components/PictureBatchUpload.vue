@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import ImageEditor from '@uppy/image-editor'
@@ -22,12 +22,26 @@ const props = defineProps({
     default: () => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
   },
   maxSize: { type: Number, default: 10 },
+  hasUpload: { type: Boolean, default: true },
 })
-const emit = defineEmits(['upload-success'])
+const emit = defineEmits(['upload-success','upload-accomplish'])
 
 const uppyContainer = ref<HTMLElement | null>(null)
 let uppy: Uppy.Uppy | null = null
+let isUnmounted = false // 添加卸载标志
+const loadingRef = ref<() => void>()
 
+const showLoading = () => {
+  if (loadingRef.value) loadingRef.value() // 先关闭之前的
+  loadingRef.value = message.loading('开始上传，请勿随意刷新页面...', 0)
+}
+
+const hideLoading = () => {
+  if (loadingRef.value) {
+    loadingRef.value()
+    loadingRef.value = undefined
+  }
+}
 onMounted(() => {
   uppy = new Uppy({
     restrictions: {
@@ -51,36 +65,89 @@ onMounted(() => {
 
   // 修改上传事件监听器
   uppy.addUploader(async (fileIDs) => {
-    const hide = message.loading('开始上传，请勿随意刷新页面...', 0)
-    for (const fileID of fileIDs) {
-      const file = uppy.getFile(fileID)
-      if (!file) continue
-      try {
-        const formData = new FormData()
-        formData.append('file', file.data)
-        const response = await pictureUpload(formData)
+    if (isUnmounted) return // 检查是否已卸载
 
-        if (response.code !== 200) {
-          throw new Error('上传失败')
+    showLoading()
+    try {
+      for (const fileID of fileIDs) {
+        if (!uppy || isUnmounted) break // 双重检查
+        const file = uppy.getFile(fileID)
+        if (!file) continue
+        // console.log(props.hasUpload)
+        if (props.hasUpload) {
+          message.error('上传失败，获取是因为空间内存不足！！！')
+          break
         }
 
-        // 通知 Uppy 上传成功
-        uppy.setFileState(fileID, {
-          progress: { uploadComplete: true, uploadStarted: true, percentage: 100 },
-          response: await response.data,
-        })
-        emit('upload-success', response.data)
-        message.success('图片' + response.data.name + '上传成功', 1)
-      } catch (err) {
-        uppy.emit('upload-error', file, err)
+        try {
+          const formData = new FormData()
+          formData.append('file', file.data)
+          const response = await pictureUpload(formData)
+
+          if (isUnmounted || !uppy) return // 再次检查
+
+          if (response.code !== 200) throw new Error('上传失败')
+
+          uppy.setFileState(fileID, {
+            progress: { uploadComplete: true, uploadStarted: true, percentage: 100 },
+            response: response.data,
+          })
+          emit('upload-success', response.data)
+          message.success(`图片${response?.data?.name}上传成功`, 1)
+        } catch (err) {
+          if (uppy && !isUnmounted) {
+            uppy.emit('upload-error', file, err)
+          }
+        }
       }
+    } finally {
+      if (!isUnmounted) {
+        hideLoading()
+      }
+      emit('upload-accomplish')
     }
-    setTimeout(hide, 1000)
   })
 })
 
+const cleanupUppy = () => {
+  if (!uppy) return
+
+  isUnmounted = true // 标记为已卸载
+  hideLoading()
+
+  try {
+    // 1. 取消所有上传 (兼容新旧版本)
+    if (typeof uppy.cancelAll === 'function') {
+      uppy.cancelAll()
+    } else if (typeof uppy.cancel === 'function') {
+      uppy.cancel()
+    }
+
+    // 2. 清除所有文件 (更安全的做法)
+    if (typeof uppy.getFiles === 'function') {
+      const files = uppy.getFiles()
+      files.forEach((file) => {
+        if (typeof uppy?.removeFile === 'function') {
+          uppy.removeFile(file.id)
+        }
+      })
+    }
+
+    // 3. 销毁实例 (主要清理方法)
+    if (typeof uppy.close === 'function') {
+      uppy.close()
+    } else if (typeof uppy.destroy === 'function') {
+      uppy.destroy() // 某些版本使用destroy
+    }
+
+    uppy = null
+  } catch (error) {
+    console.error('Uppy cleanup error:', error)
+  }
+}
+
 onBeforeUnmount(() => {
-  uppy?.close()
+  cleanupUppy()
 })
 </script>
 <style lang="scss">

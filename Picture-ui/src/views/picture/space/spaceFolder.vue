@@ -49,9 +49,21 @@
         <FolderAddTwoTone class="icon" />
         <div class="text">添加文件夹</div>
       </a-col>
+      <a-col
+        :xs="24"
+        :sm="9"
+        :md="6"
+        :lg="3"
+        class="folder-item add-folder"
+        @click="handleBatchUpload"
+      >
+        <ToTopOutlined class="icon" />
+        <div class="text">批量上传图片</div>
+      </a-col>
     </a-row>
 
     <PictureInfoList
+      ref="pictureInfoListRef"
       style="margin-top: 20px"
       :space-id="spaceId"
       :current-parent-id="currentParentId"
@@ -110,6 +122,36 @@
         </div>
       </a-form>
     </a-modal>
+    <!--批量添加图片-->
+    <a-modal v-model:open="openBatchUpload" :footer="null" :width="800" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip title="批量上传可能会因为空间容量不够导致上传失败，请自行清理空间">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formState"
+        :rules="rules"
+        @finish="handleSubmit"
+        ref="formRef"
+        labelAlign="left"
+      >
+        <a-form-item label="" name="">
+          <PictureBatchUpload
+            @upload-success="handleUploadSuccess"
+            @upload-accomplish="handleUploadAccomplish"
+            :hasUpload="hasUpload"
+            :maxCount="100"
+            :maxSize="15"
+          ></PictureBatchUpload>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -121,6 +163,7 @@ import {
   FolderAddTwoTone,
   FolderTwoTone,
   QuestionCircleOutlined,
+  ToTopOutlined,
 } from '@ant-design/icons-vue'
 import type {
   SpaceFolderInfo,
@@ -137,12 +180,18 @@ import {
 import { message, Modal } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
 import PictureInfoList from '@/components/PictureInfoList.vue'
+import PictureBatchUpload from '@/components/PictureBatchUpload.vue'
+import type { PictureFileResponse } from '@/types/file'
+import { addPictureInfo } from '@/api/picture/picture.ts'
+import { PPictureStatus } from '@/types/picture/picture.d.ts'
 
 interface Folder {
   folderId: string
   folderName: string
   parentId: string
 }
+
+const pictureInfoListRef = ref<InstanceType<typeof PictureInfoList>>()
 
 // 获取当前路由信息
 const route = useRoute()
@@ -187,7 +236,7 @@ const folderPathStack = reactive<Folder[]>([])
 function enterFolder(folder: Folder) {
   folderPathStack.push(folder)
   currentParentId.value = folder.folderId
-  console.log(currentParentId.value)
+  // console.log(currentParentId.value)
   folderQuery.value.parentId = folder.folderId
   getFolderList()
 }
@@ -283,7 +332,48 @@ const getFolderList = () => {
     folderList.value = res?.rows || []
   })
 }
+const openBatchUpload = ref(false)
+const hasUpload = ref<boolean>(false)
+const handleBatchUpload = () => {
+  openBatchUpload.value = true
+  title.value = '批量上传图片'
+}
 
+const handleUploadSuccess = async (data: PictureFileResponse) => {
+  try {
+    const formData = {
+      pictureUrl: data.pictureUrl,
+      dnsUrl: data.dnsUrl,
+      name: data.name,
+      picSize: data.picSize,
+      picWidth: data.picWidth,
+      picHeight: data.picHeight,
+      picScale: data.picScale,
+      picFormat: data.picFormat,
+      thumbnailUrl: data.thumbnailUrl,
+      spaceId: spaceId.value,
+      folderId: currentParentId.value,
+      pointsNeed: 10,
+      pictureStatus: PPictureStatus.PICTURE_STATUS_1,
+    }
+    // console.log(hasUpload.value)
+    const res = await addPictureInfo(formData)
+    if (res.code === 200) {
+      message.success('图片(' + data.name + ')添加成功，请等待所有图片上传完成')
+    } else {
+      message.error(res.msg)
+      hasUpload.value = true
+    }
+  } catch (e) {
+    console.log(e)
+    hasUpload.value = true
+  }
+}
+const handleUploadAccomplish = () => {
+  console.log('上传完成')
+  getFolderList()
+  pictureInfoListRef.value?.refreshData()
+}
 getFolderList()
 </script>
 

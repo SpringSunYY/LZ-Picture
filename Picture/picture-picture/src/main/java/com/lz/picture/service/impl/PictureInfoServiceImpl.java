@@ -297,9 +297,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public int userInsertPictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
         //查询分类是否存在
-        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
-        ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
-        categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
+        PictureCategoryInfo categoryInfo = new PictureCategoryInfo();
+        if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
+            //查询分类是否存在
+            categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
+            categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
+        }
         //更新空间信息
         spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
@@ -321,8 +325,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         int i = pictureInfoMapper.insertPictureInfo(pictureInfo);
 
         //异步更新图片空间、标签、标签关联、分类
+        PictureCategoryInfo finalCategoryInfo = categoryInfo;
         executorService.execute(() -> {
-            implementPictureAdd(pictureInfo, spaceInfo, categoryInfo);
+            implementPictureAdd(pictureInfo, spaceInfo, finalCategoryInfo);
         });
         //异步更新文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateNormalFileLog(pictureInfo));
@@ -417,6 +422,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     private void implementPictureAdd(PictureInfo pictureInfo, SpaceInfo spaceInfo, PictureCategoryInfo categoryInfo) {
         //查询标签是否存在
         List<String> tags = pictureInfo.getTags();
+        if (StringUtils.isEmpty(tags)) {
+            tags = new ArrayList<>();
+        }
         //校验标签长度，如果超过16，则截取
         tags.forEach(tag -> {
             if (tag.length() > 16) {
@@ -476,7 +484,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 pictureTagRelInfos.add(rel);
             });
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
-            pictureCategoryInfoService.updateById(categoryInfo);
+            if (StringUtils.isNotEmpty(categoryInfo.getCategoryId())) {
+                pictureCategoryInfoService.updateById(categoryInfo);
+            }
+            System.out.println("spaceInfo = " + spaceInfo);
             return spaceInfoService.updateById(spaceInfo);
         });
     }
@@ -685,9 +696,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
-        //查询分类是否存在
-        PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
-        ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
+        PictureCategoryInfo categoryInfo = new PictureCategoryInfo();
+        if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
+            //查询分类是否存在
+            categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
+        }
         //查询在数据库内内容
         PictureInfo pictureInfoDb = pictureInfoMapper.selectPictureInfoByPictureId(pictureInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb), HttpStatus.NO_CONTENT, "图片不存在");
@@ -733,10 +747,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
-        //异步更新分类信息
-        executorService.execute(() -> {
+        //更新分类信息
+        if (StringUtils.isNotEmpty(categoryInfo.getCategoryId())) {
             pictureCategoryInfoService.updatePictureCategoryInfo(categoryInfo.getCategoryId(), pictureInfoDb.getCategoryId());
-        });
+        }
         //异步更新文件日志的信息
 //        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
         //查询用户现在所拥有的信息
