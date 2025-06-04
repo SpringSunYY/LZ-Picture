@@ -489,11 +489,12 @@ const getPictureInfo = () => {
 }
 getPictureInfo()
 getPictureCategoryList()
+getTagList()
 </script>
 
 <style lang="scss" scoped>
 .picture-edit {
-  width: 70%;
+  width: 80%;
   margin: 0 auto;
 
   .custom-modal-title {

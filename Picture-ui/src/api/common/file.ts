@@ -1,7 +1,6 @@
 import { http as request } from '@/utils'
 import type { PictureFileResponse, UrlUploadRequest } from '@/types/file'
 import type { API } from '@/types/common'
-import type { PictureDownloadLogInfoRequest } from '@/types/picture/pictureDownloadLogInfo'
 
 export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
   return request({

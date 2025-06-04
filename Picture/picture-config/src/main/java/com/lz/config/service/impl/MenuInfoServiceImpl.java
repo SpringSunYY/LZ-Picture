@@ -97,10 +97,10 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         if (StringUtils.isNotNull(one)) {
             throw new RuntimeException("菜单名称重复");
         }
-        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
-        if (StringUtils.isNotNull(per)) {
-            throw new RuntimeException("权限标识重复");
-        }
+//        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
+//        if (StringUtils.isNotNull(per)) {
+//            throw new RuntimeException("权限标识重复");
+//        }
         menuInfo.setCreateBy(SecurityUtils.getUsername());
         menuInfo.setCreateTime(DateUtils.getNowDate());
         //存入缓存
@@ -121,10 +121,10 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         if (StringUtils.isNotNull(one) && !one.getMenuId().equals(menuInfo.getMenuId())) {
             throw new RuntimeException("菜单名称重复");
         }
-        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
-        if (StringUtils.isNotNull(per) && !per.getMenuId().equals(menuInfo.getMenuId())) {
-            throw new RuntimeException("权限标识重复");
-        }
+//        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
+//        if (StringUtils.isNotNull(per) && !per.getMenuId().equals(menuInfo.getMenuId())) {
+//            throw new RuntimeException("权限标识重复");
+//        }
         //判断父类是否是自己
         if (menuInfo.getMenuId().toString().equals(menuInfo.getParentId())) {
             throw new RuntimeException("父类不能是自己");

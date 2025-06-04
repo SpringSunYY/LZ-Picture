@@ -7,9 +7,14 @@
           <FancyImage :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
             <template #content>
               <div style="position: relative; padding: 40px">
-                <p style="font-size: 5vh; color: #00ff95; text-align: center">{{ picture.name!==''? picture.name:'LZ-Picture' }}</p>
+                <p style="font-size: 5vh; color: #00ff95; text-align: center">
+                  {{ picture.name !== '' ? picture.name : 'LZ-Picture' }}
+                </p>
                 <p style="color: white; text-indent: 2em; font-size: 2vh">
-                  {{ picture.introduction !== '' ? picture.introduction : '我始终相信，每一张图片都有属于自己的故事，而你，就是那个抒写故事的人。'
+                  {{
+                    picture.introduction !== ''
+                      ? picture.introduction
+                      : '我始终相信，每一张图片都有属于自己的故事，而你，就是那个抒写故事的人。'
                   }}
                 </p>
               </div>
@@ -133,7 +138,7 @@
         </a-card>
       </a-col>
     </a-row>
-    <verticalFallLayout/>
+    <verticalFallLayout></verticalFallLayout>
   </div>
 </template>
 
@@ -158,7 +163,7 @@ import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
-import verticalFallLayout from "@/views/picture/verticalFallLayout/index.vue"
+import verticalFallLayout from '@/views/picture/verticalFallLayout/index.vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)

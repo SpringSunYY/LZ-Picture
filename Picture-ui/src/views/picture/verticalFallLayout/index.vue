@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .picture {
   padding: 8px;
-  margin: 0 5vw;
+  margin: 0 4vw;
 
   .masonry {
     display: grid;

@@ -14,6 +14,14 @@
     "tailwind": "npx tailwindcss -i ./src/input.css -o ./src/output.css --watch"
   },
   "dependencies": {
+    "@uppy/core": "^4.4.6",
+    "@uppy/dashboard": "^4.3.4",
+    "@uppy/drop-target": "^3.1.1",
+    "@uppy/image-editor": "^3.3.3",
+    "@uppy/locales": "^4.5.3",
+    "@uppy/tus": "^4.2.2",
+    "@uppy/webcam": "^4.2.0",
+    "@uppy/xhr-upload": "^4.3.3",
     "@vueuse/core": "^13.1.0",
     "ant-design-vue": "^4.2.6",
     "autoprefixer": "^10.4.21",
@@ -31,6 +39,8 @@
     "motion-v": "^1.0.0-beta.1",
     "pinia": "^3.0.1",
     "undraw-ui": "^1.2.7",
+    "v-viewer": "^3.0.21",
+    "viewerjs": "^1.11.7",
     "vue": "^3.5.13",
     "vue-cropperjs": "^5.0.0",
     "vue-filepond": "^7.0.4",
@@ -61,7 +71,7 @@
     "typescript": "~5.7.3",
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.1.0",
-    "vite-plugin-svg-icons": "^2.0.1",
+    "vite-plugin-svg-icons": "^0.1.0",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vue-tsc": "^2.2.2"
   }
