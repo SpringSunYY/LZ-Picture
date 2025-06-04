@@ -23,7 +23,7 @@
         <!-- 作者信息 -->
         <a-card :bordered="false" class="card author-card">
           <a-space align="center" :wrap="true">
-            <a-avatar :src="formatDnsUrl(picture.userInfoVo?.avatarUrl)" size="large" />
+            <a-avatar :src="formatDnsUrl(picture?.userInfoVo?.avatarUrl)" size="large" />
             <div>
               <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
               <div class="ip-region">IP属地：{{ picture.userInfoVo?.ipAddress || '未知' }}</div>
@@ -133,6 +133,7 @@
         </a-card>
       </a-col>
     </a-row>
+    <verticalFallLayout/>
   </div>
 </template>
 
@@ -157,6 +158,7 @@ import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
+import verticalFallLayout from "@/views/picture/verticalFallLayout/index.vue"
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
