@@ -666,6 +666,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         Long timeout = Long.valueOf(time);
         String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), timeout);
         userPictureDetailInfoVo.setPictureUrl(url);
+        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
+        if (redisCache.hasKey(key)) {
+            redisCache.deleteObject(key);
+        }
         return userPictureDetailInfoVo;
     }
 
@@ -734,7 +738,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureCategoryInfoService.updatePictureCategoryInfo(categoryInfo.getCategoryId(), pictureInfoDb.getCategoryId());
         });
         //异步更新文件日志的信息
-        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
+//        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateFileLogInfo(pictureInfoDb, pictureInfo));
         //查询用户现在所拥有的信息
         return userMySelectPictureInfoByPictureId(pictureInfo.getPictureId(), pictureInfo.getUserId());
     }

@@ -102,6 +102,11 @@ const props = defineProps({
     default: false,
     required: false,
   },
+  isDelete: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'upload-success', 'upload-error'])
@@ -287,6 +292,10 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
 
 // 删除处理
 const handleRemove = (file) => {
+  if (props.isDelete) {
+    message.warn('当前操作不支持删除图片')
+    return false
+  }
   innerFileList.value = innerFileList.value.filter((f) => f.uid !== file.uid)
   emit('update:modelValue', formatOutput())
 }

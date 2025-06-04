@@ -59,6 +59,7 @@
                 :maxCount="1"
                 @upload-success="handleSuccess"
                 :isEdit="true"
+                :is-delete="true"
               />
               <PictureOutPainting
                 v-if="externalOpen"
