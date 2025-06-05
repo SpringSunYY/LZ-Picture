@@ -39,6 +39,16 @@
         <result property="deletedTime" column="deleted_time"/>
     </resultMap>
 
+    <resultMap type="PictureInfo" id="PictureInfoResultVo">
+        <result property="pictureId" column="picture_id" jdbcType="VARCHAR"/>
+        <result property="dnsUrl" column="dns_url" jdbcType="CHAR"/>
+        <result property="name" column="name" jdbcType="CHAR"/>
+        <result property="picWidth" column="pic_width" jdbcType="INTEGER"/>
+        <result property="picHeight" column="pic_height" jdbcType="INTEGER"/>
+        <result property="picScale" column="pic_scale" jdbcType="DOUBLE"/>
+        <result property="thumbnailUrl" column="thumbnail_url" jdbcType="VARCHAR"/>
+    </resultMap>
+
     <sql id="selectPictureInfoVo">
         select picture_id,
                picture_url,
@@ -234,4 +244,60 @@
             #{pictureId}
         </foreach>
     </delete>
+
+    <select id="getPictureInfoDetailRecommend"
+            parameterType="com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest"
+            resultMap="PictureInfoResultVo">
+        WITH origin_tags AS (SELECT DISTINCT tag_name
+                             FROM p_picture_tag_rel_info
+                             WHERE picture_id = #{pictureId}),
+             matched_images AS (SELECT p.picture_id,
+                                       p.name,
+                                       p.thumbnail_url,
+                                       p.download_count,
+                                       p.dns_url,
+                                       p.pic_width,
+                                       p.pic_height,
+                                       p.pic_scale,
+                                       p.share_count,
+                                       p.collect_count,
+                                       p.like_count,
+                                       p.look_count,
+                                       COUNT(DISTINCT CASE
+                                                          WHEN ot.tag_name IS NOT NULL THEN rel.tag_name
+                                                          ELSE NULL
+                                           END) AS exact_match_count,
+                                       COUNT(DISTINCT CASE
+                                                          WHEN rel.tag_name LIKE CONCAT('%', ot.tag_name, '%')
+                                                              THEN rel.tag_name
+                                                          ELSE NULL
+                                           END) AS partial_match_count
+                                FROM p_picture_info p
+                                         JOIN p_picture_tag_rel_info rel ON p.picture_id = rel.picture_id
+                                         LEFT JOIN origin_tags ot ON 1 = 1
+                                WHERE p.picture_id != #{pictureId}
+            AND p.review_status = #{reviewStatus}
+            AND p.picture_status = #{pictureStatus}
+            AND (ot.tag_name IS NULL OR rel.tag_name LIKE CONCAT('%', ot.tag_name, '%'))
+        GROUP BY p.picture_id
+            )
+        SELECT picture_id,
+               dns_url,
+               name,
+               pic_width,
+               pic_height,
+               pic_scale,
+               thumbnail_url,
+               (exact_match_count * 2 + partial_match_count) AS match_score
+        FROM matched_images
+        ORDER BY exact_match_count DESC,
+                 partial_match_count DESC,
+                 download_count DESC,
+                 share_count DESC,
+                 collect_count DESC,
+                 like_count DESC,
+                 look_count DESC
+            LIMIT #{pageSize}
+        OFFSET #{offset};
+    </select>
 </mapper>

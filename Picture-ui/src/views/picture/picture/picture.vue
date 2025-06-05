@@ -81,7 +81,7 @@ async function loadMore() {
     const newData = generatePictureData(res?.rows || [])
     if (newData.length > 0) {
       rawPictureList.value.push(...newData)
-      // pictureQuery.value.pageNum++
+      pictureQuery.value.pageNum++
       await nextTick()
       formatPictureListByRow()
     } else {
@@ -99,7 +99,7 @@ const getPictureList = () => {
     const newData = generatePictureData(res?.rows || [])
     if (newData.length > 0) {
       rawPictureList.value = newData
-      // pictureQuery.value.pageNum++
+      pictureQuery.value.pageNum++
       await nextTick()
       formatPictureListByRow()
     } else {

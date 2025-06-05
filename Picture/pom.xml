@@ -36,7 +36,7 @@
         <springdoc.version>2.6.0</springdoc.version>
 
         <!--新的集成-->
-        <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
+        <mybatis-plus.version>3.5.12</mybatis-plus.version>
         <lombok.version>1.18.30</lombok.version>
         <hutool.version>5.8.26</hutool.version>
         <aliyun.core.version>4.0.6</aliyun.core.version>
@@ -171,6 +171,12 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-jsqlparser</artifactId>
                 <version>${mybatis-plus.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.github.jsqlparser</groupId>
+                        <artifactId>jsqlparser</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>

@@ -9,6 +9,7 @@ import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoUpdate;
@@ -133,6 +134,18 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return getDataTable(list, list.size());
     }
 
+    @GetMapping("/detail/recommend")
+    public TableDataInfo getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest) {
+        pictureInfoRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        pictureInfoRecommendRequest.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue());
+        List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoRecommendRequest);
+        //压缩图片
+        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
+        for (UserPictureInfoVo vo : userPictureInfoVos) {
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
+        }
+        return getDataTable(userPictureInfoVos,userPictureInfoVos.size());
+    }
 
     private List<PictureInfo> getPictureInfos(Page<PictureInfo> page) {
         List<PictureInfo> pictureInfoList = page.getRecords();

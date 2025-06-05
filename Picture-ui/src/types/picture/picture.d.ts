@@ -322,6 +322,21 @@ export interface PictureInfoSearchSuggestionVo {
   name: string
 }
 
+/**
+ * 图片推荐请求参数
+ */
+export interface PictureInfoRecommendRequest {
+  /** 图片编号 */
+  pictureId: string;
+
+  /** 当前记录起始索引，从0开始 */
+  currentPage: number;
+
+  /** 每页显示记录数（1~50） */
+  pageSize: number;
+}
+
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

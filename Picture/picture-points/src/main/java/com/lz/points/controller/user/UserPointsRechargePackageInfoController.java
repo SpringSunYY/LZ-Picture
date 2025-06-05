@@ -37,7 +37,7 @@ public class UserPointsRechargePackageInfoController extends BaseUserInfoControl
         PointsRechargePackageInfo pointsRechargePackageInfo = UserPointsRechargePackageInfoQuery.queryToObj(pointsRechargePackageInfoQuery);
         List<PointsRechargePackageInfo> list = pointsRechargePackageInfoService.userSelectPointsRechargePackageInfoList(pointsRechargePackageInfo);
         List<UserPointsRechargePackageInfoVo> userPointsRechargePackageInfoVos = UserPointsRechargePackageInfoVo.objToVo(list);
-        return getDataTable(userPointsRechargePackageInfoVos, userPointsRechargePackageInfoVos.size());
+        return getDataTable(userPointsRechargePackageInfoVos, Long.parseLong(String.valueOf(userPointsRechargePackageInfoVos.size())));
     }
 
     /**

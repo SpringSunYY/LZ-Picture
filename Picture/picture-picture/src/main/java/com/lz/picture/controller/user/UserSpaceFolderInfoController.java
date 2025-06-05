@@ -107,7 +107,7 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
                 .sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder()))
                 .map(SpaceFolderInfoVo::objToVo)
                 .collect(Collectors.toList());
-        return getDataTable(infoVos,infoVos.size());
+        return getDataTable(infoVos, infoVos.size());
     }
 
     /**

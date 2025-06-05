@@ -2864,3 +2864,30 @@ onMounted(async () => {
 
 ```
 
+```
+package com.lz.picture.model.dto.pictureInfo;
+
+import com.lz.common.core.page.PageDomain;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * 图片推荐信息
+ *
+ * @Project: Picture
+ * @Author: YY
+ * @CreateTime: 2025-06-05  22:41
+ * @Version: 1.0
+ */
+@Data
+public class PictureInfoRecommendRequest extends PageDomain implements Serializable {
+
+    /**
+     * 图片编号
+     */
+    private String pictureId;
+}
+
+```
+

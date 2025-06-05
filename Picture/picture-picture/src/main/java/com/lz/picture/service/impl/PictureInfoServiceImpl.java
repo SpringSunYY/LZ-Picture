@@ -26,11 +26,9 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest;
 import com.lz.picture.model.enums.*;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchSuggestionVo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
-import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
+import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
@@ -1077,5 +1075,18 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         List<PictureInfoSearchSuggestionVo> pictureInfoSearchSuggestionVos = PictureInfoSearchSuggestionVo.objToVo(pictureInfos);
         redisCache.setCacheObject(key, pictureInfoSearchSuggestionVos, PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME, TimeUnit.SECONDS);
         return pictureInfoSearchSuggestionVos;
+    }
+
+    @Override
+    public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest) {
+        pictureInfoRecommendRequest.setOffset((pictureInfoRecommendRequest.getCurrentPage() - 1) * pictureInfoRecommendRequest.getPageSize());
+        // 在查询前清除分页设置
+//        PageHelper.clearPage();
+        //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
+        List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(pictureInfoRecommendRequest);
+        list.forEach(pictureInfo -> {
+            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+        });
+        return UserPictureInfoVo.objToVo(list);
     }
 }

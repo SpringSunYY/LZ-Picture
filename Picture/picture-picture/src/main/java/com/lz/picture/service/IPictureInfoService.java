@@ -2,15 +2,14 @@ package com.lz.picture.service;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchSuggestionVo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest;
+import com.lz.picture.model.vo.pictureInfo.*;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 
 /**
  * 图片信息Service接口
@@ -192,4 +191,14 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/6/4 00:14
      **/
     List<PictureInfoSearchSuggestionVo> getSearchSuggestion(String name);
+
+    /**
+     * 根据图片详情获取推荐图片
+     * @author: YY
+     * @method: getPictureInfoDetailRecommend
+     * @date: 2025/6/5 23:20
+     * @param pictureInfoRecommendRequest 图片推荐请求
+     * @return List<UserPictureInfoVo>
+     **/
+    List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest);
 }

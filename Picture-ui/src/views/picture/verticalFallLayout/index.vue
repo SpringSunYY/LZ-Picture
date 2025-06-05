@@ -6,6 +6,7 @@
         :key="item.pictureId"
         class="masonry-item"
         :style="{ gridRowEnd: `span ${item.rowSpan}` }"
+        @click="handleToPicture(item)"
       >
         <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
           {{ item.name }}
@@ -22,15 +23,23 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
-import type { PictureInfoVo, PictureInfoQuery } from '@/types/picture/picture'
-import { listPictureInfo } from '@/api/picture/picture.ts'
+import type { PictureInfoRecommendRequest, PictureInfoVo } from '@/types/picture/picture'
+import { getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
+import { useRouter } from 'vue-router'
 
+const props = defineProps({
+  pictureId: {
+    type: String,
+    default: '',
+  },
+})
 const pictureList = ref<(PictureInfoVo & { rowSpan: number })[]>([])
-const pictureQuery = ref<PictureInfoQuery>({
-  pageNum: 1,
+const pictureQuery = ref<PictureInfoRecommendRequest>({
+  currentPage: 1,
   pageSize: 20,
+  pictureId: props.pictureId,
 })
 
 const loading = ref(false)
@@ -45,7 +54,7 @@ async function loadMore() {
 
   await new Promise((resolve) => setTimeout(resolve, 500))
 
-  const res = await listPictureInfo(pictureQuery.value)
+  const res = await getPictureInfoDetailRecommend(pictureQuery.value)
   const newData = (res?.rows || []).map((data) => ({
     ...data,
     rowSpan: Math.ceil((data.picHeight / data.picWidth) * 15), // 根据比例动态计算 rowSpan
@@ -53,7 +62,7 @@ async function loadMore() {
 
   if (newData.length > 0) {
     pictureList.value.push(...newData)
-    pictureQuery.value.pageNum++
+    pictureQuery.value.currentPage++
   } else {
     noMore.value = true
   }
@@ -79,6 +88,16 @@ function setupObserver() {
   }
 }
 
+const router = useRouter()
+const handleToPicture = (item: PictureInfoVo) => {
+  const routeData = router.resolve({
+    path: '/pictureDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+  window.open(routeData.href, '_blank')
+}
 onMounted(() => {
   loadMore()
   setupObserver()

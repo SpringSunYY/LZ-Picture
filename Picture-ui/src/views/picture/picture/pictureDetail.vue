@@ -138,7 +138,7 @@
         </a-card>
       </a-col>
     </a-row>
-    <verticalFallLayout></verticalFallLayout>
+    <verticalFallLayout :pictureId="pictureId"></verticalFallLayout>
   </div>
 </template>
 
