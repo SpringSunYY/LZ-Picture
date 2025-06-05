@@ -417,7 +417,7 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
     //region 更新用户行为
     @Override
     public void autoUpdateUserBehaviorInfo() {
-        //首先更新空间，空间只有收藏
+        //首先更新空间，空间只有下载
         //获取到需要更新的空间列表
         List<UserBehaviorInfo> spaceBehaviorList = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
                 .eq(UserBehaviorInfo::getBehaviorType, PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())
@@ -434,7 +434,7 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
         List<UserBehaviorInfo> pictureBehaviorList = userBehaviorInfoService.list(new LambdaQueryWrapper<UserBehaviorInfo>()
                 .eq(UserBehaviorInfo::getTargetType, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue())
                 .eq(UserBehaviorInfo::getHasStatistics, CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue()));
-        if (StringUtils.isEmpty(pictureBehaviorList)) {
+        if (StringUtils.isNotEmpty(pictureBehaviorList)) {
             pictureBehaviorList.forEach(pictureBehavior -> {
                 pictureBehavior.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_1.getValue());
             });
@@ -448,10 +448,10 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
             if (StringUtils.isNotEmpty(pictureInfos)) {
                 pictureInfoService.updateBatchById(pictureInfos);
             }
-            if (StringUtils.isEmpty(spaceBehaviorList)) {
+            if (StringUtils.isNotEmpty(spaceBehaviorList)) {
                 userBehaviorInfoService.updateBatchById(spaceBehaviorList);
             }
-            if (StringUtils.isEmpty(pictureBehaviorList)) {
+            if (StringUtils.isNotEmpty(pictureBehaviorList)) {
                 userBehaviorInfoService.updateBatchById(pictureBehaviorList);
             }
             if (StringUtils.isNotEmpty(pictureTagRelInfos)) {
@@ -555,4 +555,5 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
                     return info;
                 }).toList();
     }
+    // endregion
 }

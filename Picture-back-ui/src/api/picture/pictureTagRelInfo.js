@@ -10,9 +10,9 @@ export function listPictureTagRelInfo(query) {
 }
 
 // 查询图片标签关联详细
-export function getPictureTagRelInfo(pictureId) {
+export function getPictureTagRelInfo(relId) {
   return request({
-    url: '/picture/pictureTagRelInfo/' + pictureId,
+    url: '/picture/pictureTagRelInfo/' + relId,
     method: 'get'
   })
 }
@@ -36,9 +36,9 @@ export function updatePictureTagRelInfo(data) {
 }
 
 // 删除图片标签关联
-export function delPictureTagRelInfo(pictureId) {
+export function delPictureTagRelInfo(relId) {
   return request({
-    url: '/picture/pictureTagRelInfo/' + pictureId,
+    url: '/picture/pictureTagRelInfo/' + relId,
     method: 'delete'
   })
 }

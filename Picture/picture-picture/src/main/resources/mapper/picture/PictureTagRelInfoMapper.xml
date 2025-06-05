@@ -34,7 +34,7 @@
     <select id="selectPictureTagRelInfoList" parameterType="PictureTagRelInfo" resultMap="PictureTagRelInfoResult">
         <include refid="selectPictureTagRelInfoVo"/>
         <where>
-            <if test="relId != null ">and rel_id = #{relId}</if>
+            <if test="relId != null  and relId != ''">and rel_id = #{relId}</if>
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
             <if test="pictureName != null  and pictureName != ''">and picture_name like concat('%', #{pictureName},
                 '%')
@@ -44,18 +44,18 @@
         </where>
     </select>
 
-    <select id="selectPictureTagRelInfoByPictureId" parameterType="String" resultMap="PictureTagRelInfoResult">
+    <select id="selectPictureTagRelInfoByRelId" parameterType="String" resultMap="PictureTagRelInfoResult">
         <include refid="selectPictureTagRelInfoVo"/>
-        where picture_id = #{pictureId}
+        where rel_id = #{relId}
     </select>
 
     <insert id="insertPictureTagRelInfo" parameterType="PictureTagRelInfo">
         insert into p_picture_tag_rel_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="relId != null">rel_id,</if>
-            <if test="pictureId != null">picture_id,</if>
+            <if test="pictureId != null and pictureId != ''">picture_id,</if>
             <if test="pictureName != null and pictureName != ''">picture_name,</if>
-            <if test="tagId != null">tag_id,</if>
+            <if test="tagId != null and tagId != ''">tag_id,</if>
             <if test="tagName != null and tagName != ''">tag_name,</if>
             <if test="lookCount != null">look_count,</if>
             <if test="collectCount != null">collect_count,</if>
@@ -65,9 +65,9 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="relId != null">#{relId},</if>
-            <if test="pictureId != null">#{pictureId},</if>
+            <if test="pictureId != null and pictureId != ''">#{pictureId},</if>
             <if test="pictureName != null and pictureName != ''">#{pictureName},</if>
-            <if test="tagId != null">#{tagId},</if>
+            <if test="tagId != null and tagId != ''">#{tagId},</if>
             <if test="tagName != null and tagName != ''">#{tagName},</if>
             <if test="lookCount != null">#{lookCount},</if>
             <if test="collectCount != null">#{collectCount},</if>
@@ -80,9 +80,9 @@
     <update id="updatePictureTagRelInfo" parameterType="PictureTagRelInfo">
         update p_picture_tag_rel_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="relId != null">rel_id = #{relId},</if>
+            <if test="pictureId != null and pictureId != ''">picture_id = #{pictureId},</if>
             <if test="pictureName != null and pictureName != ''">picture_name = #{pictureName},</if>
-            <if test="tagId != null">tag_id = #{tagId},</if>
+            <if test="tagId != null and tagId != ''">tag_id = #{tagId},</if>
             <if test="tagName != null and tagName != ''">tag_name = #{tagName},</if>
             <if test="lookCount != null">look_count = #{lookCount},</if>
             <if test="collectCount != null">collect_count = #{collectCount},</if>
@@ -90,19 +90,19 @@
             <if test="shareCount != null">share_count = #{shareCount},</if>
             <if test="downloadCount != null">download_count = #{downloadCount},</if>
         </trim>
-        where picture_id = #{pictureId}
+        where rel_id = #{relId}
     </update>
 
-    <delete id="deletePictureTagRelInfoByPictureId" parameterType="String">
+    <delete id="deletePictureTagRelInfoByRelId" parameterType="String">
         delete
         from p_picture_tag_rel_info
-        where picture_id = #{pictureId}
+        where rel_id = #{relId}
     </delete>
 
-    <delete id="deletePictureTagRelInfoByPictureIds" parameterType="String">
-        delete from p_picture_tag_rel_info where picture_id in
-        <foreach item="pictureId" collection="array" open="(" separator="," close=")">
-            #{pictureId}
+    <delete id="deletePictureTagRelInfoByRelIds" parameterType="String">
+        delete from p_picture_tag_rel_info where rel_id in
+        <foreach item="relId" collection="array" open="(" separator="," close=")">
+            #{relId}
         </foreach>
     </delete>
 </mapper>

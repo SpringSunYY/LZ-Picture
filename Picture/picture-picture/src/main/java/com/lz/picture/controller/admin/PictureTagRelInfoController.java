@@ -73,10 +73,10 @@ public class PictureTagRelInfoController extends BaseController
      * 获取图片标签关联详细信息
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureTagRelInfo:query')")
-    @GetMapping(value = "/{pictureId}")
-    public AjaxResult getInfo(@PathVariable("pictureId") String pictureId)
+    @GetMapping(value = "/{relId}")
+    public AjaxResult getInfo(@PathVariable("relId") String relId)
     {
-        PictureTagRelInfo pictureTagRelInfo = pictureTagRelInfoService.selectPictureTagRelInfoByPictureId(pictureId);
+        PictureTagRelInfo pictureTagRelInfo = pictureTagRelInfoService.selectPictureTagRelInfoByRelId(relId);
         return success(PictureTagRelInfoVo.objToVo(pictureTagRelInfo));
     }
 
@@ -109,9 +109,9 @@ public class PictureTagRelInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureTagRelInfo:remove')")
     @Log(title = "图片标签关联", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{pictureIds}")
-    public AjaxResult remove(@PathVariable String[] pictureIds)
+    @DeleteMapping("/{relIds}")
+    public AjaxResult remove(@PathVariable String[] relIds)
     {
-        return toAjax(pictureTagRelInfoService.deletePictureTagRelInfoByPictureIds(pictureIds));
+        return toAjax(pictureTagRelInfoService.deletePictureTagRelInfoByRelIds(relIds));
     }
 }

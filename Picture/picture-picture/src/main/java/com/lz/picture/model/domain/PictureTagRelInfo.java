@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 图片标签关联对象 p_picture_tag_rel_info
  *
  * @author YY
- * @date 2025-06-04
+ * @date 2025-06-05
  */
 @TableName("p_picture_tag_rel_info")
 @Data

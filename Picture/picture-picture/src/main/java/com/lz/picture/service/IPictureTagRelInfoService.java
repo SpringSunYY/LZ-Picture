@@ -21,10 +21,10 @@ public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo> {
     /**
      * 查询图片标签关联
      *
-     * @param pictureId 图片标签关联主键
+     * @param relId 图片标签关联主键
      * @return 图片标签关联
      */
-    public PictureTagRelInfo selectPictureTagRelInfoByPictureId(String pictureId);
+    public PictureTagRelInfo selectPictureTagRelInfoByRelId(String relId);
 
     /**
      * 查询图片标签关联列表
@@ -53,18 +53,18 @@ public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo> {
     /**
      * 批量删除图片标签关联
      *
-     * @param pictureIds 需要删除的图片标签关联主键集合
+     * @param relIds 需要删除的图片标签关联主键集合
      * @return 结果
      */
-    public int deletePictureTagRelInfoByPictureIds(String[] pictureIds);
+    public int deletePictureTagRelInfoByRelIds(String[] relIds);
 
     /**
      * 删除图片标签关联信息
      *
-     * @param pictureId 图片标签关联主键
+     * @param relId 图片标签关联主键
      * @return 结果
      */
-    public int deletePictureTagRelInfoByPictureId(String pictureId);
+    public int deletePictureTagRelInfoByRelId(String relId);
     //endregion
 
     /**
@@ -96,11 +96,20 @@ public interface IPictureTagRelInfoService extends IService<PictureTagRelInfo> {
 
     /**
      * 查询到该图片关联的标签名称
+     *
+     * @param pictureId 图片编号
+     * @return String
      * @author: YY
      * @method: getPictureTagNamesStr
      * @date: 2025/5/25 20:04
-     * @param pictureId 图片编号
-     * @return String
      **/
     public String getPictureTagNamesStr(String pictureId);
+
+    /**
+     * 删除图片关联信息
+     *
+     * @param pictureId 图片编号
+     * @return 删除结果
+     */
+    int deletePictureTagRelInfoByPictureId(String pictureId);
 }

@@ -38,13 +38,14 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
     /**
      * 查询图片标签关联
      *
-     * @param pictureId 图片标签关联主键
+     * @param relId 图片标签关联主键
      * @return 图片标签关联
      */
     @Override
-    public PictureTagRelInfo selectPictureTagRelInfoByPictureId(String pictureId) {
-        return pictureTagRelInfoMapper.selectPictureTagRelInfoByPictureId(pictureId);
+    public PictureTagRelInfo selectPictureTagRelInfoByRelId(String relId) {
+        return pictureTagRelInfoMapper.selectPictureTagRelInfoByRelId(relId);
     }
+
 
     /**
      * 查询图片标签关联列表
@@ -82,23 +83,23 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
     /**
      * 批量删除图片标签关联
      *
-     * @param pictureIds 需要删除的图片标签关联主键
+     * @param relIds 需要删除的图片标签关联主键
      * @return 结果
      */
     @Override
-    public int deletePictureTagRelInfoByPictureIds(String[] pictureIds) {
-        return pictureTagRelInfoMapper.deletePictureTagRelInfoByPictureIds(pictureIds);
+    public int deletePictureTagRelInfoByRelIds(String[] relIds) {
+        return pictureTagRelInfoMapper.deletePictureTagRelInfoByRelIds(relIds);
     }
 
     /**
      * 删除图片标签关联信息
      *
-     * @param pictureId 图片标签关联主键
+     * @param relId 图片标签关联主键
      * @return 结果
      */
     @Override
-    public int deletePictureTagRelInfoByPictureId(String pictureId) {
-        return pictureTagRelInfoMapper.deletePictureTagRelInfoByPictureId(pictureId);
+    public int deletePictureTagRelInfoByRelId(String relId) {
+        return pictureTagRelInfoMapper.deletePictureTagRelInfoByRelId(relId);
     }
 
     //endregion
@@ -111,7 +112,7 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
             params = new HashMap<>();
         }
         String relId = pictureTagRelInfoQuery.getRelId();
-        queryWrapper.eq( StringUtils.isNotNull(relId),"rel_id",relId);
+        queryWrapper.eq(StringUtils.isNotNull(relId), "rel_id", relId);
 
         String pictureId = pictureTagRelInfoQuery.getPictureId();
         queryWrapper.eq(StringUtils.isNotEmpty(pictureId), "picture_id", pictureId);
@@ -144,6 +145,11 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
     public String getPictureTagNamesStr(String pictureId) {
         List<String> pictureTagNames = getPictureTagNames(pictureId);
         return String.join(COMMON_SEPARATOR, pictureTagNames);
+    }
+
+    @Override
+    public int deletePictureTagRelInfoByPictureId(String pictureId) {
+        return pictureTagRelInfoMapper.delete(new LambdaQueryWrapper<PictureTagRelInfo>().eq(PictureTagRelInfo::getPictureId, pictureId));
     }
 
 }
