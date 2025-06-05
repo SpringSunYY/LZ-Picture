@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import ImageEditor from '@uppy/image-editor'
@@ -24,7 +24,7 @@ const props = defineProps({
   maxSize: { type: Number, default: 10 },
   hasUpload: { type: Boolean, default: true },
 })
-const emit = defineEmits(['upload-success','upload-accomplish'])
+const emit = defineEmits(['upload-success', 'upload-accomplish'])
 
 const uppyContainer = ref<HTMLElement | null>(null)
 let uppy: Uppy.Uppy | null = null
