@@ -147,7 +147,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
         String hasStatistics = pictureDownloadLogInfoQuery.getHasStatistics();
         queryWrapper.eq(StringUtils.isNotEmpty(hasStatistics) ,"has_statistics",hasStatistics);
 
-        BigDecimal score = pictureDownloadLogInfoQuery.getScore();
+        Double score = pictureDownloadLogInfoQuery.getScore();
         queryWrapper.eq( StringUtils.isNotNull(score),"score",score);
 
         String ipAddr = pictureDownloadLogInfoQuery.getIpAddr();

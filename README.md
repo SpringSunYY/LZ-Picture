@@ -2869,3 +2869,177 @@ onMounted(async () => {
 
 
 
+### 推荐算法
+
+```sql
+这是图片表，必须要是公开，审核状态为通过的
+DROP TABLE IF EXISTS p_picture_info;
+CREATE TABLE p_picture_info
+(
+    picture_id     varchar(128) COMMENT '图片编号',
+    picture_url    VARCHAR(512) NOT NULL COMMENT '图片URL',
+    dns_url        VARCHAR(512) NULL COMMENT '域名URL',
+    name           VARCHAR(32)  NOT NULL COMMENT '图片名称',
+    introduction   VARCHAR(512) COMMENT '简介',
+    category_id    VARCHAR(128) NOT NULL COMMENT '分类编号',
+    pic_size       BIGINT COMMENT '图片体积（字节）',
+    pic_width      INT                   DEFAULT 0 COMMENT '图片宽度',
+    pic_height     INT                   DEFAULT 0 COMMENT '图片高度',
+    pic_scale      DOUBLE                DEFAULT 0 COMMENT '宽高比例',
+    pic_format     VARCHAR(32) COMMENT '图片格式',
+    points_need     INT                   DEFAULT 10 COMMENT '所需积分',
+    user_id        VARCHAR(128) NOT NULL COMMENT '上传用户编号',
+    create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    edit_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '编辑时间',
+    update_time    DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    picture_status CHAR(1)      NOT NULL COMMENT '图片状态（0公共 1私有）',
+    review_status  INT          NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
+    review_message VARCHAR(512) COMMENT '审核信息',
+    review_user_id BIGINT COMMENT '审核人编号',
+    review_time    DATETIME COMMENT '审核时间',
+    thumbnail_url  VARCHAR(512) COMMENT '缩略图URL',
+    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
+    collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+    like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
+    share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',    
+    more_info      TEXT         COMMENT '更多信息',
+    space_id       VARCHAR(128) COMMENT '所属空间编号',
+    folder_id      VARCHAR(128) COMMENT '所属文件夹编号',
+    is_delete      CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除（0否 1是）',
+    deleted_time   DATETIME COMMENT '删除时间',
+    PRIMARY KEY (picture_id),
+    FOREIGN KEY (category_id) REFERENCES p_picture_category_info (category_id) ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id) ON UPDATE CASCADE,
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    INDEX idx_review_status (review_status),
+    INDEX idx_space_folder (space_id, folder_id),
+    INDEX idx_pic_color (pic_color),
+    INDEX idx_picture_status (picture_status)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片详细信息表';
+
+  这是图片和标签关联的表
+  DROP TABLE IF EXISTS p_picture_tag_rel_info;
+CREATE TABLE p_picture_tag_rel_info
+(
+    picture_id varchar(128) NOT NULL COMMENT '图片编号',
+    picture_name VARCHAR(32) NOT NULL COMMENT '图片名称',
+    tag_id     VARCHAR(128) NOT NULL COMMENT '标签编号',
+    tag_name VARCHAR(32) NOT NULL COMMENT '标签名称',
+    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
+    collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+    like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
+    share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
+    PRIMARY KEY (picture_id, tag_id),
+    INDEX idx_picture_id (picture_id),
+    INDEX idx_tag_id (tag_id),
+    CONSTRAINT fk_rel_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_rel_tag
+        FOREIGN KEY (tag_id)
+            REFERENCES p_picture_tag_info (tag_id)
+            ON DELETE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片标签关联表';
+  这是图片下载表，他有每个记录的分数，并且拥有图片的标签，标签用;号分割每个标签，数据取下载成功
+  DROP TABLE IF EXISTS p_picture_download_log_info;
+CREATE TABLE p_picture_download_log_info
+(
+    download_id          VARCHAR(128) NOT NULL COMMENT '下载编号',
+    download_type   CHAR(1)      NOT NULL COMMENT '下载类型',    
+    user_id              VARCHAR(128) NOT NULL COMMENT '用户编号',
+    picture_id           VARCHAR(128)       NOT NULL COMMENT '图片编号',
+    category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
+    picture_name VARCHAR(32) NOT NULL COMMENT '图片名称',
+    thumbnail_url VARCHAR(512) COMMENT '缩略图URL',
+    tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
+    space_id             VARCHAR(128) COMMENT '空间编号',
+    points_cost          INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',
+    points_author_gain   INT          NOT NULL DEFAULT 0 COMMENT '作者分成积分',
+    points_official_gain INT          NOT NULL DEFAULT 0 COMMENT '平台分成积分',
+    points_space_gain    INT                   DEFAULT 0 COMMENT '空间分成积分',
+    author_proportion           DOUBLE COMMENT '作者分成比例',
+    official_proportion           DOUBLE COMMENT '官方分成比例',
+    space_proportion           DOUBLE COMMENT '空间分成比例',
+    create_time          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下载时间',
+    download_status      CHAR(1)      NOT NULL DEFAULT '1' COMMENT '下载状态（1失败 0成功）',
+    fail_reason          VARCHAR(255) COMMENT '失败原因',
+    download_type        CHAR(1)      NOT NULL COMMENT '下载类型（0查看 1下载 2批量下载）',
+    refer_source         CHAR(1) COMMENT '来源（0其他 1详情 2分享）',
+   	has_statistics      CHAR(1) NOT NULL COMMENT '是否统计',
+    `score` DECIMAL(5,2) NOT NULL COMMENT '分数',
+    ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
+    device_id            VARCHAR(255) COMMENT '设备唯一标识',
+    browser              VARCHAR(50) COMMENT '浏览器类型',
+    os                   VARCHAR(50) COMMENT '操作系统',
+    platform             VARCHAR(20) COMMENT '平台',
+    PRIMARY KEY (download_id),
+    FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
+    FOREIGN KEY (picture_id) REFERENCES p_picture_info (picture_id),
+    FOREIGN KEY (space_id) REFERENCES p_space_info (space_id) ON DELETE SET NULL,
+    INDEX idx_download_time (create_time),
+    INDEX idx_download_status (download_status),
+    INDEX idx_picture (picture_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片下载记录表';
+  这是浏览记录表，也有每个记录的分数和图片的标签，目标类型：0图片 2用户 1空间，标签用;号分割每个标签
+  DROP TABLE IF EXISTS p_user_view_log_info;
+CREATE TABLE p_user_view_log_info (
+    view_id VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '浏览记录编号',
+    user_id VARCHAR(128) DEFAULT NULL COMMENT '用户编号',
+    target_type CHAR(1) NOT NULL COMMENT '目标类型',
+    target_id VARCHAR(128) NOT NULL COMMENT '目标对象',
+    target_content VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
+    score DECIMAL(5, 2) NOT NULL COMMENT '分数',
+    category_id VARCHAR(128) DEFAULT NULL COMMENT '图片分类',
+    space_id VARCHAR(128) DEFAULT NULL COMMENT '空间',
+    tags VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
+    target_cover VARCHAR(512) DEFAULT NULL COMMENT '封面',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '查看时间',
+    has_statistics      CHAR(1) NOT NULL COMMENT '是否统计',
+    device_id VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
+    browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
+    os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+    platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
+    ip_addr VARCHAR(50) DEFAULT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
+    FOREIGN KEY (user_id) REFERENCES u_user_info(user_id),
+    FOREIGN KEY (category_id) REFERENCES p_picture_category_info(category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户浏览记录表';
+这是用户行为表，他也有每个记录的分数和图片的标签目标类型：0图片 2用户 1空间,标签用;号分割每个标签，数据取图片
+DROP TABLE IF EXISTS p_user_behavior_info;
+CREATE TABLE `p_user_behavior_info` (
+  `behavior_id` VARCHAR(128) NOT NULL COMMENT '转发编号',
+  `behavior_type` CHAR(1) NOT NULL COMMENT '行为类型',
+  `user_id` VARCHAR(128) NOT NULL COMMENT '用户编号',
+  `target_type` CHAR(1) NOT NULL COMMENT '目标类型',
+  `target_id` VARCHAR(128) NOT NULL COMMENT '目标对象',
+  `target_content` VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
+  `score` DECIMAL(5,2) NOT NULL COMMENT '分数',
+  `share_link` VARCHAR(512) DEFAULT NULL COMMENT '分享链接',
+  `category_id` VARCHAR(128) DEFAULT NULL COMMENT '图片分类',
+  `space_id` VARCHAR(128) DEFAULT NULL COMMENT '空间',
+  `tags` VARCHAR(256) DEFAULT NULL COMMENT '图片标签',
+  `target_cover` VARCHAR(512) DEFAULT NULL COMMENT '封面',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转发时间',
+  `has_statistics`      CHAR(1) NOT NULL COMMENT '是否统计',
+  `device_id` VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
+  `browser` VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
+  `os` VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+  `platform` VARCHAR(20) DEFAULT NULL COMMENT '平台',
+  `ip_address` VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
+  PRIMARY KEY (`behavior_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_target` (`target_type`, `target_id`),
+  KEY `idx_create_time` (`create_time`),
+  CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `u_user_info` (`user_id`),
+  CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `p_picture_category_info` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户行为表';
+我现在要根据这几个表给用户做一个个人推荐算法，分数根据他自己每条记录来计算，分数也要根据时间降权不用给每种类型降权，根据他的分数来算就行了，每条数据都有分数的，我应该怎么做这个推荐算法呢，我的是Java，可以先写SQL做事例,查询到的数据比如说下载可以取最近n条，记录、行为这些也可以取最近n条，不然后面数据量怕太大了，我的MySQL版本8.0.33
+```
+

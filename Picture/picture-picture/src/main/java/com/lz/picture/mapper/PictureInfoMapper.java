@@ -2,11 +2,9 @@ package com.lz.picture.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest;
-import org.apache.ibatis.annotations.Param;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 图片信息Mapper接口
@@ -66,12 +64,12 @@ public interface PictureInfoMapper extends BaseMapper<PictureInfo> {
     /**
      * 获取图片详情推荐
      *
-     * @param pictureInfoRecommendRequest
+     * @param pictureInfoDetailRecommendRequest
      * @return List<PictureInfo>
      * @author: YY
      * @method: getPictureInfoDetailRecommend
      * @date: 2025/6/5 23:58
      **/
-    List<PictureInfo> getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest);
+    List<PictureInfo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest);
 
 }

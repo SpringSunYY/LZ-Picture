@@ -26,7 +26,7 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
@@ -1077,17 +1077,17 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     @Override
-    public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest) {
+    public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
         //查询缓存是否存在
-        String key = PICTURE_DETAIL_RECOMMEND + pictureInfoRecommendRequest.getPictureId() + COMMON_SEPARATOR_CACHE + pictureInfoRecommendRequest.getPageSize() + COMMON_SEPARATOR_CACHE + pictureInfoRecommendRequest.getCurrentPage();
+        String key = PICTURE_DETAIL_RECOMMEND + pictureInfoDetailRecommendRequest.getPictureId() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getPageSize() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getCurrentPage();
         if (redisCache.hasKey(key)) {
             return redisCache.getCacheObject(key);
         }
-        pictureInfoRecommendRequest.setOffset((pictureInfoRecommendRequest.getCurrentPage() - 1) * pictureInfoRecommendRequest.getPageSize());
+        pictureInfoDetailRecommendRequest.setOffset((pictureInfoDetailRecommendRequest.getCurrentPage() - 1) * pictureInfoDetailRecommendRequest.getPageSize());
         // 在查询前清除分页设置
 //        PageHelper.clearPage();
         //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
-        List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(pictureInfoRecommendRequest);
+        List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         list.forEach(pictureInfo -> {
             pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
         });

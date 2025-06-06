@@ -246,7 +246,7 @@
     </delete>
 
     <select id="getPictureInfoDetailRecommend"
-            parameterType="com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest"
+            parameterType="com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest"
             resultMap="PictureInfoResultVo">
         WITH origin_tags AS (SELECT DISTINCT tag_name
                              FROM p_picture_tag_rel_info

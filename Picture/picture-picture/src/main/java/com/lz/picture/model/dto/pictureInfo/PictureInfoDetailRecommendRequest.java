@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @Version: 1.0
  */
 @Data
-public class PictureInfoRecommendRequest implements Serializable {
+public class PictureInfoDetailRecommendRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     /**

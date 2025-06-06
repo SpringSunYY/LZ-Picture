@@ -85,7 +85,7 @@ public class PictureDownloadLogInfoEdit implements Serializable {
     /**
      * 分数
      */
-    private BigDecimal score;
+    private Double score;
 
     /**
      * 对象转封装类

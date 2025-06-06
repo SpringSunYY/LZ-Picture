@@ -151,7 +151,7 @@ public class PictureDownloadLogInfoVo implements Serializable {
      * 分数
      */
     @Excel(name = "分数")
-    private BigDecimal score;
+    private Double score;
 
     /**
      * IP地址

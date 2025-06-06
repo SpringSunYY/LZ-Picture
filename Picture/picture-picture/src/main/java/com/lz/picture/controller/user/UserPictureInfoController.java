@@ -9,7 +9,7 @@ import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoUpdate;
@@ -135,10 +135,10 @@ public class UserPictureInfoController extends BaseUserInfoController {
     }
 
     @GetMapping("/detail/recommend")
-    public TableDataInfo getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest) {
-        pictureInfoRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
-        pictureInfoRecommendRequest.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue());
-        List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoRecommendRequest);
+    public TableDataInfo getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
+        pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        pictureInfoDetailRecommendRequest.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue());
+        List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         //压缩图片
         String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (UserPictureInfoVo vo : userPictureInfoVos) {
