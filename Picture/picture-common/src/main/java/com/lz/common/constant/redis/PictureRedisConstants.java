@@ -38,4 +38,14 @@ public class PictureRedisConstants {
      * 图片搜索推荐缓存时间
      */
     public static final Integer PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 图片详情推荐缓存
+     */
+    public static final String PICTURE_DETAIL_RECOMMEND = "picture:detail:recommend:";
+
+    /**
+     * 图片详情推荐缓存时间
+     */
+    public static final Integer PICTURE_DETAIL_RECOMMEND_EXPIRE_TIME = 10 * 60;
 }

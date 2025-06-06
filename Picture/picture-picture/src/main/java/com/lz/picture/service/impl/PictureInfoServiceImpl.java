@@ -1079,6 +1079,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Override
     public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoRecommendRequest pictureInfoRecommendRequest) {
+        //查询缓存是否存在
+        String key = PICTURE_DETAIL_RECOMMEND + pictureInfoRecommendRequest.getPictureId() + COMMON_SEPARATOR_CACHE + pictureInfoRecommendRequest.getPageSize() + COMMON_SEPARATOR_CACHE + pictureInfoRecommendRequest.getCurrentPage();
+        if (redisCache.hasKey(key)) {
+            return redisCache.getCacheObject(key);
+        }
         pictureInfoRecommendRequest.setOffset((pictureInfoRecommendRequest.getCurrentPage() - 1) * pictureInfoRecommendRequest.getPageSize());
         // 在查询前清除分页设置
 //        PageHelper.clearPage();
@@ -1087,6 +1092,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         list.forEach(pictureInfo -> {
             pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
         });
-        return UserPictureInfoVo.objToVo(list);
+        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(list);
+        redisCache.setCacheObject(key, userPictureInfoVos, PICTURE_DETAIL_RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
+        return userPictureInfoVos;
     }
 }
