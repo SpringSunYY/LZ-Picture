@@ -1,29 +1,28 @@
 package com.lz.picture.model.domain;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.common.annotation.Excel;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 图片下载记录对象 p_picture_download_log_info
  *
  * @author YY
- * @date 2025-05-24
+ * @date 2025-06-06
  */
 @TableName("p_picture_download_log_info")
 @Data
 public class PictureDownloadLogInfo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -64,7 +63,7 @@ public class PictureDownloadLogInfo implements Serializable {
     private String thumbnailUrl;
 
     /**
-     * 图片标签（格式："标签1","标签2"）
+     * 图片标签
      */
     @Excel(name = "图片标签")
     private String tags;
@@ -80,12 +79,6 @@ public class PictureDownloadLogInfo implements Serializable {
      */
     @Excel(name = "消耗积分")
     private Long pointsCost;
-
-    /**
-     * 是否免费（0是 1否）
-     */
-    @Excel(name = "是否免费", readConverterExp = "0=是,1=否")
-    private String isFree;
 
     /**
      * 作者分成积分
@@ -109,20 +102,19 @@ public class PictureDownloadLogInfo implements Serializable {
      * 作者分成比例
      */
     @Excel(name = "作者分成比例")
-    private Double authorProportion;
-
+    private BigDecimal authorProportion;
 
     /**
      * 官方分成比例
      */
     @Excel(name = "官方分成比例")
-    private Double officialProportion;
+    private BigDecimal officialProportion;
 
     /**
      * 空间分成比例
      */
     @Excel(name = "空间分成比例")
-    private Double spaceProportion;
+    private BigDecimal spaceProportion;
 
     /**
      * 下载时间
@@ -144,9 +136,9 @@ public class PictureDownloadLogInfo implements Serializable {
     private String failReason;
 
     /**
-     * 下载方式（0手动 1API 2批量）
+     * 下载类型（0查看 1下载 2批量下载
      */
-    @Excel(name = "下载方式", readConverterExp = "0=手动,1=API,2=批量")
+    @Excel(name = "下载类型", readConverterExp = "下载类型（0查看 1下载 2批量下载")
     private String downloadType;
 
     /**
@@ -160,6 +152,12 @@ public class PictureDownloadLogInfo implements Serializable {
      */
     @Excel(name = "是否统计", readConverterExp = "0=否,1=是")
     private String hasStatistics;
+
+    /**
+     * 分数
+     */
+    @Excel(name = "分数")
+    private BigDecimal score;
 
     /**
      * IP地址

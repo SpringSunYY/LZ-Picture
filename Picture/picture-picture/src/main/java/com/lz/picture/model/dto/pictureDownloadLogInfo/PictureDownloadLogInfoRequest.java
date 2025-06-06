@@ -1,17 +1,11 @@
 package com.lz.picture.model.dto.pictureDownloadLogInfo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.picture.model.domain.PictureDownloadLogInfo;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * 图片下载记录Query对象 p_picture_download_log_info

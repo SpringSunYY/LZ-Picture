@@ -49,6 +49,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -915,9 +916,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             if (StringUtils.isNotEmpty(list)) {
                 return pictureInfo;
             }
-            pictureDownloadLogInfo.setAuthorProportion(0.0);
-            pictureDownloadLogInfo.setOfficialProportion(0.0);
-            pictureDownloadLogInfo.setSpaceProportion(0.0);
+            pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(0.0));
+            pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(0.0));
+            pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(0.0));
             pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
             return pictureInfo;
         }
@@ -932,9 +933,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ThrowUtils.throwIf(StringUtils.isNull(accountInfo)
                 || accountInfo.getPointsBalance() < totalPoints, "积分不足");
 
-        if (totalPoints == 0) {
-            pictureDownloadLogInfo.setIsFree(PDownloadIsFreeEnum.DOWNLOAD_IS_FREE_0.getValue());
-        } else {
+        if (totalPoints != 0) {
             //获取官方、空间比例
             String officialProPortionStr = configInfoService.getConfigInfoInCache(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION);
             double officialProportion = Double.parseDouble(officialProPortionStr);
@@ -944,9 +943,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureDownloadLogInfo.setPointsAuthorGain((long) (totalPoints * authorProportion));
             pictureDownloadLogInfo.setPointsOfficialGain((long) (totalPoints * officialProportion));
             pictureDownloadLogInfo.setPointsSpaceGain((long) (totalPoints * spaceProportion));
-            pictureDownloadLogInfo.setAuthorProportion(authorProportion);
-            pictureDownloadLogInfo.setOfficialProportion(officialProportion);
-            pictureDownloadLogInfo.setSpaceProportion(spaceProportion);
+            pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(authorProportion));
+            pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(officialProportion));
+            pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(spaceProportion));
             pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
                     userId,
                     null,

@@ -1,5 +1,6 @@
 package com.lz.picture.service.impl;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
 
     //endregion
     @Override
-    public QueryWrapper<PictureDownloadLogInfo> getQueryWrapper(PictureDownloadLogInfoQuery pictureDownloadLogInfoQuery) {
+    public QueryWrapper<PictureDownloadLogInfo> getQueryWrapper(PictureDownloadLogInfoQuery pictureDownloadLogInfoQuery){
         QueryWrapper<PictureDownloadLogInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = pictureDownloadLogInfoQuery.getParams();
@@ -111,56 +112,61 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
             params = new HashMap<>();
         }
         String downloadId = pictureDownloadLogInfoQuery.getDownloadId();
-        queryWrapper.eq(StringUtils.isNotEmpty(downloadId), "download_id", downloadId);
+        queryWrapper.eq(StringUtils.isNotEmpty(downloadId) ,"download_id",downloadId);
 
         String userId = pictureDownloadLogInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
+        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
 
         String pictureId = pictureDownloadLogInfoQuery.getPictureId();
-        queryWrapper.eq(StringUtils.isNotEmpty(pictureId), "picture_id", pictureId);
+        queryWrapper.eq(StringUtils.isNotEmpty(pictureId) ,"picture_id",pictureId);
 
         String categoryId = pictureDownloadLogInfoQuery.getCategoryId();
-        queryWrapper.eq(StringUtils.isNotEmpty(categoryId), "category_id", categoryId);
+        queryWrapper.eq(StringUtils.isNotEmpty(categoryId) ,"category_id",categoryId);
+
+        String pictureName = pictureDownloadLogInfoQuery.getPictureName();
+        queryWrapper.like(StringUtils.isNotEmpty(pictureName) ,"picture_name",pictureName);
+
+        String tags = pictureDownloadLogInfoQuery.getTags();
+        queryWrapper.eq(StringUtils.isNotEmpty(tags) ,"tags",tags);
 
         String spaceId = pictureDownloadLogInfoQuery.getSpaceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(spaceId), "space_id", spaceId);
-
-        Long pointsCost = pictureDownloadLogInfoQuery.getPointsCost();
-        queryWrapper.eq(StringUtils.isNotNull(pointsCost), "points_cost", pointsCost);
-
-        String isFree = pictureDownloadLogInfoQuery.getIsFree();
-        queryWrapper.eq(StringUtils.isNotEmpty(isFree), "is_free", isFree);
+        queryWrapper.eq(StringUtils.isNotEmpty(spaceId) ,"space_id",spaceId);
 
         Date createTime = pictureDownloadLogInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
 
         String downloadStatus = pictureDownloadLogInfoQuery.getDownloadStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(downloadStatus), "download_status", downloadStatus);
+        queryWrapper.eq(StringUtils.isNotEmpty(downloadStatus) ,"download_status",downloadStatus);
 
         String downloadType = pictureDownloadLogInfoQuery.getDownloadType();
-        queryWrapper.eq(StringUtils.isNotEmpty(downloadType), "download_type", downloadType);
+        queryWrapper.eq(StringUtils.isNotEmpty(downloadType) ,"download_type",downloadType);
 
         String referSource = pictureDownloadLogInfoQuery.getReferSource();
-        queryWrapper.eq(StringUtils.isNotEmpty(referSource), "refer_source", referSource);
+        queryWrapper.eq(StringUtils.isNotEmpty(referSource) ,"refer_source",referSource);
+
+        String hasStatistics = pictureDownloadLogInfoQuery.getHasStatistics();
+        queryWrapper.eq(StringUtils.isNotEmpty(hasStatistics) ,"has_statistics",hasStatistics);
+
+        BigDecimal score = pictureDownloadLogInfoQuery.getScore();
+        queryWrapper.eq( StringUtils.isNotNull(score),"score",score);
 
         String ipAddr = pictureDownloadLogInfoQuery.getIpAddr();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddr) ,"ip_addr",ipAddr);
 
         String ipAddress = pictureDownloadLogInfoQuery.getIpAddress();
-        queryWrapper.like(StringUtils.isNotEmpty(ipAddress), "ip_address", ipAddress);
+        queryWrapper.like(StringUtils.isNotEmpty(ipAddress) ,"ip_address",ipAddress);
 
         String deviceId = pictureDownloadLogInfoQuery.getDeviceId();
-        queryWrapper.eq(StringUtils.isNotEmpty(deviceId), "device_id", deviceId);
+        queryWrapper.eq(StringUtils.isNotEmpty(deviceId) ,"device_id",deviceId);
 
         String browser = pictureDownloadLogInfoQuery.getBrowser();
-        queryWrapper.like(StringUtils.isNotEmpty(browser), "browser", browser);
+        queryWrapper.like(StringUtils.isNotEmpty(browser) ,"browser",browser);
 
         String os = pictureDownloadLogInfoQuery.getOs();
-        queryWrapper.eq(StringUtils.isNotEmpty(os), "os", os);
+        queryWrapper.eq(StringUtils.isNotEmpty(os) ,"os",os);
 
         String platform = pictureDownloadLogInfoQuery.getPlatform();
-        queryWrapper.eq(StringUtils.isNotEmpty(platform), "platform", platform);
-
+        queryWrapper.like(StringUtils.isNotEmpty(platform) ,"platform",platform);
         return queryWrapper;
     }
 

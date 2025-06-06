@@ -41,26 +41,18 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="图片标签" prop="tags">
+        <el-input
+            v-model="queryParams.tags"
+            placeholder="请输入图片标签"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="空间编号" prop="spaceId">
         <el-input
             v-model="queryParams.spaceId"
             placeholder="请输入空间编号"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="消耗积分" prop="pointsCost">
-        <el-input
-            v-model="queryParams.pointsCost"
-            placeholder="请输入消耗积分"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否免费" prop="isFree">
-        <el-input
-            v-model="queryParams.isFree"
-            placeholder="请输入是否免费"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -85,8 +77,8 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="下载方式" prop="downloadType">
-        <el-select v-model="queryParams.downloadType" style="width: 200px" placeholder="请选择下载方式" clearable>
+      <el-form-item label="下载类型" prop="downloadType">
+        <el-select v-model="queryParams.downloadType" style="width: 200px" placeholder="请选择下载类型" clearable>
           <el-option
               v-for="dict in p_download_type"
               :key="dict.value"
@@ -105,16 +97,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="是否免费" prop="isFree">
-        <el-select v-model="queryParams.isFree" style="width: 200px" placeholder="请选择是否免费" clearable>
-          <el-option
-              v-for="dict in p_download_is_free"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="是否统计" prop="hasStatistics">
         <el-select v-model="queryParams.hasStatistics" style="width: 200px" placeholder="请选择是否统计" clearable>
           <el-option
@@ -124,6 +106,14 @@
               :value="dict.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="分数" prop="score">
+        <el-input
+            v-model="queryParams.score"
+            placeholder="请输入分数"
+            clearable
+            @keyup.enter="handleQuery"
+        />
       </el-form-item>
       <el-form-item label="IP地址" prop="ipAddr">
         <el-input
@@ -248,51 +238,48 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="消耗积分" align="center" prop="pointsCost" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="是否免费" align="center" prop="isFree" v-if="columns[9].visible">
-        <template #default="scope">
-          <dict-tag :options="p_download_is_free" :value="scope.row.isFree"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="作者分成积分" align="center" prop="pointsAuthorGain" v-if="columns[10].visible"
+      <el-table-column label="作者分成积分" align="center" prop="pointsAuthorGain" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台分成积分" align="center" prop="pointsOfficialGain" v-if="columns[11].visible"
+      <el-table-column label="平台分成积分" align="center" prop="pointsOfficialGain" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间分成积分" align="center" prop="pointsSpaceGain" v-if="columns[12].visible"
+      <el-table-column label="空间分成积分" align="center" prop="pointsSpaceGain" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="作者分成比例" align="center" prop="authorProportion" v-if="columns[13].visible"
+      <el-table-column label="作者分成比例" align="center" prop="authorProportion" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="官方分成比例" align="center" prop="officialProportion" v-if="columns[14].visible"
+      <el-table-column label="官方分成比例" align="center" prop="officialProportion" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间分成比例" align="center" prop="spaceProportion" v-if="columns[15].visible"
+      <el-table-column label="空间分成比例" align="center" prop="spaceProportion" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载时间" align="center" prop="createTime" width="180" v-if="columns[16].visible"
+      <el-table-column label="下载时间" align="center" prop="createTime" width="180" v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="下载状态" align="center" prop="downloadStatus" v-if="columns[17].visible">
+      <el-table-column label="下载状态" align="center" prop="downloadStatus" v-if="columns[16].visible">
         <template #default="scope">
           <dict-tag :options="p_download_status" :value="scope.row.downloadStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[18].visible"
+      <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载方式" align="center" prop="downloadType" v-if="columns[19].visible">
+      <el-table-column label="下载类型" align="center" prop="downloadType" v-if="columns[18].visible">
         <template #default="scope">
           <dict-tag :options="p_download_type" :value="scope.row.downloadType"/>
         </template>
       </el-table-column>
-      <el-table-column label="来源" align="center" prop="referSource" v-if="columns[20].visible">
+      <el-table-column label="来源" align="center" prop="referSource" v-if="columns[19].visible">
         <template #default="scope">
           <dict-tag :options="p_download_refer_source" :value="scope.row.referSource"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[21].visible">
+      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[20].visible">
         <template #default="scope">
           <dict-tag :options="common_has_statistics" :value="scope.row.hasStatistics"/>
         </template>
       </el-table-column>
+      <el-table-column label="分数" align="center" prop="score" v-if="columns[21].visible"
+                       :show-overflow-tooltip="true"/>
       <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[23].visible"
@@ -337,15 +324,50 @@
         <el-form-item label="图片分类" prop="categoryId">
           <el-input v-model="form.categoryId" placeholder="请输入图片分类"/>
         </el-form-item>
-        <el-form-item label="是否免费" prop="isFree">
-          <el-select v-model="form.isFree" placeholder="请选择是否免费">
-            <el-option
-                v-for="dict in p_download_is_free"
+        <el-form-item label="图片名称" prop="pictureName">
+          <el-input v-model="form.pictureName" placeholder="请输入图片名称"/>
+        </el-form-item>
+        <el-form-item label="缩略图URL" prop="thumbnailUrl">
+          <image-upload v-model="form.thumbnailUrl"/>
+        </el-form-item>
+        <el-form-item label="图片标签" prop="tags">
+          <el-input v-model="form.tags" placeholder="请输入图片标签"/>
+        </el-form-item>
+        <el-form-item label="空间编号" prop="spaceId">
+          <el-input v-model="form.spaceId" placeholder="请输入空间编号"/>
+        </el-form-item>
+        <el-form-item label="下载状态" prop="downloadStatus">
+          <el-radio-group v-model="form.downloadStatus">
+            <el-radio
+                v-for="dict in p_download_status"
                 :key="dict.value"
-                :label="dict.label"
                 :value="dict.value"
-            ></el-option>
-          </el-select>
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="失败原因" prop="failReason">
+          <el-input v-model="form.failReason" placeholder="请输入失败原因"/>
+        </el-form-item>
+        <el-form-item label="下载类型" prop="downloadType">
+          <el-radio-group v-model="form.downloadType">
+            <el-radio
+                v-for="dict in p_download_type"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="来源" prop="referSource">
+          <el-radio-group v-model="form.referSource">
+            <el-radio
+                v-for="dict in p_download_refer_source"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="是否统计" prop="hasStatistics">
           <el-radio-group v-model="form.hasStatistics">
@@ -356,6 +378,9 @@
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item label="分数" prop="score">
+          <el-input v-model="form.score" placeholder="请输入分数"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -381,10 +406,9 @@ const {proxy} = getCurrentInstance();
 const {
   p_download_type,
   p_download_refer_source,
-  p_download_status,
-  p_download_is_free,
-  common_has_statistics
-} = proxy.useDict('p_download_type', 'p_download_refer_source', 'p_download_status', 'p_download_is_free', 'common_has_statistics');
+  common_has_statistics,
+  p_download_status
+} = proxy.useDict('p_download_type', 'p_download_refer_source', 'common_has_statistics', 'p_download_status');
 
 const pictureDownloadLogInfoList = ref([]);
 const open = ref(false);
@@ -406,14 +430,15 @@ const data = reactive({
     userId: null,
     pictureId: null,
     categoryId: null,
+    pictureName: null,
+    tags: null,
     spaceId: null,
-    pointsCost: null,
-    isFree: null,
     createTime: null,
     downloadStatus: null,
     downloadType: null,
     referSource: null,
     hasStatistics: null,
+    score: null,
     ipAddr: null,
     ipAddress: null,
     deviceId: null,
@@ -431,11 +456,11 @@ const data = reactive({
     categoryId: [
       {required: true, message: "图片分类不能为空", trigger: "blur"}
     ],
+    pictureName: [
+      {required: true, message: "图片名称不能为空", trigger: "blur"}
+    ],
     pointsCost: [
       {required: true, message: "消耗积分不能为空", trigger: "blur"}
-    ],
-    isFree: [
-      {required: true, message: "是否免费不能为空", trigger: "blur"}
     ],
     pointsAuthorGain: [
       {required: true, message: "作者分成积分不能为空", trigger: "blur"}
@@ -450,7 +475,13 @@ const data = reactive({
       {required: true, message: "下载状态不能为空", trigger: "change"}
     ],
     downloadType: [
-      {required: true, message: "下载方式不能为空", trigger: "change"}
+      {required: true, message: "下载类型不能为空", trigger: "change"}
+    ],
+    hasStatistics: [
+      {required: true, message: "是否统计不能为空", trigger: "change"}
+    ],
+    score: [
+      {required: true, message: "分数不能为空", trigger: "blur"}
     ],
     ipAddr: [
       {required: true, message: "IP地址不能为空", trigger: "blur"}
@@ -460,26 +491,26 @@ const data = reactive({
   columns: [
     {key: 0, label: '下载编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
-    {key: 2, label: '图片编号', visible: true},
-    {key: 3, label: '图片分类', visible: true},
+    {key: 2, label: '图片编号', visible: false},
+    {key: 3, label: '图片分类', visible: false},
     {key: 4, label: '图片名称', visible: true},
     {key: 5, label: '缩略图URL', visible: true},
     {key: 6, label: '图片标签', visible: false},
-    {key: 7, label: '空间编号', visible: true},
+    {key: 7, label: '空间编号', visible: false},
     {key: 8, label: '消耗积分', visible: true},
-    {key: 9, label: '是否免费', visible: false},
-    {key: 10, label: '作者分成积分', visible: true},
-    {key: 11, label: '平台分成积分', visible: true},
-    {key: 12, label: '空间分成积分', visible: true},
-    {key: 13, label: '作者分成比例', visible: false},
-    {key: 14, label: '官方分成比例', visible: false},
-    {key: 15, label: '空间分成比例', visible: false},
-    {key: 16, label: '下载时间', visible: true},
-    {key: 17, label: '下载状态', visible: true},
-    {key: 18, label: '失败原因', visible: false},
-    {key: 19, label: '下载方式', visible: true},
-    {key: 20, label: '来源', visible: false},
-    {key: 21, label: '是否统计', visible: false},
+    {key: 9, label: '作者分成积分', visible: true},
+    {key: 10, label: '平台分成积分', visible: true},
+    {key: 11, label: '空间分成积分', visible: false},
+    {key: 12, label: '作者分成比例', visible: false},
+    {key: 13, label: '官方分成比例', visible: false},
+    {key: 14, label: '空间分成比例', visible: false},
+    {key: 15, label: '下载时间', visible: true},
+    {key: 16, label: '下载状态', visible: true},
+    {key: 17, label: '失败原因', visible: false},
+    {key: 18, label: '下载类型', visible: false},
+    {key: 19, label: '来源', visible: false},
+    {key: 20, label: '是否统计', visible: false},
+    {key: 21, label: '分数', visible: false},
     {key: 22, label: 'IP地址', visible: false},
     {key: 23, label: 'IP属地', visible: false},
     {key: 24, label: '设备唯一标识', visible: false},
@@ -524,7 +555,6 @@ function reset() {
     tags: null,
     spaceId: null,
     pointsCost: null,
-    isFree: null,
     pointsAuthorGain: null,
     pointsOfficialGain: null,
     pointsSpaceGain: null,
@@ -537,6 +567,7 @@ function reset() {
     downloadType: null,
     referSource: null,
     hasStatistics: null,
+    score: null,
     ipAddr: null,
     ipAddress: null,
     deviceId: null,

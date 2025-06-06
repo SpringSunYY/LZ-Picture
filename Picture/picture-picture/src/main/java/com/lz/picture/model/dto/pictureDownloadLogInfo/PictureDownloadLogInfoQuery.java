@@ -1,29 +1,25 @@
 package com.lz.picture.model.dto.pictureDownloadLogInfo;
 
-import java.io.Serial;
-import java.util.Map;
-import java.io.Serializable;
-
-import com.lz.common.annotation.Excel;
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
-
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.picture.model.domain.PictureDownloadLogInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 图片下载记录Query对象 p_picture_download_log_info
  *
  * @author YY
- * @date 2025-05-24
+ * @date 2025-06-06
  */
 @Data
 public class PictureDownloadLogInfoQuery implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -52,19 +48,14 @@ public class PictureDownloadLogInfoQuery implements Serializable {
     private String pictureName;
 
     /**
+     * 图片标签
+     */
+    private String tags;
+
+    /**
      * 空间编号
      */
     private String spaceId;
-
-    /**
-     * 消耗积分
-     */
-    private Long pointsCost;
-
-    /**
-     * 是否免费（0是 1否）
-     */
-    private String isFree;
 
     /**
      * 下载时间
@@ -78,7 +69,7 @@ public class PictureDownloadLogInfoQuery implements Serializable {
     private String downloadStatus;
 
     /**
-     * 下载方式（0手动 1API 2批量）
+     * 下载类型（0查看 1下载 2批量下载
      */
     private String downloadType;
 
@@ -91,6 +82,11 @@ public class PictureDownloadLogInfoQuery implements Serializable {
      * 是否统计（0否 1是）
      */
     private String hasStatistics;
+
+    /**
+     * 分数
+     */
+    private BigDecimal score;
 
     /**
      * IP地址

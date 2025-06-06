@@ -2309,6 +2309,7 @@ CREATE TABLE p_picture_tag_rel_info
 | 字段名               | 类型     | 长度 | 键类型                            | Null | 默认值   | 描述         |
 | -------------------- | -------- | ---- | --------------------------------- | ---- | -------- | ------------ |
 | download_id          | varchar  | 128  | 主键                              | 否   |          | 下载编号     |
+| download_type        | char     | 1    |                                   | 否   |          | 下载类型     |
 | user_id              | varchar  | 128  | 外键 (u_user_info:user_id)        | 否   |          | 用户编号     |
 | picture_id           | varchar  | 128  | 外键 (p_picture:picture_id)       | 否   |          | 图片编号     |
 | space_id             | varchar  | 128  | 外键 (p_space:space_id)           | 是   |          | 空间编号     |
@@ -2328,6 +2329,7 @@ CREATE TABLE p_picture_tag_rel_info
 | download_status      | char     | 1    |                                   | 否   |          | 下载状态     |
 | fail_reason          | varchar  | 255  |                                   | 是   |          | 失败原因     |
 | download_type        | char     | 1    |                                   | 否   |          | 下载方式     |
+| score                | decimal  | 5,2  |                                   | 否   |          | 分数         |
 | has_statistics       | char     | 1    |                                   | 否   |          | 是否统计     |
 | refer_source         | char     | 1    |                                   | 是   |          | 来源         |
 | device_id            | varchar  | 255  |                                   | 是   |          | 设备唯一标识 |
@@ -2341,7 +2343,7 @@ CREATE TABLE p_picture_tag_rel_info
 
 是否免费（0 是 1否）
 
-下载方式：0手动 1API 2批量
+下载方式：0查看 1下载 2批量
 
 来源：0其他 1详情 2分享
 
@@ -2354,6 +2356,7 @@ DROP TABLE IF EXISTS p_picture_download_log_info;
 CREATE TABLE p_picture_download_log_info
 (
     download_id          VARCHAR(128) NOT NULL COMMENT '下载编号',
+    download_type   CHAR(1)      NOT NULL COMMENT '下载类型',    
     user_id              VARCHAR(128) NOT NULL COMMENT '用户编号',
     picture_id           VARCHAR(128)       NOT NULL COMMENT '图片编号',
     category_id VARCHAR(128) NOT NULL COMMENT '图片分类',
@@ -2362,7 +2365,6 @@ CREATE TABLE p_picture_download_log_info
     tags        VARCHAR(256) COMMENT '图片标签（格式："标签1","标签2"）',
     space_id             VARCHAR(128) COMMENT '空间编号',
     points_cost          INT          NOT NULL DEFAULT 0 COMMENT '消耗积分',
-    is_free              CHAR(1)      NOT NULL DEFAULT '0' COMMENT '是否免费（0是 1否）',
     points_author_gain   INT          NOT NULL DEFAULT 0 COMMENT '作者分成积分',
     points_official_gain INT          NOT NULL DEFAULT 0 COMMENT '平台分成积分',
     points_space_gain    INT                   DEFAULT 0 COMMENT '空间分成积分',
@@ -2372,9 +2374,10 @@ CREATE TABLE p_picture_download_log_info
     create_time          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下载时间',
     download_status      CHAR(1)      NOT NULL DEFAULT '1' COMMENT '下载状态（1失败 0成功）',
     fail_reason          VARCHAR(255) COMMENT '失败原因',
-    download_type        CHAR(1)      NOT NULL COMMENT '下载方式（0手动 1API 2批量）',
+    download_type        CHAR(1)      NOT NULL COMMENT '下载类型（0查看 1下载 2批量下载）',
     refer_source         CHAR(1) COMMENT '来源（0其他 1详情 2分享）',
    	has_statistics      CHAR(1) NOT NULL COMMENT '是否统计',
+    `score` DECIMAL(5,2) NOT NULL COMMENT '分数',
     ip_addr          VARCHAR(64)  NOT NULL COMMENT 'IP地址',
     ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',    
     device_id            VARCHAR(255) COMMENT '设备唯一标识',
@@ -2864,30 +2867,5 @@ onMounted(async () => {
 
 ```
 
-```
-package com.lz.picture.model.dto.pictureInfo;
 
-import com.lz.common.core.page.PageDomain;
-import lombok.Data;
-
-import java.io.Serializable;
-
-/**
- * 图片推荐信息
- *
- * @Project: Picture
- * @Author: YY
- * @CreateTime: 2025-06-05  22:41
- * @Version: 1.0
- */
-@Data
-public class PictureInfoRecommendRequest extends PageDomain implements Serializable {
-
-    /**
-     * 图片编号
-     */
-    private String pictureId;
-}
-
-```
 
