@@ -1,5 +1,5 @@
 <template>
-  <div class="picture">
+  <div class="vertical-fall-Layout">
     <div class="masonry">
       <div
         v-for="item in pictureList"
@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.picture {
+.vertical-fall-Layout {
   padding: 8px;
   margin: 0 4vw;
 

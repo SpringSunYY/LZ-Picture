@@ -138,7 +138,7 @@
         </a-card>
       </a-col>
     </a-row>
-    <verticalFallLayout :pictureId="pictureId"></verticalFallLayout>
+    <VerticalFallLayout :pictureId="pictureId"></VerticalFallLayout>
   </div>
 </template>
 
@@ -152,10 +152,10 @@ import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import { formatDnsUrl, formatSize } from '@/utils/common.ts'
 import {
   CommentOutlined,
+  FireOutlined,
   LikeOutlined,
   ShareAltOutlined,
   StarOutlined,
-  FireOutlined,
 } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import Comment from '@/components/Comment/Comment.vue'
@@ -163,7 +163,7 @@ import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
-import verticalFallLayout from '@/views/picture/verticalFallLayout/index.vue'
+import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
