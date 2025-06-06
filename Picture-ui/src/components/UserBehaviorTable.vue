@@ -56,6 +56,7 @@
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
+      <div style="margin-bottom: 20px"></div>
       <!-- 表格 -->
       <a-table
         :columns="columns"

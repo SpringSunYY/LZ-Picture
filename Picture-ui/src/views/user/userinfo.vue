@@ -970,7 +970,7 @@ $purple-color: #9c27b0;
   .profile-details {
     background-color: $card-bg-color;
     border-radius: $border-radius;
-    padding: 30px;
+    padding: 20px;
     box-shadow: $box-shadow;
 
     .details-grid {

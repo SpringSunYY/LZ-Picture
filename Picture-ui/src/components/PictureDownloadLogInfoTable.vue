@@ -72,7 +72,8 @@
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
-
+      <div style="margin-bottom: 20px">
+      </div>
       <a-table
         :columns="columns"
         :data-source="downloadList"
@@ -129,7 +130,7 @@ import type {
   PictureDownloadLogInfoVo,
 } from '@/types/picture/pictureDownloadLogInfo'
 import { useRouter } from 'vue-router'
-import { downloadImage, downloadImageByLog } from '@/utils/file.ts'
+import { downloadImageByLog } from '@/utils/file.ts'
 import { message } from 'ant-design-vue'
 
 const instance = getCurrentInstance()
