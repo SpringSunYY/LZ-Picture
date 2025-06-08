@@ -1,6 +1,10 @@
 package com.lz.picture.service;
 
+import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
+import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
+
+import java.util.List;
 
 /**
  * 用户推荐服务
@@ -68,4 +72,15 @@ public interface IPictureRecommendService {
      * @date: 2025/6/6 23:43
      **/
     public UserInterestModel getUserInterest(String userId);
+
+
+    /**
+     * 获取图片详情推荐
+     * @author: YY
+     * @method: getPictureInfoRecommend
+     * @date: 2025/6/5 23:20
+     * @param PictureRecommendRequest 图片推荐请求
+     * @return List<UserPictureInfoVo>
+     **/
+    public List<UserRecommendPictureInfoVo>getPictureInfoRecommend(PictureRecommendRequest pictureRecommendRequest);
 }

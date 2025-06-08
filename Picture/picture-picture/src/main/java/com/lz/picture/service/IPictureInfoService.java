@@ -1,14 +1,14 @@
 package com.lz.picture.service;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.vo.pictureInfo.*;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.util.List;
 
 /**
  * 图片信息Service接口
@@ -193,11 +193,23 @@ public interface IPictureInfoService extends IService<PictureInfo> {
 
     /**
      * 根据图片详情获取推荐图片
+     *
+     * @param pictureInfoDetailRecommendRequest 图片推荐请求
+     * @return List<UserPictureInfoVo>
      * @author: YY
      * @method: getPictureInfoDetailRecommend
      * @date: 2025/6/5 23:20
-     * @param pictureInfoDetailRecommendRequest 图片推荐请求
-     * @return List<UserPictureInfoVo>
      **/
     List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest);
+
+    /**
+     * 获取推荐热门图片
+     *
+     * @param pictureRecommendRequest 图片推荐请求
+     * @return List<UserPictureInfoVo>
+     * @author: YY
+     * @method: getRecommentHotPictureInfoList
+     * @date: 2025/6/6 00:05
+     **/
+    List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest pictureRecommendRequest);
 }

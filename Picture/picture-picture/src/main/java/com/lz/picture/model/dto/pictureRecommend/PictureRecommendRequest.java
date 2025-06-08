@@ -3,6 +3,7 @@ package com.lz.picture.model.dto.pictureRecommend;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,10 +16,15 @@ import java.io.Serializable;
  * @CreateTime: 2025-06-06  20:43
  * @Version: 1.0
  */
+@Data
 public class PictureRecommendRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 用户编号
+     */
+    private String userId;
     /**
      * 当前记录起始索引
      */

@@ -27,6 +27,7 @@ import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
@@ -1079,7 +1080,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
         //查询缓存是否存在
-        String key = PICTURE_DETAIL_RECOMMEND + pictureInfoDetailRecommendRequest.getPictureId() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getPageSize() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getCurrentPage();
+        String key = PICTURE_RECOMMEND_DETAIL + pictureInfoDetailRecommendRequest.getPictureId() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getPageSize() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getCurrentPage();
         if (redisCache.hasKey(key)) {
             return redisCache.getCacheObject(key);
         }
@@ -1092,7 +1093,33 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
         });
         List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(list);
-        redisCache.setCacheObject(key, userPictureInfoVos, PICTURE_DETAIL_RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(key, userPictureInfoVos, PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
         return userPictureInfoVos;
+    }
+
+    @Override
+    public List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest pictureRecommendRequest) {
+        //先查询是否有缓存，如果有直接走缓存
+        String key = PICTURE_RECOMMEND_HOT + pictureRecommendRequest.getCurrentPage() + COMMON_SEPARATOR_CACHE + pictureRecommendRequest.getPageSize();
+        List<UserRecommendPictureInfoVo> cacheObject = redisCache.getCacheObject(key);
+        if (StringUtils.isNotEmpty(cacheObject)) {
+            return cacheObject;
+        }
+        Page<PictureInfo> pictureInfoPage = new Page<>();
+        pictureInfoPage.setCurrent(pictureRecommendRequest.getCurrentPage());
+        pictureInfoPage.setSize(pictureRecommendRequest.getPageSize());
+        Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
+                .orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount)
+        );
+        List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
+        //防止空指针异常
+        if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
+            userRecommendPictureInfoVos = new ArrayList<>();
+        }
+        redisCache.setCacheObject(key, userRecommendPictureInfoVos, PICTURE_RECOMMEND_HOT_EXPIRE_TIME, TimeUnit.SECONDS);
+        return userRecommendPictureInfoVos;
     }
 }

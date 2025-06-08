@@ -11,9 +11,11 @@ import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.PictureDownloadLogInfo;
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.model.domain.UserViewLogInfo;
+import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PViewLogTargetTypeEnum;
+import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.*;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -176,6 +178,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         int viewLimit = Integer.parseInt(viewLimitStr);
         UserInterestModel viewModel = this.getUserViewInterest(userId, PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0.getValue(), viewLimit, viewCategoryWeight, viewTagWeight, timeDecay);
 
+        //查询下载兴趣
         String downloadCategoryStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_CATEGORY);
         int downloadCategoryWeight = Integer.parseInt(downloadCategoryStr);
         String downloadTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_TAG);
@@ -186,6 +189,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         int downloadLimit = Integer.parseInt(downloadLimitStr);
         UserInterestModel downloadModel = this.getPictureDownloadInterest(userId, downloadLimit, downloadCategoryWeight, downloadTagWeight, downloadTimeDecay);
 
+        //查询行为兴趣
         String behaviorCategoryStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_CATEGORY);
         int behaviorCategoryWeight = Integer.parseInt(behaviorCategoryStr);
         String behaviorTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_TAG);
@@ -262,6 +266,17 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         return userInterestModel;
     }
 
+    @Override
+    public List<UserRecommendPictureInfoVo> getPictureInfoRecommend(PictureRecommendRequest pictureRecommendRequest) {
+        //1.判断用户是否传过来，如果没有返回热门的推荐
+        String userId = pictureRecommendRequest.getUserId();
+        if (StringUtils.isEmpty(userId)) {
+            return pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+        } else {
+            return null;
+        }
+    }
+
 
     // 辅助方法：时间衰减计算（每天衰减10%）
     private double calculateTimeDecay(Date createTime, Date now, Double timeDecay) {
@@ -291,4 +306,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         }
     }
     // endregion
+
+    //region 图片推荐核心实现
+
+    //endregion
 }

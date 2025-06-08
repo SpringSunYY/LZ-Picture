@@ -42,10 +42,20 @@ public class PictureRedisConstants {
     /**
      * 图片详情推荐缓存
      */
-    public static final String PICTURE_DETAIL_RECOMMEND = "picture:detail:recommend:";
+    public static final String PICTURE_RECOMMEND_DETAIL = "picture:recommend:detail";
 
     /**
      * 图片详情推荐缓存时间
      */
-    public static final Integer PICTURE_DETAIL_RECOMMEND_EXPIRE_TIME = 10 * 60;
+    public static final Integer PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME = 10 * 60;
+
+    /**
+     * 图片热门推荐缓存
+     */
+    public static final String PICTURE_RECOMMEND_HOT = "picture:recommend:hot:";
+
+    /**
+     * 图片热门推荐缓存时间
+     */
+    public static final Integer PICTURE_RECOMMEND_HOT_EXPIRE_TIME = 10 * 60;
 }
