@@ -79,7 +79,7 @@ public interface IPictureRecommendService {
      * @author: YY
      * @method: getPictureInfoRecommend
      * @date: 2025/6/5 23:20
-     * @param PictureRecommendRequest 图片推荐请求
+     * @param pictureRecommendRequest 图片推荐请求
      * @return List<UserPictureInfoVo>
      **/
     public List<UserRecommendPictureInfoVo>getPictureInfoRecommend(PictureRecommendRequest pictureRecommendRequest);

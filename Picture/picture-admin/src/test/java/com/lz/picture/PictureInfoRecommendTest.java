@@ -3,6 +3,7 @@ package com.lz.picture;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
+import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IPictureRecommendService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import java.util.List;
  */
 @SpringBootTest
 public class PictureInfoRecommendTest {
+    @Resource
+    private IPictureInfoService pictureInfoService;
     @Resource
     private IPictureRecommendService pictureRecommendService;
 
@@ -44,15 +47,31 @@ public class PictureInfoRecommendTest {
     @Test
     public void getUserInterest() {
         UserInterestModel userInterest = pictureRecommendService.getUserInterest("1");
+        userInterest.normalizeScores();
         System.out.println(userInterest);
     }
 
     @Test
     public void getPictureInfoRecommend() {
         PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setCurrentPage(10);
+        pictureRecommendRequest.setUserId("1");
+        pictureRecommendRequest.setCurrentPage(3);
         pictureRecommendRequest.setPageSize(30);
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(pictureRecommendRequest);
-        System.out.println("pictureInfoRecommend = " + pictureInfoRecommend);
+        System.out.println("pictureInfoRecommend = " + pictureInfoRecommend.size());
+        for (UserRecommendPictureInfoVo userRecommendPictureInfoVo : pictureInfoRecommend) {
+            System.err.println("pictureId = " + userRecommendPictureInfoVo.getPictureId());
+            System.out.println("name = " + userRecommendPictureInfoVo.getName());
+            System.out.println("category = " + userRecommendPictureInfoVo.getCategoryId());
+        }
+    }
+
+    @Test
+    public void getPictureInfoHotRecommend() {
+        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
+        pictureRecommendRequest.setCurrentPage(1);
+        pictureRecommendRequest.setPageSize(100);
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+        System.out.println(recommentHotPictureInfoList.size());
     }
 }
