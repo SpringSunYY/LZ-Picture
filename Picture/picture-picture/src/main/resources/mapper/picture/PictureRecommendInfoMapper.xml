@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.PictureRecommendInfoMapper">
+    
+    <resultMap type="PictureRecommendInfo" id="PictureRecommendInfoResult">
+        <result property="recommendId"    column="recommend_id"    />
+        <result property="categoryScores"    column="category_scores"    />
+        <result property="topCategories"    column="top_categories"    />
+        <result property="normalizedCategoryScores"    column="normalized_category_scores"    />
+        <result property="tagScores"    column="tag_scores"    />
+        <result property="topTags"    column="top_tags"    />
+        <result property="normalizedTagScores"    column="normalized_tag_scores"    />
+        <result property="moreInfo"    column="more_info"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectPictureRecommendInfoVo">
+        select recommend_id, category_scores, top_categories, normalized_category_scores, tag_scores, top_tags, normalized_tag_scores, more_info, user_id, create_time from p_picture_recommend_info
+    </sql>
+
+    <select id="selectPictureRecommendInfoList" parameterType="PictureRecommendInfo" resultMap="PictureRecommendInfoResult">
+        <include refid="selectPictureRecommendInfoVo"/>
+        <where>  
+            <if test="recommendId != null  and recommendId != ''"> and recommend_id = #{recommendId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectPictureRecommendInfoByRecommendId" parameterType="String" resultMap="PictureRecommendInfoResult">
+        <include refid="selectPictureRecommendInfoVo"/>
+        where recommend_id = #{recommendId}
+    </select>
+
+    <insert id="insertPictureRecommendInfo" parameterType="PictureRecommendInfo">
+        insert into p_picture_recommend_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="recommendId != null">recommend_id,</if>
+            <if test="categoryScores != null">category_scores,</if>
+            <if test="topCategories != null">top_categories,</if>
+            <if test="normalizedCategoryScores != null">normalized_category_scores,</if>
+            <if test="tagScores != null">tag_scores,</if>
+            <if test="topTags != null">top_tags,</if>
+            <if test="normalizedTagScores != null">normalized_tag_scores,</if>
+            <if test="moreInfo != null">more_info,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="recommendId != null">#{recommendId},</if>
+            <if test="categoryScores != null">#{categoryScores},</if>
+            <if test="topCategories != null">#{topCategories},</if>
+            <if test="normalizedCategoryScores != null">#{normalizedCategoryScores},</if>
+            <if test="tagScores != null">#{tagScores},</if>
+            <if test="topTags != null">#{topTags},</if>
+            <if test="normalizedTagScores != null">#{normalizedTagScores},</if>
+            <if test="moreInfo != null">#{moreInfo},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePictureRecommendInfo" parameterType="PictureRecommendInfo">
+        update p_picture_recommend_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryScores != null">category_scores = #{categoryScores},</if>
+            <if test="topCategories != null">top_categories = #{topCategories},</if>
+            <if test="normalizedCategoryScores != null">normalized_category_scores = #{normalizedCategoryScores},</if>
+            <if test="tagScores != null">tag_scores = #{tagScores},</if>
+            <if test="topTags != null">top_tags = #{topTags},</if>
+            <if test="normalizedTagScores != null">normalized_tag_scores = #{normalizedTagScores},</if>
+            <if test="moreInfo != null">more_info = #{moreInfo},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where recommend_id = #{recommendId}
+    </update>
+
+    <delete id="deletePictureRecommendInfoByRecommendId" parameterType="String">
+        delete from p_picture_recommend_info where recommend_id = #{recommendId}
+    </delete>
+
+    <delete id="deletePictureRecommendInfoByRecommendIds" parameterType="String">
+        delete from p_picture_recommend_info where recommend_id in 
+        <foreach item="recommendId" collection="array" open="(" separator="," close=")">
+            #{recommendId}
+        </foreach>
+    </delete>
+</mapper>

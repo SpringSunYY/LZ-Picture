@@ -2755,6 +2755,43 @@ CREATE TABLE p_user_report_info
 
 
 
+#### 用户图片推荐模型：p_picture_recommend_info
+
+| 字段名                     | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述           |
+| -------------------------- | -------- | ---- | -------------------------- | ---- | -------- | -------------- |
+| recommend_id               | varchar  | 128  | 主键                       | 否   |          | 推荐编号       |
+| category_scores            | text     |      |                            |      |          | 分类分数       |
+| top_categories             | text     |      |                            |      |          | 高兴趣分类     |
+| normalized_category_scores | text     |      |                            |      |          | 归一化分类分数 |
+| tag_scores                 | text     |      |                            |      |          | 标签分数       |
+| top_tags                   | text     |      |                            |      |          | 高兴趣标签     |
+| normalized_tag_scores      | text     |      |                            |      |          | 归一化标签分数 |
+| more_info                  | text     |      |                            |      |          | 更多信息       |
+| user_id                    | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号       |
+| create_time                | datetime |      |                            | 否   | 当前时间 | 创建时间       |
+
+```sql
+DROP TABLE IF EXISTS p_picture_recommend_info;
+CREATE TABLE p_picture_recommend_info
+(
+    recommend_id               VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '推荐编号',
+    category_scores            TEXT COMMENT '分类分数',
+    top_categories             TEXT COMMENT '高兴趣分类',
+    normalized_category_scores TEXT COMMENT '归一化分类分数',
+    tag_scores                 TEXT COMMENT '标签分数',
+    top_tags                   TEXT COMMENT '高兴趣标签',
+    normalized_tag_scores      TEXT COMMENT '归一化标签分数',
+    more_info                  TEXT COMMENT '更多信息',
+    user_id                    varchar(128)       NOT NULL COMMENT '用户编号',
+    create_time                DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_picture_recommend_user (user_id),
+    CONSTRAINT fk_picture_recommend_user
+        FOREIGN KEY (user_id)
+            REFERENCES u_user_info (user_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户图片推荐模型表';
+```
+
 
 
 ## 留存
