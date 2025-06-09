@@ -26,9 +26,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
@@ -333,7 +331,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             Map<String, Set<String>> newCache = new HashMap<>();
 
             // 1. 查询所有分类
-            List<PictureCategoryInfo> categories =pictureCategoryInfoService.list(
+            List<PictureCategoryInfo> categories = pictureCategoryInfoService.list(
                     new LambdaQueryWrapper<PictureCategoryInfo>()
             );
 
@@ -367,6 +365,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             log.error("刷新分类-标签关系缓存失败: {}", e.getMessage(), e);
         }
     }
+
     /**
      * 完整的推荐算法实现
      */
@@ -376,13 +375,13 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         // 1. 用户ID验证
         String userId = req.getUserId();
         if (StringUtils.isEmpty(userId)) {
-            return getFallbackRecommendation(req);
+            return pictureInfoService.getRecommentHotPictureInfoList(req);
         }
 
         // 2. 获取用户兴趣模型（使用您现有的方法）
         UserInterestModel userModel = getUserInterest(userId);
         if (userModel == null) {
-            return getFallbackRecommendation(req);
+            return pictureInfoService.getRecommentHotPictureInfoList(req);
         }
 
         // 3. 确保归一化分数（使用您现有的方法）
@@ -540,6 +539,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     if (pic.getTags() == null) {
                         injectTags(Collections.singletonList(pic));
                     }
+                    pic.setThumbnailUrl(pictureInfoService.builderPictureUrl(pic.getThumbnailUrl(), pic.getDnsUrl()));
                     return UserRecommendPictureInfoVo.objToVo(pic);
                 })
                 .collect(Collectors.toList());
@@ -560,6 +560,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                 .map(UserRecommendPictureInfoVo::objToVo)
                 .collect(Collectors.toList());
     }
+
     // 获取与图片匹配最强的标签
     private String getStrongestMatchTag(PictureInfo pic, UserInterestModel userModel) {
         if (pic.getTags() == null || pic.getTags().isEmpty()) {
@@ -695,23 +696,5 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         );
     }
 
-    // 辅助类：带得分的图片
-    private static class ScoredPicture {
-        private final PictureInfo picture;
-        private final double score;
-
-        public ScoredPicture(PictureInfo picture, double score) {
-            this.picture = picture;
-            this.score = score;
-        }
-
-        public PictureInfo getPicture() {
-            return picture;
-        }
-
-        public double getScore() {
-            return score;
-        }
-    }
     //endregion
 }

@@ -312,6 +312,57 @@ export interface PictureInfoSearchRecommendVo {
 }
 
 /**
+ * 用户推荐的图片信息 VO（前端对应类）
+ * 对应后端的 UserRecommendPictureInfoVo
+ */
+export interface UserRecommendPictureInfoVo {
+  /** 图片编号 */
+  pictureId: string
+
+  /** 图片名称 */
+  name: string
+
+  /** 分类编号 */
+  categoryId: string
+
+  /** 图片宽度 */
+  picWidth: number
+
+  /** 图片高度 */
+  picHeight: number
+
+  /** 宽高比例 */
+  picScale: number
+
+  /** 缩略图 URL */
+  thumbnailUrl: string
+}
+
+/**
+ * 用户推荐请求参数 DTO
+ * 对应后端的 PictureRecommendRequest
+ */
+export interface PictureRecommendRequest {
+  /** 用户编号 */
+  userId?: string
+
+  /** 当前记录起始页（从0开始） */
+  currentPage?: number
+
+  /** 每页显示记录数（1-50） */
+  pageSize: number
+
+  /** 页码*/
+  pageNum?: number
+
+  /** 偏移量（可选） */
+  offset?: number
+
+  /** 图片名称 */
+  name?: string
+}
+
+/**
  * 图片搜索建议项
  */
 export interface PictureInfoSearchSuggestionVo {
@@ -327,15 +378,14 @@ export interface PictureInfoSearchSuggestionVo {
  */
 export interface PictureInfoRecommendRequest {
   /** 图片编号 */
-  pictureId: string;
+  pictureId: string
 
   /** 当前记录起始索引，从0开始 */
-  currentPage: number;
+  currentPage: number
 
   /** 每页显示记录数（1~50） */
-  pageSize: number;
+  pageSize: number
 }
-
 
 // 图片状态 枚举
 export enum PPictureStatus {

@@ -132,6 +132,7 @@ public class SecurityConfig {
                                     "/user/getForgetPasswordCode", "/user/forgetPassword",
                                     "/user/picture/pictureInfo/list",
                                     "/user/picture/pictureInfo/search/recommend",
+                                    "/user/picture/pictureInfo/recommend",
                                     "/user/picture/pictureInfo/search/suggestion",
                                     "/user/config/configInfo/key/**",
                                     "/user/points/pay/alipay/callback").permitAll()

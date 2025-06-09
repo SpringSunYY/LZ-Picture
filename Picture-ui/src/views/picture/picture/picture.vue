@@ -1,7 +1,7 @@
 <template>
   <div class="picture">
-    <a-empty description="" v-if="pictureRows.length <= 0"> </a-empty>
-    <div class="horizontal-masonry" >
+    <a-empty description="" v-if="pictureRows.length <= 0"></a-empty>
+    <div class="horizontal-masonry">
       <div class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
         <div
           v-for="item in row"
@@ -27,10 +27,15 @@
 <script setup lang="ts" name="Picture">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
-import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
+import type {
+  PictureInfoQuery,
+  PictureInfoVo,
+  PictureRecommendRequest,
+} from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
 import { useConfig } from '@/utils/config.ts'
 import { useRouter } from 'vue-router'
+import { getPictureInfoRecommend } from '@/api/picture/recommend.ts'
 
 interface Props {
   name?: string
@@ -49,9 +54,12 @@ onMounted(async () => {
 const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据（不会做 display 样式处理）
 const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
 
-const pictureQuery = ref<PictureInfoQuery>({
+const pictureQuery = ref<PictureRecommendRequest>({
+  currentPage: 0,
   pageNum: 1,
   pageSize: 30,
+  offset: 0,
+  //如果传入名字走获取list接口
   name: props.name || '',
 })
 
@@ -77,36 +85,53 @@ async function loadMore() {
   loading.value = true
 
   await new Promise((resolve) => setTimeout(resolve, 300)) // 模拟网络延迟
-  listPictureInfo(pictureQuery.value).then(async (res) => {
-    const newData = generatePictureData(res?.rows || [])
-    if (newData.length > 0) {
-      rawPictureList.value.push(...newData)
-      pictureQuery.value.pageNum++
-      await nextTick()
-      formatPictureListByRow()
+  let tempData
+  if (pictureQuery.value.name === '') {
+    const res = await getPictureInfoRecommend(pictureQuery.value)
+    tempData = res?.rows || []
+  } else {
+    const res = await listPictureInfo(pictureQuery.value)
+    tempData = res?.rows || []
+  }
+  const newData = generatePictureData(tempData)
+  if (newData.length > 0) {
+    rawPictureList.value.push(...newData)
+    if (pictureQuery.value.name === '') {
+      pictureQuery.value.currentPage++
     } else {
-      noMore.value = true
+      pictureQuery.value.pageNum++
     }
-    loading.value = false
-  })
+    await nextTick()
+    formatPictureListByRow()
+  } else {
+    noMore.value = true
+  }
+  loading.value = false
 }
 
 //获取数据
-const getPictureList = () => {
+const getPictureList = async () => {
   if (loading.value || noMore.value) return
   loading.value = true
-  listPictureInfo(pictureQuery.value).then(async (res) => {
-    const newData = generatePictureData(res?.rows || [])
-    if (newData.length > 0) {
-      rawPictureList.value = newData
-      pictureQuery.value.pageNum++
-      await nextTick()
-      formatPictureListByRow()
-    } else {
-      noMore.value = true
-    }
-    loading.value = false
-  })
+  let tempData
+  console.log('pictureQuery', pictureQuery.value)
+  if (pictureQuery.value.name === '') {
+    const res = await getPictureInfoRecommend()
+    tempData = res?.rows || []
+  } else {
+    const res = await listPictureInfo(pictureQuery.value)
+    tempData = res?.rows || []
+  }
+  const newData = generatePictureData(tempData || [])
+  if (newData.length > 0) {
+    rawPictureList.value = newData
+    pictureQuery.value.pageNum++
+    await nextTick()
+    formatPictureListByRow()
+  } else {
+    noMore.value = true
+  }
+  loading.value = false
 }
 
 const generatePictureData = (dataList: PictureInfoVo[]) => {

@@ -84,7 +84,7 @@ const searchInput = (value: string) => {
     searchTimer.value = null
   }, 500) // 500ms防抖间隔
 }
-// 静态数据
+
 const suggestionList = ref<SearchSuggestion[]>([])
 const getSearchSuggestList = (value: string) => {
   console.log('searchInput', value)
@@ -117,7 +117,7 @@ const getRecommendationList = () => {
           image: item.thumbnailUrl,
         }
       }) || []
-    console.log('recommendationList', recommendationList.value)
+    // console.log('recommendationList', recommendationList.value)
   })
 }
 getRecommendationList()

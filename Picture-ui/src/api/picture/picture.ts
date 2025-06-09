@@ -4,10 +4,14 @@ import type {
   MyPictureInfoVo,
   PictureDetailInfoVo,
   PictureInfo,
-  PictureInfoQuery, PictureInfoRecommendRequest,
+  PictureInfoQuery,
+  PictureInfoRecommendRequest,
   PictureInfoSearchRecommendVo,
   PictureInfoSearchSuggestionVo,
-  PictureInfoUpdate, PictureInfoVo
+  PictureInfoUpdate,
+  PictureInfoVo,
+  PictureRecommendRequest,
+  UserRecommendPictureInfoVo,
 } from '@/types/picture/picture'
 
 /**
@@ -40,7 +44,9 @@ export function updatePictureInfo(
  * 查询图片信息列表
  * @param params
  */
-export function listPictureInfo(params: PictureInfoQuery): Promise<API.ResponseInfo<PictureInfo>> {
+export function listPictureInfo(
+  params: PictureInfoRecommendRequest,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/list',
     params: params,
@@ -126,7 +132,7 @@ export function getSearchSuggest(
 
 export function getPictureInfoDetailRecommend(
   params: PictureInfoRecommendRequest,
-):  Promise<API.ResponseInfo<PictureInfoVo>> {
+): Promise<API.ResponseInfo<PictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/detail/recommend',
     method: 'get',

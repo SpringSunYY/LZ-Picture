@@ -1114,6 +1114,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
                 .orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount)
         );
+        //构造url
+        pictureInfoList.getRecords().forEach(pictureInfo -> {
+            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+        });
         List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
         //防止空指针异常
         if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
