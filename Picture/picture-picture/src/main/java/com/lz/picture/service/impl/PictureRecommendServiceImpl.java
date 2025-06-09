@@ -17,6 +17,7 @@ import com.lz.picture.model.enums.PViewLogTargetTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.*;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMMEND_CATEGORY_TAG;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME;
 
 /**
  * 用户推荐服务
@@ -50,6 +53,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     @Resource
     private IPictureInfoService pictureInfoService;
+
+    @Resource
+    private IPictureTagInfoService pictureTagInfoService;
 
     @Resource
     private IPictureTagRelInfoService pictureTagRelInfoService;
@@ -304,6 +310,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     private Map<String, Set<String>> categoryTagCache = new HashMap<>();
     private volatile long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
+    private ScheduledExecutorService scheduler = null;
 
     @PostConstruct
     public void init() {
@@ -311,12 +318,19 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         startRefreshTask(); // 启动定时刷新任务
     }
 
+    // 添加 @PreDestroy 方法用于关闭线程池
+    @PreDestroy
+    public void destroy() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow(); // 强制关闭
+            log.info("ScheduledExecutorService 已关闭");
+        }
+    }
+
     // 启动缓存刷新定时任务
     private void startRefreshTask() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> {
-            refreshCategoryTagCache();
-        }, 1, 1, TimeUnit.HOURS); // 每小时刷新一次
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(this::refreshCategoryTagCache, 1, 1, TimeUnit.HOURS); // 每小时刷新一次
     }
 
     // 刷新分类-标签关系缓存
@@ -340,16 +354,13 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                 String categoryId = category.getCategoryId();
 
                 // 查询该分类下的热门标签（按使用频率排序）
-                Page<Map<String, Object>> result = pictureTagRelInfoService.pageMaps(
-                        new Page<>(1, 10), // 取前10个最常用标签
-                        new LambdaQueryWrapper<PictureTagRelInfo>()
-                                .groupBy(PictureTagRelInfo::getTagName)
-                                .orderByDesc(PictureTagRelInfo::getLookCount)
-                );
+                List<PictureTagInfo> result = pictureTagInfoService.list(new LambdaQueryWrapper<PictureTagInfo>()
+                        .orderBy(true, false, PictureTagInfo::getUsageCount)
+                        .last(true, "limit 100"));
 
                 // 提取标签名
-                Set<String> tags = result.getRecords().stream()
-                        .map(map -> (String) map.get("tag_name"))
+                Set<String> tags = result.stream()
+                        .map(PictureTagInfo::getName)
                         .collect(Collectors.toSet());
 
                 newCache.put(categoryId, tags);
@@ -357,9 +368,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
             // 3. 原子更新缓存
             if (!newCache.isEmpty()) {
-                categoryTagCache = newCache;
-                lastCacheRefreshTime = currentTime;
-                log.info("成功刷新分类-标签关系缓存，共{}个分类", newCache.size());
+                redisCache.setCacheObject(PICTURE_RECOMMEND_CATEGORY_TAG, newCache, PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME, TimeUnit.SECONDS);
+                log.info("成功刷新分类-标签关系缓存到Redis，共{}个分类，有效期{}秒",
+                        newCache.size(), PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME);
             }
         } catch (Exception e) {
             log.error("刷新分类-标签关系缓存失败: {}", e.getMessage(), e);
@@ -367,29 +378,59 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     }
 
     /**
+     * 获取分类-标签关系（带Redis缓存）
+     */
+    private Map<String, Set<String>> getCategoryTagRelation() {
+        try {
+            // 1. 尝试从Redis获取
+            Map<String, Set<String>> cache = redisCache.getCacheObject(PICTURE_RECOMMEND_CATEGORY_TAG);
+            if (cache != null && !cache.isEmpty()) {
+                return cache;
+            }
+
+            // 2. Redis中没有则同步刷新
+            log.warn("未找到分类-标签缓存，同步刷新中...");
+            refreshCategoryTagCache();
+
+            // 3. 再次尝试从Redis获取
+            cache = redisCache.getCacheObject(PICTURE_RECOMMEND_CATEGORY_TAG);
+            if (cache != null) {
+                return cache;
+            }
+
+            // 4. 最终回退方案：使用空映射
+            log.error("无法获取分类-标签关系，使用空映射");
+            return Collections.emptyMap();
+        } catch (Exception e) {
+            log.error("获取分类-标签关系失败: {}", e.getMessage(), e);
+            return Collections.emptyMap();
+        }
+    }
+
+
+    /**
      * 完整的推荐算法实现
      */
-    // 只修改推荐核心部分，其他保持不变
     @Override
     public List<UserRecommendPictureInfoVo> getPictureInfoRecommend(PictureRecommendRequest req) {
         // 1. 用户ID验证
         String userId = req.getUserId();
         if (StringUtils.isEmpty(userId)) {
-            return pictureInfoService.getRecommentHotPictureInfoList(req);
+            return getFallbackRecommendation(req);
         }
 
         // 2. 获取用户兴趣模型（使用您现有的方法）
         UserInterestModel userModel = getUserInterest(userId);
         if (userModel == null) {
-            return pictureInfoService.getRecommentHotPictureInfoList(req);
+            return getFallbackRecommendation(req);
         }
 
         // 3. 确保归一化分数（使用您现有的方法）
         normalizeScores(userModel);
 
         // 4. 获取高兴趣分类和标签（使用您现有的方法）
-        List<String> topCategories = getTopCategories(userModel, 5);
-        List<String> topTags = getTopTags(userModel, 10);
+        List<String> topCategories = getTopCategories(userModel);
+        List<String> topTags = getTopTags(userModel);
 
         // 5. 日志记录（调试用）
         log.debug("用户{}推荐 - 高兴趣分类: {}", userId, topCategories);
@@ -404,7 +445,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             int batchSize = 3;
             for (int i = 0; i < topCategories.size(); i += batchSize) {
                 List<String> batchCategories = topCategories.subList(i, Math.min(i + batchSize, topCategories.size()));
-                candidatePictureIds.addAll(getCategoryPictureIds(batchCategories));
+                candidatePictureIds.addAll(getCategoryPictureIds(batchCategories, 1000));
             }
         }
 
@@ -414,7 +455,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             int batchSize = 5;
             for (int i = 0; i < topTags.size(); i += batchSize) {
                 List<String> batchTags = topTags.subList(i, Math.min(i + batchSize, topTags.size()));
-                candidatePictureIds.addAll(getTagPictureIds(batchTags));
+                candidatePictureIds.addAll(getTagPictureIds(batchTags, 2000));
             }
         }
 
@@ -443,18 +484,18 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             candidatePics.addAll(batchPics);
         }
 
-        // 9. 批量为所有候选图片注入标签（使用您优化后的方法）
+        // 9. 批量为所有候选图片注入标签
         injectTags(candidatePics);
 
-        // 10. 计算动态权重（保持您的权重分配）
+        // 10. 计算动态权重
         double categoryWeight = 0.3;
         double tagWeight = 0.7;
 
         // 11. 计算协同评分
         List<Pair<PictureInfo, Double>> scoredItems = new ArrayList<>();
 
-        // 优化：提前获取分类-标签关系（使用您现有的数据）
-        Map<String, Set<String>> categoryTags = categoryTagCache;
+        // 提前获取分类-标签关系
+        Map<String, Set<String>> categoryTags = getCategoryTagRelation();
 
         for (PictureInfo pic : candidatePics) {
             // 11.1 获取分类归一化分数
@@ -547,18 +588,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     // 保持您原有的getFallbackRecommendation方法
     private List<UserRecommendPictureInfoVo> getFallbackRecommendation(PictureRecommendRequest req) {
-        Page<PictureInfo> hotPage = pictureInfoService.page(
-                new Page<>(req.getCurrentPage(), req.getPageSize()),
-                new LambdaQueryWrapper<PictureInfo>()
-                        .eq(PictureInfo::getPictureStatus, "0")
-                        .eq(PictureInfo::getReviewStatus, 1)
-                        .eq(PictureInfo::getIsDelete, "0")
-                        .orderByDesc(PictureInfo::getLookCount)
-        );
-
-        return hotPage.getRecords().stream()
-                .map(UserRecommendPictureInfoVo::objToVo)
-                .collect(Collectors.toList());
+        return pictureInfoService.getRecommentHotPictureInfoList(req);
     }
 
     // 获取与图片匹配最强的标签
@@ -574,35 +604,46 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                 .orElse(null);
     }
 
-    // 获取分类匹配的图片ID
-    private Set<String> getCategoryPictureIds(List<String> categories) {
+    // 获取分类匹配的图片ID，并限制数量
+    private Set<String> getCategoryPictureIds(List<String> categories, int limit) {
         if (CollectionUtils.isEmpty(categories)) {
             return Collections.emptySet();
         }
 
-        return pictureInfoService.list(
+        // 使用分页控制返回数量
+        Page<PictureInfo> page = new Page<>(1, limit); // 第一页，每页limit条记录
+
+        List<PictureInfo> result = pictureInfoService.page(page,
                         new LambdaQueryWrapper<PictureInfo>()
                                 .select(PictureInfo::getPictureId)
                                 .in(PictureInfo::getCategoryId, categories)
                                 .eq(PictureInfo::getPictureStatus, "0")
                                 .eq(PictureInfo::getReviewStatus, 1)
-                                .eq(PictureInfo::getIsDelete, "0")
-                ).stream()
+                                .eq(PictureInfo::getIsDelete, "0"))
+                .getRecords();
+
+        return result.stream()
                 .map(PictureInfo::getPictureId)
                 .collect(Collectors.toSet());
     }
 
+
     // 获取标签匹配的图片ID
-    private Set<String> getTagPictureIds(List<String> tags) {
+    private Set<String> getTagPictureIds(List<String> tags, int limit) {
         if (CollectionUtils.isEmpty(tags)) {
             return Collections.emptySet();
         }
 
-        return pictureTagRelInfoService.list(
+        // 使用分页来限制返回的记录数
+        Page<PictureTagRelInfo> page = new Page<>(1, limit); // 第一页，每页limit条记录
+
+        List<PictureTagRelInfo> result = pictureTagRelInfoService.page(page,
                         new LambdaQueryWrapper<PictureTagRelInfo>()
                                 .select(PictureTagRelInfo::getPictureId)
-                                .in(PictureTagRelInfo::getTagName, tags)
-                ).stream()
+                                .in(PictureTagRelInfo::getTagName, tags))
+                .getRecords();
+
+        return result.stream()
                 .map(PictureTagRelInfo::getPictureId)
                 .collect(Collectors.toSet());
     }
@@ -640,11 +681,12 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     }
 
     // 获取高兴趣分类
-    private List<String> getTopCategories(UserInterestModel interest, int limit) {
+    private List<String> getTopCategories(UserInterestModel interest) {
         if (interest.getCategoryScores() == null || interest.getCategoryScores().isEmpty()) {
             return new ArrayList<>();
         }
-
+        //获取分类数量
+        int limit = interest.getCategoryScores().size() / 3;
         return interest.getCategoryScores().entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .limit(limit)
@@ -653,11 +695,11 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     }
 
     // 获取高兴趣标签
-    private List<String> getTopTags(UserInterestModel interest, int limit) {
+    private List<String> getTopTags(UserInterestModel interest) {
         if (interest.getTagScores() == null || interest.getTagScores().isEmpty()) {
             return new ArrayList<>();
         }
-
+        int limit = interest.getTagScores().size() / 6;
         return interest.getTagScores().entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .limit(limit)
