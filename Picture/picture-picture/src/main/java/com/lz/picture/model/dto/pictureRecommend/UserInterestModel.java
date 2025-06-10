@@ -3,6 +3,7 @@ package com.lz.picture.model.dto.pictureRecommend;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,8 @@ public class UserInterestModel {
     private Map<String, Double> tagScores; // tag -> score
     private Map<String, Double> categoryScores; // categoryId -> score
     private Date updateTime;
+    private List<String> topTags;
+    private List<String> topCategories;
 
     private Map<String, Double> normalizedTagScores; // 存储标签归一化结果
     private Map<String, Double> normalizedCategoryScores; // 存储分类归一化结果

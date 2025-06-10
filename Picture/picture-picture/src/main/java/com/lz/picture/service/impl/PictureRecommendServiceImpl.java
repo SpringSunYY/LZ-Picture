@@ -306,9 +306,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     //region 图片推荐核心实现
     // 在类定义中添加以下字段和初始化方法
-
-    private Map<String, Set<String>> categoryTagCache = new HashMap<>();
-    private volatile long lastCacheRefreshTime = 0;
+    private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
     private ScheduledExecutorService scheduler = null;
 

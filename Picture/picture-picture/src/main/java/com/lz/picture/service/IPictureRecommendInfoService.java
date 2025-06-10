@@ -2,6 +2,7 @@ package com.lz.picture.service;
 
 import java.util.List;
 import com.lz.picture.model.domain.PictureRecommendInfo;
+import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.vo.pictureRecommendInfo.PictureRecommendInfoVo;
 import com.lz.picture.model.dto.pictureRecommendInfo.PictureRecommendInfoQuery;
 
@@ -79,4 +80,64 @@ public interface IPictureRecommendInfoService extends IService<PictureRecommendI
      * @return PictureRecommendInfoVO集合
      */
     List<PictureRecommendInfoVo> convertVoList(List<PictureRecommendInfo> pictureRecommendInfoList);
+
+    public UserInterestModel getUserInterrestModelByUserId(String userId);
+
+    /**
+     * 获取用户浏览推荐分数
+     *
+     * @param userId         用户编号
+     * @param targetType     目标类型
+     * @param limit          记录数
+     * @param categoryWeight 分类权重
+     * @param tagWeight      标签权重
+     * @param timeDecay      时间衰减
+     * @return UserInterestModel
+     * @author: YY
+     * @method: getUserViewInterest
+     * @date: 2025/6/10 11:40
+     **/
+    public UserInterestModel getUserViewInterest(String userId, String targetType, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay);
+
+    /**
+     * 获取用户行为推荐分数
+     *
+     * @param userId         用户编号
+     * @param targetType     目标类型
+     * @param limit          记录数
+     * @param categoryWeight 分类权重
+     * @param tagWeight      标签权重
+     * @param timeDecay      时间衰减
+     * @return UserInterestModel
+     * @author: YY
+     * @method: getUserBehaviorInterest
+     * @date: 2025/6/10 11:40
+     **/
+    public UserInterestModel getUserBehaviorInterest(String userId, String targetType, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay);
+
+    /**
+     * 获取用户图片下载记录分数
+     *
+     * @param userId
+     * @param limit
+     * @param categoryWeight
+     * @param tagWeight
+     * @param timeDecay
+     * @return UserInterestModel
+     * @author: YY
+     * @method: getPictureDownloadInterest
+     * @date: 2025/6/10 11:40
+     **/
+    public UserInterestModel getPictureDownloadInterest(String userId, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay);
+
+    /**
+     * 获取用户推荐分数
+     *
+     * @param userId 用户编号
+     * @return UserInterestModel
+     * @author: YY
+     * @method: getUserInterest
+     * @date: 2025/6/10 11:40
+     **/
+    public UserInterestModel getUserInterest(String userId);
 }

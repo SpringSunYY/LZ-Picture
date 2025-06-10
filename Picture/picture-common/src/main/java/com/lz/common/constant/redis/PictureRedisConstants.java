@@ -68,4 +68,14 @@ public class PictureRedisConstants {
      * 图片推荐缓存分类-标签缓存时间
      */
     public static final Integer PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME = 60 * 60 * 12;
+
+    /**
+     * 图片推荐缓存用户模型
+     */
+    public static final String PICTURE_RECOMMEND_PICTURE_MODEL = "picture:recommend:picture:model:";
+
+    /**
+     * 图片推荐缓存用户模型缓存时间
+     */
+    public static final Integer PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME = 60 * 60;
 }

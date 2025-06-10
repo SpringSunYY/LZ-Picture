@@ -4,6 +4,7 @@ import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.IPictureInfoService;
+import com.lz.picture.service.IPictureRecommendInfoService;
 import com.lz.picture.service.IPictureRecommendService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ public class PictureInfoRecommendTest {
     @Resource
     private IPictureRecommendService pictureRecommendService;
 
+    @Resource
+    private IPictureRecommendInfoService pictureRecommendInfoService;
+
     @Test
     public void getUserViewInterest() {
         UserInterestModel userViewInterest = pictureRecommendService.getUserViewInterest("1", "0", 100, 1, 2, 0.95);
@@ -47,8 +51,11 @@ public class PictureInfoRecommendTest {
     @Test
     public void getUserInterest() {
         UserInterestModel userInterest = pictureRecommendService.getUserInterest("1");
-        userInterest.normalizeScores();
+//        userInterest.normalizeScores();
         System.out.println(userInterest);
+
+        UserInterestModel interest = pictureRecommendInfoService.getUserInterrestModelByUserId("1");
+        System.err.println("interest = " + interest);
     }
 
     @Test
