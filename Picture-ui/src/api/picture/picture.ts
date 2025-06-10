@@ -11,7 +11,7 @@ import type {
   PictureInfoUpdate,
   PictureInfoVo,
   PictureRecommendRequest,
-  UserRecommendPictureInfoVo,
+  UserRecommendPictureInfoVo
 } from '@/types/picture/picture'
 
 /**
@@ -45,7 +45,7 @@ export function updatePictureInfo(
  * @param params
  */
 export function listPictureInfo(
-  params: PictureInfoRecommendRequest,
+  params: PictureRecommendRequest,
 ): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/list',

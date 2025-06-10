@@ -1,8 +1,10 @@
 import type { API } from '@/types/common'
 import { http as request } from '@/utils'
-import type { PictureInfoRecommendRequest, UserRecommendPictureInfoVo } from '@/types/picture/picture'
+import type { PictureRecommendRequest, UserRecommendPictureInfoVo } from '@/types/picture/picture'
 
-export function getPictureInfoRecommend(params: PictureInfoRecommendRequest):Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+export function getPictureInfoRecommend(
+  params: PictureRecommendRequest,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/recommend',
     method: 'get',

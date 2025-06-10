@@ -97,9 +97,13 @@ async function loadMore() {
   if (newData.length > 0) {
     rawPictureList.value.push(...newData)
     if (pictureQuery.value.name === '') {
-      pictureQuery.value.currentPage++
+      if (pictureQuery.value.currentPage){
+        pictureQuery.value.currentPage++
+      }
     } else {
-      pictureQuery.value.pageNum++
+      if (pictureQuery.value.pageNum){
+        pictureQuery.value.pageNum++
+      }
     }
     await nextTick()
     formatPictureListByRow()
@@ -114,9 +118,9 @@ const getPictureList = async () => {
   if (loading.value || noMore.value) return
   loading.value = true
   let tempData
-  console.log('pictureQuery', pictureQuery.value)
+  // console.log('pictureQuery', pictureQuery.value)
   if (pictureQuery.value.name === '') {
-    const res = await getPictureInfoRecommend()
+    const res = await getPictureInfoRecommend(pictureQuery.value)
     tempData = res?.rows || []
   } else {
     const res = await listPictureInfo(pictureQuery.value)
@@ -125,7 +129,9 @@ const getPictureList = async () => {
   const newData = generatePictureData(tempData || [])
   if (newData.length > 0) {
     rawPictureList.value = newData
-    pictureQuery.value.pageNum++
+    if (pictureQuery.value.pageNum){
+      pictureQuery.value.pageNum++
+    }
     await nextTick()
     formatPictureListByRow()
   } else {
