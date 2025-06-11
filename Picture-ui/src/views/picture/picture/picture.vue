@@ -97,11 +97,11 @@ async function loadMore() {
   if (newData.length > 0) {
     rawPictureList.value.push(...newData)
     if (pictureQuery.value.name === '') {
-      if (pictureQuery.value.currentPage){
+      if (pictureQuery.value?.currentPage != undefined) {
         pictureQuery.value.currentPage++
       }
     } else {
-      if (pictureQuery.value.pageNum){
+      if (pictureQuery.value?.pageNum != undefined) {
         pictureQuery.value.pageNum++
       }
     }
@@ -129,7 +129,7 @@ const getPictureList = async () => {
   const newData = generatePictureData(tempData || [])
   if (newData.length > 0) {
     rawPictureList.value = newData
-    if (pictureQuery.value.pageNum){
+    if (pictureQuery.value.pageNume != undefined) {
       pictureQuery.value.pageNum++
     }
     await nextTick()

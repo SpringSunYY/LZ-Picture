@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
-import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMMEND_CATEGORY_TAG;
-import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME;
+import static com.lz.common.constant.redis.PictureRedisConstants.*;
 
 /**
  * 用户推荐服务
@@ -416,7 +415,10 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (StringUtils.isEmpty(userId)) {
             return getFallbackRecommendation(req);
         }
-
+        //尝试从缓存拿数据
+        if (redisCache.hasKey(PICTURE_RECOMMEND_USER + userId)) {
+            return buildResult(req);
+        }
         // 2. 获取用户兴趣模型（使用您现有的方法）
         UserInterestModel userModel = getUserInterest(userId);
         if (userModel == null) {
@@ -550,7 +552,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         }
 
         // 12. 按得分降序排序
-        Collections.sort(scoredItems, (a, b) -> Double.compare(b.getValue(), a.getValue()));
+        scoredItems.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
         // 调试：打印前5个得分
         if (!scoredItems.isEmpty() && log.isDebugEnabled()) {
@@ -559,19 +561,22 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     .collect(Collectors.toList());
             log.debug("用户{}推荐结果TOP5: {}", userId, topScores);
         }
+        //13. 缓存结果
+        List<UserRecommendPictureInfoVo> vos = cacheResult(scoredItems, userId);
+        // 14. 分页处理
+        return buildResult(req);
+    }
 
-        // 13. 分页处理
-        int pageNum = req.getCurrentPage();
-        int pageSize = req.getPageSize();
-        int start = Math.max(0, (pageNum - 1) * pageSize);
-        int end = Math.min(start + pageSize, scoredItems.size());
+    private List<UserRecommendPictureInfoVo> buildResult(PictureRecommendRequest req) {
+        //查询缓存是否存在
+        int start = req.getCurrentPage() * req.getPageSize();
+        int end = start + req.getPageSize();
+        return redisCache.getCacheList(PICTURE_RECOMMEND_USER + req.getUserId(), start, end);
+    }
 
-        if (start >= scoredItems.size()) {
-            return Collections.emptyList();
-        }
-
-        // 14. 转换为VO对象返回
-        return scoredItems.subList(start, end).stream()
+    private List<UserRecommendPictureInfoVo> cacheResult(List<Pair<PictureInfo, Double>> scoredItems, String userId) {
+        //缓存用户推荐结果
+        List<UserRecommendPictureInfoVo> vos = scoredItems.stream()
                 .map(pair -> {
                     PictureInfo pic = pair.getKey();
                     // 确保标签已注入
@@ -580,8 +585,14 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     }
                     pic.setThumbnailUrl(pictureInfoService.builderPictureUrl(pic.getThumbnailUrl(), pic.getDnsUrl()));
                     return UserRecommendPictureInfoVo.objToVo(pic);
-                })
-                .collect(Collectors.toList());
+                }).toList();
+        //判断是否有缓存如果有先删除
+        redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
+        long count = redisCache.setCacheListRightPushAll(PICTURE_RECOMMEND_USER + userId, vos, PICTURE_RECOMMEND_USER_EXPIRE_TIME, TimeUnit.SECONDS);
+        if (count > 0) {
+            log.debug("用户{}推荐结果缓存成功，数据数：{}", userId, count);
+        }
+        return vos;
     }
 
     // 保持您原有的getFallbackRecommendation方法
@@ -609,8 +620,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         }
 
         // 使用分页控制返回数量
-        Page<PictureInfo> page = new Page<>(1, limit); // 第一页，每页limit条记录
-
+        Page<PictureInfo> page = new Page<>(); // 第一页，每页limit条记录
+        page.setSize(limit);
+        page.setCurrent(1);
         List<PictureInfo> result = pictureInfoService.page(page,
                         new LambdaQueryWrapper<PictureInfo>()
                                 .select(PictureInfo::getPictureId)
@@ -683,8 +695,11 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (interest.getCategoryScores() == null || interest.getCategoryScores().isEmpty()) {
             return new ArrayList<>();
         }
+        int limit = interest.getCategoryScores().size() / 6;
+        if (limit < 6) {
+            limit = interest.getCategoryScores().size();
+        }
         //获取分类数量
-        int limit = interest.getCategoryScores().size() / 3;
         return interest.getCategoryScores().entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .limit(limit)
@@ -697,7 +712,10 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (interest.getTagScores() == null || interest.getTagScores().isEmpty()) {
             return new ArrayList<>();
         }
-        int limit = interest.getTagScores().size() / 6;
+        int limit = interest.getTagScores().size() / 3;
+        if (limit < 10) {
+            limit = interest.getTagScores().size();
+        }
         return interest.getTagScores().entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .limit(limit)

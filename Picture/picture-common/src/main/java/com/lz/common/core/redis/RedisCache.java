@@ -1,18 +1,14 @@
 package com.lz.common.core.redis;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * spring redis 工具类
@@ -127,8 +123,23 @@ public class RedisCache {
      * @param dataList 待缓存的List数据
      * @return 缓存的对象
      */
-    public <T> long setCacheList(final String key, final List<T> dataList) {
+    public <T> long setCacheListRightPushAll(final String key, final List<T> dataList) {
         Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 获得缓存的list对象
+     *
+     * @param key      缓存的键值
+     * @param dataList 待缓存的List数据
+     * @param timeout  超时时间
+     * @param timeUnit 时间单位
+     * @return 缓存的对象
+     */
+    public <T> long setCacheListRightPushAll(final String key, final List<T> dataList, final Integer timeout, final TimeUnit timeUnit) {
+        Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
+        redisTemplate.expire(key, timeout, timeUnit);
         return count == null ? 0 : count;
     }
 
@@ -140,6 +151,10 @@ public class RedisCache {
      */
     public <T> List<T> getCacheList(final String key) {
         return redisTemplate.opsForList().range(key, 0, -1);
+    }
+
+    public <T> List<T> getCacheList(final String key, int start, int end) {
+        return redisTemplate.opsForList().range(key, start, end);
     }
 
     /**

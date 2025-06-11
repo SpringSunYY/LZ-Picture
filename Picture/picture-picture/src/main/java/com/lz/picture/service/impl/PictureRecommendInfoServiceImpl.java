@@ -233,8 +233,8 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     private UserInterestModel getUserInterestModel(String userId) {
         UserInterestModel userInterestModel = getUserInterest(userId);
         normalizeScores(userInterestModel);
-        List<String> topCategories = getTopScores(userInterestModel.getCategoryScores(), 3);
-        List<String> topTags = getTopScores(userInterestModel.getTagScores(), 6);
+        List<String> topCategories = getTopScores(userInterestModel.getCategoryScores(), 3, 10);
+        List<String> topTags = getTopScores(userInterestModel.getTagScores(), 6, 5);
         userInterestModel.setTopCategories(topCategories);
         userInterestModel.setTopTags(topTags);
         return userInterestModel;
@@ -473,12 +473,15 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     }
 
     // 获取高兴趣的分数
-    private List<String> getTopScores(Map<String, Double> scores, int rate) {
+    private List<String> getTopScores(Map<String, Double> scores, int rate, int min) {
         if (StringUtils.isEmpty(scores)) {
             return new ArrayList<>();
         }
         //获取分类数量
         int limit = scores.size() / rate;
+        if (limit < min) {
+            limit = scores.size();
+        }
         return scores.entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .limit(limit)

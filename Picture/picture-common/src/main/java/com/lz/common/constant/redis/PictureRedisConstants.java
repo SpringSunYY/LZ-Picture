@@ -78,4 +78,15 @@ public class PictureRedisConstants {
      * 图片推荐缓存用户模型缓存时间
      */
     public static final Integer PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME = 60 * 60;
+
+    /**
+     * 图片推荐所有信息缓存
+     */
+    public static final String PICTURE_RECOMMEND_USER = "picture:recommend:user:";
+
+    /**
+     * 图片推荐所有信息缓存时间
+     */
+    public static final Integer PICTURE_RECOMMEND_USER_EXPIRE_TIME = 60 * 60;
+
 }

@@ -61,7 +61,7 @@ public class PictureInfoRecommendTest {
     @Test
     public void getPictureInfoRecommend() {
         PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setUserId("1");
+        pictureRecommendRequest.setUserId("213");
         pictureRecommendRequest.setCurrentPage(3);
         pictureRecommendRequest.setPageSize(30);
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(pictureRecommendRequest);
