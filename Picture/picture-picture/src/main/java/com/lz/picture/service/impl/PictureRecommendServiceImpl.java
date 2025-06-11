@@ -3,6 +3,7 @@ package com.lz.picture.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.PictureCategoryInfo;
@@ -11,6 +12,8 @@ import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
+import com.lz.picture.model.enums.PPictureReviewStatusEnum;
+import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.*;
 import jakarta.annotation.PostConstruct;
@@ -27,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_RECOMMEND_CATEGORY_MAX;
+import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 
 /**
@@ -69,6 +72,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     private ScheduledExecutorService scheduler = null;
     private static int MAX_CATEGORY_ITEMS = 5000;
     private static int MAX_TAG_ITEMS = 10000;
+    private static double CATEGORY_WEIGHT = 0.3;
+    private static double TAG_WEIGHT = 0.7;
 
     @PostConstruct
     public void init() {
@@ -83,7 +88,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             return;
         }
         MAX_CATEGORY_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_MAX));
-        MAX_TAG_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_MAX));
+        MAX_TAG_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TAG_MAX));
+        CATEGORY_WEIGHT = Double.parseDouble(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_WEIGHT));
+        TAG_WEIGHT = Double.parseDouble(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TAG_WEIGHT));
     }
 
     // 添加 @PreDestroy 方法用于关闭线程池
@@ -91,7 +98,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     public void destroy() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdownNow(); // 强制关闭
-            log.info("ScheduledExecutorService 已关闭");
+//            log.info("ScheduledExecutorService 已关闭");
         }
     }
 
@@ -110,7 +117,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         }
 
         try {
-            log.info("开始刷新分类-标签关系缓存");
+//            log.info("开始刷新分类-标签关系缓存");
             Map<String, Set<String>> newCache = new HashMap<>();
 
             // 1. 查询所有分类
@@ -138,8 +145,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             // 3. 原子更新缓存
             if (!newCache.isEmpty()) {
                 redisCache.setCacheObject(PICTURE_RECOMMEND_CATEGORY_TAG, newCache, PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME, TimeUnit.SECONDS);
-                log.info("成功刷新分类-标签关系缓存到Redis，共{}个分类，有效期{}秒",
-                        newCache.size(), PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME);
+//                log.info("成功刷新分类-标签关系缓存到Redis，共{}个分类，有效期{}秒",
+//                        newCache.size(), PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME);
             }
         } catch (Exception e) {
             log.error("刷新分类-标签关系缓存失败: {}", e.getMessage(), e);
@@ -158,7 +165,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             }
 
             // 2. Redis中没有则同步刷新
-            log.warn("未找到分类-标签缓存，同步刷新中...");
+//            log.warn("未找到分类-标签缓存，同步刷新中...");
             refreshCategoryTagCache();
 
             // 3. 再次尝试从Redis获取
@@ -203,14 +210,10 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         List<String> topCategories = userModel.getTopCategories();
         List<String> topTags = userModel.getTopTags();
 
-        // 5. 日志记录（调试用）
-        log.debug("用户{}推荐 - 高兴趣分类: {}", userId, topCategories);
-        log.debug("用户{}推荐 - 高兴趣标签: {}", userId, topTags);
-
-        // 6. 获取候选图片ID集（优化点：分批查询避免大结果集）
+        // 5. 获取候选图片ID集（优化点：分批查询避免大结果集）
         Set<String> candidatePictureIds = new HashSet<>();
 
-        // 分类匹配图片（分批查询）
+        // 6.1分类匹配图片（分批查询）
         if (!CollectionUtils.isEmpty(topCategories)) {
             // 每次最多查询3个分类
             int batchSize = 3;
@@ -220,7 +223,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             }
         }
 
-        // 标签匹配图片（分批查询）
+        // 6.2标签匹配图片（分批查询）
         if (!CollectionUtils.isEmpty(topTags)) {
             // 每次最多查询5个标签
             int batchSize = 5;
@@ -230,11 +233,11 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             }
         }
 
-        log.debug("用户{}候选图片数量: {}", userId, candidatePictureIds.size());
+//        log.debug("用户{}候选图片数量: {}", userId, candidatePictureIds.size());
 
         // 7. 无候选图片时返回热门推荐
         if (candidatePictureIds.isEmpty()) {
-            log.warn("用户{}无候选图片，返回热门推荐", userId);
+//            log.warn("用户{}无候选图片，返回热门推荐", userId);
             return getFallbackRecommendation(req);
         }
 
@@ -248,9 +251,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             List<PictureInfo> batchPics = pictureInfoService.list(
                     new LambdaQueryWrapper<PictureInfo>()
                             .in(PictureInfo::getPictureId, batchIds)
-                            .eq(PictureInfo::getPictureStatus, "0")
-                            .eq(PictureInfo::getReviewStatus, 1)
-                            .eq(PictureInfo::getIsDelete, "0")
+                            .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                            .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
+                            .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
             );
             candidatePics.addAll(batchPics);
         }
@@ -314,8 +317,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             }
 
             // 11.4 计算协同得分
-            double totalScore = (normCategoryScore * categoryWeight) +
-                    (maxTagScore * tagWeight) +
+            double totalScore = (normCategoryScore * CATEGORY_WEIGHT) +
+                    (maxTagScore * TAG_WEIGHT) +
                     synergyBonus;
 
             // 11.5 存储结果
@@ -329,8 +332,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (!scoredItems.isEmpty() && log.isDebugEnabled()) {
             List<String> topScores = scoredItems.subList(0, Math.min(5, scoredItems.size())).stream()
                     .map(pair -> String.format("%s:%.2f", pair.getKey().getPictureId(), pair.getValue()))
-                    .collect(Collectors.toList());
-            log.debug("用户{}推荐结果TOP5: {}", userId, topScores);
+                    .toList();
+//            log.debug("用户{}推荐结果TOP5: {}", userId, topScores);
         }
         //13. 缓存结果
         List<UserRecommendPictureInfoVo> vos = cacheResult(scoredItems, userId);
@@ -360,9 +363,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         //判断是否有缓存如果有先删除
         redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
         long count = redisCache.setCacheListRightPushAll(PICTURE_RECOMMEND_USER + userId, vos, PICTURE_RECOMMEND_USER_EXPIRE_TIME, TimeUnit.SECONDS);
-        if (count > 0) {
-            log.debug("用户{}推荐结果缓存成功，数据数：{}", userId, count);
-        }
+//        if (count > 0) {
+//            log.debug("用户{}推荐结果缓存成功，数据数：{}", userId, count);
+//        }
         return vos;
     }
 
@@ -404,8 +407,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         for (int i = 0; i < categories.size(); i += batchSize) {
             // 2. 终止条件：达到最大候选数量或最大批次
             if (resultSet.size() >= MAX_CATEGORY_ITEMS || processedBatches >= maxBatches) {
-                log.info("分类查询终止 - 当前总数: {} | 分类范围: {}/{}",
-                        resultSet.size(), i, categories.size());
+//                log.info("分类查询终止 - 当前总数: {} | 分类范围: {}/{}",
+//                        resultSet.size(), i, categories.size());
                 break;
             }
 
@@ -420,9 +423,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     new LambdaQueryWrapper<PictureInfo>()
                             .select(PictureInfo::getPictureId)
                             .in(PictureInfo::getCategoryId, batchCats)
-                            .eq(PictureInfo::getPictureStatus, "0")
-                            .eq(PictureInfo::getReviewStatus, 1)
-                            .eq(PictureInfo::getIsDelete, "0")
+                            .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                            .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
+                            .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                             .last("LIMIT " + currentLimit)
             );
 
@@ -432,8 +435,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     .collect(Collectors.toSet());
             resultSet.addAll(batchIds);
 
-            log.debug("分类批处理: {}个分类 -> {}张图片 | 总数: {}",
-                    batchCats.size(), batchIds.size(), resultSet.size());
+//            log.debug("分类批处理: {}个分类 -> {}张图片 | 总数: {}",
+//                    batchCats.size(), batchIds.size(), resultSet.size());
 
             processedBatches++;
         }
@@ -458,8 +461,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
         for (int i = 0; i < tags.size(); i += batchSize) {
             if (resultSet.size() >= MAX_TAG_ITEMS || i / batchSize >= maxBatches) {
-                log.info("标签查询终止 - 当前总数: {} | 标签范围: {}/{}",
-                        resultSet.size(), i, tags.size());
+//                log.info("标签查询终止 - 当前总数: {} | 标签范围: {}/{}",
+//                        resultSet.size(), i, tags.size());
                 break;
             }
 
@@ -478,8 +481,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     .collect(Collectors.toSet());
             resultSet.addAll(batchIds);
 
-            log.debug("标签批处理: {}个标签 -> {}张图片 | 总数: {}",
-                    batchTags.size(), batchIds.size(), resultSet.size());
+            //            log.debug("标签批处理: {}个标签 -> {}张图片 | 总数: {}",
+            //                    batchTags.size(), batchIds.size(), resultSet.size());
         }
         redisCache.setCacheSet(key, resultSet, PICTURE_RECOMMEND_TAG_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
         return resultSet;

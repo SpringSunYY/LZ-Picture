@@ -161,4 +161,14 @@ public class UserConfigKeyConstants {
      */
     public static final String PICTURE_RECOMMEND_TAG_MAX = "picture:recommend:tag:max";
 
+    /**
+     * 图片推荐分类返回权重
+     */
+    public static final String PICTURE_RECOMMEND_CATEGORY_WEIGHT = "picture:recommend:category:weight";
+
+    /**
+     * 图片推荐标签返回权重
+     */
+    public static final String PICTURE_RECOMMEND_TAG_WEIGHT = "picture:recommend:tag:weight";
+
 }
