@@ -16,65 +16,6 @@ import java.util.List;
  */
 public interface IPictureRecommendService {
     /**
-     * 获取用户浏览推荐分数
-     *
-     * @param userId         用户编号
-     * @param targetType     目标类型
-     * @param limit          记录数
-     * @param categoryWeight 分类权重
-     * @param tagWeight      标签权重
-     * @param timeDecay      时间衰减
-     * @return UserInterestModel
-     * @author: YY
-     * @method: getUserViewInterest
-     * @date: 2025/6/6 22:14
-     **/
-    public UserInterestModel getUserViewInterest(String userId, String targetType, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay);
-
-    /**
-     * 获取用户行为推荐分数
-     *
-     * @param userId         用户编号
-     * @param targetType     目标类型
-     * @param limit          记录数
-     * @param categoryWeight 分类权重
-     * @param tagWeight      标签权重
-     * @param timeDecay      时间衰减
-     * @return UserInterestModel
-     * @author: YY
-     * @method: getUserBehaviorInterest
-     * @date: 2025/6/6 22:54
-     **/
-    public UserInterestModel getUserBehaviorInterest(String userId, String targetType, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay);
-
-    /**
-     * 获取用户图片下载记录分数
-     *
-     * @param userId
-     * @param limit
-     * @param categoryWeight
-     * @param tagWeight
-     * @param timeDecay
-     * @return UserInterestModel
-     * @author: YY
-     * @method: getPictureDownloadInterest
-     * @date: 2025/6/6 22:57
-     **/
-    public UserInterestModel getPictureDownloadInterest(String userId, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay);
-
-    /**
-     * 获取用户推荐分数
-     *
-     * @param userId 用户编号
-     * @return UserInterestModel
-     * @author: YY
-     * @method: getUserInterest
-     * @date: 2025/6/6 23:43
-     **/
-    public UserInterestModel getUserInterest(String userId);
-
-
-    /**
      * 获取图片详情推荐
      * @author: YY
      * @method: getPictureInfoRecommend

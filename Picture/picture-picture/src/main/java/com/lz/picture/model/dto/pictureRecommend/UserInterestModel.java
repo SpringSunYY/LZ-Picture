@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class UserInterestModel {
     private Map<String, Double> tagScores; // tag -> score
     private Map<String, Double> categoryScores; // categoryId -> score
-    private Date updateTime;
     private List<String> topTags;
     private List<String> topCategories;
 

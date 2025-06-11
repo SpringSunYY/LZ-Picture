@@ -65,6 +65,26 @@ public class PictureRedisConstants {
     public static final String PICTURE_RECOMMEND_CATEGORY_TAG = "picture:recommend:categoryTags";
 
     /**
+     * 图片推荐缓存-分类推荐图片
+     */
+    public static final String PICTURE_RECOMMEND_CATEGORY_PICTURE = "picture:recommend:category:picture:";
+
+    /**
+     * 图片推荐缓存-分类推荐图片超时时间
+     */
+    public static final Integer PICTURE_RECOMMEND_CATEGORY_PICTURE_EXPIRE_TIME = 10 * 60;
+
+    /**
+     * 图片推荐缓存分类-标签推荐图片
+     */
+    public static final String PICTURE_RECOMMEND_TAG_PICTURE = "picture:recommend:tag:picture:";
+
+    /**
+     * 图片推荐缓存分类-标签超时时间
+     */
+    public static final Integer PICTURE_RECOMMEND_TAG_PICTURE_EXPIRE_TIME = 10 * 60;
+
+    /**
      * 图片推荐缓存分类-标签缓存时间
      */
     public static final Integer PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME = 60 * 60 * 12;

@@ -151,4 +151,14 @@ public class UserConfigKeyConstants {
      */
     public static final String PICTURE_RECOMMEND_NOT_REPEAT_TIMEOUT = "picture:recommend:not:repeat:timeout";
 
+    /**
+     * 图片推荐分类返回最大值
+     */
+    public static final String PICTURE_RECOMMEND_CATEGORY_MAX = "picture:recommend:category:max";
+
+    /**
+     * 图片推荐标签返回最大值
+     */
+    public static final String PICTURE_RECOMMEND_TAG_MAX = "picture:recommend:tag:max";
+
 }

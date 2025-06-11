@@ -1,19 +1,16 @@
 package com.lz.picture.service.impl;
 
-import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.redis.RedisCache;
-import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
-import com.lz.picture.model.domain.*;
+import com.lz.picture.model.domain.PictureCategoryInfo;
+import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.domain.PictureTagInfo;
+import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
-import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
-import com.lz.picture.model.enums.PViewLogTargetTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.*;
 import jakarta.annotation.PostConstruct;
@@ -29,8 +26,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
-import static com.lz.common.constant.config.UserConfigKeyConstants.*;
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_RECOMMEND_CATEGORY_MAX;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 
 /**
@@ -48,9 +45,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     private RedisCache redisCache;
 
     @Resource
-    private IConfigInfoService configInfoService;
-
-    @Resource
     private IPictureInfoService pictureInfoService;
 
     @Resource
@@ -59,260 +53,37 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     @Resource
     private IPictureTagRelInfoService pictureTagRelInfoService;
 
-    @Resource
-    private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
-
-    @Resource
-    private IUserBehaviorInfoService userBehaviorInfoService;
-
-    @Resource
-    private IUserViewLogInfoService userViewLogInfoService;
 
     @Resource
     private IPictureCategoryInfoService pictureCategoryInfoService;
 
-    //region 计算各个分数
-    @Override
-    public UserInterestModel getUserViewInterest(String userId, String targetType, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay) {
-        //1.查询到用户行为记录
-        Page<UserViewLogInfo> page = new Page<>();
-        page.setSize(limit);
-        page.setCurrent(1);
-        List<UserViewLogInfo> userViewLogInfos = userViewLogInfoService.page(page, new LambdaQueryWrapper<UserViewLogInfo>()
-                        .eq(UserViewLogInfo::getUserId, userId)
-                        .eq(UserViewLogInfo::getTargetType, targetType)
-                        .orderByDesc(UserViewLogInfo::getCreateTime))
-                .getRecords();
-        if (StringUtils.isEmpty(userViewLogInfos)) {
-            return null;
-        }
+    @Resource
+    private IPictureRecommendInfoService pictureRecommendInfoService;
 
-        // 2. 计算分类和标签分数（含时间衰减）
-        Map<String, Double> categoryScores = new HashMap<>();
-        Map<String, Double> tagScores = new HashMap<>();
-        Date now = DateUtils.getNowDate();
-
-        for (UserViewLogInfo info : userViewLogInfos) {
-            double calculateTimeDecay = calculateTimeDecay(info.getCreateTime(), now, timeDecay); // 时间衰减因子
-            double baseScore = info.getScore(); // 行为记录中的原始分数
-            //处理分数
-            calculateScore(categoryScores, tagScores, baseScore, calculateTimeDecay, info.getCategoryId(), categoryWeight, info.getTags(), tagWeight);
-        }
-
-        // 3. 返回结果
-        UserInterestModel userInterestModel = new UserInterestModel();
-        userInterestModel.setCategoryScores(categoryScores);
-        userInterestModel.setTagScores(tagScores);
-        userInterestModel.setUpdateTime(now);
-        return userInterestModel;
-    }
-
-    @Override
-    public UserInterestModel getUserBehaviorInterest(String userId, String targetType, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay) {
-        //1.查询到用户行为记录
-        Page<UserBehaviorInfo> page = new Page<>();
-        page.setSize(limit);
-        page.setCurrent(1);
-        List<UserBehaviorInfo> userBehaviorInfos = userBehaviorInfoService.page(page, new LambdaQueryWrapper<UserBehaviorInfo>()
-                        .eq(UserBehaviorInfo::getUserId, userId)
-                        .eq(UserBehaviorInfo::getTargetType, targetType)
-                        .orderByDesc(UserBehaviorInfo::getCreateTime))
-                .getRecords();
-        if (StringUtils.isEmpty(userBehaviorInfos)) {
-            return null;
-        }
-
-        // 2. 计算分类和标签分数（含时间衰减）
-        Map<String, Double> categoryScores = new HashMap<>();
-        Map<String, Double> tagScores = new HashMap<>();
-        Date now = DateUtils.getNowDate();
-
-        for (UserBehaviorInfo info : userBehaviorInfos) {
-            double calculateTimeDecay = calculateTimeDecay(info.getCreateTime(), now, timeDecay); // 时间衰减因子
-            double baseScore = info.getScore(); // 行为记录中的原始分数
-            //处理分数
-            calculateScore(categoryScores, tagScores, baseScore, calculateTimeDecay, info.getCategoryId(), categoryWeight, info.getTags(), tagWeight);
-        }
-
-        // 3. 返回结果
-        UserInterestModel userInterestModel = new UserInterestModel();
-        userInterestModel.setCategoryScores(categoryScores);
-        userInterestModel.setTagScores(tagScores);
-        userInterestModel.setUpdateTime(now);
-        return userInterestModel;
-    }
-
-    @Override
-    public UserInterestModel getPictureDownloadInterest(String userId, Integer limit, Integer categoryWeight, Integer tagWeight, Double timeDecay) {
-        //1.查询到用户行为记录
-        Page<PictureDownloadLogInfo> page = new Page<>();
-        page.setSize(limit);
-        page.setCurrent(1);
-        List<PictureDownloadLogInfo> pictureDownloadLogInfos = pictureDownloadLogInfoService.page(page, new LambdaQueryWrapper<PictureDownloadLogInfo>()
-                        .eq(PictureDownloadLogInfo::getUserId, userId)
-                        .orderByDesc(PictureDownloadLogInfo::getCreateTime))
-                .getRecords();
-        if (StringUtils.isEmpty(pictureDownloadLogInfos)) {
-            return null;
-        }
-
-        // 2. 计算分类和标签分数（含时间衰减）
-        Map<String, Double> categoryScores = new HashMap<>();
-        Map<String, Double> tagScores = new HashMap<>();
-        Date now = DateUtils.getNowDate();
-
-        for (PictureDownloadLogInfo info : pictureDownloadLogInfos) {
-            double calculateTimeDecay = calculateTimeDecay(info.getCreateTime(), now, timeDecay); // 时间衰减因子
-            double baseScore = info.getScore(); // 行为记录中的原始分数
-            //处理分数
-            calculateScore(categoryScores, tagScores, baseScore, calculateTimeDecay, info.getCategoryId(), categoryWeight, info.getTags(), tagWeight);
-        }
-
-        // 3. 返回结果
-        UserInterestModel userInterestModel = new UserInterestModel();
-        userInterestModel.setCategoryScores(categoryScores);
-        userInterestModel.setTagScores(tagScores);
-        userInterestModel.setUpdateTime(now);
-        return userInterestModel;
-    }
-
-    @Override
-    public UserInterestModel getUserInterest(String userId) {
-        if (StringUtils.isEmpty(userId)) {
-            return null;
-        }
-        //查询到分数占比
-        String viewCategoryScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_CATEGORY);
-        int viewCategoryWeight = Integer.parseInt(viewCategoryScoreStr);
-        String viewTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_TAG);
-        int viewTagWeight = Integer.parseInt(viewTagScoreStr);
-        String timeDecayStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_TIME_DECAY);
-        double timeDecay = Double.parseDouble(timeDecayStr);
-        String viewLimitStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_LIMIT);
-        int viewLimit = Integer.parseInt(viewLimitStr);
-        UserInterestModel viewModel = this.getUserViewInterest(userId, PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0.getValue(), viewLimit, viewCategoryWeight, viewTagWeight, timeDecay);
-
-        //查询下载兴趣
-        String downloadCategoryStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_CATEGORY);
-        int downloadCategoryWeight = Integer.parseInt(downloadCategoryStr);
-        String downloadTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_TAG);
-        int downloadTagWeight = Integer.parseInt(downloadTagScoreStr);
-        String downloadTimeDecayStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TIME_DOWNLOAD_DECAY);
-        double downloadTimeDecay = Double.parseDouble(downloadTimeDecayStr);
-        String downloadLimitStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_LIMIT);
-        int downloadLimit = Integer.parseInt(downloadLimitStr);
-        UserInterestModel downloadModel = this.getPictureDownloadInterest(userId, downloadLimit, downloadCategoryWeight, downloadTagWeight, downloadTimeDecay);
-
-        //查询行为兴趣
-        String behaviorCategoryStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_CATEGORY);
-        int behaviorCategoryWeight = Integer.parseInt(behaviorCategoryStr);
-        String behaviorTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_TAG);
-        int behaviorTagWeight = Integer.parseInt(behaviorTagScoreStr);
-        String behaviorTimeDecayStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TIME_BEHAVIOR_DECAY);
-        double behaviorTimeDecay = Double.parseDouble(behaviorTimeDecayStr);
-        String behaviorLimitStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_LIMIT);
-        int behaviorLimit = Integer.parseInt(behaviorLimitStr);
-        UserInterestModel behaviorModel = this.getUserBehaviorInterest(userId, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue(), behaviorLimit, behaviorCategoryWeight, behaviorTagWeight, behaviorTimeDecay);
-        //计算总兴趣总数
-        UserInterestModel userInterestModel = new UserInterestModel();
-        HashMap<String, Double> tagScores = new HashMap<>();
-        userInterestModel.setTagScores(tagScores);
-        HashMap<String, Double> categoryScores = new HashMap<>();
-        userInterestModel.setCategoryScores(categoryScores);
-        userInterestModel.setUpdateTime(DateUtils.getNowDate());
-        //合并
-        mergeModel(viewModel, userInterestModel);
-        mergeModel(behaviorModel, userInterestModel);
-        mergeModel(downloadModel, userInterestModel);
-        // 对 tagScores 排序并保持顺序
-        Map<String, Double> sortedTagScores = tagScores.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ));
-
-        // 对 categoryScores 排序并保持顺序
-        Map<String, Double> sortedCategoryScores = categoryScores.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ));
-        userInterestModel.setTagScores(sortedTagScores);
-        userInterestModel.setCategoryScores(sortedCategoryScores);
-        return userInterestModel;
-    }
-
-    // 辅助方法：时间衰减计算（每天衰减10%）
-    private double calculateTimeDecay(Date createTime, Date now, Double timeDecay) {
-        long daysDiff = DateUtil.between(createTime, now, DateUnit.DAY);
-        return Math.pow(timeDecay, daysDiff); // 每天衰减10%
-    }
-
-    //计算分数
-    private void calculateScore(Map<String, Double> categoryScores, Map<String, Double> tagScores,
-                                Double baseScore, Double calculateTimeDecay,
-                                String categoryId, Integer categoryWeight,
-                                String tags, Integer tagWeight) {
-        // 处理分类分数
-        if (StringUtils.isNotEmpty(categoryId)) {
-            double categoryScore = baseScore * categoryWeight * calculateTimeDecay;
-            categoryScores.merge(categoryId, categoryScore, Double::sum);
-        }
-
-        // 处理标签分数（按分号拆分标签）
-        if (StringUtils.isNotEmpty(tags)) {
-            Arrays.stream(tags.split(COMMON_SEPARATOR))
-                    .filter(tag -> !tag.isEmpty())
-                    .forEach(tag -> {
-                        double tagScore = baseScore * tagWeight * calculateTimeDecay;
-                        tagScores.merge(tag, tagScore, Double::sum);
-                    });
-        }
-    }
-
-
-    /**
-     * 合并模型
-     *
-     * @param model      模型
-     * @param totalModel 总的模型需要合并的
-     */
-    private void mergeModel(UserInterestModel model, UserInterestModel totalModel) {
-        if (StringUtils.isNotNull(model)) {
-            Map<String, Double> categoryScores = model.getCategoryScores();
-            Map<String, Double> totalModelCategoryScores = totalModel.getCategoryScores();
-            if (StringUtils.isNotEmpty(categoryScores)) {
-                categoryScores.forEach((key, value) -> {
-                    totalModelCategoryScores.merge(key, value, Double::sum);
-                });
-            }
-            if (StringUtils.isNotEmpty(model.getTagScores())) {
-                Map<String, Double> tagScores = model.getTagScores();
-                Map<String, Double> totalModelTagScores = totalModel.getTagScores();
-                tagScores.forEach((key, value) -> {
-                    totalModelTagScores.merge(key, value, Double::sum);
-                });
-            }
-        }
-    }
-    // endregion
+    @Resource
+    private IConfigInfoService configInfoService;
 
     //region 图片推荐核心实现
-    // 在类定义中添加以下字段和初始化方法
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
     private ScheduledExecutorService scheduler = null;
+    private static int MAX_CATEGORY_ITEMS = 5000;
+    private static int MAX_TAG_ITEMS = 10000;
 
     @PostConstruct
     public void init() {
         refreshCategoryTagCache(); // 服务启动时初始化
         startRefreshTask(); // 启动定时刷新任务
+        refreshConfig();    //刷新配置
+    }
+
+    private void refreshConfig() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastCacheRefreshTime < CACHE_REFRESH_INTERVAL) {
+            return;
+        }
+        MAX_CATEGORY_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_MAX));
+        MAX_TAG_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_MAX));
     }
 
     // 添加 @PreDestroy 方法用于关闭线程池
@@ -328,6 +99,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     private void startRefreshTask() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(this::refreshCategoryTagCache, 1, 1, TimeUnit.HOURS); // 每小时刷新一次
+        scheduler.scheduleAtFixedRate(this::refreshConfig, 1, 1, TimeUnit.HOURS);
     }
 
     // 刷新分类-标签关系缓存
@@ -375,7 +147,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     }
 
     /**
-     * 获取分类-标签关系（带Redis缓存）
+     * 获取分类-标签关系
      */
     private Map<String, Set<String>> getCategoryTagRelation() {
         try {
@@ -406,7 +178,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
 
     /**
-     * 完整的推荐算法实现
+     * 完推荐算法实现
      */
     @Override
     public List<UserRecommendPictureInfoVo> getPictureInfoRecommend(PictureRecommendRequest req) {
@@ -419,18 +191,17 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (redisCache.hasKey(PICTURE_RECOMMEND_USER + userId)) {
             return buildResult(req);
         }
-        // 2. 获取用户兴趣模型（使用您现有的方法）
-        UserInterestModel userModel = getUserInterest(userId);
-        if (userModel == null) {
+        // 2. 获取用户兴趣模型
+        UserInterestModel userModel = pictureRecommendInfoService.getUserInterrestModelByUserId(userId);
+        if (StringUtils.isNull(userModel)
+                || (userModel.getTagScores().isEmpty() && userModel.getCategoryScores().isEmpty())) {
+            //如果为空表示没有兴趣模型可以直接返回热门数据
             return getFallbackRecommendation(req);
         }
 
-        // 3. 确保归一化分数（使用您现有的方法）
-        normalizeScores(userModel);
-
         // 4. 获取高兴趣分类和标签（使用您现有的方法）
-        List<String> topCategories = getTopCategories(userModel);
-        List<String> topTags = getTopTags(userModel);
+        List<String> topCategories = userModel.getTopCategories();
+        List<String> topTags = userModel.getTopTags();
 
         // 5. 日志记录（调试用）
         log.debug("用户{}推荐 - 高兴趣分类: {}", userId, topCategories);
@@ -445,7 +216,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             int batchSize = 3;
             for (int i = 0; i < topCategories.size(); i += batchSize) {
                 List<String> batchCategories = topCategories.subList(i, Math.min(i + batchSize, topCategories.size()));
-                candidatePictureIds.addAll(getCategoryPictureIds(batchCategories, 1000));
+                candidatePictureIds.addAll(getCategoryPictureIds(batchCategories));
             }
         }
 
@@ -455,7 +226,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             int batchSize = 5;
             for (int i = 0; i < topTags.size(); i += batchSize) {
                 List<String> batchTags = topTags.subList(i, Math.min(i + batchSize, topTags.size()));
-                candidatePictureIds.addAll(getTagPictureIds(batchTags, 2000));
+                candidatePictureIds.addAll(getTagPictureIds(batchTags));
             }
         }
 
@@ -614,114 +385,106 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     }
 
     // 获取分类匹配的图片ID，并限制数量
-    private Set<String> getCategoryPictureIds(List<String> categories, int limit) {
+    private Set<String> getCategoryPictureIds(List<String> categories) {
         if (CollectionUtils.isEmpty(categories)) {
             return Collections.emptySet();
         }
+        //给分类排序
+        categories.sort(Comparator.naturalOrder());
+        String key = PICTURE_RECOMMEND_CATEGORY_PICTURE + StringUtils.join(categories, COMMON_SEPARATOR_CACHE);
+        if (redisCache.hasKey(key)) {
+            return redisCache.getCacheSet(key);
+        }
+        // 1. 分批查询 - 每次最多3个分类
+        int batchSize = 3;
+        Set<String> resultSet = new HashSet<>(512);
+        int processedBatches = 0;
+        final int maxBatches = 10; // 最多处理10批（约30个分类）
 
-        // 使用分页控制返回数量
-        Page<PictureInfo> page = new Page<>(); // 第一页，每页limit条记录
-        page.setSize(limit);
-        page.setCurrent(1);
-        List<PictureInfo> result = pictureInfoService.page(page,
-                        new LambdaQueryWrapper<PictureInfo>()
-                                .select(PictureInfo::getPictureId)
-                                .in(PictureInfo::getCategoryId, categories)
-                                .eq(PictureInfo::getPictureStatus, "0")
-                                .eq(PictureInfo::getReviewStatus, 1)
-                                .eq(PictureInfo::getIsDelete, "0"))
-                .getRecords();
+        for (int i = 0; i < categories.size(); i += batchSize) {
+            // 2. 终止条件：达到最大候选数量或最大批次
+            if (resultSet.size() >= MAX_CATEGORY_ITEMS || processedBatches >= maxBatches) {
+                log.info("分类查询终止 - 当前总数: {} | 分类范围: {}/{}",
+                        resultSet.size(), i, categories.size());
+                break;
+            }
 
-        return result.stream()
-                .map(PictureInfo::getPictureId)
-                .collect(Collectors.toSet());
+            // 3. 获取当前批次分类
+            List<String> batchCats = categories.subList(i, Math.min(i + batchSize, categories.size()));
+
+            // 4. 计算当前批次所需限制（确保不超过总限制）
+            int currentLimit = Math.max(0, MAX_CATEGORY_ITEMS - resultSet.size());
+
+            // 5. 执行查询
+            List<PictureInfo> batchResult = pictureInfoService.list(
+                    new LambdaQueryWrapper<PictureInfo>()
+                            .select(PictureInfo::getPictureId)
+                            .in(PictureInfo::getCategoryId, batchCats)
+                            .eq(PictureInfo::getPictureStatus, "0")
+                            .eq(PictureInfo::getReviewStatus, 1)
+                            .eq(PictureInfo::getIsDelete, "0")
+                            .last("LIMIT " + currentLimit)
+            );
+
+            // 6. 合并结果
+            Set<String> batchIds = batchResult.stream()
+                    .map(PictureInfo::getPictureId)
+                    .collect(Collectors.toSet());
+            resultSet.addAll(batchIds);
+
+            log.debug("分类批处理: {}个分类 -> {}张图片 | 总数: {}",
+                    batchCats.size(), batchIds.size(), resultSet.size());
+
+            processedBatches++;
+        }
+        redisCache.setCacheSet(key, resultSet, PICTURE_RECOMMEND_CATEGORY_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+        return resultSet;
     }
 
 
     // 获取标签匹配的图片ID
-    private Set<String> getTagPictureIds(List<String> tags, int limit) {
+    private Set<String> getTagPictureIds(List<String> tags) {
         if (CollectionUtils.isEmpty(tags)) {
             return Collections.emptySet();
         }
-
-        // 使用分页来限制返回的记录数
-        Page<PictureTagRelInfo> page = new Page<>(1, limit); // 第一页，每页limit条记录
-
-        List<PictureTagRelInfo> result = pictureTagRelInfoService.page(page,
-                        new LambdaQueryWrapper<PictureTagRelInfo>()
-                                .select(PictureTagRelInfo::getPictureId)
-                                .in(PictureTagRelInfo::getTagName, tags))
-                .getRecords();
-
-        return result.stream()
-                .map(PictureTagRelInfo::getPictureId)
-                .collect(Collectors.toSet());
-    }
-
-    // 归一化处理
-    public void normalizeScores(UserInterestModel model) {
-        // 确保模型不为空
-        if (model == null) return;
-
-        // 1. 确保分类归一化分数不为null
-        if (model.getNormalizedCategoryScores() == null) {
-            model.setNormalizedCategoryScores(new HashMap<>());
+        tags.sort(Comparator.naturalOrder());
+        String key = PICTURE_RECOMMEND_TAG_PICTURE + StringUtils.join(tags, COMMON_SEPARATOR_CACHE);
+        if (redisCache.hasKey(key)) {
+            return redisCache.getCacheSet(key);
         }
+        int batchSize = 3; // 标签批处理使用更大批大小
+        Set<String> resultSet = new HashSet<>(1024);
+        final int maxBatches = 8; // 最大批次减少
 
-        // 2. 确保标签归一化分数不为null
-        if (model.getNormalizedTagScores() == null) {
-            model.setNormalizedTagScores(new HashMap<>());
-        }
-
-        // 3. 分类归一化计算
-        if (model.getCategoryScores() != null && !model.getCategoryScores().isEmpty()) {
-            double maxCategoryScore = Collections.max(model.getCategoryScores().values());
-            for (Map.Entry<String, Double> entry : model.getCategoryScores().entrySet()) {
-                model.getNormalizedCategoryScores().put(entry.getKey(), entry.getValue() / maxCategoryScore);
+        for (int i = 0; i < tags.size(); i += batchSize) {
+            if (resultSet.size() >= MAX_TAG_ITEMS || i / batchSize >= maxBatches) {
+                log.info("标签查询终止 - 当前总数: {} | 标签范围: {}/{}",
+                        resultSet.size(), i, tags.size());
+                break;
             }
-        }
 
-        // 4. 标签归一化计算
-        if (model.getTagScores() != null && !model.getTagScores().isEmpty()) {
-            double maxTagScore = Collections.max(model.getTagScores().values());
-            for (Map.Entry<String, Double> entry : model.getTagScores().entrySet()) {
-                model.getNormalizedTagScores().put(entry.getKey(), entry.getValue() / maxTagScore);
-            }
+            List<String> batchTags = tags.subList(i, Math.min(i + batchSize, tags.size()));
+            int currentLimit = Math.max(0, MAX_TAG_ITEMS - resultSet.size());
+
+            List<PictureTagRelInfo> batchResult = pictureTagRelInfoService.list(
+                    new LambdaQueryWrapper<PictureTagRelInfo>()
+                            .select(PictureTagRelInfo::getPictureId)
+                            .in(PictureTagRelInfo::getTagName, batchTags)
+                            .last("LIMIT " + currentLimit)
+            );
+
+            Set<String> batchIds = batchResult.stream()
+                    .map(PictureTagRelInfo::getPictureId)
+                    .collect(Collectors.toSet());
+            resultSet.addAll(batchIds);
+
+            log.debug("标签批处理: {}个标签 -> {}张图片 | 总数: {}",
+                    batchTags.size(), batchIds.size(), resultSet.size());
         }
+        redisCache.setCacheSet(key, resultSet, PICTURE_RECOMMEND_TAG_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+        return resultSet;
     }
 
-    // 获取高兴趣分类
-    private List<String> getTopCategories(UserInterestModel interest) {
-        if (interest.getCategoryScores() == null || interest.getCategoryScores().isEmpty()) {
-            return new ArrayList<>();
-        }
-        int limit = interest.getCategoryScores().size() / 6;
-        if (limit < 6) {
-            limit = interest.getCategoryScores().size();
-        }
-        //获取分类数量
-        return interest.getCategoryScores().entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .limit(limit)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
-
-    // 获取高兴趣标签
-    private List<String> getTopTags(UserInterestModel interest) {
-        if (interest.getTagScores() == null || interest.getTagScores().isEmpty()) {
-            return new ArrayList<>();
-        }
-        int limit = interest.getTagScores().size() / 3;
-        if (limit < 10) {
-            limit = interest.getTagScores().size();
-        }
-        return interest.getTagScores().entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .limit(limit)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
 
     // 批量注入标签
     private void injectTags(List<PictureInfo> pictures) {

@@ -23,11 +23,19 @@ import com.lz.picture.model.dto.pictureRecommendInfo.PictureRecommendInfoQuery;
 import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PViewLogTargetTypeEnum;
 import com.lz.picture.model.vo.pictureRecommendInfo.PictureRecommendInfoVo;
-import com.lz.picture.service.*;
+import com.lz.picture.service.IPictureDownloadLogInfoService;
+import com.lz.picture.service.IPictureRecommendInfoService;
+import com.lz.picture.service.IUserBehaviorInfoService;
+import com.lz.picture.service.IUserViewLogInfoService;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -42,6 +50,7 @@ import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMME
  * @author YY
  * @date 2025-06-10
  */
+@Slf4j
 @Service
 public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommendInfoMapper, PictureRecommendInfo> implements IPictureRecommendInfoService {
     @Resource
@@ -54,15 +63,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     private IConfigInfoService configInfoService;
 
     @Resource
-    private IPictureInfoService pictureInfoService;
-
-    @Resource
-    private IPictureTagInfoService pictureTagInfoService;
-
-    @Resource
-    private IPictureTagRelInfoService pictureTagRelInfoService;
-
-    @Resource
     private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
 
     @Resource
@@ -71,8 +71,76 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     @Resource
     private IUserViewLogInfoService userViewLogInfoService;
 
-    @Resource
-    private IPictureCategoryInfoService pictureCategoryInfoService;
+    private static final long lastCacheRefreshTime = 0;
+    private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
+    private ScheduledExecutorService scheduler = null;
+    //浏览分数相关
+    private static int VIEW_CATEGORY_WEIGHT = 1;
+    private static int VIEW_TAG_WEIGHT = 2;
+    private static double VIEW_TIME_DECAY = 0.8;
+    private static int VIEW_LIMIT = 500;
+    //行为分数相关
+    private static int BEHAVIOR_CATEGORY_WEIGHT = 1;
+    private static int BEHAVIOR_TAG_WEIGHT = 2;
+    private static double BEHAVIOR_TIME_DECAY = 0.8;
+    private static int BEHAVIOR_LIMIT = 200;
+    //下载分数相关
+    private static int DOWNLOAD_CATEGORY_WEIGHT = 1;
+    private static int DOWNLOAD_TAG_WEIGHT = 2;
+    private static double DOWNLOAD_TIME_DECAY = 0.8;
+    private static int DOWNLOAD_LIMIT = 100;
+
+
+    @PostConstruct
+    public void init() {
+        startRefreshTask(); // 启动定时刷新任务
+        refreshConfig();    //刷新配置
+    }
+
+    private void refreshConfig() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastCacheRefreshTime < CACHE_REFRESH_INTERVAL) {
+            return;
+        }
+        VIEW_CATEGORY_WEIGHT = getIntConfig(PICTURE_RECOMMEND_VIEW_CATEGORY);
+        VIEW_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_VIEW_TAG);
+        VIEW_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_VIEW_TIME_DECAY);
+        VIEW_LIMIT = getIntConfig(PICTURE_RECOMMEND_VIEW_LIMIT);
+
+        BEHAVIOR_CATEGORY_WEIGHT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_CATEGORY);
+        BEHAVIOR_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_TAG);
+        BEHAVIOR_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_TIME_BEHAVIOR_DECAY);
+        BEHAVIOR_LIMIT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_LIMIT);
+
+        DOWNLOAD_CATEGORY_WEIGHT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_CATEGORY);
+        DOWNLOAD_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_TAG);
+        DOWNLOAD_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_TIME_DOWNLOAD_DECAY);
+        DOWNLOAD_LIMIT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_LIMIT);
+
+    }
+
+    private int getIntConfig(String key) {
+        return Integer.parseInt(configInfoService.getConfigInfoInCache(key));
+    }
+
+    private double getDoubleConfig(String key) {
+        return Double.parseDouble(configInfoService.getConfigInfoInCache(key));
+    }
+
+    // 添加 @PreDestroy 方法用于关闭线程池
+    @PreDestroy
+    public void destroy() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow(); // 强制关闭
+            log.info("ScheduledExecutorService 已关闭");
+        }
+    }
+
+    // 启动缓存刷新定时任务
+    private void startRefreshTask() {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(this::refreshConfig, 1, 1, TimeUnit.HOURS);
+    }
 
     //region mybatis代码
 
@@ -197,7 +265,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             userInterestModel.setCategoryScores(
                     JSONObject.parseObject(pictureRecommendInfo.getCategoryScores(), new TypeReference<Map<String, Double>>() {
                     }));
-            userInterestModel.setUpdateTime(pictureRecommendInfo.getCreateTime());
             userInterestModel.setTopTags(
                     JSONObject.parseObject(pictureRecommendInfo.getTopTags(), new TypeReference<List<String>>() {
                     }));
@@ -216,6 +283,13 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             return userInterestModel;
         }
         UserInterestModel userInterestModel = getUserInterestModel(userId);
+        //如果为空，返回空，但也要缓存
+        if (StringUtils.isNull(userInterestModel)) {
+            userInterestModel = new UserInterestModel();
+            String json = JSON.toJSONString(userInterestModel);
+            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+            return null;
+        }
         pictureRecommendInfo = new PictureRecommendInfo();
         pictureRecommendInfo.setUserId(userId);
         pictureRecommendInfo.setTagScores(JSONObject.toJSONString(userInterestModel.getTagScores()));
@@ -232,6 +306,10 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
 
     private UserInterestModel getUserInterestModel(String userId) {
         UserInterestModel userInterestModel = getUserInterest(userId);
+        if (StringUtils.isNull(userInterestModel)
+                || (userInterestModel.getTagScores().isEmpty() && userInterestModel.getCategoryScores().isEmpty())) {
+            return null;
+        }
         normalizeScores(userInterestModel);
         List<String> topCategories = getTopScores(userInterestModel.getCategoryScores(), 3, 10);
         List<String> topTags = getTopScores(userInterestModel.getTagScores(), 6, 5);
@@ -273,7 +351,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         UserInterestModel userInterestModel = new UserInterestModel();
         userInterestModel.setCategoryScores(categoryScores);
         userInterestModel.setTagScores(tagScores);
-        userInterestModel.setUpdateTime(now);
         return userInterestModel;
     }
 
@@ -308,7 +385,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         UserInterestModel userInterestModel = new UserInterestModel();
         userInterestModel.setCategoryScores(categoryScores);
         userInterestModel.setTagScores(tagScores);
-        userInterestModel.setUpdateTime(now);
         return userInterestModel;
     }
 
@@ -342,7 +418,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         UserInterestModel userInterestModel = new UserInterestModel();
         userInterestModel.setCategoryScores(categoryScores);
         userInterestModel.setTagScores(tagScores);
-        userInterestModel.setUpdateTime(now);
         return userInterestModel;
     }
 
@@ -351,45 +426,20 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         if (StringUtils.isEmpty(userId)) {
             return null;
         }
-        //查询到分数占比
-        String viewCategoryScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_CATEGORY);
-        int viewCategoryWeight = Integer.parseInt(viewCategoryScoreStr);
-        String viewTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_TAG);
-        int viewTagWeight = Integer.parseInt(viewTagScoreStr);
-        String timeDecayStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_TIME_DECAY);
-        double timeDecay = Double.parseDouble(timeDecayStr);
-        String viewLimitStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_VIEW_LIMIT);
-        int viewLimit = Integer.parseInt(viewLimitStr);
-        UserInterestModel viewModel = this.getUserViewInterest(userId, PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0.getValue(), viewLimit, viewCategoryWeight, viewTagWeight, timeDecay);
+        //查询到浏览分数占比
+        UserInterestModel viewModel = this.getUserViewInterest(userId, PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0.getValue(), VIEW_LIMIT, VIEW_CATEGORY_WEIGHT, VIEW_TAG_WEIGHT, VIEW_TIME_DECAY);
 
         //查询下载兴趣
-        String downloadCategoryStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_CATEGORY);
-        int downloadCategoryWeight = Integer.parseInt(downloadCategoryStr);
-        String downloadTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_TAG);
-        int downloadTagWeight = Integer.parseInt(downloadTagScoreStr);
-        String downloadTimeDecayStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TIME_DOWNLOAD_DECAY);
-        double downloadTimeDecay = Double.parseDouble(downloadTimeDecayStr);
-        String downloadLimitStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_DOWNLOAD_LIMIT);
-        int downloadLimit = Integer.parseInt(downloadLimitStr);
-        UserInterestModel downloadModel = this.getPictureDownloadInterest(userId, downloadLimit, downloadCategoryWeight, downloadTagWeight, downloadTimeDecay);
+        UserInterestModel downloadModel = this.getPictureDownloadInterest(userId, DOWNLOAD_LIMIT, DOWNLOAD_CATEGORY_WEIGHT, DOWNLOAD_TAG_WEIGHT, DOWNLOAD_TIME_DECAY);
 
         //查询行为兴趣
-        String behaviorCategoryStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_CATEGORY);
-        int behaviorCategoryWeight = Integer.parseInt(behaviorCategoryStr);
-        String behaviorTagScoreStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_TAG);
-        int behaviorTagWeight = Integer.parseInt(behaviorTagScoreStr);
-        String behaviorTimeDecayStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TIME_BEHAVIOR_DECAY);
-        double behaviorTimeDecay = Double.parseDouble(behaviorTimeDecayStr);
-        String behaviorLimitStr = configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_BEHAVIOR_LIMIT);
-        int behaviorLimit = Integer.parseInt(behaviorLimitStr);
-        UserInterestModel behaviorModel = this.getUserBehaviorInterest(userId, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue(), behaviorLimit, behaviorCategoryWeight, behaviorTagWeight, behaviorTimeDecay);
+        UserInterestModel behaviorModel = this.getUserBehaviorInterest(userId, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue(), BEHAVIOR_LIMIT, BEHAVIOR_CATEGORY_WEIGHT, BEHAVIOR_TAG_WEIGHT, BEHAVIOR_TIME_DECAY);
         //计算总兴趣总数
         UserInterestModel userInterestModel = new UserInterestModel();
         HashMap<String, Double> tagScores = new HashMap<>();
         userInterestModel.setTagScores(tagScores);
         HashMap<String, Double> categoryScores = new HashMap<>();
         userInterestModel.setCategoryScores(categoryScores);
-        userInterestModel.setUpdateTime(DateUtils.getNowDate());
         //合并
         mergeModel(viewModel, userInterestModel);
         mergeModel(behaviorModel, userInterestModel);
@@ -521,5 +571,4 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         }
     }
     // endregion
-
 }

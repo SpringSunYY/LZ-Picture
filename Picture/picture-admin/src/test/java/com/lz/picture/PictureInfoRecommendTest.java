@@ -32,37 +32,37 @@ public class PictureInfoRecommendTest {
 
     @Test
     public void getUserViewInterest() {
-        UserInterestModel userViewInterest = pictureRecommendService.getUserViewInterest("1", "0", 100, 1, 2, 0.95);
+        UserInterestModel userViewInterest = pictureRecommendInfoService.getUserViewInterest("1", "0", 100, 1, 2, 0.95);
         System.out.println(userViewInterest);
     }
 
     @Test
     public void getUserBehaviorInterest() {
-        UserInterestModel userBehaviorInterest = pictureRecommendService.getUserBehaviorInterest("1", "0", 100, 1, 2, 0.95);
+        UserInterestModel userBehaviorInterest = pictureRecommendInfoService.getUserBehaviorInterest("1", "0", 100, 1, 2, 0.95);
         System.out.println(userBehaviorInterest);
     }
 
     @Test
     public void getPictureDownloadInterest() {
-        UserInterestModel pictureDownloadInterest = pictureRecommendService.getPictureDownloadInterest("1", 100, 1, 2, 0.95);
+        UserInterestModel pictureDownloadInterest = pictureRecommendInfoService.getPictureDownloadInterest("1", 100, 1, 2, 0.95);
         System.out.println(pictureDownloadInterest);
     }
 
     @Test
     public void getUserInterest() {
-        UserInterestModel userInterest = pictureRecommendService.getUserInterest("1");
+        UserInterestModel userInterest = pictureRecommendInfoService.getUserInterest("1");
 //        userInterest.normalizeScores();
         System.out.println(userInterest);
 
-        UserInterestModel interest = pictureRecommendInfoService.getUserInterrestModelByUserId("1");
+        UserInterestModel interest = pictureRecommendInfoService.getUserInterrestModelByUserId("1321");
         System.err.println("interest = " + interest);
     }
 
     @Test
     public void getPictureInfoRecommend() {
         PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setUserId("213");
-        pictureRecommendRequest.setCurrentPage(3);
+        pictureRecommendRequest.setUserId("1");
+        pictureRecommendRequest.setCurrentPage(1);
         pictureRecommendRequest.setPageSize(30);
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(pictureRecommendRequest);
         System.out.println("pictureInfoRecommend = " + pictureInfoRecommend.size());
