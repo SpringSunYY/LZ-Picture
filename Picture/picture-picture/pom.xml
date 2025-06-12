@@ -17,6 +17,11 @@
 
     <dependencies>
 
+        <!-- HTML 解析：https://jsoup.org/ -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
         <!-- 通用工具-->
         <dependency>
             <groupId>com.lz</groupId>
