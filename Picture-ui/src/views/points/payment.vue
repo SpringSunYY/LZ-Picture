@@ -515,54 +515,58 @@ const startPaymentTimer = () => {
 }
 
 const finishPay = async () => {
-  if (outTradeNo.value === '') {
-    message.loading('正在创建订单...', 2)
-    return
-  }
-  // 模拟支付过程
-  message.loading('正在查询支付...', 2)
-  finishLoading.value = true
-  const res = await getAlipayWeb(outTradeNo.value)
-  setTimeout(async () => {
-    finishLoading.value = false
-  }, 3000)
-  if (res.code === 200 && !res.data) {
-    message.warning('请先支付', 2)
-    return
-  }
-  if (res.code === 200 && res.data) {
-    if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_0) {
+  try {
+    if (outTradeNo.value === '') {
+      message.loading('正在创建订单...', 2)
+      return
+    }
+    // 模拟支付过程
+    message.loading('正在查询支付...', 2)
+    finishLoading.value = true
+    const res = await getAlipayWeb(outTradeNo.value)
+    setTimeout(async () => {
+      finishLoading.value = false
+    }, 3000)
+    if (res.code === 200 && !res.data) {
       message.warning('请先支付', 2)
       return
     }
-    if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_1) {
-      message.success('支付成功')
-      paymentSuccess.value = true
-      paymentMethod.value = 'alipay'
-      currentStep.value = 3
-      // 清理轮询
-      clearPolling()
-    }
-    if (
-      res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_2 ||
-      res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_3 ||
-      res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_4
-    ) {
+    if (res.code === 200 && res.data) {
+      if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_0) {
+        message.warning('请先支付', 2)
+        return
+      }
+      if (res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_1) {
+        message.success('支付成功')
+        paymentSuccess.value = true
+        paymentMethod.value = 'alipay'
+        currentStep.value = 3
+        // 清理轮询
+        clearPolling()
+      }
+      if (
+        res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_2 ||
+        res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_3 ||
+        res.data.orderStatus === POrderStatusEnum.ORDER_STATUS_4
+      ) {
+        message.error('支付失败')
+        paymentSuccess.value = false
+        paymentMethod.value = 'alipay'
+        currentStep.value = 3
+        // 清理轮询
+        clearPolling()
+      }
+    } else {
       message.error('支付失败')
-      paymentSuccess.value = false
-      paymentMethod.value = 'alipay'
-      currentStep.value = 3
-      // 清理轮询
-      clearPolling()
     }
-  } else {
-    message.error('支付失败')
-  }
-  // 清理轮询
-  clearPolling()
-  // 清除计时器
-  if (timerInterval.value !== null) {
-    clearInterval(timerInterval.value)
+    // 清理轮询
+    clearPolling()
+    // 清除计时器
+    if (timerInterval.value !== null) {
+      clearInterval(timerInterval.value)
+    }
+  } finally {
+    finishLoading.value = false
   }
 }
 
