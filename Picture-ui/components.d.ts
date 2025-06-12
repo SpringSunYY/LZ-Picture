@@ -27,6 +27,7 @@ declare module 'vue' {
     PointsRechargeTable: typeof import('./src/components/PointsRechargeTable.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SearchInput: typeof import('./src/components/SearchInput.vue')['default']
     SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
     Tags: typeof import('./src/components/Tags.vue')['default']
     UComment: typeof import('undraw-ui')['UComment']

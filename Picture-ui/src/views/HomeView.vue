@@ -1,17 +1,17 @@
 <template>
   <div class="home-view">
     <div class="text-center">
-      <h1 class="text-4xl font-bold text-blue-500">荔智云图，打造属于我们的图片生态</h1>
+      <h1 class="text-4xl font-bold text-blue-500 p-3">荔智云图，打造属于我们的图片生态</h1>
     </div>
-    <PictureSearch
-      class="container mx-auto p-8"
+    <SearchInput
+      class="container mx-auto p-4"
       @search="searchSearch"
       @input="searchInput"
       :recommendationList="recommendationList"
       :suggestionList="suggestionList"
       :searchHistoryName="searchHistoryName"
-    ></PictureSearch>
-    <div class="container mx-auto p-8">
+    ></SearchInput>
+    <div class="container mx-auto p-2">
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 md:grid-cols-2">
         <!-- Basic usage -->
         <DirectionAwareHover
@@ -50,10 +50,10 @@
 <script setup lang="ts" name="HomeView">
 import Picture from '@/views/picture/picture/picture.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
-import PictureSearch, {
+import SearchInput, {
   type SearchRecommend,
   type SearchSuggestion,
-} from '@/components/PictureSearch.vue'
+} from '@/components/SearchInput.vue'
 import { ref } from 'vue'
 import { getSearchRecommend, getSearchSuggest } from '@/api/picture/picture.ts'
 import type {

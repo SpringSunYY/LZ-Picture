@@ -1,5 +1,5 @@
 <template>
-  <div class="picture-search w-full max-w-2xl mx-auto">
+  <div class="search-input w-full max-w-2xl mx-auto">
     <!-- 搜索框 -->
     <div class="relative">
       <div class="relative">
@@ -307,7 +307,7 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.picture-search {
+.search-input {
   mark {
     margin: 10px;
     background-color: #fef08a;
