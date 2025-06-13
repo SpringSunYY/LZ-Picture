@@ -7,11 +7,10 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.alibaba.fastjson2.JSONObject;
-import com.aliyun.oss.*;
-import com.aliyun.oss.common.auth.CredentialsProvider;
-import com.aliyun.oss.common.auth.CredentialsProviderFactory;
-import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
-import com.aliyun.oss.common.comm.SignVersion;
+import com.aliyun.oss.HttpMethod;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.ServiceException;
 import com.aliyun.oss.model.DeleteObjectsRequest;
 import com.aliyun.oss.model.DeleteObjectsResult;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
@@ -33,9 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 
 import static com.lz.common.constant.ConfigConstants.*;
 
@@ -68,10 +72,7 @@ public class PictureUploadManager {
      */
     public static final int DEFAULT_FILE_NAME_LENGTH = 100;
 
-    public static final String[] DEFAULT_ALLOWED_EXTENSION = {
-            // 图片
-            "bmp", "gif", "jpg", "jpeg", "png", "webp"
-    };
+    public static final List<String> DEFAULT_ALLOWED_EXTENSION = Arrays.asList("bmp", "gif", "jpg", "jpeg", "png", "webp");
 
     /**
      * description: 初始化oss客户端
@@ -286,6 +287,12 @@ public class PictureUploadManager {
     public PictureFileInfo getPictureFileInfo(String fileName, String fileDir) {
         String nameNotSuffix = FileUtils.getNameNotSuffix(fileName);
         String fileSuffix = FileUtil.getSuffix(fileName);
+//        System.err.println("nameNotSuffix = " + nameNotSuffix);
+//        System.out.println("fileSuffix = " + fileSuffix);
+        //如果文件格式不是图片，因为之前校验通过，但是有些图片链接没有图片格式，所以要自己替换
+        if (!DEFAULT_ALLOWED_EXTENSION.contains(fileSuffix)) {
+            fileSuffix = "jpg";
+        }
         String newFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + "." + fileSuffix;
         String dir = ossConfig.getDir();
         //生成文件路径 包括时间年/月/日
@@ -380,7 +387,7 @@ public class PictureUploadManager {
         }
         //校验文件类型
         String fileType = FileUtil.getType(file);
-        if (!Arrays.asList(DEFAULT_ALLOWED_EXTENSION).contains(fileType)) {
+        if (!DEFAULT_ALLOWED_EXTENSION.contains(fileType)) {
             throw new RuntimeException("文件类型不支持");
         }
     }
@@ -532,7 +539,7 @@ public class PictureUploadManager {
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
-            throw new RuntimeException("文件上传异常");
+            throw new RuntimeException("文件上传异常,获取是图片链接有误,请使用可访问的地址");
         } finally {
             // 确保关闭OSSClient
             if (ossClient != null) {
@@ -626,6 +633,8 @@ public class PictureUploadManager {
             // 如果存在查询参数，截取文件名部分
             originFilename = originFilename.substring(0, queryIndex);
         }
+        // 替换非法字符
+        originFilename = originFilename.replaceAll("[:\\\\/<>*?|\"]", "_");
         return originFilename;
     }
 

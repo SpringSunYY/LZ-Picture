@@ -172,7 +172,7 @@
       </div>
     </div>
 
-      <a-modal :footer="null" v-model:open="openSave">
+    <a-modal :footer="null" v-model:open="openSave">
       <!-- 自定义标题插槽 -->
       <template #title>
         <div class="custom-modal-title">
@@ -260,6 +260,16 @@
               />
             </a-form-item>
           </a-col>
+          <a-col :span="24">
+            <!-- 图片描述 -->
+            <a-form-item label="图片简介" name="introduction">
+              <a-textarea
+                v-model:value="formState.introduction"
+                :rows="4"
+                placeholder="请输入图片简介"
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
         <!-- 提交按钮 -->
         <a-form-item :wrapper-col="{ offset: 4 }">
@@ -327,6 +337,7 @@ import type {
   PictureCategoryInfoQuery,
   PictureCategoryInfoVo,
 } from '@/types/picture/pictureCategory'
+import { addPictureInfoUrl } from '@/api/picture/picture.ts'
 
 // 接口定义
 interface ImageItem {
@@ -602,12 +613,12 @@ const rules = {
 const title = ref('保存图片')
 const openSave = ref(false)
 const submitting = ref(false)
+const selectedImageData = ref([])
 // 保存选中的图片
 const saveSelectedImages = async (): Promise<void> => {
-  const selectedImageData = images.value.filter((img) => selectedImages.value.includes(img.id))
-
-  console.log('准备保存的图片数据:', selectedImageData)
-  console.log('当前选中的图片数量:', selectedImageData.length)
+  selectedImageData.value = images.value.filter((img) => selectedImages.value.includes(img.id))
+  console.log('准备保存的图片数据:', selectedImageData.value)
+  console.log('当前选中的图片数量:', selectedImageData.value.length)
   console.log('当前参数:', searchQuery.value)
   //获取到空间、标签
   getPictureCategoryList()
@@ -700,8 +711,53 @@ const getPictureCategoryList = async () => {
     // console.log('pictureCategoryList', pictureCategoryList.value)
   })
 }
-const handleSubmit = () => {
+const handleSubmit = async () => {
   console.log('formState', formState)
+  const submitedImageUrls = selectedImageData.value
+  if (!submitedImageUrls.length) {
+    message.error('请选择图片')
+    return
+  }
+  selectedImageData.value = []
+  selectedImages.value = []
+  submitting.value = true
+  console.log(submitting.value)
+  try {
+    let categoryId = null
+    if (formState.categoryId && Array.isArray(formState.categoryId)) {
+      categoryId = formState.categoryId[formState.categoryId.length - 1]
+    }
+    let folderId = null
+    if (formState.folderId && Array.isArray(formState.folderId)) {
+      folderId = formState.folderId[formState.folderId.length - 1]
+    }
+    for (const item of submitedImageUrls) {
+      try {
+        const res = await addPictureInfoUrl({
+          url: item.url,
+          name: item.title,
+          introduction: formState.introduction,
+          categoryId,
+          spaceId: formState.spaceId,
+          folderId,
+          tags: formState.tags,
+        })
+
+        if (res.code === 200) {
+          message.success(`图片(${item.title})保存成功`)
+        } else {
+          message.error(`图片(${item.title})保存失败`)
+        }
+      } catch (error) {
+        console.error(`保存图片 ${item.title} 出错:`, error)
+        message.error(`图片(${item.title})保存出错`)
+      }
+      setTimeout(() => {}, 500)
+    }
+  } finally {
+    openSave.value = false
+    submitting.value = false
+  }
 }
 // 打开图片预览
 const openPreview = (image: ImageItem): void => {
@@ -815,6 +871,7 @@ $breakpoint-tablet: 1024px;
     @content;
   }
 }
+
 .custom-modal-title {
   display: flex;
   align-items: center;
@@ -831,6 +888,7 @@ $breakpoint-tablet: 1024px;
     }
   }
 }
+
 // 主容器样式
 .picture-search-upload {
   //max-width: 1200px;
@@ -851,6 +909,7 @@ $breakpoint-tablet: 1024px;
     position: relative;
     z-index: $z-content;
   }
+
   @include mobile {
     padding: 10px;
 

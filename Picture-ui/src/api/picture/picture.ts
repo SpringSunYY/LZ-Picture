@@ -11,7 +11,8 @@ import type {
   PictureInfoUpdate,
   PictureInfoVo,
   PictureRecommendRequest,
-  UserRecommendPictureInfoVo
+  UserRecommendPictureInfoVo,
+  PictureUrlUpload
 } from '@/types/picture/picture'
 
 /**
@@ -21,6 +22,18 @@ import type {
 export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/pictureInfo',
+    method: 'post',
+    data: data,
+  })
+}
+
+/**
+ * 新增图片信息 图片搜索url
+ * @param data
+ */
+export function addPictureInfoUrl(data: PictureUrlUpload): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/pictureInfo/upload/url',
     method: 'post',
     data: data,
   })

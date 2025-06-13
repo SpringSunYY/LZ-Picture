@@ -387,6 +387,33 @@ export interface PictureInfoRecommendRequest {
   pageSize: number
 }
 
+/**
+ * 图片 URL 上传请求参数
+ * 对应后端的 PictureUrlUpload DTO
+ */
+export interface PictureUrlUpload {
+  /** 图片文件地址 */
+  url: string
+
+  /** 图片名称 */
+  name: string
+
+  /** 简介（可选） */
+  introduction?: string
+
+  /** 分类编号 */
+  categoryId?: string | null
+
+  /** 所属空间编号 */
+  spaceId: string
+
+  /** 所属文件夹编号（可选） */
+  folderId?: string | null
+
+  /** 图片标签（可选） */
+  tags?: string[]
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

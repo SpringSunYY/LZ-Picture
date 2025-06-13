@@ -34,27 +34,27 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--            type="primary"-->
-<!--            plain-->
-<!--            icon="Plus"-->
-<!--            @click="handleAdd"-->
-<!--            v-hasPermi="['picture:pictureRecommendInfo:add']"-->
-<!--        >新增-->
-<!--        </el-button>-->
-<!--      </el-col>-->
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--            type="success"-->
-<!--            plain-->
-<!--            icon="Edit"-->
-<!--            :disabled="single"-->
-<!--            @click="handleUpdate"-->
-<!--            v-hasPermi="['picture:pictureRecommendInfo:edit']"-->
-<!--        >修改-->
-<!--        </el-button>-->
-<!--      </el-col>-->
+      <!--      <el-col :span="1.5">-->
+      <!--        <el-button-->
+      <!--            type="primary"-->
+      <!--            plain-->
+      <!--            icon="Plus"-->
+      <!--            @click="handleAdd"-->
+      <!--            v-hasPermi="['picture:pictureRecommendInfo:add']"-->
+      <!--        >新增-->
+      <!--        </el-button>-->
+      <!--      </el-col>-->
+      <!--      <el-col :span="1.5">-->
+      <!--        <el-button-->
+      <!--            type="success"-->
+      <!--            plain-->
+      <!--            icon="Edit"-->
+      <!--            :disabled="single"-->
+      <!--            @click="handleUpdate"-->
+      <!--            v-hasPermi="['picture:pictureRecommendInfo:edit']"-->
+      <!--        >修改-->
+      <!--        </el-button>-->
+      <!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="danger"
@@ -105,16 +105,16 @@
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
-<!--        <template #default="scope">-->
-<!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
-<!--                     v-hasPermi="['picture:pictureRecommendInfo:edit']">修改-->
-<!--          </el-button>-->
-<!--          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"-->
-<!--                     v-hasPermi="['picture:pictureRecommendInfo:remove']">删除-->
-<!--          </el-button>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+      <!--        <template #default="scope">-->
+      <!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
+      <!--                     v-hasPermi="['picture:pictureRecommendInfo:edit']">修改-->
+      <!--          </el-button>-->
+      <!--          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"-->
+      <!--                     v-hasPermi="['picture:pictureRecommendInfo:remove']">删除-->
+      <!--          </el-button>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
     </el-table>
 
     <pagination

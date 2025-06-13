@@ -1,18 +1,23 @@
 package com.lz.picture.controller.user;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.exception.ServiceException;
+import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
+import com.lz.config.model.enmus.CFileLogOssTypeEnum;
+import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
+import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
-import com.lz.picture.model.dto.pictureInfo.UserPictureInfoAdd;
-import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
-import com.lz.picture.model.dto.pictureInfo.UserPictureInfoUpdate;
+import com.lz.picture.model.dto.pictureInfo.*;
 import com.lz.picture.model.enums.PPictureReviewStatusEnum;
 import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.vo.pictureInfo.*;
@@ -45,12 +50,65 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @Resource
     private IConfigInfoService configInfoService;
 
+    @Resource
+    private PictureUploadManager pictureUploadManager;
+
 
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping()
     public AjaxResult add(@RequestBody @Validated UserPictureInfoAdd userPictureInfoAdd) {
         PictureInfo pictureInfo = UserPictureInfoAdd.addToObj(userPictureInfoAdd);
         pictureInfo.setUserId(getUserId());
+        return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
+    }
+
+    /**
+     * 上传图片 图片搜索
+     *
+     * @param pictureUrlUpload
+     * @return
+     */
+    @PreAuthorize("@uss.hasPermi('picture:pictureSearchUpload')")
+    @PostMapping("/upload/url")
+    public AjaxResult uploadUrl(@RequestBody @Validated PictureUrlUpload pictureUrlUpload) {
+        System.err.println(pictureUrlUpload);
+        // 执行业务上传
+        PictureFileResponse pictureFileResponse = null;
+        try {
+            pictureFileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getLoginUser());
+        } catch (Exception e) {
+            throw new ServiceException("图片上传失败，请误选择没有显示的图片");
+        }
+        //异步执行存入文件日志
+        String userId = getUserId();
+//        System.err.println("picture = " + pictureFileResponse);
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(pictureFileResponse,
+                userId,
+                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                CFileLogTypeEnum.LOG_TYPE_0.getValue()
+        ));
+        PictureInfo pictureInfo = new PictureInfo();
+        pictureInfo.setPictureUrl(pictureFileResponse.getPictureUrl());
+//        pictureInfo.setDnsUrl();
+        pictureInfo.setName(pictureUrlUpload.getName());
+        pictureInfo.setIntroduction(pictureUrlUpload.getIntroduction());
+        pictureInfo.setCategoryId(pictureUrlUpload.getCategoryId());
+        pictureInfo.setPicSize(pictureFileResponse.getPicSize());
+        pictureInfo.setPicWidth(pictureFileResponse.getPicWidth());
+        pictureInfo.setPicHeight(pictureFileResponse.getPicHeight());
+        pictureInfo.setPicScale(pictureFileResponse.getPicScale());
+        pictureInfo.setPicFormat(pictureFileResponse.getPicFormat());
+        pictureInfo.setPointsNeed(10L);
+        pictureInfo.setUserId(userId);
+        pictureInfo.setThumbnailUrl(pictureFileResponse.getThumbnailUrl());
+        pictureInfo.setSpaceId(pictureUrlUpload.getSpaceId());
+        pictureInfo.setFolderId(pictureUrlUpload.getFolderId());
+        PictureMoreInfo pictureMoreInfo = new PictureMoreInfo();
+        pictureMoreInfo.setOriginUrl(pictureUrlUpload.getUrl());
+        pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
+        pictureInfo.setTags(pictureUrlUpload.getTags());
+        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
+
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
@@ -144,7 +202,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         for (UserPictureInfoVo vo : userPictureInfoVos) {
             vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
         }
-        return getDataTable(userPictureInfoVos,userPictureInfoVos.size());
+        return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }
 
     private List<PictureInfo> getPictureInfos(Page<PictureInfo> page) {

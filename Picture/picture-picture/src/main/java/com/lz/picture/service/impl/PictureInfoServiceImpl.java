@@ -487,7 +487,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             if (StringUtils.isNotEmpty(categoryInfo.getCategoryId())) {
                 pictureCategoryInfoService.updateById(categoryInfo);
             }
-            System.out.println("spaceInfo = " + spaceInfo);
+//            System.out.println("spaceInfo = " + spaceInfo);
             return spaceInfoService.updateById(spaceInfo);
         });
     }
