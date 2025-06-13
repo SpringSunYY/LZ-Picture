@@ -1419,7 +1419,7 @@ $breakpoint-tablet: 1024px;
 }
 
 .preview-info {
-  padding: 24px;
+  padding: 10px;
   border-top: 1px solid $border-color;
   display: flex;
   justify-content: space-between;

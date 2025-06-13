@@ -1591,7 +1591,7 @@ $breakpoint-tablet: 1024px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px;
+  padding: 15px;
   border-bottom: 1px solid $border-color;
 
   h3 {
@@ -1638,7 +1638,7 @@ $breakpoint-tablet: 1024px;
 .preview-image-container {
   flex: 1;
   @include flex-center;
-  padding: 24px;
+  padding: 10px;
   min-height: 300px;
   height: auto;
   overflow: hidden;
@@ -1653,7 +1653,7 @@ $breakpoint-tablet: 1024px;
 }
 
 .preview-info {
-  padding: 24px;
+  padding: 15px;
   border-top: 1px solid $border-color;
   display: flex;
   justify-content: space-between;

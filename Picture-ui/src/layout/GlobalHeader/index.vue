@@ -20,13 +20,8 @@
         />
 
         <!-- 移动模式 -->
-        <a-button
-          v-else
-          type="text"
-          @click="menuVisible = true"
-          class="mobile-menu-btn"
-        >
-          <MenuOutlined style="font-size: 18px"/>
+        <a-button v-else type="text" @click="menuVisible = true" class="mobile-menu-btn">
+          <MenuOutlined style="font-size: 18px" />
         </a-button>
 
         <!-- 移动端抽屉菜单 -->
@@ -40,7 +35,7 @@
             v-model:selectedKeys="current"
             mode="inline"
             :items="items"
-            @click="() => menuVisible = false"
+            @click="() => (menuVisible = false)"
           />
         </a-drawer>
       </a-col>
@@ -104,7 +99,7 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
-import { LogoutOutlined, NotificationOutlined,MenuOutlined } from '@ant-design/icons-vue'
+import { LogoutOutlined, MenuOutlined, NotificationOutlined } from '@ant-design/icons-vue'
 import { MenuProps, message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'
@@ -146,9 +141,15 @@ router.afterEach((to) => {
 
 // 路由跳转事件
 const doMenuClick = (route: RouteRecordRaw) => {
-  // console.log('点击', route)
+  console.log('点击', route)
   if (isMobile.value) {
     menuVisible.value = false
+  }
+  if (route.item?.isFrame && route.item.isFrame) {
+    // console.log('跳转外部链接')
+    const url = route.item.path
+    window.open(url, '_blank')
+    return
   }
   router.push({
     path: route.key,
@@ -214,6 +215,8 @@ const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
       // console.log('route', route)
       const menuItem: any = {
         key: route.path,
+        isFrame: route?.meta?.isFrame,
+        path: route?.meta?.path,
         label: route?.meta?.title,
         onClick: () => {
           if (route.meta?.menuType && route.meta.menuType !== 'C') return
@@ -247,23 +250,11 @@ const items = computed(() => {
     ...(generateMenu(permissionStore?.routes) || []),
     {
       key: 'others',
-      label: h(
-        'a',
-        {
-          href: 'https://github.com/SpringSunYY/LZ-Picture',
-          target: '_blank',
-          click: (e: Event) => {
-            e.preventDefault() // 阻止默认跳转
-            const target = e.currentTarget as HTMLAnchorElement // 类型断言
-            if (target) {
-              window.open(target.href, '_blank') // 手动跳转
-            }
-          },
-        },
-        '官方源码',
-      ),
+      isFrame: true,
+      path: 'https://github.com/SpringSunYY/LZ-Picture',
+      label: h('a', '官方源码'),
       icon: renderIcon('space'),
-      title: '编程导航',
+      title: '官方源码',
     },
   ]
 })
@@ -314,6 +305,7 @@ const showDrawer = () => {
   }
 
   /* 移动端菜单项样式 */
+
   .ant-menu-inline {
     border-right: none;
   }

@@ -5,7 +5,7 @@
       <div class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
         <div
           v-for="item in row"
-          :key="item.pictureId"
+          :key="`${item.id}-${rowIndex}`"
           class="masonry-item"
           :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
         >
@@ -27,11 +27,7 @@
 <script setup lang="ts" name="Picture">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
-import type {
-  PictureInfoQuery,
-  PictureInfoVo,
-  PictureRecommendRequest,
-} from '@/types/picture/picture'
+import type { PictureInfoVo, PictureRecommendRequest } from '@/types/picture/picture'
 import { listPictureInfo } from '@/api/picture/picture.ts'
 import { useConfig } from '@/utils/config.ts'
 import { useRouter } from 'vue-router'

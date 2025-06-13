@@ -1,23 +1,17 @@
-import { useConfigStore } from '@/stores/modules/config.ts'
-import { getConfig } from '@/api/common/common.ts'
+import { useConfigStore } from '@/stores/modules/config'
+import { getConfig } from '@/api/common/common'
 
-/**
- * 获取字典数据
- */
-export async function useConfig(key: string) {
+export async function useConfig(key: string): Promise<string> {
   const configStore = useConfigStore()
-  let res = ''
-  const config = configStore.getConfig(key)
-  if (config) {
-    return config
-  } else {
-    const resp = await getConfig(key)
-    if (resp?.data) {
-      res = resp?.data?.configValue
-      configStore.setConfig(key, res)
-      return res
-    } else {
-      return ''
-    }
+  const cached = configStore.getConfig(key)
+  if (cached !== undefined && cached !== null) {
+    return cached
   }
+  console.log('useConfig', key)
+  const resp = await getConfig(key)
+  if (resp?.data?.configValue) {
+    configStore.setConfig(key, resp.data.configValue)
+    return resp.data.configValue
+  }
+  return ''
 }

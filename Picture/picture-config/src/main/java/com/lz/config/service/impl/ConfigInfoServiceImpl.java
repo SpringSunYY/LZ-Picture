@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_CONFIG_INFO_KEY;
 
 /**
@@ -50,8 +51,8 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
     public int initConfigInfoCache() {
         List<ConfigInfo> configInfoList = configInfoMapper.selectList(null);
         for (ConfigInfo configInfo : configInfoList) {
-            redisCache.deleteObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + ":" + configInfo.getConfigKey());
-            redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + ":" + configInfo.getConfigKey(), configInfo.getConfigValue());
+            redisCache.deleteObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE + configInfo.getConfigKey());
+            redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE + configInfo.getConfigKey(), configInfo.getConfigValue());
         }
         return 1;
     }
@@ -97,7 +98,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
         }
         //存入缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + configInfo.getConfigKey(), configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE + configInfo.getConfigKey(), configInfo.getConfigValue());
         return i;
     }
 
@@ -119,7 +120,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             throw new SQLDuplicateKeyException(e.getMessage(), e.getCause());
         }
         //存入缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + configInfo.getConfigKey(), configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE + configInfo.getConfigKey(), configInfo.getConfigValue());
         return i;
     }
 
@@ -203,7 +204,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
 
     private String getCache(String isIn, String configKey) {
         //先根据名称获取缓存
-        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + isIn + ":" + configKey);
+        String cacheObject = redisCache.getCacheObject(CONFIG_CONFIG_INFO_KEY + isIn + COMMON_SEPARATOR_CACHE + configKey);
         if (StringUtils.isNotEmpty(cacheObject)) {
             return cacheObject;
         }
@@ -214,7 +215,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             return "";
         }
         //数据库如果有则存缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + ":" + configKey, configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE+ configKey, configInfo.getConfigValue());
         return configInfo.getConfigValue();
     }
 }

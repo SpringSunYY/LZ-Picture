@@ -3,6 +3,7 @@ import router from './router'
 import Antd, { message } from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 import { createPinia } from 'pinia'
+import persistedState from 'pinia-plugin-persistedstate'
 import { createApp } from 'vue'
 import 'virtual:svg-icons-register' // 必须添加的运行时注册
 import SvgIcon from '@/components/SvgIcon.vue'
@@ -19,7 +20,9 @@ const app = createApp(App)
 app.config.globalProperties.useDict = useDict
 app.component('SvgIcon', SvgIcon)
 app.use(Antd)
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(persistedState)
+app.use(pinia)
 app.use(router)
 app.use(UndrawUI)
 app.mount('#app')

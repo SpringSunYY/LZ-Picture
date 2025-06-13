@@ -1,33 +1,64 @@
 import { defineStore } from 'pinia'
+import { toRaw } from 'vue' // 引入 toRaw 来访问原始对象
+
+interface ConfigStoreState {
+  configs: Map<string, string>
+}
 
 export const useConfigStore = defineStore('config', {
-  state: () => ({
-    configs: {} as Record<string, string>, // 使用对象来存储配置
+  state: (): ConfigStoreState => ({
+    configs: new Map(),
   }),
+
   actions: {
-    // 获取配置
     getConfig(key: string): string | null {
+      // console.group('[ConfigStore] getConfig调试')
+      // console.log('传入的key:', key)
+
       if (!key) {
+        // console.log('key为空，返回null')
+        // console.groupEnd()
         return null
       }
-      return this.configs[key] || null
+
+      // 使用 toRaw 获取原始 Map，避免响应式干扰
+      const rawMap = toRaw(this.configs)
+      const value = rawMap.get(key)
+
+      // console.log(`获取的值[${key}]:`, value)
+      // console.groupEnd()
+      return value ?? null
     },
 
-    // 设置配置
     setConfig(key: string, value: string): void {
-      if (key) {
-        this.configs[key] = value
-        // console.log(`设置配置信息：${key} = ${value}`)
-      }
-    },
+      // console.group('[ConfigStore] setConfig调试')
+      // console.log('设置前 configs 内容:', [...toRaw(this.configs).entries()])
 
-    // 删除配置
-    removeConfig(key: string): boolean {
-      if (this.configs[key]) {
-        delete this.configs[key]
-        return true
+      if (key) {
+        this.configs.set(key, value)
+        // console.log('设置后 configs 内容:', [...toRaw(this.configs).entries()])
       }
-      return false
-    },
+      console.groupEnd()
+    }
   },
+
+  persist: {
+    storage: sessionStorage, // 或 localStorage，根据你的需求选择
+    serializer: {
+      serialize: (state) => {
+        // console.log('[持久化] 序列化数据:', [...state.configs.entries()])
+        return JSON.stringify([...state.configs])
+      },
+      deserialize: (str) => {
+        // console.log('[持久化] 反序列化数据:', str)
+        try {
+          const data = JSON.parse(str)
+          return { configs: new Map(data) }
+        } catch (e) {
+          // console.error('反序列化失败:', e)
+          return { configs: new Map() }
+        }
+      }
+    }
+  }
 })
