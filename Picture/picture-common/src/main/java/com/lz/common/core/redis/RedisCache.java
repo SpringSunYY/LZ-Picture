@@ -278,4 +278,18 @@ public class RedisCache {
     public Collection<String> keys(final String pattern) {
         return redisTemplate.keys(pattern);
     }
+
+    /**
+     * 为key加值
+     * @param key
+     * @param value
+     */
+    public void increment(String key, int value) {
+        ValueOperations<String, Integer> opsForValue = redisTemplate.opsForValue();
+        Long newValue = opsForValue.increment(key, value);
+        if (newValue == null) {
+            // 键不存在时，设置初始值为1
+            opsForValue.set(key, 1);
+        }
+    }
 }

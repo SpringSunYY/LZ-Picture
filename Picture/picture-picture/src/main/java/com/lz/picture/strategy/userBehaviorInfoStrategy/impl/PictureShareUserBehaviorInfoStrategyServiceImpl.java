@@ -5,14 +5,17 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
 import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.service.IPictureInfoService;
+import com.lz.picture.service.IPictureRecommendInfoService;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyConfig;
 import jakarta.annotation.Resource;
 
 import java.util.Date;
-import java.util.TimerTask;
+
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE;
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_VIEW_TYPE;
 
 /**
  * Project: Picture
@@ -29,7 +32,8 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
     private IUserBehaviorInfoService userBehaviorInfoService;
 
     @Resource
-    private IPictureInfoService pictureInfoService;
+    private IPictureRecommendInfoService pictureRecommendInfoService;
+
 
     @Override
     public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
@@ -41,6 +45,7 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
         if (!exist) {
             detailInfo.setBehaviorId(IdUtils.snowflakeId().toString());
             userBehaviorInfoService.insertUserBehaviorInfo(detailInfo);
+            PictureAsyncManager.me().execute(PictureRecommendAsyncFactory.insertUserInterestModel(userBehaviorInfo.getUserId(), PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE));
         }
         //重新获取信息 异步去更新缓存
         asyncUpdate(userBehaviorInfo, exist);

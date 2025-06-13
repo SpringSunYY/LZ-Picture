@@ -5,9 +5,10 @@ import com.alibaba.fastjson2.JSONObject;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.spring.SpringUtils;
+import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.model.domain.SpaceInfo;
-import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
+import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
 import com.lz.picture.service.IUserViewLogInfoService;
 import com.lz.user.model.domain.UserInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.TimerTask;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_VIEW_TYPE;
 
 /**
  * 图片用户浏览异步任务异步工厂（产生任务用）
@@ -48,7 +50,10 @@ public class PictureUserViewLogAsyncFactory {
                 //获取目标id和内容
                 getTargetInfo(targetType, userViewLogTargetInfoDto, jsonResult);
                 //插入用户浏览记录
-                SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, score, userViewLogTargetInfoDto, nowDate, deviceInfo);
+                int i = SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, score, userViewLogTargetInfoDto, nowDate, deviceInfo);
+                if (i > 0) {
+                    PictureAsyncManager.me().execute(PictureRecommendAsyncFactory.insertUserInterestModel(userId, PICTURE_RECOMMEND_MODEL_VIEW_TYPE));
+                }
             }
         };
     }

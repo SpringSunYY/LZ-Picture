@@ -6,10 +6,11 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.service.IPictureInfoService;
-import com.lz.picture.service.IPictureTagInfoService;
+import com.lz.picture.service.IPictureRecommendInfoService;
 import com.lz.picture.service.IPictureTagRelInfoService;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyService;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.TimerTask;
 
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
 
 /**
@@ -34,9 +36,6 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
     private IPictureInfoService pictureInfoService;
 
     @Resource
-    private IPictureTagInfoService pictureTagInfoService;
-
-    @Resource
     private IPictureTagRelInfoService pictureTagRelInfoService;
 
     @Resource
@@ -44,6 +43,9 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
 
     @Resource
     private RedisCache redisCache;
+
+    @Resource
+    private IPictureRecommendInfoService pictureRecommendInfoService;
 
     /**
      * description: 判断是否存在
@@ -101,19 +103,20 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
         if (StringUtils.isNotNull(info) && !exist) {
             info.setBehaviorId(IdUtils.snowflakeId().toString());
             userBehaviorInfoService.insertUserBehaviorInfo(info);
+            PictureAsyncManager.me().execute(PictureRecommendAsyncFactory.insertUserInterestModel(userBehaviorInfo.getUserId(), PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE));
         }
         //重新获取信息 异步去更新缓存
         asyncUpdate(info, exist);
         return !exist;
     }
 
-    public void asyncUpdate(UserBehaviorInfo info,Boolean exist) {
+    public void asyncUpdate(UserBehaviorInfo info, Boolean exist) {
         PictureAsyncManager.me().execute(new TimerTask() {
             @Override
             public void run() {
                 String behaviorKey = PICTURE_USER_BEHAVIOR + info.getUserId() + ":" + info.getTargetType() + ":" + info.getTargetId();
                 redisCache.deleteObject(behaviorKey);
-                pictureInfoService.resetPictureInfoCacheByBehavior(info.getTargetId(), info.getBehaviorType(),exist);
+                pictureInfoService.resetPictureInfoCacheByBehavior(info.getTargetId(), info.getBehaviorType(), exist);
             }
         });
     }

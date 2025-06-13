@@ -40,9 +40,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
-import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMMEND_PICTURE_MODEL;
-import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME;
+import static com.lz.common.constant.picture.PictureInfoConstants.*;
+import static com.lz.common.constant.redis.PictureRedisConstants.*;
 
 /**
  * 用户图片推荐模型Service业务层处理
@@ -89,7 +90,15 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     private static int DOWNLOAD_TAG_WEIGHT = 2;
     private static double DOWNLOAD_TIME_DECAY = 0.8;
     private static int DOWNLOAD_LIMIT = 100;
-
+    //行为缓存时间和阈值
+    private static int BEHAVIOR_CACHE_TIMEOUT = 60 * 30;
+    private static int BEHAVIOR_CACHE_THRESHOLD = 10;
+    //浏览缓存时间和阈值
+    private static int VIEW_CACHE_TIMEOUT = 60 * 30;
+    private static int VIEW_CACHE_THRESHOLD = 20;
+    //下载缓存时间和阈值
+    private static int DOWNLOAD_CACHE_TIMEOUT = 60 * 60;
+    private static int DOWNLOAD_CACHE_THRESHOLD = 5;
 
     @PostConstruct
     public void init() {
@@ -116,6 +125,15 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         DOWNLOAD_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_TAG);
         DOWNLOAD_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_TIME_DOWNLOAD_DECAY);
         DOWNLOAD_LIMIT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_LIMIT);
+
+        BEHAVIOR_CACHE_TIMEOUT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_CACHE_TIMEOUT);
+        BEHAVIOR_CACHE_THRESHOLD = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_CACHE_THRESHOLD);
+
+        VIEW_CACHE_TIMEOUT = getIntConfig(PICTURE_RECOMMEND_VIEW_CACHE_TIMEOUT);
+        VIEW_CACHE_THRESHOLD = getIntConfig(PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD);
+
+        DOWNLOAD_CACHE_TIMEOUT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_CACHE_TIMEOUT);
+        DOWNLOAD_CACHE_THRESHOLD = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_CACHE_THRESHOLD);
 
     }
 
@@ -251,14 +269,13 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             String json = redisCache.getCacheObject(key);
             return JSONObject.parseObject(json, UserInterestModel.class);
         }
-        //不存在，查询数据库最新的一条数据库
         PictureRecommendInfo pictureRecommendInfo = this.getOne(new LambdaQueryWrapper<PictureRecommendInfo>()
                 .eq(PictureRecommendInfo::getUserId, userId)
                 .orderBy(true, false, PictureRecommendInfo::getCreateTime)
                 .last("limit 1"));
-        //如果不为空，直接返回
+        UserInterestModel userInterestModel = new UserInterestModel();
+        //如果不为空设置模型信息
         if (StringUtils.isNotNull(pictureRecommendInfo)) {
-            UserInterestModel userInterestModel = new UserInterestModel();
             userInterestModel.setTagScores(
                     JSONObject.parseObject(pictureRecommendInfo.getTagScores(), new TypeReference<Map<String, Double>>() {
                     }));
@@ -277,20 +294,19 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             userInterestModel.setNormalizedCategoryScores(
                     JSONObject.parseObject(pictureRecommendInfo.getNormalizedCategoryScores(), new TypeReference<Map<String, Double>>() {
                     }));
-
-            String json = JSON.toJSONString(userInterestModel);
-            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
-            return userInterestModel;
         }
+        String json = JSON.toJSONString(userInterestModel);
+        redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+        //不存在，查询数据库最新的一条数据库
+        return userInterestModel;
+    }
+
+    public UserInterestModel saveUserInterestModel(String userId) {
         UserInterestModel userInterestModel = getUserInterestModel(userId);
-        //如果为空，返回空，但也要缓存
         if (StringUtils.isNull(userInterestModel)) {
             userInterestModel = new UserInterestModel();
-            String json = JSON.toJSONString(userInterestModel);
-            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
-            return null;
         }
-        pictureRecommendInfo = new PictureRecommendInfo();
+        PictureRecommendInfo pictureRecommendInfo = new PictureRecommendInfo();
         pictureRecommendInfo.setUserId(userId);
         pictureRecommendInfo.setTagScores(JSONObject.toJSONString(userInterestModel.getTagScores()));
         pictureRecommendInfo.setCategoryScores(JSONObject.toJSONString(userInterestModel.getCategoryScores()));
@@ -299,9 +315,72 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         pictureRecommendInfo.setNormalizedTagScores(JSONObject.toJSONString(userInterestModel.getNormalizedTagScores()));
         pictureRecommendInfo.setNormalizedCategoryScores(JSONObject.toJSONString(userInterestModel.getNormalizedCategoryScores()));
         this.save(pictureRecommendInfo);
-        String json = JSON.toJSONString(userInterestModel);
-        redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
         return userInterestModel;
+    }
+
+    @Override
+    public void insertUserInterestModel(String userId, String type) {
+        int count = 0;
+        String key = PICTURE_RECOMMEND_PICTURE_MODEL_UPDATE + userId + COMMON_SEPARATOR_CACHE + type;
+        //如果缓存存在
+        Boolean exist = redisCache.hasKey(key);
+        if (exist) {
+            count = redisCache.getCacheObject(key);
+        } else {
+            //不存在直接插入一次
+            UserInterestModel userInterestModel = saveUserInterestModel(userId);
+            //删除用户模型缓存
+            String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+            redisCache.deleteObject(modelKay);
+            //重新缓存模型
+            String json = JSON.toJSONString(userInterestModel);
+            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+        }
+        boolean isThreshold = false;
+        int timeout = 0;
+        //判断缓存类型是什么，是否超过阈值
+        switch (type) {
+            case PICTURE_RECOMMEND_MODEL_DOWNLOAD_TYPE:
+                if (count > DOWNLOAD_CACHE_THRESHOLD) {
+                    isThreshold = true;
+                }
+                timeout = DOWNLOAD_CACHE_TIMEOUT;
+                break;
+            case PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE:
+                if (count > BEHAVIOR_CACHE_THRESHOLD) {
+                    isThreshold = true;
+                }
+                timeout = BEHAVIOR_CACHE_TIMEOUT;
+                break;
+            case PICTURE_RECOMMEND_MODEL_VIEW_TYPE:
+                if (count > VIEW_CACHE_THRESHOLD) {
+                    isThreshold = true;
+                }
+                timeout = VIEW_CACHE_TIMEOUT;
+                break;
+            default:
+                break;
+        }
+        //如果超过阈值，删除缓存，重新设置缓存，防止后面查询缓存每次超过缓存都要更新用户模型
+        if (isThreshold) {
+            //超出阈值重新设置
+            redisCache.deleteObject(key);
+            redisCache.setCacheObject(key, count, timeout, TimeUnit.SECONDS);
+            //更新用户缓存
+            UserInterestModel userInterestModel = saveUserInterestModel(userId);
+            //删除用户模型缓存
+            String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+            redisCache.deleteObject(modelKay);
+            //重新缓存模型
+            String json = JSON.toJSONString(userInterestModel);
+            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+        } else {
+            if (!exist) {
+                redisCache.setCacheObject(key, count, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+            }
+            //不超过，给缓存值+1
+            redisCache.increment(key, 1);
+        }
     }
 
     private UserInterestModel getUserInterestModel(String userId) {

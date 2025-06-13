@@ -95,6 +95,11 @@ public class PictureRedisConstants {
     public static final String PICTURE_RECOMMEND_PICTURE_MODEL = "picture:recommend:picture:model:";
 
     /**
+     * 图片推荐缓存用户模型更新缓存
+     */
+    public static final String PICTURE_RECOMMEND_PICTURE_MODEL_UPDATE = "picture:recommend:picture:model:update:";
+
+    /**
      * 图片推荐缓存用户模型缓存时间
      */
     public static final Integer PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME = 60 * 60;

@@ -175,7 +175,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
     }
 
     @Override
-    public void recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo) {
+    public int recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo) {
         //判断今天有没有浏览记录，如果有就不插入了
         List<UserViewLogInfo> list = this.list(new LambdaQueryWrapper<UserViewLogInfo>()
                 .eq(UserViewLogInfo::getUserId, userId)
@@ -186,9 +186,11 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
                 .eq(UserViewLogInfo::getTargetId, userViewLogTargetInfoDto.getTargetId())
                 .eq(UserViewLogInfo::getTargetType, targetType));
         UserViewLogInfo userViewLogInfo = new UserViewLogInfo();
+        int result = 1;
         //如果存在
         if (StringUtils.isNotEmpty(list)) {
             userViewLogInfo = list.getFirst();
+            result = 0;
         } else {
             userViewLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
         }
@@ -210,6 +212,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         userViewLogInfo.setIpAddr(deviceInfo.getIpAddr());
         userViewLogInfo.setIpAddress(deviceInfo.getIpAddress());
         this.saveOrUpdate(userViewLogInfo);
+        return result;
     }
 
     @Override

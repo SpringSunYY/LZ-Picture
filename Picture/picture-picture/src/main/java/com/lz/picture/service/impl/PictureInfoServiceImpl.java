@@ -23,6 +23,7 @@ import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
+import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
@@ -61,6 +62,7 @@ import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_DOWNLOAD_TYPE;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 
@@ -1007,6 +1009,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
                 UInformTypeEnum.INFORM_TYPE_0.getValue(),
                 params));
+        //更新行为
+        PictureAsyncManager.me().execute(PictureRecommendAsyncFactory.insertUserInterestModel(userId, PICTURE_RECOMMEND_MODEL_DOWNLOAD_TYPE));
         return pictureInfo;
     }
 

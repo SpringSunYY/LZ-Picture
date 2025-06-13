@@ -1,22 +1,23 @@
 package com.lz.picture.service;
 
-import java.util.List;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.picture.model.domain.PictureRecommendInfo;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
-import com.lz.picture.model.vo.pictureRecommendInfo.PictureRecommendInfoVo;
 import com.lz.picture.model.dto.pictureRecommendInfo.PictureRecommendInfoQuery;
+import com.lz.picture.model.vo.pictureRecommendInfo.PictureRecommendInfoVo;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.util.List;
+
 /**
  * 用户图片推荐模型Service接口
  *
  * @author YY
  * @date 2025-06-10
  */
-public interface IPictureRecommendInfoService extends IService<PictureRecommendInfo>
-{
+public interface IPictureRecommendInfoService extends IService<PictureRecommendInfo> {
     //region mybatis代码
+
     /**
      * 查询用户图片推荐模型
      *
@@ -65,6 +66,7 @@ public interface IPictureRecommendInfoService extends IService<PictureRecommendI
      */
     public int deletePictureRecommendInfoByRecommendId(String recommendId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -82,6 +84,18 @@ public interface IPictureRecommendInfoService extends IService<PictureRecommendI
     List<PictureRecommendInfoVo> convertVoList(List<PictureRecommendInfo> pictureRecommendInfoList);
 
     public UserInterestModel getUserInterrestModelByUserId(String userId);
+
+    /**
+     * 插入用户推荐模型
+     *
+     * @param userId
+     * @param type
+     * @return void
+     * @author: YY
+     * @method: insertUserInterestModel
+     * @date: 2025/6/13 21:47
+     **/
+    void insertUserInterestModel(String userId, String type);
 
     /**
      * 获取用户浏览推荐分数

@@ -171,4 +171,29 @@ public class UserConfigKeyConstants {
      */
     public static final String PICTURE_RECOMMEND_TAG_WEIGHT = "picture:recommend:tag:weight";
 
+    /**
+     * 图片推荐行为缓存时间
+     */
+    public static final String PICTURE_RECOMMEND_BEHAVIOR_CACHE_TIMEOUT = "picture:recommend:behavior:cache:timeout";
+    /**
+     * 图片推荐行为缓存数阈值
+     */
+    public static final String PICTURE_RECOMMEND_BEHAVIOR_CACHE_THRESHOLD = "picture:recommend:behavior:cache:threshold";
+
+    /**
+     * 用户推荐下载缓存时间
+     */
+    public static final String PICTURE_RECOMMEND_DOWNLOAD_CACHE_TIMEOUT = "picture:recommend:download:cache:timeout";
+    /**
+     * 用户推荐下载缓存数阈值
+     */
+    public static final String PICTURE_RECOMMEND_DOWNLOAD_CACHE_THRESHOLD = "picture:recommend:download:cache:threshold";
+    /**
+     * 用户推荐浏览缓存时间
+     */
+    public static final String PICTURE_RECOMMEND_VIEW_CACHE_TIMEOUT = "picture:recommend:view:cache:timeout";
+    /**
+     * 用户推荐浏览缓存数阈值
+     */
+    public static final String PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD = "picture:recommend:view:cache:threshold";
 }
