@@ -32,8 +32,9 @@ import java.util.List;
 public class UserPictureApiSearchServiceImpl implements IUserPictureApiSearchService {
     @Override
     public PictureApiSearchVo keyword(PictureApiSearchRequest pictureApiSearchRequest) {
+        int first = (pictureApiSearchRequest.getCurrentPage() - 1) * 35;
         // 要抓取的地址
-        String fetchUrl = String.format("https://cn.bing.com/images/async?q=%s&mmasync=1", pictureApiSearchRequest.getKeyword());
+        String fetchUrl = String.format("https://cn.bing.com/images/async?q=%s&mmasync=1&first=%s", pictureApiSearchRequest.getKeyword(), first);
         Document document = null;
         try {
             document = Jsoup.connect(fetchUrl).get();
@@ -74,6 +75,7 @@ public class UserPictureApiSearchServiceImpl implements IUserPictureApiSearchSer
 //            System.out.println("fileUrl = " + fileUrl);
             urls.add(fileUrl);
         }
+        pictureApiSearchVo.setMaxCount(35);
         pictureApiSearchVo.setCount(count);
         pictureApiSearchVo.setUrls(urls);
         return pictureApiSearchVo;

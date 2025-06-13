@@ -14,6 +14,10 @@ export interface PictureApiSearchRequest {
 
   /** 用户ID */
   userId?: string
+  /**
+   * 页码
+   */
+  currentPage?: number
 }
 
 /**
@@ -29,6 +33,9 @@ export interface PictureApiSearchVo {
 
   /** 数量 */
   count: number
+
+  /** 最大数量 */
+  maxCount: number
 
   /** 关键词 */
   keyword: string

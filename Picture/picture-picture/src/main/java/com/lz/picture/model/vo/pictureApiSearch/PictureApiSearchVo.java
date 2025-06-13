@@ -26,6 +26,11 @@ public class PictureApiSearchVo {
      * 数量
      */
     private Integer count;
+
+    /**
+     * 最大数
+     */
+    private Integer maxCount;
     /**
      * 关键词
      */

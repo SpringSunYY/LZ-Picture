@@ -171,7 +171,18 @@
         </div>
       </div>
     </div>
-
+    <!-- 无限滚动加载按钮 -->
+    <div v-if="hasMore" class="infinite-scroll-btn" @click="loadMoreImages">
+      <!--      <svg viewBox="0 0 24 24" fill="currentColor">-->
+      <!--        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />-->
+      <!--      </svg>-->
+      <span>加载更多</span>
+    </div>
+    <!-- 底部加载指示器 -->
+    <div v-if="isLoadingMore" class="loading">
+      <div class="spinner"></div>
+      <span>正在加载更多图片...</span>
+    </div>
     <a-modal :footer="null" v-model:open="openSave">
       <!-- 自定义标题插槽 -->
       <template #title>
@@ -318,8 +329,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import type { PictureApiSearchRequest } from '@/types/picture/pictureApiSearch'
+import { onMounted, onUnmounted, reactive, ref } from 'vue'
+import type { PictureApiSearchRequest } from '@/types/picture/pictureApiSearch.d.ts'
 import { apiSearchByKeyword } from '@/api/picture/pictureApiSearch.ts'
 import { mySpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
@@ -492,32 +503,6 @@ const handleResize = () => {
   }
 }
 
-// 监听滚动事件
-const handleScroll = () => {
-  if (showTooltip.value) {
-    updateTooltipPosition()
-  }
-}
-
-// 组件挂载时添加事件监听
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-  window.addEventListener('scroll', handleScroll)
-})
-
-// 组件卸载时移除事件监听
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  window.removeEventListener('scroll', handleScroll)
-})
-
-// 监听showTooltip变化
-watch(showTooltip, (newVal) => {
-  if (newVal) {
-    updateTooltipPosition()
-  }
-})
-
 // 获取当前API标签
 const getCurrentApiLabel = (): string => {
   const api = apiOptions.find((option) => option.value === selectedApi.value)
@@ -534,6 +519,7 @@ const searchQuery = ref<PictureApiSearchRequest>({
   api: '1',
   model: '1',
   keyword: '',
+  currentPage: 1,
 })
 
 // 搜索图片方法
@@ -542,13 +528,14 @@ const searchImages = async (): Promise<void> => {
 
   loading.value = true
   selectedImages.value = []
-
+  hasMore.value = true
   try {
+    searchQuery.value.currentPage = 1
     const res = await apiSearchByKeyword(searchQuery.value)
 
     if (res.code === 200 && res.data && res.data.urls.length > 0) {
       images.value = res.data.urls.map((url: string, index: number) => ({
-        id: url,
+        id: `${url}_${Date.now()}_${index}`,
         url,
         title: `${searchQuery.value.keyword} - ${index}`,
         width: 0,
@@ -764,12 +751,73 @@ const openPreview = (image: ImageItem): void => {
   previewImage.value = image
   document.body.style.overflow = 'hidden'
 }
+// 响应式数据部分添加
+const hasMore = ref(false)
+const isLoadingMore = ref(false)
+// 添加加载更多函数
+const loadMoreImages = async (): Promise<void> => {
+  if (isLoadingMore.value || !hasMore.value) return
 
+  isLoadingMore.value = true
+  hasMore.value = true
+  try {
+    searchQuery.value.currentPage += 1
+    const res = await apiSearchByKeyword(searchQuery.value)
+
+    if (res.code === 200 && res.data && res.data.urls.length > 0) {
+      const newImages = res.data.urls.map((url: string, index: number) => ({
+        id: `${url}_${Date.now()}_${index}`,
+        url,
+        title: `${searchQuery.value.keyword} - ${images.value.length + index}`,
+        width: 0,
+        height: 0,
+      }))
+
+      images.value = [...images.value, ...newImages]
+    }
+    if (res.data.count < res.data.maxCount) {
+      hasMore.value = false
+    }
+  } catch (error) {
+    console.error('加载更多图片失败:', error)
+    message.error('加载更多图片失败，请稍后重试')
+  } finally {
+    isLoadingMore.value = false
+  }
+}
 // 关闭图片预览
 const closePreview = (): void => {
   previewImage.value = null
   document.body.style.overflow = 'auto'
 }
+// 添加滚动监听函数
+const handleScroll = () => {
+  if (showTooltip.value) {
+    updateTooltipPosition()
+  }
+
+  // 检查是否滚动到底部
+  const scrollPosition = window.innerHeight + window.scrollY
+  const bodyHeight = document.body.offsetHeight
+
+  // 当距离底部小于200px时显示按钮
+  if (scrollPosition > bodyHeight - 50 && hasMore.value && !isLoadingMore.value) {
+    document.querySelector('.infinite-scroll-btn')?.classList.add('visible')
+  } else {
+    document.querySelector('.infinite-scroll-btn')?.classList.remove('visible')
+  }
+}
+
+// 修改组件挂载和卸载事件监听
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -895,7 +943,7 @@ $breakpoint-tablet: 1024px;
   margin: 0 auto;
   padding: 4vh;
   @include gradient-bg();
-  min-height: 100vh;
+  //min-height: 90vh;
   position: relative;
   z-index: $z-base;
 
@@ -1224,6 +1272,69 @@ $breakpoint-tablet: 1024px;
   font-size: 14px;
   color: $text-muted;
   text-align: center;
+}
+
+// 无限滚动按钮
+.infinite-scroll-btn {
+  position: fixed;
+  right: 30px;
+  bottom: 40px;
+  width: 80px; // 修改为自动宽度
+  height: 80px; // 修改为自动高度
+  border-radius: 50%; // 改为圆角矩形
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: white;
+  display: flex; // 使用flex布局
+  flex-direction: row; // 关键修改：设置为水平排列
+  align-items: center; // 水平居中对齐
+  justify-content: center; // 垂直居中对齐
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba($primary-color, 0.3);
+  z-index: $z-elevated;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  padding: 8px 16px; // 添加内边距
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px; // 图标右侧添加间距
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap; // 防止文字换行
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba($primary-color, 0.4);
+  }
+
+  @include mobile {
+    right: 20px;
+    bottom: 30px;
+    padding: 6px 12px; // 移动端减小内边距
+
+    svg {
+      width: 18px;
+      height: 18px;
+      margin-right: 6px;
+    }
+
+    span {
+      font-size: 12px;
+    }
+  }
 }
 
 @keyframes spin {

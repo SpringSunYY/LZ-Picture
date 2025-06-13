@@ -1,6 +1,7 @@
 package com.lz.picture.model.dto.pictureApiSearch;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -34,4 +35,10 @@ public class PictureApiSearchRequest {
      * 用户id
      */
     private String userId;
+    /**
+     * 搜索页
+     */
+    @NotNull(message = "搜索页不能为空")
+    private Integer currentPage;
+
 }

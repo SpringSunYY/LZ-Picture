@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.PictureRecommendInfoMapper">
-    
+
     <resultMap type="PictureRecommendInfo" id="PictureRecommendInfoResult">
         <result property="recommendId"    column="recommend_id"    />
         <result property="categoryScores"    column="category_scores"    />
@@ -23,13 +23,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectPictureRecommendInfoList" parameterType="PictureRecommendInfo" resultMap="PictureRecommendInfoResult">
         <include refid="selectPictureRecommendInfoVo"/>
-        <where>  
+        <where>
             <if test="recommendId != null  and recommendId != ''"> and recommend_id = #{recommendId}</if>
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectPictureRecommendInfoByRecommendId" parameterType="String" resultMap="PictureRecommendInfoResult">
         <include refid="selectPictureRecommendInfoVo"/>
         where recommend_id = #{recommendId}
@@ -84,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deletePictureRecommendInfoByRecommendIds" parameterType="String">
-        delete from p_picture_recommend_info where recommend_id in 
+        delete from p_picture_recommend_info where recommend_id in
         <foreach item="recommendId" collection="array" open="(" separator="," close=")">
             #{recommendId}
         </foreach>
