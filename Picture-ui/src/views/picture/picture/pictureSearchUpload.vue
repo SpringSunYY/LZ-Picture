@@ -171,6 +171,109 @@
         </div>
       </div>
     </div>
+
+      <a-modal :footer="null" v-model:open="openSave">
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip
+            title=" 免责声明：返回的图片一定要注意版权信息，平台不承担任何法律责任，请勿用于商业用途，平台不对图片内容负责，只为用户提供功能。"
+          >
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formState"
+        @finish="handleSubmit"
+        :label-col="{ span: 4 }"
+        :rules="rules"
+        :wrapper-col="{ span: 18 }"
+      >
+        <a-row justify="center">
+          <a-col :span="24">
+            <!-- 分类选择 -->
+            <a-form-item label="图片分类" name="categoryId">
+              <a-cascader
+                v-model:value="formState.categoryId"
+                :options="pictureCategoryList"
+                expand-trigger="hover"
+                placeholder="请选择图片分类"
+                :fieldNames="{
+                  label: 'name',
+                  value: 'categoryId',
+                  children: 'children',
+                }"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="图片空间" name="spaceId">
+              <a-select
+                show-search
+                v-model:value="formState.spaceId"
+                :options="spaceList"
+                :filter-option="false"
+                :fieldNames="{
+                  label: 'spaceName',
+                  value: 'spaceId',
+                }"
+                @search="handleSearchSpace"
+                @select="handleSelectSpace"
+                placeholder="请选择图片空间"
+                :not-found-content="spaceLoading"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="图片文件夹">
+              <a-cascader
+                v-model:value="formState.folderId"
+                :options="folderList"
+                placeholder="请选择图片文件夹"
+                change-on-select
+                :fieldNames="{
+                  label: 'folderName',
+                  value: 'folderId',
+                  children: 'children',
+                }"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="标签">
+              <a-select
+                mode="tags"
+                v-model:value="formState.tags"
+                :options="tagList"
+                placeholder="请输入图片标签"
+                :filter-option="false"
+                :fieldNames="{
+                  label: 'name',
+                  value: 'name',
+                }"
+                @search="handleSearchTag"
+                @select="handleSelectTag"
+                :not-found-content="tagLoading"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <!-- 提交按钮 -->
+        <a-form-item :wrapper-col="{ offset: 4 }">
+          <a-button
+            type="primary"
+            html-type="submit"
+            style="padding: 0 40px; margin: 0 auto"
+            :loading="submitting"
+          >
+            提交
+          </a-button>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 
   <!-- 使用Teleport将提示框传送到body下 -->
@@ -195,7 +298,7 @@
             可以使用不同的接口/模型组合来提高图片质量，每个模型返回的图片质量和数量均不同，平台默认返回您选择的组合最多图片数，请根据实际需求选择最合适的接口和模型。
             <br />
             <span style="color: red">
-              注：返回的图片一定要注意版权信息，平台不承担任何法律责任，请勿用于商业用途，平台不对图片内容负责，只为用户提供功能。
+              免责声明：返回的图片一定要注意版权信息，平台不承担任何法律责任，请勿用于商业用途，平台不对图片内容负责，只为用户提供功能。
             </span>
           </small>
         </div>
@@ -205,9 +308,25 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import type { PictureApiSearchRequest } from '@/types/picture/pictureApiSearch'
 import { apiSearchByKeyword } from '@/api/picture/pictureApiSearch.ts'
+import { mySpaceInfo } from '@/api/picture/space.ts'
+import { message } from 'ant-design-vue'
+import type { Space, SpaceQuery } from '@/types/picture/space'
+import { listPictureTagInfo } from '@/api/picture/pictureTag.ts'
+import type { PictureTagInfoQuery, PictureTagInfoVo } from '@/types/picture/pictureTag'
+import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import type { PictureInfo } from '@/types/picture/picture'
+import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
+import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
+import { handleTree } from '@/utils/lz.ts'
+import { debounce } from 'lodash-es'
+import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
+import type {
+  PictureCategoryInfoQuery,
+  PictureCategoryInfoVo,
+} from '@/types/picture/pictureCategory'
 
 // 接口定义
 interface ImageItem {
@@ -454,27 +573,136 @@ const clearSelection = (): void => {
   selectedImages.value = []
 }
 
+const formState = reactive<PictureInfo>({
+  pictureUrl: '',
+  dnsUrl: '',
+  name: '',
+  introduction: '',
+  categoryId: '',
+  spaceId: '',
+  folderId: '',
+  tags: [],
+})
+const rules = {
+  categoryId: [
+    {
+      required: false,
+      message: '请选择图片分类',
+      trigger: 'change',
+    },
+  ],
+  spaceId: [
+    {
+      required: true,
+      message: '请选择图片空间',
+      trigger: 'change',
+    },
+  ],
+}
+const title = ref('保存图片')
+const openSave = ref(false)
+const submitting = ref(false)
 // 保存选中的图片
 const saveSelectedImages = async (): Promise<void> => {
   const selectedImageData = images.value.filter((img) => selectedImages.value.includes(img.id))
 
   console.log('准备保存的图片数据:', selectedImageData)
-  console.log('搜索配置:', {
-    api: selectedApi.value,
-    model: selectedModel.value,
-    query: lastSearchQuery.value,
+  console.log('当前选中的图片数量:', selectedImageData.length)
+  console.log('当前参数:', searchQuery.value)
+  //获取到空间、标签
+  getPictureCategoryList()
+  getMySpaceList()
+  getTagList()
+  openSave.value = true
+}
+//标签
+const tagList = ref<PictureTagInfoVo[]>([])
+const tagQuery = ref<PictureTagInfoQuery>({})
+const tagLoading = ref(false)
+const getTagList = () => {
+  tagLoading.value = true
+  listPictureTagInfo(tagQuery.value).then((res) => {
+    tagList.value = res?.rows || []
+    tagLoading.value = false
   })
-
-  try {
-    // 调用后端API保存图片
-    await saveImagesToBackend(selectedImageData)
-    alert(`成功保存 ${selectedImageData.length} 张图片！`)
-  } catch (error) {
-    console.error('保存失败:', error)
-    alert('保存失败，请稍后重试')
+}
+const handleSearchSpace = debounce((value: string) => {
+  spaceQuery.value.spaceName = value
+  getMySpaceList()
+}, 300)
+const handleSelectTag = (value: string) => {
+  //如果标签字符长度大于9个
+  if (value.length > 9) {
+    //删除选择
+    formState.tags = formState.tags?.filter((item) => item !== value)
+    message.error('标签名称不能超过9个字符')
+    return
+  }
+  if ((formState.tags?.length ?? 0) > 5) {
+    message.error('最多只能选择5个标签')
+    formState.tags = formState.tags?.slice(0, 5)
+    return
   }
 }
+//文件夹
+const folderList = ref<SpaceFolderInfoVo[]>([])
+const folderQuery = ref<SpaceFolderInfoQuery>({
+  spaceId: '',
+})
+const getFolderList = () => {
+  // 获取文件夹列表
+  listSpaceFolderInfo(folderQuery.value).then((res) => {
+    folderList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'folderId',
+      'parentId',
+      'children',
+    )
+  })
+}
+//空间
+const spaceList = ref<Space[]>([])
+const spaceQuery = ref<SpaceQuery>({})
+const spaceLoading = ref(false)
+const getMySpaceList = () => {
+  spaceLoading.value = true
+  // 获取我的空间列表
+  mySpaceInfo(spaceQuery.value).then((res) => {
+    if (res.code === 200) {
+      spaceList.value = res?.rows || []
+    } else {
+      message.error('获取空间列表失败')
+    }
+    spaceLoading.value = false
+  })
+}
+const handleSelectSpace = () => {
+  formState.folderId = ''
+  folderQuery.value.spaceId = formState.spaceId
+  getFolderList()
+}
+const handleSearchTag = debounce((value: string) => {
+  tagQuery.value.name = value
+  getTagList()
+}, 300)
 
+//分类
+const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
+const getPictureCategoryList = async () => {
+  listPictureCategoryInfo(pictureCategoryQuery.value).then((res) => {
+    pictureCategoryList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'categoryId',
+      'parentId',
+      'children',
+    )
+    // console.log('pictureCategoryList', pictureCategoryList.value)
+  })
+}
+const handleSubmit = () => {
+  console.log('formState', formState)
+}
 // 打开图片预览
 const openPreview = (image: ImageItem): void => {
   previewImage.value = image
@@ -485,36 +713,6 @@ const openPreview = (image: ImageItem): void => {
 const closePreview = (): void => {
   previewImage.value = null
   document.body.style.overflow = 'auto'
-}
-
-// 保存图片到后端的API调用
-const saveImagesToBackend = async (images: ImageItem[]): Promise<void> => {
-  try {
-    const response = await fetch('/api/save-images', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        images,
-        searchConfig: {
-          api: selectedApi.value,
-          model: selectedModel.value,
-          query: lastSearchQuery.value,
-        },
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error('保存失败')
-    }
-
-    const result = await response.json()
-    console.log('保存成功:', result)
-  } catch (error) {
-    console.error('保存图片失败:', error)
-    throw error
-  }
 }
 </script>
 
@@ -617,7 +815,22 @@ $breakpoint-tablet: 1024px;
     @content;
   }
 }
+.custom-modal-title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
 
+  .title-tip-icon {
+    margin-left: 8px;
+    color: rgba(57, 57, 57, 0.45);
+    cursor: help;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #1890ff;
+    }
+  }
+}
 // 主容器样式
 .picture-search-upload {
   //max-width: 1200px;
@@ -638,7 +851,6 @@ $breakpoint-tablet: 1024px;
     position: relative;
     z-index: $z-content;
   }
-
   @include mobile {
     padding: 10px;
 
