@@ -8,13 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AccountRestPassword: typeof import('./src/components/AccountRestPassword.vue')['default']
     AvatarUpload: typeof import('./src/components/AvatarUpload.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
     DictTag: typeof import('./src/components/DictTag.vue')['default']
     DirectionAwareHover: typeof import('./src/components/DirectionAwareHover.vue')['default']
-    DownloadLogInfoTable: typeof import('./src/components/DownloadLogInfoTable.vue')['default']
     FancyImage: typeof import('./src/components/FancyImage.vue')['default']
     MarkdownView: typeof import('./src/components/MarkdownView.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']
@@ -34,7 +32,6 @@ declare module 'vue' {
     UCommentNav: typeof import('undraw-ui')['UCommentNav']
     UCommentScroll: typeof import('undraw-ui')['UCommentScroll']
     UFold: typeof import('undraw-ui')['UFold']
-    UppyImageUpload: typeof import('./src/components/UppyImageUpload.vue')['default']
     UserBehaviorTable: typeof import('./src/components/UserBehaviorTable.vue')['default']
     UserloginLogTable: typeof import('./src/components/UserloginLogTable.vue')['default']
     UserPointsUsageLog: typeof import('./src/components/UserPointsUsageLog.vue')['default']

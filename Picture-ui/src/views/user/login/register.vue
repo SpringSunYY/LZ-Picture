@@ -9,7 +9,7 @@
             </div>
           </a-col>
           <a-col :span="12" style="align-content: center">
-            <h1 class="text-2xl font-bold text-gray-500">荔枝云图注册</h1>
+            <h1 class="text-2xl font-bold text-gray-500">LZ-Picture注册</h1>
           </a-col>
         </a-row>
       </div>
