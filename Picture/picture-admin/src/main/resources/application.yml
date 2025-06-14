@@ -36,6 +36,7 @@ logging:
   level:
     com.lz: debug
     org.springframework: warn
+#    org.apache.ibatis: warn
 
 # 用户配置
 user:

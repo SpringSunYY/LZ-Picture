@@ -203,6 +203,36 @@
    >
    > 如果原来用户没有账号为用户创建账户。
 
+## 配置信息
+
+```
+docker run -p 6379:6379 --name redis8.0.2 -v /code/container/redis/conf/redis.conf:/etc/redis/redis.conf -v /code/container/redis/data:/data -v /code/container/redis/logs:/logs -d redis:8.0.2 redis-server /etc/redis/redis.conf
+```
+
+```
+docker run -p 3306:3306 --name mysql --restart always -v /code/container/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /code/container/mysql/logs:/logs -v /code/container/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=mysql1234 -d mysql:8.0.36
+```
+
+```
+nohup java \
+-Xms256m \
+-Xmx512m \
+-XX:MaxMetaspaceSize=192m \
+-XX:MaxDirectMemorySize=64m \
+-XX:+UseParallelGC \
+-XX:+TieredCompilation \
+-XX:TieredStopAtLevel=1 \
+-XX:+HeapDumpOnOutOfMemoryError \
+-XX:HeapDumpPath=./dump.hprof \
+-XX:+ExitOnOutOfMemoryError \
+-XX:ThreadStackSize=256 \
+-Dfile.encoding=UTF-8 \
+-jar picture-admin.jar > nohup.out 2>&1 &
+
+```
+
+
+
 ## 数据库设计
 
 ### 配置模块
