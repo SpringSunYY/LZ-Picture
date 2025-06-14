@@ -1,11 +1,11 @@
 <template>
   <div id="globalHeader">
     <a-row :wrap="false">
-      <a-col flex="9em">
+      <a-col flex="10em">
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.png" alt="logo" />
-            <div class="title">荔智云图</div>
+            <div class="title">LZ-Picture</div>
           </div>
         </RouterLink>
       </a-col>

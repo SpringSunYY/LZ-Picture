@@ -1,7 +1,7 @@
 <template>
   <div class="home-view">
     <div class="text-center">
-      <h1 class="text-4xl font-bold text-blue-500 p-3">荔智云图，打造属于我们的图片生态</h1>
+      <h1 class="text-4xl font-bold text-blue-500 p-3">LZ-Picture，打造属于我们的图片生态</h1>
     </div>
     <SearchInput
       class="container mx-auto p-4"

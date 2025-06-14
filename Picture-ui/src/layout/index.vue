@@ -25,7 +25,7 @@
         <!-- 底部栏 -->
         <a-layout-footer class="footer" :class="{ hidden: isFooterHidden }">
           <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank">
-            荔智云图 by LZ
+            LZ-Picture by LZ
           </a>
         </a-layout-footer>
       </a-layout>

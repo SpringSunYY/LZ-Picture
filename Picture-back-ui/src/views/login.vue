@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">荔智云图</h3>
+      <h3 class="title">LZ-Picture</h3>
       <el-form-item prop="username">
         <el-input
             v-model="loginForm.username"
@@ -65,7 +65,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank">荔智云图 by LZ</a>
+      <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank">LZ-Picture by LZ</a>
     </div>
   </div>
 </template>
