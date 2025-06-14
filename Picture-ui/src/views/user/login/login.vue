@@ -18,7 +18,7 @@
               gap: 8px;
             "
           >
-            <h1 class="text-3xl font-bold text-gray-500">LZ-Picture登录</h1>
+            <h1 class="text-2xl font-bold text-gray-500">LZ-Picture登录</h1>
             <a-tooltip placement="top">
               <template #title>
                 可以使用手机号码或者账号登录，如果输入手机号码优先使用手机号码登录哦，如果是账号登录请清空手机号
@@ -229,6 +229,7 @@ const getCookies = () => {
     loginForm.value.username = decryptFront(localStorage.getItem('username')) || ''
     loginForm.value.countryCode = decryptFront(localStorage.getItem('countryCode')) || '+86'
     loginForm.value.phone = decryptFront(localStorage.getItem('phone')) || ''
+    loginForm.value.password = decryptFront(localStorage.getItem('password')) || ''
     loginForm.value.rememberMe = true
   }
 }

@@ -62,12 +62,45 @@
     <div class="profile-details">
       <a-tabs default-active-key="1">
         <template #rightExtra>
-          <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
-            <a-button @click="handleUpdateAvatar">修改头像</a-button>
-            <a-button @click="handleUpdateUserInfo">修改信息</a-button>
-            <a-button @click="handleUpdatePassword">修改密码</a-button>
-            <a-button @click="handleUpdateAccountPassword">修改支付密码</a-button>
-          </a-space>
+          <!-- 桌面端显示 -->
+          <div class="desktop-buttons" style="padding:10px">
+            <a-space direction="horizontal" align="center" :wrap="true">
+              <a-button @click="handleUpdateAvatar">修改头像</a-button>
+              <a-button @click="handleUpdateUserInfo">修改信息</a-button>
+              <a-button @click="handleUpdatePassword">修改密码</a-button>
+              <a-button @click="handleUpdateAccountPassword">修改支付密码</a-button>
+            </a-space>
+          </div>
+
+          <!-- 移动端显示下拉菜单 -->
+          <div class="mobile-buttons" style="padding:10px">
+            <a-dropdown :trigger="['click']" placement="bottomRight">
+              <a-button >
+                操作
+                <DownOutlined />
+              </a-button>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="avatar" @click="handleUpdateAvatar">
+                    <UserOutlined style="margin-right: 8px;" />
+                    修改头像
+                  </a-menu-item>
+                  <a-menu-item key="info" @click="handleUpdateUserInfo">
+                    <EditOutlined style="margin-right: 8px;" />
+                    修改信息
+                  </a-menu-item>
+                  <a-menu-item key="password" @click="handleUpdatePassword">
+                    <LockOutlined style="margin-right: 8px;" />
+                    修改密码
+                  </a-menu-item>
+                  <a-menu-item key="account-password" @click="handleUpdateAccountPassword">
+                    <SafetyOutlined style="margin-right: 8px;" />
+                    修改支付密码
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
         </template>
         <a-tab-pane key="1" v-if="checkLogin()" tab="基本信息">
           <div class="details-grid">
@@ -445,7 +478,15 @@ import {
   updateUserInfoAvatar,
   updateUserInfoPassword,
 } from '@/api/user/user.ts'
-import { LockOutlined, PhoneOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
+import {
+  DownOutlined,
+  EditOutlined,
+  LockOutlined,
+  PhoneOutlined,
+  QuestionCircleOutlined,
+  SafetyOutlined,
+  UserOutlined,
+} from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
@@ -1005,6 +1046,33 @@ $purple-color: #9c27b0;
 @keyframes fadeIn {
   to {
     opacity: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .desktop-buttons {
+    display: none;
+  }
+  .mobile-buttons {
+    display: block;
+  }
+}
+
+@media (min-width: 577px) {
+  .desktop-buttons {
+    display: block;
+  }
+  .mobile-buttons {
+    display: none;
+  }
+}
+:deep(.ant-dropdown-menu-item) {
+  display: flex !important;
+  align-items: center !important;
+
+  .anticon {
+    vertical-align: baseline !important;
+    line-height: 1 !important;
   }
 }
 </style>
