@@ -1,27 +1,28 @@
 package com.lz.config.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
+import com.lz.config.mapper.MenuInfoMapper;
+import com.lz.config.model.domain.MenuInfo;
+import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
+import com.lz.config.model.enmus.CMenuStatusEnum;
+import com.lz.config.model.enmus.CMenuTypeEnum;
+import com.lz.config.model.enmus.CMenuVisibleEnum;
+import com.lz.config.model.vo.menuInfo.MenuInfoVo;
+import com.lz.config.service.IMenuInfoService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.config.mapper.MenuInfoMapper;
-import com.lz.config.model.domain.MenuInfo;
-import com.lz.config.service.IMenuInfoService;
-import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
-import com.lz.config.model.vo.menuInfo.MenuInfoVo;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_MENU_LIST;
 import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_MENU_PERMISSION;
 import static com.lz.config.model.enmus.CMenuVisibleEnum.MENU_VISIBLE_0;
 
@@ -53,6 +54,7 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
     public int initMenuInfoCache() {
         Collection<String> keys = redisCache.keys(CONFIG_MENU_PERMISSION + "*");
         redisCache.deleteObject(keys);
+        redisCache.deleteObject(CONFIG_MENU_LIST);
         List<MenuInfo> menuInfos = menuInfoMapper.selectMenuInfoList(new MenuInfo());
         for (MenuInfo menuInfo : menuInfos) {
             redisCache.setCacheObject(CONFIG_MENU_PERMISSION + menuInfo.getPerms(), menuInfo);
@@ -97,14 +99,15 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         if (StringUtils.isNotNull(one)) {
             throw new RuntimeException("菜单名称重复");
         }
-//        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
-//        if (StringUtils.isNotNull(per)) {
-//            throw new RuntimeException("权限标识重复");
-//        }
+        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
+        if (StringUtils.isNotNull(per)) {
+            throw new RuntimeException("权限标识重复");
+        }
         menuInfo.setCreateBy(SecurityUtils.getUsername());
         menuInfo.setCreateTime(DateUtils.getNowDate());
         //存入缓存
         redisCache.setCacheObject(CONFIG_MENU_PERMISSION + menuInfo.getPerms(), menuInfo);
+        redisCache.deleteObject(CONFIG_MENU_LIST);
         return menuInfoMapper.insertMenuInfo(menuInfo);
     }
 
@@ -121,10 +124,10 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         if (StringUtils.isNotNull(one) && !one.getMenuId().equals(menuInfo.getMenuId())) {
             throw new RuntimeException("菜单名称重复");
         }
-//        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
-//        if (StringUtils.isNotNull(per) && !per.getMenuId().equals(menuInfo.getMenuId())) {
-//            throw new RuntimeException("权限标识重复");
-//        }
+        MenuInfo per = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, menuInfo.getPerms()));
+        if (StringUtils.isNotNull(per) && !per.getMenuId().equals(menuInfo.getMenuId())) {
+            throw new RuntimeException("权限标识重复");
+        }
         //判断父类是否是自己
         if (menuInfo.getMenuId().toString().equals(menuInfo.getParentId())) {
             throw new RuntimeException("父类不能是自己");
@@ -133,6 +136,7 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
         menuInfo.setUpdateTime(DateUtils.getNowDate());
         //存入缓存
         redisCache.setCacheObject(CONFIG_MENU_PERMISSION + menuInfo.getPerms(), menuInfo);
+        redisCache.deleteObject(CONFIG_MENU_LIST);
         return menuInfoMapper.updateMenuInfo(menuInfo);
     }
 
@@ -152,6 +156,7 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
                 throw new RuntimeException(menuInfo.getMenuName() + "存在子节点不允许删除");
             }
         }
+        redisCache.deleteObject(CONFIG_MENU_LIST);
         return menuInfoMapper.deleteMenuInfoByMenuIds(menuIds);
     }
 
@@ -248,6 +253,27 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<MenuInfo> getMenuInfo() {
+        if (redisCache.hasKey(CONFIG_MENU_LIST)) {
+            return redisCache.getCacheList(CONFIG_MENU_LIST);
+        }
+        //首先查询菜单列表是否存在，如果存在直接拿缓存
+        List<MenuInfo> menuInfoList = this.list(new LambdaQueryWrapper<>(MenuInfo.class)
+                .and(q -> q
+                        .eq(MenuInfo::getMenuType, CMenuTypeEnum.MENU_TYPE_M.getValue())
+                        .or()
+                        .eq(MenuInfo::getMenuType, CMenuTypeEnum.MENU_TYPE_C.getValue())
+                ).eq(MenuInfo::getVisible, CMenuVisibleEnum.MENU_VISIBLE_0.getValue())
+                .eq(MenuInfo::getStatus, CMenuStatusEnum.MENU_STATUS_0.getValue()));
+        redisCache.deleteObject(CONFIG_MENU_LIST);
+        //菜单必须要有
+        if (StringUtils.isNotEmpty(menuInfoList)) {
+            redisCache.setCacheListRightPushAll(CONFIG_MENU_LIST, menuInfoList);
+        }
+        return menuInfoList;
     }
 
 }

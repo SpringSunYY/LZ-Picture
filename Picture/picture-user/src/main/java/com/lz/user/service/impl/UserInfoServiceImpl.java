@@ -56,10 +56,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Resource
     private RedisCache redisCache;
 
-
-    @Resource
-    private IFileLogInfoService fileLogInfoService;
-
     //region mybatis代码
 
     /**
@@ -203,13 +199,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Override
     public List<MenuInfo> getMenu(Set<String> permissions) {
-        List<MenuInfo> menuInfoList = menuInfoService.list(new LambdaQueryWrapper<>(MenuInfo.class)
-                .and(q -> q
-                        .eq(MenuInfo::getMenuType, CMenuTypeEnum.MENU_TYPE_M.getValue())
-                        .or()
-                        .eq(MenuInfo::getMenuType, CMenuTypeEnum.MENU_TYPE_C.getValue())
-                ).eq(MenuInfo::getVisible, CMenuVisibleEnum.MENU_VISIBLE_0.getValue())
-                .eq(MenuInfo::getStatus, CMenuStatusEnum.MENU_STATUS_0.getValue()));
+        List<MenuInfo> menuInfoList = menuInfoService.getMenuInfo();
         //如果用户没有此权限则不显示此菜单
         if (StringUtils.isNotEmpty(permissions)) {
             return menuInfoList.stream().filter(menuInfo -> permissions.contains(menuInfo.getPerms())).collect(Collectors.toList());
@@ -294,6 +284,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         BeanUtils.copyProperties(userInfoDb,userInfoOld);
         userInfoDb.setAvatarUrl(userInfoUpdateAvatar.getAvatarUrl());
         userInfoMapper.updateById(userInfoDb);
+        //删除缓存
+        redisCache.deleteObject(USER_INFO + userInfoDb.getUserName());
         //更新文件日志 因为老的数据赋值给userInfoOld，新数据重新赋值头像给userInfoDb
         UserAsyncManager.me().execute(UserFileLogAsyncFactory.updateUserInfoAvatarFileLog(userInfoOld,userInfoDb));
         return userInfoDb;

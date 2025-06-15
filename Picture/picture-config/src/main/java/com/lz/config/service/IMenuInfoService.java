@@ -1,13 +1,12 @@
 package com.lz.config.service;
 
-import java.util.List;
-
-import com.lz.config.model.domain.MenuInfo;
-import com.lz.config.model.vo.menuInfo.MenuInfoVo;
-import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.config.model.domain.MenuInfo;
+import com.lz.config.model.dto.menuInfo.MenuInfoQuery;
+import com.lz.config.model.vo.menuInfo.MenuInfoVo;
+
+import java.util.List;
 
 /**
  * 菜单信息Service接口
@@ -100,4 +99,15 @@ public interface IMenuInfoService extends IService<MenuInfo> {
      * @return
      */
     boolean checkMenu(String permission);
+
+    /**
+     * 获取菜单信息
+     *
+     * @param
+     * @return List<MenuInfo>
+     * @author: YY
+     * @method: getMenuInfo
+     * @date: 2025/6/15 21:36
+     **/
+    List<MenuInfo> getMenuInfo();
 }

@@ -25,6 +25,11 @@ public class UserConfigRedisConstants {
     public static final String CONFIG_MENU_PERMISSION = "config:menu:permission:";
 
     /**
+     * 菜单列表
+     */
+    public static final String CONFIG_MENU_LIST = "config:menu:list";
+
+    /**
      * 模版缓存
      */
     public static final String CONFIG_TEMPLATE_INFO = "config:template:info:";
