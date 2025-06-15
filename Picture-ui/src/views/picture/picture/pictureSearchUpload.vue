@@ -1027,7 +1027,8 @@ $breakpoint-tablet: 1024px;
 
   &:hover {
     transform: scale(1.15);
-    background: darken($info-color, 10%);
+    // 修改为 color.adjust()
+    background: color.adjust($info-color, $lightness: -10%);
     box-shadow: 0 4px 15px rgba($info-color, 0.4);
   }
 }
@@ -1084,7 +1085,8 @@ $breakpoint-tablet: 1024px;
   }
 
   &:hover {
-    border-color: darken($border-color, 10%);
+    // 修改为 color.adjust()
+    border-color: color.adjust($border-color, $lightness: -10%);
   }
 }
 
@@ -1279,13 +1281,13 @@ $breakpoint-tablet: 1024px;
   position: fixed;
   right: 30px;
   bottom: 40px;
-  width: 80px; // 修改为自动宽度
-  height: 80px; // 修改为自动高度
-  border-radius: 50%; // 改为圆角矩形
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   background: linear-gradient(135deg, $primary-color, $secondary-color);
   color: white;
   display: flex; // 使用flex布局
-  flex-direction: row; // 关键修改：设置为水平排列
+  flex-direction: row;
   align-items: center; // 水平居中对齐
   justify-content: center; // 垂直居中对齐
   cursor: pointer;
@@ -1479,7 +1481,8 @@ $breakpoint-tablet: 1024px;
   }
 
   .image-card.selected &:hover {
-    background: darken($primary-color, 10%);
+    // 修改为 color.adjust()
+    background: color.adjust($primary-color, $lightness: -10%);
   }
 }
 
@@ -1690,7 +1693,7 @@ $breakpoint-tablet: 1024px;
 
 @keyframes scaleIn {
   from {
-    transform: scale(0.85);
+    transform: scale(0.95);
     opacity: 0;
   }
   to {
@@ -1698,109 +1701,341 @@ $breakpoint-tablet: 1024px;
     opacity: 1;
   }
 }
-</style>
 
-<style>
-/* 全局样式，不使用scoped，确保可以影响传送后的元素 */
-.global-tooltip {
-  position: fixed;
-  width: 500px;
-  max-width: 95vw;
-  background: white;
+// 上传区域样式
+.upload-section {
+  margin-top: 30px;
+  padding: 30px;
+  background: rgba($primary-color, 0.05);
+  border-radius: 20px;
+  position: relative;
+  z-index: $z-content;
+
+  @include mobile {
+    padding: 20px;
+  }
+}
+
+.upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  h3 {
+    color: $text-color;
+    font-size: 1.5rem;
+    font-weight: 600;
+
+    @include mobile {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.upload-container {
+  border: 2px dashed $border-color;
   border-radius: 16px;
-  padding: 20px;
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(103, 126, 234, 0.1);
-  z-index: 9000;
-  animation: tooltip-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(103, 126, 234, 0.2);
-}
-
-.tooltip-arrow {
-  position: absolute;
-  top: -10px;
-  width: 20px;
-  height: 10px;
-  overflow: hidden;
-}
-
-.tooltip-arrow::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  background: white;
-  transform: translateY(50%) rotate(45deg);
-  top: 0;
-  left: 3px;
-  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
-}
-
-.tooltip-content {
-  color: #2c3e50;
-}
-
-.tooltip-content h4 {
-  margin: 0 0 12px;
-  color: #667eea;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.tooltip-content h4:not(:first-child) {
-  margin-top: 20px;
-}
-
-.tooltip-content ul {
-  margin: 0;
-  padding: 0 0 0 20px;
-}
-
-.tooltip-content ul li {
-  margin-bottom: 10px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.tooltip-content ul li strong {
-  color: #3498db;
-  font-weight: 600;
-}
-
-.tooltip-content .tooltip-footer {
-  margin-top: 18px;
-  padding-top: 12px;
-  border-top: 1px solid #e1e8ed;
+  padding: 40px;
   text-align: center;
-  font-size: 16px;
-  color: #7f8c8d;
-  font-style: italic;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  z-index: $z-content;
+
+  &:hover {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.03);
+  }
+
+  &.dragging {
+    border-color: $success-color;
+    background: rgba($success-color, 0.05);
+  }
+
+  @include mobile {
+    padding: 30px 20px;
+  }
 }
 
-@keyframes tooltip-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.upload-icon {
+  font-size: 3rem;
+  color: $primary-color;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+
+  .upload-container:hover & {
+    transform: scale(1.1);
+    // 修改为 color.adjust()
+    color: color.adjust($primary-color, $lightness: -10%);
   }
 }
 
-@media (max-width: 768px) {
-  .global-tooltip {
-    width: 500px;
-    padding: 16px;
+.upload-text {
+  margin-bottom: 15px;
+
+  h4 {
+    color: $text-color;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 8px;
   }
 
-  .tooltip-content h4 {
-    font-size: 16px;
+  p {
+    color: $text-muted;
+    font-size: 0.9rem;
+  }
+}
+
+.upload-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+
+  @include mobile {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.upload-btn {
+  padding: 12px 25px;
+  @include button-base;
+  transition: all 0.3s ease;
+
+  &.btn-browse {
+    @include button-bg();
+    color: white;
   }
 
-  .tooltip-content ul li {
-    font-size: 13px;
+  &.btn-url {
+    background: white;
+    color: $primary-color;
+    border: 2px solid $primary-color;
+
+    &:hover {
+      background: rgba($primary-color, 0.05);
+      // 修改为 color.adjust()
+      border-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+}
+
+.upload-progress {
+  margin-top: 20px;
+  text-align: left;
+
+  .progress-bar {
+    height: 8px;
+    background: $border-color;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+
+    .progress-fill {
+      height: 100%;
+      background: $primary-color;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: $text-color;
+    margin-bottom: 8px;
+  }
+}
+
+.uploaded-files {
+  margin-top: 30px;
+}
+
+.uploaded-files-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: $text-color;
+  margin-bottom: 15px;
+}
+
+.uploaded-files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+
+  @include mobile {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+.uploaded-file-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  @include card-shadow('light');
+  transition: all 0.3s ease;
+
+  &:hover {
+    @include card-shadow('medium');
+    transform: translateY(-3px);
+  }
+}
+
+.uploaded-file-preview {
+  height: 120px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.uploaded-file-info {
+  padding: 12px;
+
+  .file-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-color;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .file-size {
+    font-size: 12px;
+    color: $text-muted;
+  }
+}
+
+.uploaded-file-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-top: 1px solid $border-color;
+
+  button {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      // 修改为 color.adjust()
+      color: color.adjust($danger-color, $lightness: -10%);
+    }
+  }
+}
+
+// URL 上传模态框
+.url-upload-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  @include flex-center;
+  z-index: $z-modal-backdrop;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.4s ease;
+}
+
+.url-upload-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  animation: scaleIn 0.4s ease;
+  z-index: $z-modal;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+
+  @include mobile {
+    max-width: 90%;
+    padding: 25px;
+  }
+}
+
+.url-upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+
+  h3 {
+    color: $text-color;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.url-upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.url-input {
+  padding: 15px;
+  border: 2px solid $border-color;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+}
+
+.url-upload-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+
+  @include mobile {
+    justify-content: center;
+  }
+}
+
+.url-upload-btn {
+  padding: 12px 25px;
+  @include button-base;
+
+  &.btn-cancel {
+    background: white;
+    color: $text-color;
+    border: 2px solid $border-color;
+
+    &:hover {
+      // 修改为 color.adjust()
+      border-color: color.adjust($border-color, $lightness: -10%);
+    }
+  }
+
+  &.btn-upload {
+    @include button-bg();
+    color: white;
+  }
+}
+
+// 响应式调整
+@include mobile {
+  .upload-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
   }
 }
 </style>

@@ -26,6 +26,11 @@ export default defineConfig({
         autoprefixer,
       ],
     },
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "sass:color";`,
+      },
+    },
   },
   server: {
     port: 80,
