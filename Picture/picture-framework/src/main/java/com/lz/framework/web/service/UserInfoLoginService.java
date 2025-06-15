@@ -304,7 +304,7 @@ public class UserInfoLoginService {
         }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
-        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_1.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(), "登录成功"));
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_0.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(), "登录成功"));
         // 生成token
         return userTokenService.createToken(loginUserInfo);
     }

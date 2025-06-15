@@ -51,7 +51,6 @@ public class AlipayManager {
     }
 
     public AlipayPcPaymentResponse pcPay(AlipayPcPaymentRequest alipayPcPaymentRequest) {
-
         try {
             // 初始化SDK
             AlipayClient alipayClient = new DefaultAlipayClient(getAlipayConfig());
@@ -64,10 +63,11 @@ public class AlipayManager {
             bizContent.put("out_trade_no", alipayPcPaymentRequest.getOutTradeNo());
             bizContent.put("total_amount", alipayPcPaymentRequest.getTotalAmount());
             bizContent.put("subject", alipayPcPaymentRequest.getSubject());
-            bizContent.put("buyer_id", alipayPcPaymentRequest.getBuyerId());
+//            bizContent.put("buyer_id", alipayPcPaymentRequest.getBuyerId());
             bizContent.put("timeout_express", alipayPcPaymentRequest.getTimeoutExpress());
             bizContent.put("product_code", alipayPcPaymentRequest.getProductCode());
             request.setBizContent(bizContent.toString());
+            System.out.println("bizContent = " + bizContent.toString());
 
             AlipayTradePagePayResponse response = alipayClient.pageExecute(request, "POST");
             // 如果需要返回GET请求，请使用
