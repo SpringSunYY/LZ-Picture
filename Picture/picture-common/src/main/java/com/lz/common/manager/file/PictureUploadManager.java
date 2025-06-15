@@ -538,7 +538,7 @@ public class PictureUploadManager {
             return buildPictureResponse(ossConfig.getEndpoint(), pictureFileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
-            System.err.println("上传失败：" + e.getMessage());
+//            System.err.println("上传失败：" + e.getMessage());
             throw new RuntimeException("文件上传异常,获取是图片链接有误,请使用可访问的地址");
         } finally {
             // 确保关闭OSSClient
@@ -614,18 +614,6 @@ public class PictureUploadManager {
         }
     }
 
-    protected String getOriginFilename(Object inputSource) {
-        String fileUrl = (String) inputSource;
-        URL url = null;
-        try {
-            url = new URL(fileUrl);
-        } catch (MalformedURLException e) {
-            throw new ServiceException("url 格式错误");
-        }
-        fileUrl = url.getFile().substring(url.getFile().lastIndexOf('/'));
-        return getValidFilename(fileUrl);
-    }
-
     private String getValidFilename(String originFilename) {
         // 去掉 URL 中的查询参数部分，保留文件名
         int queryIndex = originFilename.indexOf("?");
@@ -633,9 +621,7 @@ public class PictureUploadManager {
             // 如果存在查询参数，截取文件名部分
             originFilename = originFilename.substring(0, queryIndex);
         }
-        // 替换非法字符
-        originFilename = originFilename.replaceAll("[:\\\\/<>*?|\"]", "_");
-        return originFilename;
+        return FileUtils.getName(originFilename);
     }
 
     protected void processFile(Object inputSource, File file) throws Exception {

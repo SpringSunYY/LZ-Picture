@@ -56,7 +56,7 @@ public class UserPictureApiSearchServiceImpl implements IUserPictureApiSearchSer
         Elements imgElementList = div.select("a.iusc");
         for (Element imgElement : imgElementList) {
 //            String fileUrl = imgElement.attr("src");
-            System.out.println("imgElement = " + imgElement);
+//            System.out.println("imgElement = " + imgElement);
             //获取m属性
             String m_attr = imgElement.attr("m");
             HashMap<String, String> mMap = JSONUtil.toBean(m_attr, HashMap.class);

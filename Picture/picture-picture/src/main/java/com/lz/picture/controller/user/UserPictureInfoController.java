@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
-import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
@@ -73,12 +72,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult uploadUrl(@RequestBody @Validated PictureUrlUpload pictureUrlUpload) {
         System.err.println(pictureUrlUpload);
         // 执行业务上传
-        PictureFileResponse pictureFileResponse = null;
-        try {
-            pictureFileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getLoginUser());
-        } catch (Exception e) {
-            throw new ServiceException("图片上传失败，请误选择没有显示的图片");
-        }
+        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getLoginUser());
+
         //异步执行存入文件日志
         String userId = getUserId();
 //        System.err.println("picture = " + pictureFileResponse);

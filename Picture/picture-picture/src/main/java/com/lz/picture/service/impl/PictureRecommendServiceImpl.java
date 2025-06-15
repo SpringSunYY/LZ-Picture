@@ -201,7 +201,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         // 2. 获取用户兴趣模型
         UserInterestModel userModel = pictureRecommendInfoService.getUserInterrestModelByUserId(userId);
         if (StringUtils.isNull(userModel)
-                || (userModel.getTagScores().isEmpty() && userModel.getCategoryScores().isEmpty())) {
+                || (StringUtils.isEmpty(userModel.getTagScores()) && StringUtils.isEmpty(userModel.getCategoryScores()))) {
             //如果为空表示没有兴趣模型可以直接返回热门数据
             return getFallbackRecommendation(req);
         }
