@@ -31,10 +31,6 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
 
-    @Resource
-    private IPictureRecommendInfoService pictureRecommendInfoService;
-
-
     @Override
     public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         //判断今天是否分享过

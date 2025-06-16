@@ -6,14 +6,15 @@ import cn.hutool.json.JSONUtil;
 import com.lz.picture.model.dto.pictureApiSearch.PictureApiSearchRequest;
 import com.lz.picture.model.vo.pictureApiSearch.PictureApiSearchVo;
 import com.lz.picture.service.IUserPictureApiSearchService;
+import com.lz.picture.strategy.userPictureApiSearchStrategy.UserPictureApiSearchStrategyExecutor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,6 +33,9 @@ public class PictureSearchTest {
 
     @Resource
     private IUserPictureApiSearchService pictureApiSearchService;
+
+    @Resource
+    private UserPictureApiSearchStrategyExecutor userPictureApiSearchStrategyExecutor;
 
     @Test
     public void getPictureSearchByKeywordBing() {
@@ -77,5 +81,15 @@ public class PictureSearchTest {
         pictureApiSearchRequest.setKeyword("懒羊羊高清壁纸");
         PictureApiSearchVo bing = pictureApiSearchService.keyword(pictureApiSearchRequest);
         System.out.println("bing = " + bing);
+    }
+
+    @Test
+    public void strategyTest() {
+        PictureApiSearchRequest pictureApiSearchRequest = new PictureApiSearchRequest();
+        pictureApiSearchRequest.setApi("bing");
+        pictureApiSearchRequest.setKeyword("懒羊羊高清壁纸");
+        pictureApiSearchRequest.setCurrentPage(1);
+        PictureApiSearchVo pictureApiSearchVo = userPictureApiSearchStrategyExecutor.executeGetUserPictureApiSearch(pictureApiSearchRequest);
+        System.out.println("pictureApiSearchVo = " + pictureApiSearchVo);
     }
 }

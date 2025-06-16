@@ -44,9 +44,6 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
     @Resource
     private RedisCache redisCache;
 
-    @Resource
-    private IPictureRecommendInfoService pictureRecommendInfoService;
-
     /**
      * description: 判断是否存在
      * author: YY
