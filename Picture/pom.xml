@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,6 +45,7 @@
         <alipay.sdk.version>4.34.0.ALL</alipay.sdk.version>
         <redisson.version>3.27.2</redisson.version>
         <jsoup.version>1.15.3</jsoup.version>
+        <serpapi.version>2.6.0</serpapi.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -245,10 +246,10 @@
             </dependency>
             <!-- HTML 解析：https://jsoup.org/ -->
             <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-        </dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+            </dependency>
 
             <!--框架代码-->
             <!-- 定时任务-->

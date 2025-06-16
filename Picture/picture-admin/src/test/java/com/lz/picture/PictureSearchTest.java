@@ -86,8 +86,8 @@ public class PictureSearchTest {
     @Test
     public void strategyTest() {
         PictureApiSearchRequest pictureApiSearchRequest = new PictureApiSearchRequest();
-        pictureApiSearchRequest.setApi("bing");
-        pictureApiSearchRequest.setKeyword("懒羊羊高清壁纸");
+        pictureApiSearchRequest.setApi("serpApi");
+        pictureApiSearchRequest.setKeyword("懒羊羊4k高清壁纸");
         pictureApiSearchRequest.setCurrentPage(1);
         PictureApiSearchVo pictureApiSearchVo = userPictureApiSearchStrategyExecutor.executeGetUserPictureApiSearch(pictureApiSearchRequest);
         System.out.println("pictureApiSearchVo = " + pictureApiSearchVo);
