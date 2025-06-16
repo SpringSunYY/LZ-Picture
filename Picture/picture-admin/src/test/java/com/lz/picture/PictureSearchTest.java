@@ -102,4 +102,14 @@ public class PictureSearchTest {
         PictureApiSearchVo pictureApiSearchVo = userPictureApiSearchStrategyExecutor.executeGetUserPictureApiSearch(pictureApiSearchRequest);
         System.out.println("pictureApiSearchVo = " + pictureApiSearchVo);
     }
+
+    @Test
+    public void PexelsApiTest() {
+        PictureApiSearchRequest pictureApiSearchRequest = new PictureApiSearchRequest();
+        pictureApiSearchRequest.setApi("pexelsApi");
+        pictureApiSearchRequest.setKeyword("城市夜景");
+        pictureApiSearchRequest.setCurrentPage(1);
+        PictureApiSearchVo pictureApiSearchVo = userPictureApiSearchStrategyExecutor.executeGetUserPictureApiSearch(pictureApiSearchRequest);
+        System.out.println("pictureApiSearchVo = " + pictureApiSearchVo);
+    }
 }
