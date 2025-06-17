@@ -1,48 +1,65 @@
 package com.lz.picture.model.dto.userReportInfo;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.picture.model.domain.UserReportInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.UserReportInfo;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * 用户举报信息Vo对象 p_user_report_info
  *
  * @author YY
- * @date 2025-03-24
+ * @date 2025-06-17
  */
 @Data
-public class UserReportInfoInsert implements Serializable
-{
+public class UserReportInfoInsert implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /** 举报编号 */
+    /**
+     * 举报编号
+     */
     private String reportId;
 
-    /** 用户编号 */
+    /**
+     * 用户编号
+     */
     private String userId;
 
-    /** 目标类型（0图片 1用户 2空间） */
+    /**
+     * 举报类型
+     */
+    private String reportType;
+
+    /**
+     * 目标类型（0图片 1用户 2空间）
+     */
     private String targetType;
 
-    /** 目标对象编号 */
-    private Long targetId;
-
-    /** 封面快照（图片URL/用户头像URL/空间封面URL） */
-    private String targetCover;
-
-    /** 举报原因 */
+    /**
+     * 举报原因
+     */
     private String reason;
 
-    /** 审核状态（0待审核 1通过 2拒绝） */
+    /**
+     * 审核状态（0待审核 1通过 2拒绝）
+     */
     private Long reviewStatus;
 
-    /** 审核信息 */
+    /**
+     * 审核信息
+     */
     private String reviewMessage;
 
-    /** 审核人编号 */
-    private Long reviewUserId;
+    /**
+     * 审核时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date reviewTime;
 
     /**
      * 对象转封装类

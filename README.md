@@ -2737,19 +2737,27 @@ CREATE TABLE p_user_view_log_info (
 
 #### 用户举报表：p_user_report_info
 
-| 字段名         | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述        |
-| -------------- | -------- | ---- | -------------------------- | ---- | -------- | ----------- |
-| report_id      | varchar  | 128  | 主键                       | 否   |          | 举报编号    |
-| user_id        | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号    |
-| target_type    | char     | 1    |                            | 否   |          | 目标类型    |
-| target_id      | bigint   |      |                            | 否   |          | 目标对象    |
-| target_cover   | varchar  | 512  |                            | 是   |          | 封面        |
-| reason         | varchar  | 500  |                            | 否   |          | 举报原因    |
-| create_time    | datetime |      |                            | 否   | 当前时间 | 举报时间    |
-| review_status  | int      |      |                            | 否   | 0        | 审核状态    |
-| review_message | varchar  | 512  |                            | 是   |          | 审核信息    |
-| review_user_id | bigint   |      |                            | 是   |          | 审核人 编号 |
-| review_time    | datetime |      |                            | 是   |          | 审核时间    |
+| 字段名         | 类型     | 长度 | 键类型                     | Null | 默认值   | 描述         |
+| -------------- | -------- | ---- | -------------------------- | ---- | -------- | ------------ |
+| report_id      | varchar  | 128  | 主键                       | 否   |          | 举报编号     |
+| user_id        | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号     |
+| report_type    | cahr     | 1    |                            | 否   |          | 举报类型     |
+| target_type    | char     | 1    |                            | 否   |          | 目标类型     |
+| target_id      | bigint   |      |                            | 否   |          | 目标对象     |
+| target_content | varchar  | 256  |                            | 是   |          | 目标内容     |
+| target_cover   | varchar  | 512  |                            | 是   |          | 封面         |
+| reason         | varchar  | 500  |                            | 否   |          | 举报原因     |
+| create_time    | datetime |      |                            | 否   | 当前时间 | 举报时间     |
+| review_status  | int      |      |                            | 否   | 0        | 审核状态     |
+| review_message | varchar  | 512  |                            | 是   |          | 审核信息     |
+| review_user_id | bigint   |      |                            | 是   |          | 审核人 编号  |
+| review_time    | datetime |      |                            | 是   |          | 审核时间     |
+| device_id      | varchar  | 256  |                            | 是   |          | 设备唯一标识 |
+| browser        | varchar  | 50   |                            | 是   |          | 浏览器类型   |
+| os             | varchar  | 50   |                            | 是   |          | 操作系统     |
+| platform       | varchar  | 20   |                            | 是   |          | 平台         |
+| ip_addr        | varchar  | 50   |                            | 是   |          | IP地址       |
+| ip_address     | varchar  | 64   |                            | 是   |          | IP属地       |
 
 目标类型：0图片 1用户 2空间
 
@@ -2763,6 +2771,7 @@ CREATE TABLE p_user_report_info
 (
     report_id      VARCHAR(128) NOT NULL COMMENT '举报编号',
     user_id        VARCHAR(128) NOT NULL COMMENT '用户编号',
+    report_type    CHAR(1)      NOT NULL COMMENT '举报类型',
     target_type    CHAR(1)      NOT NULL COMMENT '目标类型（0图片 1用户 2空间）',
     target_id      BIGINT       NOT NULL COMMENT '目标对象编号',
     target_cover   VARCHAR(512) COMMENT '封面快照（图片URL/用户头像URL/空间封面URL）',
@@ -2772,6 +2781,12 @@ CREATE TABLE p_user_report_info
     review_message VARCHAR(512) COMMENT '审核信息',
     review_user_id BIGINT COMMENT '审核人编号',
     review_time    DATETIME COMMENT '审核时间',
+    device_id VARCHAR(256) DEFAULT NULL COMMENT '设备唯一标识',
+    browser VARCHAR(50) DEFAULT NULL COMMENT '浏览器类型',
+    os VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+    platform VARCHAR(20) DEFAULT NULL COMMENT '平台',
+    ip_addr VARCHAR(50) DEFAULT NULL COMMENT 'IP地址',
+    ip_address VARCHAR(64) DEFAULT NULL COMMENT 'IP属地',
     PRIMARY KEY (report_id),
     INDEX idx_report_user (user_id),
     INDEX idx_target (target_type, target_id),
