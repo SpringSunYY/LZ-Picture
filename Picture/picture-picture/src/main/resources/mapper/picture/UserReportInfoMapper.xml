@@ -13,6 +13,7 @@
         <result property="targetCover" column="target_cover"/>
         <result property="targetContent" column="target_content"/>
         <result property="reason" column="reason"/>
+        <result property="contact" column="contact"/>
         <result property="createTime" column="create_time"/>
         <result property="reviewStatus" column="review_status"/>
         <result property="reviewMessage" column="review_message"/>
@@ -35,6 +36,7 @@
                target_cover,
                target_content,
                reason,
+               contact,
                create_time,
                review_status,
                review_message,
@@ -58,8 +60,11 @@
             <if test="targetType != null  and targetType != ''">and target_type = #{targetType}</if>
             <if test="targetId != null ">and target_id = #{targetId}</if>
             <if test="targetCover != null  and targetCover != ''">and target_cover = #{targetCover}</if>
-            <if test="targetContent != null  and targetContent != ''">and target_content like concat('%', #{targetContent}, '%')</if>
+            <if test="targetContent != null  and targetContent != ''">and target_content like concat('%',
+                #{targetContent}, '%')
+            </if>
             <if test="reason != null  and reason != ''">and reason = #{reason}</if>
+            <if test="contact != null  and contact != ''">and contact = #{contact}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
@@ -76,6 +81,7 @@
             <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
             <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectUserReportInfoByReportId" parameterType="String" resultMap="UserReportInfoResult">
@@ -94,6 +100,7 @@
             <if test="targetCover != null">target_cover,</if>
             <if test="targetContent != null">target_content,</if>
             <if test="reason != null and reason != ''">reason,</if>
+            <if test="contact != null">contact,</if>
             <if test="createTime != null">create_time,</if>
             <if test="reviewStatus != null">review_status,</if>
             <if test="reviewMessage != null">review_message,</if>
@@ -115,6 +122,7 @@
             <if test="targetCover != null">#{targetCover},</if>
             <if test="targetContent != null">#{targetContent},</if>
             <if test="reason != null and reason != ''">#{reason},</if>
+            <if test="contact != null">#{contact},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="reviewStatus != null">#{reviewStatus},</if>
             <if test="reviewMessage != null">#{reviewMessage},</if>
@@ -139,6 +147,7 @@
             <if test="targetCover != null">target_cover = #{targetCover},</if>
             <if test="targetContent != null">target_content = #{targetContent},</if>
             <if test="reason != null and reason != ''">reason = #{reason},</if>
+            <if test="contact != null">contact = #{contact},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
             <if test="reviewMessage != null">review_message = #{reviewMessage},</if>

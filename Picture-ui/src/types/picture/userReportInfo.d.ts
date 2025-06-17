@@ -13,4 +13,7 @@ export interface UserReportInfoAdd {
 
   /** 举报原因 */
   reason: string
+
+  /**联系方式*/
+  contact: string
 }

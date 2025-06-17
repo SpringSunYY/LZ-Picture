@@ -2,6 +2,7 @@ package com.lz.picture.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.StringUtils;
@@ -65,6 +66,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     @Resource
     private IConfigInfoService configInfoService;
+
+    @Resource
+    private OssConfig ossConfig;
 
     //region 图片推荐核心实现
     private static final long lastCacheRefreshTime = 0;
@@ -357,7 +361,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     if (pic.getTags() == null) {
                         injectTags(Collections.singletonList(pic));
                     }
-                    pic.setThumbnailUrl(pictureInfoService.builderPictureUrl(pic.getThumbnailUrl(), pic.getDnsUrl()));
+                    pic.setThumbnailUrl(ossConfig.builderUrl(pic.getThumbnailUrl(), pic.getDnsUrl()));
                     return UserRecommendPictureInfoVo.objToVo(pic);
                 }).toList();
         //判断是否有缓存如果有先删除

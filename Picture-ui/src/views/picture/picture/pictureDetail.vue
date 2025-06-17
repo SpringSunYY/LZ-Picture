@@ -175,14 +175,57 @@
             </a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item label="举报原因" name="reason">
+        <a-form-item  name="reason">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              举报原因
+              <a-tooltip
+                title="请描述您详细的举报原因，对您造成的影响，例：图片侵权，请列举您的版权信息"
+              >
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+              </a-tooltip>
+            </span>
+          </template>
           <a-textarea
             :showCount="true"
             placeholder="请输入内容"
             :auto-size="{ minRows: 5 }"
-            :max-length="512"
-
             v-model:value="formReport.reason"
+          />
+        </a-form-item>
+        <a-form-item name="contact">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              联系方式
+              <a-tooltip
+                title="请输入您的联系方式，手机号码、微信、QQ等信息，例：微信：123456789，便于我们联系您处理举报信息。"
+              >
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+              </a-tooltip>
+            </span>
+          </template>
+          <a-textarea
+            placeholder="请输入联系方式"
+            :auto-size="{ minRows: 2 }"
+            :showCount="true"
+            :max-length="512"
+            v-model:value="formReport.contact"
           />
         </a-form-item>
         <div class="form-footer">
@@ -203,6 +246,7 @@ import { useRoute } from 'vue-router'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import { formatDnsUrl, formatSize } from '@/utils/common.ts'
 import {
+  InfoCircleOutlined,
   FireOutlined,
   LikeOutlined,
   QuestionCircleOutlined,
@@ -337,6 +381,7 @@ const formReport = ref<UserReportInfoAdd>({
   targetId: picture.value.pictureId,
   reportType: '0',
   reason: '',
+  contact: '',
 })
 const rulesReport = ref({
   reason: [
@@ -346,17 +391,30 @@ const rulesReport = ref({
       trigger: 'blur',
     },
     //长度最短为32
-     {
-       min: 16,
-       message: '请输入16个字符以上的内容',
-       trigger: 'blur',
-     }
+    {
+      min: 16,
+      message: '请输入16个字符以上的内容',
+      trigger: 'blur',
+    },
   ],
   reportType: [
     {
       required: true,
       message: '请选择举报类型',
       trigger: 'change',
+    },
+  ],
+  contact: [
+    {
+      required: true,
+      message: '请输入联系方式',
+      trigger: 'blur',
+    },
+    //长度最短为32
+    {
+      min: 16,
+      message: '请输入16个字符以上的内容',
+      trigger: 'blur',
     },
   ],
 })
@@ -396,6 +454,23 @@ getPictureInfo()
 
   .ant-btn {
     margin-left: 10px;
+  }
+}
+
+.custom-modal-title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+
+  .title-tip-icon {
+    margin-left: 8px;
+    color: rgba(57, 57, 57, 0.45);
+    cursor: help;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #1890ff;
+    }
   }
 }
 

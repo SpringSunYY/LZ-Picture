@@ -36,6 +36,11 @@ public class Constants
     public static final String HTTP = "http://";
 
     /**
+     * HTTP
+     */
+    public static final String HTTP_PREFIX = "http";
+
+    /**
      * https请求
      */
     public static final String HTTPS = "https://";

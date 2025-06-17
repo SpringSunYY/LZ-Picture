@@ -43,6 +43,13 @@ public class UserReportInfoAdd implements Serializable {
     @NotEmpty(message = "举报原因不能为空")
     private String reason;
 
+
+    /**
+     * 联系方式
+     */
+    @NotEmpty(message = "联系方式不能为空")
+    private String contact;
+
     /**
      * 对象转封装类
      *

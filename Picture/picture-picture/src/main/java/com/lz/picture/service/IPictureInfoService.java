@@ -126,14 +126,6 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      **/
     UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId);
 
-    /**
-     * 构建图片URL
-     *
-     * @param pictureUrl 图片URL
-     * @param dnsUrl     域名URL
-     * @return 图片URL
-     */
-    String builderPictureUrl(String pictureUrl, String dnsUrl);
 
     /**
      * 用户更新图片信息

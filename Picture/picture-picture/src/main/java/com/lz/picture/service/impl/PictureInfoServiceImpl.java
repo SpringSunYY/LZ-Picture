@@ -137,9 +137,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public PictureInfo selectPictureInfoByPictureId(String pictureId) {
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
-        String pictureUrl = builderPictureUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+        String pictureUrl = ossConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
         pictureInfo.setPictureUrl(pictureUrl);
-        String thumbnailUrl = builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+        String thumbnailUrl = ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
         pictureInfo.setThumbnailUrl(thumbnailUrl);
         return pictureInfo;
     }
@@ -154,9 +154,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public List<PictureInfo> selectPictureInfoList(PictureInfo pictureInfo) {
         List<PictureInfo> pictureInfos = pictureInfoMapper.selectPictureInfoList(pictureInfo);
         for (PictureInfo info : pictureInfos) {
-            String pictureUrl = builderPictureUrl(info.getPictureUrl(), info.getDnsUrl());
+            String pictureUrl = ossConfig.builderUrl(info.getPictureUrl(), info.getDnsUrl());
             info.setPictureUrl(pictureUrl);
-            String thumbnailUrl = builderPictureUrl(info.getThumbnailUrl(), info.getDnsUrl());
+            String thumbnailUrl = ossConfig.builderUrl(info.getThumbnailUrl(), info.getDnsUrl());
             info.setThumbnailUrl(thumbnailUrl);
         }
         return pictureInfos;
@@ -576,9 +576,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         BeanUtils.copyProperties(pictureInfo, userPictureDetailInfoVo);
         //构建图片url
-        String pictureUrl = builderPictureUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+        String pictureUrl = ossConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
         userPictureDetailInfoVo.setPictureUrl(pictureUrl);
-        String thumbnailUrl = builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+        String thumbnailUrl = ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
         userPictureDetailInfoVo.setThumbnailUrl(thumbnailUrl);
         //查询空间
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
@@ -684,15 +684,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             redisCache.deleteObject(key);
         }
         return userPictureDetailInfoVo;
-    }
-
-    @Override
-    public String builderPictureUrl(String pictureUrl, String dnsUrl) {
-        if (StringUtils.isNotEmpty(dnsUrl)) {
-            return dnsUrl + pictureUrl;
-        } else {
-            return ossConfig.getDnsUrl() + pictureUrl;
-        }
     }
 
     @Override
@@ -1047,7 +1038,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
         String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (PictureInfo pictureInfo : pictureInfos) {
-            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + p);
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + p);
         }
         //转换为vo
         List<PictureInfoSearchRecommendVo> pictureInfoSearchRecommendVos = PictureInfoSearchRecommendVo.objToVo(pictureInfos);
@@ -1094,7 +1085,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
         List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         list.forEach(pictureInfo -> {
-            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
         });
         List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(list);
         redisCache.setCacheObject(key, userPictureInfoVos, PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
@@ -1120,7 +1111,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         );
         //构造url
         pictureInfoList.getRecords().forEach(pictureInfo -> {
-            pictureInfo.setThumbnailUrl(builderPictureUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
         });
         List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
         //防止空指针异常

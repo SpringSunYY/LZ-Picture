@@ -3,6 +3,7 @@ package com.lz.picture.controller.user;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.manager.file.PictureUploadManager;
@@ -51,6 +52,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
 
     @Resource
     private PictureUploadManager pictureUploadManager;
+
+    @Resource
+    private OssConfig ossConfig;
 
 
     @PreAuthorize("@uss.hasPermi('picture:upload')")
@@ -203,9 +207,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
     private List<PictureInfo> getPictureInfos(Page<PictureInfo> page) {
         List<PictureInfo> pictureInfoList = page.getRecords();
         for (PictureInfo info : pictureInfoList) {
-            String pictureUrl = pictureInfoService.builderPictureUrl(info.getPictureUrl(), info.getDnsUrl());
+            String pictureUrl = ossConfig.builderUrl(info.getPictureUrl(), info.getDnsUrl());
             info.setPictureUrl(pictureUrl);
-            String thumbnailUrl = pictureInfoService.builderPictureUrl(info.getThumbnailUrl(), info.getDnsUrl());
+            String thumbnailUrl = ossConfig.builderUrl(info.getThumbnailUrl(), info.getDnsUrl());
             info.setThumbnailUrl(thumbnailUrl);
         }
         return pictureInfoList;

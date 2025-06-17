@@ -2746,7 +2746,8 @@ CREATE TABLE p_user_view_log_info (
 | target_id      | varchar  | 128  |                            | 否   |          | 目标对象     |
 | target_content | varchar  | 256  |                            | 是   |          | 目标内容     |
 | target_cover   | varchar  | 512  |                            | 是   |          | 封面         |
-| reason         | varchar  | 500  |                            | 否   |          | 举报原因     |
+| reason         | varchar  | text |                            | 否   |          | 举报原因     |
+| contact        | varchar  | 512  |                            | 否   |          | 联系方式     |
 | create_time    | datetime |      |                            | 否   | 当前时间 | 举报时间     |
 | review_status  | int      |      |                            | 否   | 0        | 审核状态     |
 | review_message | varchar  | 512  |                            | 是   |          | 审核信息     |
@@ -2776,7 +2777,8 @@ CREATE TABLE p_user_report_info
     target_id      VARCHAR(128)       NOT NULL COMMENT '目标对象编号',
     target_content VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
     target_cover   VARCHAR(512) COMMENT '封面快照（图片URL/用户头像URL/空间封面URL）',
-    reason         VARCHAR(500) NOT NULL COMMENT '举报原因',
+    reason         TEXT NOT NULL COMMENT '举报原因',
+    contact        VARCHAR(500) NOT NULL COMMENT '联系方式',
     create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '举报时间',
     review_status  INT          NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
     review_message VARCHAR(512) COMMENT '审核信息',

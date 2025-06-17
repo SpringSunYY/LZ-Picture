@@ -70,6 +70,12 @@ public class UserReportInfoVo implements Serializable {
     private String reason;
 
     /**
+     * 联系方式
+     */
+    @Excel(name = "联系方式")
+    private String contact;
+
+    /**
      * 举报时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

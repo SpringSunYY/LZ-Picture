@@ -1,33 +1,28 @@
 package com.lz.picture.controller.admin;
 
+import com.lz.common.annotation.Log;
+import com.lz.common.config.OssConfig;
+import com.lz.common.core.controller.BaseController;
+import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.poi.ExcelUtil;
+import com.lz.picture.model.domain.UserReportInfo;
+import com.lz.picture.model.dto.userReportInfo.UserReportInfoEdit;
+import com.lz.picture.model.dto.userReportInfo.UserReportInfoInsert;
+import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
+import com.lz.picture.model.vo.userReportInfo.UserReportInfoVo;
+import com.lz.picture.service.IUserReportInfoService;
+import com.lz.system.service.ISysConfigService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lz.common.config.OssConfig;
-import com.lz.config.service.IConfigInfoService;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.access.prepost.PreAuthorize;
-import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.lz.common.annotation.Log;
-import com.lz.common.core.controller.BaseController;
-import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.enums.BusinessType;
-import com.lz.picture.model.domain.UserReportInfo;
-import com.lz.picture.model.vo.userReportInfo.UserReportInfoVo;
-import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
-import com.lz.picture.model.dto.userReportInfo.UserReportInfoInsert;
-import com.lz.picture.model.dto.userReportInfo.UserReportInfoEdit;
-import com.lz.picture.service.IUserReportInfoService;
-import com.lz.common.utils.poi.ExcelUtil;
-import com.lz.common.core.page.TableDataInfo;
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 
 /**
  * 用户举报信息Controller
@@ -37,22 +32,30 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/admin/picture/userReportInfo")
-public class UserReportInfoController extends BaseController
-{
+public class UserReportInfoController extends BaseController {
     @Resource
     private IUserReportInfoService userReportInfoService;
+
+    @Resource
+    private ISysConfigService sysConfigService;
+
+    @Resource
+    private OssConfig ossConfig;
 
     /**
      * 查询用户举报信息列表
      */
     @PreAuthorize("@ss.hasPermi('picture:userReportInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(UserReportInfoQuery userReportInfoQuery)
-    {
+    public TableDataInfo list(UserReportInfoQuery userReportInfoQuery) {
         UserReportInfo userReportInfo = UserReportInfoQuery.queryToObj(userReportInfoQuery);
         startPage();
         List<UserReportInfo> list = userReportInfoService.selectUserReportInfoList(userReportInfo);
-        List<UserReportInfoVo> listVo= list.stream().map(UserReportInfoVo::objToVo).collect(Collectors.toList());
+        List<UserReportInfoVo> listVo = list.stream().map(UserReportInfoVo::objToVo).collect(Collectors.toList());
+        String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
+        for (UserReportInfoVo vo : listVo) {
+            vo.setTargetCover(ossConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
+        }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
@@ -64,8 +67,7 @@ public class UserReportInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userReportInfo:export')")
     @Log(title = "用户举报信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, UserReportInfoQuery userReportInfoQuery)
-    {
+    public void export(HttpServletResponse response, UserReportInfoQuery userReportInfoQuery) {
         UserReportInfo userReportInfo = UserReportInfoQuery.queryToObj(userReportInfoQuery);
         List<UserReportInfo> list = userReportInfoService.selectUserReportInfoList(userReportInfo);
         ExcelUtil<UserReportInfo> util = new ExcelUtil<UserReportInfo>(UserReportInfo.class);
@@ -77,8 +79,7 @@ public class UserReportInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:userReportInfo:query')")
     @GetMapping(value = "/{reportId}")
-    public AjaxResult getInfo(@PathVariable("reportId") String reportId)
-    {
+    public AjaxResult getInfo(@PathVariable("reportId") String reportId) {
         UserReportInfo userReportInfo = userReportInfoService.selectUserReportInfoByReportId(reportId);
         return success(UserReportInfoVo.objToVo(userReportInfo));
     }
@@ -89,8 +90,7 @@ public class UserReportInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userReportInfo:add')")
     @Log(title = "用户举报信息", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody UserReportInfoInsert userReportInfoInsert)
-    {
+    public AjaxResult add(@RequestBody UserReportInfoInsert userReportInfoInsert) {
         UserReportInfo userReportInfo = UserReportInfoInsert.insertToObj(userReportInfoInsert);
         return toAjax(userReportInfoService.insertUserReportInfo(userReportInfo));
     }
@@ -101,8 +101,7 @@ public class UserReportInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userReportInfo:edit')")
     @Log(title = "用户举报信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody UserReportInfoEdit userReportInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody UserReportInfoEdit userReportInfoEdit) {
         UserReportInfo userReportInfo = UserReportInfoEdit.editToObj(userReportInfoEdit);
         return toAjax(userReportInfoService.updateUserReportInfo(userReportInfo));
     }
@@ -113,8 +112,7 @@ public class UserReportInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:userReportInfo:remove')")
     @Log(title = "用户举报信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{reportIds}")
-    public AjaxResult remove(@PathVariable String[] reportIds)
-    {
+    public AjaxResult remove(@PathVariable String[] reportIds) {
         return toAjax(userReportInfoService.deleteUserReportInfoByReportIds(reportIds));
     }
 }

@@ -1,6 +1,8 @@
 package com.lz.common.config;
 
+import com.lz.common.constant.Constants;
 import com.lz.common.factory.YamlPropertySourceFactory;
+import com.lz.common.utils.StringUtils;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -33,4 +35,34 @@ public class OssConfig {
     private String region;
     @Value("${aliYun.dnsUrl}")
     private String dnsUrl;
+
+    /**
+     * 构建url
+     *
+     * @param url    地址
+     * @param dnsUrl 域名
+     * @return
+     */
+    public String builderUrl(String url, String dnsUrl) {
+        if (StringUtils.isNotEmpty(dnsUrl)) {
+            return dnsUrl + url;
+        } else {
+            return this.getDnsUrl() + url;
+        }
+    }
+
+    /**
+     * 构建url
+     *
+     * @param url 地址
+     * @return
+     */
+    public String builderUrl(String url) {
+        //判断是否以http://开头
+        if (url.startsWith(Constants.HTTP_PREFIX)) {
+            return url;
+        } else {
+            return this.getDnsUrl() + url;
+        }
+    }
 }
