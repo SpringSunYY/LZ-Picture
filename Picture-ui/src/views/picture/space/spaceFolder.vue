@@ -378,6 +378,16 @@ getFolderList()
 </script>
 
 <style scoped lang="scss">
+.form-footer {
+  text-align: right;
+  padding: 16px 0 0;
+  //margin-top: 24px;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-btn {
+    margin-left: 10px;
+  }
+}
 .space-folder {
   max-width: 1440px;
   margin: 0 auto;
@@ -442,17 +452,6 @@ getFolderList()
 
     .icon {
       color: #52c41a;
-    }
-  }
-
-  .form-footer {
-    text-align: right;
-    padding: 16px 0 0;
-    //margin-top: 24px;
-    border-top: 1px solid #f0f0f0;
-
-    .ant-btn {
-      margin-left: 10px;
     }
   }
 }

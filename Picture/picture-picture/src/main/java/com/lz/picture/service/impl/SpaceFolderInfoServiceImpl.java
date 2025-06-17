@@ -12,6 +12,7 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceFolderInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoQuery;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.ISpaceFolderInfoService;
@@ -173,9 +174,10 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo)
+                || spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
                 || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())
                 || !spaceInfo.getUserId().equals(spaceFolderInfo.getUserId())) {
-            throw new ServiceException("空间不存在，或者已被删除");
+            throw new ServiceException("空间为官方空间、不存在、或者已被删除，不可创建文件夹");
         }
         //查询空间+父级目录+文件夹名称是否已存在
         SpaceFolderInfo old = this.getOne(new LambdaQueryWrapper<SpaceFolderInfo>()
