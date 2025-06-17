@@ -2743,7 +2743,7 @@ CREATE TABLE p_user_view_log_info (
 | user_id        | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号     |
 | report_type    | cahr     | 1    |                            | 否   |          | 举报类型     |
 | target_type    | char     | 1    |                            | 否   |          | 目标类型     |
-| target_id      | bigint   |      |                            | 否   |          | 目标对象     |
+| target_id      | varchar  | 128  |                            | 否   |          | 目标对象     |
 | target_content | varchar  | 256  |                            | 是   |          | 目标内容     |
 | target_cover   | varchar  | 512  |                            | 是   |          | 封面         |
 | reason         | varchar  | 500  |                            | 否   |          | 举报原因     |
@@ -2773,7 +2773,8 @@ CREATE TABLE p_user_report_info
     user_id        VARCHAR(128) NOT NULL COMMENT '用户编号',
     report_type    CHAR(1)      NOT NULL COMMENT '举报类型',
     target_type    CHAR(1)      NOT NULL COMMENT '目标类型（0图片 1用户 2空间）',
-    target_id      BIGINT       NOT NULL COMMENT '目标对象编号',
+    target_id      VARCHAR(128)       NOT NULL COMMENT '目标对象编号',
+    target_content VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
     target_cover   VARCHAR(512) COMMENT '封面快照（图片URL/用户头像URL/空间封面URL）',
     reason         VARCHAR(500) NOT NULL COMMENT '举报原因',
     create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '举报时间',

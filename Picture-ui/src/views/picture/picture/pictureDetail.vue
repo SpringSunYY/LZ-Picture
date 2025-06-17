@@ -110,12 +110,22 @@
                 {{ picture?.shareCount || 0 }}
               </a-button>
             </a-tooltip>
-            <a-tooltip title="Comment">
-              <a-button class="icon-button" @click="showComment = !showComment">
-                <CommentOutlined />
+            <a-tooltip title="举报">
+              <a-button class="icon-button" @click="handleReport">
+                <SvgIcon name="report" />
               </a-button>
             </a-tooltip>
-            <a-tooltip title="Download">
+            <a-tooltip>
+              <template #title>
+                <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                  使用 {{ picture.pointsNeed }} 积分查看原图<br />
+                  注意事项：<br />
+                  1. 当前资源仅供展示，可以使用积分查看图片原图，请勿直接商用；<br />
+                  2. 使用前请自行核实版权归属；<br />
+                  3. 平台不承担任何版权纠纷责任。<br />
+                  4. 如若存在侵权行为，请及时联系平台，我们会及时处理。<br />
+                </div>
+              </template>
               <a-button
                 :loading="downloadPictureLoading"
                 class="icon-button download-bounce"
@@ -123,7 +133,7 @@
                 @click="downloadPicture"
               >
                 <template #icon>
-                  <SvgIcon name="download" />
+                  <SvgIcon name="viewPicture" />
                 </template>
                 <span style="font-size: 16px; padding-left: 8px; color: green">{{
                   picture.pointsNeed
@@ -133,17 +143,59 @@
             </a-tooltip>
           </a-space>
         </a-card>
-        <a-card title="评论" v-if="showComment" :bordered="false" class="card">
-          <Comment></Comment>
-        </a-card>
       </a-col>
     </a-row>
     <VerticalFallLayout :pictureId="pictureId"></VerticalFallLayout>
+
+    <!--添加空间-->
+    <a-modal v-model:open="openReport" :footer="null" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip :title="titleDesc">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formReport"
+        :rules="rulesReport"
+        @finish="handleSubmitReport"
+        ref="formRef"
+        labelAlign="left"
+        :label-col="{ span: 5 }"
+        :wrapper-col="{ span: 18 }"
+      >
+        <a-form-item label="举报类型" name="reportType">
+          <a-radio-group v-model:value="formReport.reportType" name="radioGroup">
+            <a-radio v-for="dict in p_report_type" :value="dict.dictValue" :key="dict.dictValue">
+              {{ dict.dictLabel }}
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="举报原因" name="reason">
+          <a-textarea
+            :showCount="true"
+            placeholder="请输入内容"
+            :auto-size="{ minRows: 5 }"
+            :max-length="512"
+
+            v-model:value="formReport.reason"
+          />
+        </a-form-item>
+        <div class="form-footer">
+          <a-button @click="openReport = false">取消</a-button>
+          <a-button type="primary" html-type="submit" :loading="submittingReport">提交</a-button>
+        </div>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { getCurrentInstance, ref } from 'vue'
 import FancyImage from '@/components/FancyImage.vue'
 import Tags from '@/components/Tags.vue'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
@@ -151,19 +203,25 @@ import { useRoute } from 'vue-router'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import { formatDnsUrl, formatSize } from '@/utils/common.ts'
 import {
-  CommentOutlined,
   FireOutlined,
   LikeOutlined,
+  QuestionCircleOutlined,
   ShareAltOutlined,
   StarOutlined,
 } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon.vue'
-import Comment from '@/components/Comment/Comment.vue'
 import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
+import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
+import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
+import { useConfig } from '@/utils/config.ts'
+
+const instance = getCurrentInstance()
+const proxy = instance?.proxy
+const { p_report_type } = proxy?.useDict('p_report_type')
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -187,8 +245,6 @@ const picture = ref<PictureDetailInfoVo>({
     avatarUrl: '',
   },
 })
-
-const showComment = ref(false)
 
 const getPictureInfo = () => {
   // console.log('pictureId', route.query)
@@ -259,7 +315,7 @@ const downloadPicture = async () => {
     message.success('图片下载中...', 5)
     message.info('请不要刷新页面', 5)
     downloadPictureLoading.value = true
-    const res = await downloadImage(
+    await downloadImage(
       picture.value.pictureId,
       picture.value?.name + '.' + picture.value?.picFormat,
     )
@@ -272,10 +328,77 @@ const downloadPicture = async () => {
 const clickLook = () => {
   message.success('点我干嘛呀😒😒😒😒😒', 1)
 }
+
+const openReport = ref(false)
+const title = ref('举报图片')
+const titleDesc = ref('请选择举报图片类型')
+const formReport = ref<UserReportInfoAdd>({
+  targetType: '0',
+  targetId: picture.value.pictureId,
+  reportType: '0',
+  reason: '',
+})
+const rulesReport = ref({
+  reason: [
+    {
+      required: true,
+      message: '请输入举报内容',
+      trigger: 'blur',
+    },
+    //长度最短为32
+     {
+       min: 16,
+       message: '请输入16个字符以上的内容',
+       trigger: 'blur',
+     }
+  ],
+  reportType: [
+    {
+      required: true,
+      message: '请选择举报类型',
+      trigger: 'change',
+    },
+  ],
+})
+const submittingReport = ref(false)
+const handleReport = async () => {
+  titleDesc.value = await useConfig('picture:report:content')
+  openReport.value = true
+  title.value = '举报图片'
+  formReport.value = {
+    targetType: '0',
+    targetId: picture.value.pictureId,
+    reportType: '0',
+    reason: '',
+  }
+}
+const handleSubmitReport = () => {
+  submittingReport.value = true
+  addUserReportInfo(formReport.value).then((res) => {
+    if (res.code === 200) {
+      message.success('举报成功')
+      openReport.value = false
+      submittingReport.value = false
+    } else {
+      message.error('举报失败')
+    }
+  })
+}
 getPictureInfo()
 </script>
 
 <style scoped lang="scss">
+.form-footer {
+  text-align: right;
+  padding: 16px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-btn {
+    margin-left: 10px;
+  }
+}
+
 .picture-detail {
   padding: 20px 32px;
   background-color: #f9f9f9;

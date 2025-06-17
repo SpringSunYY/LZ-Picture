@@ -46,7 +46,12 @@ public class UserReportInfoQuery implements Serializable {
     /**
      * 目标对象编号
      */
-    private Long targetId;
+    private String targetId;
+
+    /**
+     * 目标内容
+     */
+    private String targetContent;
 
     /**
      * 封面快照（图片URL/用户头像URL/空间封面URL）

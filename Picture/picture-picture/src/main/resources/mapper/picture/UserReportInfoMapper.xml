@@ -11,6 +11,7 @@
         <result property="targetType" column="target_type"/>
         <result property="targetId" column="target_id"/>
         <result property="targetCover" column="target_cover"/>
+        <result property="targetContent" column="target_content"/>
         <result property="reason" column="reason"/>
         <result property="createTime" column="create_time"/>
         <result property="reviewStatus" column="review_status"/>
@@ -32,6 +33,7 @@
                target_type,
                target_id,
                target_cover,
+               target_content,
                reason,
                create_time,
                review_status,
@@ -56,6 +58,7 @@
             <if test="targetType != null  and targetType != ''">and target_type = #{targetType}</if>
             <if test="targetId != null ">and target_id = #{targetId}</if>
             <if test="targetCover != null  and targetCover != ''">and target_cover = #{targetCover}</if>
+            <if test="targetContent != null  and targetContent != ''">and target_content like concat('%', #{targetContent}, '%')</if>
             <if test="reason != null  and reason != ''">and reason = #{reason}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
@@ -89,6 +92,7 @@
             <if test="targetType != null and targetType != ''">target_type,</if>
             <if test="targetId != null">target_id,</if>
             <if test="targetCover != null">target_cover,</if>
+            <if test="targetContent != null">target_content,</if>
             <if test="reason != null and reason != ''">reason,</if>
             <if test="createTime != null">create_time,</if>
             <if test="reviewStatus != null">review_status,</if>
@@ -109,6 +113,7 @@
             <if test="targetType != null and targetType != ''">#{targetType},</if>
             <if test="targetId != null">#{targetId},</if>
             <if test="targetCover != null">#{targetCover},</if>
+            <if test="targetContent != null">#{targetContent},</if>
             <if test="reason != null and reason != ''">#{reason},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="reviewStatus != null">#{reviewStatus},</if>
@@ -132,6 +137,7 @@
             <if test="targetType != null and targetType != ''">target_type = #{targetType},</if>
             <if test="targetId != null">target_id = #{targetId},</if>
             <if test="targetCover != null">target_cover = #{targetCover},</if>
+            <if test="targetContent != null">target_content = #{targetContent},</if>
             <if test="reason != null and reason != ''">reason = #{reason},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="reviewStatus != null">review_status = #{reviewStatus},</if>

@@ -79,4 +79,6 @@ public interface IUserReportInfoService extends IService<UserReportInfo>
      * @return UserReportInfoVO集合
      */
     List<UserReportInfoVo> convertVoList(List<UserReportInfo> userReportInfoList);
+
+    int userInsertUserReportInfo(UserReportInfo userReportInfo);
 }

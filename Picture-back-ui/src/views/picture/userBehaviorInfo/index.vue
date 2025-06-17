@@ -331,7 +331,8 @@
                 v-for="dict in common_has_statistics"
                 :key="dict.value"
                 :value="dict.value"
-            >{{dict.label}}</el-radio>
+            >{{ dict.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -359,7 +360,7 @@ const {
   p_user_behavior_type,
   p_user_behavior_target_type,
   common_has_statistics
-} = proxy.useDict('p_user_behavior_type', 'p_user_behavior_target_type','common_has_statistics');
+} = proxy.useDict('p_user_behavior_type', 'p_user_behavior_target_type', 'common_has_statistics');
 
 const userBehaviorInfoList = ref([]);
 const open = ref(false);

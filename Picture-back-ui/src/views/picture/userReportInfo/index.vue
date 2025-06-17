@@ -206,40 +206,42 @@
           <image-preview :src="scope.row.targetCover" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="举报原因" align="center" prop="reason" v-if="columns[6].visible"
+      <el-table-column label="目标内容" align="center" prop="targetContent" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="举报时间" align="center" prop="createTime" width="180" v-if="columns[7].visible"
+      <el-table-column label="举报原因" align="center" prop="reason" v-if="columns[7].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="举报时间" align="center" prop="createTime" width="180" v-if="columns[8].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核状态" align="center" prop="reviewStatus" v-if="columns[8].visible">
+      <el-table-column label="审核状态" align="center" prop="reviewStatus" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="p_report_review_status" :value="scope.row.reviewStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="审核信息" align="center" prop="reviewMessage" v-if="columns[9].visible"
+      <el-table-column label="审核信息" align="center" prop="reviewMessage" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="审核人编号" align="center" prop="reviewUserId" v-if="columns[10].visible"
+      <el-table-column label="审核人编号" align="center" prop="reviewUserId" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="审核时间" align="center" prop="reviewTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="审核时间" align="center" prop="reviewTime" width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[12].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[13].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[14].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[15].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[16].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[17].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -405,18 +407,19 @@ const data = reactive({
     {key: 3, label: '目标类型', visible: true},
     {key: 4, label: '目标对象', visible: true},
     {key: 5, label: '封面快照', visible: true},
-    {key: 6, label: '举报原因', visible: true},
-    {key: 7, label: '举报时间', visible: true},
-    {key: 8, label: '审核状态', visible: true},
-    {key: 9, label: '审核信息', visible: true},
-    {key: 10, label: '审核人编号', visible: true},
-    {key: 11, label: '审核时间', visible: true},
-    {key: 12, label: '设备唯一标识', visible: false},
-    {key: 13, label: '浏览器类型', visible: false},
-    {key: 14, label: '操作系统', visible: false},
-    {key: 15, label: '平台', visible: false},
-    {key: 16, label: 'IP地址', visible: false},
-    {key: 17, label: 'IP属地', visible: false},
+    {key: 6, label: '目标内容', visible: true},
+    {key: 7, label: '举报原因', visible: true},
+    {key: 8, label: '举报时间', visible: true},
+    {key: 9, label: '审核状态', visible: true},
+    {key: 10, label: '审核信息', visible: true},
+    {key: 11, label: '审核人编号', visible: true},
+    {key: 12, label: '审核时间', visible: true},
+    {key: 13, label: '设备唯一标识', visible: false},
+    {key: 14, label: '浏览器类型', visible: false},
+    {key: 15, label: '操作系统', visible: false},
+    {key: 16, label: '平台', visible: false},
+    {key: 17, label: 'IP地址', visible: false},
+    {key: 18, label: 'IP属地', visible: false},
   ],
 });
 

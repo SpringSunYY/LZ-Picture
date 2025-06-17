@@ -2,6 +2,9 @@ package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.config.OssConfig;
+import com.lz.config.service.IConfigInfoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;

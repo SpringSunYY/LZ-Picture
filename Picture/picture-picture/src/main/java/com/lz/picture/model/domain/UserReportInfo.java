@@ -55,12 +55,18 @@ public class UserReportInfo implements Serializable {
      * 目标对象编号
      */
     @Excel(name = "目标对象编号")
-    private Long targetId;
+    private String targetId;
+
+    /**
+     * 目标内容
+     */
+    @Excel(name = "目标内容")
+    private String targetContent;
 
     /**
      * 封面快照（图片URL/用户头像URL/空间封面URL）
      */
-    @Excel(name = "封面快照", readConverterExp = "图=片URL/用户头像URL/空间封面URL")
+    @Excel(name = "封面快照")
     private String targetCover;
 
     /**
@@ -80,7 +86,7 @@ public class UserReportInfo implements Serializable {
      * 审核状态（0待审核 1通过 2拒绝）
      */
     @Excel(name = "审核状态", readConverterExp = "0=待审核,1=通过,2=拒绝")
-    private Long reviewStatus;
+    private String reviewStatus;
 
     /**
      * 审核信息

@@ -2,13 +2,30 @@ package com.lz.picture.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.constant.HttpStatus;
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.ip.IpUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.mapper.UserReportInfoMapper;
+import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.UserReportInfo;
 import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
+import com.lz.picture.model.enums.PPictureStatusEnum;
+import com.lz.picture.model.enums.PReportReviewStatusEnum;
+import com.lz.picture.model.enums.PReportTargetTypeEnum;
+import com.lz.picture.model.enums.PSpaceStatusEnum;
 import com.lz.picture.model.vo.userReportInfo.UserReportInfoVo;
+import com.lz.picture.service.IPictureInfoService;
+import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.IUserReportInfoService;
+import com.lz.user.model.domain.UserInfo;
+import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +42,15 @@ import java.util.stream.Collectors;
 public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper, UserReportInfo> implements IUserReportInfoService {
     @Resource
     private UserReportInfoMapper userReportInfoMapper;
+
+    @Resource
+    private IPictureInfoService pictureInfoService;
+
+    @Resource
+    private ISpaceInfoService spaceInfoService;
+
+    @Resource
+    private IUserInfoService userInfoService;
 
     //region mybatis代码
 
@@ -116,8 +142,8 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
         String targetType = userReportInfoQuery.getTargetType();
         queryWrapper.eq(StringUtils.isNotEmpty(targetType), "target_type", targetType);
 
-        Long targetId = userReportInfoQuery.getTargetId();
-        queryWrapper.eq(StringUtils.isNotNull(targetId), "target_id", targetId);
+        String targetId = userReportInfoQuery.getTargetId();
+        queryWrapper.eq(StringUtils.isNotEmpty(targetId), "target_id", targetId);
 
         String targetCover = userReportInfoQuery.getTargetCover();
         queryWrapper.eq(StringUtils.isNotEmpty(targetCover), "target_cover", targetCover);
@@ -167,6 +193,59 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
             return Collections.emptyList();
         }
         return userReportInfoList.stream().map(UserReportInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public int userInsertUserReportInfo(UserReportInfo userReportInfo) {
+        //校验是否包含此类型
+        ThrowUtils.throwIf(PReportTargetTypeEnum.getEnumByValue(userReportInfo.getTargetType()).isEmpty(), HttpStatus.BAD_REQUEST, "请选择正确的举报类型");
+        ThrowUtils.throwIf(PReportTargetTypeEnum.getEnumByValue(userReportInfo.getReportType()).isEmpty(), HttpStatus.BAD_REQUEST, "请选择正确的举报类型");
+        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+        BeanUtils.copyProperties(deviceInfo, userReportInfo);
+        String targetId = "";
+        String targetCover = "";
+        String targetContent = "";
+        //根据目标类型查询到对应的举目标
+        switch (PReportTargetTypeEnum.getEnumByValue(userReportInfo.getTargetType()).get()) {
+            case P_REPORT_TARGET_TYPE_0:
+                PictureInfo pictureInfo = pictureInfoService.getById(userReportInfo.getTargetId());
+                ThrowUtils.throwIf(StringUtils.isNull(pictureInfo)
+                                || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue())
+                                || pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_1.getValue()),
+                        "图片不存在");
+                targetId = pictureInfo.getPictureId();
+                targetCover = pictureInfo.getThumbnailUrl();
+                targetContent = pictureInfo.getName();
+                break;
+            case P_REPORT_TARGET_TYPE_1:
+                SpaceInfo spaceInfo = spaceInfoService.getById(userReportInfo.getTargetId());
+                ThrowUtils.throwIf(StringUtils.isNull(spaceInfo)
+                                || spaceInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue())
+                                || spaceInfo.getSpaceStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue()),
+                        "空间不存在");
+                targetId = spaceInfo.getSpaceId();
+                targetCover = spaceInfo.getSpaceAvatar();
+                targetContent = spaceInfo.getSpaceName();
+                break;
+            case P_REPORT_TARGET_TYPE_2:
+                UserInfo userInfo = userInfoService.getById(userReportInfo.getTargetId());
+                ThrowUtils.throwIf(StringUtils.isNull(userInfo)
+                                || userInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue()),
+                        "用户不存在");
+                targetId = userInfo.getUserId();
+                targetCover = userInfo.getAvatarUrl();
+                targetContent = userInfo.getUserName();
+                break;
+            default:
+                break;
+        }
+        userReportInfo.setReportId(IdUtils.snowflakeId().toString());
+        userReportInfo.setTargetId(targetId);
+        userReportInfo.setTargetCover(targetCover);
+        userReportInfo.setTargetContent(targetContent);
+        userReportInfo.setCreateTime(new Date());
+        userReportInfo.setReviewStatus(PReportReviewStatusEnum.P_REPORT_REVIEW_STATUS_0.getValue());
+        return userReportInfoMapper.insertUserReportInfo(userReportInfo);
     }
 
 }
