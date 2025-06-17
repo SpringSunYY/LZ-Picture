@@ -72,7 +72,7 @@ public class UserReportInfoQuery implements Serializable {
     /**
      * 审核状态（0待审核 1通过 2拒绝）
      */
-    private Long reviewStatus;
+    private String reviewStatus;
 
     /**
      * 审核信息

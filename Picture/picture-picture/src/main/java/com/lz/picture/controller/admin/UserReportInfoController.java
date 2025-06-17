@@ -8,6 +8,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.UserReportInfo;
+import com.lz.picture.model.dto.userReportInfo.UserReportInfoAudit;
 import com.lz.picture.model.dto.userReportInfo.UserReportInfoEdit;
 import com.lz.picture.model.dto.userReportInfo.UserReportInfoInsert;
 import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
@@ -114,5 +115,17 @@ public class UserReportInfoController extends BaseController {
     @DeleteMapping("/{reportIds}")
     public AjaxResult remove(@PathVariable String[] reportIds) {
         return toAjax(userReportInfoService.deleteUserReportInfoByReportIds(reportIds));
+    }
+
+    /**
+     * 审核用户举报信息
+     */
+    @PreAuthorize("@ss.hasPermi('picture:userReportInfo:audit')")
+    @Log(title = "用户举报信息", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit")
+    public AjaxResult audit(@RequestBody UserReportInfoAudit userReportInfoAudit) {
+        UserReportInfo userReportInfo = UserReportInfoAudit.editToObj(userReportInfoAudit);
+        userReportInfo.setReviewUserId(getUserId());
+        return toAjax(userReportInfoService.auditUserReportInfo(userReportInfo));
     }
 }

@@ -86,7 +86,7 @@ public class MyPictureInfoVo implements Serializable {
     /**
      * 审核状态（0待审核 1通过 2拒绝）
      */
-    private Long reviewStatus;
+    private String reviewStatus;
 
     /**
      * 缩略图URL

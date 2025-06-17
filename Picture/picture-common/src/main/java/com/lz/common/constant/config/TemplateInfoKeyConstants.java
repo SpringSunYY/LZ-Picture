@@ -46,4 +46,14 @@ public class TemplateInfoKeyConstants {
      * 用户下载图片作者分成
      */
     public static final String DOWNLOAD_PICTURE_AUTHOR_PROPORTION = "download_picture_author_proportion";
+
+    /**
+     * 用户图片举报成功
+     */
+    public static final String PICTURE_REPORT_SUCCESS = "picture_report_success";
+
+    /**
+     * 用户图片被举报举报通知
+     */
+    public static final String PICTURE_REPORT_REMIND = "picture_report_remind";
 }

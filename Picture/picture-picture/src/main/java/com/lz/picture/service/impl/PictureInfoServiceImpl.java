@@ -261,7 +261,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String pictureStatus = pictureInfo.getPictureStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(pictureStatus), "picture_status", pictureStatus);
 
-        Long reviewStatus = pictureInfo.getReviewStatus();
+        String reviewStatus = pictureInfo.getReviewStatus();
         queryWrapper.eq(StringUtils.isNotNull(reviewStatus), "review_status", reviewStatus);
 
         Long reviewUserId = pictureInfo.getReviewUserId();
@@ -322,7 +322,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
-        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue()));
+        pictureInfo.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue());
         pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
         int i = pictureInfoMapper.insertPictureInfo(pictureInfo);
 
@@ -736,7 +736,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
-        pictureInfo.setReviewStatus(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue()));
+        pictureInfo.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue());
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);

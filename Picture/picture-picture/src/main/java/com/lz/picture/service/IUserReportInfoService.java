@@ -1,21 +1,22 @@
 package com.lz.picture.service;
 
-import java.util.List;
-import com.lz.picture.model.domain.UserReportInfo;
-import com.lz.picture.model.vo.userReportInfo.UserReportInfoVo;
-import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.picture.model.domain.UserReportInfo;
+import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
+import com.lz.picture.model.vo.userReportInfo.UserReportInfoVo;
+
+import java.util.List;
+
 /**
  * 用户举报信息Service接口
  *
  * @author YY
  * @date 2025-03-24
  */
-public interface IUserReportInfoService extends IService<UserReportInfo>
-{
+public interface IUserReportInfoService extends IService<UserReportInfo> {
     //region mybatis代码
+
     /**
      * 查询用户举报信息
      *
@@ -64,6 +65,7 @@ public interface IUserReportInfoService extends IService<UserReportInfo>
      */
     public int deleteUserReportInfoByReportId(String reportId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -81,4 +83,15 @@ public interface IUserReportInfoService extends IService<UserReportInfo>
     List<UserReportInfoVo> convertVoList(List<UserReportInfo> userReportInfoList);
 
     int userInsertUserReportInfo(UserReportInfo userReportInfo);
+
+    /**
+     * 审核用户举报信息
+     *
+     * @param userReportInfo 用户举报信息
+     * @return int
+     * @author: YY
+     * @method: auditUserReportInfo
+     * @date: 2025/6/17 21:18
+     **/
+    int auditUserReportInfo(UserReportInfo userReportInfo);
 }

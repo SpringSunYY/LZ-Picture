@@ -245,10 +245,13 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['picture:userReportInfo:edit']">修改
+          </el-button>
+          <el-button link type="primary" icon="Edit" @click="handleAudit(scope.row)"
+                     v-hasPermi="['picture:userReportInfo:edit']">审核
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['picture:userReportInfo:remove']">删除
@@ -294,19 +297,19 @@
         <el-form-item label="举报原因" prop="reason">
           <el-input v-model="form.reason" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="审核状态" prop="reviewStatus">
-          <el-radio-group v-model="form.reviewStatus">
-            <el-radio
-                v-for="dict in p_report_review_status"
-                :key="dict.value"
-                :value="parseInt(dict.value)"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="审核信息" prop="reviewMessage">
-          <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
+        <!--        <el-form-item label="审核状态" prop="reviewStatus">-->
+        <!--          <el-radio-group v-model="form.reviewStatus">-->
+        <!--            <el-radio-->
+        <!--                v-for="dict in p_report_review_status"-->
+        <!--                :key="dict.value"-->
+        <!--                :value="dict.value"-->
+        <!--            >{{ dict.label }}-->
+        <!--            </el-radio>-->
+        <!--          </el-radio-group>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="审核信息" prop="reviewMessage">-->
+        <!--          <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="审核时间" prop="reviewTime">
           <el-date-picker clearable
                           v-model="form.reviewTime"
@@ -323,6 +326,63 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 添加或修改用户举报信息对话框 -->
+    <el-dialog :title="title" v-model="openAudit" width="500px" append-to-body>
+      <el-form ref="userReportInfoRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="举报类型" prop="reportType">
+          <el-select v-model="form.reportType" placeholder="请选择举报类型">
+            <el-option
+                v-for="dict in p_report_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="目标类型" prop="targetType">
+          <el-select v-model="form.targetType" placeholder="请选择目标类型">
+            <el-option
+                :disabled="true"
+                v-for="dict in p_report_target_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="举报原因" prop="reason">
+          <el-input readonly v-model="form.reason" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+        <el-form-item label="审核状态" prop="reviewStatus">
+          <el-radio-group v-model="form.reviewStatus">
+            <el-radio
+                v-for="dict in p_report_review_status"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="审核信息" prop="reviewMessage">
+          <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+        <!--        <el-form-item label="审核时间" prop="reviewTime">-->
+        <!--          <el-date-picker clearable-->
+        <!--                          v-model="form.reviewTime"-->
+        <!--                          type="date"-->
+        <!--                          value-format="YYYY-MM-DD"-->
+        <!--                          placeholder="请选择审核时间">-->
+        <!--          </el-date-picker>-->
+        <!--        </el-form-item>-->
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="submitAudit">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -332,7 +392,7 @@ import {
   getUserReportInfo,
   delUserReportInfo,
   addUserReportInfo,
-  updateUserReportInfo
+  updateUserReportInfo, auditUserReportInfo
 } from "@/api/picture/userReportInfo";
 
 const {proxy} = getCurrentInstance();
@@ -400,6 +460,9 @@ const data = reactive({
     reviewStatus: [
       {required: true, message: "审核状态不能为空", trigger: "change"}
     ],
+    reviewMessage: [
+      {required: true, message: "审核信息不能为空", trigger: "blur"}
+    ],
   },
   //表格展示列
   columns: [
@@ -428,6 +491,33 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+const openAudit = ref(false);
+
+function handleAudit(row) {
+  getUserReportInfo(row.reportId).then(res => {
+    form.value = res.data
+    openAudit.value = true
+    title.value = "审核用户举报信息"
+  })
+}
+
+function submitAudit() {
+  proxy.$refs["userReportInfoRef"].validate(valid => {
+    if (valid) {
+      auditUserReportInfo({
+        reportId: form.value.reportId,
+        reason: form.value.reason,
+        reviewStatus: form.value.reviewStatus,
+        reviewMessage: form.value.reviewMessage,
+      }).then(res => {
+        proxy.$modal.msgSuccess("审核成功");
+        openAudit.value = false
+        getList()
+      })
+    }
+  })
+}
+
 /** 查询用户举报信息列表 */
 function getList() {
   loading.value = true;
@@ -450,6 +540,7 @@ function getList() {
 // 取消按钮
 function cancel() {
   open.value = false;
+  openAudit.value = false
   reset();
 }
 

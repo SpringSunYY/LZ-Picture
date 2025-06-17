@@ -11,26 +11,30 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.picture.mapper.UserReportInfoMapper;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.UserReportInfo;
 import com.lz.picture.model.dto.userReportInfo.UserReportInfoQuery;
-import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.enums.PReportReviewStatusEnum;
-import com.lz.picture.model.enums.PReportTargetTypeEnum;
-import com.lz.picture.model.enums.PSpaceStatusEnum;
+import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.userReportInfo.UserReportInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.IUserReportInfoService;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_REPORT_REMIND;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_REPORT_SUCCESS;
 
 /**
  * 用户举报信息Service业务层处理
@@ -154,7 +158,7 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
         Date createTime = userReportInfoQuery.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-        Long reviewStatus = userReportInfoQuery.getReviewStatus();
+        String reviewStatus = userReportInfoQuery.getReviewStatus();
         queryWrapper.eq(StringUtils.isNotNull(reviewStatus), "review_status", reviewStatus);
 
         String reviewMessage = userReportInfoQuery.getReviewMessage();
@@ -217,7 +221,7 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
                 //是否有域名，如果没有域名则是官方域名，无需添加域名头
                 if (StringUtils.isEmpty(pictureInfo.getDnsUrl())) {
                     targetCover = pictureInfo.getThumbnailUrl();
-                }else {
+                } else {
                     targetCover = pictureInfo.getDnsUrl() + pictureInfo.getThumbnailUrl();
                 }
                 targetContent = pictureInfo.getName();
@@ -251,6 +255,101 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
         userReportInfo.setCreateTime(new Date());
         userReportInfo.setReviewStatus(PReportReviewStatusEnum.P_REPORT_REVIEW_STATUS_0.getValue());
         return userReportInfoMapper.insertUserReportInfo(userReportInfo);
+    }
+
+    @Override
+    public int auditUserReportInfo(UserReportInfo userReportInfo) {
+        //先查询举报信息
+        UserReportInfo userReportInfoDb = userReportInfoMapper.selectUserReportInfoByReportId(userReportInfo.getReportId());
+        //如果审核已经同意
+        ThrowUtils.throwIf(userReportInfoDb.getReviewStatus().equals(PReportReviewStatusEnum.P_REPORT_REVIEW_STATUS_1.getValue()),
+                "审核已经通过，无需再次审核");
+        //当前只实现图片的审核
+        ThrowUtils.throwIf(!userReportInfoDb.getReportType().equals(PReportTypeEnum.P_REPORT_TYPE_0.getValue()),
+                "当前只可以审核图片");
+        //如果是同意
+        if (userReportInfo.getReviewStatus().equals(PReportReviewStatusEnum.P_REPORT_REVIEW_STATUS_1.getValue())) {
+            //查询到图片信息
+            PictureInfo pictureInfo = pictureInfoService.getById(userReportInfoDb.getTargetId());
+            //更新图片为私有、拒绝
+            pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
+            pictureInfo.setReviewStatus(PReportReviewStatusEnum.P_REPORT_REVIEW_STATUS_2.getValue());
+            pictureInfoService.updatePictureInfo(pictureInfo);
+
+            //为用户发送信息 举报者 作者
+            /*
+             * 1.发送给举报者
+             * {
+                      "userName":"YY",
+                      "targetContent":"懒羊羊4k壁纸",
+                      "targetType":"图片",
+                      "reportType":"侵权",
+                      "reviewMessage":"确实侵权，已处理"
+                }
+             */
+            //举报者
+            UserInfo userInfo = userInfoService.selectUserInfoByUserId(userReportInfoDb.getUserId());
+            Map<String, String> params = new HashMap<>();
+            params.put("userName", userInfo.getUserName());
+            params.put("targetContent", userReportInfoDb.getTargetContent());
+            Optional<PReportTargetTypeEnum> targetTypeEnumOptional = PReportTargetTypeEnum.getEnumByValue(userReportInfoDb.getTargetType());
+            if (targetTypeEnumOptional.isPresent()) {
+                params.put("targetType", targetTypeEnumOptional.get().getLabel());
+            } else {
+                params.put("targetType", "未知类型"); // 默认值
+            }
+            Optional<PReportTypeEnum> reportTypeEnumOptional = PReportTypeEnum.getEnumByValue(userReportInfo.getReportType());
+            if (reportTypeEnumOptional.isPresent()) {
+                params.put("reportType", reportTypeEnumOptional.get().getLabel());
+            } else {
+                params.put("reportType", "未知类型");
+            }
+            params.put("reviewMessage", userReportInfo.getReviewMessage());
+            UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                    userReportInfoDb.getUserId(),
+                    PICTURE_REPORT_SUCCESS,
+                    null,
+                    CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                    UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                    params));
+
+            /*
+             * 2.发送给作者
+             * {
+                      "userName":"YY",
+                      "targetContent":"懒羊羊4k壁纸",
+                      "targetType":"图片",
+                      "reportType":"侵权",
+                      "reviewMessage":"确实侵权，已处理"
+                }
+             */
+            UserInfo authorUser = userInfoService.selectUserInfoByUserId(pictureInfo.getUserId());
+            Map<String, String> authorParams = new HashMap<>();
+            authorParams.put("userName", authorUser.getUserName());
+            authorParams.put("targetContent", userReportInfoDb.getTargetContent());
+            Optional<PReportTargetTypeEnum> authorTargetTypeEnumOptional = PReportTargetTypeEnum.getEnumByValue(userReportInfoDb.getTargetType());
+            if (authorTargetTypeEnumOptional.isPresent()) {
+                authorParams.put("targetType", authorTargetTypeEnumOptional.get().getLabel());
+            }else {
+                authorParams.put("targetType", "未知类型");
+            }
+            Optional<PReportTypeEnum> authorReportTypeEnumOptional = PReportTypeEnum.getEnumByValue(userReportInfo.getReportType());
+            if (authorReportTypeEnumOptional.isPresent()) {
+                authorParams.put("reportType", authorReportTypeEnumOptional.get().getLabel());
+            }else {
+                authorParams.put("reportType", "未知类型");
+            }
+            authorParams.put("reviewMessage", userReportInfo.getReviewMessage());
+            UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                    pictureInfo.getUserId(),
+                    PICTURE_REPORT_REMIND,
+                    null,
+                    CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                    UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                    authorParams));
+        }
+        userReportInfo.setReviewTime(new Date());
+        return userReportInfoMapper.updateUserReportInfo(userReportInfo);
     }
 
 }
