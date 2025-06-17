@@ -2212,10 +2212,6 @@ CREATE TABLE p_picture_tag_info (
 | edit_time      | datetime |      |                                   | 是   | 当前时间       | 编辑时间            |
 | update_time    | datetime |      |                                   | 是   | 当前时间       | 更新时间            |
 | picture_status | char     | 1    |                                   | 否   | 0              | 图片状态            |
-| review_status  | int      |      |                                   | 否   | 0              | 审核状态            |
-| review_message | varchar  | 512  |                                   | 是   |                | 审核信息            |
-| review_user_id | bigint   |      |                                   | 是   |                | 审核人编号          |
-| review_time    | datetime |      |                                   | 是   |                | 审核时间            |
 | thumbnail_url  | varchar  | 512  |                                   | 是   |                | 缩略图 url          |
 | look_count     | bigint   |      | 索引                              | 否   | 0              | 查看次数            |
 | collect_count  | bigint   |      | 索引                              | 否   | 0              | 收藏次数            |
@@ -2257,10 +2253,6 @@ CREATE TABLE p_picture_info
     edit_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '编辑时间',
     update_time    DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     picture_status CHAR(1)      NOT NULL COMMENT '图片状态（0公共 1私有）',
-    review_status  INT          NOT NULL DEFAULT 0 COMMENT '审核状态（0待审核 1通过 2拒绝）',
-    review_message VARCHAR(512) COMMENT '审核信息',
-    review_user_id BIGINT COMMENT '审核人编号',
-    review_time    DATETIME COMMENT '审核时间',
     thumbnail_url  VARCHAR(512) COMMENT '缩略图URL',
     look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
     collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
@@ -2866,6 +2858,8 @@ CREATE TABLE p_picture_recommend_info
 | review_time    | detetime |      |                                  | 是   |                | 审核时间   |
 
 申请类型：0原创作品 1转载资源 2无版权资源
+
+审核状态：0待审核; 1通过; 2拒绝
 
 所需积分：如果是1、2，可以使用所需积分
 

@@ -160,32 +160,6 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
-            <!-- 所需积分 -->
-            <a-form-item label="所需积分" :label-col="{ span: 8 }" name="pointsNeed">
-              <a-input-number
-                style="width: 100%"
-                v-model:value="formState.pointsNeed"
-                :step="10"
-                :min="0"
-                :precision="0"
-                :defaultValue="10"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <!-- 图片状态 -->
-            <a-form-item label="图片状态" :label-col="{ span: 8 }" name="pictureStatus">
-              <a-switch
-                style="width: 30%"
-                v-model:checked="formState.pictureStatus"
-                checked-children="公开"
-                un-checked-children="私有"
-                :checked-value="'0'"
-                :unchecked-value="'1'"
-              />
-            </a-form-item>
-          </a-col>
         </a-row>
         <!-- 提交按钮 -->
         <a-form-item :wrapper-col="{ offset: 4 }">

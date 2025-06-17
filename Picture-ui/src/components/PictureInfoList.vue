@@ -25,10 +25,6 @@
                 :values="[getPictureStatusLabel(picture.pictureStatus)]"
                 :colors="['#0084ff']"
               />
-              <Tags
-                :values="[getPictureReviewStatusLabel(picture.reviewStatus)]"
-                :colors="['#7300ff']"
-              />
 
               <a-button
                 v-if="checkUser(picture.userId) && checkPermiSingle('picture:upload')"
@@ -67,8 +63,8 @@
 <script setup lang="ts">
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import { ref, watchEffect } from 'vue'
-import { getPictureReviewStatusLabel, getPictureStatusLabel } from '@/types/picture/picture.d.ts'
 import type { MyPictureInfoVo, PictureInfoQuery } from '@/types/picture/picture.d.ts'
+import { getPictureStatusLabel } from '@/types/picture/picture.d.ts'
 import { listMyPictureInfo } from '@/api/picture/picture.ts'
 import { formatSize } from '@/utils/common.ts'
 import Tags from '@/components/Tags.vue'

@@ -22,10 +22,6 @@
         <result property="editTime" column="edit_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="pictureStatus" column="picture_status"/>
-        <result property="reviewStatus" column="review_status"/>
-        <result property="reviewMessage" column="review_message"/>
-        <result property="reviewUserId" column="review_user_id"/>
-        <result property="reviewTime" column="review_time"/>
         <result property="thumbnailUrl" column="thumbnail_url"/>
         <result property="lookCount" column="look_count"/>
         <result property="collectCount" column="collect_count"/>
@@ -67,10 +63,6 @@
                edit_time,
                update_time,
                picture_status,
-               review_status,
-               review_message,
-               review_user_id,
-               review_time,
                thumbnail_url,
                look_count,
                collect_count,
@@ -100,12 +92,6 @@
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
             <if test="createTime != null ">and create_time = #{createTime}</if>
             <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
-            <if test="reviewStatus != null ">and review_status = #{reviewStatus}</if>
-            <if test="reviewMessage != null  and reviewMessage != ''">and review_message = #{reviewMessage}</if>
-            <if test="reviewUserId != null ">and review_user_id = #{reviewUserId}</if>
-            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''">
-                and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
-            </if>
             <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
             <if test="folderId != null  and folderId != ''">and folder_id = #{folderId}</if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
@@ -142,10 +128,6 @@
             <if test="editTime != null">edit_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="pictureStatus != null and pictureStatus != ''">picture_status,</if>
-            <if test="reviewStatus != null">review_status,</if>
-            <if test="reviewMessage != null">review_message,</if>
-            <if test="reviewUserId != null">review_user_id,</if>
-            <if test="reviewTime != null">review_time,</if>
             <if test="thumbnailUrl != null">thumbnail_url,</if>
             <if test="lookCount != null">look_count,</if>
             <if test="collectCount != null">collect_count,</if>
@@ -176,10 +158,6 @@
             <if test="editTime != null">#{editTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="pictureStatus != null and pictureStatus != ''">#{pictureStatus},</if>
-            <if test="reviewStatus != null">#{reviewStatus},</if>
-            <if test="reviewMessage != null">#{reviewMessage},</if>
-            <if test="reviewUserId != null">#{reviewUserId},</if>
-            <if test="reviewTime != null">#{reviewTime},</if>
             <if test="thumbnailUrl != null">#{thumbnailUrl},</if>
             <if test="lookCount != null">#{lookCount},</if>
             <if test="collectCount != null">#{collectCount},</if>
@@ -213,10 +191,6 @@
             <if test="editTime != null">edit_time = #{editTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="pictureStatus != null and pictureStatus != ''">picture_status = #{pictureStatus},</if>
-            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
-            <if test="reviewMessage != null">review_message = #{reviewMessage},</if>
-            <if test="reviewUserId != null">review_user_id = #{reviewUserId},</if>
-            <if test="reviewTime != null">review_time = #{reviewTime},</if>
             <if test="thumbnailUrl != null">thumbnail_url = #{thumbnailUrl},</if>
             <if test="lookCount != null">look_count = #{lookCount},</if>
             <if test="collectCount != null">collect_count = #{collectCount},</if>
@@ -276,7 +250,6 @@
                                          JOIN p_picture_tag_rel_info rel ON p.picture_id = rel.picture_id
                                          LEFT JOIN origin_tags ot ON 1 = 1
                                 WHERE p.picture_id != #{pictureId}
-            AND p.review_status = #{reviewStatus}
             AND p.picture_status = #{pictureStatus}
             AND (ot.tag_name IS NULL OR rel.tag_name LIKE CONCAT('%', ot.tag_name, '%'))
         GROUP BY p.picture_id

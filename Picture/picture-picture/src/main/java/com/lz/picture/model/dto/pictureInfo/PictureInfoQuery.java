@@ -104,22 +104,6 @@ public class PictureInfoQuery implements Serializable {
     private String pictureStatus;
 
     /**
-     * 审核状态（0待审核 1通过 2拒绝）
-     */
-    private String reviewStatus;
-
-    /**
-     * 审核人编号
-     */
-    private Long reviewUserId;
-
-    /**
-     * 审核时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date reviewTime;
-
-    /**
      * 所属空间编号
      */
     private String spaceId;

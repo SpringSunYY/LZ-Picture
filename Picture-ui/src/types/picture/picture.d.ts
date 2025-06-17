@@ -287,11 +287,6 @@ export interface MyPictureInfoVo {
   pictureStatus: string
 
   /**
-   * 审核状态（0待审核 1通过 2拒绝）
-   */
-  reviewStatus: string
-
-  /**
    * 缩略图URL
    */
   thumbnailUrl: string
@@ -435,33 +430,6 @@ export function getPictureStatusLabel(value: string): string | undefined {
 export function getPictureStatusByValue(value: string): PPictureStatus | undefined {
   if (Object.values(PPictureStatus).includes(value as PPictureStatus)) {
     return value as PPictureStatus
-  }
-  return undefined
-}
-
-// 图片审核状态 枚举
-export enum PPictureReviewStatus {
-  PICTURE_REVIEW_STATUS_0 = '0', // 待审核
-  PICTURE_REVIEW_STATUS_1 = '1', // 同意
-  PICTURE_REVIEW_STATUS_2 = '2', // 拒绝
-}
-
-// 审核状态的标签映射
-export const PPictureReviewStatusLabel: { [key in PPictureReviewStatus]: string } = {
-  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_0]: '待审核',
-  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_1]: '同意',
-  [PPictureReviewStatus.PICTURE_REVIEW_STATUS_2]: '拒绝',
-}
-
-// 获取状态标签
-export function getPictureReviewStatusLabel(value: string): string | undefined {
-  return PPictureReviewStatusLabel[value]
-}
-
-// 通过字符串获取枚举值
-export function getPictureReviewStatusByValue(value: string): PPictureReviewStatus | undefined {
-  if (Object.values(PPictureReviewStatus).includes(value as PPictureReviewStatus)) {
-    return value as PPictureReviewStatus
   }
   return undefined
 }

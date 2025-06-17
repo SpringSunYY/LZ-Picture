@@ -126,30 +126,6 @@ public class PictureInfoVo implements Serializable {
     @Excel(name = "图片状态", readConverterExp = "0=公共,1=私有")
     private String pictureStatus;
 
-    /**
-     * 审核状态（0待审核 1通过 2拒绝）
-     */
-    @Excel(name = "审核状态", readConverterExp = "0=待审核,1=通过,2=拒绝")
-    private String reviewStatus;
-
-    /**
-     * 审核信息
-     */
-    @Excel(name = "审核信息")
-    private String reviewMessage;
-
-    /**
-     * 审核人编号
-     */
-    @Excel(name = "审核人编号")
-    private Long reviewUserId;
-
-    /**
-     * 审核时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "审核时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    private Date reviewTime;
 
     /**
      * 缩略图URL

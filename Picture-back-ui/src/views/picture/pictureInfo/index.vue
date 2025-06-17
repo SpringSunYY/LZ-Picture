@@ -129,34 +129,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="审核状态" prop="reviewStatus">
-        <el-select v-model="queryParams.reviewStatus" style="width: 200px" placeholder="请选择审核状态" clearable>
-          <el-option
-              v-for="dict in p_picture_review_status"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="审核人" prop="reviewUserId">
-        <el-input
-            v-model="queryParams.reviewUserId"
-            placeholder="请输入审核人"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="审核时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeReviewTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
       <el-form-item label="所属空间" prop="spaceId">
         <el-input
             v-model="queryParams.spaceId"
@@ -308,48 +280,33 @@
           <dict-tag :options="p_picture_status" :value="scope.row.pictureStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="审核状态" align="center" prop="reviewStatus" v-if="columns[17].visible">
-        <template #default="scope">
-          <dict-tag :options="p_picture_review_status" :value="scope.row.reviewStatus"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="审核信息" align="center" prop="reviewMessage" v-if="columns[18].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="审核人" align="center" prop="reviewUserId" v-if="columns[19].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="审核时间" align="center" prop="reviewTime" width="180" v-if="columns[20].visible"
-                       :show-overflow-tooltip="true">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[21].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[22].visible"
+      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="点赞次数" align="center" prop="likeCount" v-if="columns[23].visible"
+      <el-table-column label="点赞次数" align="center" prop="likeCount" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="分享次数" align="center" prop="shareCount" v-if="columns[24].visible"
+      <el-table-column label="分享次数" align="center" prop="shareCount" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[25].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[26].visible"
+      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[27].visible"
+      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[28].visible"
+      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[24].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[29].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[25].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[30].visible"
+      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[26].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -427,19 +384,6 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="审核状态" prop="reviewStatus">
-          <el-radio-group v-model="form.reviewStatus">
-            <el-radio
-                v-for="dict in p_picture_review_status"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="审核信息" prop="reviewMessage">
-          <el-input v-model="form.reviewMessage" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
         <el-form-item label="查看次数" prop="lookCount">
           <el-input-number :min="0" v-model="form.lookCount" placeholder="请输入查看次数"/>
         </el-form-item>
@@ -509,9 +453,8 @@ import {formatSize} from "@/utils/ruoyi.js";
 const {proxy} = getCurrentInstance();
 const {
   common_delete,
-  p_picture_review_status,
   p_picture_status
-} = proxy.useDict('common_delete', 'p_picture_review_status', 'p_picture_status');
+} = proxy.useDict('common_delete', 'p_picture_status');
 
 const pictureInfoList = ref([]);
 const open = ref(false);
@@ -525,7 +468,6 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeEditTime = ref([]);
 const daterangeUpdateTime = ref([]);
-const daterangeReviewTime = ref([]);
 const daterangeDeletedTime = ref([]);
 
 const data = reactive({
@@ -547,10 +489,6 @@ const data = reactive({
     createTime: null,
     editTime: null,
     updateTime: null,
-    pictureStatus: null,
-    reviewStatus: null,
-    reviewUserId: null,
-    reviewTime: null,
     spaceId: null,
     folderId: null,
     isDelete: null,
@@ -578,9 +516,6 @@ const data = reactive({
     pictureStatus: [
       {required: true, message: "图片状态不能为空", trigger: "change"}
     ],
-    reviewStatus: [
-      {required: true, message: "审核状态不能为空", trigger: "change"}
-    ],
     isDelete: [
       {required: true, message: "删除不能为空", trigger: "change"}
     ],
@@ -604,20 +539,16 @@ const data = reactive({
     {key: 14, label: '编辑时间', visible: false},
     {key: 15, label: '更新时间', visible: false},
     {key: 16, label: '图片状态', visible: true},
-    {key: 17, label: '审核状态', visible: true},
-    {key: 18, label: '审核信息', visible: false},
-    {key: 19, label: '审核人', visible: false},
-    {key: 20, label: '审核时间', visible: false},
-    {key: 21, label: '查看次数', visible: true},
-    {key: 22, label: '收藏次数', visible: true},
-    {key: 23, label: '点赞次数', visible: true},
-    {key: 24, label: '分享次数', visible: true},
-    {key: 25, label: '下载次数', visible: true},
-    {key: 26, label: '所属空间', visible: false},
-    {key: 27, label: '文件夹', visible: false},
-    {key: 28, label: '更多信息', visible: false},
-    {key: 29, label: '删除', visible: false},
-    {key: 30, label: '删除时间', visible: false},
+    {key: 17, label: '查看次数', visible: true},
+    {key: 18, label: '收藏次数', visible: true},
+    {key: 19, label: '点赞次数', visible: true},
+    {key: 20, label: '分享次数', visible: true},
+    {key: 21, label: '下载次数', visible: true},
+    {key: 22, label: '所属空间', visible: false},
+    {key: 23, label: '文件夹', visible: false},
+    {key: 24, label: '更多信息', visible: false},
+    {key: 25, label: '删除', visible: false},
+    {key: 26, label: '删除时间', visible: false},
   ],
 });
 
@@ -638,10 +569,6 @@ function getList() {
   if (null != daterangeUpdateTime && '' != daterangeUpdateTime) {
     queryParams.value.params["beginUpdateTime"] = daterangeUpdateTime.value[0];
     queryParams.value.params["endUpdateTime"] = daterangeUpdateTime.value[1];
-  }
-  if (null != daterangeReviewTime && '' != daterangeReviewTime) {
-    queryParams.value.params["beginReviewTime"] = daterangeReviewTime.value[0];
-    queryParams.value.params["endReviewTime"] = daterangeReviewTime.value[1];
   }
   if (null != daterangeDeletedTime && '' != daterangeDeletedTime) {
     queryParams.value.params["beginDeletedTime"] = daterangeDeletedTime.value[0];
@@ -680,10 +607,6 @@ function reset() {
     editTime: null,
     updateTime: null,
     pictureStatus: null,
-    reviewStatus: null,
-    reviewMessage: null,
-    reviewUserId: null,
-    reviewTime: null,
     thumbnailUrl: null,
     lookCount: null,
     collectCount: null,
@@ -710,7 +633,6 @@ function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeEditTime.value = [];
   daterangeUpdateTime.value = [];
-  daterangeReviewTime.value = [];
   daterangeDeletedTime.value = [];
   proxy.resetForm("queryRef");
   handleQuery();

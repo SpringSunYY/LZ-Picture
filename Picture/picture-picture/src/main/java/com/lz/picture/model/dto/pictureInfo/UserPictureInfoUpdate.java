@@ -83,12 +83,6 @@ public class UserPictureInfoUpdate implements Serializable {
     private String picFormat;
 
     /**
-     * 所需积分
-     */
-    @NotNull(message = "所需积分不能为空")
-    private Long pointsNeed;
-
-    /**
      * 缩略图URL
      */
     private String thumbnailUrl;
@@ -108,12 +102,6 @@ public class UserPictureInfoUpdate implements Serializable {
      * 图片标签
      */
     private List<String> tags;
-
-
-    /**
-     * 图片状态（0公共 1私有）
-     */
-    private String pictureStatus;
 
     /**
      * 对象转封装类

@@ -13,7 +13,6 @@ import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
-import com.lz.picture.model.enums.PPictureReviewStatusEnum;
 import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.*;
@@ -256,7 +255,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     new LambdaQueryWrapper<PictureInfo>()
                             .in(PictureInfo::getPictureId, batchIds)
                             .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                            .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
                             .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
             );
             candidatePics.addAll(batchPics);
@@ -428,7 +426,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                             .select(PictureInfo::getPictureId)
                             .in(PictureInfo::getCategoryId, batchCats)
                             .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                            .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
                             .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                             .last("LIMIT " + currentLimit)
             );

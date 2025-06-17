@@ -261,15 +261,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String pictureStatus = pictureInfo.getPictureStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(pictureStatus), "picture_status", pictureStatus);
 
-        String reviewStatus = pictureInfo.getReviewStatus();
-        queryWrapper.eq(StringUtils.isNotNull(reviewStatus), "review_status", reviewStatus);
-
-        Long reviewUserId = pictureInfo.getReviewUserId();
-        queryWrapper.eq(StringUtils.isNotNull(reviewUserId), "review_user_id", reviewUserId);
-
-        Date reviewTime = pictureInfo.getReviewTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginReviewTime")) && StringUtils.isNotNull(params.get("endReviewTime")), "review_time", params.get("beginReviewTime"), params.get("endReviewTime"));
-
         String spaceId = pictureInfo.getSpaceId();
         queryWrapper.eq(StringUtils.isNotEmpty(spaceId), "space_id", spaceId);
 
@@ -315,14 +306,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
         }
-        //校验积分
-        checkPoints(pictureInfo);
+        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
+        pictureInfo.setPointsNeed(0L);
         // 计算宽高比例
         double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
-        pictureInfo.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue());
         pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
         int i = pictureInfoMapper.insertPictureInfo(pictureInfo);
 
@@ -565,7 +555,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
         //TODO 后续有判断是否是团队空间 团队空间成员还是可以查看的
         if (!pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                && pictureInfo.getReviewStatus().equals(Long.parseLong(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue()))
                 && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId())) {
             throw new ServiceException("图片审核不通过，无法查看");
         }
@@ -729,14 +718,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().split("\\?")[0]);
         //删除路径参数
         pictureInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl().split("\\?")[0]);
-        //校验积分
-        checkPoints(pictureInfo);
+        pictureInfo.setPointsNeed(0L);
         // 计算宽高比例
         double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
-        pictureInfo.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_0.getValue());
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
@@ -1028,7 +1015,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         queryWrapper
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
                 .orderByDesc(PictureInfo::getDownloadCount)
                 .orderByDesc(PictureInfo::getShareCount)
                 .orderByDesc(PictureInfo::getLikeCount)
@@ -1058,7 +1044,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         queryWrapper
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
                 .like(StringUtils.isNotEmpty(name), PictureInfo::getName, name)
                 .orderByDesc(PictureInfo::getDownloadCount)
                 .orderByDesc(PictureInfo::getShareCount)
@@ -1106,7 +1091,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                .eq(PictureInfo::getReviewStatus, PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue())
                 .orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount)
         );
         //构造url

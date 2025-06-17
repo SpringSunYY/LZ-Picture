@@ -18,7 +18,6 @@ import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.*;
-import com.lz.picture.model.enums.PPictureReviewStatusEnum;
 import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
@@ -97,7 +96,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureInfo.setPicHeight(pictureFileResponse.getPicHeight());
         pictureInfo.setPicScale(pictureFileResponse.getPicScale());
         pictureInfo.setPicFormat(pictureFileResponse.getPicFormat());
-        pictureInfo.setPointsNeed(10L);
         pictureInfo.setUserId(userId);
         pictureInfo.setThumbnailUrl(pictureFileResponse.getThumbnailUrl());
         pictureInfo.setSpaceId(pictureUrlUpload.getSpaceId());
@@ -106,7 +104,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureMoreInfo.setOriginUrl(pictureUrlUpload.getUrl());
         pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
         pictureInfo.setTags(pictureUrlUpload.getTags());
-        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
 
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
@@ -145,7 +142,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
         }
         PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
         //限定审核通过 状态为正常
-        pictureInfo.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue());
         pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
         QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
         Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
@@ -194,7 +190,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @GetMapping("/detail/recommend")
     public TableDataInfo getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
         pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
-        pictureInfoDetailRecommendRequest.setReviewStatus(PPictureReviewStatusEnum.PICTURE_REVIEW_STATUS_1.getValue());
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         //压缩图片
         String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);

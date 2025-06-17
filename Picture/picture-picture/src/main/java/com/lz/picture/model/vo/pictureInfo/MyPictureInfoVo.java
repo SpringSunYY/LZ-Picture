@@ -84,11 +84,6 @@ public class MyPictureInfoVo implements Serializable {
     private String pictureStatus;
 
     /**
-     * 审核状态（0待审核 1通过 2拒绝）
-     */
-    private String reviewStatus;
-
-    /**
      * 缩略图URL
      */
     private String thumbnailUrl;

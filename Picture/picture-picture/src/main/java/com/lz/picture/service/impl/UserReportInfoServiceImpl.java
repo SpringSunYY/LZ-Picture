@@ -273,7 +273,6 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
             PictureInfo pictureInfo = pictureInfoService.getById(userReportInfoDb.getTargetId());
             //更新图片为私有、拒绝
             pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
-            pictureInfo.setReviewStatus(PReportReviewStatusEnum.P_REPORT_REVIEW_STATUS_2.getValue());
             pictureInfoService.updatePictureInfo(pictureInfo);
 
             //为用户发送信息 举报者 作者
