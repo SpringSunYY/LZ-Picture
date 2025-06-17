@@ -2214,7 +2214,7 @@ CREATE TABLE p_picture_tag_info (
 | picture_status | char     | 1    |                                   | 否   | 0              | 图片状态            |
 | review_status  | int      |      |                                   | 否   | 0              | 审核状态            |
 | review_message | varchar  | 512  |                                   | 是   |                | 审核信息            |
-| review_user_id | bigint   |      |                                   | 是   |                | 审核人 编号         |
+| review_user_id | bigint   |      |                                   | 是   |                | 审核人编号          |
 | review_time    | datetime |      |                                   | 是   |                | 审核时间            |
 | thumbnail_url  | varchar  | 512  |                                   | 是   |                | 缩略图 url          |
 | look_count     | bigint   |      | 索引                              | 否   | 0              | 查看次数            |
@@ -2223,7 +2223,7 @@ CREATE TABLE p_picture_tag_info (
 | share_count    | bigint   |      | 索引                              | 否   | 0              | 分享次数            |
 | download_count | bigint   |      | 索引                              | 否   | 0              | 下载次数            |
 | more_info      | text     |      |                                   | 是   |                | 更多信息            |
-| space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间 编号           |
+| space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间编号            |
 | folder_id      | varchar  | 128  |                                   | 是   |                | 文件夹              |
 | is_delete      | char     | 1    |                                   | 否   | 0              | 删除(0否 1是) 默认0 |
 | deleted_time   | datetime |      |                                   | 是   |                | 删除时间            |
@@ -2751,7 +2751,7 @@ CREATE TABLE p_user_view_log_info (
 | create_time    | datetime |      |                            | 否   | 当前时间 | 举报时间     |
 | review_status  | int      |      |                            | 否   | 0        | 审核状态     |
 | review_message | varchar  | 512  |                            | 是   |          | 审核信息     |
-| review_user_id | bigint   |      |                            | 是   |          | 审核人 编号  |
+| review_user_id | bigint   |      |                            | 是   |          | 审核人编号   |
 | review_time    | datetime |      |                            | 是   |          | 审核时间     |
 | device_id      | varchar  | 256  |                            | 是   |          | 设备唯一标识 |
 | browser        | varchar  | 50   |                            | 是   |          | 浏览器类型   |
@@ -2838,6 +2838,68 @@ CREATE TABLE p_picture_recommend_info
             REFERENCES u_user_info (user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户图片推荐模型表';
+```
+
+
+
+#### 图片申请表：p_picture_apply_info
+
+| 字段名         | 类型     | 长度 | 键类型                           | Null | 默认值         | 描述       |
+| -------------- | -------- | ---- | -------------------------------- | ---- | -------------- | ---------- |
+| apply_id       | varchar  | 128  | 主键                             | 否   | auto_increment | 申请编号   |
+| picture_id     | varchar  | 128  | 外键 (p_picture_info:picture_id) | 否   |                | 图片编号   |
+| picture_name   | varchar  | 32   |                                  | 否   |                | 图片名称   |
+| thumbnail_url  | varchar  | 512  |                                  | 否   |                | 缩略图 url |
+| apply_type     | char     | 1    |                                  | 否   |                | 申请类型   |
+| apply_reason   | text     |      |                                  | 否   |                | 申请理由   |
+| apply_image    | text     |      |                                  | 是   |                | 证明图片   |
+| apply_file     | text     |      |                                  | 是   |                | 证明文件   |
+| contact        | varchar  | 512  |                                  | 否   |                | 联系方式   |
+| points_need    | int      |      |                                  | 否   | 10             | 所需积分   |
+| price_need     | decimal  | 10,2 |                                  | 是   | 0              | 所需金额   |
+| user_id        | varchar  | 128  | 外键(u_user_info:user_id)        | 否   |                | 用户       |
+| create_time    | datetime |      |                                  | 否   | 当前时间       | 创建时间   |
+| update_time    | datetime |      |                                  | 是   | 当前时间       | 更新时间   |
+| review_status  | char     | 1    |                                  | 否   | 0              | 审核状态   |
+| review_message | varchar  | 512  |                                  | 是   |                | 审核信息   |
+| review_user_id | bigint   |      | 外键（sys_user:user_id）         | 是   |                | 审核人编号 |
+| review_time    | detetime |      |                                  | 是   |                | 审核时间   |
+
+申请类型：0原创作品 1转载资源 2无版权资源
+
+所需积分：如果是1、2，可以使用所需积分
+
+所需金额：如果是0可以填入金额
+
+```sql
+-- 如果存在旧表则先删除
+DROP TABLE IF EXISTS p_picture_apply_info;
+
+-- 创建新表
+CREATE TABLE p_picture_apply_info (
+  apply_id        VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '申请编号',
+  picture_id      VARCHAR(128) NOT NULL COMMENT '图片编号',
+  picture_name    VARCHAR(32)  NOT NULL COMMENT '图片名称',
+  thumbnail_url   VARCHAR(512) NOT NULL COMMENT '缩略图 URL',
+  apply_type      CHAR(1)      NOT NULL COMMENT '申请类型',
+  apply_reason    TEXT         NOT NULL COMMENT '申请理由',
+  apply_image     TEXT                  COMMENT '证明图片',
+  apply_file      TEXT                  COMMENT '证明文件',
+  contact         VARCHAR(512) NOT NULL COMMENT '联系方式',
+  points_need     INT          NOT NULL DEFAULT 10 COMMENT '所需积分',
+  price_need      DECIMAL(10,2) DEFAULT 0 COMMENT '所需金额',
+  user_id         VARCHAR(128) NOT NULL COMMENT '用户',
+  create_time     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time     DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  review_status   CHAR(1)      NOT NULL DEFAULT '0' COMMENT '审核状态',
+  review_message  VARCHAR(512)          COMMENT '审核信息',
+  review_user_id  BIGINT                COMMENT '审核人编号',
+  review_time     DATETIME              COMMENT '审核时间',
+  CONSTRAINT fk_picture_apply_picture_id FOREIGN KEY (picture_id) REFERENCES p_picture_info(picture_id),
+  CONSTRAINT fk_picture_apply_user_id FOREIGN KEY (user_id) REFERENCES u_user_info(user_id),
+  CONSTRAINT fk_picture_apply_review_user_id FOREIGN KEY (review_user_id) REFERENCES sys_user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片申请信息表';
+
 ```
 
 

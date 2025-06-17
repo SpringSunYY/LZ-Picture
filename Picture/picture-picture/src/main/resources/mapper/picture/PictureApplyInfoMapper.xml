@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.PictureApplyInfoMapper">
+
+    <resultMap type="PictureApplyInfo" id="PictureApplyInfoResult">
+        <result property="applyId"    column="apply_id"    />
+        <result property="pictureId"    column="picture_id"    />
+        <result property="pictureName"    column="picture_name"    />
+        <result property="thumbnailUrl"    column="thumbnail_url"    />
+        <result property="applyType"    column="apply_type"    />
+        <result property="applyReason"    column="apply_reason"    />
+        <result property="applyImage"    column="apply_image"    />
+        <result property="applyFile"    column="apply_file"    />
+        <result property="contact"    column="contact"    />
+        <result property="pointsNeed"    column="points_need"    />
+        <result property="priceNeed"    column="price_need"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="reviewStatus"    column="review_status"    />
+        <result property="reviewMessage"    column="review_message"    />
+        <result property="reviewUserId"    column="review_user_id"    />
+        <result property="reviewTime"    column="review_time"    />
+    </resultMap>
+
+    <sql id="selectPictureApplyInfoVo">
+        select apply_id, picture_id, picture_name, thumbnail_url, apply_type, apply_reason, apply_image, apply_file, contact, points_need, price_need, user_id, create_time, update_time, review_status, review_message, review_user_id, review_time from p_picture_apply_info
+    </sql>
+
+    <select id="selectPictureApplyInfoList" parameterType="PictureApplyInfo" resultMap="PictureApplyInfoResult">
+        <include refid="selectPictureApplyInfoVo"/>
+        <where>
+            <if test="applyId != null  and applyId != ''">and apply_id = #{applyId}</if>
+            <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
+            <if test="pictureName != null  and pictureName != ''">and picture_name like concat('%', #{pictureName},
+                '%')
+            </if>
+            <if test="applyType != null  and applyType != ''">and apply_type = #{applyType}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="reviewStatus != null  and reviewStatus != ''">and review_status = #{reviewStatus}</if>
+            <if test="reviewUserId != null ">and review_user_id = #{reviewUserId}</if>
+            <if test="params.beginReviewTime != null and params.beginReviewTime != '' and params.endReviewTime != null and params.endReviewTime != ''">
+                and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectPictureApplyInfoByApplyId" parameterType="String" resultMap="PictureApplyInfoResult">
+        <include refid="selectPictureApplyInfoVo"/>
+        where apply_id = #{applyId}
+    </select>
+
+    <insert id="insertPictureApplyInfo" parameterType="PictureApplyInfo">
+        insert into p_picture_apply_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyId != null">apply_id,</if>
+            <if test="pictureId != null and pictureId != ''">picture_id,</if>
+            <if test="pictureName != null and pictureName != ''">picture_name,</if>
+            <if test="thumbnailUrl != null and thumbnailUrl != ''">thumbnail_url,</if>
+            <if test="applyType != null and applyType != ''">apply_type,</if>
+            <if test="applyReason != null and applyReason != ''">apply_reason,</if>
+            <if test="applyImage != null">apply_image,</if>
+            <if test="applyFile != null">apply_file,</if>
+            <if test="contact != null and contact != ''">contact,</if>
+            <if test="pointsNeed != null">points_need,</if>
+            <if test="priceNeed != null">price_need,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="reviewStatus != null and reviewStatus != ''">review_status,</if>
+            <if test="reviewMessage != null">review_message,</if>
+            <if test="reviewUserId != null">review_user_id,</if>
+            <if test="reviewTime != null">review_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId != null">#{applyId},</if>
+            <if test="pictureId != null and pictureId != ''">#{pictureId},</if>
+            <if test="pictureName != null and pictureName != ''">#{pictureName},</if>
+            <if test="thumbnailUrl != null and thumbnailUrl != ''">#{thumbnailUrl},</if>
+            <if test="applyType != null and applyType != ''">#{applyType},</if>
+            <if test="applyReason != null and applyReason != ''">#{applyReason},</if>
+            <if test="applyImage != null">#{applyImage},</if>
+            <if test="applyFile != null">#{applyFile},</if>
+            <if test="contact != null and contact != ''">#{contact},</if>
+            <if test="pointsNeed != null">#{pointsNeed},</if>
+            <if test="priceNeed != null">#{priceNeed},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="reviewStatus != null and reviewStatus != ''">#{reviewStatus},</if>
+            <if test="reviewMessage != null">#{reviewMessage},</if>
+            <if test="reviewUserId != null">#{reviewUserId},</if>
+            <if test="reviewTime != null">#{reviewTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePictureApplyInfo" parameterType="PictureApplyInfo">
+        update p_picture_apply_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pictureId != null and pictureId != ''">picture_id = #{pictureId},</if>
+            <if test="pictureName != null and pictureName != ''">picture_name = #{pictureName},</if>
+            <if test="thumbnailUrl != null and thumbnailUrl != ''">thumbnail_url = #{thumbnailUrl},</if>
+            <if test="applyType != null and applyType != ''">apply_type = #{applyType},</if>
+            <if test="applyReason != null and applyReason != ''">apply_reason = #{applyReason},</if>
+            <if test="applyImage != null">apply_image = #{applyImage},</if>
+            <if test="applyFile != null">apply_file = #{applyFile},</if>
+            <if test="contact != null and contact != ''">contact = #{contact},</if>
+            <if test="pointsNeed != null">points_need = #{pointsNeed},</if>
+            <if test="priceNeed != null">price_need = #{priceNeed},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="reviewStatus != null and reviewStatus != ''">review_status = #{reviewStatus},</if>
+            <if test="reviewMessage != null">review_message = #{reviewMessage},</if>
+            <if test="reviewUserId != null">review_user_id = #{reviewUserId},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+        </trim>
+        where apply_id = #{applyId}
+    </update>
+
+    <delete id="deletePictureApplyInfoByApplyId" parameterType="String">
+        delete from p_picture_apply_info where apply_id = #{applyId}
+    </delete>
+
+    <delete id="deletePictureApplyInfoByApplyIds" parameterType="String">
+        delete from p_picture_apply_info where apply_id in
+        <foreach item="applyId" collection="array" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
+    </delete>
+</mapper>
