@@ -1,7 +1,6 @@
 package com.lz.picture.strategy.userPictureApiSearchStrategy.impl;
 
 import cn.hutool.http.HttpUtil;
-import com.lz.common.utils.http.HttpUtils;
 import com.lz.picture.model.dto.pictureApiSearch.PictureApiSearchRequest;
 import com.lz.picture.model.vo.pictureApiSearch.PictureApiSearchVo;
 import com.lz.picture.strategy.userPictureApiSearchStrategy.UserPictureApiSearchStrategyConfig;

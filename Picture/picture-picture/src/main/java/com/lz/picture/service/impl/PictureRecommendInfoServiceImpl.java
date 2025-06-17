@@ -334,7 +334,8 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             redisCache.deleteObject(modelKay);
             //重新缓存模型
             String json = JSON.toJSONString(userInterestModel);
-            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(modelKay, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
         }
         boolean isThreshold = false;
         int timeout = 0;
@@ -366,17 +367,27 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             //超出阈值重新设置
             redisCache.deleteObject(key);
             redisCache.setCacheObject(key, count, timeout, TimeUnit.SECONDS);
-            //更新用户缓存
+            //更新用户缓存 超出阈值要保存
             UserInterestModel userInterestModel = saveUserInterestModel(userId);
             //删除用户模型缓存
             String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
             redisCache.deleteObject(modelKay);
             //重新缓存模型
             String json = JSON.toJSONString(userInterestModel);
-            redisCache.setCacheObject(key, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(modelKay, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
         } else {
             if (!exist) {
-                redisCache.setCacheObject(key, count, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+                redisCache.setCacheObject(key, count, timeout, TimeUnit.SECONDS);
+                //不存在 重新获取，上一步已经插入
+                UserInterestModel userInterestModel = getUserInterestModel(userId);
+                //删除用户模型缓存
+                String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+                redisCache.deleteObject(modelKay);
+                //重新缓存模型
+                String json = JSON.toJSONString(userInterestModel);
+                redisCache.setCacheObject(modelKay, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
+                redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
             }
             //不超过，给缓存值+1
             redisCache.increment(key, 1);
