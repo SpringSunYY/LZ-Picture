@@ -31,7 +31,6 @@ public class UserUserReportInfoController extends BaseUserInfoController {
      * 新增用户举报信息
      */
     @PreAuthorize("@uss.hasLogin()")
-    @Log(title = "用户举报信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody UserReportInfoAdd userReportInfoAdd) {
         UserReportInfo userReportInfo = UserReportInfoAdd.insertToObj(userReportInfoAdd);
