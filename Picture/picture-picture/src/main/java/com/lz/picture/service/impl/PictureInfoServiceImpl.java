@@ -3,7 +3,6 @@ package com.lz.picture.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
@@ -1113,7 +1112,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public TableDataInfo listPictureInfoTable(UserPictureInfoQuery userPictureInfoQuery) {
         String jsonStr = JSON.toJSONString(userPictureInfoQuery);
-        System.out.println("jsonStr = " + jsonStr);
         //查询缓存是否存在
         String keyData = PICTURE_PICTURE_TABLE_DATE + userPictureInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE +
                 jsonStr;
@@ -1164,7 +1162,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                         "create_time between {0} and {1}",
                         beginCreateTime, endCreateTime);
         if (StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userPictureInfoQuery.getOrderByColumn())) {
-            if (!Arrays.asList("createTime","picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
+            if (!Arrays.asList("createTime", "picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
                 throw new ServiceException("排序字段错误");
             }
             if (userPictureInfoQuery.getOrderByColumn().equals("picSize")) {
@@ -1178,10 +1176,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
         //如果为空，直接缓存，返回
-        if (StringUtils.isEmpty(page.getRecords())) {
-            redisCache.setCacheObject(keyData, page.getRecords(), PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+        List<PictureInfo> records = page.getRecords();
+        if (StringUtils.isEmpty(records)) {
+            redisCache.setCacheObject(keyData, records, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
             redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
-            return new TableDataInfo(page.getRecords(), (int) page.getTotal());
+            return new TableDataInfo(records, (int) page.getTotal());
         }
         //转换为 vo 并且转换地址
         List<PictureInfoTableVo> pictureInfoTableVos =
@@ -1193,7 +1192,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         //查询标签
         List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
-                .in(PictureTagRelInfo::getPictureId, page.getRecords().stream().map(PictureInfo::getPictureId).collect(Collectors.toList())));
+                .in(PictureTagRelInfo::getPictureId, records.stream().map(PictureInfo::getPictureId).collect(Collectors.toList())));
         //标签关联转换为map pictureId-tagName
         Map<String, List<String>> tagRelMap = tagRelInfos.stream().filter(tagRelInfo -> StringUtils.isNotEmpty(tagRelInfo.getTagName())).collect(Collectors.groupingBy(PictureTagRelInfo::getPictureId, Collectors.mapping(PictureTagRelInfo::getTagName, Collectors.toList())));
         pictureInfoTableVos.forEach(pictureInfoTableVo -> {
@@ -1204,7 +1203,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         });
         //查询分类
         //获取分类id
-        List<String> categoryIds = page.getRecords().stream().map(PictureInfo::getCategoryId).collect(Collectors.toList());
+        List<String> categoryIds = records.stream().map(PictureInfo::getCategoryId).collect(Collectors.toList());
         List<PictureCategoryInfo> categoryInfos = pictureCategoryInfoService.list(new LambdaQueryWrapper<PictureCategoryInfo>()
                 .in(PictureCategoryInfo::getCategoryId, categoryIds));
         Map<String, PictureCategoryInfo> categoryInfoMap = categoryInfos.stream().collect(Collectors.toMap(PictureCategoryInfo::getCategoryId, Function.identity()));
@@ -1212,6 +1211,16 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             PictureCategoryInfo pictureCategoryInfo = categoryInfoMap.get(pictureInfoTableVo.getCategoryId());
             if (StringUtils.isNotNull(pictureCategoryInfo)) {
                 pictureInfoTableVo.setCategoryName(pictureCategoryInfo.getName());
+            }
+        });
+        //查询空间
+        List<SpaceInfo> spaceInfos = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>()
+                .in(SpaceInfo::getSpaceId, records.stream().map(PictureInfo::getSpaceId).collect(Collectors.toList())));
+        Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, Function.identity()));
+        pictureInfoTableVos.forEach(pictureInfoTableVo -> {
+            SpaceInfo spaceInfo = spaceInfoMap.get(pictureInfoTableVo.getSpaceId());
+            if (StringUtils.isNotNull(spaceInfo)) {
+                pictureInfoTableVo.setSpaceName(spaceInfo.getSpaceName());
             }
         });
         //存入缓存并返回信息

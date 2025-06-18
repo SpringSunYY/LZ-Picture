@@ -2,6 +2,7 @@ package com.lz.picture.model.vo.pictureInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +43,12 @@ public class PictureInfoTableVo implements Serializable {
      * 分类编号
      */
     private String categoryId;
+
+    /**
+     * 所属空间编号
+     */
+    private String spaceId;
+    private String spaceName;
 
     /**
      * 分类名称

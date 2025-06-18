@@ -11,13 +11,49 @@
             style="width: 200px"
           />
         </a-form-item>
-        <a-form-item>
-          <a-input
-            v-model:value="queryParams.Id"
-            placeholder="分类名称"
-            allow-clear
-            @pressEnter="handleSearch"
-            style="width: 200px"
+        <!-- 分类选择 -->
+        <a-form-item label="图片分类" name="categoryId" style="width: 250px">
+          <a-cascader
+            v-model:value="queryParams.categoryId"
+            :options="pictureCategoryList"
+            @change="handleSearch"
+            expand-trigger="hover"
+            placeholder="请选择图片分类"
+            :fieldNames="{
+              label: 'name',
+              value: 'categoryId',
+              children: 'children',
+            }"
+          />
+        </a-form-item>
+        <a-form-item label="图片空间" name="spaceId" style="width: 250px">
+          <a-select
+            show-search
+            v-model:value="queryParams.spaceId"
+            :options="spaceList"
+            :filter-option="false"
+            :fieldNames="{
+                  label: 'spaceName',
+                  value: 'spaceId',
+                }"
+            @search="handleSearchSpace"
+            @select="handleSelectSpace"
+            placeholder="请选择图片空间"
+            :not-found-content="spaceLoading"
+          />
+        </a-form-item>
+        <a-form-item label="图片文件夹" style="width: 250px">
+          <a-cascader
+            v-model:value="queryParams.folderId"
+            :options="folderList"
+            @change="handleSearch"
+            placeholder="请选择图片文件夹"
+            change-on-select
+            :fieldNames="{
+                  label: 'folderName',
+                  value: 'folderId',
+                  children: 'children',
+                }"
           />
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
@@ -101,9 +137,20 @@ import { getCurrentInstance, onMounted, ref } from 'vue'
 import { listMyTable, updatePictureName } from '@/api/picture/picture'
 import DictTag from '@/components/DictTag.vue'
 import { formatSize } from '@/utils/common.ts'
-import { CheckOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons-vue'
+import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { PictureInfoQuery } from '@/types/picture/picture'
+import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
+import { handleTree } from '@/utils/lz.ts'
+import type {
+  PictureCategoryInfoQuery,
+  PictureCategoryInfoVo,
+} from '@/types/picture/pictureCategory'
+import { mySpaceInfo } from '@/api/picture/space.ts'
+import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
+import type { Space, SpaceQuery } from '@/types/picture/space'
+import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
+import { debounce } from 'lodash-es'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status } = proxy?.useDict('p_picture_status')
@@ -133,6 +180,7 @@ const columns = [
   { title: '图片名称', dataIndex: 'name', ellipsis: true },
   { title: '简介', dataIndex: 'introduction', ellipsis: true },
   { title: '分类', dataIndex: 'categoryName', width: 100 },
+  { title: '分类', dataIndex: 'spaceName', width: 100 },
   { title: '体积', dataIndex: 'picSize', width: 100, sorter: true },
   { title: '尺寸', dataIndex: 'picDimensions', width: 120 },
   { title: '比例', dataIndex: 'picScale', width: 80 },
@@ -144,7 +192,24 @@ const columns = [
 
 const getList = () => {
   loading.value = true
-  listMyTable(queryParams.value).then((res) => {
+  let categoryId = ''
+  if (queryParams.value.categoryId && Array.isArray(queryParams.value.categoryId)) {
+    categoryId = queryParams.value.categoryId[queryParams.value.categoryId.length - 1]
+  }
+  let folderId = ''
+  if (queryParams.value.folderId && Array.isArray(queryParams.value.folderId)) {
+    folderId = queryParams.value.folderId[queryParams.value.folderId.length - 1]
+  }
+  listMyTable({
+    name: queryParams.value.name,
+    categoryId: categoryId,
+    spaceId: queryParams.value.spaceId,
+    folderId: folderId,
+    pageNum: queryParams.value.pageNum,
+    pageSize: queryParams.value.pageSize,
+    orderByColumn: queryParams.value.orderByColumn,
+    isAsc: queryParams.value.isAsc,
+  }).then((res) => {
     pictureList.value = (res?.rows || []).map((item) => ({
       ...item,
       editing: false,
@@ -211,6 +276,66 @@ const save = (record: any) => {
   })
 }
 
+//分类
+const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
+const getPictureCategoryList = async () => {
+  listPictureCategoryInfo(pictureCategoryQuery.value).then((res) => {
+    pictureCategoryList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'categoryId',
+      'parentId',
+      'children',
+    )
+    // console.log('pictureCategoryList', pictureCategoryList.value)
+  })
+}
+
+//空间
+const spaceList = ref<Space[]>([])
+const spaceQuery = ref<SpaceQuery>({})
+const spaceLoading = ref(false)
+
+//文件夹
+const folderQuery = ref<SpaceFolderInfoQuery>({
+  spaceId: '',
+})
+const folderList = ref<SpaceFolderInfoVo[]>([])
+const getMySpaceList = () => {
+  spaceLoading.value = true
+  // 获取我的空间列表
+  mySpaceInfo(spaceQuery.value).then((res) => {
+    if (res.code === 200) {
+      spaceList.value = res?.rows || []
+    } else {
+      message.error('获取空间列表失败')
+    }
+    spaceLoading.value = false
+  })
+}
+const handleSearchSpace = debounce((value: string) => {
+  spaceQuery.value.spaceName = value
+  getMySpaceList()
+}, 300)
+const getFolderList = () => {
+  // 获取文件夹列表
+  listSpaceFolderInfo(folderQuery.value).then((res) => {
+    folderList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'folderId',
+      'parentId',
+      'children',
+    )
+  })
+}
+const handleSelectSpace = () => {
+  queryParams.value.folderId = ''
+  folderQuery.value.spaceId = queryParams.value.spaceId
+  handleSearch()
+  getFolderList()
+}
+getMySpaceList()
+getPictureCategoryList()
 onMounted(getList)
 </script>
 
