@@ -13,7 +13,7 @@
         </a-form-item>
         <a-form-item>
           <a-input
-            v-model:value="queryParams.categoryName"
+            v-model:value="queryParams.Id"
             placeholder="分类名称"
             allow-clear
             @pressEnter="handleSearch"
@@ -61,7 +61,13 @@
 
           <!-- 缩略图 -->
           <template v-if="column.dataIndex === 'thumbnailUrl'">
-            <a-image :src="record.thumbnailUrl" width="60" height="60" :preview="true" />
+            <a-image
+              :alt="record.name"
+              :src="record.thumbnailUrl"
+              width="60"
+              height="60"
+              :preview="true"
+            />
           </template>
 
           <!-- 状态标签 -->
@@ -97,6 +103,7 @@ import DictTag from '@/components/DictTag.vue'
 import { formatSize } from '@/utils/common.ts'
 import { CheckOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
+import type { PictureInfoQuery } from '@/types/picture/picture'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status } = proxy?.useDict('p_picture_status')
@@ -113,12 +120,12 @@ const pagination = ref({
   showQuickJumper: true,
 })
 
-const queryParams = ref({
+const queryParams = ref(<PictureInfoQuery>{
   pageNum: 1,
   pageSize: 10,
   isAsc: 'desc',
   name: '',
-  categoryName: '',
+  categoryId: '',
 })
 
 const columns = [
@@ -126,7 +133,7 @@ const columns = [
   { title: '图片名称', dataIndex: 'name', ellipsis: true },
   { title: '简介', dataIndex: 'introduction', ellipsis: true },
   { title: '分类', dataIndex: 'categoryName', width: 100 },
-  { title: '体积', dataIndex: 'picSize', width: 100 },
+  { title: '体积', dataIndex: 'picSize', width: 100, sorter: true },
   { title: '尺寸', dataIndex: 'picDimensions', width: 120 },
   { title: '比例', dataIndex: 'picScale', width: 80 },
   { title: '格式', dataIndex: 'picFormat', width: 80 },
@@ -159,17 +166,19 @@ const resetSearch = () => {
     pageSize: 10,
     isAsc: 'desc',
     name: '',
-    categoryName: '',
+    categoryId: '',
   }
   pagination.value.current = 1
   getList()
 }
 
 const handleTableChange = (pag, _, sorter) => {
+  console.log(pag, _, sorter)
   pagination.value.current = pag.current
   pagination.value.pageSize = pag.pageSize
   queryParams.value.pageNum = pag.current
   queryParams.value.pageSize = pag.pageSize
+  queryParams.value.orderByColumn = sorter.field
   queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
   getList()
 }

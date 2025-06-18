@@ -3,6 +3,7 @@ package com.lz.picture.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
@@ -1128,7 +1129,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //如果都存在，直接返回
         if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
-            new TableDataInfo(vos, Math.toIntExact(total));
+            return new TableDataInfo(vos, Math.toIntExact(total));
         }
         //构造查询条件
         Page<PictureInfo> pictureInfoPage = new Page<>();
@@ -1150,7 +1151,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .filter(StringUtils::isNotEmpty)
                 .orElse(null);
         //构造查询条件
-        LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<PictureInfo>()
+        LambdaQueryWrapper<PictureInfo> lambdaQueryWrapper = new LambdaQueryWrapper<PictureInfo>()
                 .like(StringUtils.isNotEmpty(userPictureInfoQuery.getName()), PictureInfo::getName, userPictureInfoQuery.getName())
                 .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getCategoryId()), PictureInfo::getCategoryId, userPictureInfoQuery.getCategoryId())
                 .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getPictureStatus()), PictureInfo::getPictureStatus, userPictureInfoQuery.getPictureStatus())
@@ -1161,8 +1162,21 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .apply(
                         StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
                         "create_time between {0} and {1}",
-                        beginCreateTime, endCreateTime)
-                .orderBy(StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc()), userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getCreateTime);
+                        beginCreateTime, endCreateTime);
+        if (StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userPictureInfoQuery.getOrderByColumn())) {
+            if (!Arrays.asList("createTime","picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
+                throw new ServiceException("排序字段错误");
+            }
+            if (userPictureInfoQuery.getOrderByColumn().equals("picSize")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getPicSize);
+            }
+            if (userPictureInfoQuery.getOrderByColumn().equals("createTime")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getCreateTime);
+            }
+        }
+        LambdaQueryWrapper<PictureInfo> queryWrapper = lambdaQueryWrapper;
         Page<PictureInfo> page = this.page(pictureInfoPage, queryWrapper);
         //如果为空，直接缓存，返回
         if (StringUtils.isEmpty(page.getRecords())) {
@@ -1170,8 +1184,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
             return new TableDataInfo(page.getRecords(), (int) page.getTotal());
         }
-        //转换为 vo
-        List<PictureInfoTableVo> pictureInfoTableVos = PictureInfoTableVo.objToVo(page.getRecords());
+        //转换为 vo 并且转换地址
+        List<PictureInfoTableVo> pictureInfoTableVos =
+                pictureInfoPage.getRecords().stream()
+                        .map(pictureInfo -> {
+                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+                            return PictureInfoTableVo.objToVo(pictureInfo);
+                        }).toList();
 
         //查询标签
         List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
