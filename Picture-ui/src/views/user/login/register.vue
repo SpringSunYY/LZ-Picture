@@ -1,17 +1,9 @@
 <template>
   <div class="user-register">
-    <a-card class="login-card" :bordered="false">
-      <div class="login-header">
-        <a-row>
-          <a-col :span="6">
-            <div class="logo">
-              <img src="@/assets/logo.png" alt="Logo" />
-            </div>
-          </a-col>
-          <a-col :span="12" style="align-content: center">
-            <h1 class="text-2xl font-bold text-gray-500">LZ-Picture注册</h1>
-          </a-col>
-        </a-row>
+    <a-card class="register-card" :bordered="false">
+      <div class="register-header">
+        <SvgIcon name="logo" size="4em" />
+        <h1 class="text-3xl font-bold text-blue-500">LZ-Picture注册</h1>
       </div>
       <a-form :model="registerForm" :rules="rules" @finish="handleSubmit">
         <a-row :gutter="16">
@@ -285,7 +277,7 @@ onMounted(getCode)
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-  .login-card {
+  .register-card {
     width: 500px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -300,15 +292,12 @@ onMounted(getCode)
     }
   }
 
-  .login-header {
-    text-align: center;
-    margin-bottom: 10px;
-
-    .logo img {
-      width: 50px;
-      height: auto;
-      margin: 15px 0;
-    }
+  .register-header {
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    gap: 12px; /* 图标和文字之间的间距，可根据需要调整 */
+    justify-content: center; // 横向居中
+    padding-bottom: 20px;
   }
 
   .login-footer {

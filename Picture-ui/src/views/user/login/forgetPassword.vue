@@ -2,16 +2,8 @@
   <div class="user-forgot-password">
     <a-card class="forgot-password-card" :bordered="false">
       <div class="forgot-password-header">
-        <a-row>
-          <a-col :span="6">
-            <div class="logo">
-              <img src="@/assets/logo.png" alt="Logo" />
-            </div>
-          </a-col>
-          <a-col :span="12" style="align-content: center">
-            <h1 class="text-4xl font-bold text-gray-500">忘记密码</h1>
-          </a-col>
-        </a-row>
+        <SvgIcon name="logo" size="4em" />
+        <span class="text-4xl font-bold text-blue-500">忘记密码</span>
       </div>
 
       <a-form
@@ -147,6 +139,7 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user'
 import { getCodeImg, getForgetPasswordCode } from '@/api/user/login'
 import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -325,14 +318,11 @@ onMounted(getCode)
   }
 
   .forgot-password-header {
-    text-align: center;
-    margin-bottom: 30px;
-
-    .logo img {
-      width: 50px;
-      height: auto;
-      margin: 15px 0;
-    }
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    gap: 12px; /* 图标和文字之间的间距，可根据需要调整 */
+    justify-content: center; // 横向居中
+    padding-bottom: 20px;
   }
 
   .forgot-password-footer {

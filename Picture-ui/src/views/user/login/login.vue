@@ -2,31 +2,14 @@
   <div class="user-login">
     <a-card class="login-card" :bordered="false">
       <div class="login-header">
-        <a-row>
-          <a-col :span="6">
-            <div class="logo">
-              <img src="@/assets/logo.png" alt="Logo" />
-            </div>
-          </a-col>
-          <a-col
-            :span="15"
-            style="
-              display: grid;
-              grid-template-columns: auto max-content;
-              justify-content: center;
-              align-items: center;
-              gap: 8px;
-            "
-          >
-            <h1 class="text-2xl font-bold text-gray-500">LZ-Picture登录</h1>
-            <a-tooltip placement="top">
-              <template #title>
-                可以使用手机号码或者账号登录，如果输入手机号码优先使用手机号码登录哦，如果是账号登录请清空手机号
-              </template>
-              <QuestionCircleOutlined style="color: #1890ff; cursor: pointer; font-size: 18px" />
-            </a-tooltip>
-          </a-col>
-        </a-row>
+        <SvgIcon name="logo" size="4em" />
+        <h1 class="text-3xl font-bold text-blue-500">LZ-Picture登录</h1>
+        <a-tooltip placement="top">
+          <template #title>
+            可以使用手机号码或者账号登录，如果输入手机号码优先使用手机号码登录哦，如果是账号登录请清空手机号
+          </template>
+          <QuestionCircleOutlined style="color: #1890ff; cursor: pointer; font-size: 18px" />
+        </a-tooltip>
       </div>
 
       <a-form
@@ -125,6 +108,7 @@ import useUserStore from '@/stores/modules/user.ts'
 import { validatePassword } from '@/types/user/validators.d.ts'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import { decryptFront, encryptFront } from '@/utils/jsencrypt.ts'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -255,14 +239,11 @@ const handleFinishFailed = (errors) => {
   }
 
   .login-header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-
-  .logo img {
-    width: 50px;
-    height: auto;
-    margin: 15px 0;
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    gap: 8px; /* 图标和文字之间的间距，可根据需要调整 */
+    justify-content: center; // 横向居中
+    padding-bottom: 20px;
   }
 
   .login-footer {

@@ -418,7 +418,7 @@ export enum PPictureStatus {
 // 图片状态的标签映射
 export const PPictureStatusLabel: { [key in PPictureStatus]: string } = {
   [PPictureStatus.PICTURE_STATUS_0]: '公共',
-  [PPictureStatus.PICTURE_STATUS_1]: '私有',
+  [PPictureStatus.PICTURE_STATUS_1]: '私有'
 }
 
 // 根据值获取标签
@@ -482,4 +482,54 @@ export interface PictureInfoUpdate {
 
   /** 图片状态（0公共 1私有） */
   pictureStatus?: string
+}
+
+/**
+ * 用户图片信息展示表格数据（对应后端 PictureInfoTableVo）
+ */
+export interface PictureInfoTableVo {
+  /** 图片编号 */
+  pictureId: string;
+
+  /** 图片名称 */
+  name: string;
+
+  /** 简介 */
+  introduction: string;
+
+  /** 分类编号 */
+  categoryId: string;
+
+  /** 分类名称 */
+  categoryName: string;
+
+  /** 图片体积（单位：字节） */
+  picSize: number;
+
+  /** 图片宽度 */
+  picWidth: number;
+
+  /** 图片高度 */
+  picHeight: number;
+
+  /** 宽高比例 */
+  picScale: number;
+
+  /** 图片格式 */
+  picFormat: string;
+
+  /** 上传用户编号 */
+  userId: string;
+
+  /** 创建时间 */
+  createTime: string; // 前端一般接收为 ISO 字符串，可用 dayjs 格式化
+
+  /** 图片状态（0公共 1私有） */
+  pictureStatus: string;
+
+  /** 缩略图 URL */
+  thumbnailUrl: string;
+
+  /** 标签集合 */
+  tags: string[];
 }

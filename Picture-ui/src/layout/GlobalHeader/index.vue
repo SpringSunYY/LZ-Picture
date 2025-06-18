@@ -1,10 +1,10 @@
 <template>
   <div id="globalHeader">
     <a-row :wrap="false">
-      <a-col flex="10em">
+      <a-col >
         <RouterLink to="/">
           <div class="title-bar">
-            <img class="logo" src="@/assets/logo.png" alt="logo" />
+            <img class="logo" src="@/assets/logo.svg" alt="logo" />
             <div class="title">LZ-Picture</div>
           </div>
         </RouterLink>
@@ -75,21 +75,30 @@
         </div>
       </a-col>
       <a-drawer
-        width="36vh"
+        width="40vh"
         v-model:open="open"
         class="custom-class"
         root-class-name="root-class-name"
         placement="right"
-        @after-open-change="afterOpenChange"
       >
         <template #title>
-          <a-space align="center">
-            <a-avatar :src="formatDnsUrl(avatar)" size="large" />
-            <div>
-              <div class="nickname" style="font-size: 14px">{{ userName }}</div>
-              <div class="nickname" style="font-size: 12px; color: #616161">{{ nickName }}</div>
-            </div>
-          </a-space>
+          <a-dropdown>
+            <a-space align="center">
+              <a-avatar :src="formatDnsUrl(avatar)" size="large" />
+              <div>
+                <div class="nickname" style="font-size: 14px">{{ userName }}</div>
+                <div class="nickname" style="font-size: 12px; color: #616161">{{ nickName }}</div>
+              </div>
+            </a-space>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item @click="doLogout">
+                  <LogoutOutlined />
+                  退出登录
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
         </template>
         <SideRight />
       </a-drawer>
@@ -100,15 +109,15 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
 import { LogoutOutlined, MenuOutlined, NotificationOutlined } from '@ant-design/icons-vue'
-import { MenuProps, message, Modal } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import useUserStore from '@/stores/modules/user.js'
 import { storeToRefs } from 'pinia'
-import SvgIcon from '@/components/SvgIcon.vue'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
+import { generateMenu, renderIcon } from '@/router/permisson.ts'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -122,6 +131,7 @@ const doLogout = async () => {
     cancelText: '取消',
     async onOk() {
       await userStore.logOut()
+      open.value = false
       router.push('/')
       message.success('退出登录成功')
     },
@@ -179,75 +189,16 @@ onMounted(async () => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
 })
+
 const clickInform = () => {
   router.push('/inform')
-}
-// 递归检查路由隐藏状态
-const checkRouteHidden = (route: RouteRecordRaw | undefined): boolean => {
-  if (!route) return false // 确保 route 为空时直接返回 false
-
-  // console.log('checkRouteHidden', route)
-  // 当前路由标记隐藏
-  if (route?.meta?.isHidden) return true
-  // console.log('checkRouteHidden', route.meta?.isCache)
-  if (route?.meta?.menuAddress !== undefined && route?.meta?.menuAddress !== '2') {
-    return true
-  }
-  // 查找父路由路径（确保不会找出空路径）
-  const parentPath = route.path.split('/').slice(0, -1).join('/') || '/'
-  if (parentPath === route.path) return false // 避免路径相同导致死循环
-
-  const parentRoute = permissionStore.routes.find((r) => r.path === parentPath)
-
-  // 递归检查父级隐藏状态
-  return parentRoute ? checkRouteHidden(parentRoute) : false
-}
-const generateMenu = (routes: RouteRecordRaw[]): MenuProps['items'] => {
-  // console.log('generateMenu', routes)
-  return routes
-    .filter((route) => {
-      // console.log('checkRouteHidden', route)
-      return (
-        !route.redirect && route?.meta?.title && !route.meta?.isHidden && !checkRouteHidden(route)
-      )
-    })
-    .map((route) => {
-      // console.log('route', route)
-      const menuItem: any = {
-        key: route.path,
-        isFrame: route?.meta?.isFrame,
-        path: route?.meta?.path,
-        label: route?.meta?.title,
-        onClick: () => {
-          if (route.meta?.menuType && route.meta.menuType !== 'C') return
-          router.push({ path: route.path })
-        },
-        title: route?.meta?.title,
-        icon: route?.meta?.icon ? renderIcon(route.meta.icon as string) : undefined,
-      }
-
-      // 只有在存在子节点时才添加 children
-      if (route.children?.length) {
-        const children = generateMenu(
-          route.children.map((child) => ({
-            ...child,
-            path: `${child.path}`.replace(/\/+/g, '/'),
-          })),
-        )
-        if (children && children.length > 0) {
-          menuItem.children = children
-        }
-      }
-      // console.log('menuItem', menuItem)
-      return menuItem
-    })
 }
 // 动态生成菜单项
 const items = computed(() => {
   // 生成有效路由结构
   // 合并静态菜单项
   return [
-    ...(generateMenu(permissionStore?.routes) || []),
+    ...(generateMenu(permissionStore?.routes, '2') || []),
     {
       key: 'others',
       isFrame: true,
@@ -258,20 +209,8 @@ const items = computed(() => {
     },
   ]
 })
-// 图标渲染器
-const renderIcon = (iconName: string) => {
-  return () =>
-    h(SvgIcon, {
-      name: iconName,
-      className: 'menu-icon',
-    })
-}
 
 const open = ref<boolean>(false)
-
-const afterOpenChange = (bool: boolean) => {
-  console.log('open', bool)
-}
 
 const showDrawer = () => {
   open.value = true
@@ -284,13 +223,13 @@ const showDrawer = () => {
 
   .title-bar {
     display: flex;
+    float: left;
     align-items: center;
-    justify-items: start;
   }
 
   .title {
-    color: black;
     font-size: 18px;
+    color: #096dd9;
     font-family: 'sans-serif';
   }
 

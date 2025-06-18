@@ -131,7 +131,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(userPictureDetailInfoVo);
     }
 
-    @GetMapping("/list/table")
+    @PreAuthorize("@uss.hasPermi('picture:picture:pictureTable')")
+    @GetMapping("/list/my/table")
     public TableDataInfo listMyTable(UserPictureInfoQuery userPictureInfoQuery) {
         if (StringUtils.isNull(userPictureInfoQuery.getPageSize())) {
             userPictureInfoQuery.setPageSize(50);

@@ -12,7 +12,8 @@ import type {
   PictureInfoVo,
   PictureRecommendRequest,
   UserRecommendPictureInfoVo,
-  PictureUrlUpload
+  PictureUrlUpload,
+  PictureInfoTableVo,
 } from '@/types/picture/picture'
 
 /**
@@ -143,11 +144,23 @@ export function getSearchSuggest(
   })
 }
 
+//图片详情的推荐
 export function getPictureInfoDetailRecommend(
   params: PictureInfoRecommendRequest,
 ): Promise<API.ResponseInfo<PictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/detail/recommend',
+    method: 'get',
+    params: params,
+  })
+}
+
+//我的图片表格
+export function listMyTable(
+  params: PictureInfoQuery,
+): Promise<API.ResponseInfo<PictureInfoTableVo>> {
+  return request({
+    url: '/picture/pictureInfo/list/my/table',
     method: 'get',
     params: params,
   })

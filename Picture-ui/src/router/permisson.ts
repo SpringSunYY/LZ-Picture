@@ -3,6 +3,10 @@ import router from '@/router'
 import useUserStore from '@/stores/modules/user.ts'
 import { isPathMatch } from '@/utils/validate.ts'
 import { getToken, removeToken } from '@/utils'
+import { h } from 'vue'
+import SvgIcon from '@/components/SvgIcon.vue'
+import type { MenuProps } from 'ant-design-vue'
+import type { RouteRecordRaw } from 'vue-router'
 
 const whiteList = [
   '/',
@@ -60,3 +64,75 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 })
+/**
+ * 渲染菜单图标
+ */
+export const renderIcon = (iconName: string) => {
+  return () =>
+    h(SvgIcon, {
+      name: iconName,
+      className: 'menu-icon',
+    })
+}
+
+/**
+ * 递归检查当前路由及其父路由是否隐藏
+ */
+export const checkRouteHidden = (
+  route: RouteRecordRaw | undefined,
+  menuAddress: string,
+): boolean => {
+  if (!route) return false
+
+  const permissionStore = usePermissionStore()
+
+  if (route.meta?.isHidden) return true
+  if (route.meta?.menuAddress !== undefined && route.meta?.menuAddress !== menuAddress) return true
+
+  const parentPath = route.path.split('/').slice(0, -1).join('/') || '/'
+  if (parentPath === route.path) return false
+
+  const parentRoute = permissionStore.routes.find((r) => r.path === parentPath)
+
+  return parentRoute ? checkRouteHidden(parentRoute, menuAddress) : false
+}
+
+/**
+ * 递归生成菜单项
+ */
+export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): MenuProps['items'] => {
+  return routes
+    .filter((route) => {
+      return (
+        !route.redirect &&
+        route.meta?.title &&
+        !route.meta?.isHidden &&
+        !checkRouteHidden(route, menuAddress)
+      )
+    })
+    .map((route) => {
+      const menuItem: any = {
+        key: route.path,
+        isFrame: route.meta?.isFrame,
+        path: route.meta?.path,
+        label: route.meta?.title,
+        title: route.meta?.title,
+        icon: route.meta?.icon ? renderIcon(route.meta.icon as string) : undefined,
+      }
+
+      if (route.children?.length) {
+        const children = generateMenu(
+          route.children.map((child) => ({
+            ...child,
+            path: `${child.path}`.replace(/\/+/g, '/'),
+          })),
+          menuAddress,
+        )
+        if (Array.isArray(children) && children.length > 0) {
+          menuItem.children = children
+        }
+      }
+
+      return menuItem
+    })
+}

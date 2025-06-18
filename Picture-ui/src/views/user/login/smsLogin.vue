@@ -2,16 +2,8 @@
   <div class="user-sms-login">
     <a-card class="login-card" :bordered="false">
       <div class="login-header">
-        <a-row>
-          <a-col :span="6">
-            <div class="logo">
-              <img src="@/assets/logo.png" alt="Logo" />
-            </div>
-          </a-col>
-          <a-col :span="12" style="align-content: center">
-            <h1 class="text-4xl font-bold text-gray-500">短信登录</h1>
-          </a-col>
-        </a-row>
+        <SvgIcon name="logo" size="4em" />
+        <span class="text-4xl font-bold text-blue-500">短信登录</span>
       </div>
 
       <a-form :model="smsLoginForm" :rules="rules" @finish="handleSubmit">
@@ -261,14 +253,11 @@ getCode()
   }
 
   .login-header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-
-  .logo img {
-    width: 50px;
-    height: auto;
-    margin: 15px 0;
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    gap: 10px; /* 图标和文字之间的间距，可根据需要调整 */
+    justify-content: center; // 横向居中
+    padding-bottom: 20px;
   }
 
   .login-footer {
