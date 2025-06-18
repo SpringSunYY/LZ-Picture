@@ -13,8 +13,9 @@
         <div class="picture-card">
           <img
             class="picture-image"
-            :src="coverStyle(picture?.thumbnailUrl)"
+            :src="picture?.thumbnailUrl"
             @click="goDetail(picture.pictureId)"
+            :alt="picture.name"
           />
           <div class="picture-info">
             <h3 class="title">{{ picture.name }}</h3>
@@ -150,11 +151,6 @@ watchEffect(() => {
     getPictureInfoList()
   }
 })
-// 封面样式处理
-const coverStyle = (url?: string): string => {
-  console.log('url', url)
-  return url || 'src/assets/images/default.png'
-}
 
 getPictureInfoList()
 defineExpose({

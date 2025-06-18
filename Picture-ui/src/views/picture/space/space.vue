@@ -13,11 +13,12 @@
     <a-row v-else :gutter="[24, 24]">
       <a-col v-for="space in spaceList" :key="space.spaceId" :xs="24" :sm="12" :md="8" :lg="6">
         <div class="space-card">
-          <div
+          <img
             class="cover-image"
             @click="goDetail(space.spaceId)"
-            :style="coverStyle(space)"
-          ></div>
+            :src="space.spaceAvatar"
+            :alt="space.spaceName"
+          />
           <div class="space-info">
             <h3 class="title">{{ space.spaceName }}</h3>
             <div class="meta">
@@ -162,31 +163,26 @@ const formState = reactive<SpaceInfo>({
   spaceAvatar: '',
   spaceDesc: '',
   spaceType: '0',
-  spaceStatus: '0',
+  spaceStatus: '0'
 })
 
 // 验证规则
 const rules = {
   spaceName: [
     { required: true, message: '名称不能为空' },
-    { min: 2, max: 32, message: '长度需在2-32字符之间' },
+    { min: 2, max: 32, message: '长度需在2-32字符之间' }
   ],
   spaceType: [{ required: true, message: '空间类型不能为空' }],
   spaceDesc: [{ max: 512, message: '长度不能超过512字符' }],
-  spaceStatus: [{ required: true, message: '空间状态不能为空' }],
+  spaceStatus: [{ required: true, message: '空间状态不能为空' }]
 }
-
-// 封面样式处理
-const coverStyle = (space: Space) => ({
-  backgroundImage: `url(${formatDnsUrl(space.spaceAvatar as string) || '/default-space-cover.jpg'})`,
-})
 
 // 路由跳转
 const router = useRouter()
 const goDetail = (id: string) =>
   router.push({
     path: '/picture/space/spaceFolder',
-    query: { spaceId: id },
+    query: { spaceId: id }
   })
 // 添加空间
 const handleAdd = () => {
@@ -202,7 +198,7 @@ const resetForm = () => {
     spaceAvatar: '',
     spaceDesc: '',
     spaceType: '0',
-    spaceStatus: '0',
+    spaceStatus: '0'
   })
 }
 
@@ -339,9 +335,9 @@ getMySpaceList()
     }
 
     .cover-image {
+      width: 100%;
       height: 160px;
-      background-size: cover;
-      background-position: center;
+      object-fit: cover;
     }
 
     .space-info {
