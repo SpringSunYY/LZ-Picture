@@ -23,6 +23,8 @@
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
 
+      <div style="margin-bottom: 20px"></div>
+
       <a-table
         :columns="columns"
         :data-source="pictureList"
@@ -33,20 +35,53 @@
         size="middle"
       >
         <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'name'">
+            <div class="editable-cell">
+              <template v-if="editingId === record.pictureId">
+                <a-input v-model:value="editingName" size="small" style="width: 160px" />
+                <check-outlined
+                  class="editable-cell-icon confirm"
+                  @click="save(record)"
+                  title="保存"
+                />
+                <close-outlined
+                  class="editable-cell-icon cancel"
+                  @click="cancelEdit"
+                  title="取消"
+                />
+              </template>
+              <template v-else>
+                <span @click="edit(record)" style="cursor: pointer">
+                  {{ record.name || '未命名' }}
+                  <edit-outlined class="editable-cell-icon" />
+                </span>
+              </template>
+            </div>
+          </template>
+
+          <!-- 缩略图 -->
           <template v-if="column.dataIndex === 'thumbnailUrl'">
             <a-image :src="record.thumbnailUrl" width="60" height="60" :preview="true" />
           </template>
+
+          <!-- 状态标签 -->
           <template v-if="column.dataIndex === 'pictureStatus'">
             <dict-tag :value="record.pictureStatus" :options="p_picture_status" />
           </template>
+
+          <!-- 标签列表 -->
           <template v-if="column.dataIndex === 'tags'">
             <a-space wrap>
               <a-tag v-for="tag in record.tags" :key="tag" color="blue">{{ tag }}</a-tag>
             </a-space>
           </template>
+
+          <!-- 文件大小 -->
           <template v-if="column.dataIndex === 'picSize'">
             {{ formatSize(record.picSize) }}
           </template>
+
+          <!-- 图片尺寸 -->
           <template v-if="column.dataIndex === 'picDimensions'">
             {{ record.picWidth }} × {{ record.picHeight }}
           </template>
@@ -55,17 +90,20 @@
     </a-card>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted, getCurrentInstance } from 'vue'
-import { listMyTable } from '@/api/picture/picture'
+import { getCurrentInstance, onMounted, ref } from 'vue'
+import { listMyTable, updatePictureName } from '@/api/picture/picture'
 import DictTag from '@/components/DictTag.vue'
+import { formatSize } from '@/utils/common.ts'
+import { CheckOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status } = proxy?.useDict('p_picture_status')
 
-const pictureList = ref([])
+const pictureList = ref<any[]>([])
 const loading = ref(false)
+
 const pagination = ref({
   current: 1,
   pageSize: 10,
@@ -85,7 +123,7 @@ const queryParams = ref({
 
 const columns = [
   { title: '缩略图', dataIndex: 'thumbnailUrl', width: 80 },
-  { title: '图片名称', dataIndex: 'name' },
+  { title: '图片名称', dataIndex: 'name', ellipsis: true },
   { title: '简介', dataIndex: 'introduction', ellipsis: true },
   { title: '分类', dataIndex: 'categoryName', width: 100 },
   { title: '体积', dataIndex: 'picSize', width: 100 },
@@ -100,7 +138,10 @@ const columns = [
 const getList = () => {
   loading.value = true
   listMyTable(queryParams.value).then((res) => {
-    pictureList.value = res?.rows || []
+    pictureList.value = (res?.rows || []).map((item) => ({
+      ...item,
+      editing: false,
+    }))
     pagination.value.total = res?.total || 0
     loading.value = false
   })
@@ -133,16 +174,44 @@ const handleTableChange = (pag, _, sorter) => {
   getList()
 }
 
-const formatSize = (bytes: number): string => {
-  if (!bytes) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let i = 0
-  while (bytes >= 1024 && i < units.length - 1) {
-    bytes /= 1024
-    i++
+const editingId = ref<string | null>(null)
+const editingName = ref<string>('')
+
+const edit = (record: any) => {
+  editingId.value = record.pictureId
+  editingName.value = record.name
+}
+
+const cancelEdit = () => {
+  editingId.value = null
+  editingName.value = ''
+}
+
+const save = (record: any) => {
+  if (!editingName.value.trim()) {
+    return message.warning('图片名称不能为空')
   }
-  return `${bytes.toFixed(1)} ${units[i]}`
+  if (editingName.value.length > 32) {
+    return message.warning('图片名称不能超过32个字符')
+  }
+
+  updatePictureName({ pictureId: record.pictureId, name: editingName.value }).then(() => {
+    message.success('修改成功')
+    editingId.value = null
+    getList()
+  })
 }
 
 onMounted(getList)
 </script>
+
+<style scoped lang="scss">
+.picture-table {
+  margin: 0 4em;
+}
+
+.editable-cell-icon {
+  margin-left: 8px;
+  color: #1890ff;
+}
+</style>

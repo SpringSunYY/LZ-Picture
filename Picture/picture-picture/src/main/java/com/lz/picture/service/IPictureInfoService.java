@@ -1,7 +1,6 @@
 package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.PictureInfo;
@@ -218,4 +217,26 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/6/18 15:54
      **/
     TableDataInfo listPictureInfoTable(UserPictureInfoQuery userPictureInfoQuery);
+
+    /**
+     * 更新图片名称
+     *
+     * @param pictureInfo 图片实体
+     * @return int
+     * @author: YY
+     * @method: userUpdatePictureInfoName
+     * @date: 2025/6/18 21:55
+     **/
+    int userUpdatePictureInfoName(PictureInfo pictureInfo);
+
+    /**
+     * 获取图片信息正常的
+     *
+     * @param pictureId 图片编号
+     * @return PictureInfo
+     * @author: YY
+     * @method: selectPictureInfoByPictureId
+     * @date: 2025/6/19 00:04
+     **/
+    PictureInfo selectNormalPictureInfoByPictureId(String pictureId);
 }

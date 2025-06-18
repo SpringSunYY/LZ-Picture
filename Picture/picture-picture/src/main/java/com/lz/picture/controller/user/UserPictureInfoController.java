@@ -56,6 +56,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
     private OssConfig ossConfig;
 
 
+    /**
+     * 新增图片
+     */
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PostMapping()
     public AjaxResult add(@RequestBody @Validated UserPictureInfoAdd userPictureInfoAdd) {
@@ -66,9 +69,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
 
     /**
      * 上传图片 图片搜索
-     *
-     * @param pictureUrlUpload
-     * @return
      */
     @PreAuthorize("@uss.hasPermi('picture:pictureSearchUpload')")
     @PostMapping("/upload/url")
@@ -108,6 +108,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
+    /**
+     * 修改图片
+     */
     @PreAuthorize("@uss.hasPermi('picture:upload')")
     @PutMapping("/update")
     public AjaxResult update(@RequestBody @Validated UserPictureInfoUpdate userPictureInfoUpdate) {
@@ -116,6 +119,21 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(pictureInfoService.userUpdatePictureInfo(pictureInfo));
     }
 
+    /**
+     * 修改名字
+     */
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PutMapping("/update/name")
+    public AjaxResult updateName(@RequestBody @Validated UserPictureInfoUpdateName userPictureInfoUpdateName) {
+        PictureInfo pictureInfo = UserPictureInfoUpdateName.updateToObj(userPictureInfoUpdateName);
+        pictureInfo.setUserId(getUserId());
+        return success(pictureInfoService.userUpdatePictureInfoName(pictureInfo));
+    }
+
+
+    /**
+     * 获取图片详细信息
+     */
     @UserViewLog(targetType = "0", score = 1)
     @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
     @GetMapping("/{pictureId}")
@@ -124,6 +142,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(userPictureDetailInfoVo);
     }
 
+    /**
+     * 获取我的图片详细信息
+     */
     @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
     @GetMapping("/my/{pictureId}")
     public AjaxResult getMyInfo(@PathVariable("pictureId") String pictureId) {
@@ -131,6 +152,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(userPictureDetailInfoVo);
     }
 
+    /**
+     * 获取图片列表
+     */
     @PreAuthorize("@uss.hasPermi('picture:picture:pictureTable')")
     @GetMapping("/list/my/table")
     public TableDataInfo listMyTable(UserPictureInfoQuery userPictureInfoQuery) {
@@ -144,6 +168,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return pictureInfoService.listPictureInfoTable(userPictureInfoQuery);
     }
 
+    /**
+     * 图片列表
+     */
     @SearchLog(searchType = "0", referSource = "0")
     @GetMapping("/list")
     public TableDataInfo list(UserPictureInfoQuery userPictureInfoQuery) {
@@ -168,6 +195,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return getDataTable(userPictureInfoVos, page.getTotal());
     }
 
+    /**
+     * list我的
+     */
     @PreAuthorize("@uss.hasPermi('picture:list')")
     @GetMapping("/list/my")
     public TableDataInfo listMy(UserPictureInfoQuery userPictureInfoQuery) {
@@ -194,18 +224,27 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return tableDataInfo;
     }
 
+    /**
+     * 图片搜索推荐
+     */
     @GetMapping("/search/recommend")
     public TableDataInfo getSearchRecommend() {
         List<PictureInfoSearchRecommendVo> list = pictureInfoService.getSearchRecommend();
         return getDataTable(list, list.size());
     }
 
+    /**
+     * 图片搜索建议
+     */
     @GetMapping("/search/suggestion")
     public TableDataInfo getSearchRecommend(@RequestParam(required = false) String name) {
         List<PictureInfoSearchSuggestionVo> list = pictureInfoService.getSearchSuggestion(name);
         return getDataTable(list, list.size());
     }
 
+    /**
+     * 图片详情推荐
+     */
     @GetMapping("/detail/recommend")
     public TableDataInfo getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
         pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());

@@ -14,6 +14,7 @@ import type {
   UserRecommendPictureInfoVo,
   PictureUrlUpload,
   PictureInfoTableVo,
+  PictureInfoUpdateName,
 } from '@/types/picture/picture'
 
 /**
@@ -163,5 +164,14 @@ export function listMyTable(
     url: '/picture/pictureInfo/list/my/table',
     method: 'get',
     params: params,
+  })
+}
+
+//修改图片名字
+export function updatePictureName(data: PictureInfoUpdateName): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/pictureInfo/update/name',
+    method: 'put',
+    data: data,
   })
 }

@@ -1201,4 +1201,28 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
         return new TableDataInfo(pictureInfoTableVos, (int) page.getTotal());
     }
+
+    @Override
+    public int userUpdatePictureInfoName(PictureInfo pictureInfo) {
+        //判断图片是否存在是否是作者
+        PictureInfo pictureInfoDb = this.selectNormalPictureInfoByPictureId(pictureInfo.getPictureId());
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb)
+                || !pictureInfoDb.getUserId().equals(pictureInfo.getUserId()), "图片不存在或您不是作者");
+        pictureInfoDb.setName(pictureInfo.getName());
+        pictureInfoDb.setEditTime(DateUtils.getNowDate());
+        this.deletePictureTableCacheByUserId(pictureInfoDb.getUserId());
+        return this.updateById(pictureInfoDb) ? 1 : 0;
+    }
+
+    @Override
+    public PictureInfo selectNormalPictureInfoByPictureId(String pictureId) {
+        return this.getOne(new LambdaQueryWrapper<PictureInfo>()
+                .eq(PictureInfo::getPictureId, pictureId)
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
+    }
+
+    public void deletePictureTableCacheByUserId(String userId) {
+        redisCache.deleteObject(PICTURE_PICTURE_TABLE_DATE + userId + "*");
+        redisCache.deleteObject(PICTURE_PICTURE_TABLE_TOTAL + userId + "*");
+    }
 }
