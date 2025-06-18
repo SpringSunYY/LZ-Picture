@@ -1,10 +1,11 @@
 <template>
   <div class="inform-list">
     <a-page-header
-      style="border: 1px solid rgb(235, 237, 240)"
       title="我的消息"
       sub-title="要关心自己的消息哦"
     />
+    <div style="margin-bottom: 20px"></div>
+
     <a-form layout="inline" :model="queryParams">
       <a-form-item label="消息标题">
         <a-input-search
@@ -51,6 +52,7 @@
       </a-form-item>
       <a-button type="primary" @click="resetSearch">重置</a-button>
     </a-form>
+
     <a-tabs default-active-key="all" v-model:activeKey="activeKey" @change="handleTabChange">
       <a-tab-pane key="all" tab="全部" />
       <a-tab-pane key="1" tab="短信" />

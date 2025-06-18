@@ -35,7 +35,7 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed } from 'vue';
 import { Image as AImage } from 'ant-design-vue';
 

@@ -11,11 +11,11 @@
         :lg="6"
       >
         <div class="picture-card">
-          <div
-            class="cover-image"
-            :style="coverStyle(picture?.thumbnailUrl)"
+          <img
+            class="picture-image"
+            :src="coverStyle(picture?.thumbnailUrl)"
             @click="goDetail(picture.pictureId)"
-          ></div>
+          />
           <div class="picture-info">
             <h3 class="title">{{ picture.name }}</h3>
             <a-space class="meta" :wrap="true" direction="horizontal">
@@ -73,18 +73,18 @@ import { useRouter } from 'vue-router'
 const props = defineProps({
   currentParentId: {
     type: String,
-    default: '',
+    default: ''
   },
   spaceId: {
     type: String,
-    default: '',
-  },
+    default: ''
+  }
 })
 
 const pictureList = ref<MyPictureInfoVo[]>([]) // 图片
 const pictureQuery = ref<PictureInfoQuery>({
   pageNum: 1,
-  pageSize: 12,
+  pageSize: 12
 })
 const current = ref(1)
 const pictureTotal = ref(1)
@@ -94,7 +94,7 @@ const router = useRouter()
 const goDetail = (pictureId: string) => {
   const routeData = router.resolve({
     path: '/pictureDetail',
-    query: { pictureId },
+    query: { pictureId }
   })
   window.open(routeData.href, '_blank')
 }
@@ -137,7 +137,7 @@ const handleUpdate = (id: string) => {
   pictureId.value = id
   const routeData = router.resolve({
     path: '/picture/pictureEdit',
-    query: { pictureId: id },
+    query: { pictureId: id }
   })
   window.open(routeData.href, '_blank')
 }
@@ -151,13 +151,14 @@ watchEffect(() => {
   }
 })
 // 封面样式处理
-const coverStyle = (url?: string) => ({
-  backgroundImage: `url(${url || '/default-space-cover.jpg'})`,
-})
+const coverStyle = (url?: string): string => {
+  console.log('url', url)
+  return url || 'src/assets/images/default.png'
+}
 
 getPictureInfoList()
 defineExpose({
-  refreshData: getPictureInfoList,
+  refreshData: getPictureInfoList
 })
 </script>
 
@@ -183,6 +184,11 @@ defineExpose({
       background-position: center;
     }
 
+    .picture-image{
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
     .picture-info {
       padding: 16px;
 
