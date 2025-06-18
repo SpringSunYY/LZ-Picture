@@ -1,5 +1,6 @@
 package com.lz.picture.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,6 +9,7 @@ import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
@@ -28,6 +30,7 @@ import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.*;
@@ -496,7 +499,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setPictureUrl(null);
         }
         //存入缓存 五分钟即可
-        redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
         //查询是否有行为，点赞、收藏
         isBehavior(pictureId, userId, userPictureDetailInfoVo);
         return userPictureDetailInfoVo;
@@ -656,7 +659,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setShareCount(userPictureDetailInfoVo.getShareCount() + 1);
         }
         //存入缓存 五分钟即可
-        redisCache.setCacheObject(key, userPictureDetailInfoVo, 5, TimeUnit.MINUTES);
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
     }
 
     @Override
@@ -1104,5 +1107,98 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         redisCache.setCacheObject(key, userRecommendPictureInfoVos, PICTURE_RECOMMEND_HOT_EXPIRE_TIME, TimeUnit.SECONDS);
         return userRecommendPictureInfoVos;
+    }
+
+    @Override
+    public TableDataInfo listPictureInfoTable(UserPictureInfoQuery userPictureInfoQuery) {
+        String jsonStr = JSON.toJSONString(userPictureInfoQuery);
+        System.out.println("jsonStr = " + jsonStr);
+        //查询缓存是否存在
+        String keyData = PICTURE_PICTURE_TABLE_DATE + userPictureInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE +
+                jsonStr;
+        List<PictureInfoTableVo> vos = new ArrayList<>();
+        if (redisCache.hasKey(keyData)) {
+            vos = redisCache.getCacheObject(keyData);
+        }
+        String keyTotal = PICTURE_PICTURE_TABLE_TOTAL + userPictureInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE +
+                jsonStr;
+        Long total = 0L;
+        if (redisCache.hasKey(keyTotal)) {
+            total = redisCache.getCacheObject(keyTotal);
+        }
+        //如果都存在，直接返回
+        if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
+            new TableDataInfo(vos, Math.toIntExact(total));
+        }
+        //构造查询条件
+        Page<PictureInfo> pictureInfoPage = new Page<>();
+
+        pictureInfoPage.setCurrent(userPictureInfoQuery.getPageNum());
+        pictureInfoPage.setSize(userPictureInfoQuery.getPageSize());
+        //获取时间范围
+        Map<String, Object> params = userPictureInfoQuery.getParams();
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+        //构造查询条件
+        LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<PictureInfo>()
+                .like(StringUtils.isNotEmpty(userPictureInfoQuery.getName()), PictureInfo::getName, userPictureInfoQuery.getName())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getCategoryId()), PictureInfo::getCategoryId, userPictureInfoQuery.getCategoryId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getPictureStatus()), PictureInfo::getPictureStatus, userPictureInfoQuery.getPictureStatus())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getUserId()), PictureInfo::getUserId, userPictureInfoQuery.getUserId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getSpaceId()), PictureInfo::getSpaceId, userPictureInfoQuery.getSpaceId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getFolderId()), PictureInfo::getFolderId, userPictureInfoQuery.getFolderId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getPictureId()), PictureInfo::getPictureId, userPictureInfoQuery.getPictureId())
+                .apply(
+                        StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                        "create_time between {0} and {1}",
+                        beginCreateTime, endCreateTime)
+                .orderBy(StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc()), userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getCreateTime);
+        Page<PictureInfo> page = this.page(pictureInfoPage, queryWrapper);
+        //如果为空，直接缓存，返回
+        if (StringUtils.isEmpty(page.getRecords())) {
+            redisCache.setCacheObject(keyData, page.getRecords(), PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
+            return new TableDataInfo(page.getRecords(), (int) page.getTotal());
+        }
+        //转换为 vo
+        List<PictureInfoTableVo> pictureInfoTableVos = PictureInfoTableVo.objToVo(page.getRecords());
+
+        //查询标签
+        List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
+                .in(PictureTagRelInfo::getPictureId, page.getRecords().stream().map(PictureInfo::getPictureId).collect(Collectors.toList())));
+        //标签关联转换为map pictureId-tagName
+        Map<String, List<String>> tagRelMap = tagRelInfos.stream().filter(tagRelInfo -> StringUtils.isNotEmpty(tagRelInfo.getTagName())).collect(Collectors.groupingBy(PictureTagRelInfo::getPictureId, Collectors.mapping(PictureTagRelInfo::getTagName, Collectors.toList())));
+        pictureInfoTableVos.forEach(pictureInfoTableVo -> {
+            List<String> tags = tagRelMap.get(pictureInfoTableVo.getPictureId());
+            if (StringUtils.isNotEmpty(tags)) {
+                pictureInfoTableVo.setTags(tags);
+            }
+        });
+        //查询分类
+        //获取分类id
+        List<String> categoryIds = page.getRecords().stream().map(PictureInfo::getCategoryId).collect(Collectors.toList());
+        List<PictureCategoryInfo> categoryInfos = pictureCategoryInfoService.list(new LambdaQueryWrapper<PictureCategoryInfo>()
+                .in(PictureCategoryInfo::getCategoryId, categoryIds));
+        Map<String, PictureCategoryInfo> categoryInfoMap = categoryInfos.stream().collect(Collectors.toMap(PictureCategoryInfo::getCategoryId, Function.identity()));
+        pictureInfoTableVos.forEach(pictureInfoTableVo -> {
+            PictureCategoryInfo pictureCategoryInfo = categoryInfoMap.get(pictureInfoTableVo.getCategoryId());
+            if (StringUtils.isNotNull(pictureCategoryInfo)) {
+                pictureInfoTableVo.setCategoryName(pictureCategoryInfo.getName());
+            }
+        });
+        //存入缓存并返回信息
+        redisCache.setCacheObject(keyData, pictureInfoTableVos, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
+        return new TableDataInfo(pictureInfoTableVos, (int) page.getTotal());
     }
 }

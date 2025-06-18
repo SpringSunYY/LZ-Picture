@@ -34,12 +34,6 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
     @Resource
     private UserViewLogInfoMapper userViewLogInfoMapper;
 
-    @Resource
-    private IPictureTagInfoService pictureTagInfoService;
-
-    @Resource
-    private IPictureTagRelInfoService pictureTagRelInfoService;
-
     //region mybatis代码
 
     /**

@@ -131,6 +131,18 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(userPictureDetailInfoVo);
     }
 
+    @GetMapping("/list/table")
+    public TableDataInfo listMyTable(UserPictureInfoQuery userPictureInfoQuery) {
+        if (StringUtils.isNull(userPictureInfoQuery.getPageSize())) {
+            userPictureInfoQuery.setPageSize(50);
+        }
+        if (userPictureInfoQuery.getPageSize() > 50) {
+            userPictureInfoQuery.setPageSize(50);
+        }
+        userPictureInfoQuery.setUserId(getUserId());
+        return pictureInfoService.listPictureInfoTable(userPictureInfoQuery);
+    }
+
     @SearchLog(searchType = "0", referSource = "0")
     @GetMapping("/list")
     public TableDataInfo list(UserPictureInfoQuery userPictureInfoQuery) {
@@ -158,6 +170,12 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('picture:list')")
     @GetMapping("/list/my")
     public TableDataInfo listMy(UserPictureInfoQuery userPictureInfoQuery) {
+        if (StringUtils.isNull(userPictureInfoQuery.getPageSize())) {
+            userPictureInfoQuery.setPageSize(50);
+        }
+        if (userPictureInfoQuery.getPageSize() > 50) {
+            userPictureInfoQuery.setPageSize(50);
+        }
         PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
         pictureInfo.setUserId(getUserId());
         QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);

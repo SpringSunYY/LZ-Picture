@@ -1,10 +1,13 @@
 package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.vo.pictureInfo.*;
 
@@ -204,4 +207,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/6/6 00:05
      **/
     List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest pictureRecommendRequest);
+
+    /**
+     * 获取图片表格信息
+     *
+     * @param userPictureInfoQuery 查询信息
+     * @return Page<PictureInfoTableVo>
+     * @author: YY
+     * @method: listPictureInfoTable
+     * @date: 2025/6/18 15:54
+     **/
+    TableDataInfo listPictureInfoTable(UserPictureInfoQuery userPictureInfoQuery);
 }

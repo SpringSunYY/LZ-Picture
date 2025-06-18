@@ -1,8 +1,10 @@
 package com.lz.picture;
 
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import jakarta.annotation.Resource;
@@ -34,11 +36,19 @@ public class PictureInfoTest {
         pictureInfoDetailRecommendRequest.setCurrentPage(1);
         pictureInfoDetailRecommendRequest.setPageSize(10);
         pictureInfoDetailRecommendRequest.setPictureStatus("0");
-        pictureInfoDetailRecommendRequest.setReviewStatus("1");
         List<UserPictureInfoVo> pictureInfoDetailRecommend = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         System.out.println("pictureInfoDetailRecommend = " + pictureInfoDetailRecommend);
 
         List<PictureInfo> pictureInfoDetailRecommend1 = pictureInfoMapper.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         System.out.println("pictureInfoDetailRecommend1 = " + pictureInfoDetailRecommend1);
+    }
+
+    @Test
+    public void listPictureInfoTableTest() {
+        UserPictureInfoQuery userPictureInfoQuery = new UserPictureInfoQuery();
+        userPictureInfoQuery.setPageNum(1);
+        userPictureInfoQuery.setPageSize(100);
+        TableDataInfo tableDataInfo = pictureInfoService.listPictureInfoTable(userPictureInfoQuery);
+        System.out.println("tableDataInfo = " + tableDataInfo);
     }
 }
