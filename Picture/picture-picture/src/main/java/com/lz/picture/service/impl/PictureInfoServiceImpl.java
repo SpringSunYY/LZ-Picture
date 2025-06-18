@@ -1176,8 +1176,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                         .orderBy(true, userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getCreateTime);
             }
         }
-        LambdaQueryWrapper<PictureInfo> queryWrapper = lambdaQueryWrapper;
-        Page<PictureInfo> page = this.page(pictureInfoPage, queryWrapper);
+        Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
         //如果为空，直接缓存，返回
         if (StringUtils.isEmpty(page.getRecords())) {
             redisCache.setCacheObject(keyData, page.getRecords(), PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
