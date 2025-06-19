@@ -239,4 +239,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/6/19 00:04
      **/
     PictureInfo selectNormalPictureInfoByPictureId(String pictureId);
+
+    /**
+     * 用户删除图片
+     *
+     * @param pictureIds
+     * @return int
+     * @author: YY
+     * @method: userDeletePictureInfoByIds
+     * @date: 2025/6/19 20:30
+     **/
+    int userDeletePictureInfoByIds(String[] pictureIds);
 }

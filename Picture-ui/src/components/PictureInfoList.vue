@@ -89,7 +89,6 @@ const pictureQuery = ref<PictureInfoQuery>({
 })
 const current = ref(1)
 const pictureTotal = ref(1)
-const pictureId = ref('')
 // 路由跳转
 const router = useRouter()
 const goDetail = (pictureId: string) => {
@@ -135,7 +134,6 @@ const getPictureInfoList = () => {
 }
 
 const handleUpdate = (id: string) => {
-  pictureId.value = id
   const routeData = router.resolve({
     path: '/picture/pictureEdit',
     query: { pictureId: id }

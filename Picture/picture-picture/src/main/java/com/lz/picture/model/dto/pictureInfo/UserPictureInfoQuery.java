@@ -12,7 +12,6 @@ import org.springframework.beans.BeanUtils;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -93,6 +92,12 @@ public class UserPictureInfoQuery extends PageDomain implements Serializable {
      * 所属文件夹编号
      */
     private String folderId;
+
+    /**
+     * 删除（0否 1是）
+     */
+    private String isDelete;
+
     /**
      * 请求参数
      */

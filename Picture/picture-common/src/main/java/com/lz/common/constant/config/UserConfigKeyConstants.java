@@ -47,6 +47,11 @@ public class UserConfigKeyConstants {
      * 首页图片压缩倍率百分比
      */
     public static final String PICTURE_INDEX_P = "picture:index:p";
+
+    /**
+     * 表格图片压缩倍率百分比
+     */
+    public static final String PICTURE_TABLE_P = "picture:table:p";
     /**
      * 图片所需积分最大值
      */

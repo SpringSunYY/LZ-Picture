@@ -35,11 +35,6 @@ public class PictureInfoTableVo implements Serializable {
     private String name;
 
     /**
-     * 简介
-     */
-    private String introduction;
-
-    /**
      * 分类编号
      */
     private String categoryId;

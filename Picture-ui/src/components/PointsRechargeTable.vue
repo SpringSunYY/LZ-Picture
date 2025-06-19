@@ -105,6 +105,7 @@ const pagination = ref({
   showSizeChanger: true,
   showQuickJumper: true,
   showTotal: (total) => `共 ${total} 条记录`,
+  pageSizeOptions: ['10', '20', '30', '50']
 })
 
 const columns = [

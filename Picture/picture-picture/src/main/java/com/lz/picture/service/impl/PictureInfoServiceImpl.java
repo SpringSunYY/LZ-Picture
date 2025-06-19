@@ -1157,14 +1157,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getSpaceId()), PictureInfo::getSpaceId, userPictureInfoQuery.getSpaceId())
                 .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getFolderId()), PictureInfo::getFolderId, userPictureInfoQuery.getFolderId())
                 .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getPictureId()), PictureInfo::getPictureId, userPictureInfoQuery.getPictureId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getIsDelete()), PictureInfo::getIsDelete, userPictureInfoQuery.getIsDelete())
                 .apply(
                         StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
                         "create_time between {0} and {1}",
                         beginCreateTime, endCreateTime);
-        if (StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userPictureInfoQuery.getOrderByColumn())) {
-            if (!Arrays.asList("createTime", "picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
-                throw new ServiceException("排序字段错误");
-            }
+        if (StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc())
+                && StringUtils.isNotEmpty(userPictureInfoQuery.getOrderByColumn())
+                && !Arrays.asList("createTime", "picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
             if (userPictureInfoQuery.getOrderByColumn().equals("picSize")) {
                 lambdaQueryWrapper
                         .orderBy(true, userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getPicSize);
@@ -1173,6 +1173,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 lambdaQueryWrapper
                         .orderBy(true, userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getCreateTime);
             }
+        } else {
+            lambdaQueryWrapper
+                    .orderBy(true, false, PictureInfo::getCreateTime);
         }
         Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
         //如果为空，直接缓存，返回
@@ -1248,8 +1251,29 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
     }
 
+    @Override
+    public int userDeletePictureInfoByIds(String[] pictureIds) {
+        ThrowUtils.throwIf(StringUtils.isEmpty(pictureIds), HttpStatus.BAD_REQUEST, "请选择要删除的图片");
+        //查询到所有的图片，是正常的
+        List<PictureInfo> pictureInfos = this.list(new LambdaQueryWrapper<PictureInfo>()
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .in(PictureInfo::getPictureId, List.of(pictureIds)));
+        //获取当前用户
+        String userId = UserInfoSecurityUtils.getUserId();
+        Date nowDate = DateUtils.getNowDate();
+        //判断是否图片是自己的
+        pictureInfos.forEach(pictureInfo -> {
+            ThrowUtils.throwIf(!pictureInfo.getUserId().equals(userId), StringUtils.format("图片不存在或您不是作者:{}", pictureInfo.getName()));
+            pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
+            pictureInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
+            pictureInfo.setDeletedTime(nowDate);
+        });
+        this.deletePictureTableCacheByUserId(userId);
+        return this.updateBatchById(pictureInfos) ? 1 : 0;
+    }
+
     public void deletePictureTableCacheByUserId(String userId) {
-        redisCache.deleteObject(PICTURE_PICTURE_TABLE_DATE + userId + "*");
-        redisCache.deleteObject(PICTURE_PICTURE_TABLE_TOTAL + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_DATE + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_TOTAL + userId + "*");
     }
 }

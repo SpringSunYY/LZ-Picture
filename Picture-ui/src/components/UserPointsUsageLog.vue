@@ -97,6 +97,7 @@ const pagination = ref({
   showTotal: (total: number) => `共 ${total} 条记录`,
   showSizeChanger: true,
   showQuickJumper: true,
+  pageSizeOptions: ['10', '20', '30', '50']
 })
 
 const queryParams = ref<UserPointsUsageLogQuery>({

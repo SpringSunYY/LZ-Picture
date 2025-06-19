@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.PictureFileResponse;
 import com.lz.common.utils.StringUtils;
@@ -164,6 +165,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         if (userPictureInfoQuery.getPageSize() > 50) {
             userPictureInfoQuery.setPageSize(50);
         }
+        userPictureInfoQuery.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         userPictureInfoQuery.setUserId(getUserId());
         return pictureInfoService.listPictureInfoTable(userPictureInfoQuery);
     }
@@ -266,5 +268,14 @@ public class UserPictureInfoController extends BaseUserInfoController {
             info.setThumbnailUrl(thumbnailUrl);
         }
         return pictureInfoList;
+    }
+
+    /**
+     * 删除图片
+     */
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @DeleteMapping("/{pictureIds}")
+    public AjaxResult remove(@PathVariable String[] pictureIds) {
+        return toAjax(pictureInfoService.userDeletePictureInfoByIds(pictureIds));
     }
 }

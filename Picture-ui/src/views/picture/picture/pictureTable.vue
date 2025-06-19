@@ -33,9 +33,9 @@
             :options="spaceList"
             :filter-option="false"
             :fieldNames="{
-                  label: 'spaceName',
-                  value: 'spaceId',
-                }"
+              label: 'spaceName',
+              value: 'spaceId',
+            }"
             @search="handleSearchSpace"
             @select="handleSelectSpace"
             placeholder="请选择图片空间"
@@ -50,17 +50,21 @@
             placeholder="请选择图片文件夹"
             change-on-select
             :fieldNames="{
-                  label: 'folderName',
-                  value: 'folderId',
-                  children: 'children',
-                }"
+              label: 'folderName',
+              value: 'folderId',
+              children: 'children',
+            }"
           />
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
 
       <div style="margin-bottom: 20px"></div>
-
+      <a-space style="margin-bottom: 16px">
+        <a-button danger :disabled="!selectedRowKeys.length" @click="handleBatchDelete">
+          批量删除
+        </a-button>
+      </a-space>
       <a-table
         :columns="columns"
         :data-source="pictureList"
@@ -69,12 +73,13 @@
         @change="handleTableChange"
         row-key="pictureId"
         size="middle"
+        :row-selection="rowSelection"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'name'">
             <div class="editable-cell">
               <template v-if="editingId === record.pictureId">
-                <a-input v-model:value="editingName" size="small" style="width: 160px" />
+                <a-input v-model:value="editingName" size="small" style="width: 80px" />
                 <check-outlined
                   class="editable-cell-icon confirm"
                   @click="save(record)"
@@ -127,18 +132,34 @@
           <template v-if="column.dataIndex === 'picDimensions'">
             {{ record.picWidth }} × {{ record.picHeight }}
           </template>
+
+          <!-- 操作列 -->
+          <template v-if="column.dataIndex === 'action'">
+            <a-space>
+              <a @click="handleUpdate(record.pictureId)">修改</a>
+              <a @click="viewDetail(record)">查看</a>
+              <a-popconfirm
+                title="确定要删除这条记录吗?"
+                ok-text="是"
+                cancel-text="否"
+                @confirm="handleDelete(record)"
+              >
+                <a class="text-red-500">删除</a>
+              </a-popconfirm>
+            </a-space>
+          </template>
         </template>
       </a-table>
     </a-card>
   </div>
 </template>
 <script setup lang="ts">
-import { getCurrentInstance, onMounted, ref } from 'vue'
-import { listMyTable, updatePictureName } from '@/api/picture/picture'
+import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { deletePictureByPictureIds, listMyTable, updatePictureName } from '@/api/picture/picture'
 import DictTag from '@/components/DictTag.vue'
 import { formatSize } from '@/utils/common.ts'
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import type { PictureInfoQuery } from '@/types/picture/picture'
 import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
@@ -151,6 +172,7 @@ import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 import type { Space, SpaceQuery } from '@/types/picture/space'
 import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
 import { debounce } from 'lodash-es'
+import { useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status } = proxy?.useDict('p_picture_status')
@@ -165,6 +187,7 @@ const pagination = ref({
   showTotal: (total: number) => `共 ${total} 条记录`,
   showSizeChanger: true,
   showQuickJumper: true,
+  pageSizeOptions: ['10', '20', '30', '50'],
 })
 
 const queryParams = ref(<PictureInfoQuery>{
@@ -178,7 +201,6 @@ const queryParams = ref(<PictureInfoQuery>{
 const columns = [
   { title: '缩略图', dataIndex: 'thumbnailUrl', width: 80 },
   { title: '图片名称', dataIndex: 'name', ellipsis: true },
-  { title: '简介', dataIndex: 'introduction', ellipsis: true },
   { title: '分类', dataIndex: 'categoryName', width: 100 },
   { title: '分类', dataIndex: 'spaceName', width: 100 },
   { title: '体积', dataIndex: 'picSize', width: 100, sorter: true },
@@ -188,7 +210,50 @@ const columns = [
   { title: '状态', dataIndex: 'pictureStatus', width: 100 },
   { title: '标签', dataIndex: 'tags' },
   { title: '创建时间', dataIndex: 'createTime', sorter: true, width: 180 },
+  { title: '操作', dataIndex: 'action', width: 120 },
 ]
+
+// 多选相关
+const selectedRowKeys = ref<string[]>([])
+const selectedRows = ref<any[]>([])
+
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: string[], rows: any[]) => {
+    selectedRowKeys.value = keys
+    selectedRows.value = rows
+  },
+}))
+
+const handleBatchDelete = () => {
+  if (!selectedRowKeys.value.length) return
+
+  Modal.confirm({
+    title: '确定要删除吗？',
+    content: '删除后数据将无法恢复，请谨慎操作！',
+    okText: '确定',
+    cancelText: '取消',
+    onOk: () => {
+      // 执行删除逻辑
+      deletePictureByPictureIds(selectedRowKeys.value).then(() => {
+        message.success('删除成功')
+        selectedRows.value = []
+        selectedRowKeys.value = []
+        getList()
+      })
+    },
+    onCancel: () => {
+      message.info('已取消删除')
+    },
+  })
+}
+
+const handleDelete = (record: any) => {
+  deletePictureByPictureIds([record.pictureId]).then(() => {
+    message.success('删除成功')
+    getList()
+  })
+}
 
 const getList = () => {
   loading.value = true
@@ -334,6 +399,25 @@ const handleSelectSpace = () => {
   handleSearch()
   getFolderList()
 }
+// 路由跳转
+const router = useRouter()
+// 查看详情
+const viewDetail = (record) => {
+  const routeData = router.resolve({
+    path: '/pictureDetail',
+    query: { pictureId: record.pictureId },
+  })
+  window.open(routeData.href, '_blank')
+}
+
+const handleUpdate = (id: string) => {
+  const routeData = router.resolve({
+    path: '/picture/pictureEdit',
+    query: { pictureId: id }
+  })
+  window.open(routeData.href, '_blank')
+}
+
 getMySpaceList()
 getPictureCategoryList()
 onMounted(getList)

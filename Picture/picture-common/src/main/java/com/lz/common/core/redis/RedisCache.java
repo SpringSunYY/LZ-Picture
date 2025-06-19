@@ -107,6 +107,19 @@ public class RedisCache {
     }
 
     /**
+     * 根据前缀删除多个缓存 key
+     *
+     * @param patternKey 带 * 的通配符 key，如 "PICTURE_PICTURE_TABLE_DATE" + userId + "*"
+     */
+    public void deleteObjectsByPattern(String patternKey) {
+        Set<String> keys = redisTemplate.keys(patternKey);
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
+
+
+    /**
      * 删除集合对象
      *
      * @param collection 多个对象

@@ -120,6 +120,7 @@ const pagination = ref({
   showTotal: (total: number) => `共 ${total} 条记录`,
   showSizeChanger: true,
   showQuickJumper: true,
+  pageSizeOptions: ['10', '20', '30', '50']
 })
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 const queryParams = ref<UserViewLogQuery>({

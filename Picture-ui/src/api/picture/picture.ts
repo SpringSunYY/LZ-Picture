@@ -175,3 +175,11 @@ export function updatePictureName(data: PictureInfoUpdateName): Promise<API.Resp
     data: data,
   })
 }
+
+//删除图片
+export function deletePictureByPictureIds(pictureIds: string[]): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/pictureInfo/' + pictureIds,
+    method: 'delete',
+  })
+}
