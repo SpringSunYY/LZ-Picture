@@ -15,29 +15,15 @@ import java.math.BigDecimal;
  * @date 2025-06-17
  */
 @Data
-public class PictureApplyInfoInsert implements Serializable {
+public class PictureApplyInfoAdd implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 申请编号
-     */
-    private String applyId;
 
     /**
      * 图片编号
      */
     private String pictureId;
 
-    /**
-     * 图片名称
-     */
-    private String pictureName;
-
-    /**
-     * 缩略图 URL
-     */
-    private String thumbnailUrl;
 
     /**
      * 申请类型
@@ -75,22 +61,12 @@ public class PictureApplyInfoInsert implements Serializable {
     private BigDecimal priceNeed;
 
     /**
-     * 审核状态
-     */
-    private String reviewStatus;
-
-    /**
-     * 审核信息
-     */
-    private String reviewMessage;
-
-    /**
      * 对象转封装类
      *
      * @param pictureApplyInfoInsert 插入对象
      * @return PictureApplyInfoInsert
      */
-    public static PictureApplyInfo insertToObj(PictureApplyInfoInsert pictureApplyInfoInsert) {
+    public static PictureApplyInfo insertToObj(PictureApplyInfoAdd pictureApplyInfoInsert) {
         if (pictureApplyInfoInsert == null) {
             return null;
         }

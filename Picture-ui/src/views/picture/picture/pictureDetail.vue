@@ -206,7 +206,7 @@
             <span style="display: inline-flex; align-items: center">
               联系方式
               <a-tooltip
-                title="请输入您的联系方式，手机号码、微信、QQ等信息，例：微信：123456789，便于我们联系您处理举报信息。"
+                title="请输入您的联系方式，手机号码、微信（推荐）等信息，例：微信：123456789，便于我们联系您处理举报信息。"
               >
                 <InfoCircleOutlined
                   style="
