@@ -1,6 +1,8 @@
 package com.lz.picture.model.dto.pictureApplyInfo;
 
 import com.lz.picture.model.domain.PictureApplyInfo;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -22,17 +24,21 @@ public class PictureApplyInfoAdd implements Serializable {
     /**
      * 图片编号
      */
+    @NotEmpty(message = "图片编号不能为空")
     private String pictureId;
 
 
     /**
      * 申请类型
      */
+    @NotEmpty(message = "申请类型不能为空")
     private String applyType;
 
     /**
      * 申请理由
      */
+    @NotEmpty(message = "申请理由不能为空")
+    @Max(value = 512, message = "申请理由不能超过512个字符")
     private String applyReason;
 
     /**
@@ -48,6 +54,7 @@ public class PictureApplyInfoAdd implements Serializable {
     /**
      * 联系方式
      */
+    @NotEmpty(message = "联系方式不能为空")
     private String contact;
 
     /**

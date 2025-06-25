@@ -14,6 +14,7 @@ declare module 'vue' {
     DictTag: typeof import('./src/components/DictTag.vue')['default']
     DirectionAwareHover: typeof import('./src/components/DirectionAwareHover.vue')['default']
     FancyImage: typeof import('./src/components/FancyImage.vue')['default']
+    FileUpload: typeof import('./src/components/FileUpload.vue')['default']
     MarkdownView: typeof import('./src/components/MarkdownView.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']
     PictureBatchUpload: typeof import('./src/components/PictureBatchUpload.vue')['default']

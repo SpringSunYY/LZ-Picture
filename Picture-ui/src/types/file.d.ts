@@ -6,7 +6,7 @@ export interface PictureFileResponse {
   /**
    * 图片 URL
    */
-  pictureUrl: string
+  url: string
 
   /**
    * 图片域名

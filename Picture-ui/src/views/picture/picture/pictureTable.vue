@@ -204,7 +204,7 @@
         </a-form-item>
 
         <a-form-item label="证明文件" name="applyFile">
-          <a-input v-model:value="formApply.applyFile" placeholder="请输入文件链接或上传路径" />
+          <FileUpload v-model:value="formApply.applyFile" placeholder="请输入文件链接或上传路径" />
         </a-form-item>
 
         <a-form-item name="contact">
@@ -289,6 +289,8 @@ import { useRouter } from 'vue-router'
 import { checkPermiSingle } from '@/utils/permission.ts'
 import type { PictureApplyInfoAdd } from '@/types/picture/pictureApplyInfo.d.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
+import FileUpload from '@/components/FileUpload.vue'
+import { addPictureApplyInfo } from '@/api/picture/pictureApplyInfo.ts'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status, p_picture_apply_type } = proxy?.useDict(
@@ -319,6 +321,16 @@ const handleApplySubmit = () => {
     message.error('积分必须为 10 的倍数（可以为 0,表示免费）')
     return
   }
+  applyLoading.value = true
+  addPictureApplyInfo(formApply.value).then((res) => {
+    if (res.code === 200) {
+      message.success('申请成功')
+      openApply.value = false
+    } else {
+      message.error(res.msg)
+    }
+    applyLoading.value = false
+  })
 }
 
 const handleOpenApply = (pictureId: string) => {

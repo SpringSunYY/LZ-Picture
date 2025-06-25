@@ -26,6 +26,18 @@ export function coverUploadFile(file: any): Promise<API.ResponseInfo<PictureFile
   })
 }
 
+export function uploadFile(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
+  return request({
+    url: '/picture/file/upload/file',
+    headers: {
+      repeatSubmit: false,
+    },
+    method: 'post',
+    data: file,
+    timeout: 60000,
+  })
+}
+
 export function urlUploadFile(
   data: UrlUploadRequest,
 ): Promise<API.ResponseInfo<PictureFileResponse>> {

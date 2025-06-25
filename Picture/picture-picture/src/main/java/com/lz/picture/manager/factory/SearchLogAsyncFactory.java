@@ -1,17 +1,7 @@
 package com.lz.picture.manager.factory;
 
-import com.lz.common.core.domain.DeviceInfo;
-import com.lz.common.manager.file.model.PictureFileResponse;
-import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.spring.SpringUtils;
-import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
-import com.lz.config.model.enmus.CFileLogStatusEnum;
-import com.lz.config.model.enmus.CFileLogTypeEnum;
-import com.lz.config.service.IFileLogInfoService;
-import com.lz.picture.annotation.SearchLog;
-import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SearchLogInfo;
-import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.service.ISearchLogInfoService;
 
 import java.util.TimerTask;

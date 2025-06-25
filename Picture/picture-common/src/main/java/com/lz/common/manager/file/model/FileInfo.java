@@ -13,7 +13,7 @@ import lombok.Data;
  * @version: 1.0
  */
 @Data
-public class PictureFileInfo {
+public class FileInfo {
     /**
      * 没有后缀文件名
      */

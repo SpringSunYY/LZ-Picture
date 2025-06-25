@@ -257,9 +257,9 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
         uid: file.uid,
         status: 'done',
         name: response?.data?.name,
-        url: response?.data?.pictureUrl, // 确保取 `pictureUrl`
+        url: response?.data?.url, // 确保取 `pictureUrl`
         thumbnailUrl: response?.data?.thumbnailUrl,
-        pictureUrl: response?.data?.pictureUrl,
+        pictureUrl: response?.data?.url,
         dnsUrl: response?.data?.dnsUrl,
         meta: {
           width: response?.data?.picWidth,

@@ -3,7 +3,7 @@ package com.lz.config.service;
 import java.util.List;
 
 import com.lz.common.core.domain.DeviceInfo;
-import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.manager.file.model.FileResponse;
 import com.lz.config.model.domain.FileLogInfo;
 import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
@@ -89,7 +89,7 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
     /**
      * 记录文件日志
      *
-     * @param pictureFileResponse 图片信息
+     * @param fileResponse 图片信息
      * @param userId              用户编号
      * @param ossType             存储类型
      * @param logType             日志类型
@@ -98,7 +98,7 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * @author: YY
      * @date: 2025/5/10 22:56
      **/
-    void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
+    void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
 
     /**
      * 更新文件日志

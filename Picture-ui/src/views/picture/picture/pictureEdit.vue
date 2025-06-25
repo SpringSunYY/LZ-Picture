@@ -310,7 +310,7 @@ const handleExternalSuccess = (moderValue: PictureFileResponse) => {
   message.success('正在更新...', 1.5)
   formState.dnsUrl = moderValue.dnsUrl
   formState.thumbnailUrl = moderValue.thumbnailUrl
-  formState.pictureUrl = moderValue.pictureUrl
+  formState.pictureUrl = moderValue.url
   formState.picWidth = moderValue.picWidth
   formState.picHeight = moderValue.picHeight
   formState.picScale = Number(moderValue.picScale.toFixed(2))

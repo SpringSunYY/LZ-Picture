@@ -18,8 +18,8 @@ import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.manager.file.model.Exif;
-import com.lz.common.manager.file.model.PictureFileInfo;
-import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.manager.file.model.FileInfo;
+import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -64,15 +64,19 @@ public class PictureUploadManager {
     /**
      * 默认50m
      */
-    public static Long DEFAULT_FONT_SIZE = 1024L * 1024L * 50;
-    public static Long UEL_FONT_SIZE = 1024L * 1024L * 30;
-
+    public static Long DEFAULT_PICTURE_SIZE = 1024L * 1024L * 50;
+    public static Long URL_PICTURE_SIZE = 1024L * 1024L * 30;
+    /**
+     * 默认文件大小
+     */
+    public static final Long DEFAULT_FILE_SIZE = 1024L * 1024L * 50;
     /**
      * 默认的文件名最大长度 100
      */
-    public static final int DEFAULT_FILE_NAME_LENGTH = 100;
+    public static final Long DEFAULT_FILE_NAME_LENGTH = 100L;
 
-    public static final List<String> DEFAULT_ALLOWED_EXTENSION = Arrays.asList("bmp", "gif", "jpg", "jpeg", "png", "webp");
+    public static final List<String> DEFAULT_PICTURE_ALLOWED_EXTENSION = Arrays.asList("bmp", "gif", "jpg", "jpeg", "png", "webp");
+    public static final List<String> DEFAULT_FILE_ALLOWED_EXTENSION = Arrays.asList("pdf", "doc", "docx", "ppt", "pptx", "txt", "rar", "zip", "gz");
 
     /**
      * description: 初始化oss客户端
@@ -159,21 +163,21 @@ public class PictureUploadManager {
      * param: fileBytes
      * return: java.lang.String
      **/
-    public PictureFileResponse uploadPicture(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+    public FileResponse uploadPicture(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        PictureFileInfo pictureFileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir);
+        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir);
 
         try {
-            file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
+            file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
             multipartFile.transferTo(file);
         } catch (Exception e) {
             log.error("文件上传失败", e);
             throw new RuntimeException("文件上传失败");
         }
         //校验文件
-        validateFile(file);
+        validateFile(file, DEFAULT_PICTURE_SIZE, DEFAULT_FILE_NAME_LENGTH, DEFAULT_PICTURE_ALLOWED_EXTENSION);
 
         OSS ossClient = null;
         InputStream inputStream = null;
@@ -186,14 +190,14 @@ public class PictureUploadManager {
             );
 
             // 上传原始文件
-            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getFilePath(), file);
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getFilePath(), file);
 
             // 生成获取图片信息的预签名URL（包含目录路径）
             String style = "image/info";
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
-                    pictureFileInfo.getFilePath(),  // 使用完整路径
+                    fileInfo.getFilePath(),  // 使用完整路径
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
@@ -216,10 +220,10 @@ public class PictureUploadManager {
             connection.setRequestMethod("GET");
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
-            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getCompressedFilePath(), inputStream);
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
 
             // 返回文件访问路径或URL
-            return buildPictureResponse(ossConfig.getEndpoint(), pictureFileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
@@ -245,33 +249,33 @@ public class PictureUploadManager {
     /**
      * 返回图片信息
      *
-     * @param endpoint        环境dns
-     * @param pictureFileInfo 图片文件信息
-     * @param picSize         图片大小
-     * @param picWidth        图片宽度
-     * @param picHeight       图片高度
+     * @param endpoint  环境dns
+     * @param fileInfo  图片文件信息
+     * @param picSize   图片大小
+     * @param picWidth  图片宽度
+     * @param picHeight 图片高度
      * @return com.lz.common.manager.file.model.PictureFileResponse
      * @author YY
      * @method buildPictureResponse
      * @date 2025/4/24 20:20
      **/
-    private static PictureFileResponse buildPictureResponse(String endpoint, PictureFileInfo pictureFileInfo, Long picSize, long picWidth, long picHeight) {
+    private static FileResponse buildPictureResponse(String endpoint, FileInfo fileInfo, Long picSize, long picWidth, long picHeight) {
         //设置图片信息
-        PictureFileResponse pictureFileResponse = new PictureFileResponse();
-        pictureFileResponse.setPictureUrl("/" + pictureFileInfo.getFilePath());
-        pictureFileResponse.setName(pictureFileInfo.getFileNameNotSuffix());
-        pictureFileResponse.setPicSize(picSize);
-        pictureFileResponse.setPicWidth(picWidth);
-        pictureFileResponse.setPicHeight(picHeight);
+        FileResponse fileResponse = new FileResponse();
+        fileResponse.setUrl("/" + fileInfo.getFilePath());
+        fileResponse.setName(fileInfo.getFileNameNotSuffix());
+        fileResponse.setPicSize(picSize);
+        fileResponse.setPicWidth(picWidth);
+        fileResponse.setPicHeight(picHeight);
         if (picWidth > 0 && picHeight > 0) {
-            pictureFileResponse.setPicScale(((double) picWidth / (double) picHeight));
+            fileResponse.setPicScale(((double) picWidth / (double) picHeight));
         } else {
-            pictureFileResponse.setPicScale(0.0);
+            fileResponse.setPicScale(0.0);
         }
-        pictureFileResponse.setPicFormat(pictureFileInfo.getFileSuffix());
-        pictureFileResponse.setThumbnailUrl("/" + pictureFileInfo.getCompressedFilePath());
-        pictureFileResponse.setDnsUrl(endpoint);
-        return pictureFileResponse;
+        fileResponse.setPicFormat(fileInfo.getFileSuffix());
+        fileResponse.setThumbnailUrl("/" + fileInfo.getCompressedFilePath());
+        fileResponse.setDnsUrl(endpoint);
+        return fileResponse;
     }
 
     /**
@@ -284,13 +288,13 @@ public class PictureUploadManager {
      * @method getPictureFileInfo
      * @date 2025/4/24 20:14
      **/
-    public PictureFileInfo getPictureFileInfo(String fileName, String fileDir) {
+    public FileInfo getPictureFileInfo(String fileName, String fileDir) {
         String nameNotSuffix = FileUtils.getNameNotSuffix(fileName);
         String fileSuffix = FileUtil.getSuffix(fileName);
 //        System.err.println("nameNotSuffix = " + nameNotSuffix);
 //        System.out.println("fileSuffix = " + fileSuffix);
         //如果文件格式不是图片，因为之前校验通过，但是有些图片链接没有图片格式，所以要自己替换
-        if (!DEFAULT_ALLOWED_EXTENSION.contains(fileSuffix)) {
+        if (!DEFAULT_PICTURE_ALLOWED_EXTENSION.contains(fileSuffix)) {
             fileSuffix = "jpg";
         }
         String newFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + "." + fileSuffix;
@@ -302,16 +306,16 @@ public class PictureUploadManager {
         String compressedSuffix = "-compressed.webp";
         String compressedFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + compressedSuffix;
         String compressedFilePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + compressedFileName;
-        PictureFileInfo pictureFileInfo = new PictureFileInfo();
-        pictureFileInfo.setFileNameNotSuffix(nameNotSuffix);
-        pictureFileInfo.setFileName(fileName);
-        pictureFileInfo.setFileSuffix(fileSuffix);
-        pictureFileInfo.setFilePath(filePath);
-        pictureFileInfo.setNewFileName(newFileName);
-        pictureFileInfo.setCompressedSuffix(compressedSuffix);
-        pictureFileInfo.setCompressedFileName(compressedFileName);
-        pictureFileInfo.setCompressedFilePath(compressedFilePath);
-        return pictureFileInfo;
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setFileNameNotSuffix(nameNotSuffix);
+        fileInfo.setFileName(fileName);
+        fileInfo.setFileSuffix(fileSuffix);
+        fileInfo.setFilePath(filePath);
+        fileInfo.setNewFileName(newFileName);
+        fileInfo.setCompressedSuffix(compressedSuffix);
+        fileInfo.setCompressedFileName(compressedFileName);
+        fileInfo.setCompressedFilePath(compressedFilePath);
+        return fileInfo;
     }
 
     /**
@@ -373,25 +377,6 @@ public class PictureUploadManager {
                 + ",g_east,x_50,type_ZHJvaWRzYW5zZmFsbGJhY2s";
     }
 
-    private void validateFile(File file) {
-        if (StringUtils.isNull(file) || StringUtils.isEmpty(file.getName())) {
-            throw new IllegalArgumentException("文件或文件名不能为空");
-        }
-        //校验文件大小
-        if (file.length() > DEFAULT_FONT_SIZE) {
-            throw new RuntimeException("文件大小不能超过" + DEFAULT_FONT_SIZE / 1024 / 1024 + "MB");
-        }
-        //文件名长度
-        if (file.getName().length() > DEFAULT_FILE_NAME_LENGTH) {
-            throw new RuntimeException("文件名长度不能超过" + DEFAULT_FILE_NAME_LENGTH + "个字符");
-        }
-        //校验文件类型
-        String fileType = FileUtil.getType(file);
-        if (!DEFAULT_ALLOWED_EXTENSION.contains(fileType)) {
-            throw new RuntimeException("文件类型不支持");
-        }
-    }
-
     /**
      * description: 上传封面图操作
      * author: YY
@@ -403,19 +388,19 @@ public class PictureUploadManager {
      * param: loginUser
      * return: String
      **/
-    public PictureFileResponse uploadCover(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+    public FileResponse uploadCover(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        PictureFileInfo pictureFileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir);
+        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir);
         try {
-            file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
+            file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
             multipartFile.transferTo(file);
         } catch (Exception e) {
             e.printStackTrace();
         }
         //校验文件
-        validateFile(file);
+        validateFile(file, DEFAULT_PICTURE_SIZE, DEFAULT_FILE_NAME_LENGTH, DEFAULT_PICTURE_ALLOWED_EXTENSION);
 
         OSS ossClient = null;
         InputStream inputStream = null;
@@ -427,11 +412,11 @@ public class PictureUploadManager {
                     ossConfig.getAccessKeySecret()
             );
             // 上传原始文件
-            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getFilePath(), file);
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getFilePath(), file);
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
-                    pictureFileInfo.getFilePath(),  // 使用完整路径
+                    fileInfo.getFilePath(),  // 使用完整路径
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
@@ -443,9 +428,9 @@ public class PictureUploadManager {
             connection.setRequestMethod("GET");
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
-            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getCompressedFilePath(), inputStream);
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
             // 返回文件访问路径或1URL
-            return buildPictureResponse(ossConfig.getEndpoint(), pictureFileInfo, 0L, 0, 0);
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, 0L, 0, 0);
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
@@ -481,19 +466,19 @@ public class PictureUploadManager {
      * @method uploadUrl
      * @date 2025/4/24 23:10
      **/
-    public PictureFileResponse uploadUrl(String url, String fileDir, LoginUserInfo loginUser) {
+    public FileResponse uploadUrl(String url, String fileDir, LoginUserInfo loginUser) {
         //校验文件路径
         validPicture(url);
         //获取文件名
         String fileName = getValidFilename(url);
         //生成唯一文件名
-        PictureFileInfo pictureFileInfo = getPictureFileInfo(fileName, fileDir);
+        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir);
         //获取文件
         File file = null;
         InputStream inputStream = null;
         OSS ossClient = null;
         try {
-            file = File.createTempFile(pictureFileInfo.getNewFileName(), pictureFileInfo.getFileSuffix());
+            file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
             processFile(url, file);
             // 初始化OSS客户端
             ossClient = new OSSClientBuilder().build(
@@ -503,13 +488,13 @@ public class PictureUploadManager {
             );
 
             // 上传原始文件
-            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getFilePath(), file);
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getFilePath(), file);
             // 生成获取图片信息的预签名URL（包含目录路径）
             String style = "image/info";
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
-                    pictureFileInfo.getFilePath(),  // 使用完整路径
+                    fileInfo.getFilePath(),  // 使用完整路径
                     HttpMethod.GET
             );
             req.setExpiration(expiration);
@@ -533,9 +518,9 @@ public class PictureUploadManager {
             connection.setRequestMethod("GET");
             inputStream = connection.getInputStream();
             // 将压缩图上传到OSS
-            ossClient.putObject(ossConfig.getBucket(), pictureFileInfo.getCompressedFilePath(), inputStream);
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
             // 返回文件访问路径或URL
-            return buildPictureResponse(ossConfig.getEndpoint(), pictureFileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
 //            System.err.println("上传失败：" + e.getMessage());
@@ -602,7 +587,7 @@ public class PictureUploadManager {
             if (StrUtil.isNotBlank(contentLengthStr)) {
                 try {
                     long contentLength = Long.parseLong(contentLengthStr);
-                    ThrowUtils.throwIf(contentLength > UEL_FONT_SIZE, "文件大小不能超过 2M");
+                    ThrowUtils.throwIf(contentLength > URL_PICTURE_SIZE, "文件大小不能超过 2M");
                 } catch (NumberFormatException e) {
                     throw new ServiceException("文件大小格式错误");
                 }
@@ -658,4 +643,117 @@ public class PictureUploadManager {
             }
         }
     }
+
+    /**
+     * 上传文件
+     *
+     * @param multipartFile
+     * @param fileDir
+     * @param loginUser
+     * @return PictureFileResponse
+     * @author: YY
+     * @method: uploadFile
+     * @date: 2025/6/25 22:19
+     **/
+    public FileResponse uploadFile(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+        //创建临时文件
+        File file = null;
+        // 生成唯一文件名
+        FileInfo fileInfo = getFileInfo(multipartFile.getOriginalFilename(), fileDir);
+        try {
+            file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
+            multipartFile.transferTo(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //校验文件
+        validateFile(file, DEFAULT_FILE_SIZE, DEFAULT_FILE_NAME_LENGTH, DEFAULT_FILE_ALLOWED_EXTENSION);
+
+        OSS ossClient = null;
+        InputStream inputStream = null;
+        try {
+            // 初始化OSS客户端
+            ossClient = new OSSClientBuilder().build(
+                    ossConfig.getEndpoint(),
+                    ossConfig.getAccessKeyId(),
+                    ossConfig.getAccessKeySecret()
+            );
+            // 上传原始文件
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getFilePath(), file);
+            new GeneratePresignedUrlRequest(
+                    ossConfig.getBucket(),
+                    fileInfo.getFilePath(),  // 使用完整路径
+                    HttpMethod.GET
+            );
+
+            // 返回文件访问路径或1URL
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, 0L, 0, 0);
+        } catch (Exception e) {
+            // 记录详细日志
+            System.err.println("上传失败：" + e.getMessage());
+            throw new RuntimeException("文件上传异常");
+        } finally {
+            // 确保关闭OSSClient
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (file != null && file.exists()) {
+                boolean delete = file.delete();
+            }
+        }
+    }
+
+    private FileInfo getFileInfo(String fileName, String fileDir) {
+        String nameNotSuffix = FileUtils.getNameNotSuffix(fileName);
+        String fileSuffix = FileUtil.getSuffix(fileName);
+        String newFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + "." + fileSuffix;
+        String dir = ossConfig.getDir();
+        //生成文件路径 包括时间年/月/日
+        String parseDateToStr = DateUtils.parseDateToStr(DateUtils.yyyy_mm_dd, new Date());
+        String filePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + newFileName;
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setFileNameNotSuffix(nameNotSuffix);
+        fileInfo.setFileName(fileName);
+        fileInfo.setFileSuffix(fileSuffix);
+        fileInfo.setFilePath(filePath);
+        fileInfo.setNewFileName(newFileName);
+        return fileInfo;
+    }
+
+    /**
+     * 校验文件
+     *
+     * @param file
+     * @return void
+     * @author: YY
+     * @method: validatePictureFile
+     * @date: 2025/6/25 22:26
+     **/
+    private void validateFile(File file, Long fileSize, Long fileNameSize, List<String> allowedExtensions) {
+        if (StringUtils.isNull(file) || StringUtils.isEmpty(file.getName())) {
+            throw new IllegalArgumentException("文件或文件名不能为空");
+        }
+        //校验文件大小
+        if (file.length() > fileSize) {
+            throw new RuntimeException("文件大小不能超过" + fileSize / 1024 / 1024 + "MB");
+        }
+        //文件名长度
+        if (file.getName().length() > fileNameSize) {
+            throw new RuntimeException("文件名长度不能超过" + fileNameSize + "个字符");
+        }
+        //校验文件类型
+        String fileType = FileUtil.getType(file);
+        System.out.println("fileType = " + fileType);
+        if (!allowedExtensions.contains(fileType)) {
+            throw new RuntimeException("文件类型不支持");
+        }
+    }
+
 }

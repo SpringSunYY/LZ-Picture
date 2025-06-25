@@ -12,11 +12,11 @@ import lombok.Data;
  * Version: 1.0
  */
 @Data
-public class PictureFileResponse {
+public class FileResponse {
     /**
      * 图片URL
      */
-    private String pictureUrl;
+    private String url;
 
     /**
      * 图片域名
@@ -57,5 +57,4 @@ public class PictureFileResponse {
      * 缩略图URL
      */
     private String thumbnailUrl;
-
 }

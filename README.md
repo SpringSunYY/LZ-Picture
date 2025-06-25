@@ -2847,7 +2847,7 @@ CREATE TABLE p_picture_recommend_info
 | apply_image    | text     |      |                                  | 是   |                | 证明图片   |
 | apply_file     | text     |      |                                  | 是   |                | 证明文件   |
 | contact        | varchar  | 512  |                                  | 否   |                | 联系方式   |
-| points_need    | int      |      |                                  | 否   | 10             | 所需积分   |
+| points_need    | int      |      |                                  | 是   | 0              | 所需积分   |
 | price_need     | decimal  | 10,2 |                                  | 是   | 0              | 所需金额   |
 | user_id        | varchar  | 128  | 外键(u_user_info:user_id)        | 否   |                | 用户       |
 | create_time    | datetime |      |                                  | 否   | 当前时间       | 创建时间   |

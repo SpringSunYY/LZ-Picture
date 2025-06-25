@@ -1,21 +1,22 @@
 package com.lz.picture.service;
 
-import java.util.List;
-import com.lz.picture.model.domain.PictureApplyInfo;
-import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
-import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.picture.model.domain.PictureApplyInfo;
+import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
+import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
+
+import java.util.List;
+
 /**
  * 图片申请信息Service接口
  *
  * @author YY
  * @date 2025-06-17
  */
-public interface IPictureApplyInfoService extends IService<PictureApplyInfo>
-{
+public interface IPictureApplyInfoService extends IService<PictureApplyInfo> {
     //region mybatis代码
+
     /**
      * 查询图片申请信息
      *
@@ -64,6 +65,7 @@ public interface IPictureApplyInfoService extends IService<PictureApplyInfo>
      */
     public int deletePictureApplyInfoByApplyId(String applyId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +81,12 @@ public interface IPictureApplyInfoService extends IService<PictureApplyInfo>
      * @return PictureApplyInfoVO集合
      */
     List<PictureApplyInfoVo> convertVoList(List<PictureApplyInfo> pictureApplyInfoList);
+
+    /**
+     * 用户新增图片申请信息
+     *
+     * @param pictureApplyInfo
+     * @return
+     */
+    int userInsertPictureApplyInfo(PictureApplyInfo pictureApplyInfo);
 }

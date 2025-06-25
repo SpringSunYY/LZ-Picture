@@ -342,7 +342,7 @@ const handleBatchUpload = () => {
 const handleUploadSuccess = async (data: PictureFileResponse) => {
   try {
     const formData = {
-      pictureUrl: data.pictureUrl,
+      pictureUrl: data.url,
       dnsUrl: data.dnsUrl,
       name: data.name,
       picSize: data.picSize,

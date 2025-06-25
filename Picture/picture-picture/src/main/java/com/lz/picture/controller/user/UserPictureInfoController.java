@@ -8,7 +8,7 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.manager.file.PictureUploadManager;
-import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
@@ -76,29 +76,29 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult uploadUrl(@RequestBody @Validated PictureUrlUpload pictureUrlUpload) {
         System.err.println(pictureUrlUpload);
         // 执行业务上传
-        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getLoginUser());
+        FileResponse fileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getLoginUser());
 
         //异步执行存入文件日志
         String userId = getUserId();
 //        System.err.println("picture = " + pictureFileResponse);
-        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(pictureFileResponse,
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(fileResponse,
                 userId,
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
         ));
         PictureInfo pictureInfo = new PictureInfo();
-        pictureInfo.setPictureUrl(pictureFileResponse.getPictureUrl());
+        pictureInfo.setPictureUrl(fileResponse.getUrl());
 //        pictureInfo.setDnsUrl();
         pictureInfo.setName(pictureUrlUpload.getName());
         pictureInfo.setIntroduction(pictureUrlUpload.getIntroduction());
         pictureInfo.setCategoryId(pictureUrlUpload.getCategoryId());
-        pictureInfo.setPicSize(pictureFileResponse.getPicSize());
-        pictureInfo.setPicWidth(pictureFileResponse.getPicWidth());
-        pictureInfo.setPicHeight(pictureFileResponse.getPicHeight());
-        pictureInfo.setPicScale(pictureFileResponse.getPicScale());
-        pictureInfo.setPicFormat(pictureFileResponse.getPicFormat());
+        pictureInfo.setPicSize(fileResponse.getPicSize());
+        pictureInfo.setPicWidth(fileResponse.getPicWidth());
+        pictureInfo.setPicHeight(fileResponse.getPicHeight());
+        pictureInfo.setPicScale(fileResponse.getPicScale());
+        pictureInfo.setPicFormat(fileResponse.getPicFormat());
         pictureInfo.setUserId(userId);
-        pictureInfo.setThumbnailUrl(pictureFileResponse.getThumbnailUrl());
+        pictureInfo.setThumbnailUrl(fileResponse.getThumbnailUrl());
         pictureInfo.setSpaceId(pictureUrlUpload.getSpaceId());
         pictureInfo.setFolderId(pictureUrlUpload.getFolderId());
         PictureMoreInfo pictureMoreInfo = new PictureMoreInfo();

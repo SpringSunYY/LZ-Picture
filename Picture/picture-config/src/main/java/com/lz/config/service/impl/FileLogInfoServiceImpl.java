@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.PictureUploadManager;
-import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 
 import java.util.Date;
@@ -183,14 +183,14 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
 
 
     @Override
-    public void recordFileLog(PictureFileResponse pictureFileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo) {
+    public void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo) {
         FileLogInfo fileLogInfo = new FileLogInfo();
         BeanUtils.copyProperties(deviceInfo, fileLogInfo);
         //设置对应值
         fileLogInfo.setUserId(userId);
-        fileLogInfo.setDnsUrl(pictureFileResponse.getDnsUrl());
-        fileLogInfo.setFileUrl(pictureFileResponse.getPictureUrl());
-        fileLogInfo.setFileType(pictureFileResponse.getPicFormat());
+        fileLogInfo.setDnsUrl(fileResponse.getDnsUrl());
+        fileLogInfo.setFileUrl(fileResponse.getUrl());
+        fileLogInfo.setFileType(fileResponse.getPicFormat());
         //如果是官方
         if (!CFileLogOssTypeEnum.OSS_TYPE_0.getValue().equals(ossType)) {
             fileLogInfo.setOssType(ossType);
@@ -207,7 +207,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         //压缩图片全部webp
         fileLogInfo.setFileType("webp");
         fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
-        fileLogInfo.setFileUrl(pictureFileResponse.getThumbnailUrl());
+        fileLogInfo.setFileUrl(fileResponse.getThumbnailUrl());
         fileLogInfo.setLogId(IdUtils.fastUUID());
         fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
     }

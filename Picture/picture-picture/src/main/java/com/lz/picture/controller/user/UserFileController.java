@@ -3,13 +3,11 @@ package com.lz.picture.controller.user;
 import com.alibaba.fastjson.JSON;
 import com.lz.common.constant.Constants;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.enums.UserStatus;
 import com.lz.common.manager.file.PictureUploadManager;
-import com.lz.common.manager.file.model.PictureFileResponse;
+import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.file.FileUtils;
-import com.lz.common.utils.http.HttpUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.manager.PictureAsyncManager;
@@ -23,9 +21,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.encoders.UTF8;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,7 +61,7 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload")
     public AjaxResult uploadPicture(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        PictureFileResponse picture = pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser());
+        FileResponse picture = pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser());
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
                 getLoginUser().getUserId(),
@@ -87,24 +83,52 @@ public class UserFileController extends BaseUserInfoController {
                                   @RequestParam(name = "type", required = false) String type,
                                   @RequestParam(name = "fileDir", required = false) String fileDir) {
         if (StringUtils.isEmpty(type)) {
-            type = "1";
+            type = CFileLogTypeEnum.LOG_TYPE_1.getValue();
         }
         if (StringUtils.isEmpty(fileDir)) {
             fileDir = "cover";
         }
         // 执行业务上传
-        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadCover(multipartFile, fileDir, getLoginUser());
+        FileResponse fileResponse = pictureUploadManager.uploadCover(multipartFile, fileDir, getLoginUser());
         //防止线程变量共享
-        PictureFileResponse target = new PictureFileResponse();
-        BeanUtils.copyProperties(pictureFileResponse, target);
+        FileResponse target = new FileResponse();
+        BeanUtils.copyProperties(fileResponse, target);
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(target,
                 getLoginUser().getUserId(),
                 CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 type
         ));
-        pictureFileResponse.setPictureUrl(null);
-        return success(pictureFileResponse);
+        fileResponse.setUrl(null);
+        return success(fileResponse);
+    }
+
+    /**
+     * 上传封文件
+     *
+     * @param multipartFile
+     * @return
+     */
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PostMapping("/upload/file")
+    public AjaxResult uploadFile(@RequestPart("file") MultipartFile multipartFile,
+                                 @RequestParam(name = "type", required = false) String type,
+                                 @RequestParam(name = "fileDir", required = false) String fileDir) {
+        if (StringUtils.isEmpty(fileDir)) {
+            fileDir = "file";
+        }
+        // 执行业务上传
+        FileResponse fileResponse = pictureUploadManager.uploadFile(multipartFile, fileDir, getLoginUser());
+        //防止线程变量共享
+        FileResponse target = new FileResponse();
+        BeanUtils.copyProperties(fileResponse, target);
+        //异步执行存入文件日志
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(target,
+                getLoginUser().getUserId(),
+                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                CFileLogTypeEnum.LOG_TYPE_3.getValue()
+        ));
+        return success(fileResponse);
     }
 
     /**
@@ -117,15 +141,15 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload/url")
     public AjaxResult uploadUrl(@RequestBody UrlUploadRequest urlUploadRequest) {
         // 执行业务上传
-        PictureFileResponse pictureFileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
+        FileResponse fileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(
-                PictureFileLogAsyncFactory.recordFileLog(pictureFileResponse,
+                PictureFileLogAsyncFactory.recordFileLog(fileResponse,
                         getLoginUser().getUserId(),
                         CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                         CFileLogTypeEnum.LOG_TYPE_0.getValue()
                 ));
-        return success(pictureFileResponse);
+        return success(fileResponse);
     }
 
     /**

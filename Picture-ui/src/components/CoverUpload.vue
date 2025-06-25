@@ -90,6 +90,7 @@ const handleCustomUpload = async ({ file, onSuccess, onError }: any) => {
   formData.append('fileDir', props.fileDir)
 
   try {
+    message.loading('上传中...',3)
     const res = await coverUploadFile(formData)
     const newUrl = res?.data?.thumbnailUrl
     onSuccess(newUrl)
