@@ -284,7 +284,7 @@
           <el-input v-model="form.dnsUrl" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="文件路径" prop="fileUrl">
-          <image-upload v-model="form.fileUrl"/>
+          <file-upload v-model="form.fileUrl"/>
         </el-form-item>
         <el-form-item label="文件类型" prop="fileType">
           <el-input v-model="form.fileType" type="textarea" placeholder="请输入内容"/>
@@ -348,6 +348,7 @@ import {
   addFileLogInfo,
   updateFileLogInfo
 } from "@/api/config/fileLogInfo";
+import FileUpload from "@/components/FileUpload/index.vue";
 
 const {proxy} = getCurrentInstance();
 const {

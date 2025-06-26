@@ -90,7 +90,7 @@ const showTip = computed(
 watch(() => props.modelValue, val => {
   if (val) {
     // 首先将值转为数组
-    const list = Array.isArray(val) ? val : props.modelValue.split(",");
+    const list = Array.isArray(val) ? val : props.modelValue.split(";");
     // 然后将数组转为对象数组
     fileList.value = list.map(item => {
       if (typeof item === "string") {

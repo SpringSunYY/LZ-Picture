@@ -251,7 +251,7 @@
           <el-input v-model="form.applyReason" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="证明图片" prop="applyImage">
-          <image-upload v-model="form.applyImage"/>
+          <image-preview :src="form.applyImage"/>
         </el-form-item>
         <el-form-item label="证明文件" prop="applyFile">
           <file-upload v-model="form.applyFile"/>
@@ -297,6 +297,7 @@ import {
   addPictureApplyInfo,
   updatePictureApplyInfo
 } from "@/api/picture/pictureApplyInfo";
+import ImagePreview from "@/components/ImagePreview/index.vue";
 
 const {proxy} = getCurrentInstance();
 const {p_picture_apply_status, p_picture_apply_type} = proxy.useDict('p_picture_apply_status', 'p_picture_apply_type');

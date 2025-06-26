@@ -262,7 +262,9 @@ public class PictureUploadManager {
     private static FileResponse buildPictureResponse(String endpoint, FileInfo fileInfo, Long picSize, long picWidth, long picHeight) {
         //设置图片信息
         FileResponse fileResponse = new FileResponse();
-        fileResponse.setUrl("/" + fileInfo.getFilePath());
+        if (StringUtils.isNotEmpty(fileInfo.getFilePath())) {
+            fileResponse.setUrl("/" + fileInfo.getFilePath());
+        }
         fileResponse.setName(fileInfo.getFileNameNotSuffix());
         fileResponse.setPicSize(picSize);
         fileResponse.setPicWidth(picWidth);
@@ -273,7 +275,9 @@ public class PictureUploadManager {
             fileResponse.setPicScale(0.0);
         }
         fileResponse.setPicFormat(fileInfo.getFileSuffix());
-        fileResponse.setThumbnailUrl("/" + fileInfo.getCompressedFilePath());
+        if (StringUtils.isNotEmpty(fileInfo.getCompressedFilePath())) {
+            fileResponse.setThumbnailUrl("/" + fileInfo.getCompressedFilePath());
+        }
         fileResponse.setDnsUrl(endpoint);
         return fileResponse;
     }

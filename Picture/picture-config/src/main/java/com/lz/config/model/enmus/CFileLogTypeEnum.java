@@ -23,7 +23,8 @@ public enum CFileLogTypeEnum {
     LOG_TYPE_0("图片", "0"),
     LOG_TYPE_1("空间封面", "1"),
     LOG_TYPE_2("头像", "2"),
-    LOG_TYPE_3("文件", "3");
+    LOG_TYPE_3("图片申请文件", "3"),
+    LOG_TYPE_4("图片申请图", "4");
 
     // 获取 text
     private final String text; // 字典描述（label）

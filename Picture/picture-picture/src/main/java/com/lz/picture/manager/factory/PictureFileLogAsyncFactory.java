@@ -2,16 +2,20 @@ package com.lz.picture.manager.factory;
 
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.model.FileResponse;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.spring.SpringUtils;
 import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.enmus.CFileLogStatusEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.config.service.IFileLogInfoService;
+import com.lz.picture.model.domain.PictureApplyInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 
 import java.util.TimerTask;
+
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 
 /**
  * 图片文件日志异步任务异步工厂（产生任务用）
@@ -26,9 +30,9 @@ public class PictureFileLogAsyncFactory {
      * 记录文件日志
      *
      * @param fileResponse 返回图片信息
-     * @param userId              用户编号
-     * @param ossType             存储类型
-     * @param logType             日志类型
+     * @param userId       用户编号
+     * @param ossType      存储类型
+     * @param logType      日志类型
      * @return TimerTask
      * @author: YY
      * @date: 2025/5/10 22:51
@@ -184,6 +188,39 @@ public class PictureFileLogAsyncFactory {
                 fileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
                 //插入文件日志
                 SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(fileLogUpdate);
+            }
+        };
+    }
+
+    /**
+     *
+     */
+    public static TimerTask updateNormalPictureApplyFileLog(PictureApplyInfo pictureApplyInfo) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                FileLogUpdate fileLogUpdate = new FileLogUpdate();
+                fileLogUpdate.setTargetId(pictureApplyInfo.getApplyId());
+                fileLogUpdate.setTargetContent(pictureApplyInfo.getPictureId());
+                fileLogUpdate.setUserId(pictureApplyInfo.getUserId());
+                fileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_3.getValue());
+                fileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                fileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                if (StringUtils.isNotEmpty(pictureApplyInfo.getApplyFile())) {
+                    String[] split = pictureApplyInfo.getApplyFile().split(COMMON_SEPARATOR);
+                    for (String string : split) {
+                        fileLogUpdate.setPictureUrl(string);
+                        SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(fileLogUpdate);
+                    }
+                }
+                fileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_4.getValue());
+                if (StringUtils.isNotEmpty(pictureApplyInfo.getApplyImage())) {
+                    String[] split = pictureApplyInfo.getApplyImage().split(COMMON_SEPARATOR);
+                    for (String string : split) {
+                        fileLogUpdate.setThumbnailUrl(string);
+                        SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(fileLogUpdate);
+                    }
+                }
             }
         };
     }

@@ -165,7 +165,7 @@
           <span style="color: #1890ff; margin-right: 8px">🚀</span>
           {{ title }}
           <a-tooltip
-            title="您可以申请您的图片公开权限，请填写申请理由、您的联系方式，如果您有版权可以设置图片的积分或者金额，原创作品可以设置金额，。"
+            title="您可以申请您的图片公开权限，请填写申请理由、您的联系方式，如果您有版权可以设置图片的积分或者金额，原创作品可以设置金额。"
           >
             <question-circle-outlined class="title-tip-icon" />
           </a-tooltip>
@@ -180,7 +180,26 @@
         ref="formRef"
         layout="horizontal"
       >
-        <a-form-item label="申请类型" name="applyType">
+        <a-form-item name="applyType">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              申请类型
+              <a-tooltip
+                title="注意：原创类型仅支持原创图片，请勿上传非原创图片，原创类型可以设置金额，如果不设置则表示免费。
+                            转载资源、无版权资源可以设置积分，不可设置金额，但请注意版权，如用户版权不归您，造成版权纠纷均由用户承担，平台图片仅仅作为展示。"
+              >
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+              </a-tooltip>
+            </span>
+          </template>
           <a-radio-group v-model:value="formApply.applyType" name="radioGroup">
             <a-radio
               v-for="dict in p_picture_apply_type"
@@ -200,7 +219,12 @@
         </a-form-item>
 
         <a-form-item label="证明图片" name="applyImage">
-          <CoverUpload v-model:value="formApply.applyImage" :maxCount="9" fileDir="apply" />
+          <CoverUpload
+            v-model:value="formApply.applyImage"
+            :maxCount="9"
+            type="4"
+            fileDir="apply"
+          />
         </a-form-item>
 
         <a-form-item label="证明文件" name="applyFile">
@@ -334,6 +358,16 @@ const handleApplySubmit = () => {
 }
 
 const handleOpenApply = (pictureId: string) => {
+  formApply.value = {
+    pictureId: '',
+    applyType: '',
+    applyReason: '',
+    applyImage: '',
+    applyFile: '',
+    contact: '',
+    pointsNeed: 0,
+    priceNeed: 0,
+  }
   formApply.value.pictureId = pictureId
   openApply.value = true
 }

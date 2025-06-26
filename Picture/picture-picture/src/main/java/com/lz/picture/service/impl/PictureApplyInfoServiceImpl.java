@@ -6,10 +6,13 @@ import com.lz.common.config.OssConfig;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.picture.manager.PictureAsyncManager;
+import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureApplyInfoMapper;
 import com.lz.picture.model.domain.PictureApplyInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
+import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.enums.PictureApplyStatusEnum;
 import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
 import com.lz.picture.service.IPictureApplyInfoService;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 
 /**
  * 图片申请信息Service业务层处理
@@ -47,7 +52,11 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      */
     @Override
     public PictureApplyInfo selectPictureApplyInfoByApplyId(String applyId) {
-        return pictureApplyInfoMapper.selectPictureApplyInfoByApplyId(applyId);
+        PictureApplyInfo pictureApplyInfo = pictureApplyInfoMapper.selectPictureApplyInfoByApplyId(applyId);
+        if (StringUtils.isNotNull(pictureApplyInfo)) {
+            builderUrl(pictureApplyInfo);
+        }
+        return pictureApplyInfo;
     }
 
     /**
@@ -58,7 +67,38 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      */
     @Override
     public List<PictureApplyInfo> selectPictureApplyInfoList(PictureApplyInfo pictureApplyInfo) {
-        return pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);
+        List<PictureApplyInfo> pictureApplyInfos = pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);
+        for (PictureApplyInfo info : pictureApplyInfos) {
+            builderUrl(info);
+        }
+        return pictureApplyInfos;
+    }
+
+    private void builderUrl(PictureApplyInfo info) {
+        //构建url
+        if (StringUtils.isNotEmpty(info.getApplyImage())) {
+            String url = builderUrl(info.getApplyImage());
+            info.setApplyImage(url);
+        }
+        if (StringUtils.isNotEmpty(info.getApplyFile())) {
+            String url = builderUrl(info.getApplyFile());
+            info.setApplyFile(url);
+        }
+        if (StringUtils.isNotEmpty(info.getThumbnailUrl())) {
+            String url = ossConfig.builderUrl(info.getThumbnailUrl());
+            info.setThumbnailUrl(url);
+        }
+    }
+
+    private String builderUrl(String urls) {
+        String[] split = urls.split(COMMON_SEPARATOR);
+        StringBuilder buffer = new StringBuilder();
+        for (String str : split) {
+            buffer.append(ossConfig.builderUrl(str)).append(COMMON_SEPARATOR);
+        }
+        //删除尾部逗号
+        buffer.deleteCharAt(buffer.length() - 1);
+        return buffer.toString();
     }
 
     /**
@@ -166,13 +206,14 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         //判断图片是否存在，获取缩略图url
         PictureInfo pictureInfo = pictureInfoService.selectNormalPictureInfoByPictureId(pictureApplyInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo) || !pictureApplyInfo.getUserId().equals(pictureInfo.getUserId()), "图片不存在");
-        String url = ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), ossConfig.getDnsUrl());
-        pictureApplyInfo.setThumbnailUrl(url);
+        ThrowUtils.throwIf(pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "当前图片已经公开！！！");
+        pictureApplyInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl());
         pictureApplyInfo.setPictureName(pictureInfo.getName());
         //初始值
         pictureApplyInfo.setCreateTime(DateUtils.getNowDate());
         pictureApplyInfo.setReviewStatus(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_0.getValue());
-
+        //更新文件日志信息
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateNormalPictureApplyFileLog(pictureApplyInfo));
         return this.save(pictureApplyInfo) ? 1 : 0;
     }
 

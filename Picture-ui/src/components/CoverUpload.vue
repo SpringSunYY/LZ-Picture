@@ -30,7 +30,7 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import type { UploadProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { coverUploadFile } from '@/api/common/file.ts'
-import { formatDnsUrl } from '@/utils/common.ts'
+import { formatDnsUrl, getFileName } from '@/utils/common.ts'
 
 const props = defineProps({
   value: { type: String, default: '' }, // 分号拼接的图片 url
@@ -38,6 +38,7 @@ const props = defineProps({
   maxSize: { type: Number, default: 10 }, // 单位：MB
   fileDir: { type: String, default: 'cover' },
   acceptTypes: { type: Array, default: () => ['image/jpeg', 'image/png'] },
+  type: { type: String, default: '1' },
 })
 
 const emit = defineEmits(['update:value'])
@@ -88,6 +89,7 @@ const handleCustomUpload = async ({ file, onSuccess, onError }: any) => {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('fileDir', props.fileDir)
+  formData.append('type', props.type)
 
   try {
     message.loading('上传中...',3)
@@ -135,7 +137,6 @@ const handleRemove = (file: any) => {
   // 3. 同步更新 value 到父组件
   emit('update:value', urls.join(';'))
   uploadedCount.value = Math.max(0, uploadedCount.value - 1)
-
 }
 
 // 同步 v-model:value => fileList
@@ -150,7 +151,7 @@ watch(
 
     fileList.value = urls.map((url, index) => ({
       uid: `${index}`,
-      name: `图片${index + 1}`,
+      name: getFileName(url),
       status: 'done',
       url: formatDnsUrl(url),
     }))

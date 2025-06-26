@@ -1,0 +1,1 @@
+      :show-upload-list="{ showPreviewIcon: false, previewFile: () => {} }"

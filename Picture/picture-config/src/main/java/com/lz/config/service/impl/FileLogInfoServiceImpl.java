@@ -1,37 +1,31 @@
 package com.lz.config.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
-import com.lz.common.utils.StringUtils;
-
-import java.util.Date;
-
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.mapper.FileLogInfoMapper;
+import com.lz.config.model.domain.FileLogInfo;
+import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
 import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.enmus.CFileLogIsCompressEnum;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogStatusEnum;
+import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
+import com.lz.config.service.IFileLogInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.config.mapper.FileLogInfoMapper;
-import com.lz.config.model.domain.FileLogInfo;
-import com.lz.config.service.IFileLogInfoService;
-import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
-import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件日志Service业务层处理
@@ -189,27 +183,31 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         //设置对应值
         fileLogInfo.setUserId(userId);
         fileLogInfo.setDnsUrl(fileResponse.getDnsUrl());
-        fileLogInfo.setFileUrl(fileResponse.getUrl());
-        fileLogInfo.setFileType(fileResponse.getPicFormat());
         //如果是官方
         if (!CFileLogOssTypeEnum.OSS_TYPE_0.getValue().equals(ossType)) {
             fileLogInfo.setOssType(ossType);
         }
         fileLogInfo.setLogType(logType);
         fileLogInfo.setCreateTime(DateUtils.getNowDate());
-        //默认冗余
+        fileLogInfo.setFileType(fileResponse.getPicFormat());
         fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
-        //先插入原图
-        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_1.getValue());
-        fileLogInfo.setLogId(IdUtils.fastUUID());
-        fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
-        //其次压缩
-        //压缩图片全部webp
-        fileLogInfo.setFileType("webp");
-        fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
-        fileLogInfo.setFileUrl(fileResponse.getThumbnailUrl());
-        fileLogInfo.setLogId(IdUtils.fastUUID());
-        fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
+        if (StringUtils.isNotEmpty(fileResponse.getUrl())) {
+            fileLogInfo.setFileUrl(fileResponse.getUrl());
+            //默认冗余
+            //先插入原图
+            fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_1.getValue());
+            fileLogInfo.setLogId(IdUtils.fastUUID());
+            fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
+        }
+        if (StringUtils.isNotEmpty(fileResponse.getThumbnailUrl())) {
+            //其次压缩
+            //压缩图片全部webp
+            fileLogInfo.setFileType("webp");
+            fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
+            fileLogInfo.setFileUrl(fileResponse.getThumbnailUrl());
+            fileLogInfo.setLogId(IdUtils.fastUUID());
+            fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
+        }
     }
 
     @Override
@@ -272,7 +270,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
                     log.setDeleteTime(deleteDate);
                     log.setLogStatus(logStatus);
                     //去掉文件第一个/
-                    if (log.getFileUrl().startsWith("/")){
+                    if (log.getFileUrl().startsWith("/")) {
                         return log.getFileUrl().substring(1);
                     }
                     return log.getFileUrl();

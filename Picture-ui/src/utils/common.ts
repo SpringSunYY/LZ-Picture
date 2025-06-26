@@ -3,6 +3,17 @@ import type { PictureCategoryInfoVo } from '@/types/picture/pictureCategory'
 
 //@ts-ignore
 const dnsUrl = import.meta.env.VITE_DNS_URL
+//获取文件名
+export const getFileName = (url: string) => {
+  if (!url) {
+    return ''
+  }
+  //判断是否是有参数？
+  if (url.includes('?')) {
+    url= url.substring(0, url.indexOf('?'))
+  }
+  return url.substring(url.lastIndexOf('/') + 1)
+}
 /** 添加 DNS 前缀 */
 export const formatDnsUrl = (url: string) => {
   if (!url) {

@@ -5,9 +5,10 @@
       :file-list="fileList"
       :custom-request="handleCustomUpload"
       :before-upload="beforeUpload"
-      :show-upload-list="{ showPreviewIcon: true }"
       :max-count="maxCount"
       @remove="handleRemove"
+      :show-upload-list="{ showPreviewIcon: false }"
+      @preview="handlePreviewFile"
     >
       <a-button v-if="fileList?.length < maxCount" type="primary">上传文件</a-button>
     </a-upload>
@@ -16,10 +17,10 @@
 
 <script lang="ts" setup name="FileUpload">
 import { ref, watch } from 'vue'
-import type { UploadProps } from 'ant-design-vue'
+import type { UploadProps, UploadRequestOption } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { uploadFile } from '@/api/common/file'
-import { formatDnsUrl } from '@/utils/common'
+import { getFileName } from '@/utils/common.ts'
 
 const props = defineProps({
   value: { type: String, default: '' }, // 分号拼接的 url
@@ -69,31 +70,47 @@ const beforeUpload = (file: File) => {
   return true
 }
 
-const handleCustomUpload = async ({ file, onSuccess, onError }: { file: File; onSuccess: (url?: string) => void; onError?: (error: Error) => void }) => {
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('fileDir', props.fileDir)
+const handlePreviewFile = (file: File | Blob): Promise<string> => {
+  return Promise.resolve(undefined as any)
+}
+
+const handleCustomUpload = async ({ file, onSuccess, onError }: UploadRequestOption) => {
+  const uid = `${Date.now()}`
+
+  // 上传前先添加到 fileList
+  fileList.value.push({
+    uid,
+    name: file.name,
+    status: 'uploading',
+    percent: 0,
+  })
 
   try {
-    message.loading('上传中...',3)
-    const res = await uploadFile(formData)
-    const url = res?.data?.url
-    onSuccess(url)
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('fileDir', props.fileDir)
 
-    fileList.value.push({
-      uid: `${Date.now()}`,
-      name: file.name,
-      status: 'done',
-      url,
-    })
-    emit(
-      'update:value',
-      fileList.value
-        .filter((f) => f.status === 'done' && f.url)
-        .map((f) => f.url)
-        .join(';'),
-    )
+    const res = await uploadFile(formData)
+
+    const url = res?.data?.url
+    const targetFile = fileList.value.find((f) => f.uid === uid)
+    if (targetFile) {
+      targetFile.status = 'done'
+      targetFile.url = url
+      targetFile.percent = 100
+    }
+
+    // 更新 v-model:value
+    const currentUrls = props.value ? props.value.split(';') : []
+    currentUrls.push(url)
+    emit('update:value', currentUrls.join(';'))
+
+    onSuccess(url)
   } catch (err) {
+    const targetFile = fileList.value.find((f) => f.uid === uid)
+    if (targetFile) {
+      targetFile.status = 'error'
+    }
     message.error('上传失败')
     onError?.(err)
   }
@@ -120,7 +137,7 @@ watch(
     const urls = val?.split(';').filter(Boolean) ?? []
     fileList.value = urls.map((url, index) => ({
       uid: `${index}`,
-      name: `文件${index + 1}`,
+      name: getFileName(url),
       status: 'done',
       url: url,
     }))
