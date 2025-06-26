@@ -570,6 +570,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //查询标签信息
         userPictureDetailInfoVo.setPictureTags(pictureTagRelInfoService.getPictureTagNames(pictureId));
+        //转换更多信息
+        if (StringUtils.isNotEmpty(pictureInfo.getMoreInfo())) {
+            userPictureDetailInfoVo.setMoreInfo(JSON.parseObject(pictureInfo.getMoreInfo(), PictureMoreInfo.class));
+        } else {
+            userPictureDetailInfoVo.setMoreInfo(new PictureMoreInfo());
+        }
         return userPictureDetailInfoVo;
     }
 

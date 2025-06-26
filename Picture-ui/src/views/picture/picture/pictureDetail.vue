@@ -115,7 +115,9 @@
                 <SvgIcon name="report" />
               </a-button>
             </a-tooltip>
-            <a-tooltip>
+            <a-tooltip
+              v-if="picture?.moreInfo?.applyType !== PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0"
+            >
               <template #title>
                 <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
                   使用 {{ picture?.moreInfo?.pointsNeed || 0 }} 积分查看原图<br />
@@ -139,6 +141,34 @@
                   picture?.moreInfo?.pointsNeed || 0
                 }}</span>
                 <span style="font-size: 16px; padding-left: 8px">积分</span>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip
+              v-else
+            >
+              <template #title>
+                <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                  使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
+                  注意事项：<br />
+                  1. 当前资源作者拥有原图信息；<br />
+                  2. 如果存在版权纠纷，请联系平台，平台会为您联系作者，作者会及时处理；<br />
+                  3. 平台不承担任何版权纠纷责任。<br />
+                  4. 如若版权虚假，存在侵权行为，请及时联系平台，我们会及时处理。<br />
+                </div>
+              </template>
+              <a-button
+                :loading="buyPictureLoading"
+                class="icon-button download-bounce"
+                type="warn"
+                @click="buyPicture"
+              >
+                <template #icon>
+                  <SvgIcon name="download" />
+                </template>
+                <span style="font-size: 16px; padding-left: 8px; color: green">
+                  {{ picture?.moreInfo?.priceNeed || 0 }}
+                </span>
+                <span>元</span>
               </a-button>
             </a-tooltip>
           </a-space>
@@ -262,6 +292,7 @@ import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
 import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
 import { useConfig } from '@/utils/config.ts'
+import { PictureApplyTypeEnum } from '@/types/picture/pictureApplyInfo.d.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -348,6 +379,13 @@ const addUserBehavior = (behaviorType: string) => {
     message.success(msg)
   })
 }
+
+//region 购买图片
+const buyPictureLoading = ref(false)
+const buyPicture = async () => {
+  message.warning('当前功能还没实现哦', 5)
+}
+//endregion
 
 //下载图片
 const downloadPictureLoading = ref(false)

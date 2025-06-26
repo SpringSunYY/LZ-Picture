@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
+import com.lz.common.constant.redis.PictureRedisConstants;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
@@ -27,9 +29,6 @@ import com.lz.user.manager.UserAsyncManager;
 import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.enums.UInformTypeEnum;
 import jakarta.annotation.Resource;
-import org.glassfish.jaxb.runtime.InternalAccessorFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -60,8 +59,8 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
 
     @Resource
     private ConfigInfoServiceImpl configInfoService;
-    @Autowired
-    private ApplicationArguments applicationArguments;
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -185,10 +184,11 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
                 if (pictureApplyInfo.getApplyType().equals(PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0.getValue())) {
                     pictureMoreInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
                     pictureMoreInfo.setPriceNeed(pictureApplyInfo.getPriceNeed());
-                }else {
+                } else {
                     pictureMoreInfo.setPriceNeed(BigDecimal.valueOf(0));
                     pictureMoreInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
                 }
+                pictureMoreInfo.setApplyType(pictureApplyInfo.getApplyType());
                 pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
             }
             pictureInfoService.updatePictureInfo(pictureInfo);
@@ -233,6 +233,9 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
                     params
             ));
         }
+        //删除缓存
+        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureApplyInfo.getPictureId();
+        redisCache.deleteObject(key);
         pictureApplyInfo.setUpdateTime(nowDate);
         return pictureApplyInfoMapper.updatePictureApplyInfo(pictureApplyInfo);
     }

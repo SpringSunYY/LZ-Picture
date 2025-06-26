@@ -3,6 +3,7 @@ package com.lz.picture.model.vo.pictureInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
 import com.lz.user.model.vo.userInfo.UserVo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -101,7 +102,7 @@ public class UserPictureDetailInfoVo implements Serializable {
     /**
      * 更多信息
      */
-    private String moreInfo;
+    private PictureMoreInfo moreInfo;
 
     /**
      * 所属文件夹编号

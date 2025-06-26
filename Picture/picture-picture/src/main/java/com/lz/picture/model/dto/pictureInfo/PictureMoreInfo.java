@@ -28,4 +28,9 @@ public class PictureMoreInfo {
      * 所需金额
      */
     private BigDecimal priceNeed;
+
+    /**
+     * 申请类型
+     */
+    private String applyType;
 }

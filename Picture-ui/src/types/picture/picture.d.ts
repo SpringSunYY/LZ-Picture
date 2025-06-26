@@ -217,9 +217,11 @@ export interface PictureDetailInfoVo {
 
 export interface MoreInfo {
   /** 所需积分 */
-  pointsNeed: number
+  pointsNeed?: number
   /** 所需金额 */
-  priceNeed: number
+  priceNeed?: number
+  /** 申请类型 */
+  applyType?: string
 }
 
 /**
