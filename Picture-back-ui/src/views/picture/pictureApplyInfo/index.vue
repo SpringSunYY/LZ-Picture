@@ -116,7 +116,7 @@
             :disabled="single"
             @click="handleUpdate"
             v-hasPermi="['picture:pictureApplyInfo:edit']"
-        >修改
+        >修改/审核
         </el-button>
       </el-col>
       <el-col :span="1.5">
@@ -208,7 +208,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                     v-hasPermi="['picture:pictureApplyInfo:edit']">修改
+                     v-hasPermi="['picture:pictureApplyInfo:edit']">修改/审核
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['picture:pictureApplyInfo:remove']">删除
@@ -228,9 +228,9 @@
     <!-- 添加或修改图片申请信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="pictureApplyInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="图片编号" prop="pictureId">
-          <el-input v-model="form.pictureId" placeholder="请输入图片编号"/>
-        </el-form-item>
+        <!--        <el-form-item label="图片编号" prop="pictureId">-->
+        <!--          <el-input v-model="form.pictureId" placeholder="请输入图片编号"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="图片名称" prop="pictureName">
           <el-input v-model="form.pictureName" placeholder="请输入图片名称"/>
         </el-form-item>
@@ -259,10 +259,11 @@
         <el-form-item label="联系方式" prop="contact">
           <el-input v-model="form.contact" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="所需积分" prop="pointsNeed">
+        <el-form-item label="所需积分" prop="pointsNeed"
+                      v-if="form.applyType !== '' && form.applyType !== '0'">
           <el-input v-model="form.pointsNeed" placeholder="请输入所需积分"/>
         </el-form-item>
-        <el-form-item label="所需金额" prop="priceNeed">
+        <el-form-item label="所需金额" prop="priceNeed" v-if="form.applyType === '0'">
           <el-input v-model="form.priceNeed" placeholder="请输入所需金额"/>
         </el-form-item>
         <el-form-item label="审核状态" prop="reviewStatus">

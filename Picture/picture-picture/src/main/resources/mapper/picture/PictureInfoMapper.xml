@@ -16,7 +16,6 @@
         <result property="picHeight" column="pic_height"/>
         <result property="picScale" column="pic_scale"/>
         <result property="picFormat" column="pic_format"/>
-        <result property="pointsNeed" column="points_need"/>
         <result property="userId" column="user_id"/>
         <result property="createTime" column="create_time"/>
         <result property="editTime" column="edit_time"/>
@@ -57,7 +56,6 @@
                pic_height,
                pic_scale,
                pic_format,
-               points_need,
                user_id,
                create_time,
                edit_time,
@@ -88,7 +86,6 @@
             <if test="picHeight != null ">and pic_height = #{picHeight}</if>
             <if test="picScale != null ">and pic_scale = #{picScale}</if>
             <if test="picFormat != null  and picFormat != ''">and pic_format = #{picFormat}</if>
-            <if test="pointsNeed != null ">and points_need = #{pointsNeed}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
             <if test="createTime != null ">and create_time = #{createTime}</if>
             <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
@@ -122,7 +119,6 @@
             <if test="picHeight != null">pic_height,</if>
             <if test="picScale != null">pic_scale,</if>
             <if test="picFormat != null">pic_format,</if>
-            <if test="pointsNeed != null">points_need,</if>
             <if test="userId != null and userId != ''">user_id,</if>
             <if test="createTime != null">create_time,</if>
             <if test="editTime != null">edit_time,</if>
@@ -152,7 +148,6 @@
             <if test="picHeight != null">#{picHeight},</if>
             <if test="picScale != null">#{picScale},</if>
             <if test="picFormat != null">#{picFormat},</if>
-            <if test="pointsNeed != null">#{pointsNeed},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="editTime != null">#{editTime},</if>
@@ -185,7 +180,6 @@
             <if test="picHeight != null">pic_height = #{picHeight},</if>
             <if test="picScale != null">pic_scale = #{picScale},</if>
             <if test="picFormat != null">pic_format = #{picFormat},</if>
-            <if test="pointsNeed != null">points_need = #{pointsNeed},</if>
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="editTime != null">edit_time = #{editTime},</if>

@@ -35,9 +35,6 @@ export interface PictureInfo {
   /** 图片格式 */
   picFormat?: string
 
-  /** 所需积分 */
-  pointsNeed?: number
-
   /** 图片状态（0公共 1私有） */
   pictureStatus?: string
 
@@ -170,9 +167,6 @@ export interface PictureDetailInfoVo {
   /** 图片格式 */
   picFormat?: string
 
-  /** 所需积分 */
-  pointsNeed?: number
-
   /** 上传用户编号 */
   userId?: string
 
@@ -197,9 +191,6 @@ export interface PictureDetailInfoVo {
   /**创建时间 */
   createTime?: string
 
-  /** 更多信息 */
-  moreInfo?: Record<string, string>
-
   /** 图片标签 */
   pictureTags?: string[]
 
@@ -220,6 +211,15 @@ export interface PictureDetailInfoVo {
   downloadCount?: number
   /** 评论总数 */
   commentCount?: number
+  /** 更多信息 */
+  moreInfo?: MoreInfo
+}
+
+export interface MoreInfo {
+  /** 所需积分 */
+  pointsNeed: number
+  /** 所需金额 */
+  priceNeed: number
 }
 
 /**
@@ -464,9 +464,6 @@ export interface PictureInfoUpdate {
 
   /** 图片格式 */
   picFormat?: string
-
-  /** 所需积分 */
-  pointsNeed: number
 
   /** 缩略图URL */
   thumbnailUrl?: string

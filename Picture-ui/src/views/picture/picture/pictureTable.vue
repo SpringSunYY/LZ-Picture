@@ -340,11 +340,6 @@ const formApply = ref<PictureApplyInfoAdd>({
 const openApply = ref(false)
 const applyLoading = ref(false)
 const handleApplySubmit = () => {
-  console.log(formApply.value)
-  if (formApply.value.pointsNeed % 10 !== 0) {
-    message.error('积分必须为 10 的倍数（可以为 0,表示免费）')
-    return
-  }
   applyLoading.value = true
   addPictureApplyInfo(formApply.value).then((res) => {
     if (res.code === 200) {

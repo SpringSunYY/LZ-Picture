@@ -30,6 +30,7 @@ import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.enums.*;
@@ -246,9 +247,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String picFormat = pictureInfo.getPicFormat();
         queryWrapper.eq(StringUtils.isNotEmpty(picFormat), "pic_format", picFormat);
 
-        Long pointsNeed = pictureInfo.getPointsNeed();
-        queryWrapper.eq(StringUtils.isNotNull(pointsNeed), "points_need", pointsNeed);
-
         String userId = pictureInfo.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
@@ -310,7 +308,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
         }
         pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
-        pictureInfo.setPointsNeed(0L);
         // 计算宽高比例
         double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
         //保留小数点后1位
@@ -327,29 +324,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //异步更新文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateNormalFileLog(pictureInfo));
         return i;
-    }
-
-    /**
-     * 校验积分
-     *
-     * @param pictureInfo
-     * @return void
-     * @author YY
-     * @method checkPoints
-     * @date 2025/4/26 20:57
-     **/
-    private void checkPoints(PictureInfo pictureInfo) {
-        //获取积分最大值和最小值
-        String pointsNeedMax = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MAX);
-        String pointsNeedMin = configInfoService.getConfigInfoInCache(PICTURE_POINTS_MIN);
-        //判断积分是否比最小值大最大值小
-        if (!(Long.parseLong(pointsNeedMax) >= pictureInfo.getPointsNeed() && pictureInfo.getPointsNeed() >= Long.parseLong(pointsNeedMin))) {
-            throw new ServiceException(StringUtils.format("图片所需积分不在范围内，最小值：{}，最大值：{}", pointsNeedMin, pointsNeedMax));
-        }
-        //判断是否是十的倍数
-        if (pictureInfo.getPointsNeed() % 10 != 0) {
-            throw new ServiceException("图片体积必须是10的倍数");
-        }
     }
 
 
@@ -721,7 +695,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().split("\\?")[0]);
         //删除路径参数
         pictureInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl().split("\\?")[0]);
-        pictureInfo.setPointsNeed(0L);
         // 计算宽高比例
         double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
         //保留小数点后1位
@@ -875,7 +848,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureDownloadLogInfo.setTags(pictureTagRelInfoService.getPictureTagNamesStr(pictureId));
         pictureDownloadLogInfo.setSpaceId(pictureInfo.getSpaceId());
         //所需总积分
-        Long totalPoints = pictureInfo.getPointsNeed();
+        String moreInfo = pictureInfo.getMoreInfo();
+        PictureMoreInfo pictureMoreInfo = new PictureMoreInfo();
+        if (StringUtils.isNotEmpty(moreInfo)) {
+            pictureMoreInfo = JSON.parseObject(moreInfo, PictureMoreInfo.class);
+        }
+        Long totalPoints = 0L;
+        if (StringUtils.isNotNull(pictureMoreInfo) && StringUtils.isNotNull(pictureMoreInfo.getPointsNeed())) {
+            totalPoints = pictureMoreInfo.getPointsNeed();
+        }
         pictureDownloadLogInfo.setPictureName(pictureInfo.getName() + "." + pictureInfo.getPicFormat());
         if (StringUtils.isEmpty(pictureInfo.getDnsUrl())) {
             pictureDownloadLogInfo.setThumbnailUrl(ossConfig.getDnsUrl() + pictureInfo.getThumbnailUrl());

@@ -73,14 +73,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="所需积分" prop="pointsNeed">
-        <el-input
-            v-model="queryParams.pointsNeed"
-            placeholder="请输入所需积分"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="上传用户" prop="userId">
         <el-input
             v-model="queryParams.userId"
@@ -226,34 +218,32 @@
           <image-preview :src="scope.row.pictureUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="缩略图" align="center" prop="thumbnailUrl" width="100" v-if="columns[21].visible">
+      <el-table-column label="缩略图" align="center" prop="thumbnailUrl" width="100" v-if="columns[2].visible">
         <template #default="scope">
           <image-preview :src="scope.row.thumbnailUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="图片名称" align="center" prop="name" v-if="columns[2].visible"
+      <el-table-column label="图片名称" align="center" prop="name" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="域名URL" align="center" prop="dnsUrl" v-if="columns[3].visible"
+      <el-table-column label="域名URL" align="center" prop="dnsUrl" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="简介" align="center" prop="introduction" v-if="columns[4].visible"
+      <el-table-column label="简介" align="center" prop="introduction" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类" align="center" prop="categoryId" v-if="columns[5].visible"
+      <el-table-column label="分类" align="center" prop="categoryId" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片体积" align="center" prop="picSize" v-if="columns[6].visible"
+      <el-table-column label="图片体积" align="center" prop="picSize" v-if="columns[7].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.picSize) }}
         </template>
       </el-table-column>
-      <el-table-column label="图片宽度" align="center" prop="picWidth" v-if="columns[7].visible"
+      <el-table-column label="图片宽度" align="center" prop="picWidth" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片高度" align="center" prop="picHeight" v-if="columns[8].visible"
+      <el-table-column label="图片高度" align="center" prop="picHeight" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="宽高比例" align="center" prop="picScale" v-if="columns[9].visible"
+      <el-table-column label="宽高比例" align="center" prop="picScale" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片格式" align="center" prop="picFormat" v-if="columns[10].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="所需积分" align="center" prop="pointsNeed" v-if="columns[11].visible"
+      <el-table-column label="图片格式" align="center" prop="picFormat" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="上传用户" align="center" prop="userId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
@@ -365,9 +355,6 @@
         <!--        <el-form-item label="图片格式" prop="picFormat">-->
         <!--          <el-input v-model="form.picFormat" placeholder="请输入图片格式"/>-->
         <!--        </el-form-item>-->
-        <el-form-item label="所需积分" prop="pointsNeed">
-          <el-input-number :min="10" :max="1000" v-model="form.pointsNeed" placeholder="请输入所需积分"/>
-        </el-form-item>
         <el-form-item label="更多信息" prop="moreInfo">
           <el-input v-model="form.moreInfo" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
@@ -484,7 +471,6 @@ const data = reactive({
     picHeight: null,
     picScale: null,
     picFormat: null,
-    pointsNeed: null,
     userId: null,
     createTime: null,
     editTime: null,
@@ -504,9 +490,6 @@ const data = reactive({
     categoryId: [
       {required: true, message: "分类不能为空", trigger: "blur"}
     ],
-    pointsNeed: [
-      {required: true, message: "所需积分不能为空", trigger: "blur"}
-    ],
     userId: [
       {required: true, message: "上传用户不能为空", trigger: "blur"}
     ],
@@ -524,16 +507,16 @@ const data = reactive({
   columns: [
     {key: 0, label: '图片', visible: false},
     {key: 1, label: '原图', visible: false},
-    {key: 2, label: '图片名称', visible: true},
-    {key: 3, label: '域名URL', visible: false},
-    {key: 4, label: '简介', visible: false},
-    {key: 5, label: '分类', visible: true},
-    {key: 6, label: '图片体积', visible: true},
-    {key: 7, label: '图片宽度', visible: false},
-    {key: 8, label: '图片高度', visible: false},
-    {key: 9, label: '宽高比例', visible: false},
-    {key: 10, label: '图片格式', visible: true},
-    {key: 11, label: '所需积分', visible: true},
+    {key: 2, label: '缩略图', visible: true},
+    {key: 3, label: '图片名称', visible: true},
+    {key: 4, label: '域名URL', visible: false},
+    {key: 5, label: '简介', visible: false},
+    {key: 6, label: '分类', visible: true},
+    {key: 7, label: '图片体积', visible: true},
+    {key: 8, label: '图片宽度', visible: false},
+    {key: 9, label: '图片高度', visible: false},
+    {key: 10, label: '宽高比例', visible: false},
+    {key: 11, label: '图片格式', visible: true},
     {key: 12, label: '上传用户', visible: false},
     {key: 13, label: '创建时间', visible: true},
     {key: 14, label: '编辑时间', visible: false},
@@ -601,7 +584,6 @@ function reset() {
     picHeight: null,
     picScale: null,
     picFormat: null,
-    pointsNeed: null,
     userId: null,
     createTime: null,
     editTime: null,

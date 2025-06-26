@@ -88,12 +88,6 @@ public class PictureInfoVo implements Serializable {
     private String picFormat;
 
     /**
-     * 所需积分
-     */
-    @Excel(name = "所需积分")
-    private Long pointsNeed;
-
-    /**
      * 上传用户编号
      */
     @Excel(name = "上传用户编号")

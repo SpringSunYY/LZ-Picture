@@ -79,12 +79,6 @@ public class UserPictureInfoAdd implements Serializable {
      */
     private String picFormat;
 
-    /**
-     * 所需积分
-     */
-    @NotNull(message = "所需积分不能为空")
-    private Long pointsNeed;
-
 
     /**
      * 图片状态（0公共 1私有）

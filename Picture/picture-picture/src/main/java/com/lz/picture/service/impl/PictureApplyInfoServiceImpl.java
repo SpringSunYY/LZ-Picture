@@ -6,6 +6,7 @@ import com.lz.common.config.OssConfig;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.config.service.impl.ConfigInfoServiceImpl;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureApplyInfoMapper;
@@ -24,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
 
 /**
  * 图片申请信息Service业务层处理
@@ -42,6 +44,9 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     @Resource
     private OssConfig ossConfig;
 
+    @Resource
+    private ConfigInfoServiceImpl configInfoService;
+
     //region mybatis代码
 
     /**
@@ -53,8 +58,10 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     @Override
     public PictureApplyInfo selectPictureApplyInfoByApplyId(String applyId) {
         PictureApplyInfo pictureApplyInfo = pictureApplyInfoMapper.selectPictureApplyInfoByApplyId(applyId);
+        //压缩图片
+        String p = "?x-oss-process=image/resize,p_" + configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         if (StringUtils.isNotNull(pictureApplyInfo)) {
-            builderUrl(pictureApplyInfo);
+            builderUrl(pictureApplyInfo, p);
         }
         return pictureApplyInfo;
     }
@@ -68,16 +75,18 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     @Override
     public List<PictureApplyInfo> selectPictureApplyInfoList(PictureApplyInfo pictureApplyInfo) {
         List<PictureApplyInfo> pictureApplyInfos = pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);
+        //压缩图片
+        String p = "?x-oss-process=image/resize,p_" + configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (PictureApplyInfo info : pictureApplyInfos) {
-            builderUrl(info);
+            builderUrl(info, p);
         }
         return pictureApplyInfos;
     }
 
-    private void builderUrl(PictureApplyInfo info) {
+    private void builderUrl(PictureApplyInfo info, String p) {
         //构建url
         if (StringUtils.isNotEmpty(info.getApplyImage())) {
-            String url = builderUrl(info.getApplyImage());
+            String url = builderPictureUrl(info.getApplyImage(), p);
             info.setApplyImage(url);
         }
         if (StringUtils.isNotEmpty(info.getApplyFile())) {
@@ -88,6 +97,17 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             String url = ossConfig.builderUrl(info.getThumbnailUrl());
             info.setThumbnailUrl(url);
         }
+    }
+
+    private String builderPictureUrl(String urls, String p) {
+        String[] split = urls.split(COMMON_SEPARATOR);
+        StringBuilder buffer = new StringBuilder();
+        for (String str : split) {
+            buffer.append(ossConfig.builderUrl(str)).append(p).append(COMMON_SEPARATOR);
+        }
+        //删除尾部逗号
+        buffer.deleteCharAt(buffer.length() - 1);
+        return buffer.toString();
     }
 
     private String builderUrl(String urls) {
@@ -121,6 +141,16 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      */
     @Override
     public int updatePictureApplyInfo(PictureApplyInfo pictureApplyInfo) {
+        //获取数据库数据
+        PictureApplyInfo db = selectPictureApplyInfoByApplyId(pictureApplyInfo.getApplyId());
+        ThrowUtils.throwIf(StringUtils.isNull(db), "图片申请信息不存在");
+        ThrowUtils.throwIf(db.getReviewStatus().equals(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue()), "图片申请信息已审核通过，请勿重复操作");
+        //查询图片
+        PictureInfo pictureInfo = pictureInfoService.selectNormalPictureInfoByPictureId(pictureApplyInfo.getPictureId());
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
+        ThrowUtils.throwIf(!pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "图片已发布，请勿重复操作");
+        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        pictureInfoService.updatePictureInfo(pictureInfo);
         pictureApplyInfo.setUpdateTime(DateUtils.getNowDate());
         return pictureApplyInfoMapper.updatePictureApplyInfo(pictureApplyInfo);
     }

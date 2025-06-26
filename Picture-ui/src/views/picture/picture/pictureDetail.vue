@@ -118,7 +118,7 @@
             <a-tooltip>
               <template #title>
                 <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
-                  使用 {{ picture.pointsNeed }} 积分查看原图<br />
+                  使用 {{ picture?.moreInfo?.pointsNeed || 0 }} 积分查看原图<br />
                   注意事项：<br />
                   1. 当前资源仅供展示，可以使用积分查看图片原图，请勿直接商用；<br />
                   2. 使用前请自行核实版权归属；<br />
@@ -136,7 +136,7 @@
                   <SvgIcon name="viewPicture" />
                 </template>
                 <span style="font-size: 16px; padding-left: 8px; color: green">{{
-                  picture.pointsNeed
+                  picture?.moreInfo?.pointsNeed || 0
                 }}</span>
                 <span style="font-size: 16px; padding-left: 8px">积分</span>
               </a-button>
@@ -175,7 +175,7 @@
             </a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item  name="reason">
+        <a-form-item name="reason">
           <template #label>
             <span style="display: inline-flex; align-items: center">
               举报原因
@@ -280,7 +280,7 @@ const picture = ref<PictureDetailInfoVo>({
   picHeight: 0,
   picScale: 0.0,
   picFormat: '',
-  pointsNeed: 0,
+  moreInfo: {},
   createTime: '2025-04-10 10:30:00',
   userName: '荔枝',
   userInfoVo: {

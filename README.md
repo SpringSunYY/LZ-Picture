@@ -2206,7 +2206,6 @@ CREATE TABLE p_picture_tag_info (
 | pic_height     | int      |      |                                   | 是   | 0              | 图片高度            |
 | pic_scale      | double   |      |                                   | 是   | 0              | 宽高比例            |
 | pic_format     | varchar  | 32   |                                   | 是   |                | 图片格式            |
-| points_need    | int      |      |                                   | 否   | 10             | 所需积分            |
 | user_id        | varchar  | 128  | 外键(u_user_info:user_id)         | 否   |                | 用户                |
 | create_time    | datetime |      |                                   | 否   | 当前时间       | 创建时间            |
 | edit_time      | datetime |      |                                   | 是   | 当前时间       | 编辑时间            |
@@ -2247,7 +2246,6 @@ CREATE TABLE p_picture_info
     pic_height     INT                   DEFAULT 0 COMMENT '图片高度',
     pic_scale      DOUBLE                DEFAULT 0 COMMENT '宽高比例',
     pic_format     VARCHAR(32) COMMENT '图片格式',
-    points_need     INT                   DEFAULT 10 COMMENT '所需积分',
     user_id        VARCHAR(128) NOT NULL COMMENT '上传用户编号',
     create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     edit_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '编辑时间',

@@ -252,22 +252,6 @@ const rules = {
       trigger: 'change',
     },
   ],
-  pointsNeed: [
-    {
-      required: true,
-      message: '请输入所需积分',
-      trigger: 'blur',
-    },
-    //必须是0或者10的倍数
-    {
-      validator: (rule: any, value: number) => {
-        return value % 10 === 0
-          ? Promise.resolve()
-          : Promise.reject(new Error('请输入0或者10的倍数'))
-      },
-      trigger: 'blur',
-    },
-  ],
   pictureStatus: [
     {
       required: true,
@@ -287,7 +271,6 @@ const formState = reactive<PictureInfoUpdate>({
   picSize: 0,
   picHeight: 0,
   picWidth: 0,
-  pointsNeed: 0,
   pictureStatus: '0',
   picFormat: '',
   picScale: 0,
