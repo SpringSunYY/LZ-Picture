@@ -250,10 +250,10 @@
         <el-form-item label="申请理由" prop="applyReason">
           <el-input v-model="form.applyReason" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="证明图片" prop="applyImage">
+        <el-form-item label="证明图片" prop="applyImage" v-if="form.applyImage!==''">
           <image-preview :src="form.applyImage"/>
         </el-form-item>
-        <el-form-item label="证明文件" prop="applyFile">
+        <el-form-item label="证明文件" prop="applyFile" v-if="form.applyFile!==''">
           <file-upload v-model="form.applyFile"/>
         </el-form-item>
         <el-form-item label="联系方式" prop="contact">
@@ -261,10 +261,10 @@
         </el-form-item>
         <el-form-item label="所需积分" prop="pointsNeed"
                       v-if="form.applyType !== '' && form.applyType !== '0'">
-          <el-input v-model="form.pointsNeed" placeholder="请输入所需积分"/>
+          <el-input-number :min="0" v-model="form.pointsNeed" placeholder="请输入所需积分"/>
         </el-form-item>
         <el-form-item label="所需金额" prop="priceNeed" v-if="form.applyType === '0'">
-          <el-input v-model="form.priceNeed" placeholder="请输入所需金额"/>
+          <el-input-number :min="0" :precision="2" v-model="form.priceNeed" placeholder="请输入所需金额"/>
         </el-form-item>
         <el-form-item label="审核状态" prop="reviewStatus">
           <el-radio-group v-model="form.reviewStatus">

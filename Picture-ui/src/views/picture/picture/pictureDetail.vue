@@ -143,9 +143,7 @@
                 <span style="font-size: 16px; padding-left: 8px">积分</span>
               </a-button>
             </a-tooltip>
-            <a-tooltip
-              v-else
-            >
+            <a-tooltip v-else>
               <template #title>
                 <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
                   使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
@@ -383,7 +381,7 @@ const addUserBehavior = (behaviorType: string) => {
 //region 购买图片
 const buyPictureLoading = ref(false)
 const buyPicture = async () => {
-  message.warning('当前功能还没实现哦', 5)
+  message.warning('当前功能还没开放哦', 5)
 }
 //endregion
 

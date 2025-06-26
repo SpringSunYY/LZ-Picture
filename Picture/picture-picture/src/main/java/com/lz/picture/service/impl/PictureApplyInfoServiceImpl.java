@@ -174,6 +174,10 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
             //如果是通过
             if (pictureApplyInfo.getReviewStatus().equals(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue())) {
+                //如果传过来的积分不为空，判断是否为10的倍数或者0
+                ThrowUtils.throwIf(StringUtils.isNotNull(pictureApplyInfo.getPointsNeed())
+                        && pictureApplyInfo.getPointsNeed() % 10 != 0
+                        || pictureApplyInfo.getPointsNeed() < 0, "积分必须是10的倍数或者0");
                 pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
                 String moreInfo = pictureInfo.getMoreInfo();
                 PictureMoreInfo pictureMoreInfo = new PictureMoreInfo();
@@ -188,6 +192,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
                     pictureMoreInfo.setPriceNeed(BigDecimal.valueOf(0));
                     pictureMoreInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
                 }
+                pictureInfo.setName(pictureApplyInfo.getPictureName());
                 pictureMoreInfo.setApplyType(pictureApplyInfo.getApplyType());
                 pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
             }
@@ -222,10 +227,13 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             } else {
                 params.put("applyType", "未知类型"); // 默认值
             }
+            if (StringUtils.isEmpty(pictureApplyInfo.getReviewMessage())) {
+                pictureApplyInfo.setReviewMessage("您的图片已经审核，感谢您的支持");
+            }
             params.put("reviewMessage", pictureApplyInfo.getReviewMessage());
             params.put("reviewTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, pictureApplyInfo.getReviewTime()));
             UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
-                    pictureApplyInfo.getUserId(),
+                    db.getUserId(),
                     PICTURE_APPLY_REVIEW,
                     null,
                     CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),

@@ -27,7 +27,7 @@ public class UserPictureApplyInfoController extends BaseUserInfoController {
     /**
      * 新增图片申请信息
      */
-    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PreAuthorize("@uss.hasPermi('picture:upload:apply')")
     @PostMapping
     public AjaxResult add(@RequestBody PictureApplyInfoAdd pictureApplyInfoAdd) {
         PictureApplyInfo pictureApplyInfo = PictureApplyInfoAdd.insertToObj(pictureApplyInfoAdd);

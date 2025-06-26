@@ -137,7 +137,11 @@
           <!-- 操作列 -->
           <template v-if="column.dataIndex === 'action'">
             <a-space>
-              <a @click="handleOpenApply(record.pictureId)">公开</a>
+              <a
+                @click="handleOpenApply(record.pictureId)"
+                v-if="record.pictureStatus !== '0' && checkPermiSingle('picture:upload:apply')"
+                >公开</a
+              >
               <a @click="handleUpdate(record.pictureId)" v-if="checkPermiSingle('picture:upload')"
                 >修改</a
               >
@@ -341,15 +345,18 @@ const openApply = ref(false)
 const applyLoading = ref(false)
 const handleApplySubmit = () => {
   applyLoading.value = true
-  addPictureApplyInfo(formApply.value).then((res) => {
-    if (res.code === 200) {
-      message.success('申请成功')
-      openApply.value = false
-    } else {
-      message.error(res.msg)
-    }
+  try {
+    addPictureApplyInfo(formApply.value).then((res) => {
+      if (res.code === 200) {
+        message.success('申请成功')
+        openApply.value = false
+      } else {
+        message.error(res.msg)
+      }
+    })
+  } finally {
     applyLoading.value = false
-  })
+  }
 }
 
 const handleOpenApply = (pictureId: string) => {

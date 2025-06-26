@@ -1,12 +1,15 @@
 package com.lz.picture.model.dto.pictureApplyInfo;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.picture.model.domain.PictureApplyInfo;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.PictureApplyInfo;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.math.BigDecimal;
+
 /**
  * 图片申请信息Vo对象 p_picture_apply_info
  *
@@ -14,47 +17,63 @@ import com.lz.picture.model.domain.PictureApplyInfo;
  * @date 2025-06-17
  */
 @Data
-public class PictureApplyInfoEdit implements Serializable
-{
+public class PictureApplyInfoEdit implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /** 申请编号 */
+    /**
+     * 申请编号
+     */
+    @NotEmpty(message = "申请编号不能为空")
     private String applyId;
 
-    /** 图片编号 */
+    /**
+     * 图片编号
+     */
+    @NotEmpty(message = "图片编号不能为空")
     private String pictureId;
 
-    /** 图片名称 */
+    /**
+     * 图片名称
+     */
+    @NotEmpty(message = "图片名称不能为空")
     private String pictureName;
 
-    /** 缩略图 URL */
-    private String thumbnailUrl;
-
-    /** 申请类型 */
+    /**
+     * 申请类型
+     */
+    @NotEmpty(message = "申请类型不能为空")
     private String applyType;
 
-    /** 申请理由 */
+    /**
+     * 申请理由
+     */
     private String applyReason;
 
-    /** 证明图片 */
-    private String applyImage;
-
-    /** 证明文件 */
-    private String applyFile;
-
-    /** 联系方式 */
+    /**
+     * 联系方式
+     */
+    @NotEmpty(message = "联系方式不能为空")
     private String contact;
 
-    /** 所需积分 */
+    /**
+     * 所需积分
+     */
     private Long pointsNeed;
 
-    /** 所需金额 */
+    /**
+     * 所需金额
+     */
     private BigDecimal priceNeed;
 
-    /** 审核状态 */
+    /**
+     * 审核状态
+     */
     private String reviewStatus;
 
-    /** 审核信息 */
+    /**
+     * 审核信息
+     */
     private String reviewMessage;
 
     /**
