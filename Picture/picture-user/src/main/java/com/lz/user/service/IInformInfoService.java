@@ -119,7 +119,7 @@ public interface IInformInfoService extends IService<InformInfo> {
      * @method: getUnReadInformCount
      * @date: 2025/5/29 22:57
      **/
-    Long getUnReadInformCount(String userId);
+    Integer getUnReadInformCount(String userId);
 
     /**
      * 用户查询自己的通知记录详情

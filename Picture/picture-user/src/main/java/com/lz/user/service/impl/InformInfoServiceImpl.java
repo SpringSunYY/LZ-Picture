@@ -1,42 +1,34 @@
 package com.lz.user.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.model.enmus.CTemplateStatusEnum;
 import com.lz.config.service.IInformTemplateInfoService;
+import com.lz.user.mapper.InformInfoMapper;
+import com.lz.user.model.domain.InformInfo;
+import com.lz.user.model.dto.informInfo.InformInfoQuery;
 import com.lz.user.model.dto.informInfo.UserInformInfoQuery;
 import com.lz.user.model.enums.UInformIsReadEnum;
 import com.lz.user.model.enums.UInformStatusEnum;
+import com.lz.user.model.vo.informInfo.InformInfoVo;
+import com.lz.user.service.IInformInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.user.mapper.InformInfoMapper;
-import com.lz.user.model.domain.InformInfo;
-import com.lz.user.service.IInformInfoService;
-import com.lz.user.model.dto.informInfo.InformInfoQuery;
-import com.lz.user.model.vo.informInfo.InformInfoVo;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.LocaleConstants.DEFAULT_LOCALE;
 import static com.lz.common.constant.redis.UserRedisConstants.*;
-import static com.lz.userauth.utils.UserInfoSecurityUtils.getUserId;
 
 /**
  * 用户通知记录Service业务层处理
@@ -208,6 +200,8 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         informInfo.setInformTitle(informTemplateInfoByKeyLocaleType.getInformTitle());
         informInfo.setUserId(userId);
         informInfo.setContent(StringUtils.parseTemplate(informTemplateInfoByKeyLocaleType.getContent(), params));
+        String key = USER_INFORM_UNREAD_COUNT + userId;
+        redisCache.increment(key, 1);
         return this.save(informInfo) ? 1 : 0;
     }
 
@@ -230,20 +224,21 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
     }
 
     @Override
-    public Long getUnReadInformCount(String userId) {
+    public Integer getUnReadInformCount(String userId) {
         if (StringUtils.isEmpty(userId)) {
-            return 0L;
+            return 0;
         }
         String key = USER_INFORM_UNREAD_COUNT + userId;
-        Long cacheObject = redisCache.getCacheObject(key);
+        Integer cacheObject = redisCache.getCacheObject(key);
         if (StringUtils.isNotNull(cacheObject)) {
             return cacheObject;
         }
         long count = this.count(new LambdaQueryWrapper<InformInfo>()
                 .eq(InformInfo::getUserId, userId)
                 .eq(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_0.getValue()));
-        redisCache.setCacheObject(key, count, USER_INFORM_UNREAD_COUNT_EXPIRE_TIME, TimeUnit.SECONDS);
-        return count;
+        int intExact = Math.toIntExact(count);
+        redisCache.setCacheObject(key, intExact, USER_INFORM_UNREAD_COUNT_EXPIRE_TIME, TimeUnit.SECONDS);
+        return intExact;
     }
 
     @Override
