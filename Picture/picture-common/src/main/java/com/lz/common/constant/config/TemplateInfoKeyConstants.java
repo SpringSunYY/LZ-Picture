@@ -56,4 +56,9 @@ public class TemplateInfoKeyConstants {
      * 用户图片被举报举报通知
      */
     public static final String PICTURE_REPORT_REMIND = "picture_report_remind";
+
+    /**
+     * 尊敬的用户，您的图片已经审核，请查看详细信息。
+     */
+    public static final String PICTURE_APPLY_REVIEW = "picture_apply_review";
 }

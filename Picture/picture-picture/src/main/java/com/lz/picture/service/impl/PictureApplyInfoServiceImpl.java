@@ -1,11 +1,14 @@
 package com.lz.picture.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.config.service.impl.ConfigInfoServiceImpl;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
@@ -13,19 +16,30 @@ import com.lz.picture.mapper.PictureApplyInfoMapper;
 import com.lz.picture.model.domain.PictureApplyInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
+import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
 import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.enums.PictureApplyStatusEnum;
+import com.lz.picture.model.enums.PictureApplyTypeEnum;
 import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
 import com.lz.picture.service.IPictureApplyInfoService;
 import com.lz.picture.service.IPictureInfoService;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
+import com.lz.user.model.enums.UInformTypeEnum;
 import jakarta.annotation.Resource;
+import org.glassfish.jaxb.runtime.InternalAccessorFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_APPLY_REVIEW;
 import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
+import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 
 /**
  * 图片申请信息Service业务层处理
@@ -46,6 +60,8 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
 
     @Resource
     private ConfigInfoServiceImpl configInfoService;
+    @Autowired
+    private ApplicationArguments applicationArguments;
 
     //region mybatis代码
 
@@ -145,13 +161,79 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         PictureApplyInfo db = selectPictureApplyInfoByApplyId(pictureApplyInfo.getApplyId());
         ThrowUtils.throwIf(StringUtils.isNull(db), "图片申请信息不存在");
         ThrowUtils.throwIf(db.getReviewStatus().equals(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue()), "图片申请信息已审核通过，请勿重复操作");
+
         //查询图片
         PictureInfo pictureInfo = pictureInfoService.selectNormalPictureInfoByPictureId(pictureApplyInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
-        ThrowUtils.throwIf(!pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "图片已发布，请勿重复操作");
-        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
-        pictureInfoService.updatePictureInfo(pictureInfo);
-        pictureApplyInfo.setUpdateTime(DateUtils.getNowDate());
+        ThrowUtils.throwIf(pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "图片已发布，请勿重复操作");
+        //如果两者状态不一样表示要审核
+        Date nowDate = DateUtils.getNowDate();
+        if (!db.getReviewStatus().equals(pictureApplyInfo.getReviewStatus())) {
+            pictureApplyInfo.setReviewTime(nowDate);
+            pictureApplyInfo.setReviewUserId(SecurityUtils.getUserId());
+            pictureInfo.setUpdateTime(nowDate);
+            pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+            //如果是通过
+            if (pictureApplyInfo.getReviewStatus().equals(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue())) {
+                pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+                String moreInfo = pictureInfo.getMoreInfo();
+                PictureMoreInfo pictureMoreInfo = new PictureMoreInfo();
+                if (StringUtils.isNotEmpty(moreInfo)) {
+                    pictureMoreInfo = JSON.parseObject(moreInfo, PictureMoreInfo.class);
+                }
+                //是原创作品 原创作品可以设置 价格 其他的可以设置积分
+                if (pictureApplyInfo.getApplyType().equals(PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0.getValue())) {
+                    pictureMoreInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
+                    pictureMoreInfo.setPriceNeed(pictureApplyInfo.getPriceNeed());
+                }else {
+                    pictureMoreInfo.setPriceNeed(BigDecimal.valueOf(0));
+                    pictureMoreInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
+                }
+                pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
+            }
+            pictureInfoService.updatePictureInfo(pictureInfo);
+            //发送消息
+            /*
+                {
+                  "pictureId": "123456",
+                  "pictureName": "夕阳下的海岸",
+                  "applyTime": "2025-06-25 14:30:00",
+                  "applyType": "原创作品",
+                  "applyReason": "用于毕业设计展示项目",
+                  "reviewStatue": "已通过",
+                  "reviewMessage": "图片质量良好，符合平台规范。",
+                  "reviewTime": "2025-06-26 10:15:00"
+                }
+             */
+            HashMap<String, String> params = new HashMap<>();
+            params.put("pictureId", pictureApplyInfo.getPictureId());
+            params.put("pictureName", pictureApplyInfo.getPictureName());
+            params.put("applyTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, db.getCreateTime()));
+            params.put("applyReason", pictureApplyInfo.getApplyReason());
+            Optional<PictureApplyStatusEnum> enumByValue = PictureApplyStatusEnum.getEnumByValue(pictureApplyInfo.getReviewStatus());
+            if (enumByValue.isPresent()) {
+                params.put("reviewStatue", enumByValue.get().getLabel());
+            } else {
+                params.put("reviewStatue", "未知类型"); // 默认值
+            }
+            Optional<PictureApplyTypeEnum> applyTypeEnum = PictureApplyTypeEnum.getEnumByValue(pictureApplyInfo.getApplyType());
+            if (applyTypeEnum.isPresent()) {
+                params.put("applyType", applyTypeEnum.get().getLabel());
+            } else {
+                params.put("applyType", "未知类型"); // 默认值
+            }
+            params.put("reviewMessage", pictureApplyInfo.getReviewMessage());
+            params.put("reviewTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, pictureApplyInfo.getReviewTime()));
+            UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                    pictureApplyInfo.getUserId(),
+                    PICTURE_APPLY_REVIEW,
+                    null,
+                    CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                    UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                    params
+            ));
+        }
+        pictureApplyInfo.setUpdateTime(nowDate);
         return pictureApplyInfoMapper.updatePictureApplyInfo(pictureApplyInfo);
     }
 
