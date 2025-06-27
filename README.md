@@ -2936,7 +2936,6 @@ CREATE TABLE p_space_dilatation_info (
   points_total      INT                   DEFAULT 0 COMMENT '消耗积分',
   user_id           VARCHAR(128) NOT NULL COMMENT '用户',
   create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  update_time       DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
   CONSTRAINT fk_space_dilatation_space_id FOREIGN KEY (space_id) REFERENCES p_space_info(space_id),
   CONSTRAINT fk_space_dilatation_user_id_dilatation FOREIGN KEY (user_id) REFERENCES u_user_info(user_id)
