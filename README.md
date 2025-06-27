@@ -2896,6 +2896,56 @@ CREATE TABLE p_picture_apply_info (
 
 
 
+
+
+#### 空间扩容表：p_space_dilatation_info
+
+| 字段名           | 类型     | 长度 | 键类型                       | Null | 默认值         | 描述       |
+| ---------------- | -------- | ---- | ---------------------------- | ---- | -------------- | ---------- |
+| dilatation_id    | varchar  | 128  | 主键                         | 否   | auto_increment | 申请编号   |
+| dilatation_key   | varchar  | 128  |                              | 否   |                | 扩容KEY    |
+| space_id         | varchar  | 128  | 外键 (p_space_info:space_id) | 否   |                | 空间编号   |
+| space_name       | varchar  | 32   |                              | 否   |                | 空间名称   |
+| thumbnail_url    | varchar  | 512  |                              | 否   |                | 缩略图 url |
+| dilatation_type  | char     | 1    |                              | 否   |                | 扩容类型   |
+| dilatation_unit  | int      |      |                              | 否   |                | 扩容单价   |
+| dilatation_total | int      |      |                              | 否   |                | 扩容总数   |
+| points_total     | int      |      |                              | 是   | 0              | 消耗积分   |
+| user_id          | varchar  | 128  | 外键(u_user_info:user_id)    | 否   |                | 用户       |
+| create_time      | datetime |      |                              | 否   | 当前时间       | 创建时间   |
+
+扩容类型：0容量扩容 1数量扩容 2人数扩容
+
+扩容单价：根据不同扩容类型获取单价
+
+扩容总数：每种类型的总数
+
+```sql
+-- 如果存在旧表则先删除
+DROP TABLE IF EXISTS p_space_dilatation_info;
+-- 创建空间扩容表
+CREATE TABLE p_space_dilatation_info (
+  dilatation_id     VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '申请编号',
+  dilatation_key    VARCHAR(128) NOT NULL COMMENT '扩容KEY',
+  space_id          VARCHAR(128) NOT NULL COMMENT '空间编号',
+  space_name        VARCHAR(32)  NOT NULL COMMENT '空间名称',
+  thumbnail_url     VARCHAR(512) NOT NULL COMMENT '缩略图 URL',
+  dilatation_type   CHAR(1)      NOT NULL COMMENT '扩容类型',
+  dilatation_unit   INT          NOT NULL COMMENT '扩容单价',
+  dilatation_total  INT          NOT NULL COMMENT '扩容总数',
+  points_total      INT                   DEFAULT 0 COMMENT '消耗积分',
+  user_id           VARCHAR(128) NOT NULL COMMENT '用户',
+  create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time       DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+  CONSTRAINT fk_space_dilatation_space_id FOREIGN KEY (space_id) REFERENCES p_space_info(space_id),
+  CONSTRAINT fk_space_dilatation_user_id_dilatation FOREIGN KEY (user_id) REFERENCES u_user_info(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='空间扩容信息表';
+
+```
+
+
+
 ## 留存
 
 ### 全局加载器

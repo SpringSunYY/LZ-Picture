@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.picture.mapper.SpaceDilatationInfoMapper">
+
+    <resultMap type="SpaceDilatationInfo" id="SpaceDilatationInfoResult">
+        <result property="dilatationId" column="dilatation_id"/>
+        <result property="dilatationKey" column="dilatation_key"/>
+        <result property="spaceId" column="space_id"/>
+        <result property="spaceName" column="space_name"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="dilatationType" column="dilatation_type"/>
+        <result property="dilatationUnit" column="dilatation_unit"/>
+        <result property="dilatationTotal" column="dilatation_total"/>
+        <result property="pointsTotal" column="points_total"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectSpaceDilatationInfoVo">
+        select dilatation_id,
+               dilatation_key,
+               space_id,
+               space_name,
+               thumbnail_url,
+               dilatation_type,
+               dilatation_unit,
+               dilatation_total,
+               points_total,
+               user_id,
+               create_time
+        from p_space_dilatation_info
+    </sql>
+
+    <select id="selectSpaceDilatationInfoList" parameterType="SpaceDilatationInfo"
+            resultMap="SpaceDilatationInfoResult">
+        <include refid="selectSpaceDilatationInfoVo"/>
+        <where>
+            <if test="dilatationId != null  and dilatationId != ''">and dilatation_id = #{dilatationId}</if>
+            <if test="dilatationKey != null  and dilatationKey != ''">and dilatation_key = #{dilatationKey}</if>
+            <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="spaceName != null  and spaceName != ''">and space_name like concat('%', #{spaceName}, '%')</if>
+            <if test="dilatationType != null  and dilatationType != ''">and dilatation_type = #{dilatationType}</if>
+            <if test="pointsTotal != null ">and points_total = #{pointsTotal}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectSpaceDilatationInfoByDilatationId" parameterType="String" resultMap="SpaceDilatationInfoResult">
+        <include refid="selectSpaceDilatationInfoVo"/>
+        where dilatation_id = #{dilatationId}
+    </select>
+
+    <insert id="insertSpaceDilatationInfo" parameterType="SpaceDilatationInfo">
+        insert into p_space_dilatation_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dilatationId != null">dilatation_id,</if>
+            <if test="dilatationKey != null and dilatationKey != ''">dilatation_key,</if>
+            <if test="spaceId != null and spaceId != ''">space_id,</if>
+            <if test="spaceName != null and spaceName != ''">space_name,</if>
+            <if test="thumbnailUrl != null and thumbnailUrl != ''">thumbnail_url,</if>
+            <if test="dilatationType != null and dilatationType != ''">dilatation_type,</if>
+            <if test="dilatationUnit != null">dilatation_unit,</if>
+            <if test="dilatationTotal != null">dilatation_total,</if>
+            <if test="pointsTotal != null">points_total,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dilatationId != null">#{dilatationId},</if>
+            <if test="dilatationKey != null and dilatationKey != ''">#{dilatationKey},</if>
+            <if test="spaceId != null and spaceId != ''">#{spaceId},</if>
+            <if test="spaceName != null and spaceName != ''">#{spaceName},</if>
+            <if test="thumbnailUrl != null and thumbnailUrl != ''">#{thumbnailUrl},</if>
+            <if test="dilatationType != null and dilatationType != ''">#{dilatationType},</if>
+            <if test="dilatationUnit != null">#{dilatationUnit},</if>
+            <if test="dilatationTotal != null">#{dilatationTotal},</if>
+            <if test="pointsTotal != null">#{pointsTotal},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSpaceDilatationInfo" parameterType="SpaceDilatationInfo">
+        update p_space_dilatation_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dilatationKey != null and dilatationKey != ''">dilatation_key = #{dilatationKey},</if>
+            <if test="spaceId != null and spaceId != ''">space_id = #{spaceId},</if>
+            <if test="spaceName != null and spaceName != ''">space_name = #{spaceName},</if>
+            <if test="thumbnailUrl != null and thumbnailUrl != ''">thumbnail_url = #{thumbnailUrl},</if>
+            <if test="dilatationType != null and dilatationType != ''">dilatation_type = #{dilatationType},</if>
+            <if test="dilatationUnit != null">dilatation_unit = #{dilatationUnit},</if>
+            <if test="dilatationTotal != null">dilatation_total = #{dilatationTotal},</if>
+            <if test="pointsTotal != null">points_total = #{pointsTotal},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where dilatation_id = #{dilatationId}
+    </update>
+
+    <delete id="deleteSpaceDilatationInfoByDilatationId" parameterType="String">
+        delete
+        from p_space_dilatation_info
+        where dilatation_id = #{dilatationId}
+    </delete>
+
+    <delete id="deleteSpaceDilatationInfoByDilatationIds" parameterType="String">
+        delete from p_space_dilatation_info where dilatation_id in
+        <foreach item="dilatationId" collection="array" open="(" separator="," close=")">
+            #{dilatationId}
+        </foreach>
+    </delete>
+</mapper>
