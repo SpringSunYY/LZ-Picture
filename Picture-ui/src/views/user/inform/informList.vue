@@ -4,7 +4,6 @@
       title="我的消息"
       sub-title="要关心自己的消息哦"
     />
-    <div style="margin-bottom: 20px"></div>
 
     <a-form layout="inline" :model="queryParams">
       <a-form-item label="消息标题">
@@ -52,6 +51,7 @@
       </a-form-item>
       <a-button type="primary" @click="resetSearch">重置</a-button>
     </a-form>
+    <div style="margin-bottom: 10px"></div>
 
     <a-tabs default-active-key="all" v-model:activeKey="activeKey" @change="handleTabChange">
       <a-tab-pane key="all" tab="全部" />
@@ -167,14 +167,11 @@ const goDetail = (item: any) => {
 
 <style scoped lang="scss">
 .inform-list {
-  max-width: 1440px;
-  margin: 0 auto;
-  max-width: 90%;
-
+  margin: 0 3em;
   .message-card {
     background: rgba(211, 211, 211, 0.28);
     padding: 2px 24px;
-    margin-bottom: 8px;
+    margin-bottom: 15px;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     cursor: pointer;

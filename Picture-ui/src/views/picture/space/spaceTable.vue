@@ -139,14 +139,14 @@ const columns = [
   { title: '空间名称', dataIndex: 'spaceName', width: 120 },
   { title: '空间类型', dataIndex: 'spaceType', width: 80 },
   { title: '状态', dataIndex: 'spaceStatus', width: 80 },
-  { title: '容量', dataIndex: 'maxSize', width: 120 },
-  { title: '已用容量', dataIndex: 'totalSize', width: 120, sorter: true },
+  { title: '总容量', dataIndex: 'maxSize', width: 80 },
+  { title: '已用容量', dataIndex: 'totalSize', width: 100, sorter: true },
   { title: '文件总数', dataIndex: 'maxCount', width: 100 },
-  { title: '文件数', dataIndex: 'totalCount', width: 100, sorter: true },
-  { title: 'OSS类型', dataIndex: 'ossType', width: 120 },
-  { title: '创建时间', dataIndex: 'createTime', width: 180, sorter: true },
-  { title: '更新时间', dataIndex: 'updateTime', width: 180 },
-  { title: '最后上传时间', dataIndex: 'lastUpdateTime', width: 180, sorter: true },
+  { title: '文件数', dataIndex: 'totalCount', width: 90, sorter: true },
+  { title: 'OSS类型', dataIndex: 'ossType', width: 80 },
+  { title: '创建时间', dataIndex: 'createTime', width: 140, sorter: true },
+  { title: '更新时间', dataIndex: 'updateTime', width: 140 },
+  { title: '最后上传时间', dataIndex: 'lastUpdateTime', width: 140, sorter: true },
 ]
 
 const getSpaceList = () => {
