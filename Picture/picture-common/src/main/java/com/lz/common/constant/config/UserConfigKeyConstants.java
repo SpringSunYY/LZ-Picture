@@ -201,4 +201,17 @@ public class UserConfigKeyConstants {
      * 用户推荐浏览缓存数阈值
      */
     public static final String PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD = "picture:recommend:view:cache:threshold";
+    /**
+     * 空间扩容-数量
+     */
+    public static final String PICTURE_SPACE_DILATATION_COUNT = "picture:space:dilatation:count";
+    /**
+     * 空间扩容-容量
+     */
+    public static final String PICTURE_SPACE_DILATATION_SIZE = "picture:space:dilatation:size";
+    /**
+     * 空间扩容-人数
+     */
+    public static final String PICTURE_SPACE_DILATATION_MEMBER = "picture:space:dilatation:member";
+
 }

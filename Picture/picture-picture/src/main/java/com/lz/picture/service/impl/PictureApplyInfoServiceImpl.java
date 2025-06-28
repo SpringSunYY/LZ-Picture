@@ -20,8 +20,8 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
 import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.enums.PictureApplyStatusEnum;
-import com.lz.picture.model.enums.PictureApplyTypeEnum;
+import com.lz.picture.model.enums.PPictureApplyStatusEnum;
+import com.lz.picture.model.enums.PPictureApplyTypeEnum;
 import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
 import com.lz.picture.service.IPictureApplyInfoService;
 import com.lz.picture.service.IPictureInfoService;
@@ -159,7 +159,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         //获取数据库数据
         PictureApplyInfo db = selectPictureApplyInfoByApplyId(pictureApplyInfo.getApplyId());
         ThrowUtils.throwIf(StringUtils.isNull(db), "图片申请信息不存在");
-        ThrowUtils.throwIf(db.getReviewStatus().equals(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue()), "图片申请信息已审核通过，请勿重复操作");
+        ThrowUtils.throwIf(db.getReviewStatus().equals(PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue()), "图片申请信息已审核通过，请勿重复操作");
 
         //查询图片
         PictureInfo pictureInfo = pictureInfoService.selectNormalPictureInfoByPictureId(pictureApplyInfo.getPictureId());
@@ -173,7 +173,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             pictureInfo.setUpdateTime(nowDate);
             pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
             //如果是通过
-            if (pictureApplyInfo.getReviewStatus().equals(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue())) {
+            if (pictureApplyInfo.getReviewStatus().equals(PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue())) {
                 //如果传过来的积分不为空，判断是否为10的倍数或者0
                 ThrowUtils.throwIf(StringUtils.isNotNull(pictureApplyInfo.getPointsNeed())
                         && pictureApplyInfo.getPointsNeed() % 10 != 0
@@ -185,7 +185,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
                     pictureMoreInfo = JSON.parseObject(moreInfo, PictureMoreInfo.class);
                 }
                 //是原创作品 原创作品可以设置 价格 其他的可以设置积分
-                if (pictureApplyInfo.getApplyType().equals(PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0.getValue())) {
+                if (pictureApplyInfo.getApplyType().equals(PPictureApplyTypeEnum.PICTURE_APPLY_TYPE_0.getValue())) {
                     pictureMoreInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
                     pictureMoreInfo.setPriceNeed(pictureApplyInfo.getPriceNeed());
                 } else {
@@ -215,13 +215,13 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             params.put("pictureName", pictureApplyInfo.getPictureName());
             params.put("applyTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, db.getCreateTime()));
             params.put("applyReason", pictureApplyInfo.getApplyReason());
-            Optional<PictureApplyStatusEnum> enumByValue = PictureApplyStatusEnum.getEnumByValue(pictureApplyInfo.getReviewStatus());
+            Optional<PPictureApplyStatusEnum> enumByValue = PPictureApplyStatusEnum.getEnumByValue(pictureApplyInfo.getReviewStatus());
             if (enumByValue.isPresent()) {
                 params.put("reviewStatue", enumByValue.get().getLabel());
             } else {
                 params.put("reviewStatue", "未知类型"); // 默认值
             }
-            Optional<PictureApplyTypeEnum> applyTypeEnum = PictureApplyTypeEnum.getEnumByValue(pictureApplyInfo.getApplyType());
+            Optional<PPictureApplyTypeEnum> applyTypeEnum = PPictureApplyTypeEnum.getEnumByValue(pictureApplyInfo.getApplyType());
             if (applyTypeEnum.isPresent()) {
                 params.put("applyType", applyTypeEnum.get().getLabel());
             } else {
@@ -334,7 +334,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         pictureApplyInfo.setPictureName(pictureInfo.getName());
         //初始值
         pictureApplyInfo.setCreateTime(DateUtils.getNowDate());
-        pictureApplyInfo.setReviewStatus(PictureApplyStatusEnum.PICTURE_APPLY_STATUS_0.getValue());
+        pictureApplyInfo.setReviewStatus(PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_0.getValue());
         //更新文件日志信息
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateNormalPictureApplyFileLog(pictureApplyInfo));
         return this.save(pictureApplyInfo) ? 1 : 0;

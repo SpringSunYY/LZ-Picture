@@ -10,7 +10,7 @@ import java.util.Optional;
  * 图片申请状态 枚举
  */
 @Getter
-public enum PictureApplyStatusEnum {
+public enum PPictureApplyStatusEnum {
 
     /**
      * 待审核
@@ -30,20 +30,20 @@ public enum PictureApplyStatusEnum {
     private final String value;
     private final String label;
 
-    PictureApplyStatusEnum(String value, String label) {
+    PPictureApplyStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
 
-    private static final Map<String, PictureApplyStatusEnum> VALUE_MAP = new HashMap<>();
+    private static final Map<String, PPictureApplyStatusEnum> VALUE_MAP = new HashMap<>();
 
     static {
-        for (PictureApplyStatusEnum item : values()) {
+        for (PPictureApplyStatusEnum item : values()) {
             VALUE_MAP.put(item.value, item);
         }
     }
 
-    public static Optional<PictureApplyStatusEnum> getEnumByValue(String value) {
+    public static Optional<PPictureApplyStatusEnum> getEnumByValue(String value) {
         return Optional.ofNullable(VALUE_MAP.get(value));
     }
 }

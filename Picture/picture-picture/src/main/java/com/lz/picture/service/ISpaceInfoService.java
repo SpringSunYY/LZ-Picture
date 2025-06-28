@@ -85,6 +85,17 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
     List<SpaceInfoVo> convertVoList(List<SpaceInfo> spaceInfoList);
 
     /**
+     * 获取正常的空间未删除信息
+     *
+     * @param spaceId
+     * @return SpaceInfo
+     * @author: YY
+     * @method: selectNormalSpaceInfoByUserId
+     * @date: 2025/6/28 18:59
+     **/
+    SpaceInfo selectNormalSpaceInfoByUserId(String spaceId);
+
+    /**
      * description: 创建空间信息
      * author: YY
      * method: userInsertSpaceInfo
@@ -116,4 +127,15 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * @date: 2025/6/28 16:59
      **/
     TableDataInfo listSpaceInfoTable(UserSpaceInfoQuery userSpaceInfoQuery);
+
+    /**
+     * 删除空间表格缓存
+     *
+     * @param userId 用户编号
+     * @return void
+     * @author: YY
+     * @method: deleteSpaceTableCacheByUserId
+     * @date: 2025/6/28 17:28
+     **/
+    void deleteSpaceTableCacheByUserId(String userId);
 }

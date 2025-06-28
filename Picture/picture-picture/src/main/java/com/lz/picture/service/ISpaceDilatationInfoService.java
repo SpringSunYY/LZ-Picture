@@ -2,6 +2,7 @@ package com.lz.picture.service;
 
 import java.util.List;
 import com.lz.picture.model.domain.SpaceDilatationInfo;
+import com.lz.picture.model.vo.spaceDilatationInfo.SpaceDilatationInfoCalculationVo;
 import com.lz.picture.model.vo.spaceDilatationInfo.SpaceDilatationInfoVo;
 import com.lz.picture.model.dto.spaceDilatationInfo.SpaceDilatationInfoQuery;
 
@@ -79,4 +80,25 @@ public interface ISpaceDilatationInfoService extends IService<SpaceDilatationInf
      * @return SpaceDilatationInfoVO集合
      */
     List<SpaceDilatationInfoVo> convertVoList(List<SpaceDilatationInfo> spaceDilatationInfoList);
+
+    /**
+     * 用户天剑空间扩容信息
+     * @author: YY
+     * @method: userInsertSpaceDilatationInfo
+     * @date: 2025/6/28 18:53
+     * @param spaceDilatationInfo 扩容信息
+     * @return int
+     **/
+    int userInsertSpaceDilatationInfo(SpaceDilatationInfo spaceDilatationInfo);
+
+    /**
+     * 计算扩容所需要总积分
+     * @author: YY
+     * @method: calculateDilatationPointTotal
+     * @date: 2025/6/28 19:24
+     * @param dilatationTotal 扩容总数
+     * @param dilatationType 扩容类型
+     * @return SpaceDilatationInfoCalculationVo
+     **/
+    SpaceDilatationInfoCalculationVo calculateDilatationPointTotal(Long dilatationTotal, String dilatationType);
 }

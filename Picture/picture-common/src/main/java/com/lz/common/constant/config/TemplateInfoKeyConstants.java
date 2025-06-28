@@ -61,4 +61,9 @@ public class TemplateInfoKeyConstants {
      * 尊敬的用户，您的图片已经审核，请查看详细信息。
      */
     public static final String PICTURE_APPLY_REVIEW = "picture_apply_review";
+
+    /**
+     * 尊敬的用户，您的空间已经扩容成功
+     */
+    public static final String PICTURE_SPACE_DILATATION_SUCCESS = "picture:space:dilatation:success";
 }

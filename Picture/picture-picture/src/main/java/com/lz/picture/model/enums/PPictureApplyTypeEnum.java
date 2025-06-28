@@ -10,7 +10,7 @@ import java.util.Optional;
  * 图片申请类型 枚举
  */
 @Getter
-public enum PictureApplyTypeEnum {
+public enum PPictureApplyTypeEnum {
 
     /**
      * 原创作品
@@ -30,20 +30,20 @@ public enum PictureApplyTypeEnum {
     private final String value;
     private final String label;
 
-    PictureApplyTypeEnum(String value, String label) {
+    PPictureApplyTypeEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
 
-    private static final Map<String, PictureApplyTypeEnum> VALUE_MAP = new HashMap<>();
+    private static final Map<String, PPictureApplyTypeEnum> VALUE_MAP = new HashMap<>();
 
     static {
-        for (PictureApplyTypeEnum item : values()) {
+        for (PPictureApplyTypeEnum item : values()) {
             VALUE_MAP.put(item.value, item);
         }
     }
 
-    public static Optional<PictureApplyTypeEnum> getEnumByValue(String value) {
+    public static Optional<PPictureApplyTypeEnum> getEnumByValue(String value) {
         return Optional.ofNullable(VALUE_MAP.get(value));
     }
 }

@@ -840,8 +840,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo)
                         || (!pictureInfo.getUserId().equals(userId) && pictureInfo.getPictureStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
-                        || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue()))
-                , "图片不存在");
+                        || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue())),
+                "图片不存在");
 
         //下载记录
         PictureDownloadLogInfo pictureDownloadLogInfo = new PictureDownloadLogInfo();

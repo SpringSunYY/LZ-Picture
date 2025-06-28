@@ -15,7 +15,11 @@ public enum PoPointsUsageTypeEnum {
     /**
      * 下载图片
      */
-    POINTS_USAGE_TYPE_0("0", "下载图片");
+    POINTS_USAGE_TYPE_0("0", "下载图片"),
+    /**
+     * 空间扩容
+     */
+    POINTS_USAGE_TYPE_1("1", "空间扩容");
 
     private static final Map<String, PoPointsUsageTypeEnum> VALUE_TO_ENUM = new HashMap<>();
 

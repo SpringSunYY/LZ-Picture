@@ -180,6 +180,12 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         return spaceInfoList.stream().map(SpaceInfoVo::objToVo).collect(Collectors.toList());
     }
 
+    //获取正常的空间信息-未删除
+    @Override
+    public SpaceInfo selectNormalSpaceInfoByUserId(String spaceId) {
+        return this.getOne(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getSpaceId, spaceId).eq(SpaceInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
+    }
+
     @Override
     public int userInsertSpaceInfo(SpaceInfo spaceInfo) {
         //根据用户查询是否存在此空间
@@ -372,6 +378,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
      * @method: deleteSpaceTableCacheByUserId
      * @date: 2025/6/28 17:28
      **/
+    @Override
     public void deleteSpaceTableCacheByUserId(String userId) {
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_TABLE_DATE + userId + "*");
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_TABLE_TOTAL + userId + "*");

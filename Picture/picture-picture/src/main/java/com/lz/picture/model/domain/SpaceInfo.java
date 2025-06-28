@@ -62,7 +62,7 @@ public class SpaceInfo implements Serializable {
     /**
      * 最大容量（字节）
      */
-    @Excel(name = "最大容量", readConverterExp = "字=节")
+    @Excel(name = "最大容量")
     private Long maxSize;
 
     /**

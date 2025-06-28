@@ -242,27 +242,7 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
         //判断用户账户是否存在
         if (StringUtils.isNull(accountInfo)) {
             //创建账户
-            accountInfo = new AccountInfo();
-            accountInfo.setUserId(userId);
-            //生成默认密码
-            String password = RandomUtil.randomString(8);
-            //随机为用户设置加密方式 md5、bcrypt 随机数，如果是1，则使用bcrypt加密，否则使用md5加密
-            if (new Random().nextInt(2) == 1) {
-                accountInfo.setPassword(UserInfoSecurityUtils.encodeEncryptPassword(password));
-                accountInfo.setSalt("bcrypt");
-            } else {
-                accountInfo.setPassword(UserInfoSecurityUtils.encodeMd5Password(password));
-                accountInfo.setSalt("md5");
-            }
-            //后续发送短信或者信息通知用户默认密码
-            accountInfo.setPointsEarned(0L);
-            accountInfo.setPointsUsed(0L);
-            accountInfo.setRechargeAmount(new BigDecimal(BigInteger.ZERO));
-            accountInfo.setPointsBalance(0L);
-            accountInfo.setAccountStatus(PoAccountStatusEnum.ACCOUNT_STATUS_0.getValue());
-            accountInfo.setCreateTime(nowDate);
-            accountInfo.setUpdateTime(nowDate);
-            accountInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+            accountInfo = createAccount(userId, nowDate);
         }
         //积分使用记录
         PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
@@ -313,6 +293,32 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
                 rLock.unlock();
             }
         }
+    }
+
+    private static AccountInfo createAccount(String userId, Date nowDate) {
+        AccountInfo accountInfo;
+        accountInfo = new AccountInfo();
+        accountInfo.setUserId(userId);
+        //生成默认密码
+        String password = RandomUtil.randomString(8);
+        //随机为用户设置加密方式 md5、bcrypt 随机数，如果是1，则使用bcrypt加密，否则使用md5加密
+        if (new Random().nextInt(2) == 1) {
+            accountInfo.setPassword(UserInfoSecurityUtils.encodeEncryptPassword(password));
+            accountInfo.setSalt("bcrypt");
+        } else {
+            accountInfo.setPassword(UserInfoSecurityUtils.encodeMd5Password(password));
+            accountInfo.setSalt("md5");
+        }
+        //后续发送短信或者信息通知用户默认密码
+        accountInfo.setPointsEarned(0L);
+        accountInfo.setPointsUsed(0L);
+        accountInfo.setRechargeAmount(new BigDecimal(BigInteger.ZERO));
+        accountInfo.setPointsBalance(0L);
+        accountInfo.setAccountStatus(PoAccountStatusEnum.ACCOUNT_STATUS_0.getValue());
+        accountInfo.setCreateTime(nowDate);
+        accountInfo.setUpdateTime(nowDate);
+        accountInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        return accountInfo;
     }
 
 }

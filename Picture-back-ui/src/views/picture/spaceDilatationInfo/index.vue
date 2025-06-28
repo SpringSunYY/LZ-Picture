@@ -36,7 +36,7 @@
       <el-form-item label="扩容类型" prop="dilatationType">
         <el-select v-model="queryParams.dilatationType" style="width: 200px" placeholder="请选择扩容类型" clearable>
           <el-option
-              v-for="dict in p_space_dalatation_type"
+              v-for="dict in p_space_dilatation_type"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -138,7 +138,7 @@
       </el-table-column>
       <el-table-column label="扩容类型" align="center" prop="dilatationType" v-if="columns[5].visible">
         <template #default="scope">
-          <dict-tag :options="p_space_dalatation_type" :value="scope.row.dilatationType"/>
+          <dict-tag :options="p_space_dilatation_type" :value="scope.row.dilatationType"/>
         </template>
       </el-table-column>
       <el-table-column label="扩容单价" align="center" prop="dilatationUnit" v-if="columns[6].visible"
@@ -194,7 +194,7 @@
           <el-select v-model="form.dilatationType" placeholder="请选择扩容类型">
             <el-option
                 :disabled="true"
-                v-for="dict in p_space_dalatation_type"
+                v-for="dict in p_space_dilatation_type"
                 :key="dict.value"
                 :label="dict.label"
                 :value="dict.value"
@@ -234,7 +234,7 @@ import {
 } from "@/api/picture/spaceDilatationInfo";
 
 const {proxy} = getCurrentInstance();
-const {p_space_dalatation_type} = proxy.useDict('p_space_dalatation_type');
+const {p_space_dilatation_type} = proxy.useDict('p_space_dilatation_type');
 
 const spaceDilatationInfoList = ref([]);
 const open = ref(false);
