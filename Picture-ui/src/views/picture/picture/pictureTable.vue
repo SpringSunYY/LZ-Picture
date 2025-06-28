@@ -505,7 +505,6 @@ const resetSearch = () => {
 }
 
 const handleTableChange = (pag, _, sorter) => {
-  console.log(pag, _, sorter)
   pagination.value.current = pag.current
   pagination.value.pageSize = pag.pageSize
   queryParams.value.pageNum = pag.current

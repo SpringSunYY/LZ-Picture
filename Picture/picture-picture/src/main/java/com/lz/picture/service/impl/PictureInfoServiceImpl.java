@@ -1151,7 +1151,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                         beginCreateTime, endCreateTime);
         if (StringUtils.isNotEmpty(userPictureInfoQuery.getIsAsc())
                 && StringUtils.isNotEmpty(userPictureInfoQuery.getOrderByColumn())
-                && !Arrays.asList("createTime", "picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
+                && Arrays.asList("createTime", "picSize").contains(userPictureInfoQuery.getOrderByColumn())) {
             if (userPictureInfoQuery.getOrderByColumn().equals("picSize")) {
                 lambdaQueryWrapper
                         .orderBy(true, userPictureInfoQuery.getIsAsc().equals("asc"), PictureInfo::getPicSize);
@@ -1173,10 +1173,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             return new TableDataInfo(records, (int) page.getTotal());
         }
         //转换为 vo 并且转换地址
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         List<PictureInfoTableVo> pictureInfoTableVos =
                 pictureInfoPage.getRecords().stream()
                         .map(pictureInfo -> {
-                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + inCache);
                             return PictureInfoTableVo.objToVo(pictureInfo);
                         }).toList();
 

@@ -1,8 +1,13 @@
 package com.lz.picture.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.config.OssConfig;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
@@ -14,17 +19,22 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
+import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
 import com.lz.picture.model.enums.PSpaceOssTypeEnum;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
+import com.lz.picture.model.vo.spaceInfo.UserPersonalSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.UserConfigKeyConstants.*;
+import static com.lz.common.constant.redis.PictureRedisConstants.*;
 
 /**
  * 空间信息Service业务层处理
@@ -39,6 +49,12 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
 
     @Resource
     private IConfigInfoService configInfoService;
+
+    @Resource
+    private RedisCache redisCache;
+
+    @Resource
+    private OssConfig ossConfig;
 
     //region mybatis代码
 
@@ -219,6 +235,10 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         boolean save = this.save(spaceInfo);
         //异步更新封面文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordSpaceCoverFileInfoLog(spaceInfo));
+        if (save) {
+            //删除表格缓存
+            deleteSpaceTableCacheByUserId(spaceInfo.getUserId());
+        }
         return save ? 1 : 0;
     }
 
@@ -234,8 +254,127 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         }
         spaceInfo.setUpdateTime(DateUtils.getNowDate());
         boolean b = this.updateById(spaceInfo);
-        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateSpaceCoverFileInfoLog(old,spaceInfo));
+        PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateSpaceCoverFileInfoLog(old, spaceInfo));
+        if (b) {
+            //删除表格缓存
+            deleteSpaceTableCacheByUserId(spaceInfo.getUserId());
+        }
         return b ? 1 : 0;
+    }
+
+    @Override
+    public TableDataInfo listSpaceInfoTable(UserSpaceInfoQuery userSpaceInfoQuery) {
+        String jsonStr = JSON.toJSONString(userSpaceInfoQuery);
+        //查询缓存是否存在
+        String keyData = PICTURE_SPACE_TABLE_DATE + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        List<UserPersonalSpaceInfoVo> vos = new ArrayList<>();
+        if (redisCache.hasKey(keyData)) {
+            vos = redisCache.getCacheObject(keyData);
+        }
+        String keyTotal = PICTURE_SPACE_TABLE_TOTAL + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        Long total = 0L;
+        if (redisCache.hasKey(keyTotal)) {
+            total = redisCache.getCacheObject(keyTotal);
+        }
+        //如果都存在直接返回
+        if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
+            return new TableDataInfo(vos, Math.toIntExact(total));
+        }
+        //构造查询条件
+        Page<SpaceInfo> spaceInfoPage = new Page<>();
+        spaceInfoPage.setCurrent(userSpaceInfoQuery.getPageNum());
+        spaceInfoPage.setSize(userSpaceInfoQuery.getPageSize());
+        //获取时间范围
+        Map<String, Object> params = userSpaceInfoQuery.getParams();
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+        //构造查询条件
+        LambdaQueryWrapper<SpaceInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper
+                .eq(StringUtils.isNotEmpty(userSpaceInfoQuery.getIsDelete()), SpaceInfo::getIsDelete, userSpaceInfoQuery.getIsDelete())
+                .eq(StringUtils.isNotEmpty(userSpaceInfoQuery.getUserId()), SpaceInfo::getUserId, userSpaceInfoQuery.getUserId())
+                .like(StringUtils.isNotEmpty(userSpaceInfoQuery.getSpaceName()), SpaceInfo::getSpaceName, userSpaceInfoQuery.getSpaceName())
+                .eq(StringUtils.isNotEmpty(userSpaceInfoQuery.getSpaceId()), SpaceInfo::getSpaceId, userSpaceInfoQuery.getSpaceId())
+                .eq(StringUtils.isNotEmpty(userSpaceInfoQuery.getOssType()), SpaceInfo::getOssType, userSpaceInfoQuery.getOssType())
+                .eq(StringUtils.isNotEmpty(userSpaceInfoQuery.getSpaceStatus()), SpaceInfo::getSpaceStatus, userSpaceInfoQuery.getSpaceStatus())
+                .eq(StringUtils.isNotEmpty(userSpaceInfoQuery.getSpaceType()), SpaceInfo::getSpaceType, userSpaceInfoQuery.getSpaceType())
+                .apply(
+                        StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                        "create_time between {0} and {1}",
+                        beginCreateTime,
+                        endCreateTime
+                );
+        //构建排序
+        if (StringUtils.isNotEmpty(userSpaceInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userSpaceInfoQuery.getOrderByColumn())
+                && Arrays.asList("createTime", "totalSize", "totalCount", "lastUpdateTime").contains(userSpaceInfoQuery.getOrderByColumn())) {
+            if (userSpaceInfoQuery.getOrderByColumn().equals("totalSize")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInfoQuery.getIsAsc().equals("asc"), SpaceInfo::getTotalSize);
+            }
+            if (userSpaceInfoQuery.getOrderByColumn().equals("createTime")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInfoQuery.getIsAsc().equals("asc"), SpaceInfo::getCreateTime);
+            }
+            if (userSpaceInfoQuery.getOrderByColumn().equals("totalSize")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInfoQuery.getIsAsc().equals("asc"), SpaceInfo::getTotalSize);
+            }
+            if (userSpaceInfoQuery.getOrderByColumn().equals("totalCount")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInfoQuery.getIsAsc().equals("asc"), SpaceInfo::getTotalCount);
+            }
+            if (userSpaceInfoQuery.getOrderByColumn().equals("lastUpdateTime")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInfoQuery.getIsAsc().equals("asc"), SpaceInfo::getLastUpdateTime);
+            }
+        } else {
+            lambdaQueryWrapper
+                    .orderBy(true, false, SpaceInfo::getCreateTime);
+        }
+        Page<SpaceInfo> page = this.page(spaceInfoPage, lambdaQueryWrapper);
+        //如果为空直接返回
+        List<SpaceInfo> records = page.getRecords();
+        if (StringUtils.isEmpty(records)) {
+            redisCache.setCacheObject(keyData, vos, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(keyTotal, total, PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
+            return new TableDataInfo(vos, Math.toIntExact(total));
+        }
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        //转换为vo并且转换地址
+        List<UserPersonalSpaceInfoVo> personalSpaceInfoVos = page.getRecords().stream()
+                .map(spaceInfo -> {
+                    spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+                    return UserPersonalSpaceInfoVo.objToVo(spaceInfo);
+                }).toList();
+        //存入缓存信息并返回
+        redisCache.setCacheObject(keyData, personalSpaceInfoVos, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
+        return new TableDataInfo(personalSpaceInfoVos, Math.toIntExact(page.getTotal()));
+    }
+
+    /**
+     * 删除空间表格缓存
+     *
+     * @param userId 用户编号
+     * @return void
+     * @author: YY
+     * @method: deleteSpaceTableCacheByUserId
+     * @date: 2025/6/28 17:28
+     **/
+    public void deleteSpaceTableCacheByUserId(String userId) {
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TABLE_DATE + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TABLE_TOTAL + userId + "*");
     }
 
 }

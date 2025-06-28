@@ -107,6 +107,90 @@ export type SpaceQuery = {
   params?: Record<string, any>
 }
 
+/**
+ * 用户个人空间信息（VO）
+ * 对应后端：UserPersonalSpaceInfoVo
+ */
+export interface PersonalSpaceInfoVo {
+  /** 空间编号 */
+  spaceId: string
+
+  /** 空间名称 */
+  spaceName: string
+
+  /** 空间封面URL */
+  spaceAvatar: string
+
+  /** 存储类型（0官方 阿里云） 字典类型：p_space_oss_type */
+  ossType: string
+
+  /** 最大容量（字节） */
+  maxSize: number
+
+  /** 最大文件数 */
+  maxCount: number
+
+  /** 已用容量（字节） */
+  totalSize: number
+
+  /** 文件总数 */
+  totalCount: number
+
+  /** 空间描述 */
+  spaceDesc: string
+
+  /** 空间状态 字典类型：p_space_status */
+  spaceStatus: string
+
+  /** 空间类型（0个人 1团队 2官方） 字典类型：p_space_type */
+  spaceType: string
+
+  /** 创建时间（格式：yyyy-MM-dd HH:mm:ss） */
+  createTime: string
+
+  /** 最后上传时间（格式：yyyy-MM-dd HH:mm:ss） */
+  lastUpdateTime: string
+
+  /** 最后更新时间（格式：yyyy-MM-dd HH:mm:ss） */
+  updateTime: string
+}
+
+/**
+ * 用户空间查询参数
+ * 对应后端：UserSpaceInfoQuery
+ */
+export interface SpaceInfoQuery {
+  /** 空间编号 */
+  spaceId?: string
+
+  /** 空间名称 */
+  spaceName?: string
+
+  /** 存储类型（0官方 阿里云） */
+  ossType?: string
+
+  /** 空间状态 */
+  spaceStatus?: string
+
+  /** 空间类型（0个人 1团队 2官方） */
+  spaceType?: string
+
+  /** 请求参数 Map */
+  params?: Record<string, any>
+
+  /** 当前页码（分页） */
+  pageNum?: number
+
+  /** 每页记录数（分页） */
+  pageSize?: number
+
+  /** 排序列 */
+  orderByColumn?: string
+
+  /** 排序方向（asc 或 desc） */
+  isAsc?: string
+}
+
 export enum PSpaceType {
   SPACE_TYPE_0 = '0',
   SPACE_TYPE_1 = '1',

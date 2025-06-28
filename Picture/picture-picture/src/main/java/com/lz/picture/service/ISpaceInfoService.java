@@ -1,13 +1,14 @@
 package com.lz.picture.service;
 
-import java.util.List;
-
-import com.lz.picture.model.domain.SpaceInfo;
-import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.picture.model.domain.SpaceInfo;
+import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
+import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
+import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
+
+import java.util.List;
 
 /**
  * 空间信息Service接口
@@ -104,4 +105,15 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * return: int
      **/
     int userUpdateSpaceInfo(SpaceInfo spaceInfo);
+
+    /**
+     * 获取用户空间信息列表
+     *
+     * @param userSpaceInfoQuery
+     * @return TableDataInfo
+     * @author: YY
+     * @method: listSpaceInfoTable
+     * @date: 2025/6/28 16:59
+     **/
+    TableDataInfo listSpaceInfoTable(UserSpaceInfoQuery userSpaceInfoQuery);
 }

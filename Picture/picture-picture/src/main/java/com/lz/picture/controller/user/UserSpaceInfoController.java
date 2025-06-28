@@ -11,6 +11,7 @@ import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoAdd;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoUpdate;
+import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
@@ -84,6 +85,20 @@ public class UserSpaceInfoController extends BaseUserInfoController {
                     vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
                 });
         return getDataTable(listVo, listVo.size());
+    }
+
+    @PreAuthorize("@uss.hasPermi('space:manage:table')")
+    @GetMapping("/list/table")
+    public TableDataInfo listTable(UserSpaceInfoQuery userSpaceInfoQuery) {
+        if (StringUtils.isNull(userSpaceInfoQuery.getPageSize())) {
+            userSpaceInfoQuery.setPageSize(50);
+        }
+        if (userSpaceInfoQuery.getPageSize() > 50) {
+            userSpaceInfoQuery.setPageSize(50);
+        }
+        userSpaceInfoQuery.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        userSpaceInfoQuery.setUserId(getUserId());
+        return spaceInfoService.listSpaceInfoTable(userSpaceInfoQuery);
     }
 
     @PreAuthorize("@uss.hasPermi('picture:space')")
