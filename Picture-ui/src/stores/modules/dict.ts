@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Dict } from '@/types/common'
+import { toRaw } from 'vue'
 
 interface DictItem {
   key: string
@@ -10,23 +11,24 @@ export const useDictStore = defineStore('dict', {
   state: () => ({
     dict: [] as DictItem[],
   }),
+
   actions: {
-    // 获取字典
     getDict(_key: string): Dict[] | null {
-      if (!_key) {
-        return null
-      }
-      return this.dict.find((item) => item.key === _key)?.value ?? null
+      if (!_key) return null
+      const item = this.dict.find((item) => item.key === _key)
+      return item ? toRaw(item.value) : null
     },
 
-    // 设置字典
     setDict(_key: string, value: Dict[]): void {
-      if (_key) {
+      if (!_key) return
+      const existingIndex = this.dict.findIndex((item) => item.key === _key)
+      if (existingIndex !== -1) {
+        this.dict[existingIndex].value = value // 覆盖
+      } else {
         this.dict.push({ key: _key, value })
       }
     },
 
-    // 删除字典
     removeDict(_key: string): boolean {
       const index = this.dict.findIndex((item) => item.key === _key)
       if (index !== -1) {
@@ -36,14 +38,29 @@ export const useDictStore = defineStore('dict', {
       return false
     },
 
-    // 清空字典
     cleanDict(): void {
       this.dict = []
     },
 
-    // 初始字典
     initDict(): void {
-      // 这里可以加初始化逻辑
+      // 可加入接口初始化逻辑
+    },
+  },
+
+  persist: {
+    storage: sessionStorage, // or localStorage
+    serializer: {
+      serialize: (state) => {
+        return JSON.stringify(toRaw(state.dict))
+      },
+      deserialize: (str) => {
+        try {
+          const data = JSON.parse(str)
+          return { dict: data as DictItem[] }
+        } catch (e) {
+          return { dict: [] }
+        }
+      },
     },
   },
 })
