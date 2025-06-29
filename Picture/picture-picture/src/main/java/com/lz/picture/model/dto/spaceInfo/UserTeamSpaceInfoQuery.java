@@ -1,10 +1,13 @@
-package com.lz.picture.model.dto.spaceMemberInfo;
+
+package com.lz.picture.model.dto.spaceInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.lz.picture.model.domain.SpaceMemberInfo;
+import com.lz.common.core.page.PageDomain;
+import com.lz.picture.model.domain.SpaceInfo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
@@ -13,13 +16,15 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * 空间成员信息Query对象 p_space_member_info
+ * 空间信息Query对象 p_space_info
+ * 用户空间查询
  *
  * @author YY
  * @date 2025-03-24
  */
+@EqualsAndHashCode(callSuper = false)
 @Data
-public class SpaceMemberInfoQuery implements Serializable {
+public class UserTeamSpaceInfoQuery extends PageDomain implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -43,33 +48,12 @@ public class SpaceMemberInfoQuery implements Serializable {
      */
     private String roleType;
 
-    /**
-     * 最后操作时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date lastActiveTime;
-
-    /**
-     * 加入时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date updateTime;
-
-    /**
-     * 邀请人编号
-     */
-    private String inviterUserId;
 
     /**
      * 加入方式（0邀请）
      */
     private String joinType;
+
 
     /**
      * 请求参数
@@ -81,15 +65,15 @@ public class SpaceMemberInfoQuery implements Serializable {
     /**
      * 对象转封装类
      *
-     * @param spaceMemberInfoQuery 查询对象
-     * @return SpaceMemberInfo
+     * @param spaceInfoQuery 查询对象
+     * @return SpaceInfo
      */
-    public static SpaceMemberInfo queryToObj(SpaceMemberInfoQuery spaceMemberInfoQuery) {
-        if (spaceMemberInfoQuery == null) {
+    public static SpaceInfo queryToObj(UserTeamSpaceInfoQuery spaceInfoQuery) {
+        if (spaceInfoQuery == null) {
             return null;
         }
-        SpaceMemberInfo spaceMemberInfo = new SpaceMemberInfo();
-        BeanUtils.copyProperties(spaceMemberInfoQuery, spaceMemberInfo);
-        return spaceMemberInfo;
+        SpaceInfo spaceInfo = new SpaceInfo();
+        BeanUtils.copyProperties(spaceInfoQuery, spaceInfo);
+        return spaceInfo;
     }
 }

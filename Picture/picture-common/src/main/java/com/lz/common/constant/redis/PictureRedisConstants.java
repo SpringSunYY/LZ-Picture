@@ -33,27 +33,37 @@ public class PictureRedisConstants {
      * 图片信息表格总数
      */
     public static final String PICTURE_PICTURE_TABLE_TOTAL = "picture:picture:table:total";
-
-    /**
-     * 空间信息表格
-     */
-    public static final String PICTURE_SPACE_TABLE_DATE = "picture:space:table:data:";
-
-    /**
-     * 空间信息表格缓存时间
-     */
-    public static final Integer PICTURE_SPACE_TABLE_DATE_EXPIRE_TIME = 5 * 60;
-
-    /**
-     * 空间信息表格总数
-     */
-    public static final String PICTURE_SPACE_TABLE_TOTAL = "picture:space:table:total";
-
     /**
      * 图片信息表格总数缓存时间
      */
     public static final Integer PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME = 5 * 60;
+    /**
+     * 空间信息个人表格
+     */
+    public static final String PICTURE_SPACE_PERSONAL_TABLE_DATA = "picture:space:personal:table:data:";
 
+    /**
+     * 空间信息个人表格缓存时间
+     */
+    public static final Integer PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 空间信息个人表格总数
+     */
+    public static final String PICTURE_SPACE_PERSONAL_TABLE_TOTAL = "picture:space:personal:table:total";
+
+    /**
+     * 空间信息团队表格
+     */
+    public static final String PICTURE_SPACE_TEAM_TABLE_DATA = "picture:space:team:table:data:";
+    /**
+     * 空间信息团队表格缓存时间
+     */
+    public static final Integer PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME = 5 * 60;
+    /**
+     * 空间信息团队表格总数
+     */
+    public static final String PICTURE_SPACE_TEAM_TABLE_TOTAL = "picture:space:team:table:total";
     /**
      * 用户行为日志缓存
      */

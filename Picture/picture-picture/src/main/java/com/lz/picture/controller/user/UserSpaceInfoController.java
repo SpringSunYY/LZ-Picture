@@ -8,10 +8,7 @@ import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.SpaceInfo;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoAdd;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoUpdate;
-import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
+import com.lz.picture.model.dto.spaceInfo.*;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
@@ -99,6 +96,19 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         userSpaceInfoQuery.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         userSpaceInfoQuery.setUserId(getUserId());
         return spaceInfoService.listSpaceInfoTable(userSpaceInfoQuery);
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:manage:table')")
+    @GetMapping("/list/team/table")
+    public TableDataInfo listTeamTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery) {
+        if (StringUtils.isNull(userTeamSpaceInfoQuery.getPageSize())) {
+            userTeamSpaceInfoQuery.setPageSize(50);
+        }
+        if (userTeamSpaceInfoQuery.getPageSize() > 50) {
+            userTeamSpaceInfoQuery.setPageSize(50);
+        }
+        userTeamSpaceInfoQuery.setUserId(getUserId());
+        return spaceInfoService.listTeamSpaceInfoTable(userTeamSpaceInfoQuery);
     }
 
     @PreAuthorize("@uss.hasPermi('picture:space')")

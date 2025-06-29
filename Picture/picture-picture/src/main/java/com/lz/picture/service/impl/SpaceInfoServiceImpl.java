@@ -21,12 +21,14 @@ import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
+import com.lz.picture.model.dto.spaceInfo.UserTeamSpaceInfoQuery;
 import com.lz.picture.model.enums.PSpaceJoinTypeEnum;
 import com.lz.picture.model.enums.PSpaceOssTypeEnum;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.model.vo.spaceInfo.UserPersonalSpaceInfoVo;
+import com.lz.picture.model.vo.spaceInfo.UserTeamSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
 import jakarta.annotation.Resource;
@@ -293,12 +295,12 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
     public TableDataInfo listSpaceInfoTable(UserSpaceInfoQuery userSpaceInfoQuery) {
         String jsonStr = JSON.toJSONString(userSpaceInfoQuery);
         //查询缓存是否存在
-        String keyData = PICTURE_SPACE_TABLE_DATE + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        String keyData = PICTURE_SPACE_PERSONAL_TABLE_DATA + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
         List<UserPersonalSpaceInfoVo> vos = new ArrayList<>();
         if (redisCache.hasKey(keyData)) {
             vos = redisCache.getCacheObject(keyData);
         }
-        String keyTotal = PICTURE_SPACE_TABLE_TOTAL + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        String keyTotal = PICTURE_SPACE_PERSONAL_TABLE_TOTAL + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
         Long total = 0L;
         if (redisCache.hasKey(keyTotal)) {
             total = redisCache.getCacheObject(keyTotal);
@@ -372,8 +374,8 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         //如果为空直接返回
         List<SpaceInfo> records = page.getRecords();
         if (StringUtils.isEmpty(records)) {
-            redisCache.setCacheObject(keyData, vos, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.setCacheObject(keyTotal, total, PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(keyTotal, total, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
             return new TableDataInfo(vos, Math.toIntExact(total));
         }
         //压缩图片
@@ -385,8 +387,8 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                     return UserPersonalSpaceInfoVo.objToVo(spaceInfo);
                 }).toList();
         //存入缓存信息并返回
-        redisCache.setCacheObject(keyData, personalSpaceInfoVos, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-        redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(keyData, personalSpaceInfoVos, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
         return new TableDataInfo(personalSpaceInfoVos, Math.toIntExact(page.getTotal()));
     }
 
@@ -401,8 +403,103 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
      **/
     @Override
     public void deleteSpaceTableCacheByUserId(String userId) {
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TABLE_DATE + userId + "*");
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TABLE_TOTAL + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_DATA + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_TOTAL + userId + "*");
     }
 
+    @Override
+    public TableDataInfo listTeamSpaceInfoTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery) {
+        String jsonStr = JSON.toJSONString(userTeamSpaceInfoQuery);
+        //查询缓存是否存在
+        String keyData = PICTURE_SPACE_TEAM_TABLE_DATA + userTeamSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        List<UserTeamSpaceInfoVo> vos = new ArrayList<>();
+        if (redisCache.hasKey(keyData)) {
+            vos = redisCache.getCacheObject(keyData);
+        }
+        String keyTotal = PICTURE_SPACE_TEAM_TABLE_TOTAL + userTeamSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        Long total = 0L;
+        if (redisCache.hasKey(keyTotal)) {
+            total = redisCache.getCacheObject(keyTotal);
+        }
+        //如果都存在直接返回
+        if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
+            return new TableDataInfo(vos, Math.toIntExact(total));
+        }
+        //构造查询条件
+        Page<SpaceMemberInfo> spaceMemberInfoPage = new Page<>();
+        spaceMemberInfoPage.setCurrent(userTeamSpaceInfoQuery.getPageNum());
+        spaceMemberInfoPage.setSize(userTeamSpaceInfoQuery.getPageSize());
+        //获取时间范围
+        Map<String, Object> params = userTeamSpaceInfoQuery.getParams();
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+        LambdaQueryWrapper<SpaceMemberInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getMemberId()), SpaceMemberInfo::getMemberId, userTeamSpaceInfoQuery.getMemberId())
+                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getSpaceId()), SpaceMemberInfo::getSpaceId, userTeamSpaceInfoQuery.getSpaceId())
+                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getUserId()), SpaceMemberInfo::getUserId, userTeamSpaceInfoQuery.getUserId())
+                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getRoleType()), SpaceMemberInfo::getRoleType, userTeamSpaceInfoQuery.getRoleType())
+                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getJoinType()), SpaceMemberInfo::getJoinType, userTeamSpaceInfoQuery.getJoinType())
+                .apply(
+                        StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                        "create_time between {0} and {1}",
+                        beginCreateTime,
+                        endCreateTime
+                );
+        //构建排序规则
+        if (StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getOrderByColumn())
+                && Arrays.asList("createTime", "lastActiveTime").contains(userTeamSpaceInfoQuery.getOrderByColumn())) {
+            if (userTeamSpaceInfoQuery.getOrderByColumn().equals("createTime")) {
+                queryWrapper
+                        .orderBy(true, userTeamSpaceInfoQuery.getIsAsc().equals("asc"), SpaceMemberInfo::getCreateTime);
+            }
+            if (userTeamSpaceInfoQuery.getOrderByColumn().equals("lastActiveTime")) {
+                queryWrapper
+                        .orderBy(true, userTeamSpaceInfoQuery.getIsAsc().equals("asc"), SpaceMemberInfo::getLastActiveTime);
+            }
+        } else {
+            queryWrapper
+                    .orderBy(true, false, SpaceMemberInfo::getCreateTime);
+        }
+        Page<SpaceMemberInfo> memberInfoPage = spaceMemberInfoService.page(spaceMemberInfoPage, queryWrapper);
+        //如果没有数据返回vos
+        List<SpaceMemberInfo> spaceMemberInfos = memberInfoPage.getRecords();
+        if (StringUtils.isEmpty(spaceMemberInfos)) {
+            //存入缓存
+            redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+            return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+        }
+        //获取到所有的空间ID，查询空间
+        List<String> spaceIds = spaceMemberInfos.stream().map(SpaceMemberInfo::getSpaceId).toList();
+        List<SpaceInfo> spaceInfos = this.list(new LambdaQueryWrapper<SpaceInfo>()
+                .eq(SpaceInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .in(SpaceInfo::getSpaceId, spaceIds));
+        //如果空间为空
+        if (StringUtils.isEmpty(spaceMemberInfos)) {
+            //存入缓存
+            redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+            redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+            return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+        }
+        //根据空间ID转换为map
+        Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo));
+        vos = spaceMemberInfos.stream().map(memberInfo -> {
+            SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
+            return new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
+        }).toList();
+        //存入缓存
+        redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+        return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+    }
 }

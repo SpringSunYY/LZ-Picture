@@ -6,6 +6,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
+import com.lz.picture.model.dto.spaceInfo.UserTeamSpaceInfoQuery;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 
 import java.util.List;
@@ -138,4 +139,14 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * @date: 2025/6/28 17:28
      **/
     void deleteSpaceTableCacheByUserId(String userId);
+
+    /**
+     * 获取团队空间表格缓存
+     * @author: YY
+     * @method: listTeamSpaceInfoTable
+     * @date: 2025/6/29 16:51
+     * @param userTeamSpaceInfoQuery
+     * @return TableDataInfo
+     **/
+    TableDataInfo listTeamSpaceInfoTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery);
 }
