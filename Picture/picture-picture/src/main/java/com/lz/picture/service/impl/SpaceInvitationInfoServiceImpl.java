@@ -1,16 +1,22 @@
 package com.lz.picture.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceInvitationInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceInvitationInfo;
 import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoQuery;
+import com.lz.picture.model.dto.spaceInvitationInfo.UserSpaceInvitationInfoQuery;
 import com.lz.picture.model.enums.PSpaceInvitationStatusEnum;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.vo.spaceInvitationInfo.SpaceInvitationInfoVo;
@@ -40,6 +46,12 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
 
     @Resource
     private IUserInfoService userInfoService;
+
+    @Resource
+    private OssConfig ossConfig;
+
+    @Resource
+    private IConfigInfoService configInfoService;
 
     //region mybatis代码
 
@@ -111,6 +123,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
     }
 
     //endregion
+
     @Override
     public QueryWrapper<SpaceInvitationInfo> getQueryWrapper(SpaceInvitationInfoQuery spaceInvitationInfoQuery) {
         QueryWrapper<SpaceInvitationInfo> queryWrapper = new QueryWrapper<>();
@@ -178,6 +191,58 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         spaceInvitationInfo.setExpireTime(DateUtils.addDays(DateUtils.getNowDate(), 7));
         spaceInvitationInfo.setInvitationId(IdUtils.snowflakeId().toString());
         return spaceInvitationInfoMapper.insertSpaceInvitationInfo(spaceInvitationInfo);
+    }
+
+    @Override
+    public TableDataInfo listUserSpaceInvitationInfoTable(UserSpaceInvitationInfoQuery userSpaceInvitationInfoQuery) {
+        //构造查询条件
+        Page<SpaceInfo> page = new Page<>();
+        page.setCurrent(userSpaceInvitationInfoQuery.getPageNum());
+        page.setSize(userSpaceInvitationInfoQuery.getPageSize());
+        //获取时间范围
+        Map<String, Object> params = userSpaceInvitationInfoQuery.getParams();
+        // 提取 beginCreateTime 和 endCreateTime（安全获取）
+        String beginCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("beginCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+
+        String endCreateTime = Optional.ofNullable(params)
+                .map(p -> p.get("endCreateTime"))
+                .map(Object::toString)
+                .filter(StringUtils::isNotEmpty)
+                .orElse(null);
+        //构造查询条件
+        LambdaQueryWrapper<SpaceInvitationInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getUserId()), SpaceInvitationInfo::getUserId, userSpaceInvitationInfoQuery.getUserId())
+                .eq(StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getInvitationUserId()), SpaceInvitationInfo::getInvitationUserId, userSpaceInvitationInfoQuery.getInvitationUserId())
+                .like(StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getSpaceName()), SpaceInvitationInfo::getSpaceName, userSpaceInvitationInfoQuery.getSpaceName())
+                .eq(StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getInvitationStatus()), SpaceInvitationInfo::getInvitationStatus, userSpaceInvitationInfoQuery.getInvitationStatus())
+                .eq(StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getRoleType()), SpaceInvitationInfo::getRoleType, userSpaceInvitationInfoQuery.getRoleType())
+                .apply(
+                        StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
+                        "create_time between {0} and {1}",
+                        beginCreateTime,
+                        endCreateTime
+                );
+        //构造排序
+        if (StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getOrderByColumn())
+                && Arrays.asList("createTime", "expireTime").contains(userSpaceInvitationInfoQuery.getOrderByColumn())) {
+            if (userSpaceInvitationInfoQuery.getOrderByColumn().equals("createTime")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInvitationInfoQuery.getIsAsc().equals("asc"), SpaceInvitationInfo::getCreateTime);
+            }
+            if (userSpaceInvitationInfoQuery.getOrderByColumn().equals("expireTime")) {
+                lambdaQueryWrapper
+                        .orderBy(true, userSpaceInvitationInfoQuery.getIsAsc().equals("asc"), SpaceInvitationInfo::getExpireTime);
+            }
+        } else {
+            lambdaQueryWrapper
+                    .orderBy(true, false, SpaceInvitationInfo::getCreateTime);
+        }
+        Page<SpaceInvitationInfo> spaceInvitationInfoPage = this.page(new Page<>(page.getCurrent(), page.getSize()), lambdaQueryWrapper);
+        return new TableDataInfo(convertVoList(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
     }
 
 }

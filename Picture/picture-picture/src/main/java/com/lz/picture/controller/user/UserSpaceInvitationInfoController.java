@@ -1,18 +1,17 @@
 package com.lz.picture.controller.user;
 
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.SpaceInvitationInfo;
 import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoAdd;
-import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoInsert;
+import com.lz.picture.model.dto.spaceInvitationInfo.UserSpaceInvitationInfoQuery;
 import com.lz.picture.service.ISpaceInvitationInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 空间成员邀请记录Controller
@@ -32,5 +31,22 @@ public class UserSpaceInvitationInfoController extends BaseUserInfoController {
         SpaceInvitationInfo spaceInvitationInfo = SpaceInvitationInfoAdd.insertToObj(spaceInvitationInfoAdd);
         spaceInvitationInfo.setInvitationUserId(getUserId());
         return toAjax(spaceInvitationInfoService.userInsertSpaceInvitationInfo(spaceInvitationInfo));
+    }
+
+    @PreAuthorize("@ss.hasPermi('spaceInvitationInfo')")
+    @GetMapping("/list")
+    public TableDataInfo list(UserSpaceInvitationInfoQuery userSpaceInvitationInfoQuery) {
+        if (StringUtils.isNull(userSpaceInvitationInfoQuery.getPageSize())) {
+            userSpaceInvitationInfoQuery.setPageSize(50);
+        }
+        if (userSpaceInvitationInfoQuery.getPageSize() > 50) {
+            userSpaceInvitationInfoQuery.setPageSize(50);
+        }
+        if (userSpaceInvitationInfoQuery.getUserType().equals("0")) {
+            userSpaceInvitationInfoQuery.setInvitationStatus(getUserId());
+        } else {
+            userSpaceInvitationInfoQuery.setUserId(getUserId());
+        }
+        return spaceInvitationInfoService.listUserSpaceInvitationInfoTable(userSpaceInvitationInfoQuery);
     }
 }

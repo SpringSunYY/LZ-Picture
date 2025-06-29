@@ -1,21 +1,24 @@
 package com.lz.picture.service;
 
-import java.util.List;
-import com.lz.picture.model.domain.SpaceInvitationInfo;
-import com.lz.picture.model.vo.spaceInvitationInfo.SpaceInvitationInfoVo;
-import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.picture.model.domain.SpaceInvitationInfo;
+import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoQuery;
+import com.lz.picture.model.dto.spaceInvitationInfo.UserSpaceInvitationInfoQuery;
+import com.lz.picture.model.vo.spaceInvitationInfo.SpaceInvitationInfoVo;
+
+import java.util.List;
+
 /**
  * 空间成员邀请记录Service接口
  *
  * @author YY
  * @date 2025-03-24
  */
-public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInfo>
-{
+public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInfo> {
     //region mybatis代码
+
     /**
      * 查询空间成员邀请记录
      *
@@ -64,6 +67,7 @@ public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInf
      */
     public int deleteSpaceInvitationInfoByInvitationId(String invitationId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -82,11 +86,23 @@ public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInf
 
     /**
      * 用户邀请其他用户创建空间
+     *
+     * @param spaceInvitationInfo
+     * @return int
      * @author: YY
      * @method: userInsertSpaceInvitationInfo
      * @date: 2025/6/29 19:31
-     * @param spaceInvitationInfo
-     * @return int
      **/
     int userInsertSpaceInvitationInfo(SpaceInvitationInfo spaceInvitationInfo);
+
+    /**
+     * 查询用户邀请信息
+     *
+     * @param userSpaceInvitationInfoQuery
+     * @return TableDataInfo
+     * @author: YY
+     * @method: listUserSpaceInvitationInfoTable
+     * @date: 2025/6/29 20:29
+     **/
+    TableDataInfo listUserSpaceInvitationInfoTable(UserSpaceInvitationInfoQuery userSpaceInvitationInfoQuery);
 }
