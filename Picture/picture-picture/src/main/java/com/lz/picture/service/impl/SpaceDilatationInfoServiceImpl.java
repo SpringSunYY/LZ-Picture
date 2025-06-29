@@ -241,7 +241,7 @@ public class SpaceDilatationInfoServiceImpl extends ServiceImpl<SpaceDilatationI
             );
         });
         if (StringUtils.isNotNull(execute) && execute == 1) {
-            spaceInfoService.deleteSpaceTableCacheByUserId(spaceDilatationInfo.getUserId());
+            spaceInfoService.deleteSpacePersonalTableCacheByUserId(spaceDilatationInfo.getUserId());
             //发送消息
             /*
                 {

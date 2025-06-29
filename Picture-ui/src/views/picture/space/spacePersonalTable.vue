@@ -1,5 +1,5 @@
 <template>
-  <div class="space-table">
+  <div class="space-personal-table">
     <a-card title="我的空间" :bordered="false">
       <a-form layout="inline" :model="queryParams">
         <a-form-item>
@@ -61,6 +61,14 @@
               {{ item.dictLabel }}
             </a-select-option>
           </a-select>
+        </a-form-item>
+        <a-form-item>
+          <a-range-picker
+            v-model:value="dateRange"
+            @change="handleSearch"
+            format="YYYY-MM-DD"
+            style="width: 100%; min-width: 200px"
+          />
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
@@ -229,6 +237,7 @@ import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vu
 import { addSpaceDilationInfo, getSpaceDilationInfo } from '@/api/picture/pictureDilationInfo.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
 import { message } from 'ant-design-vue'
+import dayjs from 'dayjs'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -239,6 +248,7 @@ const { p_space_status, p_space_type, p_space_oss_type, p_space_dilatation_type 
   'p_space_dilatation_type',
 )
 // region表格查询
+const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 const queryParams = ref<SpaceInfoQuery>({
   pageNum: 1,
   pageSize: 10,
@@ -277,6 +287,11 @@ const columns = [
 
 const getSpaceList = () => {
   loading.value = true
+  queryParams.value.params = {}
+  if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
+  }
   listUserPersonalSpaceInfo(queryParams.value).then((res) => {
     spaceList.value = res?.rows || []
     pagination.value.total = res?.total || 0
@@ -299,6 +314,7 @@ const resetSearch = () => {
     spaceType: undefined,
   }
   pagination.value.current = 1
+  dateRange.value = null
   handleSearch()
 }
 
@@ -386,7 +402,7 @@ const handleDilatationChange = async () => {
 onMounted(getSpaceList)
 </script>
 <style scoped lang="scss">
-.space-table {
+.space-personal-table {
   margin: 0 2em;
 }
 

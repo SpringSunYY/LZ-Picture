@@ -72,6 +72,14 @@ public class UserTeamSpaceInfoVo implements Serializable {
     private Long totalCount;
 
     /**
+     * 成员上限
+     */
+    private Long memberLimit;
+    /**
+     * 空间人数
+     */
+    private Long currentMembers;
+    /**
      * 用户编号
      */
     @Excel(name = "用户编号")
@@ -141,11 +149,14 @@ public class UserTeamSpaceInfoVo implements Serializable {
         this.totalSize = spaceInfo.getTotalSize();
         this.spaceStatus = spaceInfo.getSpaceStatus();
         this.lastUpdateTime = spaceInfo.getLastUpdateTime();
+        this.memberLimit = spaceInfo.getMemberLimit();
         this.memberId = spaceMemberInfo.getMemberId();
         this.userId = spaceMemberInfo.getUserId();
         this.roleType = spaceMemberInfo.getRoleType();
         this.lastActiveTime = spaceMemberInfo.getLastActiveTime();
         this.createTime = spaceMemberInfo.getCreateTime();
+    }
 
+    public UserTeamSpaceInfoVo() {
     }
 }

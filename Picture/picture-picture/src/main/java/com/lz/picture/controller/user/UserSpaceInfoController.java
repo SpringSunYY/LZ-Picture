@@ -84,7 +84,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         return getDataTable(listVo, listVo.size());
     }
 
-    @PreAuthorize("@uss.hasPermi('space:manage:table')")
+    @PreAuthorize("@uss.hasPermi('space:manage:personal:table')")
     @GetMapping("/list/table")
     public TableDataInfo listTable(UserSpaceInfoQuery userSpaceInfoQuery) {
         if (StringUtils.isNull(userSpaceInfoQuery.getPageSize())) {
@@ -98,7 +98,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         return spaceInfoService.listSpaceInfoTable(userSpaceInfoQuery);
     }
 
-    @PreAuthorize("@uss.hasPermi('picture:manage:table')")
+    @PreAuthorize("@uss.hasPermi('picture:manage:team:table')")
     @GetMapping("/list/team/table")
     public TableDataInfo listTeamTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery) {
         if (StringUtils.isNull(userTeamSpaceInfoQuery.getPageSize())) {

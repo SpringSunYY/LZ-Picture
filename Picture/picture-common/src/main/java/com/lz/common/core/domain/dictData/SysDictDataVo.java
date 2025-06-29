@@ -1,20 +1,13 @@
 package com.lz.common.core.domain.dictData;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
-import com.lz.common.annotation.Excel;
-import com.lz.common.annotation.Excel.ColumnType;
-import com.lz.common.constant.UserConstants;
-import com.lz.common.core.domain.BaseEntity;
 import com.lz.common.core.domain.entity.SysDictData;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,6 +50,9 @@ public class SysDictDataVo implements Serializable {
      * 转换为vo
      */
     public static SysDictDataVo objToVo(SysDictData sysDictData) {
+        if (StringUtils.isNull(sysDictData)) {
+            return new SysDictDataVo();
+        }
         SysDictDataVo sysDictDataVo = new SysDictDataVo();
         BeanUtils.copyBeanProp(sysDictDataVo, sysDictData);
         return sysDictDataVo;
@@ -66,6 +62,9 @@ public class SysDictDataVo implements Serializable {
      * 转换vo数组
      */
     public static List<SysDictDataVo> objToVo(List<SysDictData> sysDictDataList) {
+        if (StringUtils.isEmpty(sysDictDataList)) {
+            return new ArrayList<>();
+        }
         return sysDictDataList.stream().map(SysDictDataVo::objToVo).toList();
     }
 }

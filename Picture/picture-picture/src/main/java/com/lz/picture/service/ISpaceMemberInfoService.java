@@ -1,21 +1,22 @@
 package com.lz.picture.service;
 
-import java.util.List;
-import com.lz.picture.model.domain.SpaceMemberInfo;
-import com.lz.picture.model.vo.spaceMemberInfo.SpaceMemberInfoVo;
-import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.picture.model.domain.SpaceMemberInfo;
+import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoQuery;
+import com.lz.picture.model.vo.spaceMemberInfo.SpaceMemberInfoVo;
+
+import java.util.List;
+
 /**
  * 空间成员信息Service接口
  *
  * @author YY
  * @date 2025-03-24
  */
-public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo>
-{
+public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo> {
     //region mybatis代码
+
     /**
      * 查询空间成员信息
      *
@@ -64,6 +65,7 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo>
      */
     public int deleteSpaceMemberInfoByMemberId(String memberId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +81,15 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo>
      * @return SpaceMemberInfoVO集合
      */
     List<SpaceMemberInfoVo> convertVoList(List<SpaceMemberInfo> spaceMemberInfoList);
+
+    /**
+     * 获取空间人数
+     *
+     * @param spaceId
+     * @return Long
+     * @author: YY
+     * @method: getSpaceMemberNumberCount
+     * @date: 2025/6/29 18:54
+     **/
+    Long getSpaceMemberNumberCount(String spaceId);
 }

@@ -12,6 +12,7 @@ import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'
 import UndrawUI from 'undraw-ui'
 import './output.css'
+
 message.config({
   maxCount: 5, // 最大显示数量
   duration: 3, // 默认持续时间（秒）
@@ -19,7 +20,7 @@ message.config({
 const app = createApp(App)
 app.config.globalProperties.useDict = useDict
 app.component('SvgIcon', SvgIcon)
-app.use(Antd)
+app.use(Antd) // 修复类型定义问题
 const pinia = createPinia()
 pinia.use(persistedState)
 app.use(pinia)

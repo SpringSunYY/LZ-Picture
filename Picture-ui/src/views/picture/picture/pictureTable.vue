@@ -56,6 +56,14 @@
             }"
           />
         </a-form-item>
+        <a-form-item>
+          <a-range-picker
+            v-model:value="dateRange"
+            @change="handleSearch"
+            format="YYYY-MM-DD"
+            style="width: 100%; min-width: 200px"
+          />
+        </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
 
@@ -319,6 +327,7 @@ import type { PictureApplyInfoAdd } from '@/types/picture/pictureApplyInfo.d.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import FileUpload from '@/components/FileUpload.vue'
 import { addPictureApplyInfo } from '@/api/picture/pictureApplyInfo.ts'
+import dayjs from 'dayjs'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status, p_picture_apply_type } = proxy?.useDict(
@@ -391,7 +400,7 @@ const pagination = ref({
   showQuickJumper: true,
   pageSizeOptions: ['10', '20', '30', '50'],
 })
-
+const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 const queryParams = ref(<PictureInfoQuery>{
   pageNum: 1,
   pageSize: 10,
@@ -467,6 +476,11 @@ const getList = () => {
   if (queryParams.value.folderId && Array.isArray(queryParams.value.folderId)) {
     folderId = queryParams.value.folderId[queryParams.value.folderId.length - 1]
   }
+  queryParams.value.params = {}
+  if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
+  }
   listMyTable({
     name: queryParams.value.name,
     categoryId: categoryId,
@@ -476,6 +490,7 @@ const getList = () => {
     pageSize: queryParams.value.pageSize,
     orderByColumn: queryParams.value.orderByColumn,
     isAsc: queryParams.value.isAsc,
+    params: queryParams.value.params,
   }).then((res) => {
     pictureList.value = (res?.rows || []).map((item) => ({
       ...item,
@@ -501,6 +516,7 @@ const resetSearch = () => {
     categoryId: '',
   }
   pagination.value.current = 1
+  dateRange.value = null
   getList()
 }
 

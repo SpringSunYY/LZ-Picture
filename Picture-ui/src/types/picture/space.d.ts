@@ -191,6 +191,44 @@ export interface SpaceInfoQuery {
   isAsc?: string
 }
 
+export interface UserTeamSpaceInfoVo {
+  spaceId: string;
+  memberId: string;
+  spaceName: string;
+  spaceAvatar: string;
+  ossType: string;
+  maxSize: number;
+  maxCount: number;
+  totalSize: number;
+  totalCount: number;
+  userId: string;
+  roleType: string;
+  lastActiveTime: string;
+  createTime: string;
+  spaceStatus: string;
+  lastUpdateTime: string;
+  memberLimit:number;
+  currentMembers: number;
+}
+
+
+export interface UserTeamSpaceInfoQuery {
+  memberId?: string;   // 成员编号
+  spaceId?: string;     // 空间编号
+  userId?: string;      // 用户编号
+  roleType?: string;    // 角色（0创建者 1管理员 2编辑者 3浏览者）
+  joinType?: string;    // 加入方式（0邀请）
+  /** 当前页码（分页） */
+  pageNum?: number
+  /** 每页记录数（分页） */
+  pageSize?: number
+  /** 排序列 */
+  orderByColumn?: string
+  /** 排序方向（asc 或 desc） */
+  isAsc?: string
+  params?: Record<string, any>;  // 请求参数
+}
+
 export enum PSpaceType {
   SPACE_TYPE_0 = '0',
   SPACE_TYPE_1 = '1',

@@ -266,7 +266,8 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordSpaceCoverFileInfoLog(spaceInfo));
         if (save) {
             //删除表格缓存
-            deleteSpaceTableCacheByUserId(spaceInfo.getUserId());
+            deleteSpacePersonalTableCacheByUserId(spaceInfo.getUserId());
+            deleteSpaceTeamTableCacheByUserId(spaceInfo.getUserId());
         }
         return save ? 1 : 0;
     }
@@ -286,7 +287,8 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.updateSpaceCoverFileInfoLog(old, spaceInfo));
         if (b) {
             //删除表格缓存
-            deleteSpaceTableCacheByUserId(spaceInfo.getUserId());
+            deleteSpacePersonalTableCacheByUserId(spaceInfo.getUserId());
+            deleteSpaceTeamTableCacheByUserId(spaceInfo.getUserId());
         }
         return b ? 1 : 0;
     }
@@ -402,7 +404,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
      * @date: 2025/6/28 17:28
      **/
     @Override
-    public void deleteSpaceTableCacheByUserId(String userId) {
+    public void deleteSpacePersonalTableCacheByUserId(String userId) {
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_DATA + userId + "*");
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_TOTAL + userId + "*");
     }
@@ -491,15 +493,26 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
             return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
         }
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         //根据空间ID转换为map
         Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo));
         vos = spaceMemberInfos.stream().map(memberInfo -> {
             SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
-            return new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
+            spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+            UserTeamSpaceInfoVo userTeamSpaceInfoVo = new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
+            userTeamSpaceInfoVo.setCurrentMembers(spaceMemberInfoService.getSpaceMemberNumberCount(memberInfo.getSpaceId()));
+            return userTeamSpaceInfoVo;
         }).toList();
         //存入缓存
         redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
         redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
         return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+    }
+
+    @Override
+    public void deleteSpaceTeamTableCacheByUserId(String userId) {
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_DATA + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_TOTAL + userId + "*");
     }
 }

@@ -1,5 +1,13 @@
 import { http as request } from '@/utils'
-import type { PersonalSpaceInfoVo, Space, SpaceInfo, SpaceInfoQuery, SpaceQuery } from '@/types/picture/space.d.ts'
+import type {
+  PersonalSpaceInfoVo,
+  Space,
+  SpaceInfo,
+  SpaceInfoQuery,
+  SpaceQuery,
+  UserTeamSpaceInfoQuery,
+  UserTeamSpaceInfoVo,
+} from '@/types/picture/space.d.ts'
 import type { API } from '@/types/common'
 
 //添加空间信息
@@ -28,6 +36,7 @@ export function mySpaceInfo(params: SpaceQuery): Promise<API.ResponseInfo<Space>
     params: params,
   })
 }
+
 //获取空间信息
 export function getSpaceInfo(spaceId: string): Promise<API.ResponseInfo<Space>> {
   return request({
@@ -37,9 +46,22 @@ export function getSpaceInfo(spaceId: string): Promise<API.ResponseInfo<Space>> 
 }
 
 //用户个人空间信息
-export function listUserPersonalSpaceInfo(params: SpaceInfoQuery):Promise<API.ResponseInfo<PersonalSpaceInfoVo>>{
+export function listUserPersonalSpaceInfo(
+  params: SpaceInfoQuery,
+): Promise<API.ResponseInfo<PersonalSpaceInfoVo>> {
   return request({
     url: '/picture/spaceInfo/list/table',
+    method: 'get',
+    params: params,
+  })
+}
+
+//用户团队空间信息
+export function listUserTeamSpaceInfo(
+  params: UserTeamSpaceInfoQuery,
+): Promise<API.ResponseInfo<UserTeamSpaceInfoVo>> {
+  return request({
+    url: '/picture/spaceInfo/list/team/table',
     method: 'get',
     params: params,
   })

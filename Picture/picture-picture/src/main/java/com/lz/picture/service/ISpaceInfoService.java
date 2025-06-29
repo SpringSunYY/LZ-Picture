@@ -138,15 +138,27 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * @method: deleteSpaceTableCacheByUserId
      * @date: 2025/6/28 17:28
      **/
-    void deleteSpaceTableCacheByUserId(String userId);
+    void deleteSpacePersonalTableCacheByUserId(String userId);
 
     /**
      * 获取团队空间表格缓存
+     *
+     * @param userTeamSpaceInfoQuery
+     * @return TableDataInfo
      * @author: YY
      * @method: listTeamSpaceInfoTable
      * @date: 2025/6/29 16:51
-     * @param userTeamSpaceInfoQuery
-     * @return TableDataInfo
      **/
     TableDataInfo listTeamSpaceInfoTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery);
+
+    /**
+     * 删除团队空间表格缓存
+     *
+     * @param userId
+     * @return void
+     * @author: YY
+     * @method: deleteSpaceTeamTableCacheByUserId
+     * @date: 2025/6/29 18:59
+     **/
+    void deleteSpaceTeamTableCacheByUserId(String userId);
 }
