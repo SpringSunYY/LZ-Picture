@@ -58,7 +58,7 @@
           </template>
           <template v-if="column.dataIndex === 'action'">
             <a-space>
-              <a @click="handleInvitation(record.spaceId)">邀请</a>
+              <a @click="handleInvitation(record.spaceId)" v-if="checkPermiSingle('space:invitation')">邀请</a>
             </a-space>
           </template>
         </template>
@@ -150,6 +150,7 @@ import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vu
 import type { SpaceInvitationInfoAdd } from '@/types/picture/spaceInvitationInfo'
 import { message } from 'ant-design-vue'
 import { addSpaceInvitationInfo } from '@/api/picture/spaceInvitationInfo.ts'
+import { checkPermiSingle } from '@/utils/permission.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -200,12 +201,8 @@ const getTeamSpaceList = () => {
   loading.value = true
   queryParams.value.params = {}
   if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
-    queryParams.value.params['beginCreateTime'] = dateRange.value[0]
-      .format('YYYY-MM-DD')
-      .concat(' 00:00:00')
-    queryParams.value.params['endCreateTime'] = dateRange.value[1]
-      .format('YYYY-MM-DD')
-      .concat(' 23:59:59')
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
   }
   listUserTeamSpaceInfo(queryParams.value).then((res) => {
     teamSpaceList.value = res?.rows || []
@@ -232,6 +229,7 @@ const handleTableChange = (pag, _, sorter) => {
   pagination.value.pageSize = pag.pageSize
   queryParams.value.pageNum = pag.current
   queryParams.value.pageSize = pag.pageSize
+  queryParams.value.orderByColumn = sorter.field
   queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
   getTeamSpaceList()
 }

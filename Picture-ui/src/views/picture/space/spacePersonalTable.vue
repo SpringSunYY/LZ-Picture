@@ -386,9 +386,9 @@ const handleSpaceDilatation = (spaceId: string) => {
   openDilatation.value = true
 }
 const handleDilatationChange = async () => {
-  console.log('handleDilatationChange', formDilatation.value)
+  // console.log('handleDilatationChange', formDilatation.value)
   await nextTick()
-  console.log('handleDilatationChange', formDilatation.value)
+  // console.log('handleDilatationChange', formDilatation.value)
   getSpaceDilationInfo({
     spaceId: formDilatation.value.spaceId,
     dilatationType: formDilatation.value.dilatationType,

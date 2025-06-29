@@ -33,7 +33,7 @@ public class UserSpaceInvitationInfoController extends BaseUserInfoController {
         return toAjax(spaceInvitationInfoService.userInsertSpaceInvitationInfo(spaceInvitationInfo));
     }
 
-    @PreAuthorize("@ss.hasPermi('spaceInvitationInfo')")
+    @PreAuthorize("@uss.hasPermi('space:invitation')")
     @GetMapping("/list")
     public TableDataInfo list(UserSpaceInvitationInfoQuery userSpaceInvitationInfoQuery) {
         if (StringUtils.isNull(userSpaceInvitationInfoQuery.getPageSize())) {
@@ -42,8 +42,8 @@ public class UserSpaceInvitationInfoController extends BaseUserInfoController {
         if (userSpaceInvitationInfoQuery.getPageSize() > 50) {
             userSpaceInvitationInfoQuery.setPageSize(50);
         }
-        if (userSpaceInvitationInfoQuery.getUserType().equals("0")) {
-            userSpaceInvitationInfoQuery.setInvitationStatus(getUserId());
+        if (StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getUserType()) && userSpaceInvitationInfoQuery.getUserType().equals("0")) {
+            userSpaceInvitationInfoQuery.setInvitationUserId(getUserId());
         } else {
             userSpaceInvitationInfoQuery.setUserId(getUserId());
         }

@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+
 /**
  * 空间成员邀请记录Service业务层处理
  *
@@ -196,7 +198,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
     @Override
     public TableDataInfo listUserSpaceInvitationInfoTable(UserSpaceInvitationInfoQuery userSpaceInvitationInfoQuery) {
         //构造查询条件
-        Page<SpaceInfo> page = new Page<>();
+        Page<SpaceInvitationInfo> page = new Page<>();
         page.setCurrent(userSpaceInvitationInfoQuery.getPageNum());
         page.setSize(userSpaceInvitationInfoQuery.getPageSize());
         //获取时间范围
@@ -241,7 +243,12 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
             lambdaQueryWrapper
                     .orderBy(true, false, SpaceInvitationInfo::getCreateTime);
         }
-        Page<SpaceInvitationInfo> spaceInvitationInfoPage = this.page(new Page<>(page.getCurrent(), page.getSize()), lambdaQueryWrapper);
+        Page<SpaceInvitationInfo> spaceInvitationInfoPage = this.page(page, lambdaQueryWrapper);
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        page.getRecords().forEach(spaceInvitationInfo -> {
+            spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+        });
         return new TableDataInfo(convertVoList(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
     }
 

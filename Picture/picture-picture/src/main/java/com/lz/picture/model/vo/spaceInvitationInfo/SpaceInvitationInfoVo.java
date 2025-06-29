@@ -46,13 +46,13 @@ public class SpaceInvitationInfoVo implements Serializable {
     private String spaceAvatar;
 
     /**
-     * 邀请角色（0创建者 1管理员 2编辑者 3浏览者）
+     * 邀请角色（0创建者 1管理员 2编辑者 3浏览者） 字典类型：p_space_role
      */
     @Excel(name = "邀请角色", readConverterExp = "0=创建者,1=管理员,2=编辑者,3=浏览者")
     private String roleType;
 
     /**
-     * 邀请状态（0待同意 1同意 2拒绝 3过期）
+     * 邀请状态（0待同意 1同意 2拒绝 3过期） 字典类型：p_space_invitation_status
      */
     @Excel(name = "邀请状态", readConverterExp = "0=待同意,1=同意,2=拒绝,3=过期")
     private String invitationStatus;
@@ -60,7 +60,7 @@ public class SpaceInvitationInfoVo implements Serializable {
     /**
      * 邀请链接（短链或唯一标识）
      */
-    @Excel(name = "邀请链接", readConverterExp = "短=链或唯一标识")
+    @Excel(name = "邀请链接")
     private String invitationUrl;
 
     /**
