@@ -45,7 +45,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="邀请人编号" prop="invitationUserId">
+      <el-form-item label="邀请人" prop="invitationUserId">
         <el-input
             v-model="queryParams.invitationUserId"
             placeholder="请输入邀请人编号"
@@ -73,7 +73,7 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="被邀请用户编号" prop="userId">
+      <el-form-item label="被邀用户" prop="userId">
         <el-input
             v-model="queryParams.userId"
             placeholder="请输入被邀请用户编号"
@@ -326,18 +326,18 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '邀请编号', visible: true},
-    {key: 1, label: '空间编号', visible: true},
+    {key: 0, label: '邀请编号', visible: false},
+    {key: 1, label: '空间编号', visible: false},
     {key: 2, label: '空间名称', visible: true},
     {key: 3, label: '空间封面URL', visible: true},
     {key: 4, label: '邀请角色', visible: true},
     {key: 5, label: '邀请状态', visible: true},
-    {key: 6, label: '邀请链接', visible: true},
-    {key: 7, label: '邀请理由', visible: true},
+    {key: 6, label: '邀请链接', visible: false},
+    {key: 7, label: '邀请理由', visible: false},
     {key: 8, label: '邀请人编号', visible: true},
     {key: 9, label: '过期时间', visible: true},
     {key: 10, label: '创建时间', visible: true},
-    {key: 11, label: '被邀请用户编号', visible: true},
+    {key: 11, label: '被邀请用户编号', visible: false},
   ],
 });
 

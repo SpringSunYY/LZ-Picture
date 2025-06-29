@@ -2,6 +2,9 @@ package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.config.OssConfig;
+import com.lz.config.service.IConfigInfoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -26,6 +29,8 @@ import com.lz.picture.service.ISpaceInvitationInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
+import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+
 /**
  * 空间成员邀请记录Controller
  *
@@ -39,6 +44,12 @@ public class SpaceInvitationInfoController extends BaseController
     @Resource
     private ISpaceInvitationInfoService spaceInvitationInfoService;
 
+
+    @Resource
+    private IConfigInfoService configInfoService;
+
+    @Resource
+    private OssConfig ossConfig;
     /**
      * 查询空间成员邀请记录列表
      */
@@ -51,6 +62,12 @@ public class SpaceInvitationInfoController extends BaseController
         List<SpaceInvitationInfo> list = spaceInvitationInfoService.selectSpaceInvitationInfoList(spaceInvitationInfo);
         List<SpaceInvitationInfoVo> listVo= list.stream().map(SpaceInvitationInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        String dnsUrl = ossConfig.getDnsUrl();
+        listVo.forEach(vo -> {
+            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+        });
         table.setRows(listVo);
         return table;
     }

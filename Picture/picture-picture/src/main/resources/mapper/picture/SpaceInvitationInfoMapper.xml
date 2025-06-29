@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.SpaceInvitationInfoMapper">
-    
+
     <resultMap type="SpaceInvitationInfo" id="SpaceInvitationInfoResult">
-        <result property="invitationId"    column="invitation_id"    />
-        <result property="spaceId"    column="space_id"    />
-        <result property="spaceName"    column="space_name"    />
-        <result property="spaceAvatar"    column="space_avatar"    />
-        <result property="roleType"    column="role_type"    />
-        <result property="invitationStatus"    column="invitation_status"    />
-        <result property="invitationUrl"    column="invitation_url"    />
-        <result property="invitation"    column="invitation"    />
-        <result property="invitationUserId"    column="invitation_user_id"    />
-        <result property="expireTime"    column="expire_time"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="userId"    column="user_id"    />
+        <result property="invitationId" column="invitation_id"/>
+        <result property="spaceId" column="space_id"/>
+        <result property="spaceName" column="space_name"/>
+        <result property="spaceAvatar" column="space_avatar"/>
+        <result property="roleType" column="role_type"/>
+        <result property="invitationStatus" column="invitation_status"/>
+        <result property="invitationUrl" column="invitation_url"/>
+        <result property="invitation" column="invitation"/>
+        <result property="invitationUserId" column="invitation_user_id"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="userId" column="user_id"/>
     </resultMap>
 
     <sql id="selectSpaceInvitationInfoVo">
-        select invitation_id, space_id, space_name, space_avatar, role_type, invitation_status, invitation_url, invitation, invitation_user_id, expire_time, create_time, user_id from p_space_invitation_info
+        select invitation_id,
+               space_id,
+               space_name,
+               space_avatar,
+               role_type,
+               invitation_status,
+               invitation_url,
+               invitation,
+               invitation_user_id,
+               expire_time,
+               create_time,
+               user_id
+        from p_space_invitation_info
     </sql>
 
-    <select id="selectSpaceInvitationInfoList" parameterType="SpaceInvitationInfo" resultMap="SpaceInvitationInfoResult">
+    <select id="selectSpaceInvitationInfoList" parameterType="SpaceInvitationInfo"
+            resultMap="SpaceInvitationInfoResult">
         <include refid="selectSpaceInvitationInfoVo"/>
         <where>
             <if test="invitationId != null  and invitationId != ''">and invitation_id = #{invitationId}</if>
@@ -46,7 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         order by create_time desc
     </select>
-    
+
     <select id="selectSpaceInvitationInfoByInvitationId" parameterType="String" resultMap="SpaceInvitationInfoResult">
         <include refid="selectSpaceInvitationInfoVo"/>
         where invitation_id = #{invitationId}
@@ -67,7 +80,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="expireTime != null">expire_time,</if>
             <if test="createTime != null">create_time,</if>
             <if test="userId != null and userId != ''">user_id,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="invitationId != null">#{invitationId},</if>
             <if test="spaceId != null and spaceId != ''">#{spaceId},</if>
@@ -81,7 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="expireTime != null">#{expireTime},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateSpaceInvitationInfo" parameterType="SpaceInvitationInfo">
@@ -94,7 +107,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="invitationStatus != null and invitationStatus != ''">invitation_status = #{invitationStatus},</if>
             <if test="invitationUrl != null">invitation_url = #{invitationUrl},</if>
             <if test="invitation != null">invitation = #{invitation},</if>
-            <if test="invitationUserId != null and invitationUserId != ''">invitation_user_id = #{invitationUserId},</if>
+            <if test="invitationUserId != null and invitationUserId != ''">invitation_user_id = #{invitationUserId},
+            </if>
             <if test="expireTime != null">expire_time = #{expireTime},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
@@ -103,11 +117,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteSpaceInvitationInfoByInvitationId" parameterType="String">
-        delete from p_space_invitation_info where invitation_id = #{invitationId}
+        delete
+        from p_space_invitation_info
+        where invitation_id = #{invitationId}
     </delete>
 
     <delete id="deleteSpaceInvitationInfoByInvitationIds" parameterType="String">
-        delete from p_space_invitation_info where invitation_id in 
+        delete from p_space_invitation_info where invitation_id in
         <foreach item="invitationId" collection="array" open="(" separator="," close=")">
             #{invitationId}
         </foreach>
