@@ -18,14 +18,19 @@ import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.SpaceInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
+import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
+import com.lz.picture.model.enums.PSpaceJoinTypeEnum;
 import com.lz.picture.model.enums.PSpaceOssTypeEnum;
+import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.model.vo.spaceInfo.UserPersonalSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
+import com.lz.picture.service.ISpaceMemberInfoService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -56,6 +61,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
     @Resource
     private OssConfig ossConfig;
 
+    @Resource
+    @Lazy
+    private ISpaceMemberInfoService spaceMemberInfoService;
     //region mybatis代码
 
     /**
@@ -215,8 +223,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         if (count >= Long.parseLong(maxSpaceCount)) {
             throw new ServiceException("此类型空间创建了10个，不能再创建了！！！");
         }
-        spaceInfo.setCreateTime(DateUtils.getNowDate());
-        spaceInfo.setUpdateTime(DateUtils.getNowDate());
+        Date nowDate = DateUtils.getNowDate();
+        spaceInfo.setCreateTime(nowDate);
+        spaceInfo.setUpdateTime(nowDate);
 
         String maxCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_COUNT);
         try {
@@ -239,6 +248,18 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         spaceInfo.setOssType(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue());
 
         boolean save = this.save(spaceInfo);
+        //如果该空间是团队空间
+        if (PSpaceTypeEnum.SPACE_TYPE_1.getValue().equals(spaceInfo.getSpaceType())) {
+            //为用户创建空间成员
+            SpaceMemberInfo spaceMemberInfo = new SpaceMemberInfo();
+            spaceMemberInfo.setSpaceId(spaceInfo.getSpaceId());
+            spaceMemberInfo.setUserId(spaceInfo.getUserId());
+            spaceMemberInfo.setRoleType(PSpaceRoleEnum.SPACE_ROLE_0.getValue());
+            spaceMemberInfo.setInviterUserId(spaceInfo.getUserId());
+            spaceMemberInfo.setJoinType(PSpaceJoinTypeEnum.SPACE_JOIN_TYPE_0.getValue());
+            spaceMemberInfo.setCreateTime(nowDate);
+            spaceMemberInfoService.save(spaceMemberInfo);
+        }
         //异步更新封面文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordSpaceCoverFileInfoLog(spaceInfo));
         if (save) {
