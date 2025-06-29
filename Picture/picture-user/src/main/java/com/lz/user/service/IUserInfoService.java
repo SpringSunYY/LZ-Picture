@@ -1,18 +1,17 @@
 package com.lz.user.service;
 
-import java.util.List;
-import java.util.Set;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.dto.userInfo.UserInfoQuery;
 import com.lz.user.model.dto.userInfo.UserInfoUpdateAvatar;
 import com.lz.user.model.dto.userInfo.UserPasswordUploadRequest;
 import com.lz.user.model.vo.userInfo.MyUserInfoVo;
 import com.lz.user.model.vo.userInfo.UserInfoVo;
-import com.lz.user.model.dto.userInfo.UserInfoQuery;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 用户信息Service接口
@@ -133,4 +132,15 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @date: 2025/5/31 15:19
      **/
     UserInfo userUpdateUserInfoAvatar(UserInfoUpdateAvatar userInfoUpdateAvatar);
+
+    /**
+     * 查询用户信息
+     *
+     * @param username 用户名
+     * @return UserInfo
+     * @author: YY
+     * @method: selectUserByUserName
+     * @date: 2025/6/29 19:50
+     **/
+    UserInfo selectUserByUserName(String username);
 }

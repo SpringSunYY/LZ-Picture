@@ -79,4 +79,14 @@ public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInf
      * @return SpaceInvitationInfoVO集合
      */
     List<SpaceInvitationInfoVo> convertVoList(List<SpaceInvitationInfo> spaceInvitationInfoList);
+
+    /**
+     * 用户邀请其他用户创建空间
+     * @author: YY
+     * @method: userInsertSpaceInvitationInfo
+     * @date: 2025/6/29 19:31
+     * @param spaceInvitationInfo
+     * @return int
+     **/
+    int userInsertSpaceInvitationInfo(SpaceInvitationInfo spaceInvitationInfo);
 }

@@ -98,7 +98,7 @@ public class UserSpaceInfoController extends BaseUserInfoController {
         return spaceInfoService.listSpaceInfoTable(userSpaceInfoQuery);
     }
 
-    @PreAuthorize("@uss.hasPermi('picture:manage:team:table')")
+    @PreAuthorize("@uss.hasPermi('space:manage:team:table')")
     @GetMapping("/list/team/table")
     public TableDataInfo listTeamTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery) {
         if (StringUtils.isNull(userTeamSpaceInfoQuery.getPageSize())) {

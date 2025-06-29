@@ -56,9 +56,82 @@
           <template v-if="column.dataIndex === 'spaceAvatar'">
             <a-image :src="text" width="60" />
           </template>
+          <template v-if="column.dataIndex === 'action'">
+            <a-space>
+              <a @click="handleInvitation(record.spaceId)">邀请</a>
+            </a-space>
+          </template>
         </template>
       </a-table>
     </a-card>
+
+    <a-modal v-model:open="openInvitation" destroy-on-close :footer="null">
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip title="您可以根据不同需求扩容空间的信息">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formInvitation"
+        :label-col="{ span: 5 }"
+        :rules="rules"
+        :wrapper-col="{ span: 17 }"
+        @finish="handleInvitationSubmit"
+        ref="formRef"
+        layout="horizontal"
+      >
+        <a-form-item name="applyType">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              成员角色
+              <a-tooltip>
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+                <template #title>
+                  <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                    注意事项：<br />
+                    1. 创建者不可选；<br />
+                    2. 根据不同的角色，邀请成功的用户会获得不同的角色权限；<br />
+                    3. 当成员超过上限时，可以扩容成员角色。<br />
+                  </div>
+                </template>
+              </a-tooltip>
+            </span>
+          </template>
+          <a-radio-group v-model:value="formInvitation.roleType" name="radioGroup">
+            <a-radio
+              v-for="dict in p_space_role"
+              :value="dict.dictValue"
+              :key="dict.dictValue"
+            >
+              {{ dict.dictLabel }}
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item name="userName" label="用户账号">
+          <a-input v-model:value="formInvitation.userName" placeholder="请输入用户账号" />
+        </a-form-item>
+        <a-form-item name="invitation" label="邀请理由">
+          <a-input v-model:value="formInvitation.invitation" placeholder="请输入邀请理由" />
+        </a-form-item>
+        <div class="form-footer">
+          <a-button @click="openInvitation = false">取消</a-button>
+          <a-button type="primary" html-type="submit" :loading="invitationLoading">提交</a-button>
+        </div>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -66,9 +139,17 @@
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import DictTag from '@/components/DictTag.vue'
 import { listUserTeamSpaceInfo } from '@/api/picture/space'
-import type { UserTeamSpaceInfoVo, UserTeamSpaceInfoQuery } from '@/types/picture/space.d.ts'
+import {
+  type UserTeamSpaceInfoVo,
+  type UserTeamSpaceInfoQuery,
+  PSpaceRole,
+} from '@/types/picture/space.d.ts'
 import { formatSize } from '@/utils/common.ts'
 import dayjs from 'dayjs'
+import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
+import type { SpaceInvitationInfoAdd } from '@/types/picture/spaceInvitationInfo'
+import { message } from 'ant-design-vue'
+import { addSpaceInvitationInfo } from '@/api/picture/spaceInvitationInfo.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -112,14 +193,19 @@ const columns = [
   { title: '最后操作时间', dataIndex: 'lastActiveTime', width: 150, sorter: true },
   { title: '加入时间', dataIndex: 'createTime', width: 150, sorter: true },
   { title: '最后更新时间', dataIndex: 'lastUpdateTime', width: 150 },
+  { title: '操作', dataIndex: 'action', width: 140 },
 ]
 
 const getTeamSpaceList = () => {
   loading.value = true
   queryParams.value.params = {}
   if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
-    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
-    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0]
+      .format('YYYY-MM-DD')
+      .concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1]
+      .format('YYYY-MM-DD')
+      .concat(' 23:59:59')
   }
   listUserTeamSpaceInfo(queryParams.value).then((res) => {
     teamSpaceList.value = res?.rows || []
@@ -148,6 +234,51 @@ const handleTableChange = (pag, _, sorter) => {
   queryParams.value.pageSize = pag.pageSize
   queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
   getTeamSpaceList()
+}
+//endregion
+// region 邀请
+const openInvitation = ref(false)
+const title = ref('邀请空间成员')
+const invitationLoading = ref(false)
+const formInvitation = ref<SpaceInvitationInfoAdd>({
+  spaceId: '',
+  roleType: '1',
+  invitation: '',
+  userName: '',
+})
+const handleInvitation = (spaceId: string) => {
+  formInvitation.value = {
+    spaceId: '',
+    roleType: '1',
+    invitation: '',
+    userName: '',
+  }
+  formInvitation.value.spaceId = spaceId
+  openInvitation.value = true
+}
+const rules = {
+  roleType: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  invitation: [{ required: true, message: '请输入邀请理由', trigger: 'blur' }],
+}
+const handleInvitationSubmit = () => {
+  if (formInvitation.value.roleType === PSpaceRole.SPACE_ROLE_0) {
+    message.error('创建者不能邀请')
+    return
+  }
+  invitationLoading.value = true
+  addSpaceInvitationInfo(formInvitation.value)
+    .then(() => {
+      message.success('邀请成功')
+      getTeamSpaceList()
+      openInvitation.value = false
+    })
+    .catch(() => {
+      message.error('邀请失败')
+    })
+    .finally(() => {
+      invitationLoading.value = false
+    })
 }
 //endregion
 onMounted(getTeamSpaceList)
