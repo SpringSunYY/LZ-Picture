@@ -178,6 +178,7 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import DictTag from '@/components/DictTag.vue'
 import {
+  cancelSpaceInvitationInfo,
   listSpaceInvitationInfo,
   userActionSpaceInvitationInfo,
 } from '@/api/picture/spaceInvitationInfo'
@@ -255,10 +256,11 @@ const handleSearch = () => {
 }
 
 const resetSearch = () => {
+  const userType = queryParams.value.userType
   queryParams.value = {
     pageNum: 1,
     pageSize: 10,
-    userType: '1',
+    userType: userType,
     roleType: undefined,
     invitationStatus: undefined,
   }
@@ -278,29 +280,39 @@ const handleTableChange = (pag, filters, sorter) => {
 }
 
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
-//endRegion
-//操作列
+//endregion
+//region 操作列
 const confirmAction = (action: string, record: SpaceInvitationInfoVo) => {
   if (
     action === PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_1 ||
     action === PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_2
   ) {
-    try {
-      userActionSpaceInvitationInfo({
-        invitationId: record.invitationId,
-        invitationStatus: action,
-      }).then((res) => {
-        if (res.code === 200) {
-          message.success('操作成功')
-        } else {
-          message.error(res.msg || '操作失败')
-        }
-      })
-    } finally {
+    userActionSpaceInvitationInfo({
+      invitationId: record.invitationId,
+      invitationStatus: action,
+    }).then((res) => {
+      if (res.code === 200) {
+        message.success('操作成功')
+        getSpaceInvitationInfo()
+      } else {
+        message.error(res.msg || '操作失败')
+      }
+    })
+  } else if (action === PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_4) {
+    cancelSpaceInvitationInfo({
+      invitationId: record.invitationId,
+      invitationStatus: action,
+    }).then((res) => {
+      if (res.code === 200) {
+        message.success('操作成功')
+      } else {
+        message.error(res.msg || '操作失败')
+      }
       getSpaceInvitationInfo()
-    }
+    })
   }
 }
+//endregion
 const handleDelete = (record: SpaceInvitationInfoVo) => {
   console.log('删除', record)
 }

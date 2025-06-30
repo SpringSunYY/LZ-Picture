@@ -61,4 +61,13 @@ public class UserSpaceInvitationInfoController extends BaseUserInfoController {
         spaceInvitationInfo.setUserId(getUserId());
         return toAjax(spaceInvitationInfoService.userActionSpaceInvitationInfo(spaceInvitationInfo));
     }
+
+    /**
+     * 邀请用户空间成员取消操作
+     */
+    @PreAuthorize("@uss.hasPermi('space:invitation')")
+    @PutMapping("/cancel")
+    public AjaxResult cancel(@RequestBody @Validated UserSpaceInvitationInfoAction userSpaceInvitationInfoAction) {
+        return toAjax(spaceInvitationInfoService.userCancelSpaceInvitationInfoByInvitationId(userSpaceInvitationInfoAction.getInvitationId(),getUserId()));
+    }
 }

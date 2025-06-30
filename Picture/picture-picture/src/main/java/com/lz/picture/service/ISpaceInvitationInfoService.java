@@ -116,4 +116,15 @@ public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInf
      * @date: 2025/6/30 21:41
      **/
     int userActionSpaceInvitationInfo(SpaceInvitationInfo spaceInvitationInfo);
+
+    /**
+     * 取消用户邀请
+     * @param invitationId 邀请编号
+     * @param userId 用户编号
+     * @return int
+     * @author: YY
+     * @method: userCancelSpaceInvitationInfoByInvitationId
+     * @date: 2025/6/30 22:40
+     **/
+    int userCancelSpaceInvitationInfoByInvitationId(String invitationId, String userId);
 }

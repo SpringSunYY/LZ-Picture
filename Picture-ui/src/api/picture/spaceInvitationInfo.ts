@@ -29,6 +29,18 @@ export function userActionSpaceInvitationInfo(
   })
 }
 
+//用户空间成员取消
+export function cancelSpaceInvitationInfo(
+  data: SpaceInvitationInfoAction,
+): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/spaceInvitationInfo/cancel',
+    method: 'put',
+    data: data,
+  })
+}
+
+//查询空间成员邀请
 export function listSpaceInvitationInfo(
   params: SpaceInvitationInfoQuery,
 ): Promise<API.ResponseInfo<SpaceInvitationInfoVo>> {

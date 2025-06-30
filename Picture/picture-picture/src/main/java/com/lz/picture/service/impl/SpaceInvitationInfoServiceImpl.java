@@ -318,4 +318,15 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         }
     }
 
+    @Override
+    public int userCancelSpaceInvitationInfoByInvitationId(String invitationId, String userId) {
+        //查询到对应的邀请信息
+        SpaceInvitationInfo spaceInvitationInfo = spaceInvitationInfoMapper.selectSpaceInvitationInfoByInvitationId(invitationId);
+        ThrowUtils.throwIf(StringUtils.isNull(spaceInvitationInfo), "邀请不存在");
+        ThrowUtils.throwIf(!spaceInvitationInfo.getInvitationUserId().equals(userId), "您没有权限取消此邀请");
+        ThrowUtils.throwIf(!spaceInvitationInfo.getInvitationStatus().equals(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_0.getValue()), "邀请已处理");
+        spaceInvitationInfo.setInvitationStatus(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_4.getValue());
+        return spaceInvitationInfoMapper.updateSpaceInvitationInfo(spaceInvitationInfo);
+    }
+
 }
