@@ -11,12 +11,14 @@ import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceMemberInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoQuery;
 import com.lz.picture.model.dto.spaceMemberInfo.UserSpaceMemberInfoQuery;
+import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.vo.spaceMemberInfo.SpaceMemberInfoVo;
 import com.lz.picture.model.vo.spaceMemberInfo.UserSpaceMemberInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
@@ -262,7 +264,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
             UserSpaceMemberInfoVo userSpaceMemberInfoVo = UserSpaceMemberInfoVo.objToVo(spaceMemberInfo);
             userSpaceMemberInfoVo.setSpaceName(spaceInfo.getSpaceName());
             userSpaceMemberInfoVo.setUserName(userInfoMap.get(spaceMemberInfo.getUserId()).getUserName());
-            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl())+ "?x-oss-process=image/resize,p_" + inCache);
+            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + inCache);
             userSpaceMemberInfoVo.setInviterUserName(inviterUserInfoMap.get(spaceMemberInfo.getInviterUserId()).getUserName());
             userSpaceMemberInfoVos.add(userSpaceMemberInfoVo);
         });
@@ -277,5 +279,25 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
     @Override
     public void deleteSpaceMemberCacheBySpaceId(String spaceId) {
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_MEMBER_DATA + spaceId + "*");
+    }
+
+    @Override
+    public int userDeleteSpaceMemberInfoByMemberId(String memberId) {
+        //查询是否存在
+        SpaceMemberInfo spaceMemberInfo = this.selectSpaceMemberInfoByMemberId(memberId);
+        ThrowUtils.throwIf(StringUtils.isNull(spaceMemberInfo), "空间成员不存在！！！");
+        //如果是创建者则不能删除
+        ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(PSpaceRoleEnum.SPACE_ROLE_0.getValue()), "创建者不能删除！！！");
+        int i = spaceMemberInfoMapper.deleteSpaceMemberInfoByMemberId(memberId);
+        if (i == 1) {
+            Long spaceMemberNumberCount = this.getSpaceMemberNumberCount(spaceMemberInfo.getSpaceId());
+            SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceMemberInfo.getSpaceId());
+            if (StringUtils.isNotNull(spaceInfo)) {
+                spaceInfoService.updateById(spaceInfo);
+                spaceInfo.setCurrentMembers(spaceMemberNumberCount);
+            }
+        }
+        deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
+        return i;
     }
 }

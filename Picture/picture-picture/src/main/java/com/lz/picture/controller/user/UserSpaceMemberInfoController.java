@@ -52,4 +52,14 @@ public class UserSpaceMemberInfoController extends BaseUserInfoController
         query.setUserId(getUserId());
         return spaceMemberInfoService.listUserSpaceMemberInfoList(query);
     }
+
+    /**
+     * 删除空间成员
+     */
+    @PreAuthorize("@uss.hasPermi('space:member')")
+    @DeleteMapping("/{memberId}")
+    public AjaxResult remove(@RequestBody @PathVariable("memberId") String memberId)
+    {
+        return toAjax(spaceMemberInfoService.userDeleteSpaceMemberInfoByMemberId(memberId));
+    }
 }

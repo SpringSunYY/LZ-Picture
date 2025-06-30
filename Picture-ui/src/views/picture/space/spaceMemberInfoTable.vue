@@ -67,6 +67,15 @@
             <a-image v-if="text" :src="text" width="60" />
             <span v-else>-</span>
           </template>
+          <template v-if="column.dataIndex === 'action'">
+            <a-popconfirm
+              title="确定要删除吗，删除之后成员将被踢出团队空间?"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="handleDelete(record)"
+              ><a style="color: red">删除</a>
+            </a-popconfirm>
+          </template>
         </template>
       </a-table>
     </a-card>
@@ -74,17 +83,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, getCurrentInstance } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import dayjs from 'dayjs'
 import DictTag from '@/components/DictTag.vue'
-import { listSpaceMemberInfo } from '@/api/picture/spaceMemberInfo'
-import type { SpaceMemberInfoVo, SpaceMemberInfoQuery } from '@/types/picture/spaceMemberInfo.d.ts'
+import { deleteSpaceMemberInfo, listSpaceMemberInfo } from '@/api/picture/spaceMemberInfo'
+import type { SpaceMemberInfoQuery, SpaceMemberInfoVo } from '@/types/picture/spaceMemberInfo.d.ts'
 import { useRoute } from 'vue-router'
+import { message } from 'ant-design-vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
 const { p_space_role, p_space_join_type } = proxy?.useDict('p_space_role', 'p_space_join_type')
 
+// region空间成员列表
 const route = useRoute()
 const spaceId = ref<string>(route.query.spaceId as string)
 
@@ -93,7 +104,7 @@ const queryParams = ref<SpaceMemberInfoQuery>({
   spaceId: spaceId.value,
   pageSize: 10,
   roleType: undefined,
-  joinType: undefined
+  joinType: undefined,
 })
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 
@@ -105,19 +116,20 @@ const pagination = ref({
   total: 0,
   showTotal: (total: number) => `共 ${total} 条记录`,
   showSizeChanger: true,
-  showQuickJumper: true
+  showQuickJumper: true,
 })
 
 const columns = [
   { title: '成员编号', dataIndex: 'memberId', width: 160 },
   { title: '空间名称', dataIndex: 'spaceName', width: 180 },
-  { title: '用户编号', dataIndex: 'userName', width: 150 },
+  { title: '用户', dataIndex: 'userName', width: 150 },
   { title: '用户头像', dataIndex: 'avatarUrl', width: 100 },
-  { title: '角色类型', dataIndex: 'roleType', width: 120 },
-  { title: '邀请人编号', dataIndex: 'inviterUserName', width: 150 },
-  { title: '加入方式', dataIndex: 'joinType', width: 120 },
-  { title: '最后操作时间', dataIndex: 'lastActiveTime', width: 180, sorter: true },
-  { title: '加入时间', dataIndex: 'createTime', width: 180, sorter: true }
+  { title: '角色类型', dataIndex: 'roleType', width: 50 },
+  { title: '邀请人', dataIndex: 'inviterUserName', width: 150 },
+  { title: '加入方式', dataIndex: 'joinType', width: 50 },
+  { title: '最后操作时间', dataIndex: 'lastActiveTime', width: 150, sorter: true },
+  { title: '加入时间', dataIndex: 'createTime', width: 150, sorter: true },
+  { title: '操作', dataIndex: 'action', width: 100 },
 ]
 
 const getMemberList = () => {
@@ -146,7 +158,7 @@ const resetSearch = () => {
     pageSize: 10,
     spaceId: spaceId.value,
     roleType: undefined,
-    joinType: undefined
+    joinType: undefined,
   }
   dateRange.value = null
   pagination.value.current = 1
@@ -162,7 +174,15 @@ const handleTableChange = (pag, filters, sorter) => {
   queryParams.value.isAsc = sorter.order === 'ascend' ? 'asc' : 'desc'
   getMemberList()
 }
-
+//endregion
+//region 删除
+const handleDelete = (record) => {
+  deleteSpaceMemberInfo(record.memberId).then(res => {
+    message.success('删除成功！！！')
+    getMemberList()
+  })
+}
+//endregion
 onMounted(getMemberList)
 </script>
 <style scoped lang="scss">
