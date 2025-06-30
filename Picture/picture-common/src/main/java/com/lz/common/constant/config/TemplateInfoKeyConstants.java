@@ -65,5 +65,20 @@ public class TemplateInfoKeyConstants {
     /**
      * 尊敬的用户，您的空间已经扩容成功
      */
-    public static final String PICTURE_SPACE_DILATATION_SUCCESS = "picture:space:dilatation:success";
+    public static final String PICTURE_SPACE_DILATATION_SUCCESS = "picture_space_dilatation_success";
+
+    /**
+     * 团队空间邀请
+     */
+    public static final String PICTURE_SPACE_INVITATION = "picture_space_invitation";
+
+    /**
+     * 团队空间邀请成功
+     */
+    public static final String PICTURE_SPACE_INVITATION_SUCCESS = "picture_space_invitation_success";
+
+    /**
+     * 退出团队空间
+     */
+    public static final String PICTURE_SPACE_INVITATION_DELETE = "picture_space_invitation_delete";
 }

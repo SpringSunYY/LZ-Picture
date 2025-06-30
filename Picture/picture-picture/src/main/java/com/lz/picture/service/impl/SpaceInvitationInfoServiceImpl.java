@@ -13,6 +13,7 @@ import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.enmus.CTemplateTypeEnum;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceInvitationInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
@@ -28,7 +29,10 @@ import com.lz.picture.model.vo.spaceInvitationInfo.UserSpaceInvitationInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceInvitationInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
+import com.lz.user.manager.UserAsyncManager;
+import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -37,7 +41,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION;
+import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_SUCCESS;
 import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 
 /**
  * 空间成员邀请记录Service业务层处理
@@ -204,7 +211,32 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         spaceInvitationInfo.setInvitationStatus(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_0.getValue());
         spaceInvitationInfo.setCreateTime(DateUtils.getNowDate());
         spaceInvitationInfo.setExpireTime(DateUtils.addDays(DateUtils.getNowDate(), 7));
-        spaceInvitationInfo.setInvitationId(IdUtils.snowflakeId().toString());
+        String invitationId = IdUtils.snowflakeId().toString();
+        spaceInvitationInfo.setInvitationId(invitationId);
+        /*
+        {
+          "invitationId": "INV-20250626002",
+          "spaceName": "前端开发协作空间",
+          "roleType": "管理员",
+          "createTime": "2025-06-26 21:10:00"
+        }
+         */
+        HashMap<String, String> params = new HashMap();
+        params.put("invitationId", invitationId);
+        params.put("spaceName", spaceInfo.getSpaceName());
+        Optional<PSpaceRoleEnum> enumByValue = PSpaceRoleEnum.getEnumByValue(spaceInvitationInfo.getRoleType());
+        if (enumByValue.isPresent()) {
+            params.put("roleType", enumByValue.get().getLabel());
+        } else {
+            params.put("roleType", "未知角色"); // 默认值
+        }
+        params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, spaceInvitationInfo.getCreateTime()));
+        UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(spaceInvitationInfo.getUserId(),
+                PICTURE_SPACE_INVITATION,
+                null,
+                CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                params));
         return spaceInvitationInfoMapper.insertSpaceInvitationInfo(spaceInvitationInfo);
     }
 
@@ -299,6 +331,35 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
                 spaceMemberInfoService.save(spaceMemberInfo);
                 return spaceInfoService.updateById(spaceInfo);
             });
+            /*
+                {
+                 "userName":"YY",
+                  "invitationId": "INV-20250626002",
+                  "spaceName": "前端开发协作空间",
+                  "roleType": "管理员",
+                  "createTime": "2025-06-26 21:10:00",
+                   "joinTime": "2025-06-26 21:10:00"
+                }
+            */
+            HashMap<String, String> params = new HashMap();
+            UserInfo userInfo = userInfoService.selectUserInfoByUserId(db.getUserId());
+            params.put("userName", userInfo.getUserName());
+            params.put("invitationId", spaceInvitationInfo.getInvitationId());
+            params.put("spaceName", spaceInfo.getSpaceName());
+            Optional<PSpaceRoleEnum> enumByValue = PSpaceRoleEnum.getEnumByValue(spaceInvitationInfo.getRoleType());
+            if (enumByValue.isPresent()) {
+                params.put("roleType", enumByValue.get().getLabel());
+            } else {
+                params.put("roleType", "未知角色"); // 默认值
+            }
+            params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, db.getCreateTime()));
+            params.put("joinTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, nowDate));
+            UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(db.getInvitationUserId(),
+                    PICTURE_SPACE_INVITATION_SUCCESS,
+                    null,
+                    CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                    UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                    params));
             spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getInvitationUserId());
             spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getUserId());
             spaceMemberInfoService.deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
