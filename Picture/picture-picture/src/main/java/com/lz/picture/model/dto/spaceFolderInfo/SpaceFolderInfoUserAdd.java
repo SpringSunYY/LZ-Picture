@@ -50,6 +50,7 @@ public class SpaceFolderInfoUserAdd implements Serializable {
     /**
      * 备注
      */
+    @Size(max = 512, message = "备注不能超过512个字符")
     private String remark;
 
     /**

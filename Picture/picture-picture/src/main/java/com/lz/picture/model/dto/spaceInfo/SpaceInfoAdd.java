@@ -19,8 +19,7 @@ import java.io.Serializable;
  * Version: 1.0
  */
 @Data
-public class SpaceInfoAdd implements Serializable
-{
+public class SpaceInfoAdd implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     /**

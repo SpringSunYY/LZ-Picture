@@ -124,7 +124,7 @@
           <a-input v-model:value="formInvitation.userName" placeholder="请输入用户账号" />
         </a-form-item>
         <a-form-item name="invitation" label="邀请理由">
-          <a-input v-model:value="formInvitation.invitation" placeholder="请输入邀请理由" />
+          <a-textarea :maxLength="512" :showCount="true" v-model:value="formInvitation.invitation" placeholder="请输入邀请理由" />
         </a-form-item>
         <div class="form-footer">
           <a-button @click="openInvitation = false">取消</a-button>

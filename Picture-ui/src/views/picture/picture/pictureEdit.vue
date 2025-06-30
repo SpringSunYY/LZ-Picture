@@ -157,6 +157,8 @@
                 v-model:value="formState.introduction"
                 :rows="4"
                 placeholder="请输入图片简介"
+                show-count
+                :maxlength="512"
               />
             </a-form-item>
           </a-col>

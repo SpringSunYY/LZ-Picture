@@ -119,6 +119,8 @@
               <a-textarea
                 v-model:value="formState.introduction"
                 :rows="4"
+                show-count
+                :maxlength="512"
                 placeholder="请输入图片简介"
               />
             </a-form-item>

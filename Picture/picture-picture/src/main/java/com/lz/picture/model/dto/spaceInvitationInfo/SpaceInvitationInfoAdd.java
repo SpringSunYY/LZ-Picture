@@ -2,6 +2,7 @@ package com.lz.picture.model.dto.spaceInvitationInfo;
 
 import com.lz.picture.model.domain.SpaceInvitationInfo;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -36,6 +37,7 @@ public class SpaceInvitationInfoAdd implements Serializable {
      * 邀请理由
      */
     @NotEmpty(message = "请填写邀请理由")
+    @Size(max = 512, message = "请填写小于512个字符的邀请理由")
     private String invitation;
 
     /**

@@ -2,6 +2,7 @@ package com.lz.picture.model.dto.userReportInfo;
 
 import com.lz.picture.model.domain.UserReportInfo;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -48,6 +49,7 @@ public class UserReportInfoAdd implements Serializable {
      * 联系方式
      */
     @NotEmpty(message = "联系方式不能为空")
+    @Size(max = 512, message = "联系方式不能超过512个字符")
     private String contact;
 
     /**

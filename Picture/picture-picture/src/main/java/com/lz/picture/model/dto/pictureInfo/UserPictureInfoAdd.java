@@ -1,9 +1,9 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -43,6 +43,7 @@ public class UserPictureInfoAdd implements Serializable {
     /**
      * 简介
      */
+    @Size(max = 512, message = "简介不能超过512个字符")
     private String introduction;
 
     /**
@@ -106,7 +107,6 @@ public class UserPictureInfoAdd implements Serializable {
      * 图片标签
      */
     private List<String> tags;
-
 
 
     /**

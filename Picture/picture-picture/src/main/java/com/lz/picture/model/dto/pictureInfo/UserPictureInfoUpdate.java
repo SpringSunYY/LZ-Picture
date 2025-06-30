@@ -3,6 +3,7 @@ package com.lz.picture.model.dto.pictureInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * 图片信息Vo对象 p_picture_info
  * 用户更新图片
+ *
  * @author YY
  * @date 2025-03-25
  */
@@ -46,6 +48,7 @@ public class UserPictureInfoUpdate implements Serializable {
     /**
      * 简介
      */
+    @Size(max = 512, message = "简介不能超过512个字符")
     private String introduction;
 
     /**
