@@ -1,6 +1,7 @@
 import type { API } from '@/types/common'
 import { http as request } from '@/utils'
 import type {
+  SpaceInvitationInfoAction,
   SpaceInvitationInfoAdd,
   SpaceInvitationInfoQuery,
   SpaceInvitationInfoVo,
@@ -13,6 +14,17 @@ export function addSpaceInvitationInfo(
   return request({
     url: '/picture/spaceInvitationInfo',
     method: 'post',
+    data: data,
+  })
+}
+
+//用户空间成员邀请操作
+export function userActionSpaceInvitationInfo(
+  data: SpaceInvitationInfoAction,
+): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/spaceInvitationInfo/action',
+    method: 'put',
     data: data,
   })
 }

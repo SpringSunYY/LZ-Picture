@@ -1,16 +1,15 @@
 package com.lz.picture.model.dto.spaceInvitationInfo;
 
-import java.util.Map;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.picture.model.domain.SpaceInvitationInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
 import java.io.Serializable;
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.beans.BeanUtils;
-import com.baomidou.mybatisplus.annotation.TableField;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.SpaceInvitationInfo;
+import java.util.Map;
 /**
  * 空间成员邀请记录Query对象 p_space_invitation_info
  *

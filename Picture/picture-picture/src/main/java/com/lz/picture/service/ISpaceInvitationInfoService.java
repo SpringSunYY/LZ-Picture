@@ -105,4 +105,15 @@ public interface ISpaceInvitationInfoService extends IService<SpaceInvitationInf
      * @date: 2025/6/29 20:29
      **/
     TableDataInfo listUserSpaceInvitationInfoTable(UserSpaceInvitationInfoQuery userSpaceInvitationInfoQuery);
+
+    /**
+     * 用户操作空间邀请信息
+     *
+     * @param spaceInvitationInfo
+     * @return int
+     * @author: YY
+     * @method: userActionSpaceInvitationInfo
+     * @date: 2025/6/30 21:41
+     **/
+    int userActionSpaceInvitationInfo(SpaceInvitationInfo spaceInvitationInfo);
 }

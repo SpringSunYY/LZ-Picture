@@ -39,7 +39,6 @@ export interface SpaceInvitationInfoVo {
   /** 邀请状态（0待同意 1同意 2拒绝 3过期） */
   invitationStatus: string
 
-
   /** 邀请理由 */
   invitation: string
 
@@ -59,35 +58,46 @@ export interface SpaceInvitationInfoVo {
  */
 export interface SpaceInvitationInfoQuery {
   /** 空间编号 */
-  spaceId?: string;
+  spaceId?: string
 
   /** 空间名称 */
-  spaceName?: string;
+  spaceName?: string
 
   /** 邀请角色（0创建者 1管理员 2编辑者 3浏览者） */
-  roleType?: string;
+  roleType?: string
 
   /** 邀请状态（0待同意 1同意 2拒绝 3过期） */
-  invitationStatus?: string;
-
+  invitationStatus?: string
 
   /** 用户类型 区分是邀请者还是被邀请者 */
-  userType?: string;
+  userType?: string
 
   /** 请求参数 Map */
-  params?: Record<string, any>;
+  params?: Record<string, any>
 
   /** 当前页码（分页） */
-  pageNum?: number;
+  pageNum?: number
 
   /** 每页记录数（分页） */
-  pageSize?: number;
+  pageSize?: number
 
   /** 排序列 */
-  orderByColumn?: string;
+  orderByColumn?: string
 
   /** 排序方向（asc 或 desc） */
-  isAsc?: string;
+  isAsc?: string
+}
+
+/**
+ * 空间成员邀请操作参数
+ * 对应后端：UserSpaceInvitationInfoAction
+ */
+export interface SpaceInvitationInfoAction {
+  /** 邀请编号 */
+  invitationId: string
+
+  /** 邀请状态（0待同意 1同意 2拒绝 3过期） */
+  invitationStatus: string
 }
 
 // 枚举定义

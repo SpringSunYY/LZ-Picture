@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -15,18 +16,22 @@ import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceInvitationInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceInvitationInfo;
+import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoQuery;
 import com.lz.picture.model.dto.spaceInvitationInfo.UserSpaceInvitationInfoQuery;
 import com.lz.picture.model.enums.PSpaceInvitationStatusEnum;
+import com.lz.picture.model.enums.PSpaceJoinTypeEnum;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.vo.spaceInvitationInfo.SpaceInvitationInfoVo;
 import com.lz.picture.model.vo.spaceInvitationInfo.UserSpaceInvitationInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceInvitationInfoService;
+import com.lz.picture.service.ISpaceMemberInfoService;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,6 +51,12 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
 
     @Resource
     private ISpaceInfoService spaceInfoService;
+
+    @Resource
+    private ISpaceMemberInfoService spaceMemberInfoService;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     @Resource
     private IUserInfoService userInfoService;
@@ -251,6 +262,60 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
             spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
         });
         return new TableDataInfo(UserSpaceInvitationInfoVo.objToVo(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
+    }
+
+    @Override
+    public int userActionSpaceInvitationInfo(SpaceInvitationInfo spaceInvitationInfo) {
+        //此处接收同意拒绝
+        ThrowUtils.throwIf(!spaceInvitationInfo.getInvitationStatus().equals(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_1.getValue())
+                        && !spaceInvitationInfo.getInvitationStatus().equals(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_2.getValue()),
+                HttpStatus.BAD_REQUEST,
+                "操作参数有误！！！");
+        Date nowDate = DateUtils.getNowDate();
+        //首先查询是否存在
+        SpaceInvitationInfo db = spaceInvitationInfoMapper.selectSpaceInvitationInfoByInvitationId(spaceInvitationInfo.getInvitationId());
+        ThrowUtils.throwIf(StringUtils.isNull(db) || !db.getUserId().equals(spaceInvitationInfo.getUserId()), "邀请不存在");
+        ThrowUtils.throwIf(!db.getInvitationStatus().equals(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_0.getValue()), "邀请已处理");
+        if (db.getExpireTime().before(nowDate)) {
+            spaceInvitationInfo.setInvitationStatus(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_3.getValue());
+            spaceInvitationInfoMapper.updateSpaceInvitationInfo(spaceInvitationInfo);
+            throw new ServiceException("邀请已过期，已为您给状态更新为过期！！！");
+        }
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoByUserId(db.getSpaceId());
+        ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), "空间不存在");
+        //如果用户已经是此空间成员一律更新为已过期
+        SpaceMemberInfo spaceMemberInfo = new SpaceMemberInfo();
+        spaceMemberInfo.setSpaceId(db.getSpaceId());
+        spaceMemberInfo.setUserId(db.getUserId());
+        List<SpaceMemberInfo> spaceMemberInfos = spaceMemberInfoService.selectSpaceMemberInfoList(spaceMemberInfo);
+        if (StringUtils.isNotEmpty(spaceMemberInfos)) {
+            spaceInvitationInfo.setInvitationStatus(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_4.getValue());
+            spaceInvitationInfoMapper.updateSpaceInvitationInfo(spaceInvitationInfo);
+            throw new ServiceException("您已经是空间成员，已为您给状态更新为已取消！！！");
+        }
+        //如果是同意
+        if (spaceInvitationInfo.getInvitationStatus().equals(PSpaceInvitationStatusEnum.SPACE_INVITATION_STATUS_1.getValue())) {
+            //如果用户已经是此空间成员
+            ThrowUtils.throwIf(spaceInfo.getCurrentMembers() >= spaceInfo.getMemberLimit(), "空间成员已满");
+            Long spaceMemberNumberCount = spaceMemberInfoService.getSpaceMemberNumberCount(spaceInfo.getSpaceId());
+            ThrowUtils.throwIf(spaceMemberNumberCount >= spaceInfo.getMemberLimit(), "空间成员已满");
+            spaceInfo.setCurrentMembers(spaceMemberNumberCount + 1);
+            //添加成员信息
+            spaceMemberInfo.setRoleType(db.getRoleType());
+            spaceMemberInfo.setInviterUserId(db.getInvitationUserId());
+            spaceMemberInfo.setJoinType(PSpaceJoinTypeEnum.SPACE_JOIN_TYPE_1.getValue());
+            spaceMemberInfo.setCreateTime(nowDate);
+            Boolean execute = transactionTemplate.execute(res -> {
+                this.updateById(spaceInvitationInfo);
+                spaceMemberInfoService.save(spaceMemberInfo);
+                return spaceInfoService.updateById(spaceInfo);
+            });
+            spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getInvitationUserId());
+            spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getUserId());
+            return StringUtils.isNotNull(execute) && execute ? 1 : 0;
+        } else {
+            return spaceInvitationInfoMapper.updateSpaceInvitationInfo(spaceInvitationInfo);
+        }
     }
 
 }

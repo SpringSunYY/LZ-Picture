@@ -84,6 +84,90 @@
           <template v-if="column.dataIndex === 'invitation'">
             <a-tooltip :title="text">{{ text.substring(0, 10) }}</a-tooltip>
           </template>
+          <template v-if="column.dataIndex === 'action'">
+            <a-space-compact>
+              <a-dropdown placement="bottomRight" :trigger="['click']">
+                <a-button> 操作</a-button>
+                <template #overlay>
+                  <a-menu>
+                    <a-menu-item
+                      v-if="
+                        queryParams.userType === '1' &&
+                        record.invitationStatus ===
+                          PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_0 &&
+                        checkPermiSingle('space:invitation')
+                      "
+                    >
+                      <a-popconfirm
+                        title="您确认同意吗?"
+                        ok-text="Yes"
+                        cancel-text="No"
+                        @confirm="
+                          confirmAction(
+                            PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_1,
+                            record,
+                          )
+                        "
+                        ><a style="color: #3ad83a"> 同意</a>
+                      </a-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item
+                      v-if="
+                        queryParams.userType === '1' &&
+                        record.invitationStatus ===
+                          PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_0 &&
+                        checkPermiSingle('space:invitation')
+                      "
+                    >
+                      <a-popconfirm
+                        title="您确认拒绝吗?"
+                        ok-text="Yes"
+                        cancel-text="No"
+                        @confirm="
+                          confirmAction(
+                            PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_2,
+                            record,
+                          )
+                        "
+                        ><a style="color: #b1b141">拒绝</a>
+                      </a-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item
+                      v-if="
+                        queryParams.userType === '0' &&
+                        record.invitationStatus ===
+                          PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_0 &&
+                        checkPermiSingle('space:invitation')
+                      "
+                    >
+                      <a-popconfirm
+                        title="您确认取消吗"
+                        ok-text="Yes"
+                        cancel-text="No"
+                        @confirm="
+                          confirmAction(
+                            PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_4,
+                            record,
+                          )
+                        "
+                        ><a style="color: red">取消</a>
+                      </a-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item>
+                      <a-popconfirm
+                        title="确定要删除这条记录吗?"
+                        ok-text="是"
+                        cancel-text="否"
+                        @confirm="handleDelete(record)"
+                        v-if="checkPermiSingle('space:invitation')"
+                        ><a style="color: red">删除</a>
+                      </a-popconfirm>
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown>
+            </a-space-compact>
+          </template>
         </template>
       </a-table>
     </a-card>
@@ -93,12 +177,18 @@
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import DictTag from '@/components/DictTag.vue'
-import { listSpaceInvitationInfo } from '@/api/picture/spaceInvitationInfo'
-import type {
-  SpaceInvitationInfoQuery,
-  SpaceInvitationInfoVo,
+import {
+  listSpaceInvitationInfo,
+  userActionSpaceInvitationInfo,
+} from '@/api/picture/spaceInvitationInfo'
+import {
+  PSpaceInvitationStatusEnum,
+  type SpaceInvitationInfoQuery,
+  type SpaceInvitationInfoVo,
 } from '@/types/picture/spaceInvitationInfo.d.ts'
 import dayjs from 'dayjs'
+import { checkPermiSingle } from '@/utils/permission.ts'
+import { message } from 'ant-design-vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -106,7 +196,7 @@ const { p_space_role, p_space_invitation_status } = proxy?.useDict(
   'p_space_role',
   'p_space_invitation_status',
 )
-
+//region 列表
 const queryParams = ref<SpaceInvitationInfoQuery>({
   pageNum: 1,
   pageSize: 10,
@@ -135,6 +225,7 @@ const columns = [
   { title: '邀请理由', dataIndex: 'invitation', width: 200 },
   { title: '创建时间', dataIndex: 'createTime', width: 150, sorter: true },
   { title: '过期时间', dataIndex: 'expireTime', width: 150, sorter: true },
+  { title: '操作', dataIndex: 'action', width: 50 },
 ]
 
 const getSpaceInvitationInfo = () => {
@@ -187,7 +278,32 @@ const handleTableChange = (pag, filters, sorter) => {
 }
 
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
-
+//endRegion
+//操作列
+const confirmAction = (action: string, record: SpaceInvitationInfoVo) => {
+  if (
+    action === PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_1 ||
+    action === PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_2
+  ) {
+    try {
+      userActionSpaceInvitationInfo({
+        invitationId: record.invitationId,
+        invitationStatus: action,
+      }).then((res) => {
+        if (res.code === 200) {
+          message.success('操作成功')
+        } else {
+          message.error(res.msg || '操作失败')
+        }
+      })
+    } finally {
+      getSpaceInvitationInfo()
+    }
+  }
+}
+const handleDelete = (record: SpaceInvitationInfoVo) => {
+  console.log('删除', record)
+}
 onMounted(getSpaceInvitationInfo)
 </script>
 <style scoped lang="scss">
