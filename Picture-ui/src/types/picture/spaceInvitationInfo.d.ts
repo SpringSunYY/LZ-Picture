@@ -39,14 +39,9 @@ export interface SpaceInvitationInfoVo {
   /** 邀请状态（0待同意 1同意 2拒绝 3过期） */
   invitationStatus: string
 
-  /** 邀请链接（短链或唯一标识） */
-  invitationUrl: string
 
   /** 邀请理由 */
   invitation: string
-
-  /** 邀请人编号 */
-  invitationUserId: string
 
   /** 过期时间 */
   expireTime: string // ISO string format, or Date if necessary

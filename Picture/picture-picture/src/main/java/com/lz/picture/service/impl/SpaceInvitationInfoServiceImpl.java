@@ -20,6 +20,7 @@ import com.lz.picture.model.dto.spaceInvitationInfo.UserSpaceInvitationInfoQuery
 import com.lz.picture.model.enums.PSpaceInvitationStatusEnum;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.vo.spaceInvitationInfo.SpaceInvitationInfoVo;
+import com.lz.picture.model.vo.spaceInvitationInfo.UserSpaceInvitationInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceInvitationInfoService;
 import com.lz.user.model.domain.UserInfo;
@@ -249,7 +250,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         page.getRecords().forEach(spaceInvitationInfo -> {
             spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
         });
-        return new TableDataInfo(convertVoList(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
+        return new TableDataInfo(UserSpaceInvitationInfoVo.objToVo(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
     }
 
 }

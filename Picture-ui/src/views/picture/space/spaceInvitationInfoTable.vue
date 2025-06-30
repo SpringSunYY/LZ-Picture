@@ -81,8 +81,8 @@
           <template v-if="column.dataIndex === 'spaceAvatar'">
             <a-image :src="text" width="60" />
           </template>
-          <template v-if="column.dataIndex === 'invitationUrl'">
-            <a-tooltip :title="text">{{ text }}</a-tooltip>
+          <template v-if="column.dataIndex === 'invitation'">
+            <a-tooltip :title="text">{{ text.substring(0, 10) }}</a-tooltip>
           </template>
         </template>
       </a-table>
@@ -110,7 +110,7 @@ const { p_space_role, p_space_invitation_status } = proxy?.useDict(
 const queryParams = ref<SpaceInvitationInfoQuery>({
   pageNum: 1,
   pageSize: 10,
-  userType: '0',
+  userType: '1',
   roleType: undefined,
   invitationStatus: undefined,
 })
@@ -132,8 +132,7 @@ const columns = [
   { title: '空间封面', dataIndex: 'spaceAvatar', width: 100 },
   { title: '邀请角色', dataIndex: 'roleType', width: 180 },
   { title: '邀请状态', dataIndex: 'invitationStatus', width: 180 },
-  { title: '邀请链接', dataIndex: 'invitationUrl', width: 200 },
-  { title: '邀请人编号', dataIndex: 'invitationUserId', width: 150 },
+  { title: '邀请理由', dataIndex: 'invitation', width: 200 },
   { title: '创建时间', dataIndex: 'createTime', width: 150, sorter: true },
   { title: '过期时间', dataIndex: 'expireTime', width: 150, sorter: true },
 ]
@@ -168,7 +167,7 @@ const resetSearch = () => {
   queryParams.value = {
     pageNum: 1,
     pageSize: 10,
-    userType: '0',
+    userType: '1',
     roleType: undefined,
     invitationStatus: undefined,
   }
