@@ -188,7 +188,7 @@ public class SpaceDilatationInfoServiceImpl extends ServiceImpl<SpaceDilatationI
         String userId = spaceDilatationInfo.getUserId();
         ThrowUtils.throwIf(accountInfoService.getVerifyPassword(userId) != 1, "请输入密码");
         //校验空间是否存在是否是自己的
-        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoByUserId(spaceDilatationInfo.getSpaceId());
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(spaceDilatationInfo.getSpaceId());
         ThrowUtils.throwIf(StringUtils.isNull(spaceInfo) || !spaceInfo.getUserId().equals(userId), "空间不存在");
         //如果是个人空间，不可以扩容人数
         ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())

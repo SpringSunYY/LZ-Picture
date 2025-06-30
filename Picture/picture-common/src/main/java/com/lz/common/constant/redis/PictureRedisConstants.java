@@ -65,6 +65,14 @@ public class PictureRedisConstants {
      */
     public static final String PICTURE_SPACE_TEAM_TABLE_TOTAL = "picture:space:team:table:total";
     /**
+     * 空间成员缓存
+     */
+    public static final String PICTURE_SPACE_MEMBER_DATA = "picture:space:member:data";
+    /**
+     * 空间成员缓存时间
+     */
+    public static final Integer PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME = 5 * 60;
+    /**
      * 用户行为日志缓存
      */
     public static final String PICTURE_USER_BEHAVIOR = "picture:user:behavior:";

@@ -193,7 +193,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
                 && !roleType.equals(PSpaceRoleEnum.SPACE_ROLE_2.getValue())
                 && !roleType.equals(PSpaceRoleEnum.SPACE_ROLE_3.getValue()), HttpStatus.BAD_REQUEST, "角色类型错误");
         //查询空间是否是否存在
-        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoByUserId(spaceInvitationInfo.getSpaceId());
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(spaceInvitationInfo.getSpaceId());
         ThrowUtils.throwIf(StringUtils.isNull(spaceInfo) || !spaceInfo.getUserId().equals(spaceInvitationInfo.getInvitationUserId()), "空间不存在");
         UserInfo userInfo = userInfoService.selectUserByUserName(spaceInvitationInfo.getUserName());
         ThrowUtils.throwIf(StringUtils.isNull(userInfo), "用户不存在");
@@ -270,7 +270,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
             spaceInvitationInfoMapper.updateSpaceInvitationInfo(spaceInvitationInfo);
             throw new ServiceException("邀请已过期，已为您给状态更新为过期！！！");
         }
-        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoByUserId(db.getSpaceId());
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(db.getSpaceId());
         ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), "空间不存在");
         //如果用户已经是此空间成员一律更新为已过期
         SpaceMemberInfo spaceMemberInfo = new SpaceMemberInfo();
@@ -301,6 +301,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
             });
             spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getInvitationUserId());
             spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getUserId());
+            spaceMemberInfoService.deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
             return StringUtils.isNotNull(execute) && execute ? 1 : 0;
         } else {
             return spaceInvitationInfoMapper.updateSpaceInvitationInfo(spaceInvitationInfo);

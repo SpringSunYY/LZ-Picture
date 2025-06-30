@@ -2,8 +2,10 @@ package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoQuery;
+import com.lz.picture.model.dto.spaceMemberInfo.UserSpaceMemberInfoQuery;
 import com.lz.picture.model.vo.spaceMemberInfo.SpaceMemberInfoVo;
 
 import java.util.List;
@@ -92,4 +94,15 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo> {
      * @date: 2025/6/29 18:54
      **/
     Long getSpaceMemberNumberCount(String spaceId);
+
+    /**
+     * 获取用户空间成员列表
+     *
+     * @param query
+     * @return
+     */
+    TableDataInfo listUserSpaceMemberInfoList(UserSpaceMemberInfoQuery query);
+
+    //删除空间成员缓存
+    void deleteSpaceMemberCacheBySpaceId(String spaceId);
 }

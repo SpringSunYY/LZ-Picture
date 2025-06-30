@@ -1,7 +1,6 @@
 package com.lz.picture.model.vo.spaceMemberInfo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +41,11 @@ public class UserSpaceMemberInfoVo implements Serializable {
     private String userName;
 
     /**
+     * 用户头像
+     */
+    private String avatarUrl;
+
+    /**
      * 角色（0创建者 1管理员 2编辑者 3浏览者） 数据字典：p_space_role
      */
     private String roleType;
@@ -57,12 +61,6 @@ public class UserSpaceMemberInfoVo implements Serializable {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date updateTime;
 
     /**
      * 邀请人编号

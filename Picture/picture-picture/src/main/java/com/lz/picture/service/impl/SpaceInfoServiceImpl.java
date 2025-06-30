@@ -193,7 +193,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
 
     //获取正常的空间信息-未删除
     @Override
-    public SpaceInfo selectNormalSpaceInfoByUserId(String spaceId) {
+    public SpaceInfo selectNormalSpaceInfoBySpaceId(String spaceId) {
         return this.getOne(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getSpaceId, spaceId).eq(SpaceInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
     }
 

@@ -91,10 +91,10 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * @param spaceId
      * @return SpaceInfo
      * @author: YY
-     * @method: selectNormalSpaceInfoByUserId
+     * @method: selectNormalSpaceInfoBySpaceId
      * @date: 2025/6/28 18:59
      **/
-    SpaceInfo selectNormalSpaceInfoByUserId(String spaceId);
+    SpaceInfo selectNormalSpaceInfoBySpaceId(String spaceId);
 
     /**
      * description: 创建空间信息

@@ -41,6 +41,9 @@
         :scroll="{ x: 1000 }"
       >
         <template #bodyCell="{ column, text, record }">
+          <template v-if="column.dataIndex === 'spaceName'">
+            <router-link :to="`/spaceManage/member?spaceId=${record.spaceId}`">{{ text }}</router-link>
+          </template>
           <template v-if="column.dataIndex === 'roleType'">
             <dict-tag :options="p_space_role" :value="text" />
           </template>
