@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
+import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.bean.BeanUtils;
@@ -204,20 +205,8 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
         // 提取基础参数
         Integer pageNum = userPointsUsageLogInfoQuery.getPageNum();
         Integer pageSize = userPointsUsageLogInfoQuery.getPageSize();
-        Map<String, Object> params = userPointsUsageLogInfoQuery.getParams();
-
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(userPointsUsageLogInfoQuery, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(userPointsUsageLogInfoQuery, ParamUtils.END_CREATE_TIME);
 
         return this.page(new Page<>(pageNum, pageSize),
                 new LambdaQueryWrapper<PointsUsageLogInfo>()

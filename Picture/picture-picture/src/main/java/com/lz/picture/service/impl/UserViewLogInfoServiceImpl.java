@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.UserViewLogInfoMapper;
 import com.lz.picture.model.domain.UserViewLogInfo;
@@ -215,19 +216,8 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
         Integer pageNum = myUserViewLogInfoQuery.getPageNum();
         Integer pageSize = myUserViewLogInfoQuery.getPageSize();
         Map<String, Object> params = myUserViewLogInfoQuery.getParams();
-
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(myUserViewLogInfoQuery, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(myUserViewLogInfoQuery, ParamUtils.END_CREATE_TIME);
 
         return this.page(
                 new Page<>(pageNum, pageSize),

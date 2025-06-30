@@ -16,6 +16,7 @@ import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
@@ -1121,20 +1122,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         pictureInfoPage.setCurrent(userPictureInfoQuery.getPageNum());
         pictureInfoPage.setSize(userPictureInfoQuery.getPageSize());
-        //获取时间范围
-        Map<String, Object> params = userPictureInfoQuery.getParams();
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(userPictureInfoQuery, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(userPictureInfoQuery, ParamUtils.END_CREATE_TIME);
         //构造查询条件
         LambdaQueryWrapper<PictureInfo> lambdaQueryWrapper = new LambdaQueryWrapper<PictureInfo>()
                 .like(StringUtils.isNotEmpty(userPictureInfoQuery.getName()), PictureInfo::getName, userPictureInfoQuery.getName())

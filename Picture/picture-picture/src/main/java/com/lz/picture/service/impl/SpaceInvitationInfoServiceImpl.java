@@ -9,6 +9,7 @@ import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
@@ -213,20 +214,8 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         Page<SpaceInvitationInfo> page = new Page<>();
         page.setCurrent(userSpaceInvitationInfoQuery.getPageNum());
         page.setSize(userSpaceInvitationInfoQuery.getPageSize());
-        //获取时间范围
-        Map<String, Object> params = userSpaceInvitationInfoQuery.getParams();
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(userSpaceInvitationInfoQuery, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(userSpaceInvitationInfoQuery, ParamUtils.END_CREATE_TIME);
         //构造查询条件
         LambdaQueryWrapper<SpaceInvitationInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(StringUtils.isNotEmpty(userSpaceInvitationInfoQuery.getUserId()), SpaceInvitationInfo::getUserId, userSpaceInvitationInfoQuery.getUserId())

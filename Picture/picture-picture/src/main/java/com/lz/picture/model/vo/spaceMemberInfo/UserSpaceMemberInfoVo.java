@@ -17,73 +17,62 @@ import java.util.Date;
  * @date 2025-03-24
  */
 @Data
-public class SpaceMemberInfoVo implements Serializable {
+public class UserSpaceMemberInfoVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     /**
      * 成员编号
      */
-    @Excel(name = "成员编号")
     private String memberId;
 
     /**
      * 空间编号
      */
-    @Excel(name = "空间编号")
     private String spaceId;
+
+    /**
+     * 空间名称
+     */
+    private String spaceName;
 
     /**
      * 用户编号
      */
-    @Excel(name = "用户编号")
-    private String userId;
+    private String userName;
 
     /**
-     * 角色（0创建者 1管理员 2编辑者 3浏览者）
+     * 角色（0创建者 1管理员 2编辑者 3浏览者） 数据字典：p_space_role
      */
-    @Excel(name = "角色", readConverterExp = "0=创建者,1=管理员,2=编辑者,3=浏览者")
     private String roleType;
 
     /**
      * 最后操作时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "最后操作时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date lastActiveTime;
 
     /**
      * 加入时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "加入时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 更新时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     /**
      * 邀请人编号
      */
-    @Excel(name = "邀请人编号")
-    private String inviterUserId;
+    private String inviterUserName;
 
     /**
-     * 加入方式（0邀请）
+     * 加入方式（0邀请）数据字典：p_space_join_type
      */
-    @Excel(name = "加入方式", readConverterExp = "0=创建者,1=邀请")
     private String joinType;
-
-    /**
-     * 备注
-     */
-    @Excel(name = "备注")
-    private String remark;
-
 
     /**
      * 对象转封装类
@@ -91,11 +80,11 @@ public class SpaceMemberInfoVo implements Serializable {
      * @param spaceMemberInfo SpaceMemberInfo实体对象
      * @return SpaceMemberInfoVo
      */
-    public static SpaceMemberInfoVo objToVo(SpaceMemberInfo spaceMemberInfo) {
+    public static UserSpaceMemberInfoVo objToVo(SpaceMemberInfo spaceMemberInfo) {
         if (spaceMemberInfo == null) {
             return null;
         }
-        SpaceMemberInfoVo spaceMemberInfoVo = new SpaceMemberInfoVo();
+        UserSpaceMemberInfoVo spaceMemberInfoVo = new UserSpaceMemberInfoVo();
         BeanUtils.copyProperties(spaceMemberInfo, spaceMemberInfoVo);
         return spaceMemberInfoVo;
     }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.DateUtils;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.UserPictureDownloadLogInfoQuery;
@@ -184,20 +185,8 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
         // 提取基础参数
         Integer pageNum = query.getPageNum();
         Integer pageSize = query.getPageSize();
-        Map<String, Object> params = query.getParams();
-
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(query, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(query, ParamUtils.END_CREATE_TIME);
         return this.page(
                 new Page<PictureDownloadLogInfo>(pageNum, pageSize),
                 new LambdaQueryWrapper<PictureDownloadLogInfo>()

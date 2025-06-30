@@ -1,37 +1,34 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonHasStatisticsEnum;
-import com.lz.common.utils.StringUtils;
-
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.ParamUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
+import com.lz.picture.mapper.UserBehaviorInfoMapper;
+import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
+import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeScoreEnum;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
+import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyExecutor;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.picture.mapper.UserBehaviorInfoMapper;
-import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.service.IUserBehaviorInfoService;
-import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
-import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 用户行为Service业务层处理
@@ -223,20 +220,8 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
         // 提取基础参数
         Integer pageNum = userBehaviorInfoQuery.getPageNum();
         Integer pageSize = userBehaviorInfoQuery.getPageSize();
-        Map<String, Object> params = userBehaviorInfoQuery.getParams();
-
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(userBehaviorInfoQuery, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(userBehaviorInfoQuery, ParamUtils.END_CREATE_TIME);
 
         // 构建查询条件
         return this.page(

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
@@ -239,20 +240,8 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
         // 提取基础参数
         Integer pageNum = userPointsRechargeInfoQuery.getPageNum();
         Integer pageSize = userPointsRechargeInfoQuery.getPageSize();
-        Map<String, Object> params = userPointsRechargeInfoQuery.getParams();
-
-        // 提取 beginCreateTime 和 endCreateTime（安全获取）
-        String beginCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("beginCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
-
-        String endCreateTime = Optional.ofNullable(params)
-                .map(p -> p.get("endCreateTime"))
-                .map(Object::toString)
-                .filter(StringUtils::isNotEmpty)
-                .orElse(null);
+        String beginCreateTime = ParamUtils.getSafeString(userPointsRechargeInfoQuery, ParamUtils.BEGIN_CREATE_TIME);
+        String endCreateTime = ParamUtils.getSafeString(userPointsRechargeInfoQuery, ParamUtils.END_CREATE_TIME);
 
         Page<PointsRechargeInfo> rechargeInfoPage = this.page(
                 new Page<>(pageNum, pageSize),
