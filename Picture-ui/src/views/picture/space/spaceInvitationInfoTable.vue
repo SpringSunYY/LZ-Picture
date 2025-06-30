@@ -159,7 +159,11 @@
                         ok-text="是"
                         cancel-text="否"
                         @confirm="handleDelete(record)"
-                        v-if="checkPermiSingle('space:invitation')"
+                        v-if="
+                          checkPermiSingle('space:invitation') &&
+                          record.invitationStatus ===
+                            PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_0
+                        "
                         ><a style="color: red">删除</a>
                       </a-popconfirm>
                     </a-menu-item>
@@ -179,6 +183,7 @@ import { getCurrentInstance, onMounted, ref } from 'vue'
 import DictTag from '@/components/DictTag.vue'
 import {
   cancelSpaceInvitationInfo,
+  deleteSpaceInvitationInfo,
   listSpaceInvitationInfo,
   userActionSpaceInvitationInfo,
 } from '@/api/picture/spaceInvitationInfo'
@@ -314,7 +319,14 @@ const confirmAction = (action: string, record: SpaceInvitationInfoVo) => {
 }
 //endregion
 const handleDelete = (record: SpaceInvitationInfoVo) => {
-  console.log('删除', record)
+  deleteSpaceInvitationInfo(record.invitationId).then((res) => {
+    if (res.code === 200) {
+      message.success('删除成功')
+    } else {
+      message.error(res.msg || '删除失败')
+    }
+    getSpaceInvitationInfo()
+  })
 }
 onMounted(getSpaceInvitationInfo)
 </script>

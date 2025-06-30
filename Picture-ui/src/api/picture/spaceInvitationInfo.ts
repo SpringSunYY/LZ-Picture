@@ -40,6 +40,14 @@ export function cancelSpaceInvitationInfo(
   })
 }
 
+//用户删除
+export function deleteSpaceInvitationInfo(invitationId: string): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/spaceInvitationInfo/' + invitationId,
+    method: 'delete',
+  })
+}
+
 //查询空间成员邀请
 export function listSpaceInvitationInfo(
   params: SpaceInvitationInfoQuery,

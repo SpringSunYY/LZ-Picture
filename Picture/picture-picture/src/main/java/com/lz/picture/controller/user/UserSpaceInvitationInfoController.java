@@ -68,6 +68,15 @@ public class UserSpaceInvitationInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('space:invitation')")
     @PutMapping("/cancel")
     public AjaxResult cancel(@RequestBody @Validated UserSpaceInvitationInfoAction userSpaceInvitationInfoAction) {
-        return toAjax(spaceInvitationInfoService.userCancelSpaceInvitationInfoByInvitationId(userSpaceInvitationInfoAction.getInvitationId(),getUserId()));
+        return toAjax(spaceInvitationInfoService.userCancelSpaceInvitationInfoByInvitationId(userSpaceInvitationInfoAction.getInvitationId(), getUserId()));
+    }
+
+    /**
+     * 删除空间成员邀请记录
+     */
+    @PreAuthorize("@uss.hasPermi('space:invitation')")
+    @DeleteMapping("/{invitationId}")
+    public AjaxResult remove(@PathVariable("invitationId") String invitationId) {
+        return toAjax(spaceInvitationInfoService.userDeleteSpaceInvitationInfoByInvitationId(invitationId, getUserId()));
     }
 }
