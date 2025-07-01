@@ -4,6 +4,7 @@ import com.lz.common.constant.Constants;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.SpaceMemberInfo;
+import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.service.ISpaceMemberInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
@@ -31,7 +32,7 @@ public class SpaceAuthUtils {
     @Resource
     private RedisCache redisCache;
 
-    public static final String SPACE_MEMBER_INFO_KEY = "picture:space:user:member";
+    public static final String SPACE_MEMBER_INFO_KEY = "picture:space:user:member:";
     public static final String SPACE_MEMBER_INFO_KEY_USER = "picture:space:user:space:";
 
     // 令牌有效期（默认30分钟）
@@ -128,6 +129,17 @@ public class SpaceAuthUtils {
 
     public boolean checkSpaceMemberAnyPerm(String permission) {
         return checkSpaceMemberAnyPerm(UserInfoSecurityUtils.getUserId(), permission);
+    }
+
+    /**
+     * 是否有编辑权限
+     * @param spaceId 空间编号
+     * @return
+     */
+    public boolean checkSpaceEditPerm(String spaceId) {
+        return !checkSpaceMemberAnyPerm(
+                buildSpaceMemberPerm(spaceId, PSpaceRoleEnum.SPACE_ROLE_1.getValue()) + ","
+                        + buildSpaceMemberPerm(spaceId, PSpaceRoleEnum.SPACE_ROLE_0.getValue()));
     }
 
     /**

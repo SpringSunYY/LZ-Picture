@@ -261,4 +261,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/7/1 19:58
      **/
     TableDataInfo listPictureInfoTeamTable(UserPictureInfoQuery userPictureInfoQuery);
+
+    /**
+     * 用户获取图片列表
+     *
+     * @param userPictureInfoQuery
+     * @return TableDataInfo
+     * @author: YY
+     * @method: listMy
+     * @date: 2025/7/2 00:41
+     **/
+    TableDataInfo listMy(UserPictureInfoQuery userPictureInfoQuery);
 }

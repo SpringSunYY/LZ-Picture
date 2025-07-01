@@ -161,4 +161,15 @@ public interface ISpaceInfoService extends IService<SpaceInfo> {
      * @date: 2025/6/29 18:59
      **/
     void deleteSpaceTeamTableCacheByUserId(String userId);
+
+    /**
+     * 我的空间
+     *
+     * @param spaceInfoQuery 查询
+     * @return TableDataInfo
+     * @author: YY
+     * @method: mySpace   我的空间
+     * @date: 2025/7/1 23:47
+     **/
+    TableDataInfo mySpace(SpaceInfoQuery spaceInfoQuery);
 }

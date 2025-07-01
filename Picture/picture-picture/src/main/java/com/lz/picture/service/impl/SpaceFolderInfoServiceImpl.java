@@ -7,6 +7,7 @@ import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.picture.mapper.SpaceFolderInfoMapper;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceFolderInfo;
@@ -17,6 +18,7 @@ import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.ISpaceFolderInfoService;
 import com.lz.picture.service.ISpaceInfoService;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.picture.utils.TreeUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -42,6 +44,9 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
     @Resource
     @Lazy
     private IPictureInfoService pictureInfoService;
+
+    @Resource
+    private SpaceAuthUtils spaceAuthUtils;
 
     //region mybatis代码
 
@@ -173,11 +178,16 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
     public int userInsertSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo) {
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
-        if (StringUtils.isNull(spaceInfo)
-                || spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
-                || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())
-                || !spaceInfo.getUserId().equals(spaceFolderInfo.getUserId())) {
-            throw new ServiceException("空间为官方空间、不存在、或者已被删除，不可创建文件夹");
+        ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), "空间不存在");
+        if (!spaceInfo.getSpaceStatus().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
+            ThrowUtils.throwIf(spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()), "您没有权限创建文件夹");
+        } else {
+            if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
+                    || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())
+                    || !spaceInfo.getUserId().equals(spaceFolderInfo.getUserId())
+            ) {
+                throw new ServiceException("空间为官方空间、不存在、或者已被删除，不可创建文件夹");
+            }
         }
         //查询空间+父级目录+文件夹名称是否已存在
         SpaceFolderInfo old = this.getOne(new LambdaQueryWrapper<SpaceFolderInfo>()

@@ -68,24 +68,8 @@ public class UserSpaceInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('picture:space')")
     @GetMapping("/mySpace")
     public TableDataInfo mySpace(SpaceInfoQuery spaceInfoQuery) {
-        //无需分页只需要拿到自己所有的空间即可 TODO后续还有自己加入的空间
-        spaceInfoQuery.setUserId(getLoginUser().getUserId());
-        spaceInfoQuery.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
-        QueryWrapper<SpaceInfo> queryWrapper = spaceInfoService.getQueryWrapper(spaceInfoQuery);
-        queryWrapper.or().eq("space_type", PSpaceTypeEnum.SPACE_TYPE_0.getValue());
-        queryWrapper.orderByAsc("space_type");
-        List<SpaceInfo> list = spaceInfoService.list(queryWrapper);
-        //转为Vo
-        List<UserSpaceInfoVo> listVo = list.stream().map(UserSpaceInfoVo::objToVo).collect(Collectors.toList());
-        //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
-        String dnsUrl = ossConfig.getDnsUrl();
-        listVo.stream()
-                .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
-                .forEach(vo -> {
-                    vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
-                });
-        return getDataTable(listVo, listVo.size());
+        spaceInfoQuery.setUserId(getUserId());
+        return spaceInfoService.mySpace(spaceInfoQuery);
     }
 
     @PreAuthorize("@uss.hasPermi('space:manage:personal:table')")

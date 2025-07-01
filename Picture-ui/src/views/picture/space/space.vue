@@ -51,7 +51,7 @@
       </a-col>
     </a-row>
     <a-divider style="border-color: #7cb305" dashed orientation="left">我的图片</a-divider>
-    <PictureInfoList style="margin-top: 20px"></PictureInfoList>
+    <PictureInfoList ref="pictureInfoListRef" style="margin-top: 20px"></PictureInfoList>
     <!--添加空间-->
     <a-modal v-model:open="open" :footer="null" centered destroyOnClose>
       <!-- 自定义标题插槽 -->
@@ -132,14 +132,12 @@
 
 <script setup lang="ts" name="PictureSpace">
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
-import { getCurrentInstance, reactive, ref } from 'vue'
+import { getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Space, SpaceInfo, SpaceQuery } from '@/types/picture/space.d.ts'
-import { getPSpaceTypeLabel } from '@/types/picture/space.d.ts'
 import { addSpaceInfo, getSpaceInfo, mySpaceInfo, updateSpaceInfo } from '@/api/picture/space.ts'
 import { message } from 'ant-design-vue'
-import Tags from '@/components/Tags.vue'
-import { formatDnsUrl, formatSize } from '@/utils/common.ts'
+import { formatSize } from '@/utils/common.ts'
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'
@@ -163,18 +161,18 @@ const formState = reactive<SpaceInfo>({
   spaceAvatar: '',
   spaceDesc: '',
   spaceType: '0',
-  spaceStatus: '0'
+  spaceStatus: '0',
 })
 
 // 验证规则
 const rules = {
   spaceName: [
     { required: true, message: '名称不能为空' },
-    { min: 2, max: 32, message: '长度需在2-32字符之间' }
+    { min: 2, max: 32, message: '长度需在2-32字符之间' },
   ],
   spaceType: [{ required: true, message: '空间类型不能为空' }],
   spaceDesc: [{ max: 512, message: '长度不能超过512字符' }],
-  spaceStatus: [{ required: true, message: '空间状态不能为空' }]
+  spaceStatus: [{ required: true, message: '空间状态不能为空' }],
 }
 
 // 路由跳转
@@ -182,7 +180,7 @@ const router = useRouter()
 const goDetail = (id: string) =>
   router.push({
     path: '/picture/space/spaceFolder',
-    query: { spaceId: id }
+    query: { spaceId: id },
   })
 // 添加空间
 const handleAdd = () => {
@@ -198,7 +196,7 @@ const resetForm = () => {
     spaceAvatar: '',
     spaceDesc: '',
     spaceType: '0',
-    spaceStatus: '0'
+    spaceStatus: '0',
   })
 }
 
@@ -233,13 +231,21 @@ const handleUpdate = (spaceId: string) => {
 const getMySpaceList = () => {
   // 获取我的空间列表
   mySpaceInfo(spaceQuery).then((res) => {
-    if (res.code === 200) {
       spaceList.value = res?.rows || []
-    } else {
-      message.error('获取空间列表失败')
-    }
   })
 }
+const pictureInfoListRef = ref()
+
+// 调用子组件的 refreshData 方法
+const refreshChildData = () => {
+  if (pictureInfoListRef.value) {
+    pictureInfoListRef.value.refreshData()
+  }
+}
+onMounted(async () => {
+  await nextTick()
+  refreshChildData()
+})
 getMySpaceList()
 </script>
 

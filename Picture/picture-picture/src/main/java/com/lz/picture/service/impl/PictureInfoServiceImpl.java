@@ -39,6 +39,7 @@ import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
 import com.lz.points.model.enums.PoPointsUsageTypeEnum;
@@ -134,6 +135,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Resource
     @Lazy
     private ISpaceMemberInfoService spaceMemberInfoService;
+
+    @Resource
+    private SpaceAuthUtils spaceAuthUtils;
 
     //region mybatis代码
 
@@ -278,7 +282,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         Date deletedTime = pictureInfo.getDeletedTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginDeletedTime")) && StringUtils.isNotNull(params.get("endDeletedTime")), "deleted_time", params.get("beginDeletedTime"), params.get("endDeletedTime"));
-
+        queryWrapper.orderByDesc("create_time");
         return queryWrapper;
     }
 
@@ -291,7 +295,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return pictureInfoList.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
     }
 
-    //TODO 更新图库信息
     @Override
     public int userInsertPictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
@@ -353,15 +356,27 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
             throw new ServiceException("空间不存在");
         }
-        //如果空间为个人空间并且不是官方空间
-        if (!spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())
-                && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
+        //如果空间是团队空间
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
+            //判断此用户是否对此空间有权限
+            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceMemberAnyPerm(
+                            spaceAuthUtils.buildSpaceMemberPerm(spaceInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_1.getValue()) + ","
+                                    + spaceAuthUtils.buildSpaceMemberPerm(spaceInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_0.getValue())),
+                    "您对此空间没有权限修改！！！");
+
+            //判断文件夹是否存在且文件夹作者是自己
+            if (StringUtils.isNotEmpty(pictureInfo.getFolderId()) && !pictureInfo.getFolderId().equals("0")) {
+                SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectSpaceFolderInfoByFolderId(pictureInfo.getFolderId());
+                //判断该空间是否有此文件夹
+                ThrowUtils.throwIf(StringUtils.isNotNull(spaceFolderInfo) && !spaceFolderInfo.getSpaceId().equals(pictureInfo.getSpaceId()), HttpStatus.NO_CONTENT, "该空间没有此文件夹，无法上传图片");
+            }
+        } else {         //如果空间为官方空间||个人空间，校验用户是否是作者
             //如果传过来图片ID并且自己不是图片作者
             ThrowUtils.throwIf(pictureInfo.getPictureId() != null && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()), "您不是该图片所有者，无法上传图片");
             //如果用户不是自己
             ThrowUtils.throwIf(!spaceInfo.getUserId().equals(pictureInfo.getUserId()), "您不是该空间所有者，无法上传图片");
             //判断文件夹是否存在且文件夹作者是自己
-            if (StringUtils.isNotEmpty(pictureInfo.getFolderId())) {
+            if (StringUtils.isNotEmpty(pictureInfo.getFolderId()) && !pictureInfo.getFolderId().equals("0")) {
                 SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectSpaceFolderInfoByFolderId(pictureInfo.getFolderId());
                 ThrowUtils.throwIf(StringUtils.isNull(spaceFolderInfo), HttpStatus.NO_CONTENT, "文件夹不存在");
                 ThrowUtils.throwIf(!spaceFolderInfo.getUserId().equals(pictureInfo.getUserId()), HttpStatus.NO_CONTENT, "您不是该文件夹所有者，无法上传图片");
@@ -369,11 +384,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 ThrowUtils.throwIf(!spaceFolderInfo.getSpaceId().equals(pictureInfo.getSpaceId()), HttpStatus.NO_CONTENT, "该空间没有此文件夹，无法上传图片");
             }
         }
-        //如果空间是团队空间
-        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
-            //TODO 团队空间判断
-        }
-        //判断空间是否是公共
         if (spaceInfo.getOssType().equals(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue())) {
             //是公共空间，使用官方域名,官方不指定域名，根据配置文件获取域名
             pictureInfo.setDnsUrl(null);
@@ -481,6 +491,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         redisCache.setCacheObject(key, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
         //查询是否有行为，点赞、收藏
         isBehavior(pictureId, userId, userPictureDetailInfoVo);
+        //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
+        if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                && !userPictureDetailInfoVo.getUserId().equals(UserInfoSecurityUtils.getUserId())
+                && !spaceAuthUtils.checkUserJoinSpace(userPictureDetailInfoVo.getSpaceId())) {
+            throw new ServiceException("图片审核不通过，无法查看");
+        }
         return userPictureDetailInfoVo;
     }
 
@@ -534,12 +550,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         UserPictureDetailInfoVo userPictureDetailInfoVo = new UserPictureDetailInfoVo();
         PictureInfo pictureInfo = this.getById(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
-        //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
-        //TODO 后续有判断是否是团队空间 团队空间成员还是可以查看的
-        if (!pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId())) {
-            throw new ServiceException("图片审核不通过，无法查看");
-        }
         //查询分类
         PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
         if (StringUtils.isNotNull(categoryInfo)) {
@@ -650,7 +660,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
-        ThrowUtils.throwIf(!userId.equals(userPictureDetailInfoVo.getUserId()), "图片不存在");
         //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
         String time = configInfoService.getConfigInfoInCache(PICTURE_LOOK_ORIGINAL_TIMEOUT);
         Long timeout = Long.valueOf(time);
@@ -659,6 +668,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
         if (redisCache.hasKey(key)) {
             redisCache.deleteObject(key);
+        }
+        //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
+        if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                && !userPictureDetailInfoVo.getUserId().equals(UserInfoSecurityUtils.getUserId())
+                && !spaceAuthUtils.checkUserJoinSpace(userPictureDetailInfoVo.getSpaceId())) {
+            throw new ServiceException("图片审核不通过，无法查看");
         }
         return userPictureDetailInfoVo;
     }
@@ -1217,6 +1232,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfoDb.setName(pictureInfo.getName());
         pictureInfoDb.setEditTime(DateUtils.getNowDate());
         this.deletePictureTableCacheByUserId(pictureInfoDb.getUserId());
+        this.deletePictureTableCacheBySpaceId(pictureInfoDb.getSpaceId());
         return this.updateById(pictureInfoDb) ? 1 : 0;
     }
 
@@ -1243,6 +1259,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
             pictureInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
             pictureInfo.setDeletedTime(nowDate);
+            this.deletePictureTableCacheBySpaceId(pictureInfo.getSpaceId());
         });
         this.deletePictureTableCacheByUserId(userId);
         return this.updateBatchById(pictureInfos) ? 1 : 0;
@@ -1257,7 +1274,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         String jsonStr = JSON.toJSONString(userPictureInfoQuery);
         //查询缓存是否存在
-        String keyData = PICTURE_PICTURE_TABLE_PERSON + userPictureInfoQuery.getSpaceId() + COMMON_SEPARATOR_CACHE +
+        String keyData = PICTURE_PICTURE_TABLE_SPACE + userPictureInfoQuery.getSpaceId() + COMMON_SEPARATOR_CACHE +
                 jsonStr;
         if (StringUtils.isNull(spaceMemberInfo)) {
             throw new ServiceException("您没有加入此空间");
@@ -1265,7 +1282,57 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return getTableDataInfo(userPictureInfoQuery, keyData);
     }
 
+    @Override
+    public TableDataInfo listMy(UserPictureInfoQuery userPictureInfoQuery) {
+        //如果传过来spaceId，则查询此空间下的图片，如果没有查询用户自己的图片
+        String spaceId = userPictureInfoQuery.getSpaceId();
+        if (StringUtils.isEmpty(spaceId)) {
+            userPictureInfoQuery.setUserId(UserInfoSecurityUtils.getUserId());
+        } else {
+            //查询空间是否是团队空间
+            SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(spaceId);
+            if (StringUtils.isNull(spaceInfo)) {
+                throw new ServiceException("空间不存在");
+            }
+            if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
+                ThrowUtils.throwIf(!spaceAuthUtils.checkUserJoinSpace(spaceId) && !spaceInfo.getSpaceStatus().equals(PSpaceStatusEnum.SPACE_STATUS_0.getValue()), "您没有加入此空间");
+            } else if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())) {
+                ThrowUtils.throwIf(!spaceInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()) && !spaceInfo.getSpaceStatus().equals(PSpaceStatusEnum.SPACE_STATUS_0.getValue()), "您没有权限查看此空间");
+            } else {
+                userPictureInfoQuery.setUserId(UserInfoSecurityUtils.getUserId());
+            }
+        }
+        //构造查询条件
+        Page<PictureInfo> pictureInfoPage = new Page<>();
+
+        pictureInfoPage.setCurrent(userPictureInfoQuery.getPageNum());
+        pictureInfoPage.setSize(userPictureInfoQuery.getPageSize());
+        //构造查询条件
+        LambdaQueryWrapper<PictureInfo> lambdaQueryWrapper = new LambdaQueryWrapper<PictureInfo>()
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getCategoryId()), PictureInfo::getCategoryId, userPictureInfoQuery.getCategoryId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getUserId()), PictureInfo::getUserId, userPictureInfoQuery.getUserId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getSpaceId()), PictureInfo::getSpaceId, userPictureInfoQuery.getSpaceId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getFolderId()), PictureInfo::getFolderId, userPictureInfoQuery.getFolderId())
+                .eq(StringUtils.isNotEmpty(userPictureInfoQuery.getIsDelete()), PictureInfo::getIsDelete, userPictureInfoQuery.getIsDelete())
+                .orderBy(true, false, PictureInfo::getCreateTime);
+        Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
+        List<MyPictureInfoVo> userPictureInfoVos = MyPictureInfoVo.objToVo(page.getRecords());
+        //压缩图片
+        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
+        for (MyPictureInfoVo vo : userPictureInfoVos) {
+            vo.setThumbnailUrl(ossConfig.builderUrl(vo.getThumbnailUrl(), vo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + p);
+        }
+        TableDataInfo tableDataInfo = new TableDataInfo();
+        tableDataInfo.setRows(userPictureInfoVos);
+        tableDataInfo.setTotal(page.getTotal());
+        return tableDataInfo;
+    }
+
     public void deletePictureTableCacheByUserId(String userId) {
         redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_PERSON + userId + "*");
+    }
+
+    public void deletePictureTableCacheBySpaceId(String spaceId) {
+        redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_SPACE + spaceId + "*");
     }
 }

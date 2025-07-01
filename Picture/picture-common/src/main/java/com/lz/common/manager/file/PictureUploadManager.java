@@ -754,7 +754,7 @@ public class PictureUploadManager {
         }
         //校验文件类型
         String fileType = FileUtil.getType(file);
-        System.out.println("fileType = " + fileType);
+//        System.out.println("fileType = " + fileType);
         if (!allowedExtensions.contains(fileType)) {
             throw new RuntimeException("文件类型不支持");
         }

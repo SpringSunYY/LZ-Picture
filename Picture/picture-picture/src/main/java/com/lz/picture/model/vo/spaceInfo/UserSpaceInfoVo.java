@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Project: Picture
@@ -124,5 +125,9 @@ public class UserSpaceInfoVo implements Serializable {
         UserSpaceInfoVo spaceInfoVo = new UserSpaceInfoVo();
         BeanUtils.copyProperties(spaceInfo, spaceInfoVo);
         return spaceInfoVo;
+    }
+
+    public static List<UserSpaceInfoVo> objToVo(List<SpaceInfo> spaceInfos) {
+        return spaceInfos.stream().map(UserSpaceInfoVo::objToVo).toList();
     }
 }

@@ -142,15 +142,12 @@ const handleUpdate = (id: string) => {
 }
 
 watchEffect(() => {
-  if (props.currentParentId) {
-    getPictureInfoList()
-  }
-  if (props.spaceId) {
+  if (props.currentParentId|| props.spaceId) {
     getPictureInfoList()
   }
 })
 
-getPictureInfoList()
+// getPictureInfoList()
 defineExpose({
   refreshData: getPictureInfoList
 })

@@ -29,6 +29,7 @@ import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.model.vo.spaceInfo.UserPersonalSpaceInfoVo;
+import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.model.vo.spaceInfo.UserTeamSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
@@ -299,18 +300,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         String jsonStr = JSON.toJSONString(userSpaceInfoQuery);
         //查询缓存是否存在
         String keyData = PICTURE_SPACE_PERSONAL_TABLE_DATA + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
-        List<UserPersonalSpaceInfoVo> vos = new ArrayList<>();
-        if (redisCache.hasKey(keyData)) {
-            vos = redisCache.getCacheObject(keyData);
-        }
-        String keyTotal = PICTURE_SPACE_PERSONAL_TABLE_TOTAL + userSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
-        Long total = 0L;
-        if (redisCache.hasKey(keyTotal)) {
-            total = redisCache.getCacheObject(keyTotal);
-        }
         //如果都存在直接返回
-        if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
-            return new TableDataInfo(vos, Math.toIntExact(total));
+        if (redisCache.hasKey(keyData)) {
+            return redisCache.getCacheObject(keyData);
         }
         //构造查询条件
         Page<SpaceInfo> spaceInfoPage = new Page<>();
@@ -365,9 +357,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         //如果为空直接返回
         List<SpaceInfo> records = page.getRecords();
         if (StringUtils.isEmpty(records)) {
-            redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.setCacheObject(keyTotal, total, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-            return new TableDataInfo(vos, Math.toIntExact(total));
+            TableDataInfo tableDataInfo = new TableDataInfo();
+            redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+            return tableDataInfo;
         }
         //压缩图片
         String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
@@ -378,9 +370,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                     return UserPersonalSpaceInfoVo.objToVo(spaceInfo);
                 }).toList();
         //存入缓存信息并返回
-        redisCache.setCacheObject(keyData, personalSpaceInfoVos, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-        redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-        return new TableDataInfo(personalSpaceInfoVos, Math.toIntExact(page.getTotal()));
+        TableDataInfo tableDataInfo = new TableDataInfo(personalSpaceInfoVos, Math.toIntExact(page.getTotal()));
+        redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_PERSONAL_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+        return tableDataInfo;
     }
 
     /**
@@ -395,7 +387,6 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
     @Override
     public void deleteSpacePersonalTableCacheByUserId(String userId) {
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_DATA + userId + "*");
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_TOTAL + userId + "*");
     }
 
     @Override
@@ -403,18 +394,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         String jsonStr = JSON.toJSONString(userTeamSpaceInfoQuery);
         //查询缓存是否存在
         String keyData = PICTURE_SPACE_TEAM_TABLE_DATA + userTeamSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
-        List<UserTeamSpaceInfoVo> vos = new ArrayList<>();
-        if (redisCache.hasKey(keyData)) {
-            vos = redisCache.getCacheObject(keyData);
-        }
-        String keyTotal = PICTURE_SPACE_TEAM_TABLE_TOTAL + userTeamSpaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
-        Long total = 0L;
-        if (redisCache.hasKey(keyTotal)) {
-            total = redisCache.getCacheObject(keyTotal);
-        }
         //如果都存在直接返回
-        if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
-            return new TableDataInfo(vos, Math.toIntExact(total));
+        if (redisCache.hasKey(keyData)) {
+            return redisCache.getCacheObject(keyData);
         }
         //构造查询条件
         Page<SpaceMemberInfo> spaceMemberInfoPage = new Page<>();
@@ -466,9 +448,9 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         List<SpaceMemberInfo> spaceMemberInfos = memberInfoPage.getRecords();
         if (StringUtils.isEmpty(spaceMemberInfos)) {
             //存入缓存
-            redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
-            return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+            TableDataInfo tableDataInfo = new TableDataInfo();
+            redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+            return tableDataInfo;
         }
         //获取到所有的空间ID，查询空间
         List<String> spaceIds = spaceMemberInfos.stream().map(SpaceMemberInfo::getSpaceId).toList();
@@ -478,13 +460,14 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         //如果空间为空
         if (StringUtils.isEmpty(spaceMemberInfos)) {
             //存入缓存
-            redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
-            return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+            TableDataInfo tableDataInfo = new TableDataInfo();
+            redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+            return tableDataInfo;
         }
         //压缩图片
         String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         //根据空间ID转换为map
+        List<UserTeamSpaceInfoVo> vos = new ArrayList<>();
         Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo));
         vos = spaceMemberInfos.stream().map(memberInfo -> {
             SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
@@ -495,14 +478,64 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             return userTeamSpaceInfoVo;
         }).toList();
         //存入缓存
-        redisCache.setCacheObject(keyData, vos, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
-        redisCache.setCacheObject(keyTotal, memberInfoPage.getTotal(), PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
-        return new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+        TableDataInfo tableDataInfo = new TableDataInfo(vos, (int) memberInfoPage.getTotal());
+        redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
+        return tableDataInfo;
     }
 
     @Override
     public void deleteSpaceTeamTableCacheByUserId(String userId) {
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_DATA + userId + "*");
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_TOTAL + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_LIST + userId + "*");
+    }
+
+    @Override
+    public TableDataInfo mySpace(SpaceInfoQuery spaceInfoQuery) {
+        String jsonStr = JSON.toJSONString(spaceInfoQuery);
+        //查询缓存是否存在
+        String keyData = PICTURE_SPACE_LIST + spaceInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE + jsonStr;
+        //如果都存在直接返回
+        if (redisCache.hasKey(keyData)) {
+            return redisCache.getCacheObject(keyData);
+        }
+        //无需分页只需要拿到自己所有的空间即可
+        // 查询用户自己的正常空间（个人或团队）
+        List<SpaceInfo> spaceInfos = this.list(new LambdaQueryWrapper<SpaceInfo>()
+                .eq(SpaceInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .and(wrapper -> wrapper
+                        .eq(SpaceInfo::getSpaceType, PSpaceTypeEnum.SPACE_TYPE_0.getValue())
+                        .or()
+                        .eq(StringUtils.isNotEmpty(spaceInfoQuery.getUserId()), SpaceInfo::getUserId, spaceInfoQuery.getUserId())
+                )
+        );
+        //查询用户加入的所有空间
+        List<SpaceMemberInfo> spaceMemberInfos = spaceMemberInfoService.selectSpaceMemberInfoByUserId(spaceInfoQuery.getUserId());
+        if (StringUtils.isNotEmpty(spaceMemberInfos)) {
+            List<String> spaceIds = spaceMemberInfos.stream().map(SpaceMemberInfo::getSpaceId).toList();
+            spaceInfos.addAll(this.list(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()).in(SpaceInfo::getSpaceId, spaceIds)));
+        }
+        //根据空间ID去重,并根据空间类型排序
+        List<SpaceInfo> list = spaceInfos.stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo, (existing, replacement) -> existing),
+                        map -> new ArrayList<>(map.values())
+                ))
+                .stream()
+                .sorted(Comparator.comparing(SpaceInfo::getSpaceType))
+                .toList();
+
+        List<UserSpaceInfoVo> listVo = UserSpaceInfoVo.objToVo(list);
+        //压缩图片
+        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
+        String dnsUrl = ossConfig.getDnsUrl();
+        listVo.stream()
+                .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
+                .forEach(vo -> {
+                    vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+                });
+
+        TableDataInfo tableDataInfo = new TableDataInfo(listVo, listVo.size());
+        redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_LIST_EXPIRE_TIME, TimeUnit.SECONDS);
+        return tableDataInfo;
     }
 }

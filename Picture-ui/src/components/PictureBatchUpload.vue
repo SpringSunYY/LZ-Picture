@@ -75,7 +75,7 @@ onMounted(() => {
         if (!file) continue
         // console.log(props.hasUpload)
         if (props.hasUpload) {
-          message.error('上传失败，获取是因为空间内存不足！！！')
+          message.error('上传失败，或许是因为空间内存不足！！！')
           break
         }
 

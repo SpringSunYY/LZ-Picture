@@ -87,7 +87,7 @@ const searchInput = (value: string) => {
 
 const suggestionList = ref<SearchSuggestion[]>([])
 const getSearchSuggestList = (value: string) => {
-  console.log('searchInput', value)
+  // console.log('searchInput', value)
   getSearchSuggest(value).then((res) => {
     //遍历rows，添加到suggestionList中
     suggestionList.value =
@@ -97,7 +97,7 @@ const getSearchSuggestList = (value: string) => {
           id: item.pictureId,
         }
       }) || []
-    console.log('suggestionList', suggestionList.value)
+    // console.log('suggestionList', suggestionList.value)
   })
 }
 

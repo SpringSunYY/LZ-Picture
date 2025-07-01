@@ -17,14 +17,15 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureApplyInfoMapper;
 import com.lz.picture.model.domain.PictureApplyInfo;
 import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
-import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.enums.PPictureApplyStatusEnum;
-import com.lz.picture.model.enums.PPictureApplyTypeEnum;
+import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
 import com.lz.picture.service.IPictureApplyInfoService;
 import com.lz.picture.service.IPictureInfoService;
+import com.lz.picture.service.ISpaceInfoService;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.user.manager.UserAsyncManager;
 import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.enums.UInformTypeEnum;
@@ -61,6 +62,12 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     private ConfigInfoServiceImpl configInfoService;
     @Resource
     private RedisCache redisCache;
+
+    @Resource
+    private SpaceAuthUtils spaceAuthUtils;
+
+    @Resource
+    private ISpaceInfoService spaceInfoService;
 
     //region mybatis代码
 
@@ -328,7 +335,21 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
                 || pictureApplyInfo.getPointsNeed() < 0, "积分必须是10的倍数或者0");
         //判断图片是否存在，获取缩略图url
         PictureInfo pictureInfo = pictureInfoService.selectNormalPictureInfoByPictureId(pictureApplyInfo.getPictureId());
-        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo) || !pictureApplyInfo.getUserId().equals(pictureInfo.getUserId()), "图片不存在");
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo),
+                "图片不存在");
+        //查询图片空间是否是团队空间
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(pictureInfo.getSpaceId());
+        //如果是团队空间
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
+            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceMemberAnyPerm(
+                            spaceAuthUtils.buildSpaceMemberPerm(pictureInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_1.getValue()) + ","
+                                    + spaceAuthUtils.buildSpaceMemberPerm(pictureInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_0.getValue())),
+                    "您当前没有权限操作此图片");
+        }
+        //如果是个人空间或者团队空间
+        else {
+            ThrowUtils.throwIf(!pictureInfo.getUserId().equals(pictureApplyInfo.getUserId()), "图片不存在！！！");
+        }
         ThrowUtils.throwIf(pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "当前图片已经公开！！！");
         pictureApplyInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl());
         pictureApplyInfo.setPictureName(pictureInfo.getName());

@@ -131,13 +131,37 @@
             <a-space>
               <a
                 @click="handleOpenApply(record.pictureId)"
-                v-if="record.pictureStatus !== '0' && checkPermiSingle('picture:upload:apply')"
+                v-if="
+                  record.pictureStatus !== '0' &&
+                  checkPermiSingle('picture:upload:apply') &&
+                  checkSpacePermsAny([
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_1),
+                  ])
+                "
                 >公开</a
               >
-              <a @click="handleUpdate(record.pictureId)" v-if="checkPermiSingle('picture:upload')"
+              <a
+                @click="handleUpdate(record.pictureId)"
+                v-if="
+                  checkPermiSingle('picture:upload') &&
+                  checkSpacePermsAny([
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_1),
+                  ])
+                "
                 >修改</a
               >
-              <a @click="viewDetail(record)" v-if="checkPermiSingle('picture:upload:detail')"
+              <a
+                @click="viewDetail(record)"
+                v-if="
+                  checkPermiSingle('picture:upload:detail') &&
+                  checkSpacePermsAny([
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_1),
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_2),
+                  ])
+                "
                 >查看</a
               >
               <a-popconfirm
@@ -145,6 +169,12 @@
                 ok-text="是"
                 cancel-text="否"
                 @confirm="handleDelete(record)"
+                v-if="
+                  checkSpacePermsAny([
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_1),
+                  ]) && checkUser(record.userId)
+                "
               >
                 <a class="text-red-500">删除</a>
               </a-popconfirm>
@@ -309,18 +339,22 @@ import type {
   PictureCategoryInfoQuery,
   PictureCategoryInfoVo,
 } from '@/types/picture/pictureCategory'
-import { mySpaceInfo } from '@/api/picture/space.ts'
-import { getSpaceFolderInfo, listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
-import type { Space, SpaceQuery } from '@/types/picture/space'
+import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
-import { debounce } from 'lodash-es'
 import { useRoute, useRouter } from 'vue-router'
-import { checkPermiSingle } from '@/utils/permission.ts'
+import {
+  buildSpacePermByUser,
+  checkPermiSingle,
+  checkSpacePermsAny,
+  checkUser,
+} from '@/utils/permission.ts'
 import type { PictureApplyInfoAdd } from '@/types/picture/pictureApplyInfo.d.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import FileUpload from '@/components/FileUpload.vue'
 import { addPictureApplyInfo } from '@/api/picture/pictureApplyInfo.ts'
 import dayjs from 'dayjs'
+import { spacePerm } from '@/stores/modules/space.ts'
+import { PSpaceRole } from '@/types/picture/space.d.ts'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status, p_picture_apply_type } = proxy?.useDict(
@@ -330,7 +364,9 @@ const { p_picture_status, p_picture_apply_type } = proxy?.useDict(
 
 const pictureList = ref<any[]>([])
 const loading = ref(false)
-
+onMounted(async () => {
+  await spacePerm.loadSpacePerms()
+})
 //region 图片公开申请
 const title = ref('图片公开申请')
 const formApply = ref<PictureApplyInfoAdd>({

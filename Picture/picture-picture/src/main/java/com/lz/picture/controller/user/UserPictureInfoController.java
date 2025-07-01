@@ -226,20 +226,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
             userPictureInfoQuery.setPageSize(50);
         }
         PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
-        pictureInfo.setUserId(getUserId());
-        QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
-        Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
-        List<PictureInfo> pictureInfoList = getPictureInfos(page);
-        List<MyPictureInfoVo> userPictureInfoVos = MyPictureInfoVo.objToVo(pictureInfoList);
-        //压缩图片
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
-        for (MyPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
-        }
-        TableDataInfo tableDataInfo = new TableDataInfo();
-        tableDataInfo.setRows(userPictureInfoVos);
-        tableDataInfo.setTotal(page.getTotal());
-        return tableDataInfo;
+        return pictureInfoService.listMy(userPictureInfoQuery);
     }
 
     /**
