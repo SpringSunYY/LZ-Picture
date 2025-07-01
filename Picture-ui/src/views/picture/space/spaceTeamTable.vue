@@ -38,11 +38,13 @@
         :loading="loading"
         @change="handleTableChange"
         row-key="spaceId"
-        :scroll="{ x: 1000 }"
+        :scroll="{ x: 1200 }"
       >
         <template #bodyCell="{ column, text, record }">
           <template v-if="column.dataIndex === 'spaceName'">
-            <router-link :to="`/spaceManage/member?spaceId=${record.spaceId}`">{{ text }}</router-link>
+            <router-link :to="`/spaceManage/member?spaceId=${record.spaceId}`"
+              >{{ text }}
+            </router-link>
           </template>
           <template v-if="column.dataIndex === 'roleType'">
             <dict-tag :options="p_space_role" :value="text" />
@@ -61,7 +63,14 @@
           </template>
           <template v-if="column.dataIndex === 'action'">
             <a-space>
-              <a @click="handleInvitation(record.spaceId)" v-if="checkPermiSingle('space:invitation')">邀请</a>
+              <a
+                @click="handleInvitation(record.spaceId)"
+                v-if="
+                  checkPermiSingle('space:invitation') &&
+                  checkSpacePerm(buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0))
+                "
+                >邀请</a
+              >
             </a-space>
           </template>
         </template>
@@ -114,11 +123,7 @@
             </span>
           </template>
           <a-radio-group v-model:value="formInvitation.roleType" name="radioGroup">
-            <a-radio
-              v-for="dict in p_space_role"
-              :value="dict.dictValue"
-              :key="dict.dictValue"
-            >
+            <a-radio v-for="dict in p_space_role" :value="dict.dictValue" :key="dict.dictValue">
               {{ dict.dictLabel }}
             </a-radio>
           </a-radio-group>
@@ -127,7 +132,12 @@
           <a-input v-model:value="formInvitation.userName" placeholder="请输入用户账号" />
         </a-form-item>
         <a-form-item name="invitation" label="邀请理由">
-          <a-textarea :maxLength="512" :showCount="true" v-model:value="formInvitation.invitation" placeholder="请输入邀请理由" />
+          <a-textarea
+            :maxLength="512"
+            :showCount="true"
+            v-model:value="formInvitation.invitation"
+            placeholder="请输入邀请理由"
+          />
         </a-form-item>
         <div class="form-footer">
           <a-button @click="openInvitation = false">取消</a-button>
@@ -139,13 +149,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, getCurrentInstance } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import DictTag from '@/components/DictTag.vue'
 import { listUserTeamSpaceInfo } from '@/api/picture/space'
 import {
-  type UserTeamSpaceInfoVo,
-  type UserTeamSpaceInfoQuery,
   PSpaceRole,
+  type UserTeamSpaceInfoQuery,
+  type UserTeamSpaceInfoVo,
 } from '@/types/picture/space.d.ts'
 import { formatSize } from '@/utils/common.ts'
 import dayjs from 'dayjs'
@@ -153,7 +163,8 @@ import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vu
 import type { SpaceInvitationInfoAdd } from '@/types/picture/spaceInvitationInfo'
 import { message } from 'ant-design-vue'
 import { addSpaceInvitationInfo } from '@/api/picture/spaceInvitationInfo.ts'
-import { checkPermiSingle } from '@/utils/permission.ts'
+import { buildSpacePermByUser, checkPermiSingle, checkSpacePerm } from '@/utils/permission.ts'
+import { spacePerm } from '@/stores/modules/space.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -162,6 +173,9 @@ const { p_space_status, p_space_role, p_space_oss_type } = proxy?.useDict(
   'p_space_role',
   'p_space_oss_type',
 )
+onMounted(async () => {
+  await spacePerm.loadSpacePerms()
+})
 
 // region 表格数据
 const queryParams = ref<UserTeamSpaceInfoQuery>({
@@ -183,7 +197,7 @@ const pagination = ref({
 })
 
 const columns = [
-  { title: '空间名称', dataIndex: 'spaceName', width: 160 },
+  { title: '空间名称', dataIndex: 'spaceName', width: 120 },
   { title: '空间封面', dataIndex: 'spaceAvatar', width: 100 },
   { title: '存储类型', dataIndex: 'ossType', width: 80 },
   { title: '最大容量', dataIndex: 'maxSize', width: 80 },
@@ -192,20 +206,24 @@ const columns = [
   { title: '文件总数', dataIndex: 'totalCount', width: 80 },
   { title: '当前人数', dataIndex: 'currentMembers', width: 80 },
   { title: '成员上限', dataIndex: 'memberLimit', width: 80 },
-  { title: '空间状态', dataIndex: 'spaceStatus', width: 80 },
-  { title: '角色', dataIndex: 'roleType', width: 80 },
+  { title: '状态', dataIndex: 'spaceStatus', width: 70 },
+  { title: '角色', dataIndex: 'roleType', width: 70 },
   { title: '最后操作时间', dataIndex: 'lastActiveTime', width: 150, sorter: true },
   { title: '加入时间', dataIndex: 'createTime', width: 150, sorter: true },
   { title: '最后更新时间', dataIndex: 'lastUpdateTime', width: 150 },
-  { title: '操作', dataIndex: 'action', width: 140 },
+  { title: '操作', dataIndex: 'action', width: 80, fixed: 'right' },
 ]
 
 const getTeamSpaceList = () => {
   loading.value = true
   queryParams.value.params = {}
   if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
-    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
-    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0]
+      .format('YYYY-MM-DD')
+      .concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1]
+      .format('YYYY-MM-DD')
+      .concat(' 23:59:59')
   }
   listUserTeamSpaceInfo(queryParams.value).then((res) => {
     teamSpaceList.value = res?.rows || []

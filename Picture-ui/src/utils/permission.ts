@@ -1,4 +1,6 @@
 import useUserStore from '@/stores/modules/user'
+import { getSpacePerm } from '@/api/picture/space.ts'
+import { spacePerm } from '@/stores/modules/space.ts'
 
 /**
  * 字符权限校验：必须满足所有条件（AND）
@@ -91,4 +93,40 @@ export function checkUser(userId: string): boolean {
  */
 export function checkLogin(): boolean {
   return !!useUserStore().userId
+}
+
+/**
+ * 检查是否有指定空间权限
+ */
+export function checkSpacePerm(perm: string): boolean {
+  try {
+    return spacePerm.getSpacePerms().includes(perm)
+  } catch {
+    console.warn('权限未加载，暂时拒绝访问')
+    return false
+  }
+}
+
+/**
+ * 检查是否拥有任意一组权限
+ */
+export function checkSpacePermsAny(perms: string[]): boolean {
+  try {
+    return perms.some((p) => spacePerm.getSpacePerms().includes(p))
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 构建空间权限
+ * @param spaceId 空间编号
+ * @param roleType 角色类型
+ */
+export function buildSpacePermByUser(spaceId: string, roleType: string) {
+  return buildSpacePerm(useUserStore().userId, spaceId, roleType)
+}
+
+export function buildSpacePerm(userId: string, spaceId: string, roleType: string) {
+  return userId + ':' + spaceId + ':' + roleType
 }

@@ -83,7 +83,11 @@
               <a
                 v-if="
                   checkPermiSingle('space:invitation') &&
-                  record.roleType !== PSpaceRole.SPACE_ROLE_0
+                  record.roleType !== PSpaceRole.SPACE_ROLE_0 &&
+                  checkSpacePermsAny([
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_1),
+                  ])
                 "
                 @click="handleMember(record)"
                 >角色</a
@@ -171,13 +175,16 @@ import type {
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
-import { checkPermiSingle } from '@/utils/permission.ts'
+import { buildSpacePermByUser, checkPermiSingle, checkSpacePermsAny } from '@/utils/permission.ts'
 import { PSpaceRole } from '@/types/picture/space.d.ts'
+import { spacePerm } from '@/stores/modules/space.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
 const { p_space_role, p_space_join_type } = proxy?.useDict('p_space_role', 'p_space_join_type')
-
+onMounted(async () => {
+  await spacePerm.loadSpacePerms()
+})
 // region空间成员列表
 const route = useRoute()
 const spaceId = ref<string>(route.query.spaceId as string)
@@ -293,6 +300,7 @@ const handleMemberSubmit = () => {
       if (res.code === 200) {
         message.success('更新成功')
         openMember.value = false
+        spacePerm.refreshSpacePerms()
         getMemberList()
       } else {
         message.error('更新失败')

@@ -1,6 +1,5 @@
 import { forgetPassword, getInfo, login, logout, register, smsLogin } from '@/api/user/login.ts'
 import { getToken, removeToken, setToken } from '@/utils/token'
-import { isEmpty, isHttp } from '@/utils/validate'
 //@ts-ignore
 import defAva from '@/assets/images/profile.jpg'
 import { defineStore } from 'pinia'

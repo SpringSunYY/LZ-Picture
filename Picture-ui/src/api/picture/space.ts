@@ -66,3 +66,11 @@ export function listUserTeamSpaceInfo(
     params: params,
   })
 }
+
+//获取空间权限
+export function getSpacePerm():Promise<API.ResponseInfo<string[]>> {
+  return request({
+    url: '/picture/spaceInfo/perm',
+    method: 'get',
+  })
+}

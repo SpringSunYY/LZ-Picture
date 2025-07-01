@@ -490,6 +490,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
             spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
             UserTeamSpaceInfoVo userTeamSpaceInfoVo = new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
+            userTeamSpaceInfoVo.setUserId(spaceInfo.getUserId());
             userTeamSpaceInfoVo.setCurrentMembers(spaceMemberInfoService.getSpaceMemberNumberCount(memberInfo.getSpaceId()));
             return userTeamSpaceInfoVo;
         }).toList();

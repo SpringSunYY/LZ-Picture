@@ -24,12 +24,15 @@ import com.lz.picture.model.vo.spaceMemberInfo.SpaceMemberInfoVo;
 import com.lz.picture.model.vo.spaceMemberInfo.UserSpaceMemberInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.user.manager.UserAsyncManager;
 import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.service.IUserInfoService;
+import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -68,6 +71,10 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
 
     @Resource
     private OssConfig ossConfig;
+
+    @Resource
+    @Lazy
+    private SpaceAuthUtils spaceAuthUtils;
 
     //region mybatis代码
 
@@ -294,10 +301,13 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         ThrowUtils.throwIf(StringUtils.isNull(spaceMemberInfo), "空间成员不存在！！！");
         //如果是创建者则不能删除
         ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(PSpaceRoleEnum.SPACE_ROLE_0.getValue()), "创建者不能删除！！！");
+        SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceMemberInfo.getSpaceId());
+        String userId = UserInfoSecurityUtils.getUserId();
+        //如果删除的不是自己且自己不是空间创建者则不能删除
+        ThrowUtils.throwIf(!spaceMemberInfo.getUserId().equals(userId) && !spaceInfo.getUserId().equals(userId), "您不是空间创建者不可删除成员！！！");
         int i = spaceMemberInfoMapper.deleteSpaceMemberInfoByMemberId(memberId);
         if (i == 1) {
             Long spaceMemberNumberCount = this.getSpaceMemberNumberCount(spaceMemberInfo.getSpaceId());
-            SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceMemberInfo.getSpaceId());
             if (StringUtils.isNotNull(spaceInfo)) {
                 spaceInfoService.updateById(spaceInfo);
                 spaceInfo.setCurrentMembers(spaceMemberNumberCount);
@@ -336,6 +346,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                     CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
                     UInformTypeEnum.INFORM_TYPE_0.getValue(),
                     params));
+            spaceAuthUtils.deleteSpaceMemberPerm(spaceMemberInfo.getUserId());
         }
         return i;
     }
@@ -348,10 +359,15 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         //查询是否存在
         SpaceMemberInfo db = spaceMemberInfoMapper.selectSpaceMemberInfoByMemberId(spaceMemberInfo.getMemberId());
         ThrowUtils.throwIf(StringUtils.isNull(db), "空间成员不存在！！！");
+        ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceMemberAnyPerm(spaceAuthUtils.buildSpaceMemberPerm(db.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_0.getValue()) + "," + spaceAuthUtils.buildSpaceMemberPerm(db.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_1.getValue())),
+                "权限不足！！！");
         ThrowUtils.throwIf(db.getRoleType().equals(PSpaceRoleEnum.SPACE_ROLE_0.getValue()), "创建者不能修改角色！！！");
         ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(db.getRoleType()), "角色不能修改为相同角色！！！");
         deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
         spaceMemberInfo.setUpdateTime(DateUtils.getNowDate());
+        spaceAuthUtils.deleteSpaceMemberPerm(db.getUserId());
+        this.deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
+        spaceMemberInfo.setUserId(null);
         return spaceMemberInfoMapper.updateSpaceMemberInfo(spaceMemberInfo);
     }
 

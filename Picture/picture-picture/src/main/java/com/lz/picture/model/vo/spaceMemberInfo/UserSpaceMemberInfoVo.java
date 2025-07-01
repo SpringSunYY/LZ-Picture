@@ -41,6 +41,11 @@ public class UserSpaceMemberInfoVo implements Serializable {
     private String userName;
 
     /**
+     * 用户编号
+     */
+    private String userId;
+
+    /**
      * 用户头像
      */
     private String avatarUrl;
@@ -66,6 +71,11 @@ public class UserSpaceMemberInfoVo implements Serializable {
      * 邀请人编号
      */
     private String inviterUserName;
+
+    /**
+     * 邀请人编号
+     */
+    private String inviterUserId;
 
     /**
      * 加入方式（0邀请）数据字典：p_space_join_type
