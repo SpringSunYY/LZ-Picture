@@ -1,6 +1,8 @@
 package com.lz.picture.utils;
 
+import com.lz.common.constant.Constants;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.service.ISpaceMemberInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
@@ -86,6 +88,9 @@ public class SpaceAuthUtils {
      * @date: 2025/7/1 17:15
      **/
     public boolean checkSpaceMemberPerm(String userId, String permission) {
+        if (StringUtils.isEmpty( permission)) {
+            return false;
+        }
         Set<String> spaceMemberPerm = getSpaceMemberPerm(userId);
         for (String perm : spaceMemberPerm) {
             if (perm.contains(permission)) {
@@ -93,6 +98,33 @@ public class SpaceAuthUtils {
             }
         }
         return false;
+    }
+
+    public boolean checkSpaceMemberPerm(String permission) {
+        return checkSpaceMemberPerm(UserInfoSecurityUtils.getUserId(), permission);
+    }
+
+    /**
+     * 是否包含任意权限
+     * @param userId 用户编号
+     * @param permission 权限，使用，分割
+     * @return
+     */
+    public boolean checkSpaceMemberAnyPerm(String userId,String permission) {
+        if (StringUtils.isEmpty( permission)) {
+            return false;
+        }
+        String[] perms = permission.split(Constants.PERMISSION_DELIMETER);
+        for (String perm : perms) {
+            if (checkSpaceMemberPerm(userId, perm)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkSpaceMemberAnyPerm(String permission) {
+        return checkSpaceMemberAnyPerm(UserInfoSecurityUtils.getUserId(), permission);
     }
 
     /**
