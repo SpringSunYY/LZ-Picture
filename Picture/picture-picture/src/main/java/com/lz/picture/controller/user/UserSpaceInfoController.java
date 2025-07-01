@@ -12,6 +12,7 @@ import com.lz.picture.model.dto.spaceInfo.*;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +43,9 @@ public class UserSpaceInfoController extends BaseUserInfoController {
 
     @Resource
     private OssConfig ossConfig;
+
+    @Resource
+    private SpaceAuthUtils spaceAuthUtils;
 
     @PreAuthorize("@uss.hasPermi('picture:space:add')")
     @PostMapping
@@ -116,5 +120,11 @@ public class UserSpaceInfoController extends BaseUserInfoController {
     public AjaxResult getInfo(@PathVariable("spaceId") String spaceId) {
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceId);
         return success(UserSpaceInfoVo.objToVo(spaceInfo));
+    }
+
+    @PreAuthorize("@uss.hasPermi('space:member')")
+    @GetMapping("/perm")
+    public AjaxResult getPerm() {
+        return success(spaceAuthUtils.getSpaceMemberPerm());
     }
 }

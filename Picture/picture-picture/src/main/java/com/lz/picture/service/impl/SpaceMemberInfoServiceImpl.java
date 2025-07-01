@@ -354,4 +354,9 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         spaceMemberInfo.setUpdateTime(DateUtils.getNowDate());
         return spaceMemberInfoMapper.updateSpaceMemberInfo(spaceMemberInfo);
     }
+
+    @Override
+    public List<SpaceMemberInfo> selectSpaceMemberInfoByUserId(String userId) {
+        return this.list(new LambdaQueryWrapper<SpaceMemberInfo>().eq(SpaceMemberInfo::getUserId, userId));
+    }
 }

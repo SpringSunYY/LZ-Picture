@@ -117,4 +117,11 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo> {
      * @return int
      **/
     int userUpdateSpaceMemberInfo(SpaceMemberInfo spaceMemberInfo);
+
+    /**
+     * 获取用户所加入的团队空间
+     * @param userId
+     * @return
+     */
+    List<SpaceMemberInfo> selectSpaceMemberInfoByUserId(String userId);
 }
