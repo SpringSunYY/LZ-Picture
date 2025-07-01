@@ -42,7 +42,7 @@ public class SpaceMemberInfoVo implements Serializable {
     /**
      * 角色（0创建者 1管理员 2编辑者 3浏览者）
      */
-    @Excel(name = "角色", readConverterExp = "0=创建者,1=管理员,2=编辑者,3=浏览者")
+    @Excel(name = "角色", readConverterExp = "0=创建者,1=编辑者,2=预览者")
     private String roleType;
 
     /**

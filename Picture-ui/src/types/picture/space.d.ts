@@ -273,14 +273,12 @@ export enum PSpaceRole {
   SPACE_ROLE_0 = '0',
   SPACE_ROLE_1 = '1',
   SPACE_ROLE_2 = '2',
-  SPACE_ROLE_3 = '3',
 }
 
 export const PSpaceRoleLabels = {
   [PSpaceRole.SPACE_ROLE_0]: '创建者',
-  [PSpaceRole.SPACE_ROLE_1]: '管理员',
-  [PSpaceRole.SPACE_ROLE_2]: '编辑者',
-  [PSpaceRole.SPACE_ROLE_3]: '预览者',
+  [PSpaceRole.SPACE_ROLE_1]: '编辑者',
+  [PSpaceRole.SPACE_ROLE_2]: '浏览者',
 }
 
 /**

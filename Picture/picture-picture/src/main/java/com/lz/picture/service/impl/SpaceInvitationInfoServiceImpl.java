@@ -197,8 +197,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         //判断角色是否是允许的状态
         String roleType = spaceInvitationInfo.getRoleType();
         ThrowUtils.throwIf(!roleType.equals(PSpaceRoleEnum.SPACE_ROLE_1.getValue())
-                && !roleType.equals(PSpaceRoleEnum.SPACE_ROLE_2.getValue())
-                && !roleType.equals(PSpaceRoleEnum.SPACE_ROLE_3.getValue()), HttpStatus.BAD_REQUEST, "角色类型错误");
+                && !roleType.equals(PSpaceRoleEnum.SPACE_ROLE_2.getValue()), HttpStatus.BAD_REQUEST, "角色类型错误");
         //查询空间是否是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(spaceInvitationInfo.getSpaceId());
         ThrowUtils.throwIf(StringUtils.isNull(spaceInfo) || !spaceInfo.getUserId().equals(spaceInvitationInfo.getInvitationUserId()), "空间不存在");

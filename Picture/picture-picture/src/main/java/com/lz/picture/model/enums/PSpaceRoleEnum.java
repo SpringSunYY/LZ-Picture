@@ -20,17 +20,13 @@ public enum PSpaceRoleEnum {
     /**
      * 管理员
      */
-    SPACE_ROLE_1("1", "管理员"),
+    SPACE_ROLE_1("1", "编辑者"),
 
     /**
      * 编辑者
      */
-    SPACE_ROLE_2("2", "编辑者"),
+    SPACE_ROLE_2("2", "预览者");
 
-    /**
-     * 预览者
-     */
-    SPACE_ROLE_3("3", "预览者");
 
     private final String value;
     private final String label;
