@@ -199,8 +199,9 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                 .eq(StringUtils.isNotEmpty(spaceId), SpaceMemberInfo::getSpaceId, spaceId));
     }
 
-    public List<SpaceMemberInfo> listUserJoinSpace(String spaceId, String userId) {
-        return this.list(new LambdaQueryWrapper<SpaceMemberInfo>()
+    @Override
+    public SpaceMemberInfo userIsJoinSpace(String spaceId, String userId) {
+        return this.getOne(new LambdaQueryWrapper<SpaceMemberInfo>()
                 .eq(SpaceMemberInfo::getSpaceId, spaceId)
                 .eq(SpaceMemberInfo::getUserId, userId));
     }
@@ -215,8 +216,8 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
             return redisCache.getCacheObject(keyData);
         }
         //先根据用户查询他是否再此空间，如果不在直接返回 空对象
-        List<SpaceMemberInfo> spaceMemberInfoList = this.listUserJoinSpace(query.getSpaceId(), query.getUserId());
-        if (StringUtils.isEmpty(spaceMemberInfoList)) {
+        SpaceMemberInfo spaceMemberInfoList = this.userIsJoinSpace(query.getSpaceId(), query.getUserId());
+        if (StringUtils.isNull(spaceMemberInfoList)) {
             redisCache.setCacheObject(keyData, new TableDataInfo(), PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
             return new TableDataInfo();
         }
@@ -346,7 +347,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                     CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
                     UInformTypeEnum.INFORM_TYPE_0.getValue(),
                     params));
-            spaceAuthUtils.deleteSpaceMemberPerm(spaceMemberInfo.getUserId());
+            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getUserId());
         }
         return i;
     }
@@ -365,7 +366,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(db.getRoleType()), "角色不能修改为相同角色！！！");
         deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
         spaceMemberInfo.setUpdateTime(DateUtils.getNowDate());
-        spaceAuthUtils.deleteSpaceMemberPerm(db.getUserId());
+        spaceAuthUtils.deleteSpacePerm(db.getUserId());
         this.deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
         spaceMemberInfo.setUserId(null);
         return spaceMemberInfoMapper.updateSpaceMemberInfo(spaceMemberInfo);

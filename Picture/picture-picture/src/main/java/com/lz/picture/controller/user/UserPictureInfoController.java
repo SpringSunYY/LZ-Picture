@@ -171,6 +171,22 @@ public class UserPictureInfoController extends BaseUserInfoController {
     }
 
     /**
+     * 获取图片列表
+     */
+    @PreAuthorize("@uss.hasPermi('picture:picture:pictureTeamTable')")
+    @GetMapping("/list/my/space/table")
+    public TableDataInfo listMyPictureTable(UserPictureInfoQuery userPictureInfoQuery) {
+        if (StringUtils.isNull(userPictureInfoQuery.getPageSize())) {
+            userPictureInfoQuery.setPageSize(50);
+        }
+        if (userPictureInfoQuery.getPageSize() > 50) {
+            userPictureInfoQuery.setPageSize(50);
+        }
+        userPictureInfoQuery.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        return pictureInfoService.listPictureInfoTeamTable(userPictureInfoQuery);
+    }
+
+    /**
      * 图片列表
      */
     @SearchLog(searchType = "0", referSource = "0")

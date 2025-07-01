@@ -96,6 +96,15 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo> {
     Long getSpaceMemberNumberCount(String spaceId);
 
     /**
+     * 判断用户是否加入此空间
+     *
+     * @param spaceId 空间编号
+     * @param userId 用户编号
+     * @return
+     */
+    SpaceMemberInfo userIsJoinSpace(String spaceId, String userId);
+
+    /**
      * 获取用户空间成员列表
      *
      * @param query
@@ -110,16 +119,18 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo> {
 
     /**
      * 用户更新空间成员
+     *
+     * @param spaceMemberInfo 空间成员对象
+     * @return int
      * @author: YY
      * @method: userUpdateSpaceMemberInfo
      * @date: 2025/7/1 16:34
-     * @param spaceMemberInfo 空间成员对象
-     * @return int
      **/
     int userUpdateSpaceMemberInfo(SpaceMemberInfo spaceMemberInfo);
 
     /**
      * 获取用户所加入的团队空间
+     *
      * @param userId
      * @return
      */

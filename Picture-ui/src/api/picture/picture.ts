@@ -165,6 +165,15 @@ export function listMyTable(
     method: 'get',
     params: params,
   })
+}//我的图片表格
+export function listMyTeamTable(
+  params: PictureInfoQuery
+): Promise<API.ResponseInfo<PictureInfoTableVo>> {
+  return request({
+    url: '/picture/pictureInfo/list/my/space/table',
+    method: 'get',
+    params: params
+  })
 }
 
 //修改图片名字

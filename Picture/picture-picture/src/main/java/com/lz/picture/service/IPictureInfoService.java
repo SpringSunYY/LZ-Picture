@@ -250,4 +250,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/6/19 20:30
      **/
     int userDeletePictureInfoByIds(String[] pictureIds);
+
+    /**
+     * 获取团队空间图片
+     *
+     * @param userPictureInfoQuery 团队空间
+     * @return TableDataInfo
+     * @author: YY
+     * @method: listPictureInfoTeamTable
+     * @date: 2025/7/1 19:58
+     **/
+    TableDataInfo listPictureInfoTeamTable(UserPictureInfoQuery userPictureInfoQuery);
 }

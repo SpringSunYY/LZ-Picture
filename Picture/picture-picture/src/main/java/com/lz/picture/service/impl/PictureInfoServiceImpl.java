@@ -131,6 +131,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Resource
     private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
 
+    @Resource
+    @Lazy
+    private ISpaceMemberInfoService spaceMemberInfoService;
+
     //region mybatis代码
 
     /**
@@ -1101,21 +1105,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public TableDataInfo listPictureInfoTable(UserPictureInfoQuery userPictureInfoQuery) {
         String jsonStr = JSON.toJSONString(userPictureInfoQuery);
         //查询缓存是否存在
-        String keyData = PICTURE_PICTURE_TABLE_DATE + userPictureInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE +
+        String keyData = PICTURE_PICTURE_TABLE_PERSON + userPictureInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE +
                 jsonStr;
-        List<PictureInfoTableVo> vos = new ArrayList<>();
-        if (redisCache.hasKey(keyData)) {
-            vos = redisCache.getCacheObject(keyData);
-        }
-        String keyTotal = PICTURE_PICTURE_TABLE_TOTAL + userPictureInfoQuery.getUserId() + COMMON_SEPARATOR_CACHE +
-                jsonStr;
-        Long total = 0L;
-        if (redisCache.hasKey(keyTotal)) {
-            total = redisCache.getCacheObject(keyTotal);
-        }
+        return getTableDataInfo(userPictureInfoQuery, keyData);
+    }
+
+    private TableDataInfo getTableDataInfo(UserPictureInfoQuery userPictureInfoQuery, String keyData) {
         //如果都存在，直接返回
-        if (StringUtils.isNotEmpty(vos) && StringUtils.isNotNull(total)) {
-            return new TableDataInfo(vos, Math.toIntExact(total));
+        if (redisCache.hasKey(keyData)) {
+            return redisCache.getCacheObject(keyData);
         }
         //构造查询条件
         Page<PictureInfo> pictureInfoPage = new Page<>();
@@ -1157,9 +1155,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //如果为空，直接缓存，返回
         List<PictureInfo> records = page.getRecords();
         if (StringUtils.isEmpty(records)) {
-            redisCache.setCacheObject(keyData, records, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
-            return new TableDataInfo(records, (int) page.getTotal());
+            TableDataInfo tableDataInfo = new TableDataInfo(records, (int) page.getTotal());
+            redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+            return tableDataInfo;
         }
         //转换为 vo 并且转换地址
         //压缩图片
@@ -1205,9 +1203,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             }
         });
         //存入缓存并返回信息
-        redisCache.setCacheObject(keyData, pictureInfoTableVos, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
-        redisCache.setCacheObject(keyTotal, page.getTotal(), PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME, TimeUnit.SECONDS);
-        return new TableDataInfo(pictureInfoTableVos, (int) page.getTotal());
+        TableDataInfo tableDataInfo = new TableDataInfo(pictureInfoTableVos, (int) page.getTotal());
+        redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME, TimeUnit.SECONDS);
+        return tableDataInfo;
     }
 
     @Override
@@ -1250,8 +1248,24 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return this.updateBatchById(pictureInfos) ? 1 : 0;
     }
 
+    @Override
+    public TableDataInfo listPictureInfoTeamTable(UserPictureInfoQuery userPictureInfoQuery) {
+        if (StringUtils.isEmpty(userPictureInfoQuery.getSpaceId())) {
+            throw new ServiceException("空间编号不能为空");
+        }
+        SpaceMemberInfo spaceMemberInfo = spaceMemberInfoService.userIsJoinSpace(userPictureInfoQuery.getSpaceId(), UserInfoSecurityUtils.getUserId());
+
+        String jsonStr = JSON.toJSONString(userPictureInfoQuery);
+        //查询缓存是否存在
+        String keyData = PICTURE_PICTURE_TABLE_PERSON + userPictureInfoQuery.getSpaceId() + COMMON_SEPARATOR_CACHE +
+                jsonStr;
+        if (StringUtils.isNull(spaceMemberInfo)) {
+            throw new ServiceException("您没有加入此空间");
+        }
+        return getTableDataInfo(userPictureInfoQuery, keyData);
+    }
+
     public void deletePictureTableCacheByUserId(String userId) {
-        redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_DATE + userId + "*");
-        redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_TOTAL + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_PERSON + userId + "*");
     }
 }

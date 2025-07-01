@@ -14,6 +14,7 @@ import com.lz.picture.model.enums.PSpaceStatusEnum;
 import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
 import com.lz.picture.service.ISpaceFolderInfoService;
 import com.lz.picture.service.ISpaceInfoService;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +40,9 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
 
     @Resource
     private ISpaceInfoService spaceInfoService;
+
+    @Resource
+    private SpaceAuthUtils spaceAuthUtils;
 
     /**
      * 添加文件夹
@@ -99,7 +103,8 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
         }
         //如果空间为私有
         if (spaceInfo.getSpaceType().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
-                && !spaceInfo.getUserId().equals(getLoginUser().getUserId())) {
+                && !spaceInfo.getUserId().equals(getLoginUser().getUserId())
+                && !spaceAuthUtils.checkUserJoinSpace(spaceInfo.getSpaceId())) {
             throw new ServiceException("您没有权限访问该空间");
         }
         List<SpaceFolderInfoVo> infoVos = spaceFolderInfoService.selectSpaceFolderInfoList(spaceFolderInfo)

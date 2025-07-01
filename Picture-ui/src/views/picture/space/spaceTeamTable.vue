@@ -71,6 +71,9 @@
                 "
                 >邀请</a
               >
+              <router-link :to="`/spaceManage/pictureTeamTable?spaceId=${record.spaceId}&spaceName=${record.spaceName}`"
+              >查看
+              </router-link>
             </a-space>
           </template>
         </template>
@@ -211,7 +214,7 @@ const columns = [
   { title: '最后操作时间', dataIndex: 'lastActiveTime', width: 150, sorter: true },
   { title: '加入时间', dataIndex: 'createTime', width: 150, sorter: true },
   { title: '最后更新时间', dataIndex: 'lastUpdateTime', width: 150 },
-  { title: '操作', dataIndex: 'action', width: 80, fixed: 'right' },
+  { title: '操作', dataIndex: 'action', width: 100, fixed: 'right' },
 ]
 
 const getTeamSpaceList = () => {

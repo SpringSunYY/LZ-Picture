@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 用户空间权限类
@@ -30,7 +31,8 @@ public class SpaceAuthUtils {
     @Resource
     private RedisCache redisCache;
 
-    public static final String SPACE_MEMBER_INFO_KEY = "picture:space:user:";
+    public static final String SPACE_MEMBER_INFO_KEY = "picture:space:user:member";
+    public static final String SPACE_MEMBER_INFO_KEY_USER = "picture:space:user:space:";
 
     // 令牌有效期（默认30分钟）
     @Value("${token.user.expireTime}")
@@ -88,7 +90,7 @@ public class SpaceAuthUtils {
      * @date: 2025/7/1 17:15
      **/
     public boolean checkSpaceMemberPerm(String userId, String permission) {
-        if (StringUtils.isEmpty( permission)) {
+        if (StringUtils.isEmpty(permission)) {
             return false;
         }
         Set<String> spaceMemberPerm = getSpaceMemberPerm(userId);
@@ -106,12 +108,13 @@ public class SpaceAuthUtils {
 
     /**
      * 是否包含任意权限
-     * @param userId 用户编号
+     *
+     * @param userId     用户编号
      * @param permission 权限，使用，分割
      * @return
      */
-    public boolean checkSpaceMemberAnyPerm(String userId,String permission) {
-        if (StringUtils.isEmpty( permission)) {
+    public boolean checkSpaceMemberAnyPerm(String userId, String permission) {
+        if (StringUtils.isEmpty(permission)) {
             return false;
         }
         String[] perms = permission.split(Constants.PERMISSION_DELIMETER);
@@ -154,5 +157,37 @@ public class SpaceAuthUtils {
      **/
     public String buildSpaceMemberPerm(String spaceId, String roleType) {
         return buildSpaceMemberPerm(UserInfoSecurityUtils.getUserId(), spaceId, roleType);
+    }
+
+    /**
+     * 获取用户加入的空间
+     */
+    public Set<String> getUserJoinSpace() {
+        String userId = UserInfoSecurityUtils.getUserId();
+        String key = SPACE_MEMBER_INFO_KEY_USER + userId;
+        if (redisCache.hasKey(key)) {
+            return redisCache.getCacheObject(key);
+        }
+        List<SpaceMemberInfo> spaceMemberInfos = spaceMemberInfoService.selectSpaceMemberInfoByUserId(userId);
+        Set<String> collect = spaceMemberInfos.stream().map(SpaceMemberInfo::getSpaceId).collect(Collectors.toSet());
+        redisCache.setCacheObject(key, collect, expireTime, TimeUnit.MINUTES);
+        return collect;
+    }
+
+    public boolean checkUserJoinSpace(String spaceId) {
+        return getUserJoinSpace().contains(spaceId);
+    }
+
+    public void deleteUserJoinSpace(String userId) {
+        String key = SPACE_MEMBER_INFO_KEY_USER + userId;
+        redisCache.deleteObject(key);
+    }
+
+    /**
+     * 删除空间权限 用户编号
+     */
+    public void deleteSpacePerm(String userId) {
+        deleteUserJoinSpace(userId);
+        deleteSpaceMemberPerm(userId);
     }
 }

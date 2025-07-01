@@ -22,21 +22,17 @@ public class PictureRedisConstants {
     /**
      * 图片信息表格
      */
-    public static final String PICTURE_PICTURE_TABLE_DATE = "picture:picture:table:data:";
+    public static final String PICTURE_PICTURE_TABLE_PERSON = "picture:picture:table:person:";
+
+    /**
+     * 图片信息表格空间
+     */
+    public static final String PICTURE_PICTURE_TABLE_SPACE = "picture:picture:table:space:";
 
     /**
      * 图片信息表格缓存时间
      */
     public static final Integer PICTURE_PICTURE_TABLE_DATE_EXPIRE_TIME = 5 * 60;
-
-    /**
-     * 图片信息表格总数
-     */
-    public static final String PICTURE_PICTURE_TABLE_TOTAL = "picture:picture:table:total";
-    /**
-     * 图片信息表格总数缓存时间
-     */
-    public static final Integer PICTURE_PICTURE_TABLE_TOTAL_EXPIRE_TIME = 5 * 60;
     /**
      * 空间信息个人表格
      */
