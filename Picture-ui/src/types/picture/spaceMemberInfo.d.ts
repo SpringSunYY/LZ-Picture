@@ -1,4 +1,17 @@
 /**
+ * 空间成员更新参数
+ * 对应后端：SpaceMemberInfoUpdate
+ */
+export interface SpaceMemberInfoUpdate {
+  /** 成员编号 */
+  memberId: string;
+
+  /** 角色（0创建者 1管理员 2编辑者 3浏览者） */
+  roleType: string;
+}
+
+
+/**
  * 空间成员信息 Vo 对象（p_space_member_info）
  * @date 2025-03-24
  */

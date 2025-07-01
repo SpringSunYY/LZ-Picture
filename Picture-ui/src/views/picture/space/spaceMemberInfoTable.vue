@@ -68,17 +68,89 @@
             <span v-else>-</span>
           </template>
           <template v-if="column.dataIndex === 'action'">
-            <a-popconfirm
-              title="确定要删除吗，删除之后成员将被踢出团队空间?"
-              ok-text="是"
-              cancel-text="否"
-              @confirm="handleDelete(record)"
-              ><a style="color: red">删除</a>
-            </a-popconfirm>
+            <a-space>
+              <a-popconfirm
+                v-if="
+                  checkPermiSingle('space:invitation') &&
+                  record.roleType !== PSpaceRole.SPACE_ROLE_0
+                "
+                title="确定要删除吗，删除之后成员将被踢出团队空间?"
+                ok-text="是"
+                cancel-text="否"
+                @confirm="handleDelete(record)"
+                ><a style="color: red">删除</a>
+              </a-popconfirm>
+              <a
+                v-if="
+                  checkPermiSingle('space:invitation') &&
+                  record.roleType !== PSpaceRole.SPACE_ROLE_0
+                "
+                @click="handleMember(record)"
+                >角色</a
+              >
+            </a-space>
           </template>
         </template>
       </a-table>
     </a-card>
+
+    <a-modal v-model:open="openMember" destroy-on-close :footer="null">
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip title="您可以根据不同需求扩容空间的信息">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formMember"
+        :label-col="{ span: 5 }"
+        :rules="rules"
+        :wrapper-col="{ span: 17 }"
+        @finish="handleMemberSubmit"
+        ref="formRef"
+        layout="horizontal"
+      >
+        <a-form-item name="roleType">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              成员角色
+              <a-tooltip>
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+                <template #title>
+                  <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                    注意事项：<br />
+                    1. 创建者不可选；<br />
+                    2. 根据不同的角色，邀请成功的用户会获得不同的角色权限；<br />
+                    3. 当成员超过上限时，可以扩容成员角色。<br />
+                  </div>
+                </template>
+              </a-tooltip>
+            </span>
+          </template>
+          <a-radio-group v-model:value="formMember.roleType" name="radioGroup">
+            <a-radio v-for="dict in p_space_role" :value="dict.dictValue" :key="dict.dictValue">
+              {{ dict.dictLabel }}
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <div class="form-footer">
+          <a-button @click="openMember = false">取消</a-button>
+          <a-button type="primary" html-type="submit" :loading="memberLoading">提交</a-button>
+        </div>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -86,10 +158,21 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import dayjs from 'dayjs'
 import DictTag from '@/components/DictTag.vue'
-import { deleteSpaceMemberInfo, listSpaceMemberInfo } from '@/api/picture/spaceMemberInfo'
-import type { SpaceMemberInfoQuery, SpaceMemberInfoVo } from '@/types/picture/spaceMemberInfo.d.ts'
+import {
+  deleteSpaceMemberInfo,
+  listSpaceMemberInfo,
+  updateSpaceMemberInfo,
+} from '@/api/picture/spaceMemberInfo'
+import type {
+  SpaceMemberInfoQuery,
+  SpaceMemberInfoUpdate,
+  SpaceMemberInfoVo,
+} from '@/types/picture/spaceMemberInfo.d.ts'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { checkPermiSingle } from '@/utils/permission.ts'
+import { PSpaceRole } from '@/types/picture/space.d.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -177,10 +260,47 @@ const handleTableChange = (pag, filters, sorter) => {
 //endregion
 //region 删除
 const handleDelete = (record) => {
-  deleteSpaceMemberInfo(record.memberId).then(res => {
+  deleteSpaceMemberInfo(record.memberId).then((res) => {
     message.success('删除成功！！！')
     getMemberList()
   })
+}
+//endregion
+//region 更改角色
+const title = ref<string>('修改用户角色')
+const formMember = ref<SpaceMemberInfoUpdate>({
+  memberId: '',
+  roleType: '',
+})
+const openMember = ref(false)
+const memberLoading = ref(false)
+const rules = {
+  roleType: [{ required: true, message: '请选择角色', trigger: 'change' }],
+}
+const handleMember = (record: SpaceMemberInfoVo) => {
+  formMember.value.memberId = record.memberId
+  formMember.value.roleType = record.roleType
+  openMember.value = true
+}
+const handleMemberSubmit = () => {
+  if (formMember.value.roleType === PSpaceRole.SPACE_ROLE_0) {
+    message.warning('不可给用户改为创建者')
+    return
+  }
+  memberLoading.value = true
+  updateSpaceMemberInfo(formMember.value)
+    .then((res) => {
+      if (res.code === 200) {
+        message.success('更新成功')
+        openMember.value = false
+        getMemberList()
+      } else {
+        message.error('更新失败')
+      }
+    })
+    .finally(() => {
+      memberLoading.value = false
+    })
 }
 //endregion
 onMounted(getMemberList)
@@ -188,5 +308,33 @@ onMounted(getMemberList)
 <style scoped lang="scss">
 .space-member-table {
   margin: 0 2em;
+}
+
+.custom-modal-title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+
+  .title-tip-icon {
+    margin-left: 8px;
+    color: rgba(57, 57, 57, 0.45);
+    cursor: help;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #1890ff;
+    }
+  }
+}
+
+.form-footer {
+  text-align: right;
+  padding: 16px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-btn {
+    margin-left: 10px;
+  }
 }
 </style>

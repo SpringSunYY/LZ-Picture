@@ -2020,11 +2020,17 @@ CREATE TABLE p_space_member_info
     FOREIGN KEY (space_id) REFERENCES p_space_info (space_id),
     FOREIGN KEY (user_id) REFERENCES u_user_info (user_id),
     FOREIGN KEY (inviter_user_id) REFERENCES u_user_info (user_id) ON DELETE SET NULL,
-    UNIQUE KEY uk_space_user (space_id, user_id),
     INDEX idx_role_type (role_type),
     INDEX idx_join_type (join_type)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='空间成员信息表';
+```
+
+```
+1939242093757804546,1939242093233516546,1,0,2025-06-29 16:38:39,2025-06-29 16:38:39,,1,0,
+1939281066353954818,1939281066286845953,1,0,2025-06-29 19:13:30,2025-06-29 19:13:31,,1,0,
+1939689377364643841,1939242093233516546,2,1,2025-06-30 22:15:59,2025-06-30 22:16:00,,1,1,
+
 ```
 
 

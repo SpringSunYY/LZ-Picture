@@ -8,16 +8,14 @@ import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.SpaceMemberInfo;
-import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoEdit;
-import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoInsert;
-import com.lz.picture.model.dto.spaceMemberInfo.SpaceMemberInfoQuery;
-import com.lz.picture.model.dto.spaceMemberInfo.UserSpaceMemberInfoQuery;
+import com.lz.picture.model.dto.spaceMemberInfo.*;
 import com.lz.picture.model.vo.spaceMemberInfo.SpaceMemberInfoVo;
 import com.lz.picture.service.ISpaceMemberInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,5 +59,16 @@ public class UserSpaceMemberInfoController extends BaseUserInfoController
     public AjaxResult remove(@RequestBody @PathVariable("memberId") String memberId)
     {
         return toAjax(spaceMemberInfoService.userDeleteSpaceMemberInfoByMemberId(memberId));
+    }
+
+    /**
+     * 更新团队空间用户角色
+     */
+    @PreAuthorize("@uss.hasPermi('space:member')")
+    @PutMapping()
+    public AjaxResult update(@RequestBody @Validated SpaceMemberInfoUpdate spaceMemberInfoUpdate){
+        SpaceMemberInfo spaceMemberInfo = SpaceMemberInfoUpdate.editToObj(spaceMemberInfoUpdate);
+        spaceMemberInfo.setUserId(getUserId());
+        return toAjax(spaceMemberInfoService.userUpdateSpaceMemberInfo(spaceMemberInfo));
     }
 }

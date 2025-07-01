@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_DELETE;
-import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_SUCCESS;
 import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME;
@@ -339,5 +338,20 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                     params));
         }
         return i;
+    }
+
+    @Override
+    public int userUpdateSpaceMemberInfo(SpaceMemberInfo spaceMemberInfo) {
+        //校验是否是可以更新的角色
+        ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(PSpaceRoleEnum.SPACE_ROLE_0.getValue()), "创建者不能修改角色！！！");
+        ThrowUtils.throwIf(PSpaceRoleEnum.getEnumByValue(spaceMemberInfo.getRoleType()).isEmpty(), "角色类型错误");
+        //查询是否存在
+        SpaceMemberInfo db = spaceMemberInfoMapper.selectSpaceMemberInfoByMemberId(spaceMemberInfo.getMemberId());
+        ThrowUtils.throwIf(StringUtils.isNull(db), "空间成员不存在！！！");
+        ThrowUtils.throwIf(db.getRoleType().equals(PSpaceRoleEnum.SPACE_ROLE_0.getValue()), "创建者不能修改角色！！！");
+        ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(db.getRoleType()), "角色不能修改为相同角色！！！");
+        deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
+        spaceMemberInfo.setUpdateTime(DateUtils.getNowDate());
+        return spaceMemberInfoMapper.updateSpaceMemberInfo(spaceMemberInfo);
     }
 }

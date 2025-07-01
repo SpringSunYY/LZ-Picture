@@ -88,7 +88,7 @@
         ref="formRef"
         layout="horizontal"
       >
-        <a-form-item name="applyType">
+        <a-form-item name="roleType">
           <template #label>
             <span style="display: inline-flex; align-items: center">
               成员角色

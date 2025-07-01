@@ -107,4 +107,14 @@ public interface ISpaceMemberInfoService extends IService<SpaceMemberInfo> {
     void deleteSpaceMemberCacheBySpaceId(String spaceId);
 
     int userDeleteSpaceMemberInfoByMemberId(String memberId);
+
+    /**
+     * 用户更新空间成员
+     * @author: YY
+     * @method: userUpdateSpaceMemberInfo
+     * @date: 2025/7/1 16:34
+     * @param spaceMemberInfo 空间成员对象
+     * @return int
+     **/
+    int userUpdateSpaceMemberInfo(SpaceMemberInfo spaceMemberInfo);
 }
