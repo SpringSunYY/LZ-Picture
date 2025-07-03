@@ -12,7 +12,7 @@
           />
         </a-form-item>
         <!-- 分类选择 -->
-        <a-form-item label="图片分类" name="categoryId" style="width: 250px">
+        <a-form-item name="categoryId" style="width: 250px">
           <a-cascader
             v-model:value="queryParams.categoryId"
             :options="pictureCategoryList"
@@ -26,7 +26,7 @@
             }"
           />
         </a-form-item>
-        <a-form-item label="图片空间" name="spaceId" style="width: 250px">
+        <a-form-item name="spaceId" style="width: 250px">
           <a-select
             show-search
             v-model:value="queryParams.spaceId"
@@ -42,7 +42,7 @@
             :not-found-content="spaceLoading"
           />
         </a-form-item>
-        <a-form-item label="图片文件夹" style="width: 250px">
+        <a-form-item style="width: 250px">
           <a-cascader
             v-model:value="queryParams.folderId"
             :options="folderList"
@@ -596,11 +596,7 @@ const getMySpaceList = () => {
   spaceLoading.value = true
   // 获取我的空间列表
   mySpaceInfo(spaceQuery.value).then((res) => {
-    if (res.code === 200) {
-      spaceList.value = res?.rows || []
-    } else {
-      message.error('获取空间列表失败')
-    }
+    spaceList.value = res?.rows || []
     spaceLoading.value = false
   })
 }
