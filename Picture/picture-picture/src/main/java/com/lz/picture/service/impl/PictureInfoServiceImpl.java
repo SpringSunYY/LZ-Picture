@@ -1260,8 +1260,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
             pictureInfo.setDeletedTime(nowDate);
             this.deletePictureTableCacheBySpaceId(pictureInfo.getSpaceId());
+            this.deletePictureTableCacheByUserId(pictureInfo.getUserId());
         });
-        this.deletePictureTableCacheByUserId(userId);
         return this.updateBatchById(pictureInfos) ? 1 : 0;
     }
 
