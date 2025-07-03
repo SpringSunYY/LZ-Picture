@@ -57,7 +57,7 @@
           <div
             v-for="(suggestion, index) in suggestions"
             :key="'suggestion-' + index"
-            @click="selectSuggestion(suggestion)"
+            @click="selectSuggestion(suggestion.name)"
             @mouseenter="selectedIndex = index"
             class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer rounded-md transition-colors"
             :class="selectedIndex === index ? 'bg-blue-50 text-blue-600' : ''"
@@ -218,6 +218,7 @@ const handleSearch = () => {
 }
 
 const selectSuggestion = (suggestion) => {
+  console.log('selectSuggestion', suggestion)
   searchQuery.value = suggestion
   showDropdown.value = false
   handleSearch()
