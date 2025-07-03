@@ -1,7 +1,7 @@
 <template>
   <div id="globalHeader">
     <a-row :wrap="false">
-      <a-col >
+      <a-col>
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.svg" alt="logo" />
@@ -21,7 +21,7 @@
 
         <!-- 移动模式 -->
         <a-button v-else type="text" @click="menuVisible = true" class="mobile-menu-btn">
-          <MenuOutlined style="font-size: 18px" />
+          <MenuOutlined />
         </a-button>
 
         <!-- 移动端抽屉菜单 -->
@@ -35,7 +35,7 @@
             v-model:selectedKeys="current"
             mode="inline"
             :items="items"
-            @click="() => (menuVisible = false)"
+            @click="handleMobileMenuClick"
           />
         </a-drawer>
       </a-col>
@@ -75,7 +75,7 @@
         </div>
       </a-col>
       <a-drawer
-        width="40vh"
+        width="35vh"
         v-model:open="open"
         class="custom-class"
         root-class-name="root-class-name"
@@ -100,7 +100,7 @@
             </template>
           </a-dropdown>
         </template>
-        <SideRight />
+        <SideRight @doMenuClick="() => (open = !open)" />
       </a-drawer>
     </a-row>
   </div>
@@ -165,6 +165,18 @@ const doMenuClick = (route: RouteRecordRaw) => {
     path: route.key,
   })
 }
+const handleMobileMenuClick = (info: any) => {
+  menuVisible.value = false
+  const path = info.key
+  const item = items.value.find((i: any) => i.key === path)
+
+  if (item?.isFrame) {
+    window.open(item.path, '_blank')
+  } else {
+    router.push({ path })
+  }
+}
+
 const permissionStore = usePermissionStore()
 const unreadInformCount = ref<number>(0)
 
@@ -238,9 +250,10 @@ const showDrawer = () => {
   }
 
   .mobile-menu-btn {
-    height: 64px;
-    padding: 0 15px;
-    margin-left: -15px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    height: 100%;
   }
 
   /* 移动端菜单项样式 */

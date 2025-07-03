@@ -369,7 +369,7 @@ getPictureCategoryList()
 
 <style lang="scss" scoped>
 .picture-update {
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 
   .custom-modal-title {

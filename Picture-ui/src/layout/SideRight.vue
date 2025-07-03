@@ -14,7 +14,8 @@ import usePermissionStore from '@/stores/modules/permission.ts'
 import { generateMenu } from '@/router/permisson.ts'
 
 const router = useRouter()
-
+// 定义事件
+const emit = defineEmits(['doMenuClick'])
 // 当前选中菜单
 const current = ref<string[]>([])
 
@@ -34,6 +35,7 @@ const doMenuClick = (route: RouteRecordRaw) => {
   router.push({
     path: route.key,
   })
+  emit('doMenuClick')
 }
 const permissionStore = usePermissionStore()
 // 动态生成菜单项

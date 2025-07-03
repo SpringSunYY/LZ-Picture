@@ -450,7 +450,7 @@ getTagList()
 
 <style lang="scss" scoped>
 .picture-edit {
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 
   .custom-modal-title {
