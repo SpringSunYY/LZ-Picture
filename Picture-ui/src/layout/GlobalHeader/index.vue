@@ -41,7 +41,7 @@
       </a-col>
       <a-col flex="5em">
         <div class="user-login-status">
-          <a-space :size="24" v-if="userName" align="center">
+          <div class="user-info" v-if="userName">
             <a-badge
               @click="clickInform"
               title="通知信息，点击查看"
@@ -52,13 +52,13 @@
                 boxShadow: '0 0 0 1px #d9d9d9 inset',
               }"
             >
-              <notification-outlined style="font-size: 24px" />
+              <notification-outlined class="header-icon" />
             </a-badge>
 
             <a-dropdown>
-              <ASpace @click="showDrawer">
+              <div class="user-avatar" @click="showDrawer">
                 <a-avatar :size="36" :src="formatDnsUrl(avatar)" />
-              </ASpace>
+              </div>
               <template #overlay>
                 <a-menu>
                   <a-menu-item @click="doLogout">
@@ -68,7 +68,7 @@
                 </a-menu>
               </template>
             </a-dropdown>
-          </a-space>
+          </div>
           <div v-else>
             <a-button type="primary" href="/user/login">登录/注册</a-button>
           </div>
@@ -247,6 +247,33 @@ const showDrawer = () => {
 
   .logo {
     height: 48px;
+  }
+
+  .user-login-status {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 64px;
+    }
+
+    .header-icon {
+      font-size: 24px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .user-avatar {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+    }
   }
 
   .mobile-menu-btn {
