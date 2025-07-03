@@ -302,10 +302,7 @@ const handleExternalSuccess = (moderValue: PictureFileResponse) => {
   formState.picFormat = moderValue.picFormat
   updatePicture()
 }
-// 提交处理
-const handleSubmit = async () => {
-  updatePicture()
-}
+
 //更新图片信息
 const updatePicture = async () => {
   loading.value = true
@@ -336,7 +333,10 @@ const updatePicture = async () => {
       loading.value = false
     })
 }
-
+// 提交处理
+const handleSubmit = async () => {
+  updatePicture()
+}
 // 选择操作
 const editOpen = ref(true)
 const externalOpen = ref()
@@ -370,11 +370,8 @@ const getMySpaceList = () => {
   spaceLoading.value = true
   // 获取我的空间列表
   mySpaceInfo(spaceQuery.value).then((res) => {
-    if (res.code === 200) {
-      spaceList.value = res?.rows || []
-    } else {
-      message.error('获取空间列表失败')
-    }
+    spaceList.value = res?.rows || []
+    message.error('获取空间列表失败')
     spaceLoading.value = false
   })
 }

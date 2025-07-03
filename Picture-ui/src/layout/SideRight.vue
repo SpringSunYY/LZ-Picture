@@ -8,10 +8,9 @@
   ></a-menu>
 </template>
 <script lang="ts" setup>
-import { computed, h, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import usePermissionStore from '@/stores/modules/permission.ts'
-import SvgIcon from '@/components/SvgIcon.vue'
 import { generateMenu } from '@/router/permisson.ts'
 
 const router = useRouter()
@@ -43,12 +42,4 @@ const items = computed(() => {
   // 合并静态菜单项
   return [...(generateMenu(permissionStore?.routes, '3') || [])]
 })
-// 图标渲染器
-const renderIcon = (iconName: string) => {
-  return () =>
-    h(SvgIcon, {
-      name: iconName,
-      className: 'menu-icon',
-    })
-}
 </script>

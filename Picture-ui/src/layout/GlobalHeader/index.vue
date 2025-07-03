@@ -151,7 +151,7 @@ router.afterEach((to) => {
 
 // 路由跳转事件
 const doMenuClick = (route: RouteRecordRaw) => {
-  console.log('点击', route)
+  // console.log('点击', route)
   if (isMobile.value) {
     menuVisible.value = false
   }

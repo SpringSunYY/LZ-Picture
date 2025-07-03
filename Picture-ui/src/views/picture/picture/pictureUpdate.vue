@@ -148,7 +148,7 @@ import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload.vue'
 import type {
   PictureCategoryInfoQuery,
-  PictureCategoryInfoVo
+  PictureCategoryInfoVo,
 } from '@/types/picture/pictureCategory'
 import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
@@ -175,7 +175,7 @@ const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
 const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
 //文件夹
 const folderQuery = ref<SpaceFolderInfoQuery>({
-  spaceId: ''
+  spaceId: '',
 })
 const folderList = ref<SpaceFolderInfoVo[]>([])
 //标签
@@ -188,30 +188,30 @@ const rules = {
     {
       required: true,
       message: '请选择图片',
-      trigger: 'change'
-    }
+      trigger: 'change',
+    },
   ],
   name: [
     {
       required: true,
       message: '请输入图片名称',
-      trigger: 'blur'
-    }
+      trigger: 'blur',
+    },
   ],
   categoryId: [
     {
       required: true,
       message: '请选择图片分类',
-      trigger: 'change'
-    }
+      trigger: 'change',
+    },
   ],
   spaceId: [
     {
       required: true,
       message: '请选择图片空间',
-      trigger: 'change'
-    }
-  ]
+      trigger: 'change',
+    },
+  ],
 }
 const submitting = ref(false)
 const formState = reactive<PictureInfo>({
@@ -229,7 +229,7 @@ const formState = reactive<PictureInfo>({
   pictureStatus: '0',
   picFormat: '',
   picColor: '',
-  picScale: 0
+  picScale: 0,
 })
 const handleSuccess = (modelValue: any) => {
   // 提交到后端或处理数据
@@ -261,7 +261,7 @@ const handleSubmit = async () => {
       setTimeout(() => {
         //路由至我的空间
         router.push({
-          path: '/picture/space'
+          path: '/picture/space',
         })
         //重置表单
         Object.assign(formState, {
@@ -280,7 +280,7 @@ const handleSubmit = async () => {
           pictureStatus: '0',
           picFormat: '',
           picColor: '',
-          picScale: 0
+          picScale: 0,
         })
       }, 3000)
     }
@@ -303,7 +303,7 @@ const getPictureCategoryList = async () => {
       JSON.parse(JSON.stringify(res?.rows || [])),
       'categoryId',
       'parentId',
-      'children'
+      'children',
     )
     // console.log('pictureCategoryList', pictureCategoryList.value)
   })
@@ -322,11 +322,7 @@ const getMySpaceList = () => {
   spaceLoading.value = true
   // 获取我的空间列表
   mySpaceInfo(spaceQuery.value).then((res) => {
-    if (res.code === 200) {
-      spaceList.value = res?.rows || []
-    } else {
-      message.error('获取空间列表失败')
-    }
+    spaceList.value = res?.rows || []
     spaceLoading.value = false
   })
 }
@@ -337,7 +333,7 @@ const getFolderList = () => {
       JSON.parse(JSON.stringify(res?.rows || [])),
       'folderId',
       'parentId',
-      'children'
+      'children',
     )
   })
 }
