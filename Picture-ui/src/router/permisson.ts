@@ -31,7 +31,6 @@ router.beforeEach(async (to, from, next) => {
   if (getToken() == null || getToken() === '') {
     // console.log('未登录')
     if (isWhiteList(to.path)) {
-      console.log('白名单')
       // 在免登录白名单，直接进入
       return next()
     }
