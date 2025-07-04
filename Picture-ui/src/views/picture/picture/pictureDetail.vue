@@ -487,7 +487,6 @@ getPictureInfo()
   padding: 16px 0 0;
   margin-top: 24px;
   border-top: 1px solid #f0f0f0;
-
   .ant-btn {
     margin-left: 10px;
   }
@@ -513,7 +512,7 @@ getPictureInfo()
 .picture-detail {
   padding: 20px 32px;
   background-color: #f9f9f9;
-
+  max-width: 100%;
   .left-view {
     .image-wrapper {
       overflow: hidden;
