@@ -57,7 +57,7 @@
           <div
             v-for="(suggestion, index) in suggestions"
             :key="'suggestion-' + index"
-            @click="selectSuggestion(suggestion.name)"
+            @click="selectSuggestion(suggestion)"
             @mouseenter="selectedIndex = index"
             class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer rounded-md transition-colors"
             :class="selectedIndex === index ? 'bg-blue-50 text-blue-600' : ''"
@@ -91,7 +91,7 @@
             <div
               v-for="(history, index) in searchHistory.slice(0, 10)"
               :key="'history-' + index"
-              @click="selectSuggestion(history)"
+              @click="selectHistory(history)"
               class="history-item flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer rounded-md transition-colors"
             >
               <svg
@@ -119,7 +119,7 @@
             <div
               v-for="(recommendation, index) in recommendationList"
               :key="'rec-' + index"
-              @click="selectSuggestion(recommendation.title)"
+              @click="selectRecommend(recommendation)"
               class="recommend-item flex flex-col p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors border border-gray-100"
             >
               <div class="relative mb-2">
@@ -181,7 +181,14 @@ const props = defineProps({
 })
 
 // 定义事件
-const emit = defineEmits(['search', 'input'])
+const emit = defineEmits([
+  'search',
+  'input',
+  'clearSearch',
+  'searchByRecommend',
+  'searchByHistory',
+  'searchBySuggestion',
+])
 
 // 响应式数据
 const searchQuery = ref('')
@@ -217,11 +224,30 @@ const handleSearch = () => {
   showDropdown.value = false
 }
 
-const selectSuggestion = (suggestion) => {
-  console.log('selectSuggestion', suggestion)
+const selectRecommend = (suggestion: SearchRecommend) => {
+  // console.log(suggestion)
+  searchQuery.value = suggestion.title
+  showDropdown.value = false
+  // 发出搜索事件给父组件
+  emit('searchByRecommend', suggestion)
+  showDropdown.value = false
+}
+const selectHistory = (suggestion: string) => {
   searchQuery.value = suggestion
   showDropdown.value = false
-  handleSearch()
+  // 发出搜索事件给父组件
+  emit('searchByHistory', suggestion)
+  // console.log(suggestion)
+  showDropdown.value = false
+}
+
+const selectSuggestion = (suggestion: SearchSuggestion) => {
+  searchQuery.value = suggestion.name
+  showDropdown.value = false
+  // 发出搜索事件给父组件
+  emit('searchBySuggestion', searchQuery)
+  // console.log(suggestion)
+  showDropdown.value = false
 }
 
 const navigateSuggestions = (direction) => {
@@ -244,7 +270,7 @@ const clearSearch = () => {
   searchQuery.value = ''
   showDropdown.value = false
   selectedIndex.value = -1
-  handleSearch()
+  emit('clearSearch')
 }
 
 const hideDropdown = () => {

@@ -6,7 +6,11 @@
     <SearchInput
       class="container mx-auto p-4"
       @search="searchSearch"
+      @clear-search="clearSearch"
       @input="searchInput"
+      @search-by-recommend="searchByRecommend"
+      @search-by-suggestion="searchBySuggestion"
+      @search-by-history="searchByHistory"
       :recommendationList="recommendationList"
       :suggestionList="suggestionList"
       :searchHistoryName="searchHistoryName"
@@ -44,7 +48,7 @@
         </DirectionAwareHover>
       </div>
     </div>
-    <Picture :name="name" />
+    <Picture :name="name" :picture-id="pictureId" ref="pictureRef" />
   </div>
 </template>
 <script setup lang="ts" name="HomeView">
@@ -61,9 +65,35 @@ import type {
   PictureInfoSearchSuggestionVo,
 } from '@/types/picture/picture'
 
+const name = ref<string>('')
+const pictureId = ref<string>('')
+const searchHistoryName = ref<string>('pictureHistory')
+
+const pictureRef = ref()
+
 const searchSearch = (value: string) => {
   // console.log('searchSearch', value)
   name.value = value
+}
+const searchByRecommend = (value: any) => {
+  // console.log('searchByRecommend', value)
+  name.value = ''
+  pictureId.value = value.id
+}
+const searchByHistory = (value: any) => {
+  // console.log('searchByHistory', value)
+  pictureId.value = ''
+  name.value = value
+}
+const searchBySuggestion = (value: any) => {
+  // console.log('searchSuggestion', value)
+  name.value = value.name
+}
+const clearSearch = async () => {
+  name.value = ''
+  pictureId.value = ''
+  console.log('clearSearch')
+  await pictureRef.value.resetData()
 }
 const searchTimer = ref<number | null>(null)
 const searchInput = (value: string) => {
@@ -101,9 +131,6 @@ const getSearchSuggestList = (value: string) => {
   })
 }
 
-const name = ref<string>('')
-const searchHistoryName = ref<string>('pictureHistory')
-
 const recommendationList = ref<SearchRecommend[]>([])
 //获取推荐列表
 const getRecommendationList = () => {
@@ -112,6 +139,7 @@ const getRecommendationList = () => {
     recommendationList.value =
       res?.rows?.map((item: PictureInfoSearchRecommendVo) => {
         return {
+          id: item.pictureId,
           title: item.name,
           description: item.introduction,
           image: item.thumbnailUrl,

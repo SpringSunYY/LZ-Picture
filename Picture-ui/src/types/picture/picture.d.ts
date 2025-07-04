@@ -298,6 +298,7 @@ export interface MyPictureInfoVo {
  * 图片搜索推荐结果项
  */
 export interface PictureInfoSearchRecommendVo {
+  pictureId: string
   /** 图片名称 */
   name: string
 
@@ -342,6 +343,9 @@ export interface UserRecommendPictureInfoVo {
 export interface PictureRecommendRequest {
   /** 用户编号 */
   userId?: string
+
+  /** 图片编号 */
+  pictureId?: string
 
   /** 当前记录起始页（从0开始） */
   currentPage?: number

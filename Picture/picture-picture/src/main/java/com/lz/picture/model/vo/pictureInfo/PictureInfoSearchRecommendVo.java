@@ -19,6 +19,10 @@ public class PictureInfoSearchRecommendVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 图片编号
+     */
+    private String pictureId;
 
     /**
      * 图片名称

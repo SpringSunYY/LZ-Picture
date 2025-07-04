@@ -13,17 +13,23 @@
 <script setup lang="ts" name="Picture">
 import { nextTick, ref, watch } from 'vue'
 import type { PictureInfoVo, PictureRecommendRequest } from '@/types/picture/picture'
-import { listPictureInfo } from '@/api/picture/picture.ts'
+import {
+  getPictureDetailInfo,
+  getPictureInfoDetailRecommend,
+  listPictureInfo,
+} from '@/api/picture/picture.ts'
 import { getPictureInfoRecommend } from '@/api/picture/recommend.ts'
 import HorizontalFallLayout from '@/components/HorizontalFallLayout.vue'
 import { message } from 'ant-design-vue'
 
 interface Props {
   name?: string
+  pictureId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   name: '',
+  pictureId: '',
 })
 
 //  数据部分
@@ -41,6 +47,27 @@ const pictureQuery = ref<PictureRecommendRequest>({
 const loading = ref(false)
 const noMore = ref(false)
 
+async function getPictureList() {
+  if (pictureQuery.value.name !== undefined && pictureQuery.value.name !== '') {
+    const res = await listPictureInfo(pictureQuery.value)
+    rawPictureList.value = res?.rows || []
+    // console.log('name', pictureQuery.value.name)
+  } else if (pictureQuery.value.pictureId !== undefined && pictureQuery.value.pictureId !== '') {
+    const currentPage = (pictureQuery.value.currentPage || 0) + 1
+    const res = await getPictureInfoDetailRecommend({
+      pictureId: pictureQuery.value.pictureId || '',
+      currentPage: currentPage,
+      pageSize: pictureQuery.value.pageSize,
+    })
+    rawPictureList.value = res?.rows || []
+    // console.log('id', pictureQuery.value.pictureId)
+  } else {
+    const res = await getPictureInfoRecommend(pictureQuery.value)
+    rawPictureList.value = res?.rows || []
+    // console.log('recommend')
+  }
+}
+
 // 加载数据
 async function loadMore() {
   if (loading.value || noMore.value) {
@@ -51,14 +78,7 @@ async function loadMore() {
   }
   loading.value = true
 
-  await new Promise((resolve) => setTimeout(resolve, 300)) // 模拟网络延迟
-  if (pictureQuery.value.name === '') {
-    const res = await getPictureInfoRecommend(pictureQuery.value)
-    rawPictureList.value = res?.rows || []
-  } else {
-    const res = await listPictureInfo(pictureQuery.value)
-    rawPictureList.value = res?.rows || []
-  }
+  await getPictureList()
   if (rawPictureList.value.length > 0) {
     if (pictureQuery.value.name === '') {
       if (pictureQuery.value?.currentPage != undefined) {
@@ -80,7 +100,7 @@ async function loadMore() {
 }
 
 //获取数据
-const getPictureList = async () => {
+const getRecommendPictureList = async () => {
   if (loading.value || noMore.value) {
     // message.warn('没有更多图片了')
     return
@@ -89,13 +109,7 @@ const getPictureList = async () => {
   }
   loading.value = true
   // console.log('pictureQuery', pictureQuery.value)
-  if (pictureQuery.value.name === '') {
-    const res = await getPictureInfoRecommend(pictureQuery.value)
-    rawPictureList.value = res?.rows || []
-  } else {
-    const res = await listPictureInfo(pictureQuery.value)
-    rawPictureList.value = res?.rows || []
-  }
+  await getPictureList()
   if (rawPictureList.value.length > 0) {
     rawPictureList.value = rawPictureList.value
     if (pictureQuery.value.pageNum != undefined) {
@@ -105,25 +119,36 @@ const getPictureList = async () => {
     message.success(`已为您推荐${rawPictureList.value.length}张图片`)
   }
   if (rawPictureList.value.length < pictureQuery.value.pageSize) {
-    message.warn('已为您推荐全部图片')
+    message.warn('没有更多图片了')
     noMore.value = true
   }
   loading.value = false
 }
 
 watch(
-  () => props.name,
-  (newName) => {
-    // 添加防抖避免频繁请求
-    const timer = setTimeout(() => {
-      if (newName !== undefined) {
-        resetPagination()
+  [() => props.name, () => props.pictureId],
+  ([newName, newPictureId], [oldName, oldPictureId]) => {
+    const timer = setTimeout(async () => {
+      await resetPagination()
+      if (newPictureId !== oldPictureId && newPictureId !== '') {
+        await resetPagination()
+        pictureQuery.value.pictureId = newPictureId
+        //需要获取到此图片的详情
+        const res = await getPictureDetailInfo(newPictureId)
+        if (res.data) {
+          rawPictureList.value = [res.data]
+          console.log(rawPictureList.value)
+        }
+        await getRecommendPictureList()
+      } else if (newName !== oldName && newName !== '') {
         pictureQuery.value.name = newName
-        getPictureList()
+        await getRecommendPictureList()
+      }else {
+        await getRecommendPictureList()
       }
-    }, 300)
+    }, 800)
 
-    return () => clearTimeout(timer) // 清理副作用
+    return () => clearTimeout(timer)
   },
   { immediate: true },
 )
@@ -136,8 +161,19 @@ const resetPagination = async () => {
   noMore.value = false
   pictureQuery.value.pageNum = 1
   pictureQuery.value.currentPage = 0
+  pictureQuery.value.name = ''
+  pictureQuery.value.pictureId = ''
 }
-loadMore()
+
+async function resetData() {
+  await resetPagination()
+  await getRecommendPictureList()
+}
+
+// loadMore()
+defineExpose({
+  resetData,
+})
 </script>
 
 <style scoped lang="scss">
