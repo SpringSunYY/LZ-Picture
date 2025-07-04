@@ -2,7 +2,7 @@
   <div class="vertical-fall-Layout">
     <div class="masonry">
       <div
-        v-for="item in pictureList"
+        v-for="item in pictrures"
         :key="item.pictureId"
         class="masonry-item"
         :style="{ gridRowEnd: `span ${item.rowSpan}` }"
@@ -23,58 +23,53 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
-import type { PictureInfoRecommendRequest, PictureInfoVo } from '@/types/picture/picture'
-import { getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
+import type { PictureInfoVo } from '@/types/picture/picture'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
-  pictureId: {
-    type: String,
-    default: '',
+  pictureList: {
+    type: Array<PictureInfoVo>,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  noMore: {
+    type: Boolean,
+    default: false,
   },
 })
-const pictureList = ref<(PictureInfoVo & { rowSpan: number })[]>([])
-const pictureQuery = ref<PictureInfoRecommendRequest>({
-  currentPage: 1,
-  pageSize: 20,
-  pictureId: props.pictureId,
-})
-
-const loading = ref(false)
-const noMore = ref(false)
+//所有的图片数据
+const pictrures = ref<(PictureInfoVo & { rowSpan: number })[]>([])
 const loadMoreTrigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
 
+const emits = defineEmits(['loadMore'])
+
 // 加载更多
 async function loadMore() {
-  if (loading.value || noMore.value) return
-  loading.value = true
-
-  await new Promise((resolve) => setTimeout(resolve, 500))
-
-  const res = await getPictureInfoDetailRecommend(pictureQuery.value)
-  const newData = (res?.rows || []).map((data) => ({
-    ...data,
-    rowSpan: Math.ceil((data.picHeight / data.picWidth) * 15), // 根据比例动态计算 rowSpan
-  }))
-
-  if (newData.length > 0) {
-    pictureList.value.push(...newData)
-    pictureQuery.value.currentPage++
-  } else {
-    noMore.value = true
-  }
-  loading.value = false
+  if (props.loading || props.noMore) return
+  emits('loadMore')
 }
-
+function generate() {
+  const newData = (props.pictureList || []).map((data) => ({
+    ...data,
+    rowSpan: Math.ceil((data?.picHeight / data?.picWidth) * 15), // 根据比例动态计算 rowSpan
+  }))
+  console.log(newData)
+  if (newData.length > 0) {
+    pictrures.value.push(...newData)
+  }
+}
 // 设置 observer
 function setupObserver() {
   if (observer) observer.disconnect()
   observer = new IntersectionObserver(
     (entries) => {
-      if (entries[0].isIntersecting && !loading.value) {
+      if (entries[0].isIntersecting && !props.loading) {
         loadMore()
       }
     },
@@ -98,11 +93,26 @@ const handleToPicture = (item: PictureInfoVo) => {
   })
   window.open(routeData.href, '_blank')
 }
+
+function clearData() {
+  pictrures.value = []
+}
+
 onMounted(() => {
-  loadMore()
   setupObserver()
+  clearData()
 })
 
+//暴露重新更新数据给父组件
+defineExpose({
+  clearData,
+})
+watch(
+  () => props.pictureList,
+  () => {
+    generate()
+  },
+)
 onBeforeUnmount(() => {
   if (observer) observer.disconnect()
 })

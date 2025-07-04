@@ -173,7 +173,12 @@
         </a-card>
       </a-col>
     </a-row>
-    <VerticalFallLayout :pictureId="pictureId"></VerticalFallLayout>
+    <VerticalFallLayout
+      :loading="loading"
+      @load-more="loadMore"
+      :no-more="noMore"
+      :picture-list="pictureList"
+    ></VerticalFallLayout>
 
     <!--添加空间-->
     <a-modal v-model:open="openReport" :footer="null" centered destroyOnClose>
@@ -269,13 +274,17 @@
 import { getCurrentInstance, ref } from 'vue'
 import FancyImage from '@/components/FancyImage.vue'
 import Tags from '@/components/Tags.vue'
-import { getPictureDetailInfo } from '@/api/picture/picture.ts'
+import { getPictureDetailInfo, getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
-import type { PictureDetailInfoVo } from '@/types/picture/picture'
+import type {
+  PictureDetailInfoVo,
+  PictureInfoRecommendRequest,
+  PictureInfoVo,
+} from '@/types/picture/picture'
 import { formatDnsUrl, formatSize } from '@/utils/common.ts'
 import {
-  InfoCircleOutlined,
   FireOutlined,
+  InfoCircleOutlined,
   LikeOutlined,
   QuestionCircleOutlined,
   ShareAltOutlined,
@@ -286,7 +295,6 @@ import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
-import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
 import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
 import { useConfig } from '@/utils/config.ts'
@@ -328,6 +336,7 @@ const getPictureInfo = () => {
     }
   })
 }
+//region 用户行为
 const addUserBehavior = (behaviorType: string) => {
   console.log('behaviorType', behaviorType)
   const targetType = '0'
@@ -377,7 +386,7 @@ const addUserBehavior = (behaviorType: string) => {
     message.success(msg)
   })
 }
-
+//endregion
 //region 购买图片
 const buyPictureLoading = ref(false)
 const buyPicture = async () => {
@@ -385,7 +394,7 @@ const buyPicture = async () => {
 }
 //endregion
 
-//下载图片
+//region 下载图片
 const downloadPictureLoading = ref(false)
 const { verify } = usePasswordVerify()
 const downloadPicture = async () => {
@@ -404,11 +413,11 @@ const downloadPicture = async () => {
     downloadPictureLoading.value = false
   }
 }
-
+//endregion
 const clickLook = () => {
   message.success('点我干嘛呀😒😒😒😒😒', 1)
 }
-
+//region 举报图片
 const openReport = ref(false)
 const title = ref('举报图片')
 const titleDesc = ref('请选择举报图片类型')
@@ -478,6 +487,35 @@ const handleSubmitReport = () => {
     }
   })
 }
+// endregion
+
+// region 图片推荐列表
+const loading = ref(false)
+const noMore = ref(false)
+const pictureList = ref<PictureInfoVo[]>([])
+
+const pictureQuery = ref<PictureInfoRecommendRequest>({
+  currentPage: 1,
+  pageSize: 20,
+  pictureId: pictureId.value,
+})
+
+async function loadMore() {
+  if (loading.value || noMore.value) return
+  message.loading('正在为您获取图片推荐...',1)
+  const res = await getPictureInfoDetailRecommend(pictureQuery.value)
+  pictureList.value = res?.rows || []
+  if (pictureList.value.length >= pictureQuery.value.pageSize) {
+    pictureQuery.value.currentPage++
+    message.success(`已为您推荐${pictureList.value.length}张图片`)
+  } else {
+    message.success('已为您获取全部图片推荐')
+    noMore.value = true
+  }
+  loading.value = false
+}
+
+//endregion
 getPictureInfo()
 </script>
 
@@ -487,6 +525,7 @@ getPictureInfo()
   padding: 16px 0 0;
   margin-top: 24px;
   border-top: 1px solid #f0f0f0;
+
   .ant-btn {
     margin-left: 10px;
   }
@@ -513,6 +552,7 @@ getPictureInfo()
   padding: 20px 32px;
   background-color: #f9f9f9;
   max-width: 100%;
+
   .left-view {
     .image-wrapper {
       overflow: hidden;

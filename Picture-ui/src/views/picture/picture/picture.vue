@@ -47,7 +47,7 @@ async function loadMore() {
     // message.warn('没有更多图片了')
     return
   } else {
-    message.success('图片加载中...')
+    message.loading('正在为您推荐图片...', 1)
   }
   loading.value = true
 
@@ -69,11 +69,11 @@ async function loadMore() {
         pictureQuery.value.pageNum++
       }
     }
-    message.success('图片加载成功')
+    message.success(`已为您推荐${rawPictureList.value.length}张图片`)
     await nextTick()
   }
   if (rawPictureList.value.length < pictureQuery.value.pageSize) {
-    message.warn('没有更多图片了')
+    message.warn('已为您推荐全部图片')
     noMore.value = true
   }
   loading.value = false
@@ -85,7 +85,7 @@ const getPictureList = async () => {
     // message.warn('没有更多图片了')
     return
   } else {
-    message.success('图片加载中...')
+    message.loading('正在为您推荐图片...', 1)
   }
   loading.value = true
   // console.log('pictureQuery', pictureQuery.value)
@@ -102,10 +102,10 @@ const getPictureList = async () => {
       pictureQuery.value.pageNum++
     }
     await nextTick()
-    message.success('图片加载成功')
+    message.success(`已为您推荐${rawPictureList.value.length}张图片`)
   }
   if (rawPictureList.value.length < pictureQuery.value.pageSize) {
-    message.warn('没有更多图片了')
+    message.warn('已为您推荐全部图片')
     noMore.value = true
   }
   loading.value = false

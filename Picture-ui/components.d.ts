@@ -36,5 +36,6 @@ declare module 'vue' {
     UserPointsUsageLog: typeof import('./src/components/UserPointsUsageLog.vue')['default']
     UserViewInfoTable: typeof import('./src/components/UserViewInfoTable.vue')['default']
     VerticalFallLayout: typeof import('./src/components/VerticalFallLayout.vue')['default']
+    VerticalFallLayoutTemp: typeof import('./src/components/VerticalFallLayoutTemp.vue')['default']
   }
 }

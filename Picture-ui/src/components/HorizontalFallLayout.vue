@@ -177,7 +177,6 @@ function clearData() {
 //暴露重新更新数据给父组件
 defineExpose({
   clearData,
-  loadMore,
 })
 
 //  生命周期钩子
