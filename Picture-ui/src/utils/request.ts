@@ -121,7 +121,15 @@ http.interceptors.response.use(
       if (!isRelogin.show) {
         isRelogin.show = true
         message.warn('登录状态已过期，您可以继续留在该页面，或者重新登录', 5)
-        router.push('/user/login')
+        removeToken()
+        // 获取当前页面地址
+        const currentPath = router.currentRoute.value.fullPath
+        router.push({
+          path: '/user/login',
+          query: {
+            redirect: currentPath,
+          },
+        })
       }
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     }

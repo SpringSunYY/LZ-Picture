@@ -15,7 +15,7 @@ const whiteList = [
   '/user/smsLogin',
   '/user/forgetPassword',
   '/pictureDetail',
-  '/ 404',
+  '/404',
 ]
 
 const isWhiteList = (path: string): boolean => {
@@ -31,13 +31,23 @@ router.beforeEach(async (to, from, next) => {
   if (getToken() == null || getToken() === '') {
     // console.log('未登录')
     if (isWhiteList(to.path)) {
+      console.log('白名单')
       // 在免登录白名单，直接进入
       return next()
     }
+    console.log('to.fullPath', to.fullPath)
+    console.log('encoded redirect:', encodeURIComponent(to.fullPath))
     return next({
       path: '/user/login',
+      query: {
+        redirect: to.fullPath,
+      },
     })
   } else {
+    //如果用户当前登录，但是还在登录，重定向到首页
+    if (to.path === '/user/login') {
+      return next('/')
+    }
     // 动态路由加载
     try {
       if (userStore.userId === '') {
@@ -60,6 +70,9 @@ router.beforeEach(async (to, from, next) => {
       removeToken()
       return next({
         path: '/user/login',
+        query: {
+          redirect: to.fullPath,
+        },
       })
     }
   }

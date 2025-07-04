@@ -148,15 +148,7 @@ const rules = {
   ],
 }
 
-const redirect = ref(undefined)
-
-watch(
-  route,
-  (newRoute) => {
-    redirect.value = newRoute.query && newRoute.query.redirect
-  },
-  { immediate: true },
-)
+const redirect = ref(route.query.redirect as string || '/')
 
 const handleSubmit = async () => {
   if (loginForm.value.rememberMe) {
@@ -189,16 +181,9 @@ const handleSubmit = async () => {
         return
       }
     }
-    await userStore.login(loginForm.value).then(() => {
-      const query = route.query
-      const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
-        if (cur !== 'redirect') {
-          acc[cur] = query[cur]
-        }
-        return acc
-      }, {})
-      router.push({ path: redirect.value || '/', query: otherQueryParams })
-    })
+    await userStore.login(loginForm.value)
+    // console.log(redirect.value)
+    router.replace(redirect.value || '/')
   } catch (e) {
     console.log(e)
     message.error('登录失败')
