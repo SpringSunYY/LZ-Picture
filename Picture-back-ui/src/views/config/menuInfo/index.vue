@@ -338,6 +338,14 @@
           </el-col>
           <el-col :span="12" v-if="form.menuType==='C'">
             <el-form-item label="路由参数" prop="query">
+              <template #label>
+               <span class="custom-label">
+                 路由参数
+                 <el-tooltip  effect="light" content='访问路由的默认传递参数，如：`{"id": 1, "name": "ry"}`' placement="top">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.query" placeholder="请输入路由参数"/>
             </el-form-item>
           </el-col>

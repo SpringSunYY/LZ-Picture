@@ -11,7 +11,7 @@
 import { computed, ref } from 'vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import usePermissionStore from '@/stores/modules/permission.ts'
-import { generateMenu } from '@/router/permisson.ts'
+import { generateMenu, toMenu } from '@/router/permisson.ts'
 
 const router = useRouter()
 // 定义事件
@@ -26,15 +26,7 @@ router.afterEach((to) => {
 
 // 路由跳转事件
 const doMenuClick = (route: RouteRecordRaw) => {
-  if (route.item?.isFrame && route.item.isFrame) {
-    // console.log('跳转外部链接')
-    const url = route.item.path
-    window.open(url, '_blank')
-    return
-  }
-  router.push({
-    path: route.key,
-  })
+  toMenu(route)
   emit('doMenuClick')
 }
 const permissionStore = usePermissionStore()

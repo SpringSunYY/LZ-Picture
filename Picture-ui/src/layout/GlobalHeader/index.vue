@@ -117,7 +117,7 @@ import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
-import { generateMenu, renderIcon } from '@/router/permisson.ts'
+import { generateMenu, renderIcon, toMenu } from '@/router/permisson.ts'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -149,32 +149,16 @@ router.afterEach((to) => {
   current.value = [to.path.replace(/\/$/, '')] // 移除末尾斜杠
 })
 
-// 路由跳转事件
 const doMenuClick = (route: RouteRecordRaw) => {
-  // console.log('点击', route)
   if (isMobile.value) {
     menuVisible.value = false
   }
-  if (route.item?.isFrame && route.item.isFrame) {
-    // console.log('跳转外部链接')
-    const url = route.item.path
-    window.open(url, '_blank')
-    return
-  }
-  router.push({
-    path: route.key,
-  })
+  toMenu(route)
 }
-const handleMobileMenuClick = (info: any) => {
-  menuVisible.value = false
-  const path = info.key
-  const item = items.value.find((i: any) => i.key === path)
 
-  if (item?.isFrame) {
-    window.open(item.path, '_blank')
-  } else {
-    router.push({ path })
-  }
+const handleMobileMenuClick = (route: any) => {
+  menuVisible.value = false
+  toMenu(route)
 }
 
 const permissionStore = usePermissionStore()

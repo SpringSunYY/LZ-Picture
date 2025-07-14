@@ -1,3 +1,4 @@
+//@ts-nocheck
 import usePermissionStore from '@/stores/modules/permission'
 import router from '@/router'
 import useUserStore from '@/stores/modules/user.ts'
@@ -64,8 +65,8 @@ router.beforeEach(async (to, from, next) => {
         // 如果用户信息已加载，直接进入目标页面
         return next()
       }
-    } catch (error) {
-      // console.log(error)
+    } catch (e) {
+      // console.log(e)
       removeToken()
       return next({
         path: '/user/login',
@@ -130,6 +131,7 @@ export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): Men
         label: route.meta?.title,
         title: route.meta?.title,
         icon: route.meta?.icon ? renderIcon(route.meta.icon as string) : undefined,
+        query: route?.meta?.query || undefined,
       }
 
       if (route.children?.length) {
@@ -147,4 +149,37 @@ export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): Men
 
       return menuItem
     })
+}
+
+export function toMenu(route: RouteRecordRaw) {
+  // 解析查询参数（如果是 JSON 字符串）
+  console.log('路由参数:', route.item?.query)
+  let queryObj = {}
+  if (typeof route.item?.query === 'string') {
+    try {
+      queryObj = JSON.parse(route.item.query)
+    } catch (e) {
+      console.error('解析 query 出错:', e)
+    }
+  } else if (typeof route.item?.query === 'object') {
+    queryObj = route.item.query
+  }
+  // 处理外部链接
+  if (route.item?.isFrame && route.item.isFrame) {
+    let url = route.item.path
+
+    // 构造查询参数
+    const queryStr = new URLSearchParams(queryObj).toString()
+    if (queryStr) {
+      url += (url.includes('?') ? '&' : '?') + queryStr
+    }
+
+    window.open(url, '_blank')
+    return
+  }
+  // 内部路由跳转
+  router.push({
+    path: route.key,
+    query: queryObj,
+  })
 }
