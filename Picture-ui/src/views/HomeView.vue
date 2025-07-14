@@ -92,7 +92,7 @@ const searchBySuggestion = (value: any) => {
 const clearSearch = async () => {
   name.value = ''
   pictureId.value = ''
-  console.log('clearSearch')
+  // console.log('clearSearch')
   await pictureRef.value.resetData()
 }
 const searchTimer = ref<number | null>(null)

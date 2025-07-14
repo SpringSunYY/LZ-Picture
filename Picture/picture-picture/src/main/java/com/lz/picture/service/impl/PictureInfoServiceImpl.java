@@ -370,7 +370,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 //判断该空间是否有此文件夹
                 ThrowUtils.throwIf(StringUtils.isNotNull(spaceFolderInfo) && !spaceFolderInfo.getSpaceId().equals(pictureInfo.getSpaceId()), HttpStatus.NO_CONTENT, "该空间没有此文件夹，无法上传图片");
             }
-        } else {         //如果空间为官方空间||个人空间，校验用户是否是作者
+        } else if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())) {
+            //如果空间个人空间，校验用户是否是作者
             //如果传过来图片ID并且自己不是图片作者
             ThrowUtils.throwIf(pictureInfo.getPictureId() != null && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()), "您不是该图片所有者，无法上传图片");
             //如果用户不是自己
@@ -383,6 +384,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 //判断该空间是否有此文件夹
                 ThrowUtils.throwIf(!spaceFolderInfo.getSpaceId().equals(pictureInfo.getSpaceId()), HttpStatus.NO_CONTENT, "该空间没有此文件夹，无法上传图片");
             }
+        } else if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
+            //判断用户是否是作者
+            ThrowUtils.throwIf(pictureInfo.getPictureId() != null && !pictureInfo.getUserId().equals(UserInfoSecurityUtils.getUserId()), "您不是该图片所有者，无法上传图片");
+            //判断是否添加文件夹
+            ThrowUtils.throwIf(StringUtils.isNotEmpty(pictureInfo.getFolderId()), HttpStatus.NO_CONTENT, "官方空间图片不可添加文件夹！！！");
+        } else {
+            throw new ServiceException("空间类型错误");
         }
         if (spaceInfo.getOssType().equals(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue())) {
             //是公共空间，使用官方域名,官方不指定域名，根据配置文件获取域名

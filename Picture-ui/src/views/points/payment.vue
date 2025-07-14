@@ -92,7 +92,7 @@
                     </div>
                   </div>
                 </a-radio>
-                <a-radio value="wechat" class="payment-option">
+                <a-radio disabled value="wechat" class="payment-option">
                   <div class="payment-option-content">
                     <div class="payment-icon wechat-icon">
                       <SvgIcon size="1.5em" name="weChat" />
@@ -103,57 +103,7 @@
                     </div>
                   </div>
                 </a-radio>
-                <a-radio disabled value="creditcard" class="payment-option">
-                  <div class="payment-option-content">
-                    <div class="payment-icon creditcard-icon">
-                      <SvgIcon size="1.5em" name="bankCard" />
-                    </div>
-                    <div class="payment-label">
-                      <div>银行卡支付</div>
-                      <div class="payment-description">支持各大银行借记卡/信用卡</div>
-                    </div>
-                  </div>
-                </a-radio>
               </a-radio-group>
-
-              <div v-if="paymentMethod === 'creditcard'" class="credit-card-form">
-                <a-form :model="cardForm" layout="vertical">
-                  <a-form-item
-                    label="持卡人姓名"
-                    name="cardHolder"
-                    :rules="[{ required: true, message: '请输入持卡人姓名' }]"
-                  >
-                    <a-input v-model:value="cardForm.cardHolder" placeholder="请输入持卡人姓名" />
-                  </a-form-item>
-                  <a-form-item
-                    label="卡号"
-                    name="cardNumber"
-                    :rules="[{ required: true, message: '请输入卡号' }]"
-                  >
-                    <a-input v-model:value="cardForm.cardNumber" placeholder="请输入卡号" />
-                  </a-form-item>
-                  <a-row :gutter="16">
-                    <a-col :span="12">
-                      <a-form-item
-                        label="有效期"
-                        name="expiry"
-                        :rules="[{ required: true, message: '请输入有效期' }]"
-                      >
-                        <a-input v-model:value="cardForm.expiry" placeholder="MM/YY" />
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item
-                        label="CVV"
-                        name="cvv"
-                        :rules="[{ required: true, message: '请输入CVV' }]"
-                      >
-                        <a-input v-model:value="cardForm.cvv" placeholder="CVV" />
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                </a-form>
-              </div>
 
               <div class="payment-summary">
                 <div class="summary-item total">
@@ -379,13 +329,6 @@ const startPolling = () => {
     }
   }, 3000) // 每 3 秒轮询一次
 }
-// 银行卡表单
-const cardForm = ref({
-  cardHolder: '',
-  cardNumber: '',
-  expiry: '',
-  cvv: '',
-})
 
 // 方法
 const navToPackages = () => {
@@ -429,7 +372,7 @@ const alipay = () => {
       } else {
         console.error('无法打开新窗口')
       }
-    }, 3000)
+    }, 1000)
   })
 }
 
@@ -444,18 +387,6 @@ const nextStep = () => {
       return
     }
 
-    if (paymentMethod.value === 'creditcard') {
-      // 验证信用卡信息
-      if (
-        !cardForm.value.cardHolder ||
-        !cardForm.value.cardNumber ||
-        !cardForm.value.expiry ||
-        !cardForm.value.cvv
-      ) {
-        message.warning('请填写完整的银行卡信息')
-        return
-      }
-    }
 
     currentStep.value = 2
     // 支付
@@ -843,27 +774,6 @@ $border-radius: 4px;
           color: $error-color;
           font-weight: bold;
         }
-      }
-    }
-
-    // 银行卡处理
-    .bank-processing {
-      @include flex-column;
-      align-items: center;
-      padding: $spacing-xl 0;
-
-      .processing-animation {
-        margin-bottom: $spacing-md;
-      }
-
-      .processing-text {
-        font-size: 16px;
-        margin-bottom: $spacing-xs;
-      }
-
-      .processing-tip {
-        color: $error-color;
-        font-size: 14px;
       }
     }
 

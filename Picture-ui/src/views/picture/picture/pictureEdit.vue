@@ -440,7 +440,8 @@ const getPictureInfo = () => {
         console.warn('未找到匹配的分类路径')
       }
     }
-    console.log('formState', formState)
+    // console.log('formState', formState)
+    message.success('获取图片信息成功,请稍等图片加载中...')
   })
 }
 getPictureInfo()

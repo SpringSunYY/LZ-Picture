@@ -30,6 +30,7 @@
                 :allowedFormats="['image/jpeg', 'image/png']"
                 :maxSizeMB="50"
                 :maxCount="1"
+                :is-add="true"
                 @upload-success="handleSuccess"
               />
             </a-form-item>
@@ -143,7 +144,7 @@
 </template>
 
 <script setup lang="ts" name="PictureUpdate">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload.vue'
 import type {
@@ -282,7 +283,7 @@ const handleSubmit = async () => {
           picColor: '',
           picScale: 0,
         })
-      }, 3000)
+      }, 1000)
     }
   })
   // 处理分类路径
@@ -362,9 +363,12 @@ const getTagList = () => {
     tagLoading.value = false
   })
 }
-getTagList()
-getMySpaceList()
-getPictureCategoryList()
+onMounted(() => {
+  //刷新页面
+  getTagList()
+  getMySpaceList()
+  getPictureCategoryList()
+})
 </script>
 
 <style lang="scss" scoped>

@@ -97,7 +97,14 @@ const props = defineProps({
   maxSizeMB: { type: Number, default: 5 },
   uploadText: { type: String, default: '点击上传' },
   multiple: { type: Boolean, default: true },
+  //编辑图片
   isEdit: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+  // 添加图片
+  isAdd: {
     type: Boolean,
     default: false,
     required: false,
@@ -147,24 +154,18 @@ const loadImageMeta = (url: string) => {
     img.src = url
   })
 }
-const isInit = ref(true)
-const isEdit = ref(false)
 // 修改 watch 逻辑
 watch(
   () => props.modelValue,
   async (newVal) => {
     // console.log(isInit.value, isEdit.value)
-    if (isInit.value || isEdit.value) {
-      isEdit.value = false
-      isInit.value = false
-    } else {
-      return
-    }
+    console.log('newVal', newVal)
     if (newVal === '') {
+      innerFileList.value = []
       return
     }
-    // console.log('newVal', newVal)
-    if (typeof newVal === 'string') {
+    //判断是否是编辑图片，如果是要加载图片信息
+    if (props.isEdit) {
       const meta = await loadImageMeta(newVal)
       innerFileList.value = [
         {
@@ -309,7 +310,6 @@ const handlePreview = (file) => {
   }
   previewVisible.value = true
 }
-isInit.value = props.isEdit
 </script>
 
 <style lang="scss" scoped>
