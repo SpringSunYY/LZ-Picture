@@ -1,10 +1,6 @@
 package com.lz.points.controller.user;
 
-import com.lz.common.constant.config.UserConfigKeyConstants;
-import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.core.domain.model.AuthUserInfo;
-import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.sign.RsaUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.points.model.domain.AccountInfo;
@@ -15,8 +11,6 @@ import com.lz.points.model.dto.accountInfo.ResetAccountPasswordCode;
 import com.lz.points.model.vo.accountInfo.UserAccountInfoVo;
 import com.lz.points.service.IAccountInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
-import com.lz.userauth.model.domain.ForgetPasswordBody;
-import com.lz.userauth.model.domain.ForgetPasswordCode;
 import com.lz.userauth.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_ACCOUNT_RESET_PASSWORD_CODE;
+import static com.lz.config.utils.ConfigInfoUtils.USER_LOGIN_CAPTCHA_ENABLED_VALUE;
 
 /**
  * 用户账户
@@ -104,9 +99,7 @@ public class UserAccountInfoController extends BaseUserInfoController {
         }
         resetAccountPasswordCode.setPhone(RsaUtils.decryptUserByPrivateKey(resetAccountPasswordCode.getPhone()));
         resetAccountPasswordCode.setCountryCode(RsaUtils.decryptUserByPrivateKey(resetAccountPasswordCode.getCountryCode()));
-        String configInfoCache = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
-        boolean captchaEnabled = "true".equals(configInfoCache);
-        String registerCode = accountInfoService.getAccountPasswordCode(resetAccountPasswordCode.getPhone(), resetAccountPasswordCode.getCountryCode(), resetAccountPasswordCode.getCode(), captchaEnabled, resetAccountPasswordCode.getUuid());
+        String registerCode = accountInfoService.getAccountPasswordCode(resetAccountPasswordCode.getPhone(), resetAccountPasswordCode.getCountryCode(), resetAccountPasswordCode.getCode(), USER_LOGIN_CAPTCHA_ENABLED_VALUE, resetAccountPasswordCode.getUuid());
         System.err.println(registerCode);
         return AjaxResult.success("验证码发送成功");
     }

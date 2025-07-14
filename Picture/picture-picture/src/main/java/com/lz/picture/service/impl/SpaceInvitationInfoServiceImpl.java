@@ -14,7 +14,6 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceInvitationInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceInvitationInfo;
@@ -43,8 +42,8 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_SUCCESS;
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
 /**
  * 空间成员邀请记录Service业务层处理
@@ -71,9 +70,6 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
 
     @Resource
     private OssConfig ossConfig;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     //region mybatis代码
 
@@ -277,9 +273,8 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         }
         Page<SpaceInvitationInfo> spaceInvitationInfoPage = this.page(page, lambdaQueryWrapper);
         //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         page.getRecords().forEach(spaceInvitationInfo -> {
-            spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+            spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         });
         return new TableDataInfo(UserSpaceInvitationInfoVo.objToVo(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
     }

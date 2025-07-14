@@ -1,10 +1,8 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.UserViewLogInfo;
 import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
 import com.lz.picture.model.vo.userViewLogInfo.MyUserViewLogInfoVo;
@@ -18,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
+
 /**
  * 用户浏览记录Controller
  *
@@ -30,8 +30,6 @@ public class UserUserViewLogInfoController extends BaseUserInfoController {
     @Resource
     private IUserViewLogInfoService userViewLogInfoService;
 
-    @Resource
-    private IConfigInfoService configInfoService;
 
     /**
      * 查询用户浏览记录列表
@@ -48,10 +46,9 @@ public class UserUserViewLogInfoController extends BaseUserInfoController {
         myUserViewLogInfoQuery.setUserId(getUserId());
         Page<UserViewLogInfo> page = userViewLogInfoService.selectMyUserViewLogInfoList(myUserViewLogInfoQuery);
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.PICTURE_COVER_P);
         for (UserViewLogInfo userViewLogInfo : page.getRecords()) {
             if (StringUtils.isNotEmpty(userViewLogInfo.getTargetCover())) {
-                userViewLogInfo.setTargetCover(userViewLogInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + p);
+                userViewLogInfo.setTargetCover(userViewLogInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             }
         }
         List<MyUserViewLogInfoVo> myUserViewLogInfoVos = MyUserViewLogInfoVo.objToVo(page.getRecords());

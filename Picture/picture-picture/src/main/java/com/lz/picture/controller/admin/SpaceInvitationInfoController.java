@@ -29,7 +29,8 @@ import com.lz.picture.service.ISpaceInvitationInfoService;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
+
 
 /**
  * 空间成员邀请记录Controller
@@ -63,10 +64,9 @@ public class SpaceInvitationInfoController extends BaseController
         List<SpaceInvitationInfoVo> listVo= list.stream().map(SpaceInvitationInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
         //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         String dnsUrl = ossConfig.getDnsUrl();
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         });
         table.setRows(listVo);
         return table;

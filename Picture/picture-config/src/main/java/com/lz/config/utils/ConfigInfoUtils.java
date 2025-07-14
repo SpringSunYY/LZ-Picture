@@ -64,7 +64,7 @@ public class ConfigInfoUtils {
      * 空间最大文件数
      */
     public static final String PICTURE_SPACE_MAX_COUNT_KEY = "picture:space:maxCount";
-    public static Integer PICTURE_SPACE_MAX_COUNT_VALUE = 300;
+    public static Long PICTURE_SPACE_MAX_COUNT_VALUE = 300L;
 
     /**
      * 空间最大容量
@@ -118,7 +118,7 @@ public class ConfigInfoUtils {
      * 用户查看自己原图密钥时间
      */
     public static final String PICTURE_LOOK_ORIGINAL_TIMEOUT_KEY = "picture:look:original:timeout";
-    public static Integer PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE = 60 * 5;
+    public static Long PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE = 60 * 5L;
 
     /**
      * 用户自己浏览记录、行为记录封面压缩倍率百分比
@@ -286,17 +286,17 @@ public class ConfigInfoUtils {
      * 空间扩容-数量
      */
     public static final String PICTURE_SPACE_DILATATION_COUNT_KEY = "picture:space:dilatation:count";
-    public static Integer PICTURE_SPACE_DILATATION_COUNT_VALUE = 1;
+    public static Long PICTURE_SPACE_DILATATION_COUNT_VALUE = 1L;
     /**
      * 空间扩容-容量
      */
     public static final String PICTURE_SPACE_DILATATION_SIZE_KEY = "picture:space:dilatation:size";
-    public static Integer PICTURE_SPACE_DILATATION_SIZE_VALUE = 1000;
+    public static Long PICTURE_SPACE_DILATATION_SIZE_VALUE = 1000L;
     /**
      * 空间扩容-人数
      */
     public static final String PICTURE_SPACE_DILATATION_MEMBER_KEY = "picture:space:dilatation:member";
-    public static Integer PICTURE_SPACE_DILATATION_MEMBER_VALUE = 100;
+    public static Long PICTURE_SPACE_DILATATION_MEMBER_VALUE = 100L;
 
 
     private static final long lastCacheRefreshTime = 0;
@@ -314,7 +314,7 @@ public class ConfigInfoUtils {
             return;
         }
         USER_LOGIN_CAPTCHA_ENABLED_VALUE = getBool(USER_LOGIN_CAPTCHA_ENABLED_KEY);
-        PICTURE_SPACE_MAX_COUNT_VALUE = getInt(PICTURE_SPACE_MAX_COUNT_KEY);
+        PICTURE_SPACE_MAX_COUNT_VALUE = getLong(PICTURE_SPACE_MAX_COUNT_KEY);
         PICTURE_SPACE_MAX_SIZE_VALUE = getLong(PICTURE_SPACE_MAX_SIZE_KEY);
         PICTURE_SPACE_MAX_1_VALUE = getInt(PICTURE_SPACE_MAX_1_KEY);
         PICTURE_SPACE_MAX_2_VALUE = getInt(PICTURE_SPACE_MAX_2_KEY);
@@ -323,7 +323,7 @@ public class ConfigInfoUtils {
         PICTURE_INDEX_P_VALUE = getInt(PICTURE_INDEX_P_KEY);
         PICTURE_POINTS_MAX_VALUE = getInt(PICTURE_POINTS_MAX_KEY);
         PICTURE_POINTS_MIN_VALUE = getInt(PICTURE_POINTS_MIN_KEY);
-        PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE = getInt(PICTURE_LOOK_ORIGINAL_TIMEOUT_KEY);
+        PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE = getLong(PICTURE_LOOK_ORIGINAL_TIMEOUT_KEY);
         PICTURE_COVER_P_VALUE = getInt(PICTURE_COVER_P_KEY);
         POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT_VALUE = getInt(POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT_KEY);
         PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE = getDouble(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_KEY);
@@ -352,9 +352,9 @@ public class ConfigInfoUtils {
         PICTURE_RECOMMEND_DOWNLOAD_CACHE_THRESHOLD_VALUE = getInt(PICTURE_RECOMMEND_DOWNLOAD_CACHE_THRESHOLD_KEY);
         PICTURE_RECOMMEND_VIEW_CACHE_TIMEOUT_VALUE = getInt(PICTURE_RECOMMEND_VIEW_CACHE_TIMEOUT_KEY);
         PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD_VALUE = getInt(PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD_KEY);
-        PICTURE_SPACE_DILATATION_COUNT_VALUE = getInt(PICTURE_SPACE_DILATATION_COUNT_KEY);
-        PICTURE_SPACE_DILATATION_SIZE_VALUE = getInt(PICTURE_SPACE_DILATATION_SIZE_KEY);
-        PICTURE_SPACE_DILATATION_MEMBER_VALUE = getInt(PICTURE_SPACE_DILATATION_MEMBER_KEY);
+        PICTURE_SPACE_DILATATION_COUNT_VALUE = getLong(PICTURE_SPACE_DILATATION_COUNT_KEY);
+        PICTURE_SPACE_DILATATION_SIZE_VALUE = getLong(PICTURE_SPACE_DILATATION_SIZE_KEY);
+        PICTURE_SPACE_DILATATION_MEMBER_VALUE = getLong(PICTURE_SPACE_DILATATION_MEMBER_KEY);
     }
 
 

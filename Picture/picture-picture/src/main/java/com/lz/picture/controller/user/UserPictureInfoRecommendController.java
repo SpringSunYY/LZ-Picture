@@ -4,9 +4,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
-import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
-import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IPictureRecommendService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -16,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
+
 
 /**
  * 图片推荐
@@ -31,8 +30,7 @@ import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX
 public class UserPictureInfoRecommendController extends BaseUserInfoController {
     @Resource
     private IPictureRecommendService pictureRecommendService;
-    @Resource
-    private IConfigInfoService configInfoService;
+
     @RequestMapping("/recommend")
     public TableDataInfo getPictureInfoRecommend(@Validated PictureRecommendRequest request) {
         if (StringUtils.isNull(request.getPageSize())) {
@@ -49,9 +47,8 @@ public class UserPictureInfoRecommendController extends BaseUserInfoController {
 
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(request);
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (UserRecommendPictureInfoVo vo : pictureInfoRecommend) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         }
         return getDataTable(pictureInfoRecommend, 0);
     }

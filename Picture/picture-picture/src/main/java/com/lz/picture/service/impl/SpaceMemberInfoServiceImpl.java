@@ -13,7 +13,6 @@ import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceMemberInfoMapper;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceMemberInfo;
@@ -41,10 +40,10 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_DELETE;
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
 /**
  * 空间成员信息Service业务层处理
@@ -65,9 +64,6 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
 
     @Resource
     private ISpaceInfoService spaceInfoService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     @Resource
     private OssConfig ossConfig;
@@ -272,13 +268,12 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         //查询空间
         SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(query.getSpaceId());
         //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         ArrayList<UserSpaceMemberInfoVo> userSpaceMemberInfoVos = new ArrayList<>();
         records.forEach(spaceMemberInfo -> {
             UserSpaceMemberInfoVo userSpaceMemberInfoVo = UserSpaceMemberInfoVo.objToVo(spaceMemberInfo);
             userSpaceMemberInfoVo.setSpaceName(spaceInfo.getSpaceName());
             userSpaceMemberInfoVo.setUserName(userInfoMap.get(spaceMemberInfo.getUserId()).getUserName());
-            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + inCache);
+            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
             userSpaceMemberInfoVo.setInviterUserName(inviterUserInfoMap.get(spaceMemberInfo.getInviterUserId()).getUserName());
             userSpaceMemberInfoVos.add(userSpaceMemberInfoVo);
         });

@@ -1,7 +1,6 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
@@ -19,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
+
 /**
  * 用户行为Controller
  *
@@ -30,9 +31,6 @@ import java.util.List;
 public class UserUserBehaviorInfoController extends BaseUserInfoController {
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     /**
      * 新增用户行为
@@ -60,10 +58,9 @@ public class UserUserBehaviorInfoController extends BaseUserInfoController {
         userBehaviorInfoQuery.setUserId(getUserId());
         Page<UserBehaviorInfo> page = userBehaviorInfoService.selectMyUserBehaviorInfoList(userBehaviorInfoQuery);
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.PICTURE_COVER_P);
         for (UserBehaviorInfo userBehaviorInfo : page.getRecords()) {
             if (StringUtils.isNotEmpty(userBehaviorInfo.getTargetCover())) {
-                userBehaviorInfo.setTargetCover(userBehaviorInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + p);
+                userBehaviorInfo.setTargetCover(userBehaviorInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             }
         }
         List<MyUserBehaviorInfoVo> myUserBehaviorInfoVos = MyUserBehaviorInfoVo.objToVo(page.getRecords());

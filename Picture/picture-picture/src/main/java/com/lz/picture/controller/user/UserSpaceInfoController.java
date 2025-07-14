@@ -1,6 +1,5 @@
 package com.lz.picture.controller.user;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
@@ -9,7 +8,6 @@ import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.*;
-import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.UserSpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.utils.SpaceAuthUtils;
@@ -19,10 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 
 /**
  * Project: Picture

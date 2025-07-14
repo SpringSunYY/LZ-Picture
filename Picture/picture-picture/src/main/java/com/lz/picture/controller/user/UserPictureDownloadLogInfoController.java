@@ -1,10 +1,8 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.PictureDownloadLogInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.UserPictureDownloadLogInfoQuery;
 import com.lz.picture.model.vo.pictureDownloadLogInfo.UserPictureDownloadLogInfoVo;
@@ -12,9 +10,13 @@ import com.lz.picture.service.IPictureDownloadLogInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 /**
  * 图片下载记录Controller
@@ -28,9 +30,6 @@ import java.util.List;
 public class UserPictureDownloadLogInfoController extends BaseUserInfoController {
     @Resource
     private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     /**
      * 查询图片下载记录列表
@@ -47,10 +46,9 @@ public class UserPictureDownloadLogInfoController extends BaseUserInfoController
         userPictureDownloadLogInfoQuery.setUserId(getUserId());
         Page<PictureDownloadLogInfo> page = pictureDownloadLogInfoService.selectUserPictureDownloadLogInfoList(userPictureDownloadLogInfoQuery);
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.PICTURE_COVER_P);
         page.getRecords().forEach(pictureDownloadLogInfo -> {
             if (StringUtils.isNotEmpty(pictureDownloadLogInfo.getThumbnailUrl())) {
-                pictureDownloadLogInfo.setThumbnailUrl(pictureDownloadLogInfo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
+                pictureDownloadLogInfo.setThumbnailUrl(pictureDownloadLogInfo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             }
         });
         List<UserPictureDownloadLogInfoVo> listVo = UserPictureDownloadLogInfoVo.objToVo(page.getRecords());

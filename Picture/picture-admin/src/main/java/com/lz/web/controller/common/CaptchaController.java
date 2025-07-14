@@ -4,12 +4,10 @@ import com.google.code.kaptcha.Producer;
 import com.lz.common.config.RuoYiConfig;
 import com.lz.common.constant.CacheConstants;
 import com.lz.common.constant.Constants;
-import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.sign.Base64;
 import com.lz.common.utils.uuid.IdUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.system.service.ISysConfigService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +20,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import static com.lz.config.utils.ConfigInfoUtils.USER_LOGIN_CAPTCHA_ENABLED_VALUE;
 
 /**
  * 验证码操作处理
@@ -42,9 +42,6 @@ public class CaptchaController {
     @Autowired
     private ISysConfigService configService;
 
-    @Resource
-    private IConfigInfoService configInfoService;
-
     /**
      * 生成验证码
      */
@@ -59,9 +56,7 @@ public class CaptchaController {
      */
     @GetMapping("/user/captchaImage")
     public AjaxResult getUserInfoCaptchaCode(HttpServletResponse response) throws IOException {
-        String configInfoCache = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
-        boolean captchaEnabled = "true".equals(configInfoCache);
-        return getCode(captchaEnabled);
+        return getCode(USER_LOGIN_CAPTCHA_ENABLED_VALUE);
     }
 
     private AjaxResult getCode(boolean captchaEnabled) {

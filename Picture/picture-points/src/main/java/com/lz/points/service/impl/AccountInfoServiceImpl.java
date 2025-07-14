@@ -39,8 +39,8 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.LocaleConstants.ZH_CN;
-import static com.lz.common.constant.config.UserConfigKeyConstants.POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT;
 import static com.lz.common.constant.redis.PointsRedisConstants.*;
+import static com.lz.config.utils.ConfigInfoUtils.POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT_VALUE;
 
 /**
  * 积分账户Service业务层处理
@@ -216,14 +216,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         if (!PasswordUtils.checkPassword(salt, password, accountInfoDb.getPassword())) {
             return 0;
         } else {
-            String infoInCache = configInfoService.getConfigInfoInCache(POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT);
-            Integer timeout = null;
-            try {
-                timeout = Integer.parseInt(infoInCache);
-            } catch (Exception e) {
-                timeout = 60 * 60;
-            }
-            redisCache.setCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId, true, timeout, TimeUnit.SECONDS);
+            redisCache.setCacheObject(POINTS_ACCOUNT_PASSWORD_CHECK + userId, true, POINTS_ACCOUNT_VERIFY_PASSWORD_TIMEOUT_VALUE, TimeUnit.SECONDS);
             return 1;
         }
     }

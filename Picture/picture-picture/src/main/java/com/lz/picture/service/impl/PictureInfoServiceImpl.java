@@ -67,10 +67,10 @@ import java.util.stream.Collectors;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
-import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_DOWNLOAD_TYPE;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
+import static com.lz.config.utils.ConfigInfoUtils.*;
 
 /**
  * 图片信息Service业务层处理
@@ -92,9 +92,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private IPictureTagInfoService pictureTagInfoService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     @Resource
     private IPictureTagRelInfoService pictureTagRelInfoService;
@@ -669,9 +666,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
         //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
-        String time = configInfoService.getConfigInfoInCache(PICTURE_LOOK_ORIGINAL_TIMEOUT);
-        Long timeout = Long.valueOf(time);
-        String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), timeout);
+        String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE);
         userPictureDetailInfoVo.setPictureUrl(url);
         String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
         if (redisCache.hasKey(key)) {
@@ -934,17 +929,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         if (totalPoints != 0) {
             //获取官方、空间比例
-            String officialProPortionStr = configInfoService.getConfigInfoInCache(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION);
-            double officialProportion = Double.parseDouble(officialProPortionStr);
-            String spaceProportionStr = configInfoService.getConfigInfoInCache(PICTURE_DOWNLOAD_SPACE_PROPORTION);
-            double spaceProportion = Double.parseDouble(spaceProportionStr);
-            double authorProportion = 1 - officialProportion - spaceProportion;
+            double authorProportion = 1 - PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE - PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE;
             pictureDownloadLogInfo.setPointsAuthorGain((long) (totalPoints * authorProportion));
-            pictureDownloadLogInfo.setPointsOfficialGain((long) (totalPoints * officialProportion));
-            pictureDownloadLogInfo.setPointsSpaceGain((long) (totalPoints * spaceProportion));
+            pictureDownloadLogInfo.setPointsOfficialGain((long) (totalPoints * PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE));
+            pictureDownloadLogInfo.setPointsSpaceGain((long) (totalPoints * PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE));
             pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(authorProportion));
-            pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(officialProportion));
-            pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(spaceProportion));
+            pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE));
+            pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE));
             pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
                     userId,
                     null,
@@ -1040,9 +1031,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .orderByDesc(PictureInfo::getLookCount);
 
         List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (PictureInfo pictureInfo : pictureInfos) {
-            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + p);
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         }
         //转换为vo
         List<PictureInfoSearchRecommendVo> pictureInfoSearchRecommendVos = PictureInfoSearchRecommendVo.objToVo(pictureInfos);
@@ -1184,11 +1174,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //转换为 vo 并且转换地址
         //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         List<PictureInfoTableVo> pictureInfoTableVos =
                 pictureInfoPage.getRecords().stream()
                         .map(pictureInfo -> {
-                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + inCache);
+                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
                             return PictureInfoTableVo.objToVo(pictureInfo);
                         }).toList();
 
@@ -1326,9 +1315,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
         List<MyPictureInfoVo> userPictureInfoVos = MyPictureInfoVo.objToVo(page.getRecords());
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (MyPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(ossConfig.builderUrl(vo.getThumbnailUrl(), vo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + p);
+            vo.setThumbnailUrl(ossConfig.builderUrl(vo.getThumbnailUrl(), vo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         }
         TableDataInfo tableDataInfo = new TableDataInfo();
         tableDataInfo.setRows(userPictureInfoVos);

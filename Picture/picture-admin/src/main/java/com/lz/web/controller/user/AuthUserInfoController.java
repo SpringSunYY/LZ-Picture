@@ -2,24 +2,22 @@ package com.lz.web.controller.user;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.lz.common.constant.Constants;
-import com.lz.common.constant.config.UserConfigKeyConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.common.core.domain.model.LoginUserInfo;
+import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.sign.RsaUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
+import com.lz.framework.web.service.UserInfoLoginService;
 import com.lz.user.manager.UserAsyncManager;
 import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.enums.UInformTypeEnum;
-import com.lz.userauth.utils.PasswordUtils;
-import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.ip.IpUtils;
-import com.lz.config.service.IConfigInfoService;
-import com.lz.framework.web.service.UserInfoLoginService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import com.lz.userauth.model.domain.*;
 import com.lz.userauth.service.IAuthUserInfoService;
+import com.lz.userauth.utils.PasswordUtils;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +30,7 @@ import java.util.Set;
 
 import static com.lz.common.constant.config.LocaleConstants.ZH_CN;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.USER_REGISTER;
+import static com.lz.config.utils.ConfigInfoUtils.USER_LOGIN_CAPTCHA_ENABLED_VALUE;
 
 /**
  * 用户信息Controller
@@ -44,9 +43,6 @@ import static com.lz.common.constant.config.TemplateInfoKeyConstants.USER_REGIST
 public class AuthUserInfoController extends BaseUserInfoController {
     @Resource
     private UserInfoLoginService loginService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     @Resource
     private IAuthUserInfoService authUserInfoService;
@@ -103,9 +99,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
     public AjaxResult getSmsLoginCode(SmsLoginCode loginCode) throws Exception {
         loginCode.setPhone(RsaUtils.decryptUserByPrivateKey(loginCode.getPhone()));
         loginCode.setCountryCode(RsaUtils.decryptUserByPrivateKey(loginCode.getCountryCode()));
-        String configInfoCache = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
-        boolean captchaEnabled = "true".equals(configInfoCache);
-        loginCode.setCaptchaEnabled(captchaEnabled);
+        loginCode.setCaptchaEnabled(USER_LOGIN_CAPTCHA_ENABLED_VALUE);
         String smsLoginCode = loginService.getSmsCode(loginCode.getPhone(), loginCode.getCountryCode(), loginCode.getCode(), loginCode.isCaptchaEnabled(), loginCode.getUuid());
         System.err.println(smsLoginCode);
         return AjaxResult.success("验证码发送成功");
@@ -137,9 +131,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
     public AjaxResult getRegisterCode(RegisterLoginCode registerLoginCode) throws Exception {
         registerLoginCode.setPhone(RsaUtils.decryptUserByPrivateKey(registerLoginCode.getPhone()));
         registerLoginCode.setCountryCode(RsaUtils.decryptUserByPrivateKey(registerLoginCode.getCountryCode()));
-        String configInfoCache = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
-        boolean captchaEnabled = "true".equals(configInfoCache);
-        String registerCode = loginService.getRegisterCode(registerLoginCode.getPhone(), registerLoginCode.getCountryCode(), registerLoginCode.getCode(), captchaEnabled, registerLoginCode.getUuid());
+        String registerCode = loginService.getRegisterCode(registerLoginCode.getPhone(), registerLoginCode.getCountryCode(), registerLoginCode.getCode(), USER_LOGIN_CAPTCHA_ENABLED_VALUE, registerLoginCode.getUuid());
         System.err.println(registerCode);
         return AjaxResult.success("验证码发送成功");
     }
@@ -192,9 +184,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
     public AjaxResult getForgetPasswordCode(@Validated ForgetPasswordCode forgetPasswordCode) throws Exception {
         forgetPasswordCode.setPhone(RsaUtils.decryptUserByPrivateKey(forgetPasswordCode.getPhone()));
         forgetPasswordCode.setCountryCode(RsaUtils.decryptUserByPrivateKey(forgetPasswordCode.getCountryCode()));
-        String configInfoCache = configInfoService.getConfigInfoInCache(UserConfigKeyConstants.USER_LOGIN_CAPTCHA_ENABLED);
-        boolean captchaEnabled = "true".equals(configInfoCache);
-        String registerCode = loginService.getForgetPasswordCode(forgetPasswordCode.getPhone(), forgetPasswordCode.getCountryCode(), forgetPasswordCode.getCode(), captchaEnabled, forgetPasswordCode.getUuid());
+        String registerCode = loginService.getForgetPasswordCode(forgetPasswordCode.getPhone(), forgetPasswordCode.getCountryCode(), forgetPasswordCode.getCode(), USER_LOGIN_CAPTCHA_ENABLED_VALUE, forgetPasswordCode.getUuid());
         System.err.println(registerCode);
         return AjaxResult.success("验证码发送成功");
     }

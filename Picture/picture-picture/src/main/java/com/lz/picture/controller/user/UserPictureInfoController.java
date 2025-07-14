@@ -20,7 +20,10 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.*;
 import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.vo.pictureInfo.*;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchSuggestionVo;
+import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
+import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -30,7 +33,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
+
 
 /**
  * Project: Picture
@@ -47,8 +51,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @Resource
     private IPictureInfoService pictureInfoService;
 
-    @Resource
-    private IConfigInfoService configInfoService;
 
     @Resource
     private PictureUploadManager pictureUploadManager;
@@ -206,9 +208,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
         List<PictureInfo> pictureInfoList = getPictureInfos(page);
         List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(pictureInfoList);
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         }
         return getDataTable(userPictureInfoVos, page.getTotal());
     }
@@ -255,9 +256,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         //压缩图片
-        String p = configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + p);
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         }
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }

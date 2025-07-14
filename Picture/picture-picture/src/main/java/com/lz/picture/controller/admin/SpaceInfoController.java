@@ -1,35 +1,29 @@
 package com.lz.picture.controller.admin;
 
+import com.lz.common.annotation.Log;
+import com.lz.common.config.OssConfig;
+import com.lz.common.core.controller.BaseController;
+import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.poi.ExcelUtil;
+import com.lz.config.service.IConfigInfoService;
+import com.lz.picture.model.domain.SpaceInfo;
+import com.lz.picture.model.dto.spaceInfo.SpaceInfoEdit;
+import com.lz.picture.model.dto.spaceInfo.SpaceInfoInsert;
+import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
+import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
+import com.lz.picture.service.ISpaceInfoService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lz.common.config.OssConfig;
-import com.lz.config.service.IConfigInfoService;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.access.prepost.PreAuthorize;
-import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.lz.common.annotation.Log;
-import com.lz.common.core.controller.BaseController;
-import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.enums.BusinessType;
-import com.lz.picture.model.domain.SpaceInfo;
-import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoInsert;
-import com.lz.picture.model.dto.spaceInfo.SpaceInfoEdit;
-import com.lz.picture.service.ISpaceInfoService;
-import com.lz.common.utils.poi.ExcelUtil;
-import com.lz.common.core.page.TableDataInfo;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_SPACE_AVATAR_P;
 
 /**
  * 空间信息Controller
@@ -60,10 +54,9 @@ public class SpaceInfoController extends BaseController {
         List<SpaceInfo> list = spaceInfoService.selectSpaceInfoList(spaceInfo);
         List<SpaceInfoVo> listVo = list.stream().map(SpaceInfoVo::objToVo).collect(Collectors.toList());
         //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         String dnsUrl = ossConfig.getDnsUrl();
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

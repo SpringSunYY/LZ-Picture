@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
-import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
+import static com.lz.config.utils.ConfigInfoUtils.*;
 
 /**
  * 用户推荐服务
@@ -73,10 +73,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
     private ScheduledExecutorService scheduler = null;
-    private static int MAX_CATEGORY_ITEMS = 5000;
-    private static int MAX_TAG_ITEMS = 10000;
-    private static double CATEGORY_WEIGHT = 0.3;
-    private static double TAG_WEIGHT = 0.7;
 
     @PostConstruct
     public void init() {
@@ -90,10 +86,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (currentTime - lastCacheRefreshTime < CACHE_REFRESH_INTERVAL) {
             return;
         }
-        MAX_CATEGORY_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_MAX));
-        MAX_TAG_ITEMS = Integer.parseInt(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TAG_MAX));
-        CATEGORY_WEIGHT = Double.parseDouble(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_CATEGORY_WEIGHT));
-        TAG_WEIGHT = Double.parseDouble(configInfoService.getConfigInfoInCache(PICTURE_RECOMMEND_TAG_WEIGHT));
     }
 
     // 添加 @PreDestroy 方法用于关闭线程池
@@ -319,8 +311,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             }
 
             // 11.4 计算协同得分
-            double totalScore = (normCategoryScore * CATEGORY_WEIGHT) +
-                    (maxTagScore * TAG_WEIGHT) +
+            double totalScore = (normCategoryScore * PICTURE_RECOMMEND_CATEGORY_WEIGHT_VALUE) +
+                    (maxTagScore * PICTURE_RECOMMEND_TAG_WEIGHT_VALUE) +
                     synergyBonus;
 
             // 11.5 存储结果
@@ -408,7 +400,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
         for (int i = 0; i < categories.size(); i += batchSize) {
             // 2. 终止条件：达到最大候选数量或最大批次
-            if (resultSet.size() >= MAX_CATEGORY_ITEMS || processedBatches >= maxBatches) {
+            if (resultSet.size() >= PICTURE_RECOMMEND_CATEGORY_MAX_VALUE || processedBatches >= maxBatches) {
 //                log.info("分类查询终止 - 当前总数: {} | 分类范围: {}/{}",
 //                        resultSet.size(), i, categories.size());
                 break;
@@ -418,7 +410,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             List<String> batchCats = categories.subList(i, Math.min(i + batchSize, categories.size()));
 
             // 4. 计算当前批次所需限制（确保不超过总限制）
-            int currentLimit = Math.max(0, MAX_CATEGORY_ITEMS - resultSet.size());
+            int currentLimit = Math.max(0, PICTURE_RECOMMEND_CATEGORY_MAX_VALUE - resultSet.size());
 
             // 5. 执行查询
             List<PictureInfo> batchResult = pictureInfoService.list(
@@ -461,14 +453,14 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         final int maxBatches = 8; // 最大批次减少
 
         for (int i = 0; i < tags.size(); i += batchSize) {
-            if (resultSet.size() >= MAX_TAG_ITEMS || i / batchSize >= maxBatches) {
+            if (resultSet.size() >= PICTURE_RECOMMEND_TAG_MAX_VALUE || i / batchSize >= maxBatches) {
 //                log.info("标签查询终止 - 当前总数: {} | 标签范围: {}/{}",
 //                        resultSet.size(), i, tags.size());
                 break;
             }
 
             List<String> batchTags = tags.subList(i, Math.min(i + batchSize, tags.size()));
-            int currentLimit = Math.max(0, MAX_TAG_ITEMS - resultSet.size());
+            int currentLimit = Math.max(0, PICTURE_RECOMMEND_TAG_MAX_VALUE - resultSet.size());
 
             List<PictureTagRelInfo> batchResult = pictureTagRelInfoService.list(
                     new LambdaQueryWrapper<PictureTagRelInfo>()

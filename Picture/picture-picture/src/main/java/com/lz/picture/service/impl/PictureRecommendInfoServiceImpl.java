@@ -41,9 +41,9 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
-import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.picture.PictureInfoConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
+import static com.lz.config.utils.ConfigInfoUtils.*;
 
 /**
  * 用户图片推荐模型Service业务层处理
@@ -75,30 +75,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
     private ScheduledExecutorService scheduler = null;
-    //浏览分数相关
-    private static int VIEW_CATEGORY_WEIGHT = 1;
-    private static int VIEW_TAG_WEIGHT = 2;
-    private static double VIEW_TIME_DECAY = 0.8;
-    private static int VIEW_LIMIT = 500;
-    //行为分数相关
-    private static int BEHAVIOR_CATEGORY_WEIGHT = 1;
-    private static int BEHAVIOR_TAG_WEIGHT = 2;
-    private static double BEHAVIOR_TIME_DECAY = 0.8;
-    private static int BEHAVIOR_LIMIT = 200;
-    //下载分数相关
-    private static int DOWNLOAD_CATEGORY_WEIGHT = 1;
-    private static int DOWNLOAD_TAG_WEIGHT = 2;
-    private static double DOWNLOAD_TIME_DECAY = 0.8;
-    private static int DOWNLOAD_LIMIT = 100;
-    //行为缓存时间和阈值
-    private static int BEHAVIOR_CACHE_TIMEOUT = 60 * 30;
-    private static int BEHAVIOR_CACHE_THRESHOLD = 10;
-    //浏览缓存时间和阈值
-    private static int VIEW_CACHE_TIMEOUT = 60 * 30;
-    private static int VIEW_CACHE_THRESHOLD = 20;
-    //下载缓存时间和阈值
-    private static int DOWNLOAD_CACHE_TIMEOUT = 60 * 60;
-    private static int DOWNLOAD_CACHE_THRESHOLD = 5;
 
     @PostConstruct
     public void init() {
@@ -111,30 +87,6 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         if (currentTime - lastCacheRefreshTime < CACHE_REFRESH_INTERVAL) {
             return;
         }
-        VIEW_CATEGORY_WEIGHT = getIntConfig(PICTURE_RECOMMEND_VIEW_CATEGORY);
-        VIEW_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_VIEW_TAG);
-        VIEW_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_VIEW_TIME_DECAY);
-        VIEW_LIMIT = getIntConfig(PICTURE_RECOMMEND_VIEW_LIMIT);
-
-        BEHAVIOR_CATEGORY_WEIGHT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_CATEGORY);
-        BEHAVIOR_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_TAG);
-        BEHAVIOR_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_TIME_BEHAVIOR_DECAY);
-        BEHAVIOR_LIMIT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_LIMIT);
-
-        DOWNLOAD_CATEGORY_WEIGHT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_CATEGORY);
-        DOWNLOAD_TAG_WEIGHT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_TAG);
-        DOWNLOAD_TIME_DECAY = getDoubleConfig(PICTURE_RECOMMEND_TIME_DOWNLOAD_DECAY);
-        DOWNLOAD_LIMIT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_LIMIT);
-
-        BEHAVIOR_CACHE_TIMEOUT = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_CACHE_TIMEOUT);
-        BEHAVIOR_CACHE_THRESHOLD = getIntConfig(PICTURE_RECOMMEND_BEHAVIOR_CACHE_THRESHOLD);
-
-        VIEW_CACHE_TIMEOUT = getIntConfig(PICTURE_RECOMMEND_VIEW_CACHE_TIMEOUT);
-        VIEW_CACHE_THRESHOLD = getIntConfig(PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD);
-
-        DOWNLOAD_CACHE_TIMEOUT = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_CACHE_TIMEOUT);
-        DOWNLOAD_CACHE_THRESHOLD = getIntConfig(PICTURE_RECOMMEND_DOWNLOAD_CACHE_THRESHOLD);
-
     }
 
     private int getIntConfig(String key) {
@@ -342,22 +294,22 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
         //判断缓存类型是什么，是否超过阈值
         switch (type) {
             case PICTURE_RECOMMEND_MODEL_DOWNLOAD_TYPE:
-                if (count > DOWNLOAD_CACHE_THRESHOLD) {
+                if (count > PICTURE_RECOMMEND_DOWNLOAD_CACHE_THRESHOLD_VALUE) {
                     isThreshold = true;
                 }
-                timeout = DOWNLOAD_CACHE_TIMEOUT;
+                timeout = PICTURE_RECOMMEND_DOWNLOAD_CACHE_TIMEOUT_VALUE;
                 break;
             case PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE:
-                if (count > BEHAVIOR_CACHE_THRESHOLD) {
+                if (count > PICTURE_RECOMMEND_BEHAVIOR_CACHE_THRESHOLD_VALUE) {
                     isThreshold = true;
                 }
-                timeout = BEHAVIOR_CACHE_TIMEOUT;
+                timeout = PICTURE_RECOMMEND_BEHAVIOR_CACHE_TIMEOUT_VALUE;
                 break;
             case PICTURE_RECOMMEND_MODEL_VIEW_TYPE:
-                if (count > VIEW_CACHE_THRESHOLD) {
+                if (count > PICTURE_RECOMMEND_VIEW_CACHE_THRESHOLD_VALUE) {
                     isThreshold = true;
                 }
-                timeout = VIEW_CACHE_TIMEOUT;
+                timeout = PICTURE_RECOMMEND_VIEW_CACHE_TIMEOUT_VALUE;
                 break;
             default:
                 break;
@@ -517,13 +469,13 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             return null;
         }
         //查询到浏览分数占比
-        UserInterestModel viewModel = this.getUserViewInterest(userId, PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0.getValue(), VIEW_LIMIT, VIEW_CATEGORY_WEIGHT, VIEW_TAG_WEIGHT, VIEW_TIME_DECAY);
+        UserInterestModel viewModel = this.getUserViewInterest(userId, PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0.getValue(), PICTURE_RECOMMEND_VIEW_LIMIT_VALUE, PICTURE_RECOMMEND_VIEW_CATEGORY_VALUE, PICTURE_RECOMMEND_VIEW_TAG_VALUE, PICTURE_RECOMMEND_VIEW_TIME_DECAY_VALUE);
 
         //查询下载兴趣
-        UserInterestModel downloadModel = this.getPictureDownloadInterest(userId, DOWNLOAD_LIMIT, DOWNLOAD_CATEGORY_WEIGHT, DOWNLOAD_TAG_WEIGHT, DOWNLOAD_TIME_DECAY);
+        UserInterestModel downloadModel = this.getPictureDownloadInterest(userId, PICTURE_RECOMMEND_DOWNLOAD_LIMIT_VALUE, PICTURE_RECOMMEND_DOWNLOAD_CATEGORY_VALUE, PICTURE_RECOMMEND_DOWNLOAD_TAG_VALUE, PICTURE_RECOMMEND_TIME_DOWNLOAD_DECAY_VALUE);
 
         //查询行为兴趣
-        UserInterestModel behaviorModel = this.getUserBehaviorInterest(userId, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue(), BEHAVIOR_LIMIT, BEHAVIOR_CATEGORY_WEIGHT, BEHAVIOR_TAG_WEIGHT, BEHAVIOR_TIME_DECAY);
+        UserInterestModel behaviorModel = this.getUserBehaviorInterest(userId, PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue(), PICTURE_RECOMMEND_BEHAVIOR_LIMIT_VALUE, PICTURE_RECOMMEND_BEHAVIOR_CATEGORY_VALUE, PICTURE_RECOMMEND_BEHAVIOR_TAG_VALUE, PICTURE_RECOMMEND_TIME_BEHAVIOR_DECAY_VALUE);
         //计算总兴趣总数
         UserInterestModel userInterestModel = new UserInterestModel();
         HashMap<String, Double> tagScores = new HashMap<>();

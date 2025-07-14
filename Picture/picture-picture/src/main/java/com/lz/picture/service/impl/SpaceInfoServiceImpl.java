@@ -14,7 +14,6 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.SpaceInfoMapper;
@@ -42,8 +41,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
-import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
+import static com.lz.config.utils.ConfigInfoUtils.*;
 
 /**
  * 空间信息Service业务层处理
@@ -55,9 +54,6 @@ import static com.lz.common.constant.redis.PictureRedisConstants.*;
 public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo> implements ISpaceInfoService {
     @Resource
     private SpaceInfoMapper spaceInfoMapper;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     @Resource
     private RedisCache redisCache;
@@ -213,41 +209,26 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             throw new ServiceException("空间类型错误！！！");
         }
         //获取用户最大空间数量
-        String maxSpaceCount = "";
+        Integer maxSpaceCount = 10;
         if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
-            maxSpaceCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_1);
+            maxSpaceCount = PICTURE_SPACE_MAX_1_VALUE;
         } else if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())) {
-            maxSpaceCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_2);
+            maxSpaceCount = PICTURE_SPACE_MAX_2_VALUE;
         }
-        if (StringUtils.isEmpty(maxSpaceCount)) {
-            maxSpaceCount = "10";
+        if (StringUtils.isNull(maxSpaceCount)) {
+            maxSpaceCount = 10;
         }
         //查询用户此类型空间创建了多少个
         long count = this.count(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getUserId, spaceInfo.getUserId()).eq(SpaceInfo::getSpaceType, spaceInfo.getSpaceType()));
-        if (count >= Long.parseLong(maxSpaceCount)) {
+        if (count >= maxSpaceCount) {
             throw new ServiceException("此类型空间创建了10个，不能再创建了！！！");
         }
         Date nowDate = DateUtils.getNowDate();
         spaceInfo.setCreateTime(nowDate);
         spaceInfo.setUpdateTime(nowDate);
 
-        String maxCount = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_COUNT);
-        try {
-            spaceInfo.setMaxCount(Long.parseLong(maxCount));
-        } catch (NumberFormatException e) {
-            log.error("获取最大空间文件数量配置信息出错", e);
-            //如果转换异常则默认100
-            maxCount = "100L";
-        }
-        String maxSize = null;
-        try {
-            maxSize = configInfoService.getConfigInfoInCache(PICTURE_SPACE_MAX_SIZE);
-        } catch (Exception e) {
-            log.error("获取最大空间文件数量配置信息出错", e);
-            //如果转换异常则默认300M
-            maxSize = "314572800";
-        }
-        spaceInfo.setMaxSize(Long.parseLong(maxSize));
+        spaceInfo.setMaxCount(PICTURE_SPACE_MAX_COUNT_VALUE);
+        spaceInfo.setMaxSize(PICTURE_SPACE_MAX_SIZE_VALUE);
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         spaceInfo.setOssType(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue());
 
@@ -362,11 +343,10 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             return tableDataInfo;
         }
         //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         //转换为vo并且转换地址
         List<UserPersonalSpaceInfoVo> personalSpaceInfoVos = page.getRecords().stream()
                 .map(spaceInfo -> {
-                    spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+                    spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
                     return UserPersonalSpaceInfoVo.objToVo(spaceInfo);
                 }).toList();
         //存入缓存信息并返回
@@ -464,14 +444,12 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
             return tableDataInfo;
         }
-        //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         //根据空间ID转换为map
         List<UserTeamSpaceInfoVo> vos = new ArrayList<>();
         Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo));
         vos = spaceMemberInfos.stream().map(memberInfo -> {
             SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
-            spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+            spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
             UserTeamSpaceInfoVo userTeamSpaceInfoVo = new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
             userTeamSpaceInfoVo.setUserId(spaceInfo.getUserId());
             userTeamSpaceInfoVo.setCurrentMembers(spaceMemberInfoService.getSpaceMemberNumberCount(memberInfo.getSpaceId()));
@@ -525,13 +503,11 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                 .toList();
 
         List<UserSpaceInfoVo> listVo = UserSpaceInfoVo.objToVo(list);
-        //压缩图片
-        String inCache = configInfoService.getConfigInfoInCache(PICTURE_SPACE_AVATAR_P);
         String dnsUrl = ossConfig.getDnsUrl();
         listVo.stream()
                 .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
                 .forEach(vo -> {
-                    vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + inCache);
+                    vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
                 });
 
         TableDataInfo tableDataInfo = new TableDataInfo(listVo, listVo.size());

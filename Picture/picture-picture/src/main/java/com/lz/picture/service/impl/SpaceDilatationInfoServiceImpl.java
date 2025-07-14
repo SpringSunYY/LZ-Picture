@@ -3,14 +3,12 @@ package com.lz.picture.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.domain.DeviceInfo;
-import com.lz.common.core.redis.RedisCache;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.mapper.SpaceDilatationInfoMapper;
 import com.lz.picture.model.domain.SpaceDilatationInfo;
 import com.lz.picture.model.domain.SpaceInfo;
@@ -37,8 +35,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_DILATATION_SUCCESS;
-import static com.lz.common.constant.config.UserConfigKeyConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
+import static com.lz.config.utils.ConfigInfoUtils.*;
 
 /**
  * 空间扩容信息Service业务层处理
@@ -53,12 +51,6 @@ public class SpaceDilatationInfoServiceImpl extends ServiceImpl<SpaceDilatationI
 
     @Resource
     private ISpaceInfoService spaceInfoService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
-
-    @Resource
-    private RedisCache redisCache;
 
     @Resource
     private IAccountInfoService accountInfoService;
@@ -284,11 +276,11 @@ public class SpaceDilatationInfoServiceImpl extends ServiceImpl<SpaceDilatationI
         Long dilatationUnit = 0L;
         //获取到对应的价格
         if (dilatationType.equals(PSpaceDilatationTypeEnum.SPACE_DILATATION_TYPE_0.getValue())) {
-            dilatationUnit = Long.valueOf(configInfoService.getConfigInfoOutCache(PICTURE_SPACE_DILATATION_SIZE));
+            dilatationUnit = PICTURE_SPACE_DILATATION_SIZE_VALUE;
         } else if (dilatationType.equals(PSpaceDilatationTypeEnum.SPACE_DILATATION_TYPE_1.getValue())) {
-            dilatationUnit = Long.valueOf(configInfoService.getConfigInfoOutCache(PICTURE_SPACE_DILATATION_COUNT));
+            dilatationUnit = PICTURE_SPACE_DILATATION_COUNT_VALUE;
         } else if (dilatationType.equals(PSpaceDilatationTypeEnum.SPACE_DILATATION_TYPE_2.getValue())) {
-            dilatationUnit = Long.valueOf(configInfoService.getConfigInfoOutCache(PICTURE_SPACE_DILATATION_MEMBER));
+            dilatationUnit = PICTURE_SPACE_DILATATION_MEMBER_VALUE;
         } else {
             throw new ServiceException("请选择扩容类型");
         }

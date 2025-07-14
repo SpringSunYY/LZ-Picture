@@ -11,7 +11,6 @@ import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
-import com.lz.config.service.impl.ConfigInfoServiceImpl;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.mapper.PictureApplyInfoMapper;
@@ -38,8 +37,8 @@ import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_APPLY_REVIEW;
-import static com.lz.common.constant.config.UserConfigKeyConstants.PICTURE_INDEX_P;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 
 /**
  * 图片申请信息Service业务层处理
@@ -58,8 +57,6 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     @Resource
     private OssConfig ossConfig;
 
-    @Resource
-    private ConfigInfoServiceImpl configInfoService;
     @Resource
     private RedisCache redisCache;
 
@@ -81,9 +78,8 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     public PictureApplyInfo selectPictureApplyInfoByApplyId(String applyId) {
         PictureApplyInfo pictureApplyInfo = pictureApplyInfoMapper.selectPictureApplyInfoByApplyId(applyId);
         //压缩图片
-        String p = "?x-oss-process=image/resize,p_" + configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         if (StringUtils.isNotNull(pictureApplyInfo)) {
-            builderUrl(pictureApplyInfo, p);
+            builderUrl(pictureApplyInfo, PICTURE_INDEX_P_VALUE);
         }
         return pictureApplyInfo;
     }
@@ -98,14 +94,13 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     public List<PictureApplyInfo> selectPictureApplyInfoList(PictureApplyInfo pictureApplyInfo) {
         List<PictureApplyInfo> pictureApplyInfos = pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);
         //压缩图片
-        String p = "?x-oss-process=image/resize,p_" + configInfoService.getConfigInfoInCache(PICTURE_INDEX_P);
         for (PictureApplyInfo info : pictureApplyInfos) {
-            builderUrl(info, p);
+            builderUrl(info, PICTURE_INDEX_P_VALUE);
         }
         return pictureApplyInfos;
     }
 
-    private void builderUrl(PictureApplyInfo info, String p) {
+    private void builderUrl(PictureApplyInfo info, Integer p) {
         //构建url
         if (StringUtils.isNotEmpty(info.getApplyImage())) {
             String url = builderPictureUrl(info.getApplyImage(), p);
@@ -121,7 +116,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         }
     }
 
-    private String builderPictureUrl(String urls, String p) {
+    private String builderPictureUrl(String urls, Integer p) {
         String[] split = urls.split(COMMON_SEPARATOR);
         StringBuilder buffer = new StringBuilder();
         for (String str : split) {
