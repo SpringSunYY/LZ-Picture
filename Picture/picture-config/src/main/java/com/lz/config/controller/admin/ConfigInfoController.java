@@ -3,6 +3,7 @@ package com.lz.config.controller.admin;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lz.config.utils.ConfigInfoUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -40,6 +41,9 @@ public class ConfigInfoController extends BaseController {
     @Resource
     private IConfigInfoService configInfoService;
 
+    @Resource
+    private ConfigInfoUtils configInfoUtils;
+
     /**
      * 查询配置信息列表
      */
@@ -58,7 +62,7 @@ public class ConfigInfoController extends BaseController {
     @PreAuthorize("@ss.hasPermi('config:configInfo:add')")
     @DeleteMapping("/reset")
     public AjaxResult reset() {
-        return toAjax(configInfoService.initConfigInfoCache());
+        return toAjax(configInfoUtils.initConfigInfoCache());
     }
 
     /**
