@@ -121,7 +121,7 @@ public class ConfigInfoUtils {
     public static Long PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE = 60 * 5L;
 
     /**
-     * 用户自己浏览记录、行为记录封面压缩倍率百分比
+     * 用户自己浏览记录、行为记录等表格封面压缩倍率百分比
      */
     public static final String PICTURE_COVER_P_KEY = "picture:cover:p";
     public static Integer PICTURE_COVER_P_VALUE = 20;

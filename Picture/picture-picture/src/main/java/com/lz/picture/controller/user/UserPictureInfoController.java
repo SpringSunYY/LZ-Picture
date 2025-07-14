@@ -12,7 +12,6 @@ import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
 import com.lz.picture.manager.PictureAsyncManager;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
 
@@ -226,7 +226,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
         if (userPictureInfoQuery.getPageSize() > 50) {
             userPictureInfoQuery.setPageSize(50);
         }
-        PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
         return pictureInfoService.listMy(userPictureInfoQuery);
     }
 
@@ -257,7 +256,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         //压缩图片
         for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         }
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }
@@ -280,5 +279,11 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @DeleteMapping("/{pictureIds}")
     public AjaxResult remove(@PathVariable String[] pictureIds) {
         return toAjax(pictureInfoService.userDeletePictureInfoByIds(pictureIds));
+    }
+
+    @PreAuthorize("@uss.hasPermi('picture:hot')")
+    @GetMapping("/hot")
+    public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
+        return pictureInfoService.getPictureInfoHot(pictureInfoHotRequest);
     }
 }

@@ -174,11 +174,12 @@
       </a-col>
     </a-row>
     <VerticalFallLayout
+      style="margin: 0 1em"
       :loading="loading"
       @load-more="loadMore"
       :no-more="noMore"
       :picture-list="pictureList"
-    ></VerticalFallLayout>
+    />
 
     <!--添加空间-->
     <a-modal v-model:open="openReport" :footer="null" centered destroyOnClose>
@@ -502,7 +503,7 @@ const pictureQuery = ref<PictureInfoRecommendRequest>({
 
 async function loadMore() {
   if (loading.value || noMore.value) return
-  message.loading('正在为您获取图片推荐...',1)
+  message.loading('正在为您获取图片推荐...', 1)
   const res = await getPictureInfoDetailRecommend(pictureQuery.value)
   pictureList.value = res?.rows || []
   if (pictureList.value.length >= pictureQuery.value.pageSize) {

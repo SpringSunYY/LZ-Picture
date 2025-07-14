@@ -43,7 +43,7 @@ import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPA
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 /**
  * 空间成员信息Service业务层处理
@@ -273,7 +273,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
             UserSpaceMemberInfoVo userSpaceMemberInfoVo = UserSpaceMemberInfoVo.objToVo(spaceMemberInfo);
             userSpaceMemberInfoVo.setSpaceName(spaceInfo.getSpaceName());
             userSpaceMemberInfoVo.setUserName(userInfoMap.get(spaceMemberInfo.getUserId()).getUserName());
-            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             userSpaceMemberInfoVo.setInviterUserName(inviterUserInfoMap.get(spaceMemberInfo.getInviterUserId()).getUserName());
             userSpaceMemberInfoVos.add(userSpaceMemberInfoVo);
         });

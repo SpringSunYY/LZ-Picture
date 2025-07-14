@@ -6,6 +6,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.vo.pictureInfo.*;
@@ -272,4 +273,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/7/2 00:41
      **/
     TableDataInfo listMy(UserPictureInfoQuery userPictureInfoQuery);
+
+    /**
+     * 获取热门图片列表
+     *
+     * @param pictureInfoHotRequest
+     * @return TableDataInfo
+     * @author: YY
+     * @method: getPictureInfoHot
+     * @date: 2025/7/14 22:56
+     **/
+    TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest);
 }

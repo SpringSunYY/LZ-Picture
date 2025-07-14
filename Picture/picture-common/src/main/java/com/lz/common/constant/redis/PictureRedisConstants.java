@@ -169,4 +169,14 @@ public class PictureRedisConstants {
      */
     public static final Integer PICTURE_RECOMMEND_USER_EXPIRE_TIME = 60 * 60;
 
+    /**
+     * 热门图片缓存
+     */
+    public static final String PICTURE_HOT_PICTURE = "picture:hot:";
+
+    /**
+     * 热门图片缓存时间
+     */
+    public static final Integer PICTURE_HOT_PICTURE_EXPIRE_TIME = 60 * 10;
+
 }

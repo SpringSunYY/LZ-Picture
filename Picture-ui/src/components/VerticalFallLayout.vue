@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .vertical-fall-Layout {
   padding: 8px;
-  margin: 0 4vw;
+  margin: 0 auto;
 
   .masonry {
     display: grid;

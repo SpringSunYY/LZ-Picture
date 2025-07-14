@@ -415,6 +415,27 @@ export interface PictureUrlUpload {
   tags?: string[]
 }
 
+/**
+ * 热门图片请求参数
+ * 对应后端：PictureInfoHotRequest
+ */
+export interface PictureInfoHotRequest {
+  /** 类型（如：下载量、点赞数等） */
+  type?: string
+
+  /** 当前页码（分页） */
+  pageNum?: number
+
+  /** 每页记录数（分页） */
+  pageSize?: number
+
+  /** 排序列 */
+  orderByColumn?: string
+
+  /** 排序方向（asc 或 desc） */
+  isAsc?: string
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

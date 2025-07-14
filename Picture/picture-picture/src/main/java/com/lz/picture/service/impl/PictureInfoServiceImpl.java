@@ -23,7 +23,6 @@ import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
@@ -31,6 +30,7 @@ import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
-import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_DOWNLOAD_TYPE;
+import static com.lz.common.constant.picture.PictureInfoConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.config.utils.ConfigInfoUtils.*;
@@ -1177,7 +1177,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         List<PictureInfoTableVo> pictureInfoTableVos =
                 pictureInfoPage.getRecords().stream()
                         .map(pictureInfo -> {
-                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+                            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
                             return PictureInfoTableVo.objToVo(pictureInfo);
                         }).toList();
 
@@ -1331,4 +1331,44 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public void deletePictureTableCacheBySpaceId(String spaceId) {
         redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_SPACE + spaceId + "*");
     }
+
+    //region 热门图片
+    @Override
+    public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
+        String jsonStr = JSON.toJSONString(pictureInfoHotRequest);
+        //查询缓存是否存在
+        String keyData = PICTURE_HOT_PICTURE + pictureInfoHotRequest.getType() + COMMON_SEPARATOR_CACHE +
+                jsonStr;
+        //判断key是否存在
+        if (redisCache.hasKey(keyData)) {
+            return redisCache.getCacheObject(keyData);
+        }
+
+        //不存在
+        switch (pictureInfoHotRequest.getType()) {
+            case PICTURE_HOT_YEAR:
+                return null;
+            case PICTURE_HOT_MONTH:
+                return null;
+            case PICTURE_HOT_WEEK:
+                return null;
+            case PICTURE_HOT_DAY:
+                return null;
+            case PICTURE_HOT_NEW:
+                return null;
+            default:
+                PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
+                pictureRecommendRequest.setCurrentPage(pictureInfoHotRequest.getPageNum());
+                pictureRecommendRequest.setPageSize(pictureInfoHotRequest.getPageSize());
+                List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = getRecommentHotPictureInfoList(pictureRecommendRequest);
+                //遍历图片压缩图片
+                for (UserRecommendPictureInfoVo vo : recommentHotPictureInfoList) {
+                    vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
+                }
+                TableDataInfo tableDataInfo = new TableDataInfo(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
+                redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_HOT_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+                return tableDataInfo;
+        }
+    }
+    //endregion
 }

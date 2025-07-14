@@ -15,6 +15,7 @@ import type {
   PictureUrlUpload,
   PictureInfoTableVo,
   PictureInfoUpdateName,
+  PictureInfoHotRequest,
 } from '@/types/picture/picture'
 
 /**
@@ -165,14 +166,14 @@ export function listMyTable(
     method: 'get',
     params: params,
   })
-}//我的图片表格
+} //我的图片表格
 export function listMyTeamTable(
-  params: PictureInfoQuery
+  params: PictureInfoQuery,
 ): Promise<API.ResponseInfo<PictureInfoTableVo>> {
   return request({
     url: '/picture/pictureInfo/list/my/space/table',
     method: 'get',
-    params: params
+    params: params,
   })
 }
 
@@ -190,5 +191,16 @@ export function deletePictureByPictureIds(pictureIds: string[]): Promise<API.Res
   return request({
     url: '/picture/pictureInfo/' + pictureIds,
     method: 'delete',
+  })
+}
+
+//热门图片
+export function getHotPictureInfoList(
+  params: PictureInfoHotRequest,
+): Promise<API.ResponseInfo<PictureInfoVo[]>> {
+  return request({
+    url: '/picture/pictureInfo/hot',
+    method: 'get',
+    params: params,
   })
 }

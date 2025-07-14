@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_SUCCESS;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 /**
  * 空间成员邀请记录Service业务层处理
@@ -274,7 +274,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         Page<SpaceInvitationInfo> spaceInvitationInfoPage = this.page(page, lambdaQueryWrapper);
         //压缩图片
         page.getRecords().forEach(spaceInvitationInfo -> {
-            spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            spaceInvitationInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
         });
         return new TableDataInfo(UserSpaceInvitationInfoVo.objToVo(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
     }
