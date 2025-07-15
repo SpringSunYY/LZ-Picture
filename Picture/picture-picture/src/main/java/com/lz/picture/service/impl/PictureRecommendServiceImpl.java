@@ -6,7 +6,6 @@ import com.lz.common.config.OssConfig;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.PictureCategoryInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.PictureTagInfo;
@@ -62,9 +61,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     @Resource
     private IPictureRecommendInfoService pictureRecommendInfoService;
-
-    @Resource
-    private IConfigInfoService configInfoService;
 
     @Resource
     private OssConfig ossConfig;

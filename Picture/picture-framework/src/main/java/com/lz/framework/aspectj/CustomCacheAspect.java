@@ -1,0 +1,173 @@
+package com.lz.framework.aspectj;
+
+import com.alibaba.fastjson2.JSON;
+import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.core.redis.RedisCache;
+import jakarta.annotation.Resource;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 自定义缓存切面
+ */
+@Aspect
+@Component
+public class CustomCacheAspect {
+
+    @Resource
+    private RedisCache redisCache;
+
+    private static final String COMMON_SEPARATOR_CACHE = ":";
+
+    private static final int DEFAULT_PAGE_SIZE = 30;
+
+    private static final int DEFAULT_PAGE_NUM = 1;
+
+    @Around("@annotation(customCacheable)")
+    public Object around(ProceedingJoinPoint joinPoint, CustomCacheable customCacheable) throws Throwable {
+        String keyPrefix = customCacheable.keyPrefix();
+        String keyFieldPath = customCacheable.keyField();
+        boolean useQueryParamsAsKey = customCacheable.useQueryParamsAsKey();
+        long expireTime = customCacheable.expireTime();
+        boolean paginate = customCacheable.paginate();
+        String pageNumberField = customCacheable.pageNumberField();
+        String pageSizeField = customCacheable.pageSizeField();
+        boolean cacheNextPage = customCacheable.cacheNextPage();
+
+        Object[] args = joinPoint.getArgs();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        String[] paramNames = signature.getParameterNames();
+
+        // 先根据 keyFieldPath 从指定参数中取值
+        Object keyFieldValue = getValueByParamNameAndFieldPath(paramNames, args, keyFieldPath);
+
+        // keyFieldValue 转字符串，没取到就用"default"
+        String keyFieldStr = keyFieldValue != null ? keyFieldValue.toString() : "default";
+
+        // 如果开启了 useQueryParamsAsKey，就把整个参数数组序列化成 JSON 加到 key 后面
+        String queryParamsJson = "";
+        if (useQueryParamsAsKey) {
+            queryParamsJson = JSON.toJSONString(args);
+        }
+
+        // 构造基础缓存 key
+        // 格式：prefix:keyFieldStr 或 prefix:keyFieldStr:json参数字符串
+        String baseCacheKey = keyPrefix + COMMON_SEPARATOR_CACHE + keyFieldStr;
+        if (useQueryParamsAsKey) {
+            baseCacheKey += COMMON_SEPARATOR_CACHE + queryParamsJson;
+        }
+
+        if (paginate) {
+            int pageNumber = extractIntValue(paramNames, args, pageNumberField, DEFAULT_PAGE_NUM);
+            int pageSize = extractIntValue(paramNames, args, pageSizeField, DEFAULT_PAGE_SIZE);
+            String pageCacheKey = baseCacheKey + COMMON_SEPARATOR_CACHE + pageNumber + COMMON_SEPARATOR_CACHE + pageSize;
+
+            List<Object> cachedPage = redisCache.getCacheList(pageCacheKey, 0, pageSize - 1);
+            if (cachedPage != null && !cachedPage.isEmpty()) {
+                return cachedPage;
+            }
+
+            Object result = joinPoint.proceed();
+
+            if (result instanceof List) {
+                List<Object> resultList = (List<Object>) result;
+                redisCache.setCacheListRightPushAll(pageCacheKey, resultList, (int) expireTime, TimeUnit.SECONDS);
+
+                if (cacheNextPage) {
+                    int nextPage = pageNumber + 1;
+                    String nextPageKey = baseCacheKey + COMMON_SEPARATOR_CACHE + nextPage + COMMON_SEPARATOR_CACHE + pageSize;
+                    redisCache.setCacheListRightPushAll(nextPageKey, resultList, (int) expireTime, TimeUnit.SECONDS);
+                }
+            }
+
+            return result;
+        } else {
+            Object cachedValue = redisCache.getCacheObject(baseCacheKey);
+            if (cachedValue != null) {
+                return cachedValue;
+            }
+            Object result = joinPoint.proceed();
+            redisCache.setCacheObject(baseCacheKey, result, (int) expireTime, TimeUnit.SECONDS);
+            return result;
+        }
+    }
+
+
+    /**
+     * 根据参数名+字段路径，获取对应值
+     * keyFieldPath 示例："request.type.id"，
+     * 第一部分是参数名 request，
+     * 后面是递归取字段 type.id
+     */
+    private Object getValueByParamNameAndFieldPath(String[] paramNames, Object[] args, String keyFieldPath) {
+        if (keyFieldPath == null || keyFieldPath.isEmpty()) return null;
+
+        String[] parts = keyFieldPath.split("\\.");
+        if (parts.length == 0) return null;
+
+        String paramName = parts[0];
+        String nestedPath = keyFieldPath.substring(paramName.length());
+        if (nestedPath.startsWith(".")) nestedPath = nestedPath.substring(1);
+
+        Object paramValue = null;
+        for (int i = 0; i < paramNames.length; i++) {
+            if (paramNames[i].equals(paramName)) {
+                paramValue = args[i];
+                break;
+            }
+        }
+        if (paramValue == null) return null;
+
+        if (nestedPath.isEmpty()) {
+            return paramValue;
+        } else {
+            return getNestedFieldValue(paramValue, nestedPath);
+        }
+    }
+
+    /**
+     * 递归通过字段路径取对象字段值（支持多层嵌套）
+     * 例如 "type.id"
+     */
+    private Object getNestedFieldValue(Object obj, String fieldPath) {
+        try {
+            String[] fields = fieldPath.split("\\.");
+            Object current = obj;
+            for (String field : fields) {
+                if (current == null) return null;
+                Field f = current.getClass().getDeclaredField(field);
+                f.setAccessible(true);
+                current = f.get(current);
+            }
+            return current;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 根据字段路径提取 int 类型值（用于分页参数）
+     */
+    private int extractIntValue(String[] paramNames, Object[] args, String fieldPath, int defaultValue) {
+        if (fieldPath == null || fieldPath.isEmpty()) {
+            return defaultValue;
+        }
+        Object val = getValueByParamNameAndFieldPath(paramNames, args, fieldPath);
+        if (val instanceof Integer) {
+            return (Integer) val;
+        } else if (val instanceof Number) {
+            return ((Number) val).intValue();
+        } else {
+            return defaultValue;
+        }
+    }
+}

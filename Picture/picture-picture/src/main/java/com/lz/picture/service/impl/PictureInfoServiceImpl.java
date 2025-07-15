@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.redis.PictureRedisConstants;
@@ -1336,19 +1337,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     //region 热门图片
+    @CustomCacheable(
+            keyPrefix = "pictureHot",
+            keyField = "request.type",
+            useQueryParamsAsKey = true
+    )
     @Override
-    public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
-        String jsonStr = JSON.toJSONString(pictureInfoHotRequest);
-        //查询缓存是否存在
-        String keyData = PICTURE_HOT_PICTURE + pictureInfoHotRequest.getType() + COMMON_SEPARATOR_CACHE +
-                jsonStr;
-        //判断key是否存在
-        if (redisCache.hasKey(keyData)) {
-            return redisCache.getCacheObject(keyData);
-        }
-
+    public TableDataInfo getPictureInfoHot(PictureInfoHotRequest request) {
         //不存在
-        switch (pictureInfoHotRequest.getType()) {
+        switch (request.getType()) {
             case PICTURE_HOT_YEAR:
                 return null;
             case PICTURE_HOT_MONTH:
@@ -1361,16 +1358,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 return null;
             default:
                 PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-                pictureRecommendRequest.setCurrentPage(pictureInfoHotRequest.getPageNum());
-                pictureRecommendRequest.setPageSize(pictureInfoHotRequest.getPageSize());
+                pictureRecommendRequest.setCurrentPage(request.getPageNum());
+                pictureRecommendRequest.setPageSize(request.getPageSize());
                 List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = getRecommentHotPictureInfoList(pictureRecommendRequest);
                 //遍历图片压缩图片
                 for (UserRecommendPictureInfoVo vo : recommentHotPictureInfoList) {
                     vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
                 }
-                TableDataInfo tableDataInfo = new TableDataInfo(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
-                redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_HOT_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
-                return tableDataInfo;
+                return new TableDataInfo(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
         }
     }
     //endregion

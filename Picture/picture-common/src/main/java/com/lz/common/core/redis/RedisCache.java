@@ -166,9 +166,19 @@ public class RedisCache {
         return redisTemplate.opsForList().range(key, 0, -1);
     }
 
+    /**
+     * 获取分页数据
+     *
+     * @param key   缓存的键值
+     * @param start 起始索引
+     * @param end   结束索引
+     * @return 返回分页数据
+     */
     public <T> List<T> getCacheList(final String key, int start, int end) {
+        // 获取缓存的分页数据
         return redisTemplate.opsForList().range(key, start, end);
     }
+
 
     /**
      * 缓存Set
@@ -294,6 +304,7 @@ public class RedisCache {
 
     /**
      * 为key加值
+     *
      * @param key
      * @param value
      */
