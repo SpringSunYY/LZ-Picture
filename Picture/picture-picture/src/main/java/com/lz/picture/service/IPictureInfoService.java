@@ -284,4 +284,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @date: 2025/7/14 22:56
      **/
     TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest);
+
+    //获取图片总数
+    Long getPictureCountByPictureStatus(String pictureStatus);
 }

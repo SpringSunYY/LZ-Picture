@@ -1319,8 +1319,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public void deletePictureTableCacheBySpaceId(String spaceId) {
         redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_SPACE + spaceId + "*");
     }
-
-    //region 热门图片
+    //region 热门图片 我一点一点猜 猜猜不出你的独白
     @CustomCacheable(
             keyPrefix = "pictureHot",
             keyField = "request.type",
@@ -1339,18 +1338,57 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             case PICTURE_HOT_DAY:
                 return null;
             case PICTURE_HOT_NEW:
-                return null;
+                return getPictureInfoByNew(request);
             default:
-                PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-                pictureRecommendRequest.setCurrentPage(request.getPageNum());
-                pictureRecommendRequest.setPageSize(request.getPageSize());
-                List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = getRecommentHotPictureInfoList(pictureRecommendRequest);
-                //遍历图片压缩图片
-                for (UserRecommendPictureInfoVo vo : recommentHotPictureInfoList) {
-                    vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
-                }
-                return new TableDataInfo(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
+                return getPictureInfoByHot(request);
         }
+    }
+
+    //获取图片总数
+    @Override
+    public Long getPictureCountByPictureStatus(String pictureStatus) {
+        return this.count(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getPictureStatus, pictureStatus));
+    }
+
+    private TableDataInfo getPictureInfoByNew(PictureInfoHotRequest request) {
+        Page<PictureInfo> pictureInfoPage = new Page<>();
+        pictureInfoPage.setCurrent(request.getPageNum());
+        pictureInfoPage.setSize(request.getPageSize());
+        Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                .orderByDesc(PictureInfo::getPublishTime)
+        );
+        //构造url
+        pictureInfoList.getRecords().forEach(pictureInfo -> {
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+        });
+        List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
+        //防止空指针异常
+        if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
+            userRecommendPictureInfoVos = new ArrayList<>();
+        }
+        Long pictureCountByPictureStatus = getPictureCountByPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        return new TableDataInfo(userRecommendPictureInfoVos, Math.toIntExact(pictureCountByPictureStatus));
+    }
+
+    /**
+     * 获取热门图片
+     *
+     * @param request 请求参数
+     * @return 表格
+     */
+    private TableDataInfo getPictureInfoByHot(PictureInfoHotRequest request) {
+        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
+        pictureRecommendRequest.setCurrentPage(request.getPageNum());
+        pictureRecommendRequest.setPageSize(request.getPageSize());
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = getRecommentHotPictureInfoList(pictureRecommendRequest);
+        //遍历图片压缩图片
+        for (UserRecommendPictureInfoVo vo : recommentHotPictureInfoList) {
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
+        }
+        Long pictureCountByPictureStatus = getPictureCountByPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        return new TableDataInfo(recommentHotPictureInfoList, Math.toIntExact(pictureCountByPictureStatus));
     }
     //endregion
 }

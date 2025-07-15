@@ -7,7 +7,7 @@
           <h1 class="hero-title">和我们一起发现与您共鸣的图片</h1>
           <div class="hero-badge">
             <span class="badge-icon">🔥</span>
-            <span class="badge-text">{{ typeText }}热门</span>
+            <span class="badge-text">{{ typeText }}</span>
           </div>
         </div>
 
@@ -20,7 +20,7 @@
               <div class="stat-label">张图片</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ formatNumber(pictureList.length) }}</div>
+              <div class="stat-number">{{ formatNumber(currentCount) }}</div>
               <div class="stat-label">已加载</div>
             </div>
           </div>
@@ -43,6 +43,7 @@
     </div>
 
     <VerticalFallLayout
+      ref="verticalFallLayout"
       :loading="loading"
       @load-more="loadMore"
       :no-more="noMore"
@@ -52,7 +53,7 @@
 </template>
 
 <script setup lang="ts" name="PictureHot">
-import { ref, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { PictureInfoHotRequest, PictureInfoVo } from '@/types/picture/picture'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
@@ -65,6 +66,7 @@ const loading = ref(false)
 const noMore = ref(false)
 const pictureList = ref<PictureInfoVo[]>([])
 const totalCount = ref(1000)
+const currentCount = ref(0)
 
 const query = ref<PictureInfoHotRequest>({
   type: (type.value as string) || 'total',
@@ -74,15 +76,17 @@ const query = ref<PictureInfoHotRequest>({
 
 const loadProgress = computed(() => {
   if (totalCount.value === 0) return 0
-  return Math.min((pictureList.value.length / totalCount.value) * 100, 100)
+  return Math.min((currentCount.value / totalCount.value) * 100, 100)
 })
 
 const typeText = computed(() => {
   const typeMap: Record<string, string> = {
-    total: '全站',
-    daily: '今日',
-    weekly: '本周',
-    monthly: '本月',
+    total: '全站热门图片',
+    day: '今日热门',
+    week: '本周热门',
+    month: '本月热门',
+    year: '本年热门',
+    new: '最新图片'
   }
   return typeMap[type.value as string] || '全站'
 })
@@ -103,11 +107,11 @@ async function loadMore() {
   const res = await getHotPictureInfoList(query.value)
   if (res && res?.rows) {
     pictureList.value = res.rows.flat()
-    // if (res.total !== undefined) {
-    //   totalCount.value = res.total
-    // } else {
-    //   totalCount.value = pictureList.value.length
-    // }
+    if (res.total !== undefined) {
+      totalCount.value = res.total
+    } else {
+      totalCount.value = pictureList.value.length
+    }
   }
   if (pictureList.value.length >= query.value.pageSize) {
     query.value.pageNum++
@@ -116,10 +120,37 @@ async function loadMore() {
     message.success('已为您获取全部热门图片')
     noMore.value = true
   }
+  currentCount.value += res.rows.length
   loading.value = false
 }
 
-loadMore()
+const verticalFallLayout = ref()
+const reloadData = async () => {
+  // 重置分页和列表状态
+  query.value.pageNum = 1
+  pictureList.value = []
+  noMore.value = false
+  currentCount.value = 0
+  noMore.value = false
+  totalCount.value = 0
+  currentCount.value = 0
+  // 添加判断防止 undefined 错误
+  if (verticalFallLayout.value && typeof verticalFallLayout.value.clearData === 'function') {
+    await verticalFallLayout.value.clearData()
+  }
+}
+watch(
+  () => router.currentRoute.value.query.type,
+  async (newType) => {
+    // console.log('type changed:', newType)
+    // 更新查询参数中的 type
+    query.value.type = newType || 'total'
+    await reloadData()
+  },
+  { deep: true, deep: true },
+)
+
+// reloadData()
 </script>
 
 <style scoped lang="scss">
