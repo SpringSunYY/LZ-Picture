@@ -125,7 +125,7 @@ export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): Men
     })
     .map((route) => {
       const menuItem: any = {
-        key: route.path,
+        key: route.name,
         isFrame: route.meta?.isFrame,
         path: route.meta?.path,
         label: route.meta?.title,
@@ -179,7 +179,7 @@ export function toMenu(route: RouteRecordRaw) {
   }
   // 内部路由跳转
   router.push({
-    path: route.key,
+    name: route.key,
     query: queryObj,
   })
 }

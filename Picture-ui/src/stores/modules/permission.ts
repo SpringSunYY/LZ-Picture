@@ -54,7 +54,7 @@ const usePermissionStore = defineStore('permission', {
               isHidden: route.isHidden === '0',
               menuType: route.menuType,
               menuAddress: route.menuAddress,
-              path: route.path,
+              path: route.path.startsWith('/') ? route.path : `/${route.path}`,
               query: route.query,
             },
             children: route.children ? transformRoutes(route.children) : [],
