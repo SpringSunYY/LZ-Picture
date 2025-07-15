@@ -11,7 +11,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +30,8 @@ public class CustomCacheAspect {
 
     private static final int DEFAULT_PAGE_NUM = 1;
 
+    private static final String DEFAULT = "default";
+
     @Around("@annotation(customCacheable)")
     public Object around(ProceedingJoinPoint joinPoint, CustomCacheable customCacheable) throws Throwable {
         String keyPrefix = customCacheable.keyPrefix();
@@ -44,26 +45,21 @@ public class CustomCacheAspect {
 
         Object[] args = joinPoint.getArgs();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
         String[] paramNames = signature.getParameterNames();
 
         // 先根据 keyFieldPath 从指定参数中取值
         Object keyFieldValue = getValueByParamNameAndFieldPath(paramNames, args, keyFieldPath);
 
-        // keyFieldValue 转字符串，没取到就用"default"
-        String keyFieldStr = keyFieldValue != null ? keyFieldValue.toString() : "default";
-
-        // 如果开启了 useQueryParamsAsKey，就把整个参数数组序列化成 JSON 加到 key 后面
-        String queryParamsJson = "";
-        if (useQueryParamsAsKey) {
-            queryParamsJson = JSON.toJSONString(args);
-        }
-
         // 构造基础缓存 key
         // 格式：prefix:keyFieldStr 或 prefix:keyFieldStr:json参数字符串
-        String baseCacheKey = keyPrefix + COMMON_SEPARATOR_CACHE + keyFieldStr;
+        String baseCacheKey = keyPrefix;
+        if (keyFieldValue != null && !keyFieldValue.toString().isEmpty()) {
+            baseCacheKey += COMMON_SEPARATOR_CACHE + keyFieldValue.toString();
+        }
+
+        // 如果开启了 useQueryParamsAsKey，就把整个参数数组序列化成 JSON 加到 key 后面
         if (useQueryParamsAsKey) {
-            baseCacheKey += COMMON_SEPARATOR_CACHE + queryParamsJson;
+            baseCacheKey = baseCacheKey + COMMON_SEPARATOR_CACHE + JSON.toJSONString(args);
         }
 
         if (paginate) {
