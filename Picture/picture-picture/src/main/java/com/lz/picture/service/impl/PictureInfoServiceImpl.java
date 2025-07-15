@@ -1319,6 +1319,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public void deletePictureTableCacheBySpaceId(String spaceId) {
         redisCache.deleteObjectsByPattern(PICTURE_PICTURE_TABLE_SPACE + spaceId + "*");
     }
+
     //region 热门图片 我一点一点猜 猜猜不出你的独白
     @CustomCacheable(
             keyPrefix = "pictureHot",
@@ -1346,8 +1347,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     //获取图片总数
     @Override
-    public Long getPictureCountByPictureStatus(String pictureStatus) {
-        return this.count(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getPictureStatus, pictureStatus));
+    public Long getPictureCountByPictureStatus(String pictureStatus, String isDelete) {
+        return this.count(new LambdaQueryWrapper<PictureInfo>()
+                .eq(StringUtils.isNotEmpty(pictureStatus), PictureInfo::getPictureStatus, pictureStatus)
+                .eq(StringUtils.isNotEmpty(isDelete), PictureInfo::getIsDelete, isDelete));
     }
 
     private TableDataInfo getPictureInfoByNew(PictureInfoHotRequest request) {
@@ -1368,7 +1371,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
             userRecommendPictureInfoVos = new ArrayList<>();
         }
-        Long pictureCountByPictureStatus = getPictureCountByPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        Long pictureCountByPictureStatus = getPictureCountByPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue(), CommonDeleteEnum.NORMAL.getValue());
         return new TableDataInfo(userRecommendPictureInfoVos, Math.toIntExact(pictureCountByPictureStatus));
     }
 
@@ -1387,7 +1390,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         for (UserRecommendPictureInfoVo vo : recommentHotPictureInfoList) {
             vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         }
-        Long pictureCountByPictureStatus = getPictureCountByPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        Long pictureCountByPictureStatus = getPictureCountByPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue(), CommonDeleteEnum.NORMAL.getValue());
         return new TableDataInfo(recommentHotPictureInfoList, Math.toIntExact(pictureCountByPictureStatus));
     }
     //endregion

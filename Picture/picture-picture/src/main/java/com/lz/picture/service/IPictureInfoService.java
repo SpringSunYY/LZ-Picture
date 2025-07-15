@@ -286,5 +286,5 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest);
 
     //获取图片总数
-    Long getPictureCountByPictureStatus(String pictureStatus);
+    Long getPictureCountByPictureStatus(String pictureStatus, String isDelete);
 }
