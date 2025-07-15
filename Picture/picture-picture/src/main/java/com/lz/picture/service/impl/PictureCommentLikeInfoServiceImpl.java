@@ -1,21 +1,19 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.PictureCommentLikeInfoMapper;
 import com.lz.picture.model.domain.PictureCommentLikeInfo;
-import com.lz.picture.service.IPictureCommentLikeInfoService;
 import com.lz.picture.model.dto.pictureCommentLikeInfo.PictureCommentLikeInfoQuery;
 import com.lz.picture.model.vo.pictureCommentLikeInfo.PictureCommentLikeInfoVo;
+import com.lz.picture.service.IPictureCommentLikeInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 评论点赞记录Service业务层处理
@@ -24,12 +22,12 @@ import com.lz.picture.model.vo.pictureCommentLikeInfo.PictureCommentLikeInfoVo;
  * @date 2025-03-24
  */
 @Service
-public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommentLikeInfoMapper, PictureCommentLikeInfo> implements IPictureCommentLikeInfoService
-{
+public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommentLikeInfoMapper, PictureCommentLikeInfo> implements IPictureCommentLikeInfoService {
     @Resource
     private PictureCommentLikeInfoMapper pictureCommentLikeInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询评论点赞记录
      *
@@ -37,8 +35,7 @@ public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommen
      * @return 评论点赞记录
      */
     @Override
-    public PictureCommentLikeInfo selectPictureCommentLikeInfoByLikeId(String likeId)
-    {
+    public PictureCommentLikeInfo selectPictureCommentLikeInfoByLikeId(String likeId) {
         return pictureCommentLikeInfoMapper.selectPictureCommentLikeInfoByLikeId(likeId);
     }
 
@@ -49,8 +46,7 @@ public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommen
      * @return 评论点赞记录
      */
     @Override
-    public List<PictureCommentLikeInfo> selectPictureCommentLikeInfoList(PictureCommentLikeInfo pictureCommentLikeInfo)
-    {
+    public List<PictureCommentLikeInfo> selectPictureCommentLikeInfoList(PictureCommentLikeInfo pictureCommentLikeInfo) {
         return pictureCommentLikeInfoMapper.selectPictureCommentLikeInfoList(pictureCommentLikeInfo);
     }
 
@@ -61,8 +57,7 @@ public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommen
      * @return 结果
      */
     @Override
-    public int insertPictureCommentLikeInfo(PictureCommentLikeInfo pictureCommentLikeInfo)
-    {
+    public int insertPictureCommentLikeInfo(PictureCommentLikeInfo pictureCommentLikeInfo) {
         pictureCommentLikeInfo.setCreateTime(DateUtils.getNowDate());
         return pictureCommentLikeInfoMapper.insertPictureCommentLikeInfo(pictureCommentLikeInfo);
     }
@@ -74,8 +69,7 @@ public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommen
      * @return 结果
      */
     @Override
-    public int updatePictureCommentLikeInfo(PictureCommentLikeInfo pictureCommentLikeInfo)
-    {
+    public int updatePictureCommentLikeInfo(PictureCommentLikeInfo pictureCommentLikeInfo) {
         return pictureCommentLikeInfoMapper.updatePictureCommentLikeInfo(pictureCommentLikeInfo);
     }
 
@@ -86,8 +80,7 @@ public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommen
      * @return 结果
      */
     @Override
-    public int deletePictureCommentLikeInfoByLikeIds(String[] likeIds)
-    {
+    public int deletePictureCommentLikeInfoByLikeIds(String[] likeIds) {
         return pictureCommentLikeInfoMapper.deletePictureCommentLikeInfoByLikeIds(likeIds);
     }
 
@@ -98,33 +91,33 @@ public class PictureCommentLikeInfoServiceImpl extends ServiceImpl<PictureCommen
      * @return 结果
      */
     @Override
-    public int deletePictureCommentLikeInfoByLikeId(String likeId)
-    {
+    public int deletePictureCommentLikeInfoByLikeId(String likeId) {
         return pictureCommentLikeInfoMapper.deletePictureCommentLikeInfoByLikeId(likeId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PictureCommentLikeInfo> getQueryWrapper(PictureCommentLikeInfoQuery pictureCommentLikeInfoQuery){
+    public QueryWrapper<PictureCommentLikeInfo> getQueryWrapper(PictureCommentLikeInfoQuery pictureCommentLikeInfoQuery) {
         QueryWrapper<PictureCommentLikeInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = pictureCommentLikeInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String likeId = pictureCommentLikeInfoQuery.getLikeId();
-        queryWrapper.eq(StringUtils.isNotEmpty(likeId) ,"like_id",likeId);
+        String likeId = pictureCommentLikeInfoQuery.getLikeId();
+        queryWrapper.eq(StringUtils.isNotEmpty(likeId), "like_id", likeId);
 
-    String userId = pictureCommentLikeInfoQuery.getUserId();
-        queryWrapper.eq(StringUtils.isNotEmpty(userId) ,"user_id",userId);
+        String userId = pictureCommentLikeInfoQuery.getUserId();
+        queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
-    String pictureId = pictureCommentLikeInfoQuery.getPictureId();
-        queryWrapper.eq(StringUtils.isNotEmpty(pictureId) ,"picture_id",pictureId);
+        String pictureId = pictureCommentLikeInfoQuery.getPictureId();
+        queryWrapper.eq(StringUtils.isNotEmpty(pictureId), "picture_id", pictureId);
 
-    String targetCover = pictureCommentLikeInfoQuery.getTargetCover();
-        queryWrapper.eq(StringUtils.isNotEmpty(targetCover) ,"target_cover",targetCover);
+        String targetCover = pictureCommentLikeInfoQuery.getTargetCover();
+        queryWrapper.eq(StringUtils.isNotEmpty(targetCover), "target_cover", targetCover);
 
-    Date createTime = pictureCommentLikeInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = pictureCommentLikeInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
         return queryWrapper;
     }

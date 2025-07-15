@@ -1,10 +1,10 @@
 package com.lz.picture.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
@@ -38,7 +38,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_DELETE;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME;
@@ -202,19 +201,13 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                 .eq(SpaceMemberInfo::getUserId, userId));
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_SPACE_MEMBER_DATA, keyField = "query.spaceId",
+            expireTime = PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
     public TableDataInfo listUserSpaceMemberInfoList(UserSpaceMemberInfoQuery query) {
-        String jsonStr = JSON.toJSONString(query);
-        //查询缓存是否存在
-        String keyData = PICTURE_SPACE_MEMBER_DATA + query.getSpaceId() + COMMON_SEPARATOR_CACHE +
-                jsonStr;
-        if (redisCache.hasKey(keyData)) {
-            return redisCache.getCacheObject(keyData);
-        }
         //先根据用户查询他是否再此空间，如果不在直接返回 空对象
         SpaceMemberInfo spaceMemberInfoList = this.userIsJoinSpace(query.getSpaceId(), query.getUserId());
         if (StringUtils.isNull(spaceMemberInfoList)) {
-            redisCache.setCacheObject(keyData, new TableDataInfo(), PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
             return new TableDataInfo();
         }
         //构造查询条件
@@ -254,7 +247,6 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         //如果为空直接返回
         List<SpaceMemberInfo> records = memberInfoPage.getRecords();
         if (StringUtils.isEmpty(records)) {
-            redisCache.setCacheObject(keyData, new TableDataInfo(), PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
             return new TableDataInfo();
         }
         //不为空查询用户信息 1、查询用户、2、查询邀请人
@@ -280,7 +272,6 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         TableDataInfo tableDataInfo = new TableDataInfo();
         tableDataInfo.setRows(userSpaceMemberInfoVos);
         tableDataInfo.setTotal(memberInfoPage.getTotal());
-        redisCache.setCacheObject(keyData, tableDataInfo, PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME, TimeUnit.SECONDS);
         return tableDataInfo;
     }
 

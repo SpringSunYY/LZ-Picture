@@ -59,7 +59,14 @@ public class CustomCacheEvictAspect {
     }
 
 
-    // 重用之前的 getNestedFieldValue 方法，从 args 里找指定字段值
+    /**
+     * 重用之前的 getNestedFieldValue 方法，从 args 里找指定字段值
+     *
+     * @param paramNames 参数名
+     * @param args       参数
+     * @param fieldPath  字段路径
+     * @return 字段值
+     */
     private Object getValueByParamNameAndFieldPath(String[] paramNames, Object[] args, String fieldPath) {
         try {
             if (fieldPath == null || fieldPath.isEmpty()) return null;
@@ -92,6 +99,13 @@ public class CustomCacheEvictAspect {
         }
     }
 
+    /**
+     * 获取嵌套字段的值
+     *
+     * @param obj       对象
+     * @param fieldPath 字段路径
+     * @return 字段值
+     */
     private Object getNestedFieldValue(Object obj, String fieldPath) {
         try {
             if (obj == null || fieldPath == null || fieldPath.isEmpty()) return null;

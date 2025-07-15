@@ -30,10 +30,9 @@ public class CustomCacheAspect {
 
     private static final int DEFAULT_PAGE_NUM = 1;
 
-    private static final String DEFAULT = "default";
-
     @Around("@annotation(customCacheable)")
     public Object around(ProceedingJoinPoint joinPoint, CustomCacheable customCacheable) throws Throwable {
+        //获取注解参数
         String keyPrefix = customCacheable.keyPrefix();
         String keyFieldPath = customCacheable.keyField();
         boolean useQueryParamsAsKey = customCacheable.useQueryParamsAsKey();
@@ -43,12 +42,16 @@ public class CustomCacheAspect {
         String pageSizeField = customCacheable.pageSizeField();
         boolean cacheNextPage = customCacheable.cacheNextPage();
 
+        //获取方法参数
         Object[] args = joinPoint.getArgs();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String[] paramNames = signature.getParameterNames();
 
         // 先根据 keyFieldPath 从指定参数中取值
-        Object keyFieldValue = getValueByParamNameAndFieldPath(paramNames, args, keyFieldPath);
+        Object keyFieldValue = null;
+        if (keyFieldPath != null && !keyFieldPath.isEmpty()) {
+            keyFieldValue = getValueByParamNameAndFieldPath(paramNames, args, keyFieldPath);
+        }
 
         // 构造基础缓存 key
         // 格式：prefix:keyFieldStr 或 prefix:keyFieldStr:json参数字符串
@@ -62,19 +65,22 @@ public class CustomCacheAspect {
             baseCacheKey = baseCacheKey + COMMON_SEPARATOR_CACHE + JSON.toJSONString(args);
         }
 
+        // 分页缓存
         if (paginate) {
             int pageNumber = extractIntValue(paramNames, args, pageNumberField, DEFAULT_PAGE_NUM);
             int pageSize = extractIntValue(paramNames, args, pageSizeField, DEFAULT_PAGE_SIZE);
+            // 构造缓存 key,不缓存所有数据，而是缓存指定页的数据，防止如果数据量过大，缓存的数据会变大，获取数据拿数据慢
             String pageCacheKey = baseCacheKey + COMMON_SEPARATOR_CACHE + pageNumber + COMMON_SEPARATOR_CACHE + pageSize;
 
             List<Object> cachedPage = redisCache.getCacheList(pageCacheKey, 0, pageSize - 1);
             if (cachedPage != null && !cachedPage.isEmpty()) {
                 return cachedPage;
             }
-
+            //没拿到缓存继续执行方法
             Object result = joinPoint.proceed();
 
             if (result instanceof List) {
+                @SuppressWarnings("unchecked")
                 List<Object> resultList = (List<Object>) result;
                 redisCache.setCacheListRightPushAll(pageCacheKey, resultList, (int) expireTime, TimeUnit.SECONDS);
 
@@ -103,17 +109,24 @@ public class CustomCacheAspect {
      * keyFieldPath 示例："request.type.id"，
      * 第一部分是参数名 request，
      * 后面是递归取字段 type.id
+     *
+     * @param paramNames   参数名
+     * @param args         参数
+     * @param keyFieldPath 字段路径
+     * @return 值
      */
     private Object getValueByParamNameAndFieldPath(String[] paramNames, Object[] args, String keyFieldPath) {
         if (keyFieldPath == null || keyFieldPath.isEmpty()) return null;
-
+        //根据.分割参数
         String[] parts = keyFieldPath.split("\\.");
         if (parts.length == 0) return null;
 
+        //获取参数名
         String paramName = parts[0];
         String nestedPath = keyFieldPath.substring(paramName.length());
         if (nestedPath.startsWith(".")) nestedPath = nestedPath.substring(1);
 
+        //获取参数值
         Object paramValue = null;
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(paramName)) {
@@ -133,11 +146,16 @@ public class CustomCacheAspect {
     /**
      * 递归通过字段路径取对象字段值（支持多层嵌套）
      * 例如 "type.id"
+     *
+     * @param obj       对象
+     * @param fieldPath 字段路径
+     * @return 字段值
      */
     private Object getNestedFieldValue(Object obj, String fieldPath) {
         try {
             String[] fields = fieldPath.split("\\.");
             Object current = obj;
+            //字段值
             for (String field : fields) {
                 if (current == null) return null;
                 Field f = current.getClass().getDeclaredField(field);

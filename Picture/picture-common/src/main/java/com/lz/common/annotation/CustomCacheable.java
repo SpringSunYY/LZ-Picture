@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface CustomCacheable {
     String keyPrefix();          // 缓存 key 的前缀
 
-    String keyField();           // 从入参中提取 key 的字段路径（支持嵌套字段）
+    String keyField() default "";           // 从入参中提取 key 的字段路径（支持嵌套字段）
 
     long expireTime() default 3600L; // 缓存时间（秒）
 

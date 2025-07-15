@@ -485,19 +485,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         });
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_PICTURE_DETAIL, keyField = "pictureId", expireTime = PictureRedisConstants.PICTURE_PICTURE_DETAIL_EXPIRE_TIME)
     @Override
     public UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId, String userId) {
         //先查询缓存是否存在
-        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
-        UserPictureDetailInfoVo userPictureDetailInfoVo = null;
-        if (redisCache.hasKey(key)) {
-            userPictureDetailInfoVo = redisCache.getCacheObject(key);
-        } else {
-            userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
-            userPictureDetailInfoVo.setPictureUrl(null);
-        }
-        //存入缓存 五分钟即可
-        redisCache.setCacheObject(key, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
+        UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+        userPictureDetailInfoVo.setPictureUrl(null);
+
         //查询是否有行为，点赞、收藏
         isBehavior(pictureId, userId, userPictureDetailInfoVo);
         //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
@@ -637,16 +631,16 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         userPictureDetailInfoVo.setShareCount(StringUtils.isNull(userPictureDetailInfoVo.getShareCount()) ? 0 : userPictureDetailInfoVo.getShareCount());
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_PICTURE_DETAIL
+            , keyField = "pictureId",
+            expireTime = PICTURE_PICTURE_DETAIL_EXPIRE_TIME)
+
     @Override
     public void resetPictureInfoCacheByBehavior(String pictureId, String behaviorType, Boolean exist) {
-        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
-        UserPictureDetailInfoVo userPictureDetailInfoVo = null;
-        if (redisCache.hasKey(key)) {
-            userPictureDetailInfoVo = redisCache.getCacheObject(key);
-        } else {
-            userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
-            userPictureDetailInfoVo.setPictureUrl(null);
-        }
+        UserPictureDetailInfoVo userPictureDetailInfoVo =
+                userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+        userPictureDetailInfoVo.setPictureUrl(null);
+
         if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
             if (exist) {
                 userPictureDetailInfoVo.setLikeCount(userPictureDetailInfoVo.getLikeCount() - 1);
@@ -663,19 +657,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setShareCount(userPictureDetailInfoVo.getShareCount() + 1);
         }
         //存入缓存 五分钟即可
-        redisCache.setCacheObject(key, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
     }
 
+    @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_DETAIL}, keyFields = {"pictureId"})
     @Override
     public UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
         //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
         String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE);
         userPictureDetailInfoVo.setPictureUrl(url);
-        String key = PictureRedisConstants.PICTURE_PICTURE_DETAIL + pictureId;
-        if (redisCache.hasKey(key)) {
-            redisCache.deleteObject(key);
-        }
         //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
         if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 && !userPictureDetailInfoVo.getUserId().equals(UserInfoSecurityUtils.getUserId())
@@ -1019,12 +1009,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return pictureInfo;
     }
 
+    @CustomCacheable(
+            keyPrefix = PICTURE_SEARCH_RECOMMEND,
+            expireTime = PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME
+    )
     @Override
     public List<PictureInfoSearchRecommendVo> getSearchRecommend() {
-        List<PictureInfoSearchRecommendVo> cache = redisCache.getCacheObject(PICTURE_SEARCH_RECOMMEND);
-        if (StringUtils.isNotEmpty(cache)) {
-            return cache;
-        }
         Page<PictureInfo> page = new Page<>(1, 30);
         LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
@@ -1042,17 +1032,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         //转换为vo
         List<PictureInfoSearchRecommendVo> pictureInfoSearchRecommendVos = PictureInfoSearchRecommendVo.objToVo(pictureInfos);
-        redisCache.setCacheObject(PICTURE_SEARCH_RECOMMEND, pictureInfoSearchRecommendVos, PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME, TimeUnit.SECONDS);
         return pictureInfoSearchRecommendVos;
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_SEARCH_SUGGESTION,
+            keyField = "name",
+            expireTime = PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME)
     @Override
     public List<PictureInfoSearchSuggestionVo> getSearchSuggestion(String name) {
-        String key = PICTURE_SEARCH_SUGGESTION + COMMON_SEPARATOR_CACHE + name;
-        List<PictureInfoSearchSuggestionVo> cache = redisCache.getCacheObject(key);
-        if (StringUtils.isNotEmpty(cache)) {
-            return cache;
-        }
         Page<PictureInfo> page = new Page<>(1, 15);
         LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
@@ -1066,42 +1053,38 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .orderByDesc(PictureInfo::getLookCount);
 
         List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
-        List<PictureInfoSearchSuggestionVo> pictureInfoSearchSuggestionVos = PictureInfoSearchSuggestionVo.objToVo(pictureInfos);
-        redisCache.setCacheObject(key, pictureInfoSearchSuggestionVos, PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME, TimeUnit.SECONDS);
-        return pictureInfoSearchSuggestionVos;
+        return PictureInfoSearchSuggestionVo.objToVo(pictureInfos);
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_RECOMMEND_DETAIL,
+            keyField = "request.pictureId",
+            paginate = true,
+            pageNumberField = "request.currentPage",
+            pageSizeField = "request.pageSize",
+            expireTime = PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME)
     @Override
-    public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
-        //查询缓存是否存在
-        String key = PICTURE_RECOMMEND_DETAIL + pictureInfoDetailRecommendRequest.getPictureId() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getPageSize() + COMMON_SEPARATOR_CACHE + pictureInfoDetailRecommendRequest.getCurrentPage();
-        if (redisCache.hasKey(key)) {
-            return redisCache.getCacheObject(key);
-        }
-        pictureInfoDetailRecommendRequest.setOffset((pictureInfoDetailRecommendRequest.getCurrentPage() - 1) * pictureInfoDetailRecommendRequest.getPageSize());
+    public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest request) {
+        request.setOffset((request.getCurrentPage() - 1) * request.getPageSize());
         // 在查询前清除分页设置
 //        PageHelper.clearPage();
         //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
-        List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
+        List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(request);
         list.forEach(pictureInfo -> {
             pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
         });
-        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(list);
-        redisCache.setCacheObject(key, userPictureInfoVos, PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
-        return userPictureInfoVos;
+        return UserPictureInfoVo.objToVo(list);
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_RECOMMEND_HOT,
+            expireTime = PICTURE_RECOMMEND_HOT_EXPIRE_TIME,
+            paginate = true,
+            pageNumberField = "request.currentPage",
+            pageSizeField = "request.pageSize")
     @Override
-    public List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest pictureRecommendRequest) {
-        //先查询是否有缓存，如果有直接走缓存
-        String key = PICTURE_RECOMMEND_HOT + pictureRecommendRequest.getCurrentPage() + COMMON_SEPARATOR_CACHE + pictureRecommendRequest.getPageSize();
-        List<UserRecommendPictureInfoVo> cacheObject = redisCache.getCacheObject(key);
-        if (StringUtils.isNotEmpty(cacheObject)) {
-            return cacheObject;
-        }
+    public List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest request) {
         Page<PictureInfo> pictureInfoPage = new Page<>();
-        pictureInfoPage.setCurrent(pictureRecommendRequest.getCurrentPage());
-        pictureInfoPage.setSize(pictureRecommendRequest.getPageSize());
+        pictureInfoPage.setCurrent(request.getCurrentPage());
+        pictureInfoPage.setSize(request.getPageSize());
         Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
@@ -1116,7 +1099,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
             userRecommendPictureInfoVos = new ArrayList<>();
         }
-        redisCache.setCacheObject(key, userRecommendPictureInfoVos, PICTURE_RECOMMEND_HOT_EXPIRE_TIME, TimeUnit.SECONDS);
         return userRecommendPictureInfoVos;
     }
 
@@ -1226,6 +1208,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return tableDataInfo;
     }
 
+    @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_TABLE_PERSON},
+            keyFields = {"picture.userId"})
     @Override
     public int userUpdatePictureInfoName(PictureInfo pictureInfo) {
         //判断图片是否存在是否是作者
@@ -1233,7 +1217,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         checkPictureAndSpace(pictureInfoDb);
         pictureInfoDb.setName(pictureInfo.getName());
         pictureInfoDb.setUpdateTime(DateUtils.getNowDate());
-        this.deletePictureTableCacheByUserId(pictureInfoDb.getUserId());
         this.deletePictureTableCacheBySpaceId(pictureInfoDb.getSpaceId());
         return this.updateById(pictureInfoDb) ? 1 : 0;
     }
