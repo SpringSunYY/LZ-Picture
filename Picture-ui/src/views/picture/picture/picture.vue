@@ -21,6 +21,7 @@ import {
 import { getPictureInfoRecommend } from '@/api/picture/recommend.ts'
 import HorizontalFallLayout from '@/components/HorizontalFallLayout.vue'
 import { message } from 'ant-design-vue'
+import { useDebounce } from '@/utils/debounce'
 
 interface Props {
   name?: string
@@ -67,7 +68,7 @@ async function getPictureList() {
     // console.log('recommend')
   }
 }
-
+const getPictureListDebounce = useDebounce(getPictureList, 1000)
 // 加载数据
 async function loadMore() {
   if (loading.value || noMore.value) {
@@ -78,7 +79,7 @@ async function loadMore() {
   }
   loading.value = true
 
-  await getPictureList()
+  await getPictureListDebounce()
   if (rawPictureList.value.length > 0) {
     if (pictureQuery.value.name === '') {
       if (pictureQuery.value?.currentPage != undefined) {
@@ -93,7 +94,6 @@ async function loadMore() {
     await nextTick()
   }
   if (rawPictureList.value.length < pictureQuery.value.pageSize) {
-    message.warn('已为您推荐全部图片')
     noMore.value = true
   }
   loading.value = false
@@ -109,7 +109,7 @@ const getRecommendPictureList = async () => {
   }
   loading.value = true
   // console.log('pictureQuery', pictureQuery.value)
-  await getPictureList()
+  await getPictureListDebounce()
   if (rawPictureList.value.length > 0) {
     rawPictureList.value = rawPictureList.value
     if (pictureQuery.value.pageNum != undefined) {
@@ -119,7 +119,6 @@ const getRecommendPictureList = async () => {
     message.success(`已为您推荐${rawPictureList.value.length}张图片`)
   }
   if (rawPictureList.value.length < pictureQuery.value.pageSize) {
-    message.warn('没有更多图片了')
     noMore.value = true
   }
   loading.value = false
@@ -131,20 +130,15 @@ watch(
     const timer = setTimeout(async () => {
       await resetPagination()
       if (newPictureId !== oldPictureId && newPictureId !== '') {
-        await resetPagination()
         pictureQuery.value.pictureId = newPictureId
         //需要获取到此图片的详情
         const res = await getPictureDetailInfo(newPictureId)
         if (res.data) {
           rawPictureList.value = [res.data]
-          console.log(rawPictureList.value)
+          // console.log(rawPictureList.value)
         }
-        await getRecommendPictureList()
       } else if (newName !== oldName && newName !== '') {
         pictureQuery.value.name = newName
-        await getRecommendPictureList()
-      }else {
-        await getRecommendPictureList()
       }
     }, 800)
 

@@ -184,7 +184,6 @@ onMounted(() => {
   setupObserver()
   window.addEventListener('resize', handleResize)
 })
-loadMore()
 watch(
   () => props.pictureList,
   () => {

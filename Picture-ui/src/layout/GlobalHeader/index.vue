@@ -146,7 +146,7 @@ const current = ref<string[]>([])
 
 // 监听路由变化，更新当前选中菜单
 router.afterEach((to) => {
-  current.value = [to.path.replace(/\/$/, '')] // 移除末尾斜杠
+  current.value = [to.name as string]
 })
 
 const doMenuClick = (route: RouteRecordRaw) => {
