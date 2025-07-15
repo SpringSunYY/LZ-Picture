@@ -18,7 +18,7 @@
         <result property="picFormat" column="pic_format"/>
         <result property="userId" column="user_id"/>
         <result property="createTime" column="create_time"/>
-        <result property="editTime" column="edit_time"/>
+        <result property="publishTime" column="publish_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="pictureStatus" column="picture_status"/>
         <result property="thumbnailUrl" column="thumbnail_url"/>
@@ -58,7 +58,7 @@
                pic_format,
                user_id,
                create_time,
-               edit_time,
+               publish_time,
                update_time,
                picture_status,
                thumbnail_url,
@@ -121,7 +121,7 @@
             <if test="picFormat != null">pic_format,</if>
             <if test="userId != null and userId != ''">user_id,</if>
             <if test="createTime != null">create_time,</if>
-            <if test="editTime != null">edit_time,</if>
+            <if test="publishTime != null">publish_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="pictureStatus != null and pictureStatus != ''">picture_status,</if>
             <if test="thumbnailUrl != null">thumbnail_url,</if>
@@ -150,7 +150,7 @@
             <if test="picFormat != null">#{picFormat},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
             <if test="createTime != null">#{createTime},</if>
-            <if test="editTime != null">#{editTime},</if>
+            <if test="publishTime != null">#{publishTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="pictureStatus != null and pictureStatus != ''">#{pictureStatus},</if>
             <if test="thumbnailUrl != null">#{thumbnailUrl},</if>
@@ -182,7 +182,7 @@
             <if test="picFormat != null">pic_format = #{picFormat},</if>
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
-            <if test="editTime != null">edit_time = #{editTime},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="pictureStatus != null and pictureStatus != ''">picture_status = #{pictureStatus},</if>
             <if test="thumbnailUrl != null">thumbnail_url = #{thumbnailUrl},</if>

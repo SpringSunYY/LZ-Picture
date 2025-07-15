@@ -101,11 +101,11 @@ public class PictureInfoVo implements Serializable {
     private Date createTime;
 
     /**
-     * 编辑时间
+     * 发布时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "编辑时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    private Date editTime;
+    @Excel(name = "发布时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date publishTime;
 
     /**
      * 更新时间

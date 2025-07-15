@@ -94,6 +94,9 @@ export interface PictureInfoQuery extends PageDomain {
   /** 所属文件夹编号 */
   folderId?: string
 
+  /** 图片状态 */
+  pictureStatus?: string | null
+
   /** 额外查询参数 */
   params?: Record<string, any>
 }
@@ -189,7 +192,7 @@ export interface PictureDetailInfoVo {
   folderId?: string
 
   /**创建时间 */
-  createTime?: string
+  publishTime?: string
 
   /** 图片标签 */
   pictureTags?: string[]

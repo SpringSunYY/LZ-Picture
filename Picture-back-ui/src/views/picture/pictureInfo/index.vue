@@ -91,9 +91,9 @@
             end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="编辑时间" style="width: 308px">
+      <el-form-item label="发布时间" style="width: 308px">
         <el-date-picker
-            v-model="daterangeEditTime"
+            v-model="daterangePublishTime"
             value-format="YYYY-MM-DD"
             type="daterange"
             range-separator="-"
@@ -253,10 +253,10 @@
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="编辑时间" align="center" prop="editTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="发布时间" align="center" prop="publishTime" width="180" v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
-          <span>{{ parseTime(scope.row.editTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+          <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[15].visible"
@@ -453,7 +453,7 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 const daterangeCreateTime = ref([]);
-const daterangeEditTime = ref([]);
+const daterangePublishTime = ref([]);
 const daterangeUpdateTime = ref([]);
 const daterangeDeletedTime = ref([]);
 
@@ -473,7 +473,7 @@ const data = reactive({
     picFormat: null,
     userId: null,
     createTime: null,
-    editTime: null,
+    publishTime: null,
     updateTime: null,
     spaceId: null,
     folderId: null,
@@ -519,7 +519,7 @@ const data = reactive({
     {key: 11, label: '图片格式', visible: true},
     {key: 12, label: '上传用户', visible: false},
     {key: 13, label: '创建时间', visible: true},
-    {key: 14, label: '编辑时间', visible: false},
+    {key: 14, label: '发布时间', visible: false},
     {key: 15, label: '更新时间', visible: false},
     {key: 16, label: '图片状态', visible: true},
     {key: 17, label: '查看次数', visible: true},
@@ -545,9 +545,9 @@ function getList() {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
   }
-  if (null != daterangeEditTime && '' != daterangeEditTime) {
-    queryParams.value.params["beginEditTime"] = daterangeEditTime.value[0];
-    queryParams.value.params["endEditTime"] = daterangeEditTime.value[1];
+  if (null != daterangePublishTime && '' != daterangePublishTime) {
+    queryParams.value.params["beginPublishTime"] = daterangePublishTime.value[0];
+    queryParams.value.params["endPublishTime"] = daterangePublishTime.value[1];
   }
   if (null != daterangeUpdateTime && '' != daterangeUpdateTime) {
     queryParams.value.params["beginUpdateTime"] = daterangeUpdateTime.value[0];
@@ -586,7 +586,7 @@ function reset() {
     picFormat: null,
     userId: null,
     createTime: null,
-    editTime: null,
+    publishTime: null,
     updateTime: null,
     pictureStatus: null,
     thumbnailUrl: null,
@@ -613,7 +613,7 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   daterangeCreateTime.value = [];
-  daterangeEditTime.value = [];
+  daterangePublishTime.value = [];
   daterangeUpdateTime.value = [];
   daterangeDeletedTime.value = [];
   proxy.resetForm("queryRef");

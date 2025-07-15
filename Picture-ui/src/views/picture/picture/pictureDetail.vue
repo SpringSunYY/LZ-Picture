@@ -59,12 +59,13 @@
               >{{ picture.picWidth }} * {{ picture.picHeight }}
             </a-descriptions-item>
             <a-descriptions-item label="比例">{{ picture.picScale }}</a-descriptions-item>
+            <a-descriptions-item label="发布时间">{{picture?.publishTime}}</a-descriptions-item>
           </a-descriptions>
-          <Tags
-            v-if="picture?.pictureTags"
-            :values="picture?.pictureTags"
-            :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
-          />
+                 <Tags
+                v-if="picture?.pictureTags"
+                :values="picture?.pictureTags"
+                :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
+              />
         </a-card>
         <a-card title="" :bordered="false" class="card action-card">
           <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
@@ -319,7 +320,7 @@ const picture = ref<PictureDetailInfoVo>({
   picScale: 0.0,
   picFormat: '',
   moreInfo: {},
-  createTime: '2025-04-10 10:30:00',
+  publishTime: '2025-04-10 10:30:00',
   userName: '荔枝',
   userInfoVo: {
     userId: '-1',

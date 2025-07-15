@@ -259,8 +259,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         Date createTime = pictureInfo.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
-        Date editTime = pictureInfo.getEditTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginEditTime")) && StringUtils.isNotNull(params.get("endEditTime")), "edit_time", params.get("beginEditTime"), params.get("endEditTime"));
+        Date publishTime = pictureInfo.getPublishTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginPublishTime")) && StringUtils.isNotNull(params.get("endPublishTime")), "publish_time", params.get("beginpublishTime"), params.get("endpublishTime"));
 
         Date updateTime = pictureInfo.getUpdateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
@@ -348,6 +348,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             ThrowUtils.throwIf(StringUtils.isNull(pictureInfoById), HttpStatus.NO_CONTENT, "图片不存在");
             pictureInfo.setUserId(pictureInfoById.getUserId());
         }
+        //如果图片已经发布不可以修改
+        ThrowUtils.throwIf(pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "图片已发布，请勿重复操作");
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
@@ -695,7 +697,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb), HttpStatus.NO_CONTENT, "图片不存在");
         //更新空间信息
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize() - pictureInfoDb.getPicSize());
-        spaceInfo.setLastUpdateTime(new Date());
+        Date updateTime = new Date();
+        spaceInfo.setLastUpdateTime(updateTime);
         //判断当前空间是否到达最大值 官方空间没有限制
         if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
@@ -729,6 +732,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //保留小数点后1位
         picScale = Double.parseDouble(String.format("%.1f", picScale));
         pictureInfo.setPicScale(picScale);
+        pictureInfo.setUpdateTime(updateTime);
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         //同步更新图片空间、标签、标签关联
         implementPictureUpdate(pictureInfo, spaceInfo);
@@ -1224,10 +1228,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public int userUpdatePictureInfoName(PictureInfo pictureInfo) {
         //判断图片是否存在是否是作者
         PictureInfo pictureInfoDb = this.selectNormalPictureInfoByPictureId(pictureInfo.getPictureId());
-        ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb)
-                || !pictureInfoDb.getUserId().equals(pictureInfo.getUserId()), "图片不存在或您不是作者");
+        checkPictureAndSpace(pictureInfoDb);
         pictureInfoDb.setName(pictureInfo.getName());
-        pictureInfoDb.setEditTime(DateUtils.getNowDate());
+        pictureInfoDb.setUpdateTime(DateUtils.getNowDate());
         this.deletePictureTableCacheByUserId(pictureInfoDb.getUserId());
         this.deletePictureTableCacheBySpaceId(pictureInfoDb.getSpaceId());
         return this.updateById(pictureInfoDb) ? 1 : 0;

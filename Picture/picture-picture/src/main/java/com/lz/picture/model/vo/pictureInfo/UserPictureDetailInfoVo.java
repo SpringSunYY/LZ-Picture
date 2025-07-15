@@ -97,7 +97,7 @@ public class UserPictureDetailInfoVo implements Serializable {
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
+    private Date publishTime;
 
     /**
      * 更多信息

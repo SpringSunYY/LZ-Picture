@@ -11,6 +11,23 @@
             style="width: 200px"
           />
         </a-form-item>
+        <a-form-item name="pictureStatus">
+          <a-select
+            v-model:value="queryParams.pictureStatus"
+            placeholder="图片状态"
+            allow-clear
+            @change="handleSearch"
+            style="width: 180px"
+          >
+            <a-select-option
+              v-for="item in p_picture_status"
+              :key="item.dictValue"
+              :value="item.dictValue"
+            >
+              {{ item.dictLabel }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
         <!-- 分类选择 -->
         <a-form-item label="图片分类" name="categoryId" style="width: 250px">
           <a-cascader
@@ -441,6 +458,7 @@ const queryParams = ref(<PictureInfoQuery>{
   name: '',
   categoryId: '',
   spaceId: spaceId.value,
+  pictureStatus: null,
 })
 
 const columns = [
@@ -528,6 +546,7 @@ const getList = () => {
     pageSize: queryParams.value.pageSize,
     orderByColumn: queryParams.value.orderByColumn,
     isAsc: queryParams.value.isAsc,
+    pictureStatus: queryParams.value.pictureStatus,
     params: queryParams.value.params,
   }).then((res) => {
     pictureList.value = (res?.rows || []).map((item) => ({
@@ -552,6 +571,7 @@ const resetSearch = () => {
     isAsc: 'desc',
     name: '',
     categoryId: '',
+    pictureStatus: null,
   }
   pagination.value.current = 1
   dateRange.value = null

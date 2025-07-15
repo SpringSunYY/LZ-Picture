@@ -82,10 +82,10 @@ public class PictureInfoQuery implements Serializable {
     private Date createTime;
 
     /**
-     * 编辑时间
+     * 发布时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date editTime;
+    private Date publishTime;
 
     /**
      * 更新时间

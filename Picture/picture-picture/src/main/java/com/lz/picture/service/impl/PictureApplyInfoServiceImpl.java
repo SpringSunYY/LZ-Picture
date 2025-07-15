@@ -172,10 +172,10 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         if (!db.getReviewStatus().equals(pictureApplyInfo.getReviewStatus())) {
             pictureApplyInfo.setReviewTime(nowDate);
             pictureApplyInfo.setReviewUserId(SecurityUtils.getUserId());
-            pictureInfo.setUpdateTime(nowDate);
             pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
             //如果是通过
             if (pictureApplyInfo.getReviewStatus().equals(PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_1.getValue())) {
+                pictureInfo.setPublishTime(nowDate);
                 //如果传过来的积分不为空，判断是否为10的倍数或者0
                 ThrowUtils.throwIf(StringUtils.isNotNull(pictureApplyInfo.getPointsNeed())
                         && pictureApplyInfo.getPointsNeed() % 10 != 0
