@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.lz.config.utils.ConfigInfoUtils.*;
+
 /**
  * 用户行为Service业务层处理
  *
@@ -207,8 +209,18 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
         ThrowUtils.throwIf(StringUtils.isNull(userBehaviorTargetType), "目标类型错误");
         //判断行为类型
         Optional<PUserBehaviorTypeEnum> behaviorType = PUserBehaviorTypeEnum.getEnumByValue(userBehaviorInfo.getBehaviorType());
-        ThrowUtils.throwIf(behaviorType.isEmpty(), "行为类型错误");
+        if (behaviorType.isEmpty()) {
+            userBehaviorInfo.setScore(1D);
+            return;
+        }
         //根据行为类型获取分数
+        if (userBehaviorInfo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
+            userBehaviorInfo.setScore(PICTURE_BEHAVIOR_SCORE_LIKE_VALUE);
+        } else if (userBehaviorInfo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())) {
+            userBehaviorInfo.setScore(PICTURE_BEHAVIOR_SCORE_COLLECT_VALUE);
+        } else if (userBehaviorInfo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue())) {
+            userBehaviorInfo.setScore(PICTURE_BEHAVIOR_SCORE_SHARE_VALUE);
+        }
         PUserBehaviorTypeEnum behaviorTypeValue = behaviorType.get();
         Optional<PUserBehaviorTypeScoreEnum> scoreOptional = PUserBehaviorTypeScoreEnum.getEnumByValue(behaviorTypeValue.getValue());
         ThrowUtils.throwIf(scoreOptional.isEmpty(), "行为类型分数未配置");

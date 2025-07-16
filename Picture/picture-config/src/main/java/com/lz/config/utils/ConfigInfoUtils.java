@@ -297,8 +297,31 @@ public class ConfigInfoUtils {
      */
     public static final String PICTURE_SPACE_DILATATION_MEMBER_KEY = "picture:space:dilatation:member";
     public static Long PICTURE_SPACE_DILATATION_MEMBER_VALUE = 100L;
-
-
+    /**
+     * 用户行为分数-浏览
+     */
+    public static final String PICTURE_BEHAVIOR_SCORE_VIEW_KEY = "picture:behavior:score:view";
+    public static Double PICTURE_BEHAVIOR_SCORE_VIEW_VALUE = 1.0;
+    /**
+     * 用户行为分数-下载
+     */
+    public static final String PICTURE_BEHAVIOR_SCORE_DOWNLOAD_KEY = "picture:behavior:score:download";
+    public static Double PICTURE_BEHAVIOR_SCORE_DOWNLOAD_VALUE = 20.0;
+    /**
+     * 用户行为分数-点赞
+     */
+    public static final String PICTURE_BEHAVIOR_SCORE_LIKE_KEY = "picture:behavior:score:like";
+    public static Double PICTURE_BEHAVIOR_SCORE_LIKE_VALUE = 3.0;
+    /**
+     * 用户行为分数-收藏
+     */
+    public static final String PICTURE_BEHAVIOR_SCORE_COLLECT_KEY = "picture:behavior:score:collect";
+    public static Double PICTURE_BEHAVIOR_SCORE_COLLECT_VALUE = 6.0;
+    /**
+     * 用户行为分数-转发
+     */
+    public static final String PICTURE_BEHAVIOR_SCORE_SHARE_KEY = "picture:behavior:score:share";
+    public static Double PICTURE_BEHAVIOR_SCORE_SHARE_VALUE = 12.0;
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
     private ScheduledExecutorService scheduler = null;
@@ -355,6 +378,11 @@ public class ConfigInfoUtils {
         PICTURE_SPACE_DILATATION_COUNT_VALUE = getLong(PICTURE_SPACE_DILATATION_COUNT_KEY);
         PICTURE_SPACE_DILATATION_SIZE_VALUE = getLong(PICTURE_SPACE_DILATATION_SIZE_KEY);
         PICTURE_SPACE_DILATATION_MEMBER_VALUE = getLong(PICTURE_SPACE_DILATATION_MEMBER_KEY);
+        PICTURE_BEHAVIOR_SCORE_VIEW_VALUE = getDouble(PICTURE_BEHAVIOR_SCORE_VIEW_KEY);
+        PICTURE_BEHAVIOR_SCORE_DOWNLOAD_VALUE = getDouble(PICTURE_BEHAVIOR_SCORE_DOWNLOAD_KEY);
+        PICTURE_BEHAVIOR_SCORE_LIKE_VALUE = getDouble(PICTURE_BEHAVIOR_SCORE_LIKE_KEY);
+        PICTURE_BEHAVIOR_SCORE_COLLECT_VALUE = getDouble(PICTURE_BEHAVIOR_SCORE_COLLECT_KEY);
+        PICTURE_BEHAVIOR_SCORE_SHARE_VALUE = getDouble(PICTURE_BEHAVIOR_SCORE_SHARE_KEY);
     }
 
 

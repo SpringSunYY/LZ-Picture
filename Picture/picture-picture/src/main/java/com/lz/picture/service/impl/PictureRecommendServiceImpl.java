@@ -251,11 +251,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         // 9. 批量为所有候选图片注入标签
         injectTags(candidatePics);
 
-        // 10. 计算动态权重
-        double categoryWeight = 0.3;
-        double tagWeight = 0.7;
-
-        // 11. 计算协同评分
+        // 10. 计算协同评分
         List<Pair<PictureInfo, Double>> scoredItems = new ArrayList<>();
 
         // 提前获取分类-标签关系
