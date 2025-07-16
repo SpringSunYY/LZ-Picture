@@ -2951,6 +2951,36 @@ CREATE TABLE p_space_dilatation_info (
 
 
 
+#### 统计信息表:p_statistics_info
+
+| 字段名          | 类型     | 长度 | 键类型 | Null | 默认值   | 描述     |
+| --------------- | -------- | ---- | ------ | ---- | -------- | -------- |
+| statistics_id   | varchar  | 128  | 主键   | 否   |          | 统计编号 |
+| type            | varchar  | 2    |        | 否   |          | 统计类型 |
+| statistics_name | varchar  | 32   |        | 否   |          | 统计名称 |
+| statistics_key  | varchar  | 64   |        | 否   |          | KEY      |
+| stages          | int      |      |        | 否   |          | 期数     |
+| content         | text     |      |        | 是   |          | 统计内容 |
+| remark          | text     |      |        | 是   |          | 描述     |
+| create_time     | datetime |      |        | 否   | 当前时间 | 创建时间 |
+
+```sql
+-- 如果存在旧表则删除
+DROP TABLE IF EXISTS p_statistics_info;
+
+-- 创建统计信息表
+CREATE TABLE p_statistics_info (
+  statistics_id    VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '统计编号',
+  type             VARCHAR(2)   NOT NULL COMMENT '统计类型',
+  statistics_name  VARCHAR(32)  NOT NULL COMMENT '统计名称',
+  statistics_key   VARCHAR(64)  NOT NULL COMMENT 'KEY',
+  stages           INT                   COMMENT '期数',
+  content          TEXT                  COMMENT '统计内容',
+  remark           TEXT                  COMMENT '描述',
+  create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='统计信息表';
+```
+
 ## 留存
 
 ### 全局加载器
