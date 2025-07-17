@@ -18,7 +18,6 @@ import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
 import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
-import com.lz.picture.model.enums.PUserBehaviorTypeScoreEnum;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
 import com.lz.picture.service.IUserBehaviorInfoService;
@@ -215,16 +214,12 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
         }
         //根据行为类型获取分数
         if (userBehaviorInfo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
-            userBehaviorInfo.setScore(PICTURE_BEHAVIOR_SCORE_LIKE_VALUE);
+            userBehaviorInfo.setScore(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_LIKE_VALUE);
         } else if (userBehaviorInfo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_1.getValue())) {
-            userBehaviorInfo.setScore(PICTURE_BEHAVIOR_SCORE_COLLECT_VALUE);
+            userBehaviorInfo.setScore(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_COLLECT_VALUE);
         } else if (userBehaviorInfo.getBehaviorType().equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue())) {
-            userBehaviorInfo.setScore(PICTURE_BEHAVIOR_SCORE_SHARE_VALUE);
+            userBehaviorInfo.setScore(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_SHARE_VALUE);
         }
-        PUserBehaviorTypeEnum behaviorTypeValue = behaviorType.get();
-        Optional<PUserBehaviorTypeScoreEnum> scoreOptional = PUserBehaviorTypeScoreEnum.getEnumByValue(behaviorTypeValue.getValue());
-        ThrowUtils.throwIf(scoreOptional.isEmpty(), "行为类型分数未配置");
-        userBehaviorInfo.setScore(scoreOptional.get().getScore());
     }
 
     @Override

@@ -10,10 +10,10 @@ import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.service.IPictureInfoService;
-import com.lz.picture.service.IPictureRecommendInfoService;
 import com.lz.picture.service.IPictureTagRelInfoService;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyService;
+import com.lz.picture.utils.PictureStatisticsUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +21,7 @@ import java.util.TimerTask;
 
 import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_USER_BEHAVIOR;
+import static com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0;
 
 /**
  * Project: Picture
@@ -44,6 +45,9 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
     @Resource
     private RedisCache redisCache;
 
+    @Resource
+    private PictureStatisticsUtil pictureStatisticsUtil;
+
     /**
      * description: 判断是否存在
      * author: YY
@@ -60,10 +64,22 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
                 .eq(UserBehaviorInfo::getTargetType, userBehaviorInfo.getTargetType())
                 .eq(UserBehaviorInfo::getBehaviorType, userBehaviorInfo.getBehaviorType())
                 .eq(UserBehaviorInfo::getTargetId, userBehaviorInfo.getTargetId()));
-        //存在表示要删除 不存在则是要添加
+        //存在表示要删除 存在是要删除
         if (StringUtils.isNotNull(behaviorInfo)) {
             userBehaviorInfoService.deleteUserBehaviorInfoByBehaviorId(behaviorInfo.getBehaviorId());
+            //如果是图片，存在需要减分，因为是删除
+            if (USER_BEHAVIOR_TARGET_TYPE_0.getValue().equals(userBehaviorInfo.getTargetType())) {
+                double score = 0 - userBehaviorInfo.getScore();
+                pictureStatisticsUtil.pictureHotStatisticsIncrementScore(userBehaviorInfo.getTargetId(), score);
+            }
             return true;
+        } else {
+            //如果是图片，不存在既要加分
+            if (USER_BEHAVIOR_TARGET_TYPE_0.getValue().equals(userBehaviorInfo.getTargetType())) {
+                Double score = userBehaviorInfo.getScore();
+                System.out.println("score = " + score);
+                pictureStatisticsUtil.pictureHotStatisticsIncrementScore(userBehaviorInfo.getTargetId(), score);
+            }
         }
         return false;
     }

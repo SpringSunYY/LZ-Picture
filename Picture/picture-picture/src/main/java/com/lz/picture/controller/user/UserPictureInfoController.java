@@ -137,7 +137,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     /**
      * 获取图片详细信息
      */
-    @UserViewLog(targetType = "0", score = 1)
+    @UserViewLog(targetType = "0")
     @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
     @GetMapping("/{pictureId}")
     public AjaxResult getInfo(@PathVariable("pictureId") String pictureId) {

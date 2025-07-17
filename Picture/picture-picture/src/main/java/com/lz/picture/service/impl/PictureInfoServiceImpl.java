@@ -41,6 +41,7 @@ import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.service.*;
+import com.lz.picture.utils.PictureStatisticsUtil;
 import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
@@ -137,6 +138,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private SpaceAuthUtils spaceAuthUtils;
+
+    @Resource
+    private PictureStatisticsUtil pictureStatisticsUtil;
 
     //region mybatis代码
 
@@ -909,6 +913,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(0.0));
             pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(0.0));
             pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(0.0));
+            pictureDownloadLogInfo.setScore(0.0);
             pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
             return pictureInfo;
         }
@@ -971,7 +976,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     params
             ));
         }
-        pictureDownloadLogInfo.setDownloadId(IdUtils.fastUUID());
+        //添加分数
+        pictureDownloadLogInfo.setScore(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_DOWNLOAD_VALUE);
+        pictureStatisticsUtil.pictureHotStatisticsIncrementScore(pictureInfo.getPictureId(), pictureDownloadLogInfo.getScore());
         pictureDownloadLogInfoService.save(pictureDownloadLogInfo);
         //发送消息
         HashMap<String, String> params = new HashMap<>();
@@ -1002,7 +1009,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //查询到图片记录
         PictureDownloadLogInfo pictureDownloadLogInfo = pictureDownloadLogInfoService.selectPictureDownloadLogInfoByDownloadId(pictureDownloadLogInfoRequest.getDownloadId());
         //是否不存在
-        ThrowUtils.throwIf(StringUtils.isNull(pictureDownloadLogInfo), "此下载记录不属于您！！！");
+        ThrowUtils.throwIf(StringUtils.isNull(pictureDownloadLogInfo) ||
+                !pictureDownloadLogInfo.getPictureId().equals(pictureDownloadLogInfoRequest.getPictureId()), "此下载记录不属于您！！！");
         //查询图片是否存在
         PictureInfo pictureInfo = this.selectPictureInfoByPictureId(pictureDownloadLogInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo) || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()), "此图片不存在！！！");
@@ -1322,9 +1330,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     //region 热门图片 我一点一点猜 猜猜不出你的独白
     @CustomCacheable(
-            keyPrefix = "pictureHot",
+            keyPrefix = PICTURE_HOT_PICTURE,
             keyField = "request.type",
-            useQueryParamsAsKey = true
+            useQueryParamsAsKey = true,
+            expireTime = PICTURE_HOT_PICTURE_EXPIRE_TIME
     )
     @Override
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest request) {

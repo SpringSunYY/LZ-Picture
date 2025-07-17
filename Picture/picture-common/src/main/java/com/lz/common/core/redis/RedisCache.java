@@ -1,10 +1,7 @@
 package com.lz.common.core.redis;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.BoundSetOperations;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -315,5 +312,31 @@ public class RedisCache {
             // 键不存在时，设置初始值为1
             opsForValue.set(key, 1);
         }
+    }
+
+    /**
+     * 为key加值
+     *
+     * @param key     缓存的键值
+     * @param value   缓存的值
+     * @param score   分数
+     * @param timeout 超时时间
+     */
+    public Double zSetIncrementScore(String key, String value, double score, final long timeout) {
+        Double aDouble = redisTemplate.opsForZSet().incrementScore(key, value, score);
+        expire(key, timeout);
+        return aDouble;
+    }
+
+    /**
+     * 获取有序集合
+     *
+     * @param key   缓存的键值
+     * @param start 开始索引
+     * @param end   结束索引
+     * @return 缓存的值
+     */
+    public Set<ZSetOperations.TypedTuple<String>> zSetRangeWithScores(String key, int start, int end) {
+        return redisTemplate.opsForZSet().rangeWithScores(key, start, end);
     }
 }

@@ -50,7 +50,6 @@ public class UserViewLogAspect {
     protected void handleLog(final JoinPoint joinPoint, UserViewLog controllerUserViewLog, final Exception e, Object jsonResult) {
         String userId = UserInfoSecurityUtils.getUserId();
         String targetType = controllerUserViewLog.targetType();
-        double score = controllerUserViewLog.score();
 //        System.out.println("score = " + score);
 //        System.out.println("userId = " + userId);
 //        System.out.println("targetType = " + targetType);
@@ -59,6 +58,6 @@ public class UserViewLogAspect {
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
 //        System.out.println("deviceInfo = " + JSON.toJSONString(deviceInfo));
         Date nowDate = DateUtils.getNowDate();
-        PictureAsyncManager.me().execute(PictureUserViewLogAsyncFactory.recordUserViewLog(userId, targetType, score, deviceInfo, jsonResult, nowDate));
+        PictureAsyncManager.me().execute(PictureUserViewLogAsyncFactory.recordUserViewLog(userId, targetType, deviceInfo, jsonResult, nowDate));
     }
 }

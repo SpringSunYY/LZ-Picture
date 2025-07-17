@@ -11,6 +11,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +41,6 @@ public class CustomCacheAspect {
         boolean paginate = customCacheable.paginate();
         String pageNumberField = customCacheable.pageNumberField();
         String pageSizeField = customCacheable.pageSizeField();
-        boolean cacheNextPage = customCacheable.cacheNextPage();
 
         //获取方法参数
         Object[] args = joinPoint.getArgs();
@@ -71,7 +71,6 @@ public class CustomCacheAspect {
             int pageSize = extractIntValue(paramNames, args, pageSizeField, DEFAULT_PAGE_SIZE);
             // 构造缓存 key,不缓存所有数据，而是缓存指定页的数据，防止如果数据量过大，缓存的数据会变大，获取数据拿数据慢
             String pageCacheKey = baseCacheKey + COMMON_SEPARATOR_CACHE + pageNumber + COMMON_SEPARATOR_CACHE + pageSize;
-
             List<Object> cachedPage = redisCache.getCacheList(pageCacheKey, 0, pageSize - 1);
             if (cachedPage != null && !cachedPage.isEmpty()) {
                 return cachedPage;
@@ -82,12 +81,8 @@ public class CustomCacheAspect {
             if (result instanceof List) {
                 @SuppressWarnings("unchecked")
                 List<Object> resultList = (List<Object>) result;
-                redisCache.setCacheListRightPushAll(pageCacheKey, resultList, (int) expireTime, TimeUnit.SECONDS);
-
-                if (cacheNextPage) {
-                    int nextPage = pageNumber + 1;
-                    String nextPageKey = baseCacheKey + COMMON_SEPARATOR_CACHE + nextPage + COMMON_SEPARATOR_CACHE + pageSize;
-                    redisCache.setCacheListRightPushAll(nextPageKey, resultList, (int) expireTime, TimeUnit.SECONDS);
+                if (!resultList.isEmpty()) {
+                    redisCache.setCacheListRightPushAll(pageCacheKey, resultList, (int) expireTime, TimeUnit.SECONDS);
                 }
             }
 

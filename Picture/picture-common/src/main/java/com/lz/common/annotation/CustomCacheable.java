@@ -24,8 +24,6 @@ public @interface CustomCacheable {
 
     String pageSizeField() default "";  // 每页大小字段（如果 paginate 为 true，则使用该字段）
 
-    boolean cacheNextPage() default true; // 是否缓存下一页的数据
-
     boolean useQueryParamsAsKey() default false; // 是否将整个查询对象转换为 JSON 字符串作为缓存 key 的一部分
 }
 

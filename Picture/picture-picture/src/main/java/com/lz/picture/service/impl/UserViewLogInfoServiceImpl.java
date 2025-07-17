@@ -15,14 +15,15 @@ import com.lz.picture.model.dto.userViewLogInfo.MyUserViewLogInfoQuery;
 import com.lz.picture.model.dto.userViewLogInfo.UserViewLogInfoQuery;
 import com.lz.picture.model.dto.userViewLogInfo.UserViewLogTargetInfoDto;
 import com.lz.picture.model.vo.userViewLogInfo.UserViewLogInfoVo;
-import com.lz.picture.service.IPictureTagInfoService;
-import com.lz.picture.service.IPictureTagRelInfoService;
 import com.lz.picture.service.IUserViewLogInfoService;
+import com.lz.picture.utils.PictureStatisticsUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_VIEW_VALUE;
 
 /**
  * 用户浏览记录Service业务层处理
@@ -34,6 +35,9 @@ import java.util.stream.Collectors;
 public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMapper, UserViewLogInfo> implements IUserViewLogInfoService {
     @Resource
     private UserViewLogInfoMapper userViewLogInfoMapper;
+
+    @Resource
+    private PictureStatisticsUtil pictureStatisticsUtil;
 
     //region mybatis代码
 
@@ -170,7 +174,7 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
     }
 
     @Override
-    public int recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo) {
+    public int recordUserViewLog(String userId, String targetType, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo) {
         //判断今天有没有浏览记录，如果有就不插入了
         List<UserViewLogInfo> list = this.list(new LambdaQueryWrapper<UserViewLogInfo>()
                 .eq(UserViewLogInfo::getUserId, userId)
@@ -188,12 +192,15 @@ public class UserViewLogInfoServiceImpl extends ServiceImpl<UserViewLogInfoMappe
             result = 0;
         } else {
             userViewLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
+            //如果是图片添加分数
+            pictureStatisticsUtil.pictureHotStatisticsIncrementScore(userViewLogTargetInfoDto.getTargetId(), PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_VIEW_VALUE);
         }
         //赋值
         userViewLogInfo.setUserId(userId);
         userViewLogInfo.setTargetType(targetType);
         userViewLogInfo.setTargetId(userViewLogTargetInfoDto.getTargetId());
-        userViewLogInfo.setScore(score);
+        //TODO 先写死，因为当前只有图片浏览
+        userViewLogInfo.setScore(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_VIEW_VALUE);
         userViewLogInfo.setCreateTime(nowDate);
         userViewLogInfo.setTargetContent(userViewLogTargetInfoDto.getTargetContent());
         userViewLogInfo.setCategoryId(userViewLogTargetInfoDto.getCategoryId());

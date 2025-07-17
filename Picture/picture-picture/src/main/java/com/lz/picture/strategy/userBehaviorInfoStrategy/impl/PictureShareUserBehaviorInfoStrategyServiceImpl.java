@@ -7,15 +7,15 @@ import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
 import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.service.IPictureRecommendInfoService;
+import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyConfig;
+import com.lz.picture.utils.PictureStatisticsUtil;
 import jakarta.annotation.Resource;
 
 import java.util.Date;
 
 import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE;
-import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_VIEW_TYPE;
 
 /**
  * Project: Picture
@@ -31,16 +31,23 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
     @Resource
     private IUserBehaviorInfoService userBehaviorInfoService;
 
+    @Resource
+    private PictureStatisticsUtil pictureStatisticsUtil;
+
     @Override
     public Boolean getUserBehaviorInfo(UserBehaviorInfo userBehaviorInfo) {
         //判断今天是否分享过
         //如果不存在则添加，也就是分享记录每天只记录一次
         boolean exist = judgeExist(userBehaviorInfo);
         UserBehaviorInfo detailInfo = getDetailInfo(userBehaviorInfo);
-        //如果不为空表示今天没有需要新增
+        //如果为空表示今天没有需要新增
         if (!exist) {
             detailInfo.setBehaviorId(IdUtils.snowflakeId().toString());
             userBehaviorInfoService.insertUserBehaviorInfo(detailInfo);
+            //如果是图片
+            if (PUserBehaviorTargetTypeEnum.USER_BEHAVIOR_TARGET_TYPE_0.getValue().equals(userBehaviorInfo.getTargetType())) {
+                pictureStatisticsUtil.pictureHotStatisticsIncrementScore(userBehaviorInfo.getTargetId(), detailInfo.getScore());
+            }
             PictureAsyncManager.me().execute(PictureRecommendAsyncFactory.insertUserInterestModel(userBehaviorInfo.getUserId(), PICTURE_RECOMMEND_MODEL_BEHAVIOR_TYPE));
         }
         //重新获取信息 异步去更新缓存
@@ -58,7 +65,7 @@ public class PictureShareUserBehaviorInfoStrategyServiceImpl extends UserBehavio
                         .eq(UserBehaviorInfo::getBehaviorType, userBehaviorInfo.getBehaviorType())
                         .eq(UserBehaviorInfo::getTargetId, userBehaviorInfo.getTargetId())
                         .apply("DATE_FORMAT(create_time, '%Y-%m-%d') = {0}", DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date())));
-        //存在表示要删除 不存在则是要添加
+        //存在表示要删除 不存在则是要添加 不为空为ture
         return StringUtils.isNotNull(behaviorInfo);
     }
 }

@@ -13,10 +13,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface UserViewLog {
-    /**
-     * 分数
-     */
-    public double score() default 1;
 
     /**
      * 目标类型

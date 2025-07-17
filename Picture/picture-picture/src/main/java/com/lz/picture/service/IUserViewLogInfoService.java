@@ -92,12 +92,11 @@ public interface IUserViewLogInfoService extends IService<UserViewLogInfo> {
      *
      * @param userId                用户编号
      * @param targetType            目标类型
-     * @param score                 分数
      * @param nowDate               当前时间
      * @param deviceInfo            设备信息
      * @param userViewLogTargetInfoDto 目标信息
      */
-    int recordUserViewLog(String userId, String targetType, double score, UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo);
+    int recordUserViewLog(String userId, String targetType,  UserViewLogTargetInfoDto userViewLogTargetInfoDto, Date nowDate, DeviceInfo deviceInfo);
 
     /**
      * 用户查询浏览记录

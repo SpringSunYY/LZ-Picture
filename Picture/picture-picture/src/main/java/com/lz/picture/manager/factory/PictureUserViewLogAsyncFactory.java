@@ -18,6 +18,7 @@ import java.util.TimerTask;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_RECOMMEND_MODEL_VIEW_TYPE;
+import static com.lz.picture.model.enums.PViewLogTargetTypeEnum.VIEW_LOG_TARGET_TYPE_0;
 
 /**
  * 图片用户浏览异步任务异步工厂（产生任务用）
@@ -41,7 +42,7 @@ public class PictureUserViewLogAsyncFactory {
      * param: jsonResult
      * return: java.util.TimerTask
      **/
-    public static TimerTask recordUserViewLog(String userId, String targetType, double score, DeviceInfo deviceInfo, Object jsonResult, Date nowDate) {
+    public static TimerTask recordUserViewLog(String userId, String targetType,  DeviceInfo deviceInfo, Object jsonResult, Date nowDate) {
         UserViewLogTargetInfoDto userViewLogTargetInfoDto = new UserViewLogTargetInfoDto();
 
         return new TimerTask() {
@@ -50,8 +51,9 @@ public class PictureUserViewLogAsyncFactory {
                 //获取目标id和内容
                 getTargetInfo(targetType, userViewLogTargetInfoDto, jsonResult);
                 //插入用户浏览记录
-                int i = SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, score, userViewLogTargetInfoDto, nowDate, deviceInfo);
-                if (i > 0) {
+                int i = SpringUtils.getBean(IUserViewLogInfoService.class).recordUserViewLog(userId, targetType, userViewLogTargetInfoDto, nowDate, deviceInfo);
+                //如果是图片
+                if (targetType.equals(VIEW_LOG_TARGET_TYPE_0.getValue()) && i > 0) {
                     PictureAsyncManager.me().execute(PictureRecommendAsyncFactory.insertUserInterestModel(userId, PICTURE_RECOMMEND_MODEL_VIEW_TYPE));
                 }
             }
