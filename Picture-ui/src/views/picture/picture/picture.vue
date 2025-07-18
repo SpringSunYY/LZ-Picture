@@ -73,7 +73,7 @@ const getPictureListDebounce = useDebounce(getPictureList, 1000)
 
 // 加载数据
 async function getRecommendPictureList() {
-  console.log('getPictureList')
+  // console.log('getPictureList')
   if (loading.value || noMore.value) {
     // message.warn('没有更多图片了')
     return
@@ -90,7 +90,7 @@ async function getRecommendPictureList() {
     pictureList.value = newItems
 
     count.value += newItems.length
-    console.log('count', count.value)
+    // console.log('count', count.value)
     message.success(`已为您推荐${count.value}张图片`)
   }
 
