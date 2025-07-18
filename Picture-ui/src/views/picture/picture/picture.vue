@@ -2,16 +2,23 @@
   <div class="picture">
     <HorizontalFallLayout
       ref="horizontalFallLayoutRef"
-      @load-more="loadMore"
+      @load-more="getRecommendPictureList"
       :loading="loading"
       :noMore="noMore"
-      :pictureList="rawPictureList"
+      :pictureList="pictureList"
     ></HorizontalFallLayout>
+    <!--    <VerticalFallLayout-->
+    <!--      style="margin: 0 1em"-->
+    <!--      :loading="loading"-->
+    <!--      @load-more="getRecommendPictureList"-->
+    <!--      :no-more="noMore"-->
+    <!--      :picture-list="pictureList"-->
+    <!--    />-->
   </div>
 </template>
 
 <script setup lang="ts" name="Picture">
-import { nextTick, ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { PictureInfoVo, PictureRecommendRequest } from '@/types/picture/picture'
 import {
   getPictureDetailInfo,
@@ -23,54 +30,50 @@ import HorizontalFallLayout from '@/components/HorizontalFallLayout.vue'
 import { message } from 'ant-design-vue'
 import { useDebounce } from '@/utils/debounce'
 
-interface Props {
-  name?: string
-  pictureId?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  name: '',
-  pictureId: '',
-})
-
 //  数据部分
-const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据
+const pictureList = ref<PictureInfoVo[]>([]) // 原始数据
 
 const pictureQuery = ref<PictureRecommendRequest>({
+  //推荐需要
   currentPage: 0,
+  //list接口需要 从第一页开始
   pageNum: 1,
   pageSize: 30,
   offset: 0,
-  //如果传入名字走获取list接口
-  name: props.name || '',
 })
-
+const count = ref(0)
 const loading = ref(false)
 const noMore = ref(false)
 
-async function getPictureList() {
+async function getPictureList(): Promise<PictureInfoVo[]> {
+  let resultList: PictureInfoVo[] = []
+
   if (pictureQuery.value.name !== undefined && pictureQuery.value.name !== '') {
     const res = await listPictureInfo(pictureQuery.value)
-    rawPictureList.value = res?.rows || []
-    // console.log('name', pictureQuery.value.name)
+    resultList = res?.rows || []
+    pictureQuery.value.pageNum = (pictureQuery.value.pageNum ?? 0) + 1
   } else if (pictureQuery.value.pictureId !== undefined && pictureQuery.value.pictureId !== '') {
-    const currentPage = (pictureQuery.value.currentPage || 0) + 1
     const res = await getPictureInfoDetailRecommend({
       pictureId: pictureQuery.value.pictureId || '',
-      currentPage: currentPage,
+      currentPage: pictureQuery.value.currentPage || 0,
       pageSize: pictureQuery.value.pageSize,
     })
-    rawPictureList.value = res?.rows || []
-    // console.log('id', pictureQuery.value.pictureId)
+    pictureQuery.value.currentPage = (pictureQuery.value.currentPage ?? 0) + 1
+    resultList = res?.rows || []
   } else {
     const res = await getPictureInfoRecommend(pictureQuery.value)
-    rawPictureList.value = res?.rows || []
-    // console.log('recommend')
+    pictureQuery.value.currentPage = (pictureQuery.value.currentPage ?? 0) + 1
+    resultList = res?.rows || []
   }
+
+  return resultList
 }
+
 const getPictureListDebounce = useDebounce(getPictureList, 1000)
+
 // 加载数据
-async function loadMore() {
+async function getRecommendPictureList() {
+  console.log('getPictureList')
   if (loading.value || noMore.value) {
     // message.warn('没有更多图片了')
     return
@@ -79,82 +82,54 @@ async function loadMore() {
   }
   loading.value = true
 
-  await getPictureListDebounce()
-  if (rawPictureList.value.length > 0) {
-    if (pictureQuery.value.name === '') {
-      if (pictureQuery.value?.currentPage != undefined) {
-        pictureQuery.value.currentPage++
-      }
-    } else {
-      if (pictureQuery.value?.pageNum != undefined) {
-        pictureQuery.value.pageNum++
-      }
-    }
-    message.success(`已为您推荐${rawPictureList.value.length}张图片`)
-    await nextTick()
+  // 获取新数据
+  const newItems = await getPictureListDebounce()
+
+  if (newItems.length > 0) {
+    // 追加新数据到现有列表
+    pictureList.value = newItems
+
+    count.value += newItems.length
+    console.log('count', count.value)
+    message.success(`已为您推荐${count.value}张图片`)
   }
-  if (rawPictureList.value.length < pictureQuery.value.pageSize) {
+
+  if (newItems.length < pictureQuery.value.pageSize) {
     noMore.value = true
   }
   loading.value = false
 }
 
-//获取数据
-const getRecommendPictureList = async () => {
-  if (loading.value || noMore.value) {
-    // message.warn('没有更多图片了')
-    return
-  } else {
-    message.loading('正在为您推荐图片...', 1)
+const getRecommendPictureByPictureId = async (pictureId: string) => {
+  await resetPagination()
+  pictureQuery.value.pictureId = pictureId
+  // 获取当前图片详情
+  const res = await getPictureDetailInfo(pictureId)
+  if (res.data) {
+    // 设置当前图片
+    pictureList.value = [res.data]
   }
-  loading.value = true
-  // console.log('pictureQuery', pictureQuery.value)
-  await getPictureListDebounce()
-  if (rawPictureList.value.length > 0) {
-    rawPictureList.value = rawPictureList.value
-    if (pictureQuery.value.pageNum != undefined) {
-      pictureQuery.value.pageNum++
-    }
-    await nextTick()
-    message.success(`已为您推荐${rawPictureList.value.length}张图片`)
-  }
-  if (rawPictureList.value.length < pictureQuery.value.pageSize) {
-    noMore.value = true
-  }
-  loading.value = false
+  // 加载相似图片
+  getRecommendPictureList()
 }
 
-watch(
-  [() => props.name, () => props.pictureId],
-  ([newName, newPictureId], [oldName, oldPictureId]) => {
-    const timer = setTimeout(async () => {
-      await resetPagination()
-      if (newPictureId !== oldPictureId && newPictureId !== '') {
-        pictureQuery.value.pictureId = newPictureId
-        //需要获取到此图片的详情
-        const res = await getPictureDetailInfo(newPictureId)
-        if (res.data) {
-          rawPictureList.value = [res.data]
-          // console.log(rawPictureList.value)
-        }
-      } else if (newName !== oldName && newName !== '') {
-        pictureQuery.value.name = newName
-      }
-    }, 800)
-
-    return () => clearTimeout(timer)
-  },
-  { immediate: true },
-)
+const getRecommendPictureByName = async (name: string) => {
+  await resetPagination()
+  pictureQuery.value.name = name
+  getRecommendPictureList()
+}
 
 const horizontalFallLayoutRef = ref()
 
 const resetPagination = async () => {
+  count.value = 0
   await horizontalFallLayoutRef.value.clearData()
-  rawPictureList.value = []
+  pictureList.value = []
   noMore.value = false
-  pictureQuery.value.pageNum = 1
-  pictureQuery.value.currentPage = 0
+
+  // 修正分页参数
+  pictureQuery.value.pageNum = 1 // 搜索模式从1开始
+  pictureQuery.value.currentPage = 0 // 推荐模式从0开始
   pictureQuery.value.name = ''
   pictureQuery.value.pictureId = ''
 }
@@ -167,6 +142,8 @@ async function resetData() {
 // loadMore()
 defineExpose({
   resetData,
+  getRecommendPictureByPictureId,
+  getRecommendPictureByName,
 })
 </script>
 

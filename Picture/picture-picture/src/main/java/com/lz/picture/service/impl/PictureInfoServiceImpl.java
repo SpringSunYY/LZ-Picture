@@ -1085,11 +1085,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @CustomCacheable(keyPrefix = PICTURE_RECOMMEND_HOT,
             expireTime = PICTURE_RECOMMEND_HOT_EXPIRE_TIME,
             paginate = true,
+            useQueryParamsAsKey = true,
             pageNumberField = "request.currentPage",
             pageSizeField = "request.pageSize")
     @Override
     public List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest request) {
         Page<PictureInfo> pictureInfoPage = new Page<>();
+        //!!!currentPage一定要大于等于1
         pictureInfoPage.setCurrent(request.getCurrentPage());
         pictureInfoPage.setSize(request.getPageSize());
         Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()

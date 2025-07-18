@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo } from '@/types/picture/picture'
 import { useConfig } from '@/utils/config.ts'
@@ -76,12 +76,11 @@ const handleToPicture = (item: PictureInfoVo) => {
 async function loadMore() {
   if (props.loading || props.noMore) return
   emit('loadMore')
-  generate()
 }
 
 function generate() {
   if (props.pictureList.length > 0) {
-    rawPictureList.value.push(...props.pictureList)
+    rawPictureList.value = [...rawPictureList.value, ...props.pictureList]
     formatPictureListByRow()
   }
 }
@@ -146,6 +145,13 @@ const formatPictureListByRow = () => {
   }
 
   pictureRows.value = rows
+  var count = 0
+  for (let i = 0; i <pictureRows.value.length; i++) {
+    for (let j = 0; j < pictureRows.value[i].length; j++) {
+      count ++
+    }
+  }
+  console.log('count', count)
 }
 
 // observer 设置
@@ -181,6 +187,7 @@ defineExpose({
 
 //  生命周期钩子
 onMounted(() => {
+  pictureRows.value = []
   setupObserver()
   window.addEventListener('resize', handleResize)
 })
@@ -189,7 +196,11 @@ watch(
   () => {
     generate()
   },
+  {
+    immediate: true,
+  },
 )
+
 onBeforeUnmount(() => {
   if (observer) observer.disconnect()
   window.removeEventListener('resize', handleResize)

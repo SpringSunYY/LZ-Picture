@@ -200,7 +200,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     /**
      * 获取推荐热门图片
      *
-     * @param pictureRecommendRequest 图片推荐请求
+     * @param pictureRecommendRequest 图片推荐请求 !!!currentPage一定要大于等于1
      * @return List<UserPictureInfoVo>
      * @author: YY
      * @method: getRecommentHotPictureInfoList

@@ -1,9 +1,17 @@
-export function useDebounce(fn: Function, delay: number) {
-  let timer: ReturnType<typeof setTimeout> | null = null
-  return (...args: any[]) => {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      fn.apply(this, args)
-    }, delay)
+import { ref } from 'vue'
+
+export function useDebounce<T extends (...args: any[]) => Promise<any>>(fn: T, delay = 300) {
+  const timer = ref<number | null>(null)
+
+  return (...args: Parameters<T>): Promise<ReturnType<T>> => {
+    return new Promise((resolve) => {
+      if (timer.value) {
+        clearTimeout(timer.value)
+      }
+      timer.value = window.setTimeout(async () => {
+        const res = await fn(...args)
+        resolve(res)
+      }, delay)
+    })
   }
 }

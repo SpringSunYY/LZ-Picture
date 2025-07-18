@@ -48,7 +48,7 @@
         </DirectionAwareHover>
       </div>
     </div>
-    <Picture :name="name" :picture-id="pictureId" ref="pictureRef" />
+    <Picture ref="pictureRef" />
   </div>
 </template>
 <script setup lang="ts" name="HomeView">
@@ -65,33 +65,26 @@ import type {
   PictureInfoSearchSuggestionVo,
 } from '@/types/picture/picture'
 
-const name = ref<string>('')
-const pictureId = ref<string>('')
 const searchHistoryName = ref<string>('pictureHistory')
 
 const pictureRef = ref()
 
 const searchSearch = (value: string) => {
   // console.log('searchSearch', value)
-  name.value = value
+  pictureRef.value.getRecommendPictureByName(value)
 }
 const searchByRecommend = (value: any) => {
   // console.log('searchByRecommend', value)
-  name.value = ''
-  pictureId.value = value.id
+  pictureRef.value.getRecommendPictureByPictureId(value.id)
 }
 const searchByHistory = (value: any) => {
-  // console.log('searchByHistory', value)
-  pictureId.value = ''
-  name.value = value
+  pictureRef.value.getRecommendPictureByName(value)
 }
 const searchBySuggestion = (value: any) => {
   // console.log('searchSuggestion', value)
-  name.value = value.name
+  pictureRef.value.getRecommentPictureByName(value.name)
 }
 const clearSearch = async () => {
-  name.value = ''
-  pictureId.value = ''
   // console.log('clearSearch')
   await pictureRef.value.resetData()
 }

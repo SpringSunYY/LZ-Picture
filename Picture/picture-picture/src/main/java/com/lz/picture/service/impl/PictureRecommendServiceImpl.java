@@ -350,6 +350,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     // 保持您原有的getFallbackRecommendation方法
     private List<UserRecommendPictureInfoVo> getFallbackRecommendation(PictureRecommendRequest req) {
+        req.setCurrentPage(req.getCurrentPage() + 1);
         return pictureInfoService.getRecommentHotPictureInfoList(req);
     }
 

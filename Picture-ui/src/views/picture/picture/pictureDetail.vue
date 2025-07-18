@@ -497,8 +497,8 @@ const noMore = ref(false)
 const pictureList = ref<PictureInfoVo[]>([])
 
 const pictureQuery = ref<PictureInfoRecommendRequest>({
-  currentPage: 1,
-  pageSize: 20,
+  currentPage: 0,
+  pageSize: 35,
   pictureId: pictureId.value,
 })
 

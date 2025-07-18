@@ -59,7 +59,6 @@ function generate() {
     ...data,
     rowSpan: Math.ceil((data?.picHeight / data?.picWidth) * 15), // 根据比例动态计算 rowSpan
   }))
-  console.log(newData)
   if (newData.length > 0) {
     pictrures.value.push(...newData)
   }
