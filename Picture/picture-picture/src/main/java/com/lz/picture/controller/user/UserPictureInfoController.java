@@ -1,12 +1,13 @@
 package com.lz.picture.controller.user;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.config.OssConfig;
+import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
@@ -18,11 +19,9 @@ import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.*;
+import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchRecommendVo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoSearchSuggestionVo;
-import com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo;
-import com.lz.picture.model.vo.pictureInfo.UserPictureInfoVo;
+import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -32,8 +31,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_HOT_TOTAL;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
 
 /**
@@ -200,18 +199,26 @@ public class UserPictureInfoController extends BaseUserInfoController {
         if (userPictureInfoQuery.getPageSize() > 50) {
             userPictureInfoQuery.setPageSize(50);
         }
-        PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
-        //限定审核通过 状态为正常
-        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
-        QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
-        Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
-        List<PictureInfo> pictureInfoList = getPictureInfos(page);
-        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(pictureInfoList);
-        //压缩图片
-        for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+//        PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
+//        //限定审核通过 状态为正常
+//        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+//        QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
+//        Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
+//        List<PictureInfo> pictureInfoList = getPictureInfos(page);
+//        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(pictureInfoList);
+//        //压缩图片
+//        for (UserPictureInfoVo vo : userPictureInfoVos) {
+//            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+//        }
+        if (StringUtils.isEmpty(userPictureInfoQuery.getName())) {
+            throw new ServiceException("搜索内容不能为空", HttpStatus.BAD_REQUEST);
         }
-        return getDataTable(userPictureInfoVos, page.getTotal());
+        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
+        pictureRecommendRequest.setName(userPictureInfoQuery.getName());
+        pictureRecommendRequest.setCurrentPage(userPictureInfoQuery.getPageNum());
+        pictureRecommendRequest.setPageSize(userPictureInfoQuery.getPageSize());
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+        return getDataTable(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
     }
 
     /**
@@ -261,17 +268,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }
 
-    private List<PictureInfo> getPictureInfos(Page<PictureInfo> page) {
-        List<PictureInfo> pictureInfoList = page.getRecords();
-        for (PictureInfo info : pictureInfoList) {
-            String pictureUrl = ossConfig.builderUrl(info.getPictureUrl(), info.getDnsUrl());
-            info.setPictureUrl(pictureUrl);
-            String thumbnailUrl = ossConfig.builderUrl(info.getThumbnailUrl(), info.getDnsUrl());
-            info.setThumbnailUrl(thumbnailUrl);
-        }
-        return pictureInfoList;
-    }
-
     /**
      * 删除图片
      */
@@ -284,6 +280,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('picture:hot')")
     @GetMapping("/hot")
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
+        if (StringUtils.isEmpty(pictureInfoHotRequest.getType())) {
+            pictureInfoHotRequest.setType(PICTURE_HOT_TOTAL);
+        }
         return pictureInfoService.getPictureInfoHot(pictureInfoHotRequest);
     }
 }

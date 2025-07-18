@@ -641,8 +641,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Override
     public void resetPictureInfoCacheByBehavior(String pictureId, String behaviorType, Boolean exist) {
-        UserPictureDetailInfoVo userPictureDetailInfoVo =
-                userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
+        UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
         userPictureDetailInfoVo.setPictureUrl(null);
 
         if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
@@ -1072,7 +1071,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             expireTime = PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME)
     @Override
     public List<UserPictureInfoVo> getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest request) {
-        request.setOffset((request.getCurrentPage() - 1) * request.getPageSize());
+        request.setOffset(request.getCurrentPage() * request.getPageSize());
         // 在查询前清除分页设置
 //        PageHelper.clearPage();
         //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
@@ -1096,6 +1095,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                .like(StringUtils.isNotEmpty(request.getName()), PictureInfo::getName, request.getName())
                 .orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount)
         );
         //构造url

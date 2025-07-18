@@ -216,7 +216,7 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             return null;
         }
         //查询缓存是否存在
-        String key = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+        String key = PICTURE_RECOMMEND_PICTURE_MODEL + COMMON_SEPARATOR_CACHE + userId;
         if (redisCache.hasKey(key)) {
             String json = redisCache.getCacheObject(key);
             return JSONObject.parseObject(json, UserInterestModel.class);
@@ -273,7 +273,7 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
     @Override
     public void insertUserInterestModel(String userId, String type) {
         int count = 0;
-        String key = PICTURE_RECOMMEND_PICTURE_MODEL_UPDATE + userId + COMMON_SEPARATOR_CACHE + type;
+        String key = PICTURE_RECOMMEND_PICTURE_MODEL_UPDATE + COMMON_SEPARATOR_CACHE + userId + COMMON_SEPARATOR_CACHE + type;
         //如果缓存存在
         Boolean exist = redisCache.hasKey(key);
         if (exist) {
@@ -282,12 +282,12 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             //不存在直接插入一次
             UserInterestModel userInterestModel = saveUserInterestModel(userId);
             //删除用户模型缓存
-            String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+            String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + COMMON_SEPARATOR_CACHE + userId;
             redisCache.deleteObject(modelKay);
             //重新缓存模型
             String json = JSON.toJSONString(userInterestModel);
             redisCache.setCacheObject(modelKay, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
+            redisCache.deleteObject(PICTURE_RECOMMEND_USER + COMMON_SEPARATOR_CACHE + userId);
         }
         boolean isThreshold = false;
         int timeout = 0;
@@ -322,19 +322,19 @@ public class PictureRecommendInfoServiceImpl extends ServiceImpl<PictureRecommen
             //更新用户缓存 超出阈值要保存
             UserInterestModel userInterestModel = saveUserInterestModel(userId);
             //删除用户模型缓存
-            String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+            String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + COMMON_SEPARATOR_CACHE + userId;
             redisCache.deleteObject(modelKay);
             //重新缓存模型
             String json = JSON.toJSONString(userInterestModel);
+            redisCache.deleteObject(PICTURE_RECOMMEND_USER + COMMON_SEPARATOR_CACHE + userId);
             redisCache.setCacheObject(modelKay, json, PICTURE_RECOMMEND_PICTURE_MODEL_EXPIRE_TIME, TimeUnit.SECONDS);
-            redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
         } else {
             if (!exist) {
                 redisCache.setCacheObject(key, count, timeout, TimeUnit.SECONDS);
                 //不存在 重新获取，上一步已经插入
                 UserInterestModel userInterestModel = getUserInterestModel(userId);
                 //删除用户模型缓存
-                String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + userId;
+                String modelKay = PICTURE_RECOMMEND_PICTURE_MODEL + COMMON_SEPARATOR_CACHE + userId;
                 redisCache.deleteObject(modelKay);
                 //重新缓存模型
                 String json = JSON.toJSONString(userInterestModel);

@@ -42,6 +42,8 @@ public class PictureRecommendRequest implements Serializable {
 
     private Integer offset;
 
+    private String name;
+
     /**
      * 图片状态（0公共 1私有）
      */

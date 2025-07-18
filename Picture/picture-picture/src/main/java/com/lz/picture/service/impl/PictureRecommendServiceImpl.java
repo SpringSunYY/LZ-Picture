@@ -74,15 +74,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     public void init() {
         refreshCategoryTagCache(); // 服务启动时初始化
         startRefreshTask(); // 启动定时刷新任务
-        refreshConfig();    //刷新配置
     }
 
-    private void refreshConfig() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastCacheRefreshTime < CACHE_REFRESH_INTERVAL) {
-            return;
-        }
-    }
 
     // 添加 @PreDestroy 方法用于关闭线程池
     @PreDestroy
@@ -97,7 +90,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     private void startRefreshTask() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(this::refreshCategoryTagCache, 1, 1, TimeUnit.HOURS); // 每小时刷新一次
-        scheduler.scheduleAtFixedRate(this::refreshConfig, 1, 1, TimeUnit.HOURS);
     }
 
     // 刷新分类-标签关系缓存
@@ -135,7 +127,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
             // 3. 原子更新缓存
             if (!newCache.isEmpty()) {
-                redisCache.setCacheObject(PICTURE_RECOMMEND_CATEGORY_TAG, newCache, PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME, TimeUnit.SECONDS);
+                redisCache.setCacheObject(PICTURE_RECOMMEND_CATEGORY_TAG + COMMON_SEPARATOR_CACHE, newCache, PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME, TimeUnit.SECONDS);
 //                log.info("成功刷新分类-标签关系缓存到Redis，共{}个分类，有效期{}秒",
 //                        newCache.size(), PICTURE_RECOMMEND_CATEGORY_TAG_EXPIRE_TIME);
             }
@@ -186,7 +178,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             return getFallbackRecommendation(req);
         }
         //尝试从缓存拿数据
-        if (redisCache.hasKey(PICTURE_RECOMMEND_USER + userId)) {
+        if (redisCache.hasKey(PICTURE_RECOMMEND_USER + COMMON_SEPARATOR_CACHE + userId)) {
             return buildResult(req);
         }
         // 2. 获取用户兴趣模型
@@ -322,7 +314,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 //            log.debug("用户{}推荐结果TOP5: {}", userId, topScores);
         }
         //13. 缓存结果
-        List<UserRecommendPictureInfoVo> vos = cacheResult(scoredItems, userId);
+        cacheResult(scoredItems, userId);
         // 14. 分页处理
         return buildResult(req);
     }
@@ -331,7 +323,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         //查询缓存是否存在
         int start = req.getCurrentPage() * req.getPageSize();
         int end = start + req.getPageSize();
-        return redisCache.getCacheList(PICTURE_RECOMMEND_USER + req.getUserId(), start, end);
+        return redisCache.getCacheList(PICTURE_RECOMMEND_USER + COMMON_SEPARATOR_CACHE + req.getUserId(), start, end - 1);
     }
 
     private List<UserRecommendPictureInfoVo> cacheResult(List<Pair<PictureInfo, Double>> scoredItems, String userId) {
@@ -347,8 +339,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     return UserRecommendPictureInfoVo.objToVo(pic);
                 }).toList();
         //判断是否有缓存如果有先删除
-        redisCache.deleteObject(PICTURE_RECOMMEND_USER + userId);
-        long count = redisCache.setCacheListRightPushAll(PICTURE_RECOMMEND_USER + userId, vos, PICTURE_RECOMMEND_USER_EXPIRE_TIME, TimeUnit.SECONDS);
+        String key = PICTURE_RECOMMEND_USER + COMMON_SEPARATOR_CACHE + userId;
+        redisCache.deleteObject(key);
+        long count = redisCache.setCacheListRightPushAll(key, vos, PICTURE_RECOMMEND_USER_EXPIRE_TIME, TimeUnit.SECONDS);
 //        if (count > 0) {
 //            log.debug("用户{}推荐结果缓存成功，数据数：{}", userId, count);
 //        }
