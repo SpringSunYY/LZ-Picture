@@ -197,9 +197,9 @@ public class PictureStatisticsUtil {
 
         // 4. 排序并保存完整结果
         // 5.从完整结果内获取到TopN，并判断TopN的图片状态是否是公开，公开就存缓存，不公开就从所有结果获取后面内容直至补齐TopN
-        List<PictureInfoStatisticsVo> allResults = updateCacheWithStatus(statisticsInfo, mergedMap, resultMap);
+        List<PictureInfoStatisticsVo> cacheList = updateCacheWithStatus(statisticsInfo, mergedMap, resultMap);
         // 6. 保存完整结果到数据库
-        statisticsInfo.setContent(JSONObject.toJSONString(allResults));
+        statisticsInfo.setContent(JSONObject.toJSONString(cacheList));
         statisticsInfoService.updateById(statisticsInfo);
 
     }
@@ -220,7 +220,8 @@ public class PictureStatisticsUtil {
                 .filter(vo -> StringUtils.isNotEmpty(vo.getPictureId()) && StringUtils.isNotNull(vo.getScore()))
                 .sorted(Comparator.comparingDouble(PictureInfoStatisticsVo::getScore).reversed())
                 .collect(Collectors.toList());
-
+        //所有结果缓存到额外信息
+        statisticsInfo.setExtendContent(JSONObject.toJSONString(allResults));
         Map<String, PictureInfoStatisticsVo> sortedMap = new LinkedHashMap<>();
         for (PictureInfoStatisticsVo vo : allResults) {
             sortedMap.put(vo.getPictureId(), vo);
@@ -232,7 +233,7 @@ public class PictureStatisticsUtil {
         //未处理的ids
         List<String> noDisposePictureIds = new ArrayList<>();
         // 2. 查询这些图片信息，是否都为正常状态，如果不正常则不缓存且需要补齐缓存数量
-        // 2.1首先从pictureMap里面查询图片信息，因为这里图片信息都是最新数据,然后再为这些数据重新赋值
+        // 2.1 首先从pictureMap里面查询图片信息，因为这里图片信息都是最新数据,然后再为这些数据重新赋值
         for (PictureInfoStatisticsVo statisticsVo : topNList) {
             PictureInfoStatisticsVo pictureInfo = resultMap.get(statisticsVo.getPictureId());
             if (StringUtils.isNotNull(pictureInfo) && pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())) {
@@ -303,7 +304,7 @@ public class PictureStatisticsUtil {
      * @method: insertStatisticsByDay
      * @date: 2025/7/19 17:05
      **/
-    private void insertStatisticsByDay(LinkedHashMap<String, PictureInfoStatisticsVo> resultMap) {
+    private List<PictureInfoStatisticsVo> insertStatisticsByDay(LinkedHashMap<String, PictureInfoStatisticsVo> resultMap) {
         //构建结果 因为查询到的Ids是有序的，所以直接从resultMap中获取
         List<PictureInfoStatisticsVo> resultList = resultMap.values().stream()
                 .sorted(Comparator.comparing(PictureInfoStatisticsVo::getScore).reversed()).toList();
@@ -320,10 +321,12 @@ public class PictureStatisticsUtil {
         String statisticsKey = PICTURE_STATISTICS_HOT_DAY_KEY + COMMON_SEPARATOR_CACHE + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, nowDate);
         statisticsInfo.setStatisticsKey(statisticsKey);
         statisticsInfo.setStatisticsName(PICTURE_STATISTICS_HOT_DAY_NAME);
-        statisticsInfo.setContent(JSONObject.toJSONString(resultList.subList(0, Math.min(PICTURE_STATISTICS_HOT_DAY_RANK_VALUE, resultList.size()))));
+        List<PictureInfoStatisticsVo> statisticsVoList = resultList.subList(0, Math.min(PICTURE_STATISTICS_HOT_DAY_RANK_VALUE, resultList.size()));
+        statisticsInfo.setContent(JSONObject.toJSONString(statisticsVoList));
         statisticsInfo.setCreateTime(nowDate);
         statisticsInfoService.save(statisticsInfo);
         //存入缓存
-        redisCache.setCacheObject(statisticsKey, resultList.subList(0, Math.min(PICTURE_STATISTICS_HOT_DAY_RANK_VALUE, resultList.size())), PICTURE_STATISTICS_HOT_DAY_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisCache.setCacheObject(statisticsKey, statisticsVoList, PICTURE_STATISTICS_HOT_DAY_EXPIRE_TIME, TimeUnit.SECONDS);
+        return statisticsVoList;
     }
 }
