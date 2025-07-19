@@ -6,7 +6,6 @@ import com.lz.picture.model.domain.StatisticsInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,11 +13,10 @@ import java.util.Date;
  * 统计信息Vo对象 p_statistics_info
  *
  * @author YY
- * @date 2025-07-17
+ * @date 2025-07-20
  */
 @Data
 public class StatisticsInfoVo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -28,9 +26,9 @@ public class StatisticsInfoVo implements Serializable {
     private String statisticsId;
 
     /**
-     * 统计粒度
+     * 统计类型
      */
-    @Excel(name = "统计粒度")
+    @Excel(name = "统计类型")
     private String type;
 
     /**
@@ -56,6 +54,12 @@ public class StatisticsInfoVo implements Serializable {
      */
     @Excel(name = "统计内容")
     private String content;
+
+    /**
+     * 统计内容
+     */
+    @Excel(name = "统计内容")
+    private String extendContent;
 
     /**
      * 描述

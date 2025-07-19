@@ -120,8 +120,6 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         Long stages = statisticsInfoQuery.getStages();
         queryWrapper.eq(StringUtils.isNotNull(stages), "stages", stages);
 
-        String content = statisticsInfoQuery.getContent();
-        queryWrapper.eq(StringUtils.isNotEmpty(content), "content", content);
 
         Date createTime = statisticsInfoQuery.getCreateTime();
         queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));

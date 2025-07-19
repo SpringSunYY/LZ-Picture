@@ -1,37 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.picture.mapper.StatisticsInfoMapper">
-    
+
     <resultMap type="StatisticsInfo" id="StatisticsInfoResult">
-        <result property="statisticsId"    column="statistics_id"    />
-        <result property="type"    column="type"    />
-        <result property="statisticsName"    column="statistics_name"    />
-        <result property="statisticsKey"    column="statistics_key"    />
-        <result property="stages"    column="stages"    />
-        <result property="content"    column="content"    />
-        <result property="remark"    column="remark"    />
-        <result property="createTime"    column="create_time"    />
+        <result property="statisticsId" column="statistics_id"/>
+        <result property="type" column="type"/>
+        <result property="statisticsName" column="statistics_name"/>
+        <result property="statisticsKey" column="statistics_key"/>
+        <result property="stages" column="stages"/>
+        <result property="content" column="content"/>
+        <result property="extendContent" column="extend_content"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="selectStatisticsInfoVo">
-        select statistics_id, type, statistics_name, statistics_key, stages, content, remark, create_time from p_statistics_info
+        select statistics_id,
+               type,
+               statistics_name,
+               statistics_key,
+               stages,
+               content,
+               extend_content,
+               remark,
+               create_time
+        from p_statistics_info
     </sql>
 
     <select id="selectStatisticsInfoList" parameterType="StatisticsInfo" resultMap="StatisticsInfoResult">
         <include refid="selectStatisticsInfoVo"/>
-        <where>  
-            <if test="statisticsId != null  and statisticsId != ''"> and statistics_id = #{statisticsId}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
-            <if test="statisticsName != null  and statisticsName != ''"> and statistics_name like concat('%', #{statisticsName}, '%')</if>
-            <if test="statisticsKey != null  and statisticsKey != ''"> and statistics_key = #{statisticsKey}</if>
-            <if test="stages != null "> and stages = #{stages}</if>
-            <if test="content != null  and content != ''"> and content = #{content}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        <where>
+            <if test="statisticsId != null  and statisticsId != ''">and statistics_id = #{statisticsId}</if>
+            <if test="type != null  and type != ''">and type = #{type}</if>
+            <if test="statisticsName != null  and statisticsName != ''">and statistics_name like concat('%',
+                #{statisticsName}, '%')
+            </if>
+            <if test="statisticsKey != null  and statisticsKey != ''">and statistics_key like concat('%',
+                #{statisticsKey}, '%')
+            </if>
+            <if test="stages != null ">and stages = #{stages}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
         </where>
     </select>
-    
+
     <select id="selectStatisticsInfoByStatisticsId" parameterType="String" resultMap="StatisticsInfoResult">
         <include refid="selectStatisticsInfoVo"/>
         where statistics_id = #{statisticsId}
@@ -46,9 +61,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="statisticsKey != null and statisticsKey != ''">statistics_key,</if>
             <if test="stages != null">stages,</if>
             <if test="content != null">content,</if>
+            <if test="extendContent != null">extend_content,</if>
             <if test="remark != null">remark,</if>
             <if test="createTime != null">create_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="statisticsId != null">#{statisticsId},</if>
             <if test="type != null and type != ''">#{type},</if>
@@ -56,9 +72,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="statisticsKey != null and statisticsKey != ''">#{statisticsKey},</if>
             <if test="stages != null">#{stages},</if>
             <if test="content != null">#{content},</if>
+            <if test="extendContent != null">#{extendContent},</if>
             <if test="remark != null">#{remark},</if>
             <if test="createTime != null">#{createTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateStatisticsInfo" parameterType="StatisticsInfo">
@@ -69,6 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="statisticsKey != null and statisticsKey != ''">statistics_key = #{statisticsKey},</if>
             <if test="stages != null">stages = #{stages},</if>
             <if test="content != null">content = #{content},</if>
+            <if test="extendContent != null">extend_content = #{extendContent},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
         </trim>
@@ -76,11 +94,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteStatisticsInfoByStatisticsId" parameterType="String">
-        delete from p_statistics_info where statistics_id = #{statisticsId}
+        delete
+        from p_statistics_info
+        where statistics_id = #{statisticsId}
     </delete>
 
     <delete id="deleteStatisticsInfoByStatisticsIds" parameterType="String">
-        delete from p_statistics_info where statistics_id in 
+        delete from p_statistics_info where statistics_id in
         <foreach item="statisticsId" collection="array" open="(" separator="," close=")">
             #{statisticsId}
         </foreach>

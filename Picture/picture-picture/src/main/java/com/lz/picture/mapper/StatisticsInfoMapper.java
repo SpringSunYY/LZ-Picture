@@ -1,17 +1,17 @@
 package com.lz.picture.mapper;
 
-import java.util.List;
-import com.lz.picture.model.domain.StatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.picture.model.domain.StatisticsInfo;
+
+import java.util.List;
 
 /**
  * 统计信息Mapper接口
  *
  * @author YY
- * @date 2025-07-17
+ * @date 2025-07-20
  */
-public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo>
-{
+public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
     /**
      * 查询统计信息
      *

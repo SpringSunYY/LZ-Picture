@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.common.annotation.Excel;
 import lombok.Data;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -18,12 +17,11 @@ import java.util.Map;
  * 统计信息对象 p_statistics_info
  *
  * @author YY
- * @date 2025-07-17
+ * @date 2025-07-20
  */
 @TableName("p_statistics_info")
 @Data
 public class StatisticsInfo implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,9 +32,9 @@ public class StatisticsInfo implements Serializable {
     private String statisticsId;
 
     /**
-     * 统计粒度
+     * 统计类型
      */
-    @Excel(name = "统计粒度")
+    @Excel(name = "统计类型")
     private String type;
 
     /**
@@ -62,6 +60,12 @@ public class StatisticsInfo implements Serializable {
      */
     @Excel(name = "统计内容")
     private String content;
+
+    /**
+     * 统计内容
+     */
+    @Excel(name = "统计内容")
+    private String extendContent;
 
     /**
      * 描述

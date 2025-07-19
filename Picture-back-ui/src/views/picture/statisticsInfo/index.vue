@@ -9,8 +9,8 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="统计粒度" prop="type">
-        <el-select v-model="queryParams.type" style="width: 200px" placeholder="请选择统计粒度" clearable>
+      <el-form-item label="统计类型" prop="type">
+        <el-select v-model="queryParams.type" style="width: 200px" placeholder="请选择统计类型" clearable>
           <el-option
               v-for="dict in p_statistics_type"
               :key="dict.value"
@@ -109,7 +109,7 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="统计编号" align="center" prop="statisticsId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="统计粒度" align="center" prop="type" v-if="columns[1].visible">
+      <el-table-column label="统计类型" align="center" prop="type" v-if="columns[1].visible">
         <template #default="scope">
           <dict-tag :options="p_statistics_type" :value="scope.row.type"/>
         </template>
@@ -122,9 +122,11 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="统计内容" align="center" prop="content" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="描述" align="center" prop="remark" v-if="columns[6].visible"
+      <el-table-column label="统计内容" align="center" prop="extendContent" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[7].visible"
+      <el-table-column label="描述" align="center" prop="remark" v-if="columns[7].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[8].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -153,8 +155,8 @@
     <!-- 添加或修改统计信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="statisticsInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="统计粒度" prop="type">
-          <el-select v-model="form.type" placeholder="请选择统计粒度">
+        <el-form-item label="统计类型" prop="type">
+          <el-select v-model="form.type" placeholder="请选择统计类型">
             <el-option
                 v-for="dict in p_statistics_type"
                 :key="dict.value"
@@ -172,8 +174,11 @@
         <el-form-item label="期数" prop="stages">
           <el-input v-model="form.stages" placeholder="请输入期数"/>
         </el-form-item>
-        <el-form-item label="统计内容">
-          <editor v-model="form.content" :min-height="192"/>
+        <el-form-item label="统计内容" prop="content">
+          <el-input v-model="form.content" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+        <el-form-item label="统计内容" prop="extendContent">
+          <el-input v-model="form.extendContent" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="描述" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -222,12 +227,11 @@ const data = reactive({
     statisticsName: null,
     statisticsKey: null,
     stages: null,
-    content: null,
     createTime: null
   },
   rules: {
     type: [
-      {required: true, message: "统计粒度不能为空", trigger: "change"}
+      {required: true, message: "统计类型不能为空", trigger: "change"}
     ],
     statisticsName: [
       {required: true, message: "统计名称不能为空", trigger: "blur"}
@@ -242,13 +246,14 @@ const data = reactive({
   //表格展示列
   columns: [
     {key: 0, label: '统计编号', visible: true},
-    {key: 1, label: '统计粒度', visible: true},
+    {key: 1, label: '统计类型', visible: true},
     {key: 2, label: '统计名称', visible: true},
     {key: 3, label: 'KEY', visible: true},
     {key: 4, label: '期数', visible: true},
     {key: 5, label: '统计内容', visible: true},
-    {key: 6, label: '描述', visible: true},
-    {key: 7, label: '创建时间', visible: true},
+    {key: 6, label: '统计内容', visible: true},
+    {key: 7, label: '描述', visible: true},
+    {key: 8, label: '创建时间', visible: true},
   ],
 });
 
@@ -284,6 +289,7 @@ function reset() {
     statisticsKey: null,
     stages: null,
     content: null,
+    extendContent: null,
     remark: null,
     createTime: null
   };
