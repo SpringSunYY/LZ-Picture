@@ -131,6 +131,16 @@ public class PictureStatisticsUtil {
         }
     }
 
+    /**
+     * 更新缓存信息
+     *
+     * @param statisticsInfo 统计对象
+     * @param resultMap      结果集-缓存拿的
+     * @return void
+     * @author: YY
+     * @method: statisticsPictureUpdate
+     * @date: 2025/7/20 00:21
+     **/
     private void statisticsPictureUpdate(StatisticsInfo statisticsInfo,
                                          LinkedHashMap<String, PictureInfoStatisticsVo> resultMap
     ) {
@@ -194,6 +204,14 @@ public class PictureStatisticsUtil {
 
     }
 
+    /**
+     * 缓存更新
+     *
+     * @param statisticsInfo 统计内容
+     * @param mergedMap      合并的数据
+     * @param resultMap      结果数据-从缓存拿的
+     * @return
+     */
     private List<PictureInfoStatisticsVo> updateCacheWithStatus(StatisticsInfo statisticsInfo,
                                                                 Map<String, PictureInfoStatisticsVo> mergedMap,
                                                                 Map<String, PictureInfoStatisticsVo> resultMap) {
@@ -267,10 +285,10 @@ public class PictureStatisticsUtil {
         return resultList;
     }
 
-    private List<PictureInfo> queryPictureInfoList(List<String> subList) {
+    private List<PictureInfo> queryPictureInfoList(List<String> pitureIds) {
         return pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
                 .select(PictureInfo::getPictureId, PictureInfo::getDnsUrl, PictureInfo::getName, PictureInfo::getPicScale, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getPictureStatus)
-                .in(PictureInfo::getPictureId, subList)
+                .in(PictureInfo::getPictureId, pitureIds)
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
     }

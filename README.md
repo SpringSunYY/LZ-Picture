@@ -2961,6 +2961,7 @@ CREATE TABLE p_space_dilatation_info (
 | statistics_key  | varchar  | 64   |        | 否   |          | KEY      |
 | stages          | int      |      |        | 否   |          | 期数     |
 | content         | text     |      |        | 是   |          | 统计内容 |
+| extend_content  | text     |      |        | 是   |          | 额外内容 |
 | remark          | text     |      |        | 是   |          | 描述     |
 | create_time     | datetime |      |        | 否   | 当前时间 | 创建时间 |
 
@@ -2976,6 +2977,7 @@ CREATE TABLE p_statistics_info (
   statistics_key   VARCHAR(64)  NOT NULL COMMENT 'KEY',
   stages           INT                   COMMENT '期数',
   content          TEXT                  COMMENT '统计内容',
+  extend_content          TEXT           COMMENT '统计内容',  
   remark           TEXT                  COMMENT '描述',
   create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='统计信息表';
