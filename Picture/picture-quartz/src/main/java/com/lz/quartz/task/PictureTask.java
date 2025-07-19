@@ -37,4 +37,11 @@ public class PictureTask {
     public void autoUpdateUserBehaviorInfo() {
         pictureAutoTask.autoUpdateUserBehaviorInfo();
     }
+
+    /**
+     * 图片热门统计-day
+     */
+    public void autoStatisticsPictureByDay() {
+        pictureAutoTask.autoStatisticsPictureByDay();
+    }
 }

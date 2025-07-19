@@ -8,6 +8,7 @@ import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
 import com.lz.picture.model.enums.PViewLogTargetTypeEnum;
 import com.lz.picture.service.*;
+import com.lz.picture.utils.PictureStatisticsUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -54,6 +55,9 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
 
     @Resource
     private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private PictureStatisticsUtil pictureStatisticsUtil;
 
     //region  自动更新浏览记录信息
     @Override
@@ -556,4 +560,12 @@ public class PictureAutoTaskImpl implements IPictureAutoTask {
                 }).toList();
     }
     // endregion
+
+    //region 热门统计
+
+    @Override
+    public void autoStatisticsPictureByDay() {
+        pictureStatisticsUtil.autoStatisticsPictureByDay();
+    }
+    //endregion
 }

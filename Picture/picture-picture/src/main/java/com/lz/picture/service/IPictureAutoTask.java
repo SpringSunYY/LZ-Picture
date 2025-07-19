@@ -33,4 +33,14 @@ public interface IPictureAutoTask {
      * @date: 2025/5/26 14:57
      **/
     void autoUpdateUserBehaviorInfo();
+
+    /**
+     * 图片热门统计根据天
+     * @author: YY
+     * @method: autoStatisticsPictureByDay
+     * @date: 2025/7/19 02:04
+     * @param
+     * @return void
+     **/
+    void autoStatisticsPictureByDay();
 }

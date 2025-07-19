@@ -329,7 +329,7 @@ public class RedisCache {
     }
 
     /**
-     * 获取有序集合
+     * 获取有序集合,分数倒序
      *
      * @param key   缓存的键值
      * @param start 开始索引
@@ -337,6 +337,6 @@ public class RedisCache {
      * @return 缓存的值
      */
     public Set<ZSetOperations.TypedTuple<String>> zSetRangeWithScores(String key, int start, int end) {
-        return redisTemplate.opsForZSet().rangeWithScores(key, start, end);
+        return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
     }
 }

@@ -1,21 +1,22 @@
 package com.lz.picture.service;
 
-import java.util.List;
-import com.lz.picture.model.domain.StatisticsInfo;
-import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
-import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.picture.model.domain.StatisticsInfo;
+import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
+import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
+
+import java.util.List;
+
 /**
  * 统计信息Service接口
  *
  * @author YY
  * @date 2025-07-17
  */
-public interface IStatisticsInfoService extends IService<StatisticsInfo>
-{
+public interface IStatisticsInfoService extends IService<StatisticsInfo> {
     //region mybatis代码
+
     /**
      * 查询统计信息
      *
@@ -64,6 +65,7 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo>
      */
     public int deleteStatisticsInfoByStatisticsId(String statisticsId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +81,15 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo>
      * @return StatisticsInfoVO集合
      */
     List<StatisticsInfoVo> convertVoList(List<StatisticsInfo> statisticsInfoList);
+
+    /**
+     * 根据统计信息获取到最新的key
+     *
+     * @param key 统计信息key
+     * @return StatisticsInfo
+     * @author: YY
+     * @method: selectStatisticsInfoByStatisticsKey
+     * @date: 2025/7/19 01:07
+     **/
+    StatisticsInfo selectStatisticsInfoByStatisticsKey(String key);
 }

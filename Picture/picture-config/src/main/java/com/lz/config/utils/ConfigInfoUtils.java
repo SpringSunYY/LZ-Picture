@@ -322,6 +322,27 @@ public class ConfigInfoUtils {
      */
     public static final String PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_SHARE_KEY = "picture:statistics:hot:behavior:score:share";
     public static Double PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_SHARE_VALUE = 12.0;
+    /**
+     * 图片热门统计日排行
+     */
+    public static final String PICTURE_STATISTICS_HOT_DAY_RANK_KEY = "picture:statistics:hot:day:rank";
+    public static Integer PICTURE_STATISTICS_HOT_DAY_RANK_VALUE = 5000;
+    /**
+     * 图片热门统计周排行
+     */
+    public static final String PICTURE_STATISTICS_HOT_WEEK_RANK_KEY = "picture:statistics:hot:week:rank";
+    public static Integer PICTURE_STATISTICS_HOT_WEEK_RANK_VALUE = 5000;
+    /**
+     * 图片热门统计月排行
+     */
+    public static final String PICTURE_STATISTICS_HOT_MONTH_RANK_KEY = "picture:statistics:hot:month:rank";
+    public static Integer PICTURE_STATISTICS_HOT_MONTH_RANK_VALUE = 5000;
+    /**
+     * 图片热门统计年排行
+     */
+    public static final String PICTURE_STATISTICS_HOT_YEAR_RANK_KEY = "picture:statistics:hot:year:rank";
+    public static Integer PICTURE_STATISTICS_HOT_YEAR_RANK_VALUE = 5000;
+
 
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
@@ -384,6 +405,10 @@ public class ConfigInfoUtils {
         PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_LIKE_VALUE = getDouble(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_LIKE_KEY);
         PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_COLLECT_VALUE = getDouble(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_COLLECT_KEY);
         PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_SHARE_VALUE = getDouble(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_SHARE_KEY);
+        PICTURE_STATISTICS_HOT_DAY_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_DAY_RANK_KEY);
+        PICTURE_STATISTICS_HOT_WEEK_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_WEEK_RANK_KEY);
+        PICTURE_STATISTICS_HOT_MONTH_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_MONTH_RANK_KEY);
+        PICTURE_STATISTICS_HOT_YEAR_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_YEAR_RANK_KEY);
     }
 
 

@@ -33,12 +33,6 @@ public class UserSpaceInfoController extends BaseUserInfoController {
     private ISpaceInfoService spaceInfoService;
 
     @Resource
-    private IConfigInfoService configInfoService;
-
-    @Resource
-    private OssConfig ossConfig;
-
-    @Resource
     private SpaceAuthUtils spaceAuthUtils;
 
     @PreAuthorize("@uss.hasPermi('picture:space:add')")

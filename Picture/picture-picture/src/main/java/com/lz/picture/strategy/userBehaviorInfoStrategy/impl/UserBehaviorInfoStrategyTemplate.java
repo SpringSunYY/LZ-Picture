@@ -77,7 +77,6 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
             //如果是图片，不存在既要加分
             if (USER_BEHAVIOR_TARGET_TYPE_0.getValue().equals(userBehaviorInfo.getTargetType())) {
                 Double score = userBehaviorInfo.getScore();
-                System.out.println("score = " + score);
                 pictureStatisticsUtil.pictureHotStatisticsIncrementScore(userBehaviorInfo.getTargetId(), score);
             }
         }

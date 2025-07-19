@@ -1,21 +1,20 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.StatisticsInfoMapper;
 import com.lz.picture.model.domain.StatisticsInfo;
-import com.lz.picture.service.IStatisticsInfoService;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
+import com.lz.picture.service.IStatisticsInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 统计信息Service业务层处理
@@ -24,12 +23,12 @@ import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
  * @date 2025-07-17
  */
 @Service
-public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper, StatisticsInfo> implements IStatisticsInfoService
-{
+public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper, StatisticsInfo> implements IStatisticsInfoService {
     @Resource
     private StatisticsInfoMapper statisticsInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询统计信息
      *
@@ -37,8 +36,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @return 统计信息
      */
     @Override
-    public StatisticsInfo selectStatisticsInfoByStatisticsId(String statisticsId)
-    {
+    public StatisticsInfo selectStatisticsInfoByStatisticsId(String statisticsId) {
         return statisticsInfoMapper.selectStatisticsInfoByStatisticsId(statisticsId);
     }
 
@@ -49,8 +47,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @return 统计信息
      */
     @Override
-    public List<StatisticsInfo> selectStatisticsInfoList(StatisticsInfo statisticsInfo)
-    {
+    public List<StatisticsInfo> selectStatisticsInfoList(StatisticsInfo statisticsInfo) {
         return statisticsInfoMapper.selectStatisticsInfoList(statisticsInfo);
     }
 
@@ -61,8 +58,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @return 结果
      */
     @Override
-    public int insertStatisticsInfo(StatisticsInfo statisticsInfo)
-    {
+    public int insertStatisticsInfo(StatisticsInfo statisticsInfo) {
         statisticsInfo.setCreateTime(DateUtils.getNowDate());
         return statisticsInfoMapper.insertStatisticsInfo(statisticsInfo);
     }
@@ -74,8 +70,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @return 结果
      */
     @Override
-    public int updateStatisticsInfo(StatisticsInfo statisticsInfo)
-    {
+    public int updateStatisticsInfo(StatisticsInfo statisticsInfo) {
         return statisticsInfoMapper.updateStatisticsInfo(statisticsInfo);
     }
 
@@ -86,8 +81,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @return 结果
      */
     @Override
-    public int deleteStatisticsInfoByStatisticsIds(String[] statisticsIds)
-    {
+    public int deleteStatisticsInfoByStatisticsIds(String[] statisticsIds) {
         return statisticsInfoMapper.deleteStatisticsInfoByStatisticsIds(statisticsIds);
     }
 
@@ -98,39 +92,39 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @return 结果
      */
     @Override
-    public int deleteStatisticsInfoByStatisticsId(String statisticsId)
-    {
+    public int deleteStatisticsInfoByStatisticsId(String statisticsId) {
         return statisticsInfoMapper.deleteStatisticsInfoByStatisticsId(statisticsId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<StatisticsInfo> getQueryWrapper(StatisticsInfoQuery statisticsInfoQuery){
+    public QueryWrapper<StatisticsInfo> getQueryWrapper(StatisticsInfoQuery statisticsInfoQuery) {
         QueryWrapper<StatisticsInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = statisticsInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String statisticsId = statisticsInfoQuery.getStatisticsId();
-        queryWrapper.eq(StringUtils.isNotEmpty(statisticsId) ,"statistics_id",statisticsId);
+        String statisticsId = statisticsInfoQuery.getStatisticsId();
+        queryWrapper.eq(StringUtils.isNotEmpty(statisticsId), "statistics_id", statisticsId);
 
-    String type = statisticsInfoQuery.getType();
-        queryWrapper.eq(StringUtils.isNotEmpty(type) ,"type",type);
+        String type = statisticsInfoQuery.getType();
+        queryWrapper.eq(StringUtils.isNotEmpty(type), "type", type);
 
-    String statisticsName = statisticsInfoQuery.getStatisticsName();
-        queryWrapper.like(StringUtils.isNotEmpty(statisticsName) ,"statistics_name",statisticsName);
+        String statisticsName = statisticsInfoQuery.getStatisticsName();
+        queryWrapper.like(StringUtils.isNotEmpty(statisticsName), "statistics_name", statisticsName);
 
-    String statisticsKey = statisticsInfoQuery.getStatisticsKey();
-        queryWrapper.eq(StringUtils.isNotEmpty(statisticsKey) ,"statistics_key",statisticsKey);
+        String statisticsKey = statisticsInfoQuery.getStatisticsKey();
+        queryWrapper.eq(StringUtils.isNotEmpty(statisticsKey), "statistics_key", statisticsKey);
 
-    Long stages = statisticsInfoQuery.getStages();
-        queryWrapper.eq( StringUtils.isNotNull(stages),"stages",stages);
+        Long stages = statisticsInfoQuery.getStages();
+        queryWrapper.eq(StringUtils.isNotNull(stages), "stages", stages);
 
-    String content = statisticsInfoQuery.getContent();
-        queryWrapper.eq(StringUtils.isNotEmpty(content) ,"content",content);
+        String content = statisticsInfoQuery.getContent();
+        queryWrapper.eq(StringUtils.isNotEmpty(content), "content", content);
 
-    Date createTime = statisticsInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        Date createTime = statisticsInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
         return queryWrapper;
     }
@@ -141,6 +135,12 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             return Collections.emptyList();
         }
         return statisticsInfoList.stream().map(StatisticsInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public StatisticsInfo selectStatisticsInfoByStatisticsKey(String key) {
+        return this.getOne(new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getStatisticsKey, key)
+                .orderBy(true, false, StatisticsInfo::getCreateTime).last("limit 1"));
     }
 
 }

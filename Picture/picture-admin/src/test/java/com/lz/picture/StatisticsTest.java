@@ -25,4 +25,9 @@ public class StatisticsTest {
             pictureStatisticsUtil.pictureHotStatisticsIncrementScore(String.valueOf(i1), 1.0);
         }
     }
+
+    @Test
+    public void testAutoStatisticsPictureByDay() {
+        pictureStatisticsUtil.autoStatisticsPictureByDay();
+    }
 }
