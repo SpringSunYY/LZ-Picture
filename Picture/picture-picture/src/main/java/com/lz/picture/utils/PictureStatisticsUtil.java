@@ -146,7 +146,7 @@ public class PictureStatisticsUtil {
     ) {
         // 1. 解析历史数据，获取到所有信息，包括为私有的图片
         List<PictureInfoStatisticsVo> dbResult = Optional.ofNullable(
-                JSONObject.parseArray(statisticsInfo.getContent(), PictureInfoStatisticsVo.class)
+                JSONObject.parseArray(statisticsInfo.getExtendContent(), PictureInfoStatisticsVo.class)
         ).orElseGet(ArrayList::new);
 
 
@@ -322,7 +322,9 @@ public class PictureStatisticsUtil {
         statisticsInfo.setStatisticsKey(statisticsKey);
         statisticsInfo.setStatisticsName(PICTURE_STATISTICS_HOT_DAY_NAME);
         List<PictureInfoStatisticsVo> statisticsVoList = resultList.subList(0, Math.min(PICTURE_STATISTICS_HOT_DAY_RANK_VALUE, resultList.size()));
-        statisticsInfo.setContent(JSONObject.toJSONString(statisticsVoList));
+        String contentStr = JSONObject.toJSONString(statisticsVoList);
+        statisticsInfo.setContent(contentStr);
+        statisticsInfo.setExtendContent(contentStr);
         statisticsInfo.setCreateTime(nowDate);
         statisticsInfoService.save(statisticsInfo);
         //存入缓存
