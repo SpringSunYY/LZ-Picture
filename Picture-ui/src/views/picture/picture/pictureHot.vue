@@ -71,7 +71,7 @@ const currentCount = ref(0)
 const query = ref<PictureInfoHotRequest>({
   type: (type.value as string) || 'total',
   pageNum: 1,
-  pageSize: 30,
+  pageSize: 35,
 })
 
 const loadProgress = computed(() => {

@@ -15,7 +15,7 @@
       :suggestionList="suggestionList"
       :searchHistoryName="searchHistoryName"
     ></SearchInput>
-    <div class="container mx-auto p-2">
+    <div class="container mx-auto p-2" style="margin: 0 auto">
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 md:grid-cols-2">
         <!-- Basic usage -->
         <DirectionAwareHover
@@ -143,3 +143,8 @@ const getRecommendationList = () => {
 }
 getRecommendationList()
 </script>
+<style>
+.home-view{
+  margin: 0 auto;
+}
+</style>

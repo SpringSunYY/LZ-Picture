@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts" name="Picture">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo } from '@/types/picture/picture'
 import { useConfig } from '@/utils/config.ts'
@@ -107,7 +107,8 @@ const formatPictureListByRow = () => {
     ) {
       continue
     }
-    const ratio = pic.picWidth / pic.picHeight
+    pic.picScale = pic.picWidth / pic.picHeight
+    const ratio = pic.picScale
     tempRow.push(pic)
     totalRatio += ratio
 
@@ -146,9 +147,9 @@ const formatPictureListByRow = () => {
 
   pictureRows.value = rows
   var count = 0
-  for (let i = 0; i <pictureRows.value.length; i++) {
+  for (let i = 0; i < pictureRows.value.length; i++) {
     for (let j = 0; j < pictureRows.value[i].length; j++) {
-      count ++
+      count++
     }
   }
   console.log('count', count)
@@ -210,7 +211,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .horizontal-fall-layout {
   padding: 8px;
-  margin: 0 2vh;
+  margin: 0 auto;
 
   .horizontal-masonry {
     width: 100%;

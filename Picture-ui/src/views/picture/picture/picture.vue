@@ -38,7 +38,7 @@ const pictureQuery = ref<PictureRecommendRequest>({
   currentPage: 0,
   //list接口需要 从第一页开始
   pageNum: 1,
-  pageSize: 30,
+  pageSize: 35,
   offset: 0,
 })
 const count = ref(0)
@@ -150,7 +150,7 @@ defineExpose({
 <style scoped lang="scss">
 .picture {
   padding: 8px;
-  margin: 0 2vh;
+  margin: 0 1em;
 
   .horizontal-masonry {
     width: 100%;
