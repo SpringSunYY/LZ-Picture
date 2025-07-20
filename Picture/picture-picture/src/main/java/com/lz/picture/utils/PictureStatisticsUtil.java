@@ -170,51 +170,52 @@ public class PictureStatisticsUtil {
      **/
     private PictureStatisticsDto pictureStatisticsDay(LinkedHashMap<String, PictureInfoStatisticsVo> resultMap, Date nowDate) {
         String statisticsKey = PICTURE_STATISTICS_HOT_DAY_KEY + COMMON_SEPARATOR_CACHE + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, nowDate);
+        String lastStatisticsKey = PICTURE_STATISTICS_HOT_DAY_KEY + COMMON_SEPARATOR_CACHE + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(nowDate, -1));
         return pictureStatistics(
                 resultMap,
-                PICTURE_STATISTICS_HOT_DAY_KEY,
                 PICTURE_STATISTICS_HOT_DAY_EXPIRE_TIME,
                 PStatisticsTypeEnum.STATISTICS_TYPE_2.getValue(),
                 statisticsKey,
                 PICTURE_STATISTICS_HOT_DAY_NAME,
-                PICTURE_STATISTICS_HOT_DAY_RANK_VALUE
+                PICTURE_STATISTICS_HOT_DAY_RANK_VALUE,
+                lastStatisticsKey
         );
     }
 
     /**
      * 图片信息统计
      *
-     * @param statisticsMap   缓存数据-已经统计好的数据
-     * @param cacheKey        缓存key
-     * @param cacheExpireTime 缓存过期时间
-     * @param statisticsType  统计类型
-     * @param statisticsKey   统计key
-     * @param statisticsName  统计名称
-     * @param rank            统计数量排行
+     * @param statisticsMap     缓存数据-已经统计好的数据
+     * @param lastStatisticsKey 上一期key
+     * @param cacheExpireTime   缓存过期时间
+     * @param statisticsType    统计类型
+     * @param statisticsKey     统计key
+     * @param statisticsName    统计名称
+     * @param rank              统计数量排行
      * @return PictureStatisticsDto
      * @author: YY
      * @method: pictureStatistics
      * @date: 2025/7/20 17:30
      **/
     private PictureStatisticsDto pictureStatistics(LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap,
-                                                   String cacheKey,
                                                    Integer cacheExpireTime,
                                                    String statisticsType,
                                                    String statisticsKey,
                                                    String statisticsName,
-                                                   Integer rank) {
+                                                   Integer rank,
+                                                   String lastStatisticsKey) {
         //查询到对应的统计信息
         StatisticsInfo statisticsInfo = statisticsInfoService.selectStatisticsInfoByStatisticsKey(statisticsKey);
         //判断对象是否存在，存在是更新，不存在是插入
         if (StringUtils.isNull(statisticsInfo)) {
             return insertPictureStatistics(
                     statisticsMap,
-                    cacheKey,
                     cacheExpireTime,
                     statisticsType,
                     statisticsKey,
                     statisticsName,
-                    rank);
+                    rank,
+                    lastStatisticsKey);
         } else {
             PictureStatisticsDto pictureStatisticsDto = statisticsPictureUpdate(statisticsInfo, statisticsMap);
             if (StringUtils.isNotNull(pictureStatisticsDto)) {
@@ -387,7 +388,6 @@ public class PictureStatisticsUtil {
      * 为什么不做其他操作？？因为日只统计当天正常的
      *
      * @param statisticsMap  排序结果MAP
-     * @param cacheKey       缓存key
      * @param statisticsKey  统计key
      * @param statisticsType 统计类型
      * @param statisticsName 统计名称
@@ -399,19 +399,19 @@ public class PictureStatisticsUtil {
      **/
     private PictureStatisticsDto insertPictureStatistics(
             LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap,
-            String cacheKey,
             Integer cacheExpireTime,
             String statisticsType,
             String statisticsKey,
             String statisticsName,
-            Integer rank
+            Integer rank,
+            String lastStatisticsKey
     ) {
         //构建结果 因为查询到的Ids是有序的，所以直接从resultMap中获取
         List<PictureInfoStatisticsVo> resultList = statisticsMap.values().stream()
                 .sorted(Comparator.comparing(PictureInfoStatisticsVo::getScore).reversed()).toList();
         //查询到他的上一期
         Date nowDate = DateUtils.getNowDate();
-        StatisticsInfo lastStatisticsInfo = statisticsInfoService.selectStatisticsInfoByStatisticsKey(cacheKey + COMMON_SEPARATOR_CACHE + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, DateUtils.addDays(nowDate, -1)));
+        StatisticsInfo lastStatisticsInfo = statisticsInfoService.selectStatisticsInfoByStatisticsKey(lastStatisticsKey);
         StatisticsInfo statisticsInfo = new StatisticsInfo();
         statisticsInfo.setType(statisticsType);
         if (StringUtils.isNull(lastStatisticsInfo)) {
