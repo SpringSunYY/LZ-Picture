@@ -2,11 +2,20 @@ package com.lz.common;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
+import com.lz.common.utils.DateUtils;
 import com.lz.config.manager.sms.SmsManager;
 import com.lz.config.manager.sms.model.SmsBody;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 
 /**
  * Project: Picture
@@ -35,5 +44,35 @@ public class CommonTest {
         System.out.println("Message=" + response.getMessage());
         System.out.println("RequestId=" + response.getRequestId());
         System.out.println("BizId=" + response.getBizId());
+    }
+
+    @Test
+    public void getWeekStartAndEndTime() {
+        // 获取指定时间的周一和周日
+        LocalDate specifiedDate = LocalDate.of(2025, 3, 19);
+        // 获取该日期所在周的周一
+        LocalDate mondayOfTheWeek = specifiedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        // 获取该日期所在周的周日
+        LocalDate sundayOfTheWeek = specifiedDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        // 周一的开始时间（00:00）
+        LocalDateTime weekStart = mondayOfTheWeek.atStartOfDay();
+        // 周日的结束时间（23:59）
+        LocalDateTime weekEnd = sundayOfTheWeek.atTime(LocalTime.MAX);
+
+        // 格式化输出
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        System.out.println("周一开始时间：" + weekStart.format(formatter));
+        System.out.println("周末结束时间：" + weekEnd.format(formatter));
+
+        Date nowDate = DateUtils.getNowDate();
+        String weekDay = DateUtils.getWeekDay(nowDate, 1, "yyyy-MM-dd");
+        System.out.println(weekDay);
+        System.out.println(DateUtils.getWeekDay(nowDate, 2, "yyyy-MM-dd"));
+        System.out.println(DateUtils.getWeekDay(nowDate, 3, "yyyy-MM-dd"));
+        System.out.println(DateUtils.getWeekDay(nowDate, 4, "yyyy-MM-dd"));
+        System.out.println(DateUtils.getMonthDay(nowDate, 5, "yyyy-MM-dd"));
+        System.out.println(DateUtils.getYearDay(nowDate, 5, "yyyy-MM-dd"));
     }
 }
