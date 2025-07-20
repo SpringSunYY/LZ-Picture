@@ -176,6 +176,13 @@ public class RedisCache {
         return redisTemplate.opsForList().range(key, start, end);
     }
 
+    /**
+     * 获取list长度
+     */
+    public Long getCacheListSize(final String key) {
+        return redisTemplate.opsForList().size(key);
+    }
+
 
     /**
      * 缓存Set

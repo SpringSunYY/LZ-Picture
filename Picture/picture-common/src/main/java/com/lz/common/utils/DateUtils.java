@@ -164,44 +164,77 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * 判断指定时间是否在今天 00:00:00 + n 秒之后
+     *
+     * @param date 时间
+     * @param n    秒数，如 3600 表示 01:00:00
+     * @return boolean
+     */
+    public static boolean isAfterToday(Date date, int n) {
+        //获取当前时间
+        LocalDate today = LocalDate.now();
+        LocalDateTime localDate = today.atStartOfDay().plusSeconds(n);
+        Date threshold = toDate(localDate);
+        return date.after(threshold);
+    }
+
+    /**
      * 获取指定时间的周几
      *
-     * @param date   时间
-     * @param day    周几
-     * @param format 格式
+     * @param date 时间
+     * @param day  周几
      */
-    public static String getWeekDay(Date date, int day, String format) {
+    public static Date getWeekDay(Date date, int day) {
         day = Math.min(7, day);
         day = Math.max(1, day);
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate dateDay = localDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.of(day)));
-        return parseDateToStr(format, DateUtils.toDate(dateDay));
+        return toDate(dateDay);
+    }
+
+    public static Date getWeekDay(Date date, int week, int day) {
+        day = Math.min(7, day);
+        day = Math.max(1, day);
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        localDate.plusWeeks(week);
+        LocalDate dateDay = localDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.of(day)));
+        return toDate(dateDay);
+    }
+
+    public static String getWeekDay(Date date, int week, int day, String format) {
+        return parseDateToStr(format, getWeekDay(date, week, day));
+    }
+
+    public static String getWeekDay(Date date, int day, String format) {
+        return parseDateToStr(format, getWeekDay(date, day));
     }
 
     /**
      * 获取指定时间所在月的指定日
      *
-     * @param date   时间
-     * @param day    天数
-     * @param format 格式
+     * @param date 时间
+     * @param day  天数
      */
-    public static String getMonthDay(Date date, int day, String format) {
+    public static Date getMonthDay(Date date, int day) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         day = Math.min(day, localDate.lengthOfMonth());
         day = Math.max(day, 1);
         LocalDate dateDay = localDate.withDayOfMonth(day);
-        return parseDateToStr(format, DateUtils.toDate(dateDay));
+        return DateUtils.toDate(dateDay);
+    }
+
+    public static String getMonthDay(Date date, int day, String format) {
+        return parseDateToStr(format, getMonthDay(date, day));
     }
 
     /**
      * 获取指定月份指定天数的日期
      *
-     * @param date   时间
-     * @param month  月份
-     * @param day    天数
-     * @param format 格式
+     * @param date  时间
+     * @param month 月份
+     * @param day   天数
      */
-    public static String getMonthDay(Date date, int month, int day, String format) {
+    public static Date getMonthDay(Date date, int month, int day) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         //加减月份
         localDate = localDate.plusMonths(month);
@@ -210,7 +243,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         day = Math.min(day, maxDays);
         day = Math.max(day, 1);
         LocalDate targetDate = localDate.withDayOfMonth(day);
-        return parseDateToStr(format, DateUtils.toDate(targetDate));
+        return DateUtils.toDate(targetDate);
+    }
+
+    public static String getMonthDay(Date date, int month, int day, String format) {
+        return parseDateToStr(format, getMonthDay(date, month, day));
     }
 
     /**
@@ -219,53 +256,64 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param date
      * @param year
      * @param day
-     * @param format
      * @return String
      **/
-    public static String getYearDay(Date date, int year, int day, String format) {
+    public static Date getYearDay(Date date, int year, int day) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         //加减年份
         localDate = localDate.plusYears(year);
         //根据年份获取指定日
         day = Math.min(day, localDate.lengthOfMonth());
         day = Math.max(day, 1);
-        return parseDateToStr(format, toDate(localDate.withDayOfMonth(day)));
+        LocalDate temporalAccessor = localDate.withDayOfMonth(day);
+        return toDate(temporalAccessor);
+    }
+
+    public static String getYearDay(Date date, int year, int day, String format) {
+        return parseDateToStr(format, getYearDay(date, year, day));
     }
 
     /**
      * 获取指定时间所在年份的指定日
      *
-     * @param date   时间
-     * @param day    天数
-     * @param format 格式
+     * @param date 时间
+     * @param day  天数
      */
-    public static String getYearDay(Date date, int day, String format) {
+    public static Date getYearDay(Date date, int day) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         day = Math.min(day, localDate.lengthOfYear());
         day = Math.max(day, 1);
         LocalDate dateDay = localDate.withDayOfYear(day);
-        return parseDateToStr(format, DateUtils.toDate(dateDay));
+        return toDate(dateDay);
+    }
+
+    public static String getYearDay(Date date, int day, String format) {
+        return parseDateToStr(format, getYearDay(date, day));
     }
 
     /**
      * 获取指定时间指定n天后
      */
-    public static String getDay(Date date, int day, String format) {
+    public static Date getDay(Date date, int day) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate days = localDate.minusDays(day);
-        return parseDateToStr(format, DateUtils.toDate(days));
+        return DateUtils.toDate(days);
+    }
+
+    public static String getDay(Date date, int day, String format) {
+        return parseDateToStr(format, getDay(date, day));
     }
 
     public static void main(String[] args) {
         Date date = new Date();
-        System.out.println(getYearDay(date, 1, 1,"yyyy-MM-dd"));
-        System.out.println(getYearDay(date, 0, 1,"yyyy-MM-dd"));
-        System.out.println(getYearDay(date, -1, 1,"yyyy-MM-dd"));
-        System.out.println(getMonthDay(date, 1, 1,"yyyy-MM-dd"));
-        System.out.println(getMonthDay(date, -1, 1,"yyyy-MM-dd"));
-        System.out.println(getMonthDay(date, 12, 1,"yyyy-MM-dd"));
-        System.out.println(getMonthDay(date, 0, 1,"yyyy-MM-dd"));
-        System.out.println(getMonthDay(date, -12, 1,"yyyy-MM-dd"));
+        System.out.println(getYearDay(date, 1, 1, "yyyy-MM-dd"));
+        System.out.println(getYearDay(date, 0, 1, "yyyy-MM-dd"));
+        System.out.println(getYearDay(date, -1, 1, "yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, 1, 1, "yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, -1, 1, "yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, 12, 1, "yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, 0, 1, "yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, -12, 1, "yyyy-MM-dd"));
     }
 
 }

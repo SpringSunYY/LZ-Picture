@@ -1,7 +1,6 @@
 package com.lz.picture.controller.user;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.AjaxResult;
@@ -282,6 +281,12 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
         if (StringUtils.isEmpty(pictureInfoHotRequest.getType())) {
             pictureInfoHotRequest.setType(PICTURE_HOT_TOTAL);
+        }
+        if (StringUtils.isNull(pictureInfoHotRequest.getPageNum()) || pictureInfoHotRequest.getPageNum() <= 0) {
+            pictureInfoHotRequest.setPageNum(1);
+        }
+        if (StringUtils.isNull(pictureInfoHotRequest.getPageSize()) || pictureInfoHotRequest.getPageSize() < 0 || pictureInfoHotRequest.getPageSize() > 50) {
+            pictureInfoHotRequest.setPageSize(35);
         }
         return pictureInfoService.getPictureInfoHot(pictureInfoHotRequest);
     }

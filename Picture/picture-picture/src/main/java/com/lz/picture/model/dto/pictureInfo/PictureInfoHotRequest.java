@@ -1,6 +1,5 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import com.lz.common.core.page.PageDomain;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,6 +13,8 @@ import java.io.Serializable;
  * @Version: 1.0
  */
 @Data
-public class PictureInfoHotRequest  extends PageDomain implements Serializable {
+public class PictureInfoHotRequest implements Serializable {
     private String type;
+    private Integer pageNum;
+    private Integer pageSize;
 }

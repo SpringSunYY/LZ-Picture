@@ -2,7 +2,6 @@ package com.lz.picture.controller.user;
 
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.IPictureRecommendService;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 
 
 /**
@@ -48,7 +47,7 @@ public class UserPictureInfoRecommendController extends BaseUserInfoController {
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(request);
         //压缩图片
         for (UserRecommendPictureInfoVo vo : pictureInfoRecommend) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         }
         return getDataTable(pictureInfoRecommend, 0);
     }

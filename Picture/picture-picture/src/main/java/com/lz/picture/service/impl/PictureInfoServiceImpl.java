@@ -74,6 +74,7 @@ import static com.lz.common.constant.picture.PictureInfoConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.config.utils.ConfigInfoUtils.*;
+import static com.lz.picture.utils.PictureStatisticsUtil.*;
 
 /**
  * 图片信息Service业务层处理
@@ -141,6 +142,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private PictureStatisticsUtil pictureStatisticsUtil;
+
+    @Resource
+    private IStatisticsInfoService statisticsInfoService;
 
     //region mybatis代码
 
@@ -1038,8 +1042,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         }
         //转换为vo
-        List<PictureInfoSearchRecommendVo> pictureInfoSearchRecommendVos = PictureInfoSearchRecommendVo.objToVo(pictureInfos);
-        return pictureInfoSearchRecommendVos;
+        return PictureInfoSearchRecommendVo.objToVo(pictureInfos);
     }
 
     @CustomCacheable(keyPrefix = PICTURE_SEARCH_SUGGESTION,
@@ -1102,7 +1105,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         );
         //构造url
         pictureInfoList.getRecords().forEach(pictureInfo -> {
-            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         });
         List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
         //防止空指针异常
@@ -1331,28 +1334,28 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     //region 热门图片 我一点一点猜 猜猜不出你的独白
-    @CustomCacheable(
-            keyPrefix = PICTURE_HOT_PICTURE,
-            keyField = "request.type",
-            useQueryParamsAsKey = true,
-            expireTime = PICTURE_HOT_PICTURE_EXPIRE_TIME
-    )
     @Override
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest request) {
-        //不存在
-        switch (request.getType()) {
-            case PICTURE_HOT_YEAR:
-                return null;
-            case PICTURE_HOT_MONTH:
-                return null;
-            case PICTURE_HOT_WEEK:
-                return null;
-            case PICTURE_HOT_DAY:
-                return null;
-            case PICTURE_HOT_NEW:
-                return getPictureInfoByNew(request);
-            default:
-                return getPictureInfoByHot(request);
+        if (request.getType().equals(PICTURE_HOT_TOTAL)) {
+            return statisticsInfoService.getStatisticsPictureInfo(PICTURE_STATISTICS_HOT_TOTAL_KEY, request);
+        } else if (request.getType().equals(PICTURE_HOT_DAY)) {
+            //如果是今天五点之前，获取上一期缓存，保证有数量可以拿
+            Date date = DateUtils.getNowDate();
+            String key = "";
+            if (DateUtils.isAfterToday(date, 60 * 60 * 5)) {
+                key = pictureStatisticsUtil.getCurrentStatisticsDayKey(PICTURE_STATISTICS_HOT_DAY_KEY, date);
+            } else {
+                key = pictureStatisticsUtil.getLastStatisticsDayKey(PICTURE_STATISTICS_HOT_DAY_KEY, date);
+            }
+            return statisticsInfoService.getStatisticsPictureInfo(key, request);
+        } else if (request.getType().equals(PICTURE_HOT_WEEK)) {
+            return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsWeekKey(PICTURE_STATISTICS_HOT_WEEK_KEY, DateUtils.getNowDate()), request);
+        } else if (request.getType().equals(PICTURE_HOT_MONTH)) {
+            return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsMonthKey(PICTURE_STATISTICS_HOT_MONTH_KEY, DateUtils.getNowDate()), request);
+        } else if (request.getType().equals(PICTURE_HOT_YEAR)) {
+            return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsYearKey(PICTURE_STATISTICS_HOT_YEAR_KEY, DateUtils.getNowDate()), request);
+        } else {
+            return getPictureInfoByNew(request);
         }
     }
 
@@ -1364,6 +1367,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .eq(StringUtils.isNotEmpty(isDelete), PictureInfo::getIsDelete, isDelete));
     }
 
+    @CustomCacheable(
+            keyPrefix = PICTURE_HOT_PICTURE,
+            keyField = "request.type",
+            useQueryParamsAsKey = true,
+            expireTime = PICTURE_HOT_PICTURE_EXPIRE_TIME
+    )
     private TableDataInfo getPictureInfoByNew(PictureInfoHotRequest request) {
         Page<PictureInfo> pictureInfoPage = new Page<>();
         pictureInfoPage.setCurrent(request.getPageNum());
@@ -1375,7 +1384,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         );
         //构造url
         pictureInfoList.getRecords().forEach(pictureInfo -> {
-            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+            pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
         });
         List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
         //防止空指针异常
@@ -1392,7 +1401,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @param request 请求参数
      * @return 表格
      */
-    private TableDataInfo getPictureInfoByHot(PictureInfoHotRequest request) {
+    private TableDataInfo getPictureInfoByHotTotal(PictureInfoHotRequest request) {
         PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
         pictureRecommendRequest.setCurrentPage(request.getPageNum());
         pictureRecommendRequest.setPageSize(request.getPageSize());

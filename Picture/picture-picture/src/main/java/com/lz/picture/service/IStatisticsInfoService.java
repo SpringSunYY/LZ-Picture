@@ -2,7 +2,9 @@ package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 
@@ -91,5 +93,17 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: selectStatisticsInfoByStatisticsKey
      * @date: 2025/7/19 01:07
      **/
-    StatisticsInfo selectStatisticsInfoByStatisticsKey(String key, String type);
+    StatisticsInfo selectStatisticsInfoByStatisticsKey(String key);
+
+    /**
+     * 获取统计信息列表
+     *
+     * @param statisticKey
+     * @param request      查询参数
+     * @return TableDataInfo
+     * @author: YY
+     * @method: getStatisticsPictureInfo
+     * @date: 2025/7/20 19:10
+     **/
+    TableDataInfo getStatisticsPictureInfo(String statisticKey, PictureInfoHotRequest request);
 }
