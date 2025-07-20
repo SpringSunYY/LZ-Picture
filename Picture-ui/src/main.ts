@@ -12,7 +12,9 @@ import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'
 import UndrawUI from 'undraw-ui'
 import './output.css'
+import dragScroll from '@/directives/dragScroll'
 
+// 局部注册指令
 message.config({
   maxCount: 5, // 最大显示数量
   duration: 3, // 默认持续时间（秒）
@@ -27,3 +29,4 @@ app.use(pinia)
 app.use(router)
 app.use(UndrawUI)
 app.mount('#app')
+app.directive('drag-scroll', dragScroll)
