@@ -194,6 +194,45 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * 获取指定月份指定天数的日期
+     *
+     * @param date   时间
+     * @param month  月份
+     * @param day    天数
+     * @param format 格式
+     */
+    public static String getMonthDay(Date date, int month, int day, String format) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        //加减月份
+        localDate = localDate.plusMonths(month);
+        //根据月份获取指定日
+        int maxDays = localDate.lengthOfMonth();
+        day = Math.min(day, maxDays);
+        day = Math.max(day, 1);
+        LocalDate targetDate = localDate.withDayOfMonth(day);
+        return parseDateToStr(format, DateUtils.toDate(targetDate));
+    }
+
+    /**
+     * 获取指定年份的指定日
+     *
+     * @param date
+     * @param year
+     * @param day
+     * @param format
+     * @return String
+     **/
+    public static String getYearDay(Date date, int year, int day, String format) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        //加减年份
+        localDate = localDate.plusYears(year);
+        //根据年份获取指定日
+        day = Math.min(day, localDate.lengthOfMonth());
+        day = Math.max(day, 1);
+        return parseDateToStr(format, toDate(localDate.withDayOfMonth(day)));
+    }
+
+    /**
      * 获取指定时间所在年份的指定日
      *
      * @param date   时间
@@ -206,6 +245,27 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         day = Math.max(day, 1);
         LocalDate dateDay = localDate.withDayOfYear(day);
         return parseDateToStr(format, DateUtils.toDate(dateDay));
+    }
+
+    /**
+     * 获取指定时间指定n天后
+     */
+    public static String getDay(Date date, int day, String format) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate days = localDate.minusDays(day);
+        return parseDateToStr(format, DateUtils.toDate(days));
+    }
+
+    public static void main(String[] args) {
+        Date date = new Date();
+        System.out.println(getYearDay(date, 1, 1,"yyyy-MM-dd"));
+        System.out.println(getYearDay(date, 0, 1,"yyyy-MM-dd"));
+        System.out.println(getYearDay(date, -1, 1,"yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, 1, 1,"yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, -1, 1,"yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, 12, 1,"yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, 0, 1,"yyyy-MM-dd"));
+        System.out.println(getMonthDay(date, -12, 1,"yyyy-MM-dd"));
     }
 
 }

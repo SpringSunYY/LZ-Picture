@@ -358,7 +358,7 @@ public class PictureUploadManager {
             log.error("获取水印基本信息失败：{}", e.getMessage());
         }
         //获取水印透明度
-        String pAlpha = "50";
+        String pAlpha = "80";
         String uAlpha = "70";
         String pAlphaStr = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_PP);
         if (StringUtils.isNotEmpty(pAlphaStr)) {

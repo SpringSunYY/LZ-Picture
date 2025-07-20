@@ -12,17 +12,35 @@ import java.util.Optional;
 @Getter
 public enum PStatisticsTypeEnum {
 
-    /** 五分钟 */
-    STATISTICS_TYPE_1("1", "五分钟"),
+    /**
+     * 五分钟
+     */
+    STATISTICS_TYPE_1("1", "分钟"),
 
-    /** 日 */
+    /**
+     * 日
+     */
     STATISTICS_TYPE_2("2", "日"),
 
-    /** 月 */
-    STATISTICS_TYPE_3("3", "月"),
+    /**
+     * 周
+     */
+    STATISTICS_TYPE_3("3", "周"),
 
-    /** 年 */
-    STATISTICS_TYPE_4("4", "年");
+    /**
+     * 月
+     */
+    STATISTICS_TYPE_4("4", "月"),
+
+    /**
+     * 年
+     */
+    STATISTICS_TYPE_5("5", "年"),
+
+    /**
+     * 总
+     */
+    STATISTICS_TYPE_6("6", "总");
 
     private final String value;
     private final String label;
@@ -42,6 +60,7 @@ public enum PStatisticsTypeEnum {
 
     /**
      * 根据值获取枚举对象
+     *
      * @param value 枚举值
      * @return 可选枚举对象
      */

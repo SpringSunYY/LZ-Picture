@@ -342,6 +342,11 @@ public class ConfigInfoUtils {
      */
     public static final String PICTURE_STATISTICS_HOT_YEAR_RANK_KEY = "picture:statistics:hot:year:rank";
     public static Integer PICTURE_STATISTICS_HOT_YEAR_RANK_VALUE = 5000;
+    /**
+     * 图片热门统计总排行
+     */
+    public static final String PICTURE_STATISTICS_HOT_TOTAL_RANK_KEY = "picture:statistics:hot:total:rank";
+    public static Integer PICTURE_STATISTICS_HOT_TOTAL_RANK_VALUE = 10000;
 
 
     private static final long lastCacheRefreshTime = 0;
@@ -409,6 +414,7 @@ public class ConfigInfoUtils {
         PICTURE_STATISTICS_HOT_WEEK_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_WEEK_RANK_KEY);
         PICTURE_STATISTICS_HOT_MONTH_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_MONTH_RANK_KEY);
         PICTURE_STATISTICS_HOT_YEAR_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_YEAR_RANK_KEY);
+        PICTURE_STATISTICS_HOT_TOTAL_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_TOTAL_RANK_KEY);
     }
 
 

@@ -91,5 +91,5 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: selectStatisticsInfoByStatisticsKey
      * @date: 2025/7/19 01:07
      **/
-    StatisticsInfo selectStatisticsInfoByStatisticsKey(String key);
+    StatisticsInfo selectStatisticsInfoByStatisticsKey(String key, String type);
 }

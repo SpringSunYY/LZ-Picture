@@ -136,8 +136,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     }
 
     @Override
-    public StatisticsInfo selectStatisticsInfoByStatisticsKey(String key) {
-        return this.getOne(new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getStatisticsKey, key)
+    public StatisticsInfo selectStatisticsInfoByStatisticsKey(String key, String type) {
+        return this.getOne(new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getStatisticsKey, key).eq(StringUtils.isNotEmpty(type), StatisticsInfo::getType, type)
                 .orderBy(true, false, StatisticsInfo::getCreateTime).last("limit 1"));
     }
 
