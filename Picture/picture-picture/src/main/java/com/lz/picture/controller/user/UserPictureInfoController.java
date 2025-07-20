@@ -276,7 +276,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return toAjax(pictureInfoService.userDeletePictureInfoByIds(pictureIds));
     }
 
-    @PreAuthorize("@uss.hasPermi('picture:hot')")
+//    @PreAuthorize("@uss.hasPermi('picture:hot')")
     @GetMapping("/hot")
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
         if (StringUtils.isEmpty(pictureInfoHotRequest.getType())) {

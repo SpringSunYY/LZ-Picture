@@ -1,5 +1,5 @@
 <template>
-  <div class="image-gallery-container">
+  <div class="picture-query">
     <!-- 统一的卡片式导航和内容区域 -->
     <div class="gallery-header">
       <div class="gallery-decoration-top-right">
@@ -413,7 +413,7 @@ const clearSearch = () => {
 </script>
 
 <style lang="scss" scoped>
-.image-gallery-container {
+.picture-query {
   // 控制面板区域背景
   --color-control-panel-bg: #1f1f35; // 深紫色控制面板背景
 
@@ -460,6 +460,7 @@ const clearSearch = () => {
   color: var(--color-text-light); // 默认文本颜色为浅色
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0 1em;
 }
 
 /* 统一的卡片式导航和内容区域 */

@@ -15,6 +15,123 @@ export const constantRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/pictureQuery',
+    name: 'pictureQuery',
+    component: () => import('@/views/picture/picture/pictureQuery.vue'),
+    meta: {
+      title: '图片查询',
+      cacheKey: 'pictureQuery',
+      isHidden: false,
+      isCache: true,
+      icon: 'query',
+      menuAddress: '2',
+    },
+  },
+  {
+    path: '/picture/statistics',
+    name: 'pictureHot',
+    meta: {
+      title: '热门图片',
+      isHidden: false,
+      cacheKey: 'pictureHot',
+      isCache: true,
+      icon: 'hot',
+      menuAddress: '2',
+    },
+    children: [
+      {
+        path: 'hot/total',
+        name: 'PictureHotTotal',
+        component: () => import('@/views/picture/picture/pictureHot.vue'),
+        meta: {
+          title: '总热门',
+          cacheKey: 'pictureHotTotal',
+          isHidden: false,
+          isCache: true,
+          menuAddress: '2',
+          query: {
+            type: 'total',
+          },
+        },
+      },
+      {
+        path: 'hot/new',
+        name: 'PictureHotNew',
+        component: () => import('@/views/picture/picture/pictureHot.vue'),
+        meta: {
+          title: '最新图片',
+          isHidden: false,
+          cacheKey: 'pictureHotNew',
+          isCache: true,
+          menuAddress: '2',
+          query: {
+            type: 'new',
+          },
+        },
+      },
+      {
+        path: 'hot/day',
+        name: 'PictureHotDay',
+        component: () => import('@/views/picture/picture/pictureHot.vue'),
+        meta: {
+          title: '今日热门排行',
+          cacheKey: 'pictureHotDay',
+          isHidden: false,
+          isCache: true,
+          menuAddress: '2',
+          query: {
+            type: 'day',
+          },
+        },
+      },
+      {
+        path: 'hot/week',
+        name: 'PictureHotWeek',
+        component: () => import('@/views/picture/picture/pictureHot.vue'),
+        meta: {
+          title: '本周热门排行',
+          isHidden: false,
+          cacheKey: 'pictureHotWeek',
+          isCache: true,
+          menuAddress: '2',
+          query: {
+            type: 'week',
+          },
+        },
+      },
+      {
+        path: 'hot/month',
+        name: 'PictureHotMonth',
+        component: () => import('@/views/picture/picture/pictureHot.vue'),
+        meta: {
+          title: '本月热门排行',
+          cacheKey: 'pictureHotMonth',
+          isHidden: false,
+          isCache: true,
+          menuAddress: '2',
+          query: {
+            type: 'month',
+          },
+        },
+      },
+      {
+        path: 'hot/year',
+        name: 'PictureHotYear',
+        component: () => import('@/views/picture/picture/pictureHot.vue'),
+        meta: {
+          title: '本年热门排行',
+          cacheKey: 'pictureHotYear',
+          isHidden: false,
+          isCache: true,
+          menuAddress: '2',
+          query: {
+            type: 'year',
+          },
+        },
+      },
+    ],
+  },
+  {
     path: '/pictureDetail',
     name: 'pictureDetail',
     component: () => import('@/views/picture/picture/pictureDetail.vue'),

@@ -37,12 +37,15 @@ const usePermissionStore = defineStore('permission', {
       const rdata = JSON.parse(JSON.stringify(res?.data))
       // 递归转换路由结构
       // @ts-ignore
-      const transformRoutes = (routes) => {
-        // @ts-ignore
+      const transformRoutes = (routes, parentPath = '') => {
         return routes.map((route) => {
-          // console.log('route', route)
+          // 拼接完整路径
+          const currentPath = route.path.startsWith('/')
+            ? route.path
+            : `${parentPath}/${route.path}`
+
           return {
-            path: route.path.startsWith('/') ? route.path : `/${route.path}`,
+            path: currentPath,
             component: loadView(route.component, route.menuType),
             name: route.routeName,
             meta: {
@@ -54,10 +57,10 @@ const usePermissionStore = defineStore('permission', {
               isHidden: route.isHidden === '0',
               menuType: route.menuType,
               menuAddress: route.menuAddress,
-              path: route.path.startsWith('/') ? route.path : `/${route.path}`,
+              path: currentPath,
               query: route.query,
             },
-            children: route.children ? transformRoutes(route.children) : [],
+            children: route.children ? transformRoutes(route.children, currentPath) : [],
           }
         })
       }

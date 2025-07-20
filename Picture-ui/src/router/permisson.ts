@@ -16,6 +16,13 @@ const whiteList = [
   '/user/smsLogin',
   '/user/forgetPassword',
   '/pictureDetail',
+  '/pictureQuery',
+  '/picture/statistics/hot/total',
+  '/picture/statistics/hot/week',
+  '/picture/statistics/hot/month',
+  '/picture/statistics/hot/year',
+  '/picture/statistics/hot/day',
+  '/picture/statistics/hot/new',
   '/404',
 ]
 
@@ -113,7 +120,11 @@ export const checkRouteHidden = (
 /**
  * 递归生成菜单项
  */
-export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): MenuProps['items'] => {
+export const generateMenu = (
+  routes: RouteRecordRaw[],
+  menuAddress: string,
+  parentPath: string = '',
+): MenuProps['items'] => {
   return routes
     .filter((route) => {
       return (
@@ -124,10 +135,15 @@ export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): Men
       )
     })
     .map((route) => {
+      // console.log('route', route.path)
+      // console.log(parentPath)
+      // 拼接当前完整路径
+      const currentPath = route.path.startsWith('/') ? route.path : `${parentPath}/${route.path}`
+      // console.log(currentPath)
       const menuItem: any = {
         key: route.name,
         isFrame: route.meta?.isFrame,
-        path: route.meta?.path,
+        path: currentPath,
         label: route.meta?.title,
         title: route.meta?.title,
         icon: route.meta?.icon ? renderIcon(route.meta.icon as string) : undefined,
@@ -135,13 +151,7 @@ export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): Men
       }
 
       if (route.children?.length) {
-        const children = generateMenu(
-          route.children.map((child) => ({
-            ...child,
-            path: `${child.path}`.replace(/\/+/g, '/'),
-          })),
-          menuAddress,
-        )
+        const children = generateMenu(route.children, menuAddress, currentPath)
         if (Array.isArray(children) && children.length > 0) {
           menuItem.children = children
         }
@@ -153,7 +163,7 @@ export const generateMenu = (routes: RouteRecordRaw[], menuAddress: string): Men
 
 export function toMenu(route: RouteRecordRaw) {
   // 解析查询参数（如果是 JSON 字符串）
-  console.log('路由参数:', route.item?.query)
+  // console.log('路由参数:', route)
   let queryObj = {}
   if (typeof route.item?.query === 'string') {
     try {

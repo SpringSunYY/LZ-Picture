@@ -2214,7 +2214,7 @@ CREATE TABLE p_picture_tag_info (
 | pic_format     | varchar  | 32   |                                   | 是   |                | 图片格式            |
 | user_id        | varchar  | 128  | 外键(u_user_info:user_id)         | 否   |                | 用户                |
 | create_time    | datetime |      |                                   | 否   | 当前时间       | 创建时间            |
-| edit_time      | datetime |      |                                   | 是   | 当前时间       | 编辑时间            |
+| publish_time   | datetime |      |                                   | 是   | 当前时间       | 发布时间            |
 | update_time    | datetime |      |                                   | 是   | 当前时间       | 更新时间            |
 | picture_status | char     | 1    |                                   | 否   | 0              | 图片状态            |
 | thumbnail_url  | varchar  | 512  |                                   | 是   |                | 缩略图 url          |
@@ -2254,7 +2254,7 @@ CREATE TABLE p_picture_info
     pic_format     VARCHAR(32) COMMENT '图片格式',
     user_id        VARCHAR(128) NOT NULL COMMENT '上传用户编号',
     create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    edit_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '编辑时间',
+    publish_time      DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '发布时间',
     update_time    DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     picture_status CHAR(1)      NOT NULL COMMENT '图片状态（0公共 1私有）',
     thumbnail_url  VARCHAR(512) COMMENT '缩略图URL',
