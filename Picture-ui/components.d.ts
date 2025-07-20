@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AvatarUpload: typeof import('./src/components/AvatarUpload.vue')['default']
+    BackToUp: typeof import('./src/components/BackToUp.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
     CoverUpload: typeof import('./src/components/CoverUpload.vue')['default']
     DictTag: typeof import('./src/components/DictTag.vue')['default']

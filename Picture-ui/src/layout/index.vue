@@ -21,12 +21,10 @@
             <component v-else :is="Component" :key="route.name" />
           </router-view>
         </a-layout-content>
-
+        <BackToUp />
         <!-- 底部栏 -->
         <a-layout-footer class="footer" :class="{ hidden: isFooterHidden }">
-          <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank">
-            LZ-Picture by LZ
-          </a>
+          <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank"> LZ-Picture by LZ </a>
         </a-layout-footer>
       </a-layout>
     </a-layout>
@@ -36,6 +34,7 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import GlobalHeader from '@/layout/GlobalHeader/index.vue'
+import BackToUp from '@/components/BackToUp.vue'
 
 // 控制顶部和底部显隐
 const isHeaderHidden = ref(false)
