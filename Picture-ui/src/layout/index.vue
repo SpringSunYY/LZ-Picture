@@ -120,7 +120,7 @@ onBeforeUnmount(() => {
 
   .footer {
     background: rgb(239, 239, 239);
-    padding: 16px;
+    padding: 10px;
     position: fixed;
     bottom: 0;
     left: 0;
