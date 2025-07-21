@@ -147,10 +147,11 @@
 import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureUpload from '@/components/PictureUpload.vue'
-import type {
-  PictureCategoryInfoQuery,
-  PictureCategoryInfoVo,
-} from '@/types/picture/pictureCategory'
+import {
+  PCategoryStatusEnum,
+  type PictureCategoryInfoQuery,
+  type PictureCategoryInfoVo,
+} from '@/types/picture/pictureCategory.d.ts'
 import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
 import type { Space, SpaceQuery } from '@/types/picture/space'
@@ -173,7 +174,9 @@ const spaceQuery = ref<SpaceQuery>({})
 const spaceLoading = ref(false)
 //分类
 const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
-const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({})
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({
+  categoryStatus: PCategoryStatusEnum.P_CATEGORY_STATUS_0,
+})
 //文件夹
 const folderQuery = ref<SpaceFolderInfoQuery>({
   spaceId: '',

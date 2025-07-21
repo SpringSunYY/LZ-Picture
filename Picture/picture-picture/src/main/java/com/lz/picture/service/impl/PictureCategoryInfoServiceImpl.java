@@ -1,7 +1,11 @@
 package com.lz.picture.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheEvict;
+import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
@@ -17,6 +21,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_CATEGORY;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_CATEGORY_EXPIRE_TIME;
 
 /**
  * 图片分类信息Service业务层处理
@@ -62,6 +69,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
      * @param pictureCategoryInfo 图片分类信息
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = PICTURE_CATEGORY)
     @Override
     public int insertPictureCategoryInfo(PictureCategoryInfo pictureCategoryInfo) {
         //设置初始值
@@ -81,6 +89,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
      * @param pictureCategoryInfo 图片分类信息
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = PICTURE_CATEGORY)
     @Override
     public int updatePictureCategoryInfo(PictureCategoryInfo pictureCategoryInfo) {
         pictureCategoryInfo.setUpdateTime(DateUtils.getNowDate());
@@ -93,6 +102,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
      * @param categoryIds 需要删除的图片分类信息主键
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = PICTURE_CATEGORY)
     @Override
     public int deletePictureCategoryInfoByCategoryIds(String[] categoryIds) {
         return pictureCategoryInfoMapper.deletePictureCategoryInfoByCategoryIds(categoryIds);
@@ -104,6 +114,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
      * @param categoryId 图片分类信息主键
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = PICTURE_CATEGORY)
     @Override
     public int deletePictureCategoryInfoByCategoryId(String categoryId) {
         return pictureCategoryInfoMapper.deletePictureCategoryInfoByCategoryId(categoryId);
@@ -168,6 +179,17 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
             return this.updateById(oldCategory);
         });
         return 1;
+    }
+
+    @CustomCacheable(keyPrefix = PICTURE_CATEGORY, expireTime = PICTURE_CATEGORY_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @Override
+    public List<PictureCategoryInfo> userSelectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo) {
+        return this.list(new LambdaQueryWrapper<PictureCategoryInfo>()
+                .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getQueryStatus()), PictureCategoryInfo::getQueryStatus, pictureCategoryInfo.getQueryStatus())
+                .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getCategoryStatus()), PictureCategoryInfo::getCategoryStatus, pictureCategoryInfo.getCategoryStatus())
+                .eq(PictureCategoryInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .orderBy(true, false, PictureCategoryInfo::getUsageCount)
+        );
     }
 
 }

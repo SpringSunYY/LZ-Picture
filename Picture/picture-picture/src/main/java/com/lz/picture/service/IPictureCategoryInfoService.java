@@ -1,13 +1,12 @@
 package com.lz.picture.service;
 
-import java.util.List;
-
-import com.lz.picture.model.domain.PictureCategoryInfo;
-import com.lz.picture.model.vo.pictureCategoryInfo.PictureCategoryInfoVo;
-import com.lz.picture.model.dto.pictureCategoryInfo.PictureCategoryInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.picture.model.domain.PictureCategoryInfo;
+import com.lz.picture.model.dto.pictureCategoryInfo.PictureCategoryInfoQuery;
+import com.lz.picture.model.vo.pictureCategoryInfo.PictureCategoryInfoVo;
+
+import java.util.List;
 
 /**
  * 图片分类信息Service接口
@@ -94,4 +93,15 @@ public interface IPictureCategoryInfoService extends IService<PictureCategoryInf
      * @date: 2025/5/25 22:09
      **/
     int updatePictureCategoryInfo(String categoryId, String categoryIdOld);
+
+    /**
+     * 用户查询图片分类信息列表
+     *
+     * @param pictureCategoryInfo 分类信息
+     * @return List<PictureCategoryInfo>
+     * @author: YY
+     * @method: userSelectPictureCategoryInfoList
+     * @date: 2025/7/21 17:57
+     **/
+    List<PictureCategoryInfo> userSelectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo);
 }

@@ -17,7 +17,7 @@ public class PictureRedisConstants {
     /**
      * 图片详细信息缓存时间
      */
-    public static final int PICTURE_PICTURE_DETAIL_EXPIRE_TIME = 5*60;
+    public static final int PICTURE_PICTURE_DETAIL_EXPIRE_TIME = 5 * 60;
 
     /**
      * 空间列表
@@ -178,5 +178,14 @@ public class PictureRedisConstants {
      * 热门图片缓存时间
      */
     public static final int PICTURE_HOT_PICTURE_EXPIRE_TIME = 60 * 10;
+
+    /**
+     * 图片分类缓存
+     */
+    public static final String PICTURE_CATEGORY = "picture:category";
+    /**
+     * 图片分类缓存时间
+     */
+    public static final int PICTURE_CATEGORY_EXPIRE_TIME = 60 * 60 * 24;
 
 }

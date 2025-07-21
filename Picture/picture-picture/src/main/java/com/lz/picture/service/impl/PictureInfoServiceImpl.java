@@ -310,7 +310,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
             //查询分类是否存在
             categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
-            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
+            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo)
+                    ||!categoryInfo.getCategoryStatus().equals(PCategoryStatusEnum.CATEGORY_STATUS_0.getValue()),
+                     HttpStatus.MOVED_PERM, "分类不存在或不可选");
             categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
         }
         //更新空间信息
@@ -686,14 +688,18 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
         PictureCategoryInfo categoryInfo = new PictureCategoryInfo();
+        //查询在数据库内内容
+        PictureInfo pictureInfoDb = pictureInfoMapper.selectPictureInfoByPictureId(pictureInfo.getPictureId());
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb), HttpStatus.MOVED_PERM, "图片不存在");
         if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
             //查询分类是否存在
             categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
-            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.NO_CONTENT, "分类不存在");
+            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo), HttpStatus.MOVED_PERM, "分类不存在");
+            //如果分类状态不是正常，且不等于在数据库内的分类
+            ThrowUtils.throwIf(!categoryInfo.getCategoryStatus().equals(PCategoryStatusEnum.CATEGORY_STATUS_0.getValue())
+                            && !categoryInfo.getCategoryId().equals(pictureInfoDb.getCategoryId()),
+                    HttpStatus.MOVED_PERM, "当前分类不可选择");
         }
-        //查询在数据库内内容
-        PictureInfo pictureInfoDb = pictureInfoMapper.selectPictureInfoByPictureId(pictureInfo.getPictureId());
-        ThrowUtils.throwIf(StringUtils.isNull(pictureInfoDb), HttpStatus.NO_CONTENT, "图片不存在");
         //更新空间信息
         spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize() - pictureInfoDb.getPicSize());
         Date updateTime = new Date();
@@ -701,7 +707,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //判断当前空间是否到达最大值 官方空间没有限制
         if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
-            throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
+            throw new ServiceException("空间已满，无法上传图片", HttpStatus.MOVED_PERM);
         }
         //根据图片域名信息去除域名
         //判断空间是否是自定义存储

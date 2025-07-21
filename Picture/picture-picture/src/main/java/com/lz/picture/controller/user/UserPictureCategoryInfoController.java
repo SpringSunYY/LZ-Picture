@@ -40,7 +40,7 @@ public class UserPictureCategoryInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo list(PictureCategoryInfoQuery pictureCategoryInfoQuery) {
         PictureCategoryInfo pictureCategoryInfo = PictureCategoryInfoQuery.queryToObj(pictureCategoryInfoQuery);
-        List<PictureCategoryInfo> list = pictureCategoryInfoService.selectPictureCategoryInfoList(pictureCategoryInfo);
+        List<PictureCategoryInfo> list = pictureCategoryInfoService.userSelectPictureCategoryInfoList(pictureCategoryInfo);
         List<UserPictureCategoryInfoVo> listVo = list.stream().map(UserPictureCategoryInfoVo::objToVo).collect(Collectors.toList());
         return getDataTable(listVo);
     }
