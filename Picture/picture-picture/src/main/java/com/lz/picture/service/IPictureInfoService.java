@@ -144,14 +144,15 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     /**
      * 校验图片
      *
-     * @param pictureId 图片编号
-     * @param userId    用户编号
+     * @param pictureId    图片编号
+     * @param userId       用户编号
+     * @param downloadType 下载类型
      * @return PictureInfo
      * @author: YY
      * @method: verifyPictureInfo
      * @date: 2025/5/24 20:30
      **/
-    PictureInfo verifyPictureInfo(String pictureId, String userId);
+    PictureInfoDto verifyPictureInfo(String pictureId, String userId, String downloadType);
 
     /**
      * 用户根据自己下载记录校验图片

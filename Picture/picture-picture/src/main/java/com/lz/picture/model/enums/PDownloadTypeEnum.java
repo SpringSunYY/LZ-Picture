@@ -11,8 +11,8 @@ import java.util.Optional;
  */
 @Getter
 public enum PDownloadTypeEnum {
-    DOWNLOAD_TYPE_0("0", "手动下载"),
-    DOWNLOAD_TYPE_1("1", "API"),
+    DOWNLOAD_TYPE_0("0", "查看"),
+    DOWNLOAD_TYPE_1("1", "下载"),
     DOWNLOAD_TYPE_2("2", "批量");
 
     private static final Map<String, PDownloadTypeEnum> VALUE_TO_ENUM = new HashMap<>();

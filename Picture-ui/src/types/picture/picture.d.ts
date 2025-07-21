@@ -313,6 +313,24 @@ export interface PictureInfoSearchRecommendVo {
 }
 
 /**
+ * 图片下载信息返回信息
+ */
+export interface PictureDownloadVo {
+  /** 图片编号 */
+  pictureId: string;
+
+  /** 图片URL */
+  pictureUrl: string;
+
+  /** 所需积分 */
+  pointsNeed: number;
+
+  /** 所需金额 */
+  priceNeed: BigDecimal;
+}
+
+
+/**
  * 用户推荐的图片信息 VO（前端对应类）
  * 对应后端的 UserRecommendPictureInfoVo
  */

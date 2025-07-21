@@ -15,6 +15,9 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.file.UrlUploadRequest;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
+import com.lz.picture.model.enums.PDownloadTypeEnum;
+import com.lz.picture.model.vo.pictureInfo.PictureDownloadVo;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoDto;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
@@ -163,7 +166,7 @@ public class UserFileController extends BaseUserInfoController {
     public void downloadPicture(@PathVariable("pictureId") String pictureId, HttpServletResponse response) {
         try {
             // 校验图片
-            PictureInfo pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId());
+            PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId(), PDownloadTypeEnum.DOWNLOAD_TYPE_1.getValue());
             String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
 
             response.reset();
@@ -247,4 +250,14 @@ public class UserFileController extends BaseUserInfoController {
         }
     }
 
+    /**
+     * 用户查看原图，获取原图链接
+     */
+    @GetMapping("/original/{pictureId}")
+    public AjaxResult getOriginalPicture(@PathVariable("pictureId") String pictureId) {
+        // 校验图片
+        PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId(), PDownloadTypeEnum.DOWNLOAD_TYPE_0.getValue());
+        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+        return success(new PictureDownloadVo(pictureId, url, pictureInfo.getPictureMoreInfo().getPointsNeed(), pictureInfo.getPictureMoreInfo().getPriceNeed()));
+    }
 }

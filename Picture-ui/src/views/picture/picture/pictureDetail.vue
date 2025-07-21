@@ -59,13 +59,13 @@
               >{{ picture.picWidth }} * {{ picture.picHeight }}
             </a-descriptions-item>
             <a-descriptions-item label="比例">{{ picture.picScale }}</a-descriptions-item>
-            <a-descriptions-item label="发布时间">{{picture?.publishTime}}</a-descriptions-item>
+            <a-descriptions-item label="发布时间">{{ picture?.publishTime }}</a-descriptions-item>
           </a-descriptions>
-                 <Tags
-                v-if="picture?.pictureTags"
-                :values="picture?.pictureTags"
-                :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
-              />
+          <Tags
+            v-if="picture?.pictureTags"
+            :values="picture?.pictureTags"
+            :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
+          />
         </a-card>
         <a-card title="" :bordered="false" class="card action-card">
           <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
@@ -131,7 +131,7 @@
               </template>
               <a-button
                 :loading="downloadPictureLoading"
-                class="icon-button download-bounce"
+                class="icon-button"
                 type="warn"
                 @click="downloadPicture"
               >
@@ -182,7 +182,7 @@
       :picture-list="pictureList"
     />
 
-    <!--添加空间-->
+    <!--举报图片-->
     <a-modal v-model:open="openReport" :footer="null" centered destroyOnClose>
       <!-- 自定义标题插槽 -->
       <template #title>
@@ -269,6 +269,24 @@
         </div>
       </a-form>
     </a-modal>
+
+    <a-modal v-model:open="openOriginal" :footer="null" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          LZ-Picture
+          <a-tooltip title="感谢您使用本平台，如果觉得不错可以在关于我们请平台工作人员喝杯咖啡">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <PictureView :src="originalPictureUrl" :width="800" :height="600" />
+      <div class="form-footer">
+        <a-button type="primary" @click="resetOriginalUrl">重置URL</a-button>
+        <a-button @click="openOriginal = false">关闭</a-button>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -302,6 +320,8 @@ import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
 import { useConfig } from '@/utils/config.ts'
 import { PictureApplyTypeEnum } from '@/types/picture/pictureApplyInfo.d.ts'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
+import { getPictureOriginalLogInfo } from '@/api/common/file.ts'
+import PictureView from '@/components/PictureView.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -399,22 +419,46 @@ const buyPicture = async () => {
 
 //region 下载图片
 const downloadPictureLoading = ref(false)
+const originalPictureUrl = ref('')
+const openOriginal = ref(false)
 const { verify } = usePasswordVerify()
 const downloadPicture = async () => {
+  if (originalPictureUrl.value !== '') {
+    openOriginal.value = true
+    return
+  }
   try {
-    const verified = await verify('下载图片')
-    if (!verified) return
-    message.success('图片下载中...', 5)
-    message.info('请不要刷新页面', 5)
     downloadPictureLoading.value = true
-    await downloadImage(
-      picture.value.pictureId,
-      picture.value?.name + '.' + picture.value?.picFormat,
-    )
-    message.success('资源获取成功，之后可以在下载记录中下载原图', 5)
+    if ((picture.value?.moreInfo?.pointsNeed ?? 0) != 0) {
+      message.success('开始校验密码', 1)
+      const verified = await verify('下载图片')
+      if (!verified) return
+      /*      await downloadImage(
+        picture.value.pictureId,
+        picture.value?.name + '.' + picture.value?.picFormat,
+      )
+      message.success('资源获取成功，之后可以在下载记录中获取原图', 3)*/
+      message.success(
+        '密码校验成功，如果图片需要积分请勿一直点击重置URL，每一次重置后查看都需要积分的哦...',
+        5,
+      )
+    }
+    message.success('获取图片资源中...', 3)
+    message.info('请不要刷新页面', 3)
+    const res = await getPictureOriginalLogInfo(picture.value.pictureId)
+    message.success('资源获取成功，如果觉得不错可以在关于我们请平台工作人员喝杯咖啡', 3)
+    message.success('图片查看有效时间五分钟，如果图片路径失效，请点击重置URL', 5)
+    if (res.code === 200) {
+      openOriginal.value = true
+      originalPictureUrl.value = res.data.pictureUrl || ''
+    }
   } finally {
     downloadPictureLoading.value = false
   }
+}
+const resetOriginalUrl = () => {
+  originalPictureUrl.value = ''
+  openOriginal.value = false
 }
 //endregion
 const clickLook = () => {

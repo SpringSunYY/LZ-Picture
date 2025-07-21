@@ -25,6 +25,7 @@ declare module 'vue' {
     PictureOutPainting: typeof import('./src/components/PictureOutPainting.vue')['default']
     PictureSearch: typeof import('./src/components/PictureSearch.vue')['default']
     PictureUpload: typeof import('./src/components/PictureUpload.vue')['default']
+    PictureView: typeof import('./src/components/PictureView.vue')['default']
     PointsRechargeTable: typeof import('./src/components/PointsRechargeTable.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

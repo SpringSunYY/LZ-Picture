@@ -1,6 +1,11 @@
 import { http as request } from '@/utils'
 import type { PictureFileResponse, UrlUploadRequest } from '@/types/file'
 import type { API } from '@/types/common'
+import type {
+  PictureDownloadLogInfoQuery,
+  PictureDownloadLogInfoVo,
+} from '@/types/picture/pictureDownloadLogInfo'
+import type { PictureDownloadVo } from '@/types/picture/picture'
 
 export function pictureUpload(file: any): Promise<API.ResponseInfo<PictureFileResponse>> {
   return request({
@@ -73,5 +78,14 @@ export function pictureDownloadByLog(downloadId: string): Promise<API.ResponseIn
     responseType: 'blob',
     method: 'get',
     timeout: 60000,
+  })
+}
+
+export function getPictureOriginalLogInfo(
+  pictureId: string,
+): Promise<API.ResponseInfo<PictureDownloadVo>> {
+  return request({
+    url: '/picture/file/original/' + pictureId,
+    method: 'get',
   })
 }

@@ -10,7 +10,7 @@ export const getFileName = (url: string) => {
   }
   //判断是否是有参数？
   if (url.includes('?')) {
-    url= url.substring(0, url.indexOf('?'))
+    url = url.substring(0, url.indexOf('?'))
   }
   return url.substring(url.lastIndexOf('/') + 1)
 }
