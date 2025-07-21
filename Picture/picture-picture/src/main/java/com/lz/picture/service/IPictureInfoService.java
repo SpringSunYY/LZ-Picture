@@ -7,8 +7,8 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
+import com.lz.picture.model.dto.pictureInfo.PictureQueryRequest;
 import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
-import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.vo.pictureInfo.*;
 
 import java.util.List;
@@ -200,13 +200,13 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     /**
      * 获取推荐热门图片
      *
-     * @param pictureRecommendRequest 图片推荐请求 !!!currentPage一定要大于等于1
+     * @param request 图片推荐请求
      * @return List<UserPictureInfoVo>
      * @author: YY
      * @method: getRecommentHotPictureInfoList
      * @date: 2025/6/6 00:05
      **/
-    List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest pictureRecommendRequest);
+    List<UserRecommendPictureInfoVo> queryPictureInfoList(PictureQueryRequest request);
 
     /**
      * 获取图片表格信息

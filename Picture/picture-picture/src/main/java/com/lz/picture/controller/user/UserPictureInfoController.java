@@ -18,7 +18,6 @@ import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.*;
-import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
@@ -191,43 +190,41 @@ public class UserPictureInfoController extends BaseUserInfoController {
      */
     @SearchLog(searchType = "0", referSource = "0")
     @GetMapping("/list")
-    public TableDataInfo list(UserPictureInfoQuery userPictureInfoQuery) {
-        if (StringUtils.isNull(userPictureInfoQuery.getPageSize())) {
-            userPictureInfoQuery.setPageSize(50);
+    public TableDataInfo list(PictureQueryRequest request) {
+        if (StringUtils.isNull(request.getPageSize())) {
+            request.setPageSize(50);
         }
-        if (userPictureInfoQuery.getPageSize() > 50) {
-            userPictureInfoQuery.setPageSize(50);
+        if (request.getPageSize() > 50) {
+            request.setPageSize(50);
         }
-//        PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(userPictureInfoQuery);
+//        PictureInfo pictureInfo = UserPictureInfoQuery.queryToObj(request);
 //        //限定审核通过 状态为正常
 //        pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
 //        QueryWrapper<PictureInfo> queryWrapper = pictureInfoService.getQueryWrapper(pictureInfo);
-//        Page<PictureInfo> page = pictureInfoService.page(new Page<>(userPictureInfoQuery.getPageNum(), userPictureInfoQuery.getPageSize()), queryWrapper);
+//        Page<PictureInfo> page = pictureInfoService.page(new Page<>(request.getPageNum(), request.getPageSize()), queryWrapper);
 //        List<PictureInfo> pictureInfoList = getPictureInfos(page);
 //        List<UserPictureInfoVo> userPictureInfoVos = UserPictureInfoVo.objToVo(pictureInfoList);
 //        //压缩图片
 //        for (UserPictureInfoVo vo : userPictureInfoVos) {
 //            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
 //        }
-        if (StringUtils.isEmpty(userPictureInfoQuery.getName())) {
+        if (StringUtils.isEmpty(request.getName())) {
             throw new ServiceException("搜索内容不能为空", HttpStatus.BAD_REQUEST);
         }
-        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setName(userPictureInfoQuery.getName());
-        pictureRecommendRequest.setCurrentPage(userPictureInfoQuery.getPageNum());
-        pictureRecommendRequest.setPageSize(userPictureInfoQuery.getPageSize());
-        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.queryPictureInfoList(request);
         return getDataTable(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
     }
 
     @SearchLog(searchType = "0", referSource = "0")
     @GetMapping("/query")
-    public TableDataInfo query(UserPictureInfoQuery userPictureInfoQuery) {
-        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setName(userPictureInfoQuery.getName());
-        pictureRecommendRequest.setCurrentPage(userPictureInfoQuery.getPageNum());
-        pictureRecommendRequest.setPageSize(userPictureInfoQuery.getPageSize());
-        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+    public TableDataInfo query(PictureQueryRequest request) {
+        if (StringUtils.isNull(request.getPageSize())) {
+            request.setPageSize(50);
+        }
+        if (request.getPageSize() > 50) {
+            request.setPageSize(50);
+        }
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.queryPictureInfoList(request);
         return getDataTable(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
     }
 

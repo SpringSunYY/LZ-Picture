@@ -185,6 +185,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
     @Override
     public List<PictureCategoryInfo> userSelectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo) {
         return this.list(new LambdaQueryWrapper<PictureCategoryInfo>()
+                .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getParentId()), PictureCategoryInfo::getParentId, pictureCategoryInfo.getParentId())
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getQueryStatus()), PictureCategoryInfo::getQueryStatus, pictureCategoryInfo.getQueryStatus())
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getCategoryStatus()), PictureCategoryInfo::getCategoryStatus, pictureCategoryInfo.getCategoryStatus())
                 .eq(PictureCategoryInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())

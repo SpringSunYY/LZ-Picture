@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 自定义缓存注解
+ * 自定义缓存注解，父类字段无法拿到
  * 坚持是前行的舟
  */
 @Target(ElementType.METHOD)

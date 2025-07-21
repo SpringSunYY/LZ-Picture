@@ -107,12 +107,12 @@ public class PictureRedisConstants {
     /**
      * 图片热门推荐缓存
      */
-    public static final String PICTURE_RECOMMEND_HOT = "picture:recommend:hot";
+    public static final String PICTURE_QUERY_LIST = "picture:query:list";
 
     /**
      * 图片热门推荐缓存时间
      */
-    public static final int PICTURE_RECOMMEND_HOT_EXPIRE_TIME = 10 * 60;
+    public static final int PICTURE_QUERY_LIST_EXPIRE_TIME = 10 * 60;
 
     /**
      * 图片推荐缓存分类-标签

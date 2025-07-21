@@ -31,11 +31,7 @@ import com.lz.picture.manager.factory.PictureRecommendAsyncFactory;
 import com.lz.picture.mapper.PictureInfoMapper;
 import com.lz.picture.model.domain.*;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
-import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
-import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
+import com.lz.picture.model.dto.pictureInfo.*;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoCache;
@@ -311,8 +307,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             //查询分类是否存在
             categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
             ThrowUtils.throwIf(StringUtils.isNull(categoryInfo)
-                    ||!categoryInfo.getCategoryStatus().equals(PCategoryStatusEnum.CATEGORY_STATUS_0.getValue()),
-                     HttpStatus.MOVED_PERM, "分类不存在或不可选");
+                            || !categoryInfo.getCategoryStatus().equals(PCategoryStatusEnum.CATEGORY_STATUS_0.getValue()),
+                    HttpStatus.MOVED_PERM, "分类不存在或不可选");
             categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
         }
         //更新空间信息
@@ -1091,24 +1087,52 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return UserPictureInfoVo.objToVo(list);
     }
 
-    @CustomCacheable(keyPrefix = PICTURE_RECOMMEND_HOT,
-            expireTime = PICTURE_RECOMMEND_HOT_EXPIRE_TIME,
+    @CustomCacheable(
+            keyPrefix = PICTURE_QUERY_LIST,
+            expireTime = PICTURE_QUERY_LIST_EXPIRE_TIME,
             paginate = true,
             useQueryParamsAsKey = true,
-            pageNumberField = "request.currentPage",
+            pageNumberField = "request.pageNum",
             pageSizeField = "request.pageSize")
     @Override
-    public List<UserRecommendPictureInfoVo> getRecommentHotPictureInfoList(PictureRecommendRequest request) {
+    public List<UserRecommendPictureInfoVo> queryPictureInfoList(PictureQueryRequest request) {
+        //如果分类ID不为空，需要查询他自己的分类下的图片
+        ArrayList<String> categoryIds = new ArrayList<>();
+        if (StringUtils.isNotEmpty(request.getCategoryId())) {
+            PictureCategoryInfo pictureCategoryInfo = new PictureCategoryInfo();
+            pictureCategoryInfo.setParentId(request.getCategoryId());
+            List<PictureCategoryInfo> pictureCategoryInfos = pictureCategoryInfoService.userSelectPictureCategoryInfoList(pictureCategoryInfo);
+            categoryIds.add(request.getCategoryId());
+            if (StringUtils.isNotEmpty(pictureCategoryInfos)) {
+                pictureCategoryInfos.forEach(pictureCategoryInfo1 -> {
+                    categoryIds.add(pictureCategoryInfo1.getCategoryId());
+                });
+            }
+        }
         Page<PictureInfo> pictureInfoPage = new Page<>();
         //!!!currentPage一定要大于等于1
-        pictureInfoPage.setCurrent(request.getCurrentPage());
+        pictureInfoPage.setCurrent(request.getPageNum());
         pictureInfoPage.setSize(request.getPageSize());
-        Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, new LambdaQueryWrapper<PictureInfo>()
+        LambdaQueryWrapper<PictureInfo> query = new LambdaQueryWrapper<PictureInfo>()
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                .like(StringUtils.isNotEmpty(request.getName()), PictureInfo::getName, request.getName())
-                .orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount)
-        );
+                .eq(StringUtils.isNotEmpty(request.getSpaceId()), PictureInfo::getSpaceId, request.getSpaceId())
+                .in(StringUtils.isNotEmpty(categoryIds), PictureInfo::getCategoryId, categoryIds)
+                .like(StringUtils.isNotEmpty(request.getName()), PictureInfo::getName, request.getName());
+        //构造排序
+        if (StringUtils.isNotEmpty(request.getOrderByColumn())
+                && Arrays.asList("publishTime", "shareCount", "collectCount", "likeCount", "lookCount").contains(request.getOrderByColumn())) {
+            switch (request.getOrderByColumn()) {
+                case "publishTime" -> query.orderBy(true, false, PictureInfo::getPublishTime);
+                case "shareCount" -> query.orderBy(true, false, PictureInfo::getShareCount);
+                case "collectCount" -> query.orderBy(true, false, PictureInfo::getCollectCount);
+                case "likeCount" -> query.orderBy(true, false, PictureInfo::getLikeCount);
+                case "lookCount" -> query.orderBy(true, false, PictureInfo::getLookCount);
+            }
+        } else {
+            query.orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount);
+        }
+        Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, query);
         //构造url
         pictureInfoList.getRecords().forEach(pictureInfo -> {
             pictureInfo.setThumbnailUrl(ossConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
@@ -1407,11 +1431,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @param request 请求参数
      * @return 表格
      */
-    private TableDataInfo getPictureInfoByHotTotal(PictureInfoHotRequest request) {
-        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setCurrentPage(request.getPageNum());
-        pictureRecommendRequest.setPageSize(request.getPageSize());
-        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = getRecommentHotPictureInfoList(pictureRecommendRequest);
+    private TableDataInfo getPictureInfoByHotTotal(PictureQueryRequest request) {
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = queryPictureInfoList(request);
         //遍历图片压缩图片
         for (UserRecommendPictureInfoVo vo : recommentHotPictureInfoList) {
             vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);

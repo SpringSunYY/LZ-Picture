@@ -235,7 +235,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                 queryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceMemberInfo::getCreateTime);
             }
-            if (query.getOrderByColumn().equals("lastActiveTime")) {
+            else if (query.getOrderByColumn().equals("lastActiveTime")) {
                 queryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceMemberInfo::getLastActiveTime);
             }

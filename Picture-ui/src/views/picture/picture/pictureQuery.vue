@@ -117,8 +117,8 @@
               分享量
             </button>
             <button
-              :class="{ active: sortBy === '最新' }"
-              @click="sortPicture('time')"
+              :class="{ active: sortBy === 'publishTime' }"
+              @click="sortPicture('publishTime')"
               class="sort-button"
             >
               <svg-icon name="time" class="sort-icon" />
@@ -136,6 +136,7 @@
       </div>
     </div>
     <VerticalFallLayout
+      ref="verticalFallLayoutRef"
       style="margin: 0 1em"
       :loading="loading"
       @load-more="loadMore"
@@ -161,6 +162,7 @@ import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { message } from 'ant-design-vue'
 import { queryPictureInfo } from '@/api/picture/picture.ts'
 
+const verticalFallLayoutRef = ref()
 //region 分类
 const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
 const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({
@@ -239,6 +241,9 @@ const resetPictureQuery = () => {
     orderByColumn: '',
     name: '',
   }
+  loading.value = false
+  noMore.value = false
+  verticalFallLayoutRef.value.clearData()
 }
 //endregion
 const getPictureList = () => {
@@ -247,7 +252,7 @@ const getPictureList = () => {
   pictureQuery.value.categoryId = selectedCategoryId.value
   pictureQuery.value.orderByColumn = sortBy.value
   pictureQuery.value.name = searchTerm.value
-  console.log('pictureQuery', pictureQuery.value)
+  // console.log('pictureQuery', pictureQuery.value)
   loadMore()
 }
 

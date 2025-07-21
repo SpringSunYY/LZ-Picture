@@ -277,7 +277,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
 
     @CustomCacheable(keyPrefix = PICTURE_SPACE_PERSONAL_TABLE_DATA,
             expireTime = PICTURE_SPACE_PERSONAL_TABLE_DATA_EXPIRE_TIME,
-    keyField = "query.userId", useQueryParamsAsKey = true)
+            keyField = "query.userId", useQueryParamsAsKey = true)
     @Override
     public TableDataInfo listSpaceInfoTable(UserSpaceInfoQuery query) {
         //构造查询条件
@@ -308,20 +308,16 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             if (query.getOrderByColumn().equals("totalSize")) {
                 lambdaQueryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceInfo::getTotalSize);
-            }
-            if (query.getOrderByColumn().equals("createTime")) {
+            } else if (query.getOrderByColumn().equals("createTime")) {
                 lambdaQueryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceInfo::getCreateTime);
-            }
-            if (query.getOrderByColumn().equals("totalSize")) {
+            } else if (query.getOrderByColumn().equals("totalSize")) {
                 lambdaQueryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceInfo::getTotalSize);
-            }
-            if (query.getOrderByColumn().equals("totalCount")) {
+            } else if (query.getOrderByColumn().equals("totalCount")) {
                 lambdaQueryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceInfo::getTotalCount);
-            }
-            if (query.getOrderByColumn().equals("lastUpdateTime")) {
+            } else if (query.getOrderByColumn().equals("lastUpdateTime")) {
                 lambdaQueryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceInfo::getLastUpdateTime);
             }
@@ -400,8 +396,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
             if (userTeamSpaceInfoQuery.getOrderByColumn().equals("createTime")) {
                 queryWrapper
                         .orderBy(true, userTeamSpaceInfoQuery.getIsAsc().equals("asc"), SpaceMemberInfo::getCreateTime);
-            }
-            if (userTeamSpaceInfoQuery.getOrderByColumn().equals("lastActiveTime")) {
+            } else if (userTeamSpaceInfoQuery.getOrderByColumn().equals("lastActiveTime")) {
                 queryWrapper
                         .orderBy(true, userTeamSpaceInfoQuery.getIsAsc().equals("asc"), SpaceMemberInfo::getLastActiveTime);
             }

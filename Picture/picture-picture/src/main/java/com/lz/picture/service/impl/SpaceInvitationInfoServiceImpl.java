@@ -262,8 +262,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
             if (userSpaceInvitationInfoQuery.getOrderByColumn().equals("createTime")) {
                 lambdaQueryWrapper
                         .orderBy(true, userSpaceInvitationInfoQuery.getIsAsc().equals("asc"), SpaceInvitationInfo::getCreateTime);
-            }
-            if (userSpaceInvitationInfoQuery.getOrderByColumn().equals("expireTime")) {
+            } else if (userSpaceInvitationInfoQuery.getOrderByColumn().equals("expireTime")) {
                 lambdaQueryWrapper
                         .orderBy(true, userSpaceInvitationInfoQuery.getIsAsc().equals("asc"), SpaceInvitationInfo::getExpireTime);
             }

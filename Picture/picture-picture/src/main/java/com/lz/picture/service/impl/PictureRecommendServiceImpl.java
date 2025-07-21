@@ -10,6 +10,8 @@ import com.lz.picture.model.domain.PictureCategoryInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureQueryRequest;
+import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.enums.PPictureStatusEnum;
@@ -350,8 +352,10 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
     // 保持您原有的getFallbackRecommendation方法
     private List<UserRecommendPictureInfoVo> getFallbackRecommendation(PictureRecommendRequest req) {
-        req.setCurrentPage(req.getCurrentPage() + 1);
-        return pictureInfoService.getRecommentHotPictureInfoList(req);
+        PictureQueryRequest userPictureInfoQuery = new PictureQueryRequest();
+        userPictureInfoQuery.setPageNum(req.getCurrentPage() + 1);
+        userPictureInfoQuery.setPageSize(req.getPageSize());
+        return pictureInfoService.queryPictureInfoList(userPictureInfoQuery);
     }
 
     // 获取与图片匹配最强的标签

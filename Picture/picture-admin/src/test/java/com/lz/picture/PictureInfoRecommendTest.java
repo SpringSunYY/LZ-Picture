@@ -1,5 +1,7 @@
 package com.lz.picture;
 
+import com.lz.picture.model.dto.pictureInfo.PictureQueryRequest;
+import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
@@ -75,10 +77,10 @@ public class PictureInfoRecommendTest {
 
     @Test
     public void getPictureInfoHotRecommend() {
-        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
-        pictureRecommendRequest.setCurrentPage(1);
+        PictureQueryRequest pictureRecommendRequest = new PictureQueryRequest();
+        pictureRecommendRequest.setPageNum(1);
         pictureRecommendRequest.setPageSize(100);
-        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.queryPictureInfoList(pictureRecommendRequest);
         System.out.println(recommentHotPictureInfoList.size());
     }
 }
