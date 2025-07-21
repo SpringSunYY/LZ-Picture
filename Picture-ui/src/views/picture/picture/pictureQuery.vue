@@ -18,43 +18,44 @@
         <!-- 主分类导航 -->
         <nav class="main-category-nav" v-drag-scroll>
           <button
-            :class="{ active: selectedTopLevelCategoryId === 'all' }"
-            @click="selectMainCategory('all')"
+            :class="{ active: selectedTopLevelCategoryId === '' }"
+            @click="selectMainCategory('')"
             class="nav-button"
           >
             <span class="nav-icon">🌐</span>
             所有分类
           </button>
           <button
-            v-for="category in topLevelCategoriesWithoutAll"
-            :key="category.category_id"
-            :class="{ active: selectedTopLevelCategoryId === category.category_id }"
-            @click="selectMainCategory(category.category_id)"
+            v-for="category in pictureCategoryList"
+            :key="category.categoryId"
+            :class="{ active: selectedTopLevelCategoryId === category.categoryId }"
+            @click="selectMainCategory(category.categoryId)"
             class="nav-button"
           >
-            <span class="nav-icon">{{ getCategoryIcon(category.name) }}</span>
+            <span class="nav-icon">{{ category.categoryIcon }}</span>
             {{ category.name }}
           </button>
         </nav>
 
         <!-- 子分类导航 (条件显示) -->
-        <nav v-if="currentSubCategories.length > 0" class="sub-category-nav" v-drag-scroll>
+        <nav v-if="pictureCategoryChildrenList.length > 0" class="sub-category-nav" v-drag-scroll>
           <button
             :class="{ active: selectedCategoryId === selectedTopLevelCategoryId }"
             @click="selectSubCategory(selectedTopLevelCategoryId)"
             class="nav-button sub-nav-button"
           >
             <span class="nav-icon">📂</span>
-            全部 {{ categories.find((c) => c.category_id === selectedTopLevelCategoryId)?.name }}
+            全部
+            {{ pictureCategoryList.find((c) => c.categoryId === selectedTopLevelCategoryId)?.name }}
           </button>
           <button
-            v-for="category in currentSubCategories"
-            :key="category.category_id"
-            :class="{ active: selectedCategoryId === category.category_id }"
-            @click="selectSubCategory(category.category_id)"
+            v-for="category in pictureCategoryChildrenList"
+            :key="category.categoryId"
+            :class="{ active: selectedCategoryId === category.categoryId }"
+            @click="selectSubCategory(category.categoryId)"
             class="nav-button sub-nav-button"
           >
-            <span class="nav-icon">{{ getCategoryIcon(category.name) }}</span>
+            <span class="nav-icon">{{ category.categoryIcon }}</span>
             {{ category.name }}
           </button>
         </nav>
@@ -65,6 +66,7 @@
             <input
               type="text"
               v-model="searchTerm"
+              @keydown.enter="handleSearch"
               placeholder="搜索图片..."
               class="search-input"
               aria-label="搜索图片"
@@ -82,36 +84,45 @@
 
           <div class="sort-options">
             <button
-              :class="{ active: sortBy === 'look_count' }"
-              @click="sortBy = 'look_count'"
+              :class="{ active: sortBy === 'lookCount' }"
+              @click="sortPicture('lookCount')"
               class="sort-button"
             >
-              <span class="sort-icon">👁️</span>
+              <svg-icon name="view" class="sort-icon" />
               浏览量
             </button>
+
             <button
-              :class="{ active: sortBy === 'collect_count' }"
-              @click="sortBy = 'collect_count'"
+              :class="{ active: sortBy === 'likeCount' }"
+              @click="sortPicture('likeCount')"
               class="sort-button"
             >
-              <span class="sort-icon">⭐</span>
-              收藏量
-            </button>
-            <button
-              :class="{ active: sortBy === 'like_count' }"
-              @click="sortBy = 'like_count'"
-              class="sort-button"
-            >
-              <span class="sort-icon">❤️</span>
+              <svg-icon name="like" class="sort-icon" />
               点赞量
             </button>
             <button
-              :class="{ active: sortBy === 'share_count' }"
-              @click="sortBy = 'share_count'"
+              :class="{ active: sortBy === 'collectCount' }"
+              @click="sortPicture('collectCount')"
               class="sort-button"
             >
-              <span class="sort-icon">↪️</span>
+              <svg-icon name="collect" class="sort-icon" />
+              收藏量
+            </button>
+            <button
+              :class="{ active: sortBy === 'shareCount' }"
+              @click="sortPicture('shareCount')"
+              class="sort-button"
+            >
+              <svg-icon name="share" class="sort-icon" />
               分享量
+            </button>
+            <button
+              :class="{ active: sortBy === '最新' }"
+              @click="sortPicture('time')"
+              class="sort-button"
+            >
+              <svg-icon name="time" class="sort-icon" />
+              最新
             </button>
           </div>
         </div>
@@ -124,291 +135,139 @@
         <div class="decoration-circle circle-3"></div>
       </div>
     </div>
+    <VerticalFallLayout
+      style="margin: 0 1em"
+      :loading="loading"
+      @load-more="loadMore"
+      :no-more="noMore"
+      :picture-list="pictureList"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { SearchIcon, XIcon } from 'lucide-vue-next'
+import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
+import { handleTree } from '@/utils/lz.ts'
+import {
+  PCategoryStatusEnum,
+  type PictureCategoryInfoQuery,
+  type PictureCategoryInfoVo,
+} from '@/types/picture/pictureCategory.d.ts'
+import SvgIcon from '@/components/SvgIcon.vue'
+import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
+import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
+import { message } from 'ant-design-vue'
+import { queryPictureInfo } from '@/api/picture/picture.ts'
 
-interface Category {
-  category_id: string
-  parent_id: string
-  level: number
-  name: string
-  category_desc: string
-}
-
-interface Picture {
-  picture_id: string
-  picture_url: string
-  name: string
-  category_id: string
-  look_count: number
-  collect_count: number
-  like_count: number
-  share_count: number
-  download_count: number
-}
-
-const categories = ref<Category[]>([
-  { category_id: 'all', parent_id: '0', level: 0, name: '所有分类', category_desc: '查看所有图片' },
-  {
-    category_id: 'nature',
-    parent_id: '0',
-    level: 0,
-    name: '自然风光',
-    category_desc: '美丽的风景和野生动物',
-  },
-  {
-    category_id: 'forest',
-    parent_id: 'nature',
-    level: 1,
-    name: '森林',
-    category_desc: '茂密的森林',
-  },
-  {
-    category_id: 'mountain',
-    parent_id: 'nature',
-    level: 1,
-    name: '山脉',
-    category_desc: '雄伟的山脉',
-  },
-  {
-    category_id: 'river',
-    parent_id: 'nature',
-    level: 1,
-    name: '河流',
-    category_desc: '蜿蜒的河流',
-  },
-  {
-    category_id: 'abstract',
-    parent_id: '0',
-    level: 0,
-    name: '抽象艺术',
-    category_desc: '艺术和概念图片',
-  },
-  {
-    category_id: 'geometric',
-    parent_id: 'abstract',
-    level: 1,
-    name: '几何',
-    category_desc: '几何图案',
-  },
-  {
-    category_id: 'fluid',
-    parent_id: 'abstract',
-    level: 1,
-    name: '流体',
-    category_desc: '流体艺术',
-  },
-  {
-    category_id: 'animals',
-    parent_id: '0',
-    level: 0,
-    name: '动物',
-    category_desc: '可爱和野生的动物',
-  },
-  { category_id: 'pets', parent_id: 'animals', level: 1, name: '宠物', category_desc: '家养宠物' },
-  {
-    category_id: 'wildlife',
-    parent_id: 'animals',
-    level: 1,
-    name: '野生动物',
-    category_desc: '野外生物',
-  },
-  { category_id: 'birds', parent_id: 'animals', level: 1, name: '鸟类', category_desc: '各种鸟类' },
-  {
-    category_id: 'city',
-    parent_id: '0',
-    level: 0,
-    name: '城市风光',
-    category_desc: '城市环境和建筑',
-  },
-  {
-    category_id: 'architecture',
-    parent_id: 'city',
-    level: 1,
-    name: '建筑',
-    category_desc: '城市建筑',
-  },
-  { category_id: 'street', parent_id: 'city', level: 1, name: '街景', category_desc: '城市街道' },
-  { category_id: 'night', parent_id: 'city', level: 1, name: '夜景', category_desc: '城市夜景' },
-  { category_id: 'food', parent_id: '0', level: 0, name: '美食', category_desc: '美味的食物摄影' },
-  { category_id: 'desserts', parent_id: 'food', level: 1, name: '甜点', category_desc: '各种甜点' },
-  {
-    category_id: 'main_courses',
-    parent_id: 'food',
-    level: 1,
-    name: '主菜',
-    category_desc: '主食菜肴',
-  },
-  { category_id: 'drinks', parent_id: 'food', level: 1, name: '饮品', category_desc: '饮品图片' },
-  { category_id: 'travel', parent_id: '0', level: 0, name: '旅行', category_desc: '目的地和冒险' },
-  { category_id: 'beach', parent_id: 'travel', level: 1, name: '海滩', category_desc: '海滩风光' },
-  {
-    category_id: 'historical',
-    parent_id: 'travel',
-    level: 1,
-    name: '历史遗迹',
-    category_desc: '历史建筑',
-  },
-  { category_id: 'sports', parent_id: '0', level: 0, name: '体育', category_desc: '体育运动' },
-  {
-    category_id: 'basketball',
-    parent_id: 'sports',
-    level: 1,
-    name: '篮球',
-    category_desc: '篮球比赛',
-  },
-  {
-    category_id: 'football',
-    parent_id: 'sports',
-    level: 1,
-    name: '足球',
-    category_desc: '足球比赛',
-  },
-  { category_id: 'technology', parent_id: '0', level: 0, name: '科技', category_desc: '科技产品' },
-  {
-    category_id: 'gadgets',
-    parent_id: 'technology',
-    level: 1,
-    name: '小工具',
-    category_desc: '电子小工具',
-  },
-  {
-    category_id: 'ai',
-    parent_id: 'technology',
-    level: 1,
-    name: '人工智能',
-    category_desc: 'AI相关',
-  },
-  {
-    category_id: 'vehicles',
-    parent_id: '0',
-    level: 0,
-    name: '交通工具',
-    category_desc: '各种车辆',
-  },
-  { category_id: 'cars', parent_id: 'vehicles', level: 1, name: '汽车', category_desc: '汽车图片' },
-  {
-    category_id: 'planes',
-    parent_id: 'vehicles',
-    level: 1,
-    name: '飞机',
-    category_desc: '飞机图片',
-  },
-  {
-    category_id: 'boats',
-    parent_id: 'vehicles',
-    level: 1,
-    name: '船只',
-    category_desc: '船只图片',
-  },
-  { category_id: 'people', parent_id: '0', level: 0, name: '人物', category_desc: '人物肖像' },
-  {
-    category_id: 'portraits',
-    parent_id: 'people',
-    level: 1,
-    name: '肖像',
-    category_desc: '人物肖像',
-  },
-  { category_id: 'groups', parent_id: 'people', level: 1, name: '团体', category_desc: '团体照片' },
-  { category_id: 'fashion', parent_id: '0', level: 0, name: '时尚', category_desc: '时尚摄影' },
-  {
-    category_id: 'clothing',
-    parent_id: 'fashion',
-    level: 1,
-    name: '服装',
-    category_desc: '服装设计',
-  },
-  {
-    category_id: 'accessories',
-    parent_id: 'fashion',
-    level: 1,
-    name: '配饰',
-    category_desc: '时尚配饰',
-  },
-])
-
-// 获取除"所有分类"外的顶级分类
-const topLevelCategoriesWithoutAll = computed(() => {
-  return categories.value.filter((c) => c.level === 0 && c.category_id !== 'all')
+//region 分类
+const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({
+  categoryStatus: PCategoryStatusEnum.P_CATEGORY_STATUS_0,
 })
-
-// 根据分类名称返回相应图标
-function getCategoryIcon(categoryName: string): string {
-  const iconMap: Record<string, string> = {
-    自然风光: '🌄',
-    森林: '🌲',
-    山脉: '⛰️',
-    河流: '🌊',
-    抽象艺术: '🎨',
-    几何: '◼️',
-    流体: '🌊',
-    动物: '🐾',
-    宠物: '🐶',
-    野生动物: '🦁',
-    鸟类: '🐦',
-    城市风光: '🏙️',
-    建筑: '🏢',
-    街景: '🏙️',
-    夜景: '🌃',
-    美食: '🍽️',
-    甜点: '🍰',
-    主菜: '🍔',
-    饮品: '🥤',
-    旅行: '✈️',
-    海滩: '🏖️',
-    历史遗迹: '🏛️',
-    体育: '⚽',
-    篮球: '🏀',
-    足球: '⚽',
-    科技: '💻',
-    小工具: '📱',
-    人工智能: '🤖',
-    交通工具: '🚗',
-    汽车: '🚗',
-    飞机: '✈️',
-    船只: '🚢',
-    人物: '👤',
-    肖像: '👤',
-    团体: '👥',
-    时尚: '👗',
-    服装: '👗',
-    配饰: '👜',
-  }
-
-  return iconMap[categoryName] || '📷'
+const pictureCategoryChildrenList = ref<PictureCategoryInfoVo[]>([])
+const getPictureCategoryList = async () => {
+  listPictureCategoryInfo(pictureCategoryQuery.value).then((res) => {
+    pictureCategoryList.value = handleTree(
+      JSON.parse(JSON.stringify(res?.rows || [])),
+      'categoryId',
+      'parentId',
+      'children',
+    )
+    console.log('pictureCategoryList', pictureCategoryList.value)
+  })
 }
-
-
-const selectedCategoryId = ref<string>('all')
-const selectedTopLevelCategoryId = ref<string>('all')
-const sortBy = ref<keyof Picture | null>(null)
+getPictureCategoryList()
+//endregion
+//region 构建图片搜索
+const selectedCategoryId = ref<string>('')
+const selectedTopLevelCategoryId = ref<string>('')
 const searchTerm = ref<string>()
 
-const currentSubCategories = computed(() => {
-  if (selectedTopLevelCategoryId.value === 'all') {
-    return []
-  }
-  return categories.value.filter((c) => c.parent_id === selectedTopLevelCategoryId.value)
-})
-
+const handleSearch = () => {
+  // console.log('开始搜索...', searchTerm.value)
+  resetPictureQuery()
+  getPictureList()
+}
 const selectMainCategory = (categoryId: string) => {
-  console.log('选择顶级分类:', categoryId)
+  // console.log('选择顶级分类:', categoryId)
   selectedTopLevelCategoryId.value = categoryId
   selectedCategoryId.value = categoryId
+  pictureCategoryChildrenList.value = []
+  const category = pictureCategoryList.value.find((c) => c.categoryId === categoryId)
+  pictureCategoryChildrenList.value = category?.children || []
+  resetPictureQuery()
+  getPictureList()
 }
 
 const selectSubCategory = (categoryId: string) => {
-  console.log('选择子分类:', categoryId)
+  // console.log('选择子分类:', categoryId)
   selectedCategoryId.value = categoryId
+  resetPictureQuery()
+  getPictureList()
 }
 
 const clearSearch = () => {
   searchTerm.value = ''
-  console.log('搜索已清除')
+  resetPictureQuery()
+  getPictureList()
+  // console.log('搜索已清除')
+}
+const sortBy = ref<string>('')
+const sortPicture = (sort: string) => {
+  if (sortBy.value === sort) {
+    sortBy.value = ''
+  } else {
+    sortBy.value = sort
+  }
+  resetPictureQuery()
+  getPictureList()
+}
+const pictureQuery = ref<PictureInfoQuery>({
+  pageNum: 1,
+  pageSize: 35,
+  categoryId: '',
+  orderByColumn: '',
+  name: '',
+})
+const resetPictureQuery = () => {
+  pictureQuery.value = {
+    pageNum: 1,
+    pageSize: 35,
+    categoryId: '',
+    orderByColumn: '',
+    name: '',
+  }
+}
+//endregion
+const getPictureList = () => {
+  // console.log('开始获取图片列表...')
+  // console.log('当前参数:', selectedCategoryId.value)
+  pictureQuery.value.categoryId = selectedCategoryId.value
+  pictureQuery.value.orderByColumn = sortBy.value
+  pictureQuery.value.name = searchTerm.value
+  console.log('pictureQuery', pictureQuery.value)
+  loadMore()
+}
+
+const loading = ref(false)
+const noMore = ref(false)
+const pictureList = ref<PictureInfoVo[]>([])
+
+async function loadMore() {
+  if (loading.value || noMore.value) return
+  message.loading('正在为您获取图片推荐...', 1)
+  const res = await queryPictureInfo(pictureQuery.value)
+  pictureList.value = res?.rows || []
+  if (pictureList.value.length >= pictureQuery.value.pageSize) {
+    pictureQuery.value.pageNum++
+    message.success(`已为您推荐${pictureList.value.length}张图片`)
+  } else {
+    message.success('已为您获取全部图片推荐')
+    noMore.value = true
+  }
+  loading.value = false
 }
 </script>
 

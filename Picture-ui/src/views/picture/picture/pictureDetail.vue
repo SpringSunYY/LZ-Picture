@@ -301,6 +301,7 @@ import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
 import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
 import { useConfig } from '@/utils/config.ts'
 import { PictureApplyTypeEnum } from '@/types/picture/pictureApplyInfo.d.ts'
+import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy

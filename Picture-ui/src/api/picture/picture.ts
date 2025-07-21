@@ -61,10 +61,23 @@ export function updatePictureInfo(
  * @param params
  */
 export function listPictureInfo(
-  params: PictureRecommendRequest,
+  params: PictureRecommendRequest | PictureInfoQuery,
 ): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/list',
+    params: params,
+  })
+}
+
+/**
+ * 查询图片
+ * @param params
+ */
+export function queryPictureInfo(
+  params: PictureInfoQuery,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/query',
     params: params,
   })
 }

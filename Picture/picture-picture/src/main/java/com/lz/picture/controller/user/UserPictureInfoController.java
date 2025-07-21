@@ -220,6 +220,17 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return getDataTable(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
     }
 
+    @SearchLog(searchType = "0", referSource = "0")
+    @GetMapping("/query")
+    public TableDataInfo query(UserPictureInfoQuery userPictureInfoQuery) {
+        PictureRecommendRequest pictureRecommendRequest = new PictureRecommendRequest();
+        pictureRecommendRequest.setName(userPictureInfoQuery.getName());
+        pictureRecommendRequest.setCurrentPage(userPictureInfoQuery.getPageNum());
+        pictureRecommendRequest.setPageSize(userPictureInfoQuery.getPageSize());
+        List<UserRecommendPictureInfoVo> recommentHotPictureInfoList = pictureInfoService.getRecommentHotPictureInfoList(pictureRecommendRequest);
+        return getDataTable(recommentHotPictureInfoList, recommentHotPictureInfoList.size());
+    }
+
     /**
      * list我的
      */
@@ -276,7 +287,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return toAjax(pictureInfoService.userDeletePictureInfoByIds(pictureIds));
     }
 
-//    @PreAuthorize("@uss.hasPermi('picture:hot')")
+    //    @PreAuthorize("@uss.hasPermi('picture:hot')")
     @GetMapping("/hot")
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
         if (StringUtils.isEmpty(pictureInfoHotRequest.getType())) {
