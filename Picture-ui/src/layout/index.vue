@@ -24,7 +24,14 @@
         <BackToUp />
         <!-- 底部栏 -->
         <a-layout-footer class="footer" :class="{ hidden: isFooterHidden }">
-          <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank"> LZ-Picture by LZ </a>
+          <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank" style="color: #0048ff">
+            LZ-Picture by 广州市天河区荔枝软件开发工作室
+          </a>|
+          <a href="https://beian.miit.gov.cn/" target="_blank">备案号 粤ICP备2025445613号-1 </a>|
+          <span>© {{ new Date().getFullYear()}} springsun.online. All Rights Reserved.</span>|
+          <a href="" target="_blank">
+            关于我们
+          </a>
         </a-layout-footer>
       </a-layout>
     </a-layout>
@@ -112,7 +119,7 @@ onBeforeUnmount(() => {
   }
 
   .footer {
-    background: #efefef;
+    background: rgb(239, 239, 239);
     padding: 16px;
     position: fixed;
     bottom: 0;
