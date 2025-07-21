@@ -2101,6 +2101,7 @@ CREATE TABLE p_space_folder_info
 | parent_id       | varchar  | 128  |        | 否   | 0        | 父级     |
 | ancestors       | varchar  | 1280 |        | 否   |          | 祖级列表 |
 | cover_url       | varchar  | 512  |        | 是   |          | 封面图   |
+| category_icon   | varchar  | 64   |        | 是   |          | 封面图标 |
 | name            | varchar  | 32   | 唯一键 | 否   |          | 分类名称 |
 | category_desc   | varchar  | 512  |        | 是   |          | 分类描述 |
 | category_status | char     | 1    |        | 否   |          | 分类状态 |
@@ -2126,6 +2127,7 @@ create table p_picture_category_info
     parent_id       varchar(128) default '0'               not null comment '父级分类编号',
     ancestors       varchar(1280)                          not null comment '祖级列表',
     cover_url       varchar(512)                           null comment '封面图URL',
+    category_icon   varchar(64)                            null comment '封面图标',
     name            varchar(32)                            not null comment '分类名称',
     category_desc   varchar(512)                           null comment '分类描述',
     category_status char         default '0'               not null comment '分类状态（0正常 1关闭）',

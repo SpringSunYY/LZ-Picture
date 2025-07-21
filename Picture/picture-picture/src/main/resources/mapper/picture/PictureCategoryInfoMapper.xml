@@ -9,6 +9,7 @@
         <result property="parentId" column="parent_id"/>
         <result property="ancestors" column="ancestors"/>
         <result property="coverUrl" column="cover_url"/>
+        <result property="categoryIcon" column="category_icon"/>
         <result property="name" column="name"/>
         <result property="categoryDesc" column="category_desc"/>
         <result property="categoryStatus" column="category_status"/>
@@ -27,6 +28,7 @@
                parent_id,
                ancestors,
                cover_url,
+               category_icon,
                name,
                category_desc,
                category_status,
@@ -74,6 +76,7 @@
             <if test="parentId != null and parentId != ''">parent_id,</if>
             <if test="ancestors != null and ancestors != ''">ancestors,</if>
             <if test="coverUrl != null">cover_url,</if>
+            <if test="categoryIcon != null">category_icon,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="categoryDesc != null">category_desc,</if>
             <if test="categoryStatus != null and categoryStatus != ''">category_status,</if>
@@ -91,6 +94,7 @@
             <if test="parentId != null and parentId != ''">#{parentId},</if>
             <if test="ancestors != null and ancestors != ''">#{ancestors},</if>
             <if test="coverUrl != null">#{coverUrl},</if>
+            <if test="categoryIcon != null">#{categoryIcon},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="categoryDesc != null">#{categoryDesc},</if>
             <if test="categoryStatus != null and categoryStatus != ''">#{categoryStatus},</if>
@@ -111,6 +115,7 @@
             <if test="parentId != null and parentId != ''">parent_id = #{parentId},</if>
             <if test="ancestors != null and ancestors != ''">ancestors = #{ancestors},</if>
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="categoryIcon != null">category_icon = #{categoryIcon},</if>
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="categoryDesc != null">category_desc = #{categoryDesc},</if>
             <if test="categoryStatus != null and categoryStatus != ''">category_status = #{categoryStatus},</if>

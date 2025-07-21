@@ -36,6 +36,12 @@ public class PictureCategoryInfoEdit implements Serializable {
      */
     private String coverUrl;
 
+
+    /**
+     * 封面图标
+     */
+    private String categoryIcon;
+
     /**
      * 分类名称
      */

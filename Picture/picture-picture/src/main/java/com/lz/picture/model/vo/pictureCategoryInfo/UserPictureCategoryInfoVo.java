@@ -1,13 +1,10 @@
 package com.lz.picture.model.vo.pictureCategoryInfo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureCategoryInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 图片分类信息Vo对象 p_picture_category_info
@@ -34,6 +31,11 @@ public class UserPictureCategoryInfoVo implements Serializable {
      * 封面图URL
      */
     private String coverUrl;
+
+    /**
+     * 封面图标
+     */
+    private String categoryIcon;
 
     /**
      * 分类名称

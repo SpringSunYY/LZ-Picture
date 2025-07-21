@@ -1,17 +1,17 @@
 package com.lz.picture.model.domain;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.common.annotation.Excel;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 图片分类信息对象 p_picture_category_info
@@ -48,6 +48,13 @@ public class PictureCategoryInfo implements Serializable {
      */
     @Excel(name = "封面图URL")
     private String coverUrl;
+
+    /**
+     * 封面图标
+     */
+    @Excel(name = "封面图标")
+    private String categoryIcon;
+
 
     /**
      * 分类名称

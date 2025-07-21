@@ -125,49 +125,51 @@
       <el-table-column label="父级分类" prop="parentId" v-if="columns[1].visible" :show-overflow-tooltip="true"/>
       <el-table-column label="祖级列表" align="center" prop="ancestors" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类名称" align="center" prop="name" v-if="columns[4].visible"
+      <el-table-column label="分类名称" align="center" prop="name" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="封面图" align="center" prop="coverUrl" width="100" v-if="columns[3].visible">
+      <el-table-column label="封面图" align="center" prop="coverUrl" width="100" v-if="columns[4].visible">
         <template #default="scope">
           <image-preview :src="scope.row.coverUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="分类描述" align="center" prop="categoryDesc" v-if="columns[5].visible"
+      <el-table-column label="封面图标" align="center" prop="categoryIcon" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类状态" align="center" prop="categoryStatus" v-if="columns[6].visible">
+      <el-table-column label="分类描述" align="center" prop="categoryDesc" v-if="columns[6].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="分类状态" align="center" prop="categoryStatus" v-if="columns[7].visible">
         <template #default="scope">
           <dict-tag :options="p_category_status" :value="scope.row.categoryStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="分类类型" align="center" prop="categoryType" v-if="columns[7].visible">
+      <el-table-column label="分类类型" align="center" prop="categoryType" v-if="columns[8].visible">
         <template #default="scope">
           <dict-tag :options="p_category_type" :value="scope.row.categoryType"/>
         </template>
       </el-table-column>
-      <el-table-column label="查询状态" align="center" prop="queryStatus" v-if="columns[8].visible">
+      <el-table-column label="查询状态" align="center" prop="queryStatus" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="p_category_query_status" :value="scope.row.queryStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="使用次数" align="center" prop="usageCount" v-if="columns[9].visible"
+      <el-table-column label="使用次数" align="center" prop="usageCount" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[10].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[11].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[12].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[14].visible">
+      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[15].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -202,6 +204,9 @@
         </el-form-item>
         <el-form-item label="封面图" prop="coverUrl">
           <image-upload v-model="form.coverUrl"/>
+        </el-form-item>
+        <el-form-item label="封面图标" prop="categoryIcon">
+          <el-input v-model="form.categoryIcon" placeholder="请输入封面图标"/>
         </el-form-item>
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入分类名称"/>
@@ -354,17 +359,18 @@ const data = reactive({
     {key: 1, label: '父级分类', visible: false},
     {key: 2, label: '祖级列表', visible: false},
     {key: 3, label: '封面图', visible: true},
-    {key: 4, label: '分类名称', visible: true},
-    {key: 5, label: '分类描述', visible: false},
-    {key: 6, label: '分类状态', visible: true},
-    {key: 7, label: '分类类型', visible: true},
-    {key: 8, label: '查询状态', visible: true},
-    {key: 9, label: '使用次数', visible: true},
-    {key: 10, label: '查看次数', visible: true},
-    {key: 11, label: '下载次数', visible: true},
-    {key: 12, label: '创建时间', visible: false},
-    {key: 13, label: '更新时间', visible: false},
-    {key: 14, label: '删除标记', visible: false},
+    {key: 4, label: '封面图标', visible: true},
+    {key: 5, label: '分类名称', visible: true},
+    {key: 6, label: '分类描述', visible: false},
+    {key: 7, label: '分类状态', visible: true},
+    {key: 8, label: '分类类型', visible: true},
+    {key: 9, label: '查询状态', visible: true},
+    {key: 10, label: '使用次数', visible: true},
+    {key: 11, label: '查看次数', visible: true},
+    {key: 12, label: '下载次数', visible: true},
+    {key: 13, label: '创建时间', visible: false},
+    {key: 14, label: '更新时间', visible: false},
+    {key: 15, label: '删除标记', visible: false},
   ],
 });
 
@@ -411,6 +417,7 @@ function reset() {
     parentId: null,
     ancestors: null,
     coverUrl: null,
+    categoryIcon: null,
     name: null,
     categoryDesc: null,
     categoryStatus: null,
