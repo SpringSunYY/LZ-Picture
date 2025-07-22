@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
-
 
 /**
  * 图片推荐
@@ -45,10 +43,6 @@ public class UserPictureInfoRecommendController extends BaseUserInfoController {
         }
 
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(request);
-        //压缩图片
-        for (UserRecommendPictureInfoVo vo : pictureInfoRecommend) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
-        }
         return getDataTable(pictureInfoRecommend, 0);
     }
 }

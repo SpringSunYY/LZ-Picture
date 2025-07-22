@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
-// 静态路由（白名单）
+//
 export const constantRoutes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -230,11 +230,27 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/404.vue'),
   },
 ]
+// 最后添加的路由
+export const lastRouteConstants: RouteRecordRaw[] = [
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/AboutView.vue'),
+    meta: {
+      title: '关于我们',
+      cacheKey: 'about',
+      isHidden: false,
+      isCache: true,
+      icon: 'about',
+      menuAddress: '2',
+    },
+  }
+]
 
 // 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
-  routes: constantRoutes,
+  routes: [...constantRoutes, ...lastRouteConstants],
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { top: 0 }
   },

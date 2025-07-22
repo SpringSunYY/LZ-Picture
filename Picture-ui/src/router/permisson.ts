@@ -15,6 +15,8 @@ const whiteList = [
   '/user/register',
   '/user/smsLogin',
   '/user/forgetPassword',
+  '/about',
+  '/git',
   '/pictureDetail',
   '/pictureQuery',
   '/picture/statistics/hot/total',
@@ -163,7 +165,7 @@ export const generateMenu = (
 
 export function toMenu(route: RouteRecordRaw) {
   // 解析查询参数（如果是 JSON 字符串）
-  // console.log('路由参数:', route)
+  console.log('路由参数:', route)
   let queryObj = {}
   if (typeof route.item?.query === 'string') {
     try {
@@ -177,7 +179,7 @@ export function toMenu(route: RouteRecordRaw) {
   // 处理外部链接
   if (route.item?.isFrame && route.item.isFrame) {
     let url = route.item.path
-
+    console.log('url', url)
     // 构造查询参数
     const queryStr = new URLSearchParams(queryObj).toString()
     if (queryStr) {

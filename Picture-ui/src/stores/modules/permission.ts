@@ -1,4 +1,4 @@
-import { constantRoutes } from '@/router'
+import { constantRoutes, lastRouteConstants } from '@/router'
 import { getMenuInfo } from '@/api/user/menu'
 import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
@@ -9,19 +9,21 @@ const modules = import.meta.glob('@/views/**/*.vue')
 
 interface PermissionState {
   routes: RouteRecordRaw[]
+  lastRoutes: RouteRecordRaw[]
   addRoutes: RouteRecordRaw[]
 }
 
 const usePermissionStore = defineStore('permission', {
   state: (): PermissionState => ({
-    routes: constantRoutes,
+    routes: [...constantRoutes, ...lastRouteConstants],
+    lastRoutes: lastRouteConstants,
     addRoutes: [],
   }),
   actions: {
     setRoutes(routes: RouteRecordRaw[]) {
       this.addRoutes = routes
       // console.log('constantRoutes', this.addRoutes)
-      this.routes = constantRoutes.concat(routes)
+      this.routes = constantRoutes.concat(routes).concat(this.lastRoutes)
     },
     getAddRoutes() {
       return this.addRoutes
@@ -30,7 +32,7 @@ const usePermissionStore = defineStore('permission', {
       return this.routes
     },
     removeRoutes() {
-      this.routes = constantRoutes
+      this.routes = constantRoutes.concat(this.lastRoutes)
     },
     async generateRoutes(): Promise<RouteRecordRaw[]> {
       const res = await getMenuInfo()

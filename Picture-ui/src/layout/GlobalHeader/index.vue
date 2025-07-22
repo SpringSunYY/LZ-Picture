@@ -9,7 +9,7 @@
           </div>
         </RouterLink>
       </a-col>
-      <a-col flex="auto">
+      <a-col flex="auto" class="menu">
         <!-- 桌面模式 -->
         <a-menu
           v-if="!isMobile"
@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { LogoutOutlined, MenuOutlined, NotificationOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
@@ -117,7 +117,9 @@ import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
-import { generateMenu, renderIcon, toMenu } from '@/router/permisson.ts'
+import { generateMenu, toMenu } from '@/router/permisson.ts'
+import { h } from 'vue'
+import {renderIcon} from '@/router/permisson.ts'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -194,15 +196,7 @@ const items = computed(() => {
   // 生成有效路由结构
   // 合并静态菜单项
   return [
-    ...(generateMenu(permissionStore?.routes, '2') || []),
-    {
-      key: 'others',
-      isFrame: true,
-      path: 'https://github.com/SpringSunYY/LZ-Picture',
-      label: h('a', '官方源码'),
-      icon: renderIcon('space'),
-      title: '官方源码',
-    },
+    ...(generateMenu(permissionStore?.getRoutes(), '2') || [])
   ]
 })
 
@@ -231,6 +225,10 @@ const showDrawer = () => {
 
   .logo {
     height: 48px;
+  }
+
+  .menu {
+    padding-left: 10px;
   }
 
   .user-login-status {

@@ -135,6 +135,7 @@ public class SecurityConfig {
                                     "/user/picture/pictureInfo/recommend",
                                     "/user/picture/pictureInfo/search/suggestion",
                                     "/user/picture/pictureInfo/hot",
+                                    "/user/picture/pictureCategoryInfo/list",
                                     "/user/config/configInfo/key/**",
                                     "/user/points/pay/alipay/callback").permitAll()
                             // 静态资源，可匿名访问
