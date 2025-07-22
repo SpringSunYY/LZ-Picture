@@ -38,8 +38,6 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     @Resource
     private FileLogInfoMapper fileLogInfoMapper;
 
-    @Resource
-    private OssConfig ossConfig;
 
     @Resource
     private PictureUploadManager pictureUploadManager;
@@ -69,9 +67,9 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         List<FileLogInfo> fileLogInfos = fileLogInfoMapper.selectFileLogInfoList(fileLogInfo);
         for (FileLogInfo info : fileLogInfos) {
             if (StringUtils.isNotEmpty(info.getDnsUrl())) {
-                info.setFileUrl(ossConfig.getDnsUrl() + info.getFileUrl());
+                info.setFileUrl(OssConfig.getDnsUrl() + info.getFileUrl());
             } else {
-                info.setFileUrl(ossConfig.getDnsUrl() + info.getFileUrl());
+                info.setFileUrl(OssConfig.getDnsUrl() + info.getFileUrl());
             }
         }
         return fileLogInfos;

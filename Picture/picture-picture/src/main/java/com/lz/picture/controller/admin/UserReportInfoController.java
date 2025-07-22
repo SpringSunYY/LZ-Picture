@@ -40,8 +40,6 @@ public class UserReportInfoController extends BaseController {
     @Resource
     private ISysConfigService sysConfigService;
 
-    @Resource
-    private OssConfig ossConfig;
 
     /**
      * 查询用户举报信息列表
@@ -55,7 +53,7 @@ public class UserReportInfoController extends BaseController {
         List<UserReportInfoVo> listVo = list.stream().map(UserReportInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserReportInfoVo vo : listVo) {
-            vo.setTargetCover(ossConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setTargetCover(OssConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
         }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

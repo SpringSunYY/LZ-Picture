@@ -11,7 +11,8 @@ import com.aliyuncs.profile.IClientProfile;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.config.manager.sms.model.SmsBody;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
@@ -25,16 +26,16 @@ import org.springframework.stereotype.Component;
  * Version: 1.0
  */
 @Component
-@PropertySource(value = { "classpath:application-config.yml" })
+@PropertySource(value = {"classpath:application-config.yml"})
+@ConfigurationProperties(prefix = "aliyun")
+@Data
 public class SmsManager {
     //产品名称:云通信短信API产品,开发者无需替换
     private static final String product = "Dysmsapi";                            // 无需修改
     //产品域名,开发者无需替换
     private static final String domain = "dysmsapi.aliyuncs.com";                // 无需修改
 
-    @Value("${aliYun.accessKeyId}")
     private String accessKeyId;                       // 修改accessKeyId
-    @Value("${aliYun.accessKeySecret}")
     private String accessKeySecret;               // 修改accessKeySecret
 
     @Resource

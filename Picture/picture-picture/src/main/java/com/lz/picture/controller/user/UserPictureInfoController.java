@@ -52,8 +52,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @Resource
     private PictureUploadManager pictureUploadManager;
 
-    @Resource
-    private OssConfig ossConfig;
 
 
     /**

@@ -1,6 +1,7 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.PictureDownloadLogInfo;
@@ -48,7 +49,7 @@ public class UserPictureDownloadLogInfoController extends BaseUserInfoController
         //压缩图片
         page.getRecords().forEach(pictureDownloadLogInfo -> {
             if (StringUtils.isNotEmpty(pictureDownloadLogInfo.getThumbnailUrl())) {
-                pictureDownloadLogInfo.setThumbnailUrl(pictureDownloadLogInfo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                pictureDownloadLogInfo.setThumbnailUrl(OssConfig.builderUrl(pictureDownloadLogInfo.getThumbnailUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             }
         });
         List<UserPictureDownloadLogInfoVo> listVo = UserPictureDownloadLogInfoVo.objToVo(page.getRecords());

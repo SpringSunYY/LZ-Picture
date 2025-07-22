@@ -29,17 +29,7 @@ const props = defineProps({
   fileDir: { type: String, default: 'documents' },
   acceptTypes: {
     type: Array,
-    default: () => [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'text/plain',
-      'application/zip',
-      'application/x-rar-compressed',
-      'application/gzip',
-    ],
+    default: () => ['psx', 'zip', 'docx', 'doc', 'pdf', 'txt', 'rar', '7z', 'zip'],
   },
 })
 
@@ -53,8 +43,9 @@ const beforeUpload = (file: File) => {
     message.warning(`最多只能上传 ${props.maxCount} 个文件`)
     return false
   }
+  const fileExt = file.name.split('.').pop()?.toLowerCase()
 
-  const isValidType = props.acceptTypes.includes(file.type)
+  const isValidType = props.acceptTypes.includes(fileExt)
   const isValidSize = file.size / 1024 / 1024 < props.maxSize
 
   if (!isValidType) {

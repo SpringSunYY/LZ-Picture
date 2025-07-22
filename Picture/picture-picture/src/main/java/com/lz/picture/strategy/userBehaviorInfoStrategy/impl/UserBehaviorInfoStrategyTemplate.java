@@ -1,6 +1,7 @@
 package com.lz.picture.strategy.userBehaviorInfoStrategy.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -98,7 +99,12 @@ public class UserBehaviorInfoStrategyTemplate implements UserBehaviorInfoStrateg
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
         //赋值图片信息
         userBehaviorInfo.setTargetContent(pictureInfo.getName());
-        userBehaviorInfo.setTargetCover(pictureInfo.getThumbnailUrl());
+        //如果以我们域名开头
+        if (pictureInfo.getThumbnailUrl().startsWith(OssConfig.getDnsUrl())) {
+            userBehaviorInfo.setTargetCover(pictureInfo.getThumbnailUrl().replace(OssConfig.getDnsUrl(), ""));
+        } else {
+            userBehaviorInfo.setTargetCover(pictureInfo.getThumbnailUrl());
+        }
         userBehaviorInfo.setSpaceId(pictureInfo.getSpaceId());
         userBehaviorInfo.setCategoryId(pictureInfo.getCategoryId());
         //查询标签关联

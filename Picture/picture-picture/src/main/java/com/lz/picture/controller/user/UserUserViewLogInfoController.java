@@ -1,6 +1,7 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.UserViewLogInfo;
@@ -48,7 +49,7 @@ public class UserUserViewLogInfoController extends BaseUserInfoController {
         //压缩图片
         for (UserViewLogInfo userViewLogInfo : page.getRecords()) {
             if (StringUtils.isNotEmpty(userViewLogInfo.getTargetCover())) {
-                userViewLogInfo.setTargetCover(userViewLogInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                userViewLogInfo.setTargetCover(OssConfig.builderUrl(userViewLogInfo.getTargetCover()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             }
         }
         List<MyUserViewLogInfoVo> myUserViewLogInfoVos = MyUserViewLogInfoVo.objToVo(page.getRecords());

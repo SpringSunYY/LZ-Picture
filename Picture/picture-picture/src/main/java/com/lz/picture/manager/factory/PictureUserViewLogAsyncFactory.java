@@ -2,6 +2,7 @@ package com.lz.picture.manager.factory;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.spring.SpringUtils;
@@ -27,7 +28,6 @@ import static com.lz.picture.model.enums.PViewLogTargetTypeEnum.VIEW_LOG_TARGET_
  */
 @Slf4j
 public class PictureUserViewLogAsyncFactory {
-
 
     /**
      * description: 记录图片浏览记录
@@ -105,7 +105,13 @@ public class PictureUserViewLogAsyncFactory {
         UserInfo userInfo = JSONObject.parseObject(JSON.toJSONString(data), UserInfo.class);
         userViewLogTargetInfoDto.setTargetId(userInfo.getUserId());
         userViewLogTargetInfoDto.setTargetContent(userInfo.getNickName());
-        userViewLogTargetInfoDto.setTargetCover(userInfo.getAvatarUrl());
+        //需要去除头像的域名
+        //如果以我们域名开头
+        if (userInfo.getAvatarUrl().startsWith(OssConfig.getDnsUrl())) {
+            userViewLogTargetInfoDto.setTargetCover(userInfo.getAvatarUrl().replace(OssConfig.getDnsUrl(), ""));
+        }else {
+            userViewLogTargetInfoDto.setTargetCover(userInfo.getAvatarUrl());
+        }
     }
 
     /**
@@ -123,7 +129,12 @@ public class PictureUserViewLogAsyncFactory {
         userViewLogTargetInfoDto.setSpaceId(spaceInfo.getSpaceId());
         userViewLogTargetInfoDto.setTargetId(spaceInfo.getSpaceId());
         userViewLogTargetInfoDto.setTargetContent(spaceInfo.getSpaceName());
-        userViewLogTargetInfoDto.setTargetCover(spaceInfo.getSpaceAvatar());
+        //如果以我们域名开头
+        if (spaceInfo.getSpaceAvatar().startsWith(OssConfig.getDnsUrl())) {
+            userViewLogTargetInfoDto.setTargetCover(spaceInfo.getSpaceAvatar().replace(OssConfig.getDnsUrl(), ""));
+        }else {
+            userViewLogTargetInfoDto.setTargetCover(spaceInfo.getSpaceAvatar());
+        }
     }
 
     /**
@@ -144,7 +155,12 @@ public class PictureUserViewLogAsyncFactory {
         }
         userViewLogTargetInfoDto.setTargetId(pictureInfo.getPictureId());
         userViewLogTargetInfoDto.setTargetContent(pictureInfo.getName());
-        userViewLogTargetInfoDto.setTargetCover(pictureInfo.getThumbnailUrl());
+        //如果以我们域名开头
+        if (pictureInfo.getThumbnailUrl().startsWith(OssConfig.getDnsUrl())) {
+            userViewLogTargetInfoDto.setTargetCover(pictureInfo.getThumbnailUrl().replace(OssConfig.getDnsUrl(), ""));
+        }else {
+            userViewLogTargetInfoDto.setTargetCover(pictureInfo.getThumbnailUrl());
+        }
         userViewLogTargetInfoDto.setCategoryId(pictureInfo.getCategoryId());
         userViewLogTargetInfoDto.setSpaceId(pictureInfo.getSpaceId());
     }

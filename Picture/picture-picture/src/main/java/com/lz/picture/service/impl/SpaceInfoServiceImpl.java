@@ -58,9 +58,6 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
     private RedisCache redisCache;
 
     @Resource
-    private OssConfig ossConfig;
-
-    @Resource
     @Lazy
     private ISpaceMemberInfoService spaceMemberInfoService;
     //region mybatis代码
@@ -335,7 +332,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         //转换为vo并且转换地址
         List<UserPersonalSpaceInfoVo> personalSpaceInfoVos = page.getRecords().stream()
                 .map(spaceInfo -> {
-                    spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                    spaceInfo.setSpaceAvatar(OssConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
                     return UserPersonalSpaceInfoVo.objToVo(spaceInfo);
                 }).toList();
         //存入缓存信息并返回
@@ -426,7 +423,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo));
         vos = spaceMemberInfos.stream().map(memberInfo -> {
             SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
-            spaceInfo.setSpaceAvatar(ossConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            spaceInfo.setSpaceAvatar(OssConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             UserTeamSpaceInfoVo userTeamSpaceInfoVo = new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
             userTeamSpaceInfoVo.setUserId(spaceInfo.getUserId());
             userTeamSpaceInfoVo.setCurrentMembers(spaceMemberInfoService.getSpaceMemberNumberCount(memberInfo.getSpaceId()));
@@ -473,11 +470,10 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                 .toList();
 
         List<UserSpaceInfoVo> listVo = UserSpaceInfoVo.objToVo(list);
-        String dnsUrl = ossConfig.getDnsUrl();
         listVo.stream()
                 .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
                 .forEach(vo -> {
-                    vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+                    vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
                 });
 
         return new TableDataInfo(listVo, listVo.size());

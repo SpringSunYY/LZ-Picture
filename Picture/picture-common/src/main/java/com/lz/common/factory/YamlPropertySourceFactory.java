@@ -17,7 +17,15 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
     public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
         YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
         factory.setResources(resource.getResource());
+        factory.afterPropertiesSet(); // 确保初始化完成
+
         Properties properties = factory.getObject();
-        return new PropertiesPropertySource(resource.getResource().getFilename(), properties);
+        if (properties == null || properties.isEmpty()) {
+            // 可选：添加日志提示资源为空的情况
+            throw new IllegalArgumentException("YAML resource [" + resource.getResource() + "] is empty or invalid.");
+        }
+
+        String sourceName = name != null ? name : resource.getResource().getFilename();
+        return new PropertiesPropertySource(sourceName, properties);
     }
 }

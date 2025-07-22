@@ -55,9 +55,6 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     private IPictureInfoService pictureInfoService;
 
     @Resource
-    private OssConfig ossConfig;
-
-    @Resource
     private RedisCache redisCache;
 
     @Resource
@@ -111,8 +108,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             info.setApplyFile(url);
         }
         if (StringUtils.isNotEmpty(info.getThumbnailUrl())) {
-            String url = ossConfig.builderUrl(info.getThumbnailUrl());
-            info.setThumbnailUrl(url);
+            info.setThumbnailUrl(builderUrl(info.getThumbnailUrl()));
         }
     }
 
@@ -120,7 +116,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         String[] split = urls.split(COMMON_SEPARATOR);
         StringBuilder buffer = new StringBuilder();
         for (String str : split) {
-            buffer.append(ossConfig.builderUrl(str)).append(p).append(COMMON_SEPARATOR);
+            buffer.append(OssConfig.builderUrl(str)).append("?x-oss-process=image/resize,p_").append(p).append(COMMON_SEPARATOR);
         }
         //删除尾部逗号
         buffer.deleteCharAt(buffer.length() - 1);
@@ -131,7 +127,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         String[] split = urls.split(COMMON_SEPARATOR);
         StringBuilder buffer = new StringBuilder();
         for (String str : split) {
-            buffer.append(ossConfig.builderUrl(str)).append(COMMON_SEPARATOR);
+            buffer.append(OssConfig.builderUrl(str)).append(COMMON_SEPARATOR);
         }
         //删除尾部逗号
         buffer.deleteCharAt(buffer.length() - 1);

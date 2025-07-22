@@ -32,29 +32,23 @@ import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
  */
 @RestController
 @RequestMapping("/admin/picture/spaceInvitationInfo")
-public class SpaceInvitationInfoController extends BaseController
-{
+public class SpaceInvitationInfoController extends BaseController {
     @Resource
     private ISpaceInvitationInfoService spaceInvitationInfoService;
 
-    @Resource
-    private OssConfig ossConfig;
     /**
      * 查询空间成员邀请记录列表
      */
     @PreAuthorize("@ss.hasPermi('picture:spaceInvitationInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SpaceInvitationInfoQuery spaceInvitationInfoQuery)
-    {
+    public TableDataInfo list(SpaceInvitationInfoQuery spaceInvitationInfoQuery) {
         SpaceInvitationInfo spaceInvitationInfo = SpaceInvitationInfoQuery.queryToObj(spaceInvitationInfoQuery);
         startPage();
         List<SpaceInvitationInfo> list = spaceInvitationInfoService.selectSpaceInvitationInfoList(spaceInvitationInfo);
-        List<SpaceInvitationInfoVo> listVo= list.stream().map(SpaceInvitationInfoVo::objToVo).collect(Collectors.toList());
+        List<SpaceInvitationInfoVo> listVo = list.stream().map(SpaceInvitationInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
-        //压缩图片
-        String dnsUrl = ossConfig.getDnsUrl();
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
         });
         table.setRows(listVo);
         return table;
@@ -66,8 +60,7 @@ public class SpaceInvitationInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:spaceInvitationInfo:export')")
     @Log(title = "空间成员邀请记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SpaceInvitationInfoQuery spaceInvitationInfoQuery)
-    {
+    public void export(HttpServletResponse response, SpaceInvitationInfoQuery spaceInvitationInfoQuery) {
         SpaceInvitationInfo spaceInvitationInfo = SpaceInvitationInfoQuery.queryToObj(spaceInvitationInfoQuery);
         List<SpaceInvitationInfo> list = spaceInvitationInfoService.selectSpaceInvitationInfoList(spaceInvitationInfo);
         ExcelUtil<SpaceInvitationInfo> util = new ExcelUtil<SpaceInvitationInfo>(SpaceInvitationInfo.class);
@@ -79,8 +72,7 @@ public class SpaceInvitationInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:spaceInvitationInfo:query')")
     @GetMapping(value = "/{invitationId}")
-    public AjaxResult getInfo(@PathVariable("invitationId") String invitationId)
-    {
+    public AjaxResult getInfo(@PathVariable("invitationId") String invitationId) {
         SpaceInvitationInfo spaceInvitationInfo = spaceInvitationInfoService.selectSpaceInvitationInfoByInvitationId(invitationId);
         return success(SpaceInvitationInfoVo.objToVo(spaceInvitationInfo));
     }
@@ -91,8 +83,7 @@ public class SpaceInvitationInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:spaceInvitationInfo:add')")
     @Log(title = "空间成员邀请记录", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody SpaceInvitationInfoInsert spaceInvitationInfoInsert)
-    {
+    public AjaxResult add(@RequestBody SpaceInvitationInfoInsert spaceInvitationInfoInsert) {
         SpaceInvitationInfo spaceInvitationInfo = SpaceInvitationInfoInsert.insertToObj(spaceInvitationInfoInsert);
         return toAjax(spaceInvitationInfoService.insertSpaceInvitationInfo(spaceInvitationInfo));
     }
@@ -103,8 +94,7 @@ public class SpaceInvitationInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:spaceInvitationInfo:edit')")
     @Log(title = "空间成员邀请记录", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody SpaceInvitationInfoEdit spaceInvitationInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody SpaceInvitationInfoEdit spaceInvitationInfoEdit) {
         SpaceInvitationInfo spaceInvitationInfo = SpaceInvitationInfoEdit.editToObj(spaceInvitationInfoEdit);
         return toAjax(spaceInvitationInfoService.updateSpaceInvitationInfo(spaceInvitationInfo));
     }
@@ -115,8 +105,7 @@ public class SpaceInvitationInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('picture:spaceInvitationInfo:remove')")
     @Log(title = "空间成员邀请记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{invitationIds}")
-    public AjaxResult remove(@PathVariable String[] invitationIds)
-    {
+    public AjaxResult remove(@PathVariable String[] invitationIds) {
         return toAjax(spaceInvitationInfoService.deleteSpaceInvitationInfoByInvitationIds(invitationIds));
     }
 }

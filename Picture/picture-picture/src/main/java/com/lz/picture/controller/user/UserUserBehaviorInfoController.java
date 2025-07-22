@@ -1,10 +1,10 @@
 package com.lz.picture.controller.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.UserBehaviorInfo;
 import com.lz.picture.model.dto.userBehaviorInfo.MyUserBehaviorInfoQuery;
 import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoAdd;
@@ -60,7 +60,7 @@ public class UserUserBehaviorInfoController extends BaseUserInfoController {
         //压缩图片
         for (UserBehaviorInfo userBehaviorInfo : page.getRecords()) {
             if (StringUtils.isNotEmpty(userBehaviorInfo.getTargetCover())) {
-                userBehaviorInfo.setTargetCover(userBehaviorInfo.getTargetCover() + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                userBehaviorInfo.setTargetCover(OssConfig.builderUrl(userBehaviorInfo.getTargetCover()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             }
         }
         List<MyUserBehaviorInfoVo> myUserBehaviorInfoVos = MyUserBehaviorInfoVo.objToVo(page.getRecords());

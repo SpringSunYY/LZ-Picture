@@ -15,17 +15,17 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@PropertySource(value = {"classpath:application-config.yml"},
-        factory = YamlPropertySourceFactory.class)
+@PropertySource(value = {"classpath:application-config.yml"})
+@ConfigurationProperties(prefix = "aliyun")
 public class AliYunAiApi {
     // 读取配置文件
-    @Value("${aliYun.apiKey}")
-    private String apiKey;
+    private static String apiKey;
 
     // 创建任务地址
     public static final String CREATE_OUT_PAINTING_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/out-painting";

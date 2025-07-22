@@ -194,7 +194,7 @@
           <span style="color: #1890ff; margin-right: 8px">🚀</span>
           {{ title }}
           <a-tooltip
-            title="您可以申请您的图片公开权限，请填写申请理由、您的联系方式，如果您有版权可以设置图片的积分或者金额，原创作品可以设置金额。"
+            title="您可以申请您的图片公开权限，请填写申请理由、您的联系方式，如果您有版权可以设置图片的积分。"
           >
             <question-circle-outlined class="title-tip-icon" />
           </a-tooltip>
@@ -214,8 +214,8 @@
             <span style="display: inline-flex; align-items: center">
               申请类型
               <a-tooltip
-                title="注意：原创类型仅支持原创图片，请勿上传非原创图片，原创类型可以设置金额，如果不设置则表示免费，如果版权虚假，造成的版权纠纷均由用户承担。
-                            转载资源、无版权资源可以设置积分，不可设置金额，但请注意版权，如用户版权不归您，造成版权纠纷均由用户承担，平台图片仅仅作为展示。"
+                title="注意：原创类型仅支持原创图片，请勿上传非原创图片，如果版权虚假，造成的版权纠纷均由用户承担。
+                            请注意版权，如用户版权不归您，造成版权纠纷均由用户承担，平台图片仅仅作为展示。"
               >
                 <InfoCircleOutlined
                   style="
@@ -287,11 +287,7 @@
           />
         </a-form-item>
 
-        <a-form-item
-          label="所需积分"
-          name="pointsNeed"
-          v-if="formApply.applyType !== '' && formApply.applyType !== '0'"
-        >
+        <a-form-item label="所需积分" name="pointsNeed">
           <a-input-number
             v-model:value="formApply.pointsNeed"
             :min="0"
@@ -300,16 +296,16 @@
             placeholder="请输入所需积分"
           />
         </a-form-item>
-
-        <a-form-item label="所需金额" name="priceNeed" v-if="formApply.applyType === '0'">
-          <a-input-number
-            v-model:value="formApply.priceNeed"
-            :min="0"
-            :precision="2"
-            style="width: 100%"
-            placeholder="请输入所需金额"
-          />
-        </a-form-item>
+        <!--
+                <a-form-item label="所需金额" name="priceNeed" >
+                  <a-input-number
+                    v-model:value="formApply.priceNeed"
+                    :min="0"
+                    :precision="2"
+                    style="width: 100%"
+                    placeholder="请输入所需金额"
+                  />
+                </a-form-item>-->
         <div class="form-footer">
           <a-button @click="openApply = false">取消</a-button>
           <a-button type="primary" html-type="submit" :loading="applyLoading">提交</a-button>

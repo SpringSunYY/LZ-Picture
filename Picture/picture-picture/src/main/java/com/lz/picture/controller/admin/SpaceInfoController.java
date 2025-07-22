@@ -7,7 +7,6 @@ import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.poi.ExcelUtil;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoEdit;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoInsert;
@@ -37,11 +36,6 @@ public class SpaceInfoController extends BaseController {
     @Resource
     private ISpaceInfoService spaceInfoService;
 
-    @Resource
-    private IConfigInfoService configInfoService;
-
-    @Resource
-    private OssConfig ossConfig;
 
     /**
      * 查询空间信息列表
@@ -53,10 +47,8 @@ public class SpaceInfoController extends BaseController {
         startPage();
         List<SpaceInfo> list = spaceInfoService.selectSpaceInfoList(spaceInfo);
         List<SpaceInfoVo> listVo = list.stream().map(SpaceInfoVo::objToVo).collect(Collectors.toList());
-        //压缩图片
-        String dnsUrl = ossConfig.getDnsUrl();
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(dnsUrl + vo.getSpaceAvatar() + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
         });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
