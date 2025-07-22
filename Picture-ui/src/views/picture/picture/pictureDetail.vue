@@ -116,9 +116,8 @@
                 <SvgIcon name="report" />
               </a-button>
             </a-tooltip>
-            <a-tooltip
-              v-if="picture?.moreInfo?.applyType !== PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0"
-            >
+            <!-- v-if="picture?.moreInfo?.applyType !== PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0"-->
+            <a-tooltip>
               <template #title>
                 <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
                   使用 {{ picture?.moreInfo?.pointsNeed || 0 }} 积分查看原图<br />
@@ -144,7 +143,7 @@
                 <span style="font-size: 16px; padding-left: 8px">积分</span>
               </a-button>
             </a-tooltip>
-            <a-tooltip v-else>
+<!--            <a-tooltip v-else>
               <template #title>
                 <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
                   使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
@@ -169,7 +168,7 @@
                 </span>
                 <span>元</span>
               </a-button>
-            </a-tooltip>
+            </a-tooltip>-->
           </a-space>
         </a-card>
       </a-col>
