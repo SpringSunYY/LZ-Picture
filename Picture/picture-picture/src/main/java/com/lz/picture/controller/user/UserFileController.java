@@ -212,7 +212,7 @@ public class UserFileController extends BaseUserInfoController {
             PictureDownloadLogInfoRequest request = new PictureDownloadLogInfoRequest();
             request.setDownloadId(downloadId);
             request.setUserId(getUserId());
-            PictureInfo pictureInfo = pictureInfoService.verifyPictureInfoByLog(request);
+            PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfoByLog(request);
             String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
 
             // 设置响应头
@@ -259,5 +259,19 @@ public class UserFileController extends BaseUserInfoController {
         PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId(), PDownloadTypeEnum.DOWNLOAD_TYPE_0.getValue());
         String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
         return success(new PictureDownloadVo(pictureId, url, pictureInfo.getPictureMoreInfo().getPointsNeed(), pictureInfo.getPictureMoreInfo().getPriceNeed()));
+    }
+
+    /**
+     * 用户查看原图，获取原图链接
+     */
+    @GetMapping("/log/original/{downloadId}")
+    public AjaxResult getLogOriginalPicture(@PathVariable("downloadId") String downloadId) {
+        // 校验图片
+        PictureDownloadLogInfoRequest request = new PictureDownloadLogInfoRequest();
+        request.setDownloadId(downloadId);
+        request.setUserId(getUserId());
+        PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfoByLog(request);
+        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+        return success(new PictureDownloadVo(pictureInfo.getPictureId(), url, pictureInfo.getPictureMoreInfo().getPointsNeed(), pictureInfo.getPictureMoreInfo().getPriceNeed()));
     }
 }

@@ -72,8 +72,7 @@
         </a-form-item>
         <a-button type="primary" @click="resetSearch">重置</a-button>
       </a-form>
-      <div style="margin-bottom: 20px">
-      </div>
+      <div style="margin-bottom: 20px"></div>
       <a-table
         :columns="columns"
         :data-source="downloadList"
@@ -109,13 +108,30 @@
           <template v-if="column.dataIndex === 'action'">
             <a-space>
               <a-button @click="viewDetail(record)">查看</a-button>
-              <a-button :loading="downloadPictureLoading" @click="download(record)">下载</a-button>
+              <a-button :loading="downloadPictureLoading" @click="download(record)">原图</a-button>
               <a-divider type="vertical" />
             </a-space>
           </template>
         </template>
       </a-table>
     </a-card>
+
+    <a-modal v-model:open="openOriginal" :footer="null" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          LZ-Picture
+          <a-tooltip title="感谢您使用本平台，如果觉得不错可以在关于我们请平台工作人员喝杯咖啡">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <PictureView :src="originalPictureUrl" :width="500" />
+      <div class="form-footer">
+        <a-button @click="openOriginal = false" style="">关闭</a-button>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -132,6 +148,9 @@ import type {
 import { useRouter } from 'vue-router'
 import { downloadImageByLog } from '@/utils/file.ts'
 import { message } from 'ant-design-vue'
+import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import PictureView from '@/components/PictureView.vue'
+import { getPictureOriginalLogInfoByLog } from '@/api/common/file.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -151,7 +170,7 @@ const pagination = ref({
   showTotal: (total: number) => `共 ${total} 条记录`,
   showSizeChanger: true,
   showQuickJumper: true,
-  pageSizeOptions: ['10', '20', '30', '50']
+  pageSizeOptions: ['10', '20', '30', '50'],
 })
 
 const queryParams = ref<PictureDownloadLogInfoQuery>({
@@ -238,14 +257,22 @@ const viewDetail = (record: PictureDownloadLogInfoVo) => {
   window.open(routeData.href, '_blank')
 }
 const downloadPictureLoading = ref(false)
+const originalPictureUrl = ref('')
+const openOriginal = ref(false)
 //下载
 const download = async (record: PictureDownloadLogInfoVo) => {
   try {
     // console.log('下载', record)
-    message.success('图片下载中...', 5)
-    message.info('请不要刷新页面', 5)
+    message.success('获取图片资源中...', 3)
+    message.info('请不要刷新页面', 3)
     downloadPictureLoading.value = true
-    const res = await downloadImageByLog(record.downloadId, record.pictureName)
+    const res = await getPictureOriginalLogInfoByLog(record.downloadId)
+    message.success('资源获取成功，如果觉得不错可以在关于我们请平台工作人员喝杯咖啡', 3)
+    // message.success('图片查看有效时间五分钟，如果图片路径失效，请点击重置URL', 5)
+    if (res.code === 200) {
+      openOriginal.value = true
+      originalPictureUrl.value = res.data.pictureUrl || ''
+    }
   } catch (e) {
     console.log(e)
   } finally {
@@ -254,3 +281,15 @@ const download = async (record: PictureDownloadLogInfoVo) => {
 }
 onMounted(getList)
 </script>
+<style scoped>
+.form-footer {
+  text-align: right;
+  padding: 16px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid #f0f0f0;
+
+  .ant-btn {
+    margin-left: 10px;
+  }
+}
+</style>

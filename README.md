@@ -2346,7 +2346,6 @@ CREATE TABLE p_picture_tag_rel_info
 | thumbnail_url        | varchar  | 512  |                                   | 是   |          | 缩略图 url   |
 | tags                 | varchar  | 256  |                                   | 是   |          | 图片标签     |
 | points_cost          | int      |      |                                   | 否   | 0        | 消耗积分     |
-| is_free              | char     | 1    |                                   | 否   | 0        | 是否免费     |
 | points_author_gain   | int      |      |                                   | 否   | 0        | 作者获得积分 |
 | points_official_gain | int      |      |                                   | 否   | 0        | 官方获得积分 |
 | points_space_gain    | int      |      |                                   | 是   | 0        | 空间获得积分 |

@@ -11,7 +11,6 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.PictureTagInfo;
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureQueryRequest;
-import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
 import com.lz.picture.model.dto.pictureRecommend.UserInterestModel;
 import com.lz.picture.model.enums.PPictureStatusEnum;
@@ -160,7 +159,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             }
 
             // 4. 最终回退方案：使用空映射
-            log.error("无法获取分类-标签关系，使用空映射");
+//            log.error("无法获取分类-标签关系，使用空映射");
             return Collections.emptyMap();
         } catch (Exception e) {
             log.error("获取分类-标签关系失败: {}", e.getMessage(), e);

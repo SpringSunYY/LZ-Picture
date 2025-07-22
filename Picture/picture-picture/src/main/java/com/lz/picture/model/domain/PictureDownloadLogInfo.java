@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.common.annotation.Excel;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -23,6 +24,7 @@ import java.util.Map;
 @TableName("p_picture_download_log_info")
 @Data
 public class PictureDownloadLogInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

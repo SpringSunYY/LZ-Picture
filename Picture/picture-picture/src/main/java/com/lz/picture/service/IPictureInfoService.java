@@ -163,7 +163,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @method: verifyPictureInfoByLog
      * @date: 2025/6/2 16:09
      **/
-    PictureInfo verifyPictureInfoByLog(PictureDownloadLogInfoRequest pictureDownloadLogInfoRequest);
+    PictureInfoDto verifyPictureInfoByLog(PictureDownloadLogInfoRequest pictureDownloadLogInfoRequest);
 
     /**
      * 获取图片搜索建议

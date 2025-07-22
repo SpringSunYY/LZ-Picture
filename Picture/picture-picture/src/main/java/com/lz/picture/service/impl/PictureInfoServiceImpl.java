@@ -1296,7 +1296,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureMoreInfo = JSON.parseObject(moreInfo, PictureMoreInfo.class);
         }
         Long totalPoints = 0L;
-        if (StringUtils.isNotNull(pictureMoreInfo) && StringUtils.isNotNull(pictureMoreInfo.getPointsNeed())) {
+        if (StringUtils.isNotNull(pictureMoreInfo.getPointsNeed())) {
             totalPoints = pictureMoreInfo.getPointsNeed();
         }
         pictureMoreInfo.setPointsNeed(totalPoints);
@@ -1438,16 +1438,33 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     @Override
-    public PictureInfo verifyPictureInfoByLog(PictureDownloadLogInfoRequest pictureDownloadLogInfoRequest) {
+    public PictureInfoDto verifyPictureInfoByLog(PictureDownloadLogInfoRequest pictureDownloadLogInfoRequest) {
         //查询到图片记录
         PictureDownloadLogInfo pictureDownloadLogInfo = pictureDownloadLogInfoService.selectPictureDownloadLogInfoByDownloadId(pictureDownloadLogInfoRequest.getDownloadId());
         //是否不存在
         ThrowUtils.throwIf(StringUtils.isNull(pictureDownloadLogInfo) ||
-                !pictureDownloadLogInfo.getPictureId().equals(pictureDownloadLogInfoRequest.getPictureId()), "此下载记录不属于您！！！");
+                !pictureDownloadLogInfo.getUserId().equals(pictureDownloadLogInfoRequest.getUserId()), "此下载记录不属于您！！！");
         //查询图片是否存在
         PictureInfo pictureInfo = this.selectPictureInfoByPictureId(pictureDownloadLogInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo) || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()), "此图片不存在！！！");
-        return pictureInfo;
+        //所需总积分
+        String moreInfo = pictureInfo.getMoreInfo();
+        PictureMoreInfo pictureMoreInfo = new PictureMoreInfo();
+        if (StringUtils.isNotEmpty(moreInfo)) {
+            pictureMoreInfo = JSON.parseObject(moreInfo, PictureMoreInfo.class);
+        }
+        Long totalPoints = 0L;
+        if (StringUtils.isNotNull(pictureMoreInfo.getPointsNeed())) {
+            totalPoints = pictureMoreInfo.getPointsNeed();
+        }
+        pictureMoreInfo.setPointsNeed(totalPoints);
+ /*       //如果当前之前图片下载是免费，但当前图片需要积分，则抛出异常表示此图片当前需要积分，不可从此记录下载
+        ThrowUtils.throwIf(StringUtils.isNotNull(pictureMoreInfo.getPointsNeed())
+                        && totalPoints != 0 && pictureDownloadLogInfo.getPointsCost() == 0,
+                "当前图片已经设置积分或者金额，需要您重新下载！！！");*/
+        PictureInfoDto pictureInfoDto = PictureInfoDto.objToDto(pictureInfo);
+        pictureInfoDto.setPictureMoreInfo(pictureMoreInfo);
+        return pictureInfoDto;
     }
     //endregion
 }

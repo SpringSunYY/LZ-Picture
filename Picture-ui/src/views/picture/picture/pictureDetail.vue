@@ -281,7 +281,7 @@
           </a-tooltip>
         </div>
       </template>
-      <PictureView :src="originalPictureUrl" :width="800" :height="600" />
+      <PictureView :src="originalPictureUrl" :width="500" />
       <div class="form-footer">
         <a-button type="primary" @click="resetOriginalUrl">重置URL</a-button>
         <a-button @click="openOriginal = false">关闭</a-button>

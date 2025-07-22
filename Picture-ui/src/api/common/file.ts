@@ -89,3 +89,12 @@ export function getPictureOriginalLogInfo(
     method: 'get',
   })
 }
+
+export function getPictureOriginalLogInfoByLog(
+  downloadId: string,
+): Promise<API.ResponseInfo<PictureDownloadVo>> {
+  return request({
+    url: '/picture/file/log/original/' + downloadId,
+    method: 'get',
+  })
+}
