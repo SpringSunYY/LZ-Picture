@@ -168,7 +168,7 @@
               class="w-40 h-40 rounded-full mx-auto mb-6 object-cover border-4 border-green-500 dark:border-green-600 shadow-md"
             />
             <h3 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">YY</h3>
-            <p class="text-xl text-gray-600 dark:text-gray-400 mt-2">YY</p>
+            <h5 class="text-xl text-gray-600 dark:text-gray-400 mt-2">YY</h5>
             <p class="mt-4 text-base text-gray-700 dark:text-gray-300 content-paragraph">
               Jane 开发工程师，是公司的灵魂人物，带领团队不断突破创新。
             </p>
@@ -182,7 +182,7 @@
               class="w-40 h-40 rounded-full mx-auto mb-6 object-cover border-4 border-teal-500 dark:border-teal-600 shadow-md"
             />
             <h3 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">YY</h3>
-            <p class="text-xl text-gray-600 dark:text-gray-400 mt-2">负责人</p>
+            <h5 class="text-xl text-gray-600 dark:text-gray-400 mt-2">YY</h5>
             <p class="mt-4 text-base text-gray-700 dark:text-gray-300 content-paragraph">
               负责公司的技术战略和创新，确保我们的产品始终走在行业前沿，为用户提供最先进的解决方案。
             </p>
@@ -196,7 +196,7 @@
               class="w-40 h-40 rounded-full mx-auto mb-6 object-cover border-4 border-orange-500 dark:border-orange-600 shadow-md"
             />
             <h3 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">YY</h3>
-            <p class="text-xl text-gray-600 dark:text-gray-400 mt-2">市场总监</p>
+            <h5 class="text-xl text-gray-600 dark:text-gray-400 mt-2">市场总监</h5>
             <p class="mt-4 text-base text-gray-700 dark:text-gray-300 content-paragraph">
               带领团队将我们的品牌推向市场，通过创新的营销策略，与用户建立深厚的情感连接。
             </p>
