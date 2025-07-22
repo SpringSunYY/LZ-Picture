@@ -431,7 +431,7 @@ const downloadPicture = async () => {
     downloadPictureLoading.value = true
     if ((picture.value?.moreInfo?.pointsNeed ?? 0) != 0) {
       message.success('开始校验密码', 1)
-      const verified = await verify('下载图片')
+      const verified = await verify('查看原图')
       if (!verified) return
       /*      await downloadImage(
         picture.value.pictureId,

@@ -29,7 +29,7 @@
           </a>|
           <a href="https://beian.miit.gov.cn/" target="_blank">备案号 粤ICP备2025445613号-1 </a>|
           <span>© {{ new Date().getFullYear()}} springsun.online. All Rights Reserved.</span>|
-          <a href="/about" target="_blank">
+          <a style="color: #30b826" href="/about" target="_blank">
             关于我们
           </a>
         </a-layout-footer>

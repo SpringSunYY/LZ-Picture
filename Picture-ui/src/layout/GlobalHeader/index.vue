@@ -118,8 +118,6 @@ import SideRight from '@/layout/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
 import { generateMenu, toMenu } from '@/router/permisson.ts'
-import { h } from 'vue'
-import {renderIcon} from '@/router/permisson.ts'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -195,9 +193,7 @@ const clickInform = () => {
 const items = computed(() => {
   // 生成有效路由结构
   // 合并静态菜单项
-  return [
-    ...(generateMenu(permissionStore?.getRoutes(), '2') || [])
-  ]
+  return [...(generateMenu(permissionStore?.getRoutes(), '2') || [])]
 })
 
 const open = ref<boolean>(false)

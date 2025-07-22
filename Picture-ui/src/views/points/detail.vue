@@ -64,14 +64,14 @@
                   </span>
                 </div>
                 <div class="benefit-title">积分抵扣</div>
-                <div class="benefit-desc">可用于图片下载</div>
+                <div class="benefit-desc">可用于图片查看原图</div>
               </div>
             </a-col>
             <a-col :span="8">
               <div class="benefit-item">
                 <div class="benefit-icon">
                   <span class="anticon">
-                     <SvgIcon size="1em" name="conversion" />
+                    <SvgIcon size="1em" name="conversion" />
                   </span>
                 </div>
                 <div class="benefit-title">积分兑换</div>
@@ -82,7 +82,7 @@
               <div class="benefit-item">
                 <div class="benefit-icon">
                   <span class="anticon">
-                       <SvgIcon size="1em" name="privilege" />
+                    <SvgIcon size="1em" name="privilege" />
                   </span>
                 </div>
                 <div class="benefit-title">积分特权</div>
@@ -138,7 +138,6 @@ const handlePurchase = () => {
   console.log(routeData) // 调试路由解析结果
   window.open(routeData.href, '_blank')
 }
-
 </script>
 
 <style scoped lang="scss">

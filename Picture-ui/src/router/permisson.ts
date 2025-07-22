@@ -165,7 +165,7 @@ export const generateMenu = (
 
 export function toMenu(route: RouteRecordRaw) {
   // 解析查询参数（如果是 JSON 字符串）
-  console.log('路由参数:', route)
+  // console.log('路由参数:', route)
   let queryObj = {}
   if (typeof route.item?.query === 'string') {
     try {
