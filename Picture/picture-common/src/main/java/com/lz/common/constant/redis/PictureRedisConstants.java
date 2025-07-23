@@ -187,5 +187,13 @@ public class PictureRedisConstants {
      * 图片分类缓存时间
      */
     public static final int PICTURE_CATEGORY_EXPIRE_TIME = 60 * 60 * 24;
+    /**
+     * 图片申请缓存
+     */
+    public static final String PICTURE_APPLY_DETAIL = "picture:apply:detail";
+    /**
+     * 图片申请缓存时间
+     */
+    public static final int PICTURE_APPLY_DETAIL_EXPIRE_TIME = 60 * 30;
 
 }

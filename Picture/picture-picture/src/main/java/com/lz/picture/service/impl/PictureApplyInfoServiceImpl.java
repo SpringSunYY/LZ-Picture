@@ -3,9 +3,12 @@ package com.lz.picture.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheEvict;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
@@ -25,6 +28,7 @@ import com.lz.picture.service.IPictureApplyInfoService;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.utils.SpaceAuthUtils;
+import com.lz.system.service.ISysConfigService;
 import com.lz.user.manager.UserAsyncManager;
 import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.enums.UInformTypeEnum;
@@ -35,8 +39,11 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_APPLY_REVIEW;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_APPLY_DETAIL;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_APPLY_DETAIL_EXPIRE_TIME;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 
@@ -63,6 +70,13 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     @Resource
     private ISpaceInfoService spaceInfoService;
 
+    @Resource
+    private PictureUploadManager pictureUploadManager;
+
+    @Resource
+    private ISysConfigService sysConfigService;
+
+
     //region mybatis代码
 
     /**
@@ -71,12 +85,20 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      * @param applyId 图片申请信息主键
      * @return 图片申请信息
      */
+    @CustomCacheable(keyPrefix = PICTURE_APPLY_DETAIL, keyField = "applyId", expireTime = PICTURE_APPLY_DETAIL_EXPIRE_TIME)
     @Override
     public PictureApplyInfo selectPictureApplyInfoByApplyId(String applyId) {
         PictureApplyInfo pictureApplyInfo = pictureApplyInfoMapper.selectPictureApplyInfoByApplyId(applyId);
         //压缩图片
         if (StringUtils.isNotNull(pictureApplyInfo)) {
-            builderUrl(pictureApplyInfo, PICTURE_INDEX_P_VALUE);
+            String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
+            Integer p = Integer.valueOf(inCache);
+            String url = builderPictureUrl(pictureApplyInfo.getApplyImage(), p);
+            pictureApplyInfo.setApplyImage(url);
+            String pictureUrl = builderPictureUrl(pictureApplyInfo.getThumbnailUrl(), p);
+            pictureApplyInfo.setThumbnailUrl(pictureUrl);
+            String fileUrl = builderFileUrl(pictureApplyInfo.getApplyFile());
+            pictureApplyInfo.setApplyFile(fileUrl);
         }
         return pictureApplyInfo;
     }
@@ -113,6 +135,9 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     }
 
     private String builderPictureUrl(String urls, Integer p) {
+        if (StringUtils.isEmpty(urls)) {
+            return "";
+        }
         String[] split = urls.split(COMMON_SEPARATOR);
         StringBuilder buffer = new StringBuilder();
         for (String str : split) {
@@ -124,12 +149,29 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     }
 
     private String builderUrl(String urls) {
+        if (StringUtils.isEmpty(urls)) {
+            return "";
+        }
         String[] split = urls.split(COMMON_SEPARATOR);
         StringBuilder buffer = new StringBuilder();
         for (String str : split) {
             buffer.append(OssConfig.builderUrl(str)).append(COMMON_SEPARATOR);
         }
         //删除尾部逗号
+        buffer.deleteCharAt(buffer.length() - 1);
+        return buffer.toString();
+    }
+
+    private String builderFileUrl(String fileUrl) {
+        if (StringUtils.isEmpty(fileUrl)) {
+            return "";
+        }
+        String[] split = fileUrl.split(COMMON_SEPARATOR);
+        StringBuilder buffer = new StringBuilder();
+        for (String str : split) {
+            String downloadUrl = pictureUploadManager.generateDownloadUrl(str, 60L);
+            buffer.append(downloadUrl).append(COMMON_SEPARATOR);
+        }
         buffer.deleteCharAt(buffer.length() - 1);
         return buffer.toString();
     }
@@ -152,6 +194,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      * @param pictureApplyInfo 图片申请信息
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = PICTURE_APPLY_DETAIL, keyFields = {"pictureApplyInfo.applyId"})
     @Override
     public int updatePictureApplyInfo(PictureApplyInfo pictureApplyInfo) {
         //获取数据库数据
