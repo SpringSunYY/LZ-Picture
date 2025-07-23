@@ -235,7 +235,7 @@
           <el-input v-model="form.pictureName" placeholder="请输入图片名称"/>
         </el-form-item>
         <el-form-item label="缩略图 URL" prop="thumbnailUrl">
-          <image-upload v-model="form.thumbnailUrl"/>
+          <image-preview :src="form.thumbnailUrl"/>
         </el-form-item>
         <el-form-item label="申请类型" prop="applyType">
           <el-select v-model="form.applyType" placeholder="请选择申请类型">
