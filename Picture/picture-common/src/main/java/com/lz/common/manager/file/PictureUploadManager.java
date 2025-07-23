@@ -7,10 +7,7 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.alibaba.fastjson2.JSONObject;
-import com.aliyun.oss.HttpMethod;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.ServiceException;
+import com.aliyun.oss.*;
 import com.aliyun.oss.model.DeleteObjectsRequest;
 import com.aliyun.oss.model.DeleteObjectsResult;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
@@ -98,20 +95,28 @@ public class PictureUploadManager {
      * @return
      */
     public String generateDownloadUrl(String filePath, Long expireTime) {
+        // 1. 使用你的 CNAME 域名作为 endpoint，如 cdn.example.com
+        String cnameEndpoint = OssConfig.getDnsUrl(); // 你配置的 CNAME，比如 https://cdn.xxx.com
+
+        // 2. 启用 CNAME 支持
+        ClientBuilderConfiguration conf = new ClientBuilderConfiguration();
+        conf.setSupportCname(true); // 关键配置
+
         OSS ossClient = null;
         try {
             ossClient = new OSSClientBuilder().build(
-                    ossConfig.getEndpoint(),
+                    cnameEndpoint, // 这里传的是 CNAME 域名，不是原始 endpoint
                     ossConfig.getAccessKeyId(),
-                    ossConfig.getAccessKeySecret()
+                    ossConfig.getAccessKeySecret(),
+                    conf
             );
+
             String objectKey = extractKeyFromPath(filePath);
-            // 设置过期时间，比如 5 分钟
             Date expiration = new Date(System.currentTimeMillis() + expireTime * 60 * 1000);
-            GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
-                    ossConfig.getBucket(), objectKey, HttpMethod.GET
-            );
+
+            GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(ossConfig.getBucket(), objectKey, HttpMethod.GET);
             req.setExpiration(expiration);
+
             URL url = ossClient.generatePresignedUrl(req);
             return url.toString();
         } finally {

@@ -235,7 +235,7 @@
             </template>
           </el-popconfirm>
 
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+          <el-button link  type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['picture:pictureApplyInfo:edit']">修改/审核
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -288,7 +288,7 @@
           <el-input v-model="form.contact" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="所需积分" prop="pointsNeed">
-          <el-input-number :min="0" v-model.number="form.pointsNeed" placeholder="请输入所需积分"/>
+          <el-input-number :min="0" v-model="form.pointsNeed" placeholder="请输入所需积分"/>
         </el-form-item>
         <!--        <el-form-item label="所需金额" prop="priceNeed" v-if="form.applyType === '0'">-->
         <!--          <el-input-number :min="0" :precision="2" v-model="form.priceNeed" placeholder="请输入所需金额"/>-->
@@ -401,7 +401,7 @@ const data = reactive({
     {key: 4, label: '申请类型', visible: true},
     {key: 5, label: '申请理由', visible: true},
     {key: 6, label: '证明图片', visible: true},
-    {key: 7, label: '证明文件', visible: false},
+    {key: 7, label: '证明文件', visible: true},
     {key: 8, label: '联系方式', visible: true},
     {key: 9, label: '所需积分', visible: true},
     {key: 10, label: '所需金额', visible: false},
@@ -529,8 +529,8 @@ function handleUpdate(row) {
     form.value = {
       ...data,
       // 强制类型转换
-      pointsNeed: Number(data.pointsNeed) || null,
-      priceNeed: Number(data.priceNeed) || null
+      pointsNeed: Number(data.pointsNeed) || 0,
+      priceNeed: Number(data.priceNeed) || 0
     };
     open.value = true;
     title.value = "修改图片申请信息";
