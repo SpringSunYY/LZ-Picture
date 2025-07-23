@@ -1,6 +1,7 @@
 package com.lz.picture.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheEvict;
@@ -371,6 +372,9 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         PictureInfo pictureInfo = pictureInfoService.selectNormalPictureInfoByPictureId(pictureApplyInfo.getPictureId());
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo),
                 "图片不存在");
+        //如果当前拥有未审核的申请信息，则不允许再次申请
+        List<PictureApplyInfo> applyInfos = this.list(new LambdaQueryWrapper<PictureApplyInfo>().eq(PictureApplyInfo::getPictureId, pictureApplyInfo.getPictureId()).eq(PictureApplyInfo::getReviewStatus, PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_0.getValue()));
+        ThrowUtils.throwIf(StringUtils.isNotEmpty(applyInfos), "您当前有未审核的申请信息，请勿重复申请");
         //查询图片空间是否是团队空间
         SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         //如果是团队空间

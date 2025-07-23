@@ -207,6 +207,34 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-popconfirm
+              width="220"
+              v-if="checkPermi(['picture:pictureApplyInfo:edit'])"
+              title="您确认信息无误审核了吗？"
+          >
+            <template #reference>
+              <el-button link type="primary">审核</el-button>
+            </template>
+            <template #actions="{ cancel, confirm }">
+              <el-button size="small" @click="cancel">No!</el-button>
+              <el-button
+                  type="success"
+                  size="small"
+                  confirm
+                  @click="(e) => { agreeApply(scope.row); confirm(e) ; }"
+              >
+                同意
+              </el-button>
+              <el-button
+                  type="danger"
+                  size="small"
+                  @click="(e) => { rejectApply(scope.row); cancel(e); }"
+              >
+                拒绝
+              </el-button>
+            </template>
+          </el-popconfirm>
+
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['picture:pictureApplyInfo:edit']">修改/审核
           </el-button>
@@ -259,13 +287,12 @@
         <el-form-item label="联系方式" prop="contact">
           <el-input v-model="form.contact" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="所需积分" prop="pointsNeed"
-                      v-if="form.applyType !== '' && form.applyType !== '0'">
-          <el-input-number :min="0" v-model="form.pointsNeed" placeholder="请输入所需积分"/>
+        <el-form-item label="所需积分" prop="pointsNeed">
+          <el-input-number :min="0" v-model.number="form.pointsNeed" placeholder="请输入所需积分"/>
         </el-form-item>
-        <el-form-item label="所需金额" prop="priceNeed" v-if="form.applyType === '0'">
-          <el-input-number :min="0" :precision="2" v-model="form.priceNeed" placeholder="请输入所需金额"/>
-        </el-form-item>
+        <!--        <el-form-item label="所需金额" prop="priceNeed" v-if="form.applyType === '0'">-->
+        <!--          <el-input-number :min="0" :precision="2" v-model="form.priceNeed" placeholder="请输入所需金额"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="审核状态" prop="reviewStatus">
           <el-radio-group v-model="form.reviewStatus">
             <el-radio
@@ -299,6 +326,7 @@ import {
   updatePictureApplyInfo
 } from "@/api/picture/pictureApplyInfo";
 import ImagePreview from "@/components/ImagePreview/index.vue";
+import {checkPermi} from "@/utils/permission.js";
 
 const {proxy} = getCurrentInstance();
 const {p_picture_apply_status, p_picture_apply_type} = proxy.useDict('p_picture_apply_status', 'p_picture_apply_type');
@@ -373,10 +401,10 @@ const data = reactive({
     {key: 4, label: '申请类型', visible: true},
     {key: 5, label: '申请理由', visible: true},
     {key: 6, label: '证明图片', visible: true},
-    {key: 7, label: '证明文件', visible: true},
+    {key: 7, label: '证明文件', visible: false},
     {key: 8, label: '联系方式', visible: true},
     {key: 9, label: '所需积分', visible: true},
-    {key: 10, label: '所需金额', visible: true},
+    {key: 10, label: '所需金额', visible: false},
     {key: 11, label: '用户', visible: false},
     {key: 12, label: '创建时间', visible: true},
     {key: 13, label: '更新时间', visible: false},
@@ -388,6 +416,26 @@ const data = reactive({
 });
 
 const {queryParams, form, rules, columns} = toRefs(data);
+
+function rejectApply(apply) {
+  apply.reviewMessage = '审核未通过,请检查您提交的证明文件'
+  apply.reviewStatus = '2'
+  updatePictureApplyInfo(apply).then(response => {
+    proxy.$modal.msgSuccess("审核成功");
+    getList();
+  });
+}
+
+function agreeApply(apply) {
+  apply.reviewStatus = '1'
+  updatePictureApplyInfo(apply).then(response => {
+    proxy.$modal.msgSuccess("审核成功");
+    getList();
+  });
+}
+
+//endregion
+
 
 /** 查询图片申请信息列表 */
 function getList() {
@@ -477,7 +525,13 @@ function handleUpdate(row) {
   reset();
   const _applyId = row.applyId || ids.value
   getPictureApplyInfo(_applyId).then(response => {
-    form.value = response.data;
+    const data = response.data;
+    form.value = {
+      ...data,
+      // 强制类型转换
+      pointsNeed: Number(data.pointsNeed) || null,
+      priceNeed: Number(data.priceNeed) || null
+    };
     open.value = true;
     title.value = "修改图片申请信息";
   });
