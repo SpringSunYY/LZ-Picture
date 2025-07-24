@@ -1,9 +1,7 @@
-package com.lz.points.model.vo.pay;
+package com.lz.points.manager.model;
 
 import com.alipay.api.internal.mapping.ApiField;
 import lombok.Data;
-
-import java.util.Map;
 
 /**
  * 支付宝支付PC端返回

@@ -1,7 +1,7 @@
 package com.lz.points.service;
 
 import com.lz.points.model.dto.pay.PayRequest;
-import com.lz.points.model.vo.pay.AlipayPcPaymentVo;
+import com.lz.points.manager.model.AlipayPcPaymentVo;
 import com.lz.points.model.vo.paymentOrderInfo.UserPaymentOrderInfoVo;
 
 import java.util.HashMap;
