@@ -49,6 +49,9 @@ public class OssConfig {
      * @return
      */
     public static String builderUrl(String url, String dnsUrl) {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
         if (StringUtils.isNotEmpty(dnsUrl)) {
             return dnsUrl + url;
         } else {
@@ -63,6 +66,9 @@ public class OssConfig {
      * @return
      */
     public static String builderUrl(String url) {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
         //判断是否以http://开头
         if (url.startsWith(Constants.HTTP_PREFIX)) {
             return url;
