@@ -46,6 +46,7 @@ declare module 'vue' {
     TeamSection: typeof import('./src/components/about/TeamSection.vue')['default']
     TermsSection: typeof import('./src/components/about/TermsSection.vue')['default']
     UFold: typeof import('undraw-ui')['UFold']
+    UserAgreementSection: typeof import('./src/components/about/UserAgreementSection.vue')['default']
     UserBehaviorTable: typeof import('./src/components/UserBehaviorTable.vue')['default']
     UserloginLogTable: typeof import('./src/components/UserloginLogTable.vue')['default']
     UserPointsUsageLog: typeof import('./src/components/UserPointsUsageLog.vue')['default']

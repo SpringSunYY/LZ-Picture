@@ -75,6 +75,7 @@
 
       <div class="login-footer">
         <router-link to="/user/login">账号密码登录</router-link>
+        <a href="/about" target="_blank" style="color: #001168">登录即表示同意用户协议(查看)</a>
         <router-link v-if="register" to="/user/register">注册账号</router-link>
       </div>
     </a-card>

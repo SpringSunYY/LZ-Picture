@@ -9,12 +9,14 @@
       <VisionSection />
       <!-- 联系我们部分 -->
       <ContactSection />
-      <!--加入我们-->
-      <JoinUsSelection />
       <!-- 赞助我们与联系我们 -->
       <ContactSponsorsSection />
       <!-- 团队部分 -->
       <TeamSection />
+      <!--加入我们-->
+      <JoinUsSelection />
+      <!-- 用户协议 -->
+      <UserAgreementSection />
       <!--版权-->
       <CopyrightSection />
       <!-- 帮助中心部分 -->
@@ -33,6 +35,14 @@ import HelpCenterSection from '@/components/about/HelpCenterSection.vue'
 import CopyrightSection from '@/components/about/CopyrightSection.vue'
 import ContactSponsorsSection from '@/components/about/ContactSponsorsSection.vue'
 import JoinUsSelection from '@/components/about/JoinUsSelection.vue'
+import UserAgreementSection from '@/components/about/UserAgreementSection.vue'
+
+import { onMounted } from 'vue'
+import { message } from 'ant-design-vue'
+
+onMounted(() => {
+  message.info('欢迎来到关于我们页面,划到底部查看用户服务协议、版权声明与帮助中心')
+})
 </script>
 
 <style scoped></style>

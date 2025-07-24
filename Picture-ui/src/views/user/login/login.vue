@@ -81,6 +81,7 @@
 
       <div class="login-footer">
         <a-checkbox v-model:checked="loginForm.rememberMe">记住我</a-checkbox>
+        <a  href="/about" target="_blank" style="color: #001168" >登录即表示同意用户协议(查看)</a>
         <div class="footer-links" @mouseover="showMenu = true" @mouseleave="showMenu = false">
           <div v-if="!showMenu" class="more-text">更多</div>
           <div v-else class="menu-links">
@@ -148,7 +149,7 @@ const rules = {
   ],
 }
 
-const redirect = ref(route.query.redirect as string || '/')
+const redirect = ref((route.query.redirect as string) || '/')
 
 const handleSubmit = async () => {
   if (loginForm.value.rememberMe) {

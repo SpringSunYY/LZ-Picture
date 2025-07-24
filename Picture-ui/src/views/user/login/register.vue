@@ -108,6 +108,7 @@
 
       <div class="login-footer">
         <router-link to="/user/login">已有账号？登录</router-link>
+        <a href="/about" target="_blank" style="color: #001168">登录即表示同意用户协议(查看)</a>
         <router-link to="/user/smsLogin">短信登录</router-link>
       </div>
     </a-card>
