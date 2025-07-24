@@ -317,6 +317,7 @@ public class PictureStatisticsUtil {
                 List<PictureInfoStatisticsVo> statisticsList = pictureStatisticsDto.getStatisticsList();
                 statisticsInfo.setContent(JSONObject.toJSONString(statisticsList));
                 statisticsInfo.setExtendContent(JSONObject.toJSONString(pictureStatisticsDto.getAllList()));
+                statisticsInfo.setRemark("本次统计一共统计（" + statisticsName + "）：" + statisticsList.size() + "张进入热门图片，一共：" + pictureStatisticsDto.getAllList().size() + "张图片");
                 statisticsInfoService.updateById(statisticsInfo);
                 //删除原有缓存
                 redisCache.deleteObject(statisticsInfo.getStatisticsKey());
@@ -527,6 +528,7 @@ public class PictureStatisticsUtil {
         String contentStr = JSONObject.toJSONString(statisticsVoList);
         statisticsInfo.setContent(contentStr);
         statisticsInfo.setExtendContent(contentStr);
+        statisticsInfo.setRemark("本次统计一共统计（" + statisticsName + "）：" + statisticsVoList.size() + "张进入热门图片");
         statisticsInfo.setCreateTime(nowDate);
         statisticsInfoService.save(statisticsInfo);
         //删除缓存

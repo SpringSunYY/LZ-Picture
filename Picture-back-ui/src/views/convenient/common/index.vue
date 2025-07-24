@@ -36,7 +36,8 @@
     >
       <el-form ref="downloadHotRef" :model="formDownloadPictureHot" :rules="ruleDownloadPictureHot" label-width="80px">
         <el-form-item label="统计类型" prop="type">
-          <el-select v-model="formDownloadPictureHot.type" placeholder="请选择统计类型" @change="handleChangeDownloadPictureHotType">
+          <el-select v-model="formDownloadPictureHot.type" placeholder="请选择统计类型"
+                     @change="handleChangeDownloadPictureHotType">
             <el-option
                 v-for="dict in p_statistics_type"
                 :key="dict.value"
@@ -58,7 +59,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="openDownloadPictureHot = false">关闭</el-button>
-          <el-button type="primary" @click="downloadPictureHot">
+          <el-button type="primary" :disabled="isDisableDownloadPictureHot" @click="downloadPictureHot">
             确认
           </el-button>
         </div>
@@ -72,6 +73,7 @@ import {ref} from 'vue';
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import {checkPermi} from "@/utils/permission.js";
 import {ElMessage} from "element-plus";
+import {getStatisticsInfoStages} from "@/api/picture/statisticsInfo.js";
 
 const {proxy} = getCurrentInstance();
 const {p_statistics_type} = proxy.useDict('p_statistics_type');
@@ -175,6 +177,7 @@ function clickOperation(operation) {
   title.value = operation.name
   switch (operation.key) {
     case 'downloadHot':
+      handleChangeDownloadPictureHotType()
       openDownloadPictureHot.value = true
       break;
     default:
@@ -189,9 +192,10 @@ const formDownloadPictureHot = ref({
   type: '2',
   number: 10,
   stages: 0,
-  maxStages: 10,
+  maxStages: 1,
   minStages: 0
 })
+const isDisableDownloadPictureHot = ref(false)
 const ruleDownloadPictureHot = ref({
   type: [{
     required: true,
@@ -214,8 +218,34 @@ function downloadPictureHot() {
 
 }
 
-function handleChangeDownloadPictureHotType(){
-
+function handleChangeDownloadPictureHotType() {
+  let commonKey = null
+  if (formDownloadPictureHot.value.type === '1') {
+    commonKey = "picture:statistics:hot:minute"
+  } else if (formDownloadPictureHot.value.type === '2') {
+    commonKey = "picture:statistics:hot:day"
+  } else if (formDownloadPictureHot.value.type === '3') {
+    commonKey = "picture:statistics:hot:week"
+  } else if (formDownloadPictureHot.value.type === '4') {
+    commonKey = "picture:statistics:hot:month"
+  } else if (formDownloadPictureHot.value.type === '5') {
+    commonKey = "picture:statistics:hot:year"
+  } else if (formDownloadPictureHot.value.type === '6') {
+    commonKey = "picture:statistics:hot:total"
+  }
+  getStatisticsInfoStages({type: formDownloadPictureHot.value.type, commonKey: commonKey}).then(res => {
+    var maxStages = Number(res.data);
+    // 确保数据有效性
+    if (maxStages > 0) {
+      formDownloadPictureHot.value.maxStages = maxStages
+      formDownloadPictureHot.value.stages = maxStages
+      ElMessage.success('获取期数成功,最新一期为：' + maxStages)
+      isDisableDownloadPictureHot.value = false
+    } else {
+      isDisableDownloadPictureHot.value = true
+      ElMessage.error('获取期数失败,此类型无法导出数据')
+    }
+  })
 }
 
 function noOperation() {

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
@@ -13,6 +14,7 @@ import com.lz.picture.mapper.StatisticsInfoMapper;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
+import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
@@ -24,6 +26,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_STATISTICS_STAGES;
+import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_STATISTICS_STAGES_EXPIRE_TIME;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 
 /**
@@ -194,6 +198,18 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             }
         }
         return new TableDataInfo(new ArrayList<>(), 0);
+    }
+
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_STAGES, useQueryParamsAsKey = true, expireTime = PICTURE_STATISTICS_STAGES_EXPIRE_TIME)
+    @Override
+    public Long getStatisticsInfoStages(StatisticsInfoRequest request) {
+        StatisticsInfo statisticsInfo = this.getOne(new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getCommonKey, request.getCommonKey())
+                .eq(StringUtils.isNotEmpty(request.getType()), StatisticsInfo::getType, request.getType())
+                .orderBy(true, false, StatisticsInfo::getCreateTime).last("limit 1"));
+        if (StringUtils.isNull(statisticsInfo)) {
+            return 0L;
+        }
+        return statisticsInfo.getStages();
     }
 
 }

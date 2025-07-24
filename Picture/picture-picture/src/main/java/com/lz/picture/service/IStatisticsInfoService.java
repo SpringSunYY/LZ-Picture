@@ -6,6 +6,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
+import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 
 import java.util.List;
@@ -117,4 +118,12 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @date: 2025/7/20 19:10
      **/
     TableDataInfo getStatisticsPictureInfo(String statisticKey, PictureInfoHotRequest request);
+
+    /**
+     * 获取统计期数
+     *
+     * @param request 查询信息
+     * @return
+     */
+    Long getStatisticsInfoStages(StatisticsInfoRequest request);
 }
