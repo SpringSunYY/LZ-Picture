@@ -60,16 +60,16 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-            type="primary"
-            plain
-            icon="Plus"
-            @click="handleAdd"
-            v-hasPermi="['picture:statisticsInfo:add']"
-        >新增
-        </el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            plain-->
+<!--            icon="Plus"-->
+<!--            @click="handleAdd"-->
+<!--            v-hasPermi="['picture:statisticsInfo:add']"-->
+<!--        >新增-->
+<!--        </el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="success"
@@ -156,7 +156,7 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="statisticsInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="统计类型" prop="type">
-          <el-select v-model="form.type" placeholder="请选择统计类型">
+          <el-select v-model="form.type" disabled placeholder="请选择统计类型">
             <el-option
                 v-for="dict in p_statistics_type"
                 :key="dict.value"
@@ -169,16 +169,16 @@
           <el-input v-model="form.statisticsName" placeholder="请输入统计名称"/>
         </el-form-item>
         <el-form-item label="KEY" prop="statisticsKey">
-          <el-input v-model="form.statisticsKey" placeholder="请输入KEY"/>
+          <el-input readonly v-model="form.statisticsKey" placeholder="请输入KEY"/>
         </el-form-item>
         <el-form-item label="期数" prop="stages">
-          <el-input v-model="form.stages" placeholder="请输入期数"/>
+          <el-input readonly v-model="form.stages" placeholder="请输入期数"/>
         </el-form-item>
         <el-form-item label="统计内容" prop="content">
-          <el-input v-model="form.content" type="textarea" placeholder="请输入内容"/>
+          <el-input readonly v-model="form.content" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="统计内容" prop="extendContent">
-          <el-input v-model="form.extendContent" type="textarea" placeholder="请输入内容"/>
+          <el-input readonly v-model="form.extendContent" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="描述" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
