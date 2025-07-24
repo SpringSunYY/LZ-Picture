@@ -37,6 +37,11 @@ public class StatisticsInfoQuery implements Serializable {
     private String statisticsName;
 
     /**
+     * 公共KEY
+     */
+    private String commonKey;
+
+    /**
      * KEY
      */
     private String statisticsKey;

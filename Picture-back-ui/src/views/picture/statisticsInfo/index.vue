@@ -27,6 +27,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="公共KEY" prop="commonKey">
+        <el-input
+            v-model="queryParams.commonKey"
+            placeholder="请输入公共KEY"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="KEY" prop="statisticsKey">
         <el-input
             v-model="queryParams.statisticsKey"
@@ -60,16 +68,16 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--            type="primary"-->
-<!--            plain-->
-<!--            icon="Plus"-->
-<!--            @click="handleAdd"-->
-<!--            v-hasPermi="['picture:statisticsInfo:add']"-->
-<!--        >新增-->
-<!--        </el-button>-->
-<!--      </el-col>-->
+      <!--      <el-col :span="1.5">-->
+      <!--        <el-button-->
+      <!--            type="primary"-->
+      <!--            plain-->
+      <!--            icon="Plus"-->
+      <!--            @click="handleAdd"-->
+      <!--            v-hasPermi="['picture:statisticsInfo:add']"-->
+      <!--        >新增-->
+      <!--        </el-button>-->
+      <!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="success"
@@ -116,17 +124,19 @@
       </el-table-column>
       <el-table-column label="统计名称" align="center" prop="statisticsName" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="KEY" align="center" prop="statisticsKey" v-if="columns[3].visible"
+      <el-table-column label="公共KEY" align="center" prop="commonKey" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="期数" align="center" prop="stages" v-if="columns[4].visible"
+      <el-table-column label="KEY" align="center" prop="statisticsKey" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="统计内容" align="center" prop="content" v-if="columns[5].visible"
+      <el-table-column label="期数" align="center" prop="stages" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="统计内容" align="center" prop="extendContent" v-if="columns[6].visible"
+      <el-table-column label="统计内容" align="center" prop="content" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="描述" align="center" prop="remark" v-if="columns[7].visible"
+      <el-table-column label="统计内容" align="center" prop="extendContent" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[8].visible"
+      <el-table-column label="描述" align="center" prop="remark" v-if="columns[8].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -167,6 +177,9 @@
         </el-form-item>
         <el-form-item label="统计名称" prop="statisticsName">
           <el-input v-model="form.statisticsName" placeholder="请输入统计名称"/>
+        </el-form-item>
+        <el-form-item label="公共KEY" prop="commonKey">
+          <el-input readonly v-model="form.commonKey" placeholder="请输入公共KEY"/>
         </el-form-item>
         <el-form-item label="KEY" prop="statisticsKey">
           <el-input readonly v-model="form.statisticsKey" placeholder="请输入KEY"/>
@@ -236,6 +249,9 @@ const data = reactive({
     statisticsName: [
       {required: true, message: "统计名称不能为空", trigger: "blur"}
     ],
+    commonKey: [
+      {required: true, message: "公共KEY不能为空", trigger: "blur"}
+    ],
     statisticsKey: [
       {required: true, message: "KEY不能为空", trigger: "blur"}
     ],
@@ -248,12 +264,13 @@ const data = reactive({
     {key: 0, label: '统计编号', visible: true},
     {key: 1, label: '统计类型', visible: true},
     {key: 2, label: '统计名称', visible: true},
-    {key: 3, label: 'KEY', visible: true},
-    {key: 4, label: '期数', visible: true},
-    {key: 5, label: '统计内容', visible: true},
+    {key: 3, label: '公共KEY', visible: true},
+    {key: 4, label: 'KEY', visible: true},
+    {key: 5, label: '期数', visible: true},
     {key: 6, label: '统计内容', visible: true},
-    {key: 7, label: '描述', visible: true},
-    {key: 8, label: '创建时间', visible: true},
+    {key: 7, label: '统计内容', visible: true},
+    {key: 8, label: '描述', visible: true},
+    {key: 9, label: '创建时间', visible: true},
   ],
 });
 
@@ -286,6 +303,7 @@ function reset() {
     statisticsId: null,
     type: null,
     statisticsName: null,
+    commonKey: null,
     statisticsKey: null,
     stages: null,
     content: null,

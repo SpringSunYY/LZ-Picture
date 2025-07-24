@@ -96,6 +96,17 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
     StatisticsInfo selectStatisticsInfoByStatisticsKey(String key);
 
     /**
+     * 获取最新的统计信息，通过公共key
+     *
+     * @param key 公共key
+     * @return StatisticsInfo
+     * @author: YY
+     * @method: selectNewStatisticsInfoByCommonKey
+     * @date: 2025/7/25 00:14
+     **/
+    StatisticsInfo selectNewStatisticsInfoByCommonKey(String key);
+
+    /**
      * 获取统计信息列表
      *
      * @param statisticKey

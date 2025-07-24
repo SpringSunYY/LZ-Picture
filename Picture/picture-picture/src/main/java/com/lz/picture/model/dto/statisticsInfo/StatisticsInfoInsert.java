@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.statisticsInfo;
 
+import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.StatisticsInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +31,11 @@ public class StatisticsInfoInsert implements Serializable {
      * 统计名称
      */
     private String statisticsName;
+
+    /**
+     * 公共KEY
+     */
+    private String commonKey;
 
     /**
      * KEY

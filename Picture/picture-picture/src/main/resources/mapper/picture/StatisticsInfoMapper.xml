@@ -8,6 +8,7 @@
         <result property="statisticsId" column="statistics_id"/>
         <result property="type" column="type"/>
         <result property="statisticsName" column="statistics_name"/>
+        <result property="commonKey" column="common_key"/>
         <result property="statisticsKey" column="statistics_key"/>
         <result property="stages" column="stages"/>
         <result property="content" column="content"/>
@@ -20,6 +21,7 @@
         select statistics_id,
                type,
                statistics_name,
+               common_key,
                statistics_key,
                stages,
                content,
@@ -37,6 +39,7 @@
             <if test="statisticsName != null  and statisticsName != ''">and statistics_name like concat('%',
                 #{statisticsName}, '%')
             </if>
+            <if test="commonKey != null  and commonKey != ''"> and common_key like concat('%', #{commonKey}, '%')</if>
             <if test="statisticsKey != null  and statisticsKey != ''">and statistics_key like concat('%',
                 #{statisticsKey}, '%')
             </if>
@@ -45,6 +48,7 @@
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectStatisticsInfoByStatisticsId" parameterType="String" resultMap="StatisticsInfoResult">
@@ -58,6 +62,7 @@
             <if test="statisticsId != null">statistics_id,</if>
             <if test="type != null and type != ''">type,</if>
             <if test="statisticsName != null and statisticsName != ''">statistics_name,</if>
+            <if test="commonKey != null and commonKey != ''">common_key,</if>
             <if test="statisticsKey != null and statisticsKey != ''">statistics_key,</if>
             <if test="stages != null">stages,</if>
             <if test="content != null">content,</if>
@@ -69,6 +74,7 @@
             <if test="statisticsId != null">#{statisticsId},</if>
             <if test="type != null and type != ''">#{type},</if>
             <if test="statisticsName != null and statisticsName != ''">#{statisticsName},</if>
+            <if test="commonKey != null and commonKey != ''">#{commonKey},</if>
             <if test="statisticsKey != null and statisticsKey != ''">#{statisticsKey},</if>
             <if test="stages != null">#{stages},</if>
             <if test="content != null">#{content},</if>
@@ -83,6 +89,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="type != null and type != ''">type = #{type},</if>
             <if test="statisticsName != null and statisticsName != ''">statistics_name = #{statisticsName},</if>
+            <if test="commonKey != null and commonKey != ''">common_key = #{commonKey},</if>
             <if test="statisticsKey != null and statisticsKey != ''">statistics_key = #{statisticsKey},</if>
             <if test="stages != null">stages = #{stages},</if>
             <if test="content != null">content = #{content},</if>

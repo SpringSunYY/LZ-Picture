@@ -38,6 +38,12 @@ public class StatisticsInfoVo implements Serializable {
     private String statisticsName;
 
     /**
+     * 公共KEY
+     */
+    @Excel(name = "公共KEY")
+    private String commonKey;
+
+    /**
      * KEY
      */
     @Excel(name = "KEY")

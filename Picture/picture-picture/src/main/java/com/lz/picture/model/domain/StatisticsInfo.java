@@ -44,6 +44,13 @@ public class StatisticsInfo implements Serializable {
     private String statisticsName;
 
     /**
+     * 公共KEY 便于查询的时候使用
+     */
+    @Excel(name = "公共KEY")
+    private String commonKey;
+
+
+    /**
      * KEY
      */
     @Excel(name = "KEY")

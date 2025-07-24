@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 
 /**
@@ -127,6 +126,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         String statisticsName = statisticsInfoQuery.getStatisticsName();
         queryWrapper.like(StringUtils.isNotEmpty(statisticsName), "statistics_name", statisticsName);
 
+        String commonKey = statisticsInfoQuery.getCommonKey();
+        queryWrapper.like(StringUtils.isNotEmpty(commonKey), "common_key", commonKey);
+
         String statisticsKey = statisticsInfoQuery.getStatisticsKey();
         queryWrapper.eq(StringUtils.isNotEmpty(statisticsKey), "statistics_key", statisticsKey);
 
@@ -151,6 +153,12 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     @Override
     public StatisticsInfo selectStatisticsInfoByStatisticsKey(String key) {
         return this.getOne(new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getStatisticsKey, key)
+                .orderBy(true, false, StatisticsInfo::getCreateTime).last("limit 1"));
+    }
+
+    @Override
+    public StatisticsInfo selectNewStatisticsInfoByCommonKey(String key) {
+        return this.getOne(new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getCommonKey, key)
                 .orderBy(true, false, StatisticsInfo::getCreateTime).last("limit 1"));
     }
 
