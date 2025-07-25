@@ -1,9 +1,6 @@
 <template>
   <div class="inform-list">
-    <a-page-header
-      title="我的消息"
-      sub-title="要关心自己的消息哦"
-    />
+    <a-page-header title="我的消息" sub-title="要关心自己的消息哦" />
 
     <a-form layout="inline" :model="queryParams">
       <a-form-item label="消息标题">
@@ -49,7 +46,10 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-button type="primary" @click="resetSearch">重置</a-button>
+      <a-space>
+        <a-button type="primary" @click="resetSearch">重置</a-button>
+        <a-button type="primary" @click="resetRead">一键已读</a-button>
+      </a-space>
     </a-form>
     <div style="margin-bottom: 10px"></div>
 
@@ -88,7 +88,7 @@
       :current="queryParams.pageNum"
       :total="total"
       @change="onPageChange"
-      :show-total="total => `共 ${total} 条`"
+      :show-total="(total) => `共 ${total} 条`"
       show-less-items
     />
   </div>
@@ -102,8 +102,9 @@ import {
   type InformInfoQuery,
   type InformInfoVo,
 } from '@/types/user/informInfo.d.ts'
-import { listInformInfo } from '@/api/user/inform.ts'
+import { listInformInfo, updateReadInformInfo } from '@/api/user/inform.ts'
 import DictTag from '@/components/DictTag.vue'
+import { message } from 'ant-design-vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -163,11 +164,22 @@ const resetSearch = () => {
 const goDetail = (item: any) => {
   router.push({ name: 'informDetail', query: { recordId: item.recordId } })
 }
+
+const resetRead = async () => {
+  const res = await updateReadInformInfo()
+  if (res.code === 200) {
+    message.success('操作成功')
+  } else {
+    message.info('没有未读信息')
+  }
+  getDataList()
+}
 </script>
 
 <style scoped lang="scss">
 .inform-list {
   margin: 0 3em;
+
   .message-card {
     background: rgba(211, 211, 211, 0.28);
     padding: 2px 24px;

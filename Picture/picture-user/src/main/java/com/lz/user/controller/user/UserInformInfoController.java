@@ -71,4 +71,11 @@ public class UserInformInfoController extends BaseUserInfoController {
         return success(informInfoService.getUnReadInformCount(getUserId()));
     }
 
+    @PreAuthorize("@uss.hasPermi('inform')")
+    @GetMapping("/resetRead")
+    public AjaxResult resetRead() {
+        informInfoService.resetRead(getUserId());
+        return success();
+    }
+
 }

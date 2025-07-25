@@ -132,4 +132,14 @@ public interface IInformInfoService extends IService<InformInfo> {
      * @date: 2025/5/29 23:04
      **/
     InformInfo selectInformInfoByRecordIdAndUserId(String recordId, String userId);
+
+    /**
+     * 一键已读
+     * @author: YY
+     * @method: resetRead
+     * @date: 2025/7/25 22:14
+     * @param userId
+     * @return int
+     **/
+    int resetRead(String userId);
 }

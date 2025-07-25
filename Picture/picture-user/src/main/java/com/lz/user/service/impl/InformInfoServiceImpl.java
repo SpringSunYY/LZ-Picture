@@ -2,6 +2,7 @@ package com.lz.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.redis.RedisCache;
@@ -261,6 +262,12 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         }
         redisCache.setCacheObject(key, informInfo, USER_INFORM_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
         return informInfo;
+    }
+
+    @Override
+    public int resetRead(String userId) {
+        boolean update = this.update(new LambdaUpdateWrapper<InformInfo>().set(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_1.getValue()).eq(InformInfo::getUserId, userId).eq(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_0.getValue()));
+        return update ? 1 : 0;
     }
 
 }

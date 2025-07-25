@@ -26,3 +26,10 @@ export function getUnReadInformCount(): Promise<API.ResponseInfo<number>> {
     method: 'get',
   })
 }
+
+export function updateReadInformInfo(): Promise<API.ResponseInfo> {
+  return request({
+    url: '/user/informInfo/resetRead',
+    method: 'get',
+  })
+}
