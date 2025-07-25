@@ -4,7 +4,7 @@ import com.lz.ai.api.aliyunai.AliYunAiApi;
 import com.lz.ai.api.aliyunai.model.CreateOutPaintingTaskRequest;
 import com.lz.ai.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.lz.common.core.domain.model.LoginUserInfo;
-import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.PictureDownloadManager;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
@@ -39,7 +39,7 @@ public class AiPictureServiceImpl implements IAiPictureService {
     private ISpaceInfoService spaceInfoService;
 
     @Resource
-    private PictureUploadManager pictureUploadManager;
+    private PictureDownloadManager pictureDownloadManager;
 
     @Override
     public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, LoginUserInfo loginUser) {
@@ -61,7 +61,7 @@ public class AiPictureServiceImpl implements IAiPictureService {
         //构造请求参数
         CreateOutPaintingTaskRequest taskRequest = new CreateOutPaintingTaskRequest();
         CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
-        input.setImageUrl(pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L));
+        input.setImageUrl(pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L));
         taskRequest.setInput(input);
         BeanUtils.copyProperties(createPictureOutPaintingTaskRequest, taskRequest);
         return aliYunAiApi.createOutPaintingTask(taskRequest);

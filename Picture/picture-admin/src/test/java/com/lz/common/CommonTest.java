@@ -5,6 +5,8 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.lz.common.utils.DateUtils;
 import com.lz.config.manager.sms.SmsManager;
 import com.lz.config.manager.sms.model.SmsBody;
+import com.lz.picture.model.enums.PStatisticsTypeEnum;
+import com.lz.picture.service.IStatisticsInfoService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
+
+import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT;
+import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY;
 
 /**
  * Project: Picture
@@ -29,6 +34,8 @@ import java.util.Date;
 public class CommonTest {
     @Resource
     private SmsManager smsManage;
+    @Resource
+    private IStatisticsInfoService statisticsInfoService;
 
     @Test
     public void testSendSms() {
@@ -74,5 +81,10 @@ public class CommonTest {
         System.out.println(DateUtils.getWeekDay(nowDate, 4, "yyyy-MM-dd"));
         System.out.println(DateUtils.getMonthDay(nowDate, 5, "yyyy-MM-dd"));
         System.out.println(DateUtils.getYearDay(nowDate, 5, "yyyy-MM-dd"));
+    }
+
+    @Test
+    public void testDownloadPictureHot() {
+        statisticsInfoService.getStatisticsPictureHotFilePath(PStatisticsTypeEnum.STATISTICS_TYPE_6.getValue(), PICTURE_STATISTICS_PICTURE_HOT, PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY, 1L, 10);
     }
 }

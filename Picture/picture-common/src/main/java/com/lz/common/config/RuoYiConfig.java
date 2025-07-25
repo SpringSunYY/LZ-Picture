@@ -119,4 +119,8 @@ public class RuoYiConfig
     {
         return getProfile() + "/upload";
     }
+    public static String getPicturePath()
+    {
+        return getProfile() + "/picture/";
+    }
 }

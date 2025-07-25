@@ -3,6 +3,7 @@ package com.lz.picture.controller.user;
 import com.alibaba.fastjson.JSON;
 import com.lz.common.constant.Constants;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.manager.file.PictureDownloadManager;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
@@ -12,7 +13,6 @@ import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
-import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.file.UrlUploadRequest;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
 import com.lz.picture.model.enums.PDownloadTypeEnum;
@@ -47,6 +47,9 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/user/picture/file")
 @Slf4j
 public class UserFileController extends BaseUserInfoController {
+    @Resource
+    private PictureDownloadManager pictureDownloadManager;
+
     @Resource
     private PictureUploadManager pictureUploadManager;
 
@@ -167,7 +170,7 @@ public class UserFileController extends BaseUserInfoController {
         try {
             // 校验图片
             PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId(), PDownloadTypeEnum.DOWNLOAD_TYPE_1.getValue());
-            String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+            String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
 
             response.reset();
             response.setContentType("application/octet-stream");
@@ -213,7 +216,7 @@ public class UserFileController extends BaseUserInfoController {
             request.setDownloadId(downloadId);
             request.setUserId(getUserId());
             PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfoByLog(request);
-            String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+            String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
 
             // 设置响应头
             response.reset();
@@ -257,7 +260,7 @@ public class UserFileController extends BaseUserInfoController {
     public AjaxResult getOriginalPicture(@PathVariable("pictureId") String pictureId) {
         // 校验图片
         PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId(), PDownloadTypeEnum.DOWNLOAD_TYPE_0.getValue());
-        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+        String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
         return success(new PictureDownloadVo(pictureId, url, pictureInfo.getPictureMoreInfo().getPointsNeed(), pictureInfo.getPictureMoreInfo().getPriceNeed()));
     }
 
@@ -271,7 +274,7 @@ public class UserFileController extends BaseUserInfoController {
         request.setDownloadId(downloadId);
         request.setUserId(getUserId());
         PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfoByLog(request);
-        String url = pictureUploadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+        String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
         return success(new PictureDownloadVo(pictureInfo.getPictureId(), url, pictureInfo.getPictureMoreInfo().getPointsNeed(), pictureInfo.getPictureMoreInfo().getPriceNeed()));
     }
 }

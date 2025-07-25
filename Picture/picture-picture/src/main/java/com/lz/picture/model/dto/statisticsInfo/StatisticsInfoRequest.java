@@ -1,15 +1,11 @@
 package com.lz.picture.model.dto.statisticsInfo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.picture.model.domain.StatisticsInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * 统计信息Query对象 p_statistics_info
@@ -19,6 +15,7 @@ import java.util.Map;
  */
 @Data
 public class StatisticsInfoRequest implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     /**
      * 统计类型
@@ -30,6 +27,16 @@ public class StatisticsInfoRequest implements Serializable {
      * 公共KEY
      */
     private String commonKey;
+
+    /**
+     * KEY
+     */
+    private String statisticsKey;
+
+    /**
+     * 期数
+     */
+    private Long stages;
 
     /**
      * 对象转封装类

@@ -5,16 +5,17 @@ import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.StatisticsInfo;
-import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoEdit;
-import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoInsert;
-import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
-import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
+import com.lz.picture.model.dto.statisticsInfo.*;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/admin/picture/statisticsInfo")
+@Slf4j
 public class StatisticsInfoController extends BaseController {
     @Resource
     private IStatisticsInfoService statisticsInfoService;
@@ -109,5 +111,20 @@ public class StatisticsInfoController extends BaseController {
     @GetMapping("/stages")
     public AjaxResult stages(StatisticsInfoRequest request) {
         return success(statisticsInfoService.getStatisticsInfoStages(request));
+    }
+
+    @GetMapping("/picture/hot")
+    public void hot(Boolean delete, String type, String commonKey, String statisticsKey, Long stage, int number, HttpServletResponse response, HttpServletRequest request) {
+        try {
+            StatisticsFileDto dto = statisticsInfoService.getStatisticsPictureHotFilePath(type, commonKey, statisticsKey, stage, number);
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            FileUtils.setAttachmentResponseHeader(response, dto.getFileName());
+            FileUtils.writeBytes(dto.getFilePath(), response.getOutputStream());
+            if (delete) {
+                FileUtils.deleteFile(dto.getFilePath());
+            }
+        } catch (Exception e) {
+            log.error("下载文件失败", e);
+        }
     }
 }

@@ -289,4 +289,11 @@ public class FileUtils
         fileName = fileName.replaceAll("[:\\\\/<>*?|\"]", "_"); // 可按需调整替换规则
         return FilenameUtils.getBaseName(fileName);
     }
+
+    /**
+     * 判断文件是否存在
+     */
+    public static boolean isFileExists(String filePath){
+        return new File(filePath).exists();
+    }
 }

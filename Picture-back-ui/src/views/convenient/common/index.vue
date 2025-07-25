@@ -50,7 +50,7 @@
           <el-date-picker
               v-model="formDownloadPictureHot.date"
               :type="dateTypeDownloadPictureHot"
-              placeholder="Pick a week"
+              placeholder="请选择时间"
           />
         </el-form-item>
         <el-form-item label="期数" prop="stages">
@@ -204,6 +204,7 @@ const formDownloadPictureHot = ref({
 })
 const isDisableDownloadPictureHot = ref(false)
 const dateTypeDownloadPictureHot = ref('dates')
+const statisticsKeyDownloadPictureHot = ref('picture:statistics:picture:hot')
 const ruleDownloadPictureHot = ref({
   type: [{
     required: true,
@@ -227,31 +228,31 @@ function downloadPictureHot() {
 }
 
 function handleChangeDownloadPictureHotType() {
-  let commonKey = null
   if (formDownloadPictureHot.value.type === '1') {
     dateTypeDownloadPictureHot.value = 'dates'
   } else if (formDownloadPictureHot.value.type === '2') {
     dateTypeDownloadPictureHot.value = 'date'
-    commonKey = "picture:statistics:hot:day"
   } else if (formDownloadPictureHot.value.type === '3') {
     dateTypeDownloadPictureHot.value = 'week'
-    commonKey = "picture:statistics:hot:week"
   } else if (formDownloadPictureHot.value.type === '4') {
     dateTypeDownloadPictureHot.value = 'month'
-    commonKey = "picture:statistics:hot:month"
   } else if (formDownloadPictureHot.value.type === '5') {
     dateTypeDownloadPictureHot.value = 'year'
-    commonKey = "picture:statistics:hot:year"
   } else if (formDownloadPictureHot.value.type === '6') {
-    commonKey = "picture:statistics:hot:total"
+    ElMessage.info('全部无需选择时间')
   }
-  getStatisticsInfoStages({type: formDownloadPictureHot.value.type, commonKey: commonKey}).then(res => {
+  formDownloadPictureHot.value.date = null
+  getStatisticsInfoStages({
+    type: formDownloadPictureHot.value.type,
+    commonKey: statisticsKeyDownloadPictureHot.value
+  }).then(res => {
     var maxStages = Number(res.data);
     // 确保数据有效性
     if (maxStages > 0) {
       formDownloadPictureHot.value.maxStages = maxStages
       formDownloadPictureHot.value.stages = maxStages
       ElMessage.success('获取期数成功,最新一期为：' + maxStages)
+      ElMessage.info('如果选择时间后期数将会无效，优先时间')
       isDisableDownloadPictureHot.value = false
     } else {
       isDisableDownloadPictureHot.value = true

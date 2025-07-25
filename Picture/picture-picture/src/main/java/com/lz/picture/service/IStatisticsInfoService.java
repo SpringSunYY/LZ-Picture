@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
+import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
@@ -126,4 +127,19 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @return
      */
     Long getStatisticsInfoStages(StatisticsInfoRequest request);
+
+    /**
+     * 获取统计图片的排行文件路径
+     *
+     * @param type          统计类型
+     * @param commonKey     公共key
+     * @param statisticsKey 统计key
+     * @param stage         期数
+     * @param number
+     * @return StatisticsFileDto
+     * @author: YY
+     * @method: getStatisticsPictureHotFilePath
+     * @date: 2025/7/25 15:36
+     **/
+    StatisticsFileDto getStatisticsPictureHotFilePath(String type, String commonKey, String statisticsKey, Long stage, int number);
 }

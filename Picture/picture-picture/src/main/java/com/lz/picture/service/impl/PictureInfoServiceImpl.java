@@ -16,7 +16,7 @@ import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.exception.ServiceException;
-import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.PictureDownloadManager;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
@@ -116,7 +116,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     private IUserBehaviorInfoService userBehaviorInfoService;
 
     @Resource
-    private PictureUploadManager pictureUploadManager;
+    private PictureDownloadManager pictureDownloadManager;
 
     @Resource
     private IAccountInfoService accountInfoService;
@@ -667,7 +667,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
         //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
-        String url = pictureUploadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE);
+        String url = pictureDownloadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE);
         userPictureDetailInfoVo.setPictureUrl(url);
         //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
         if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())

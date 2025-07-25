@@ -192,7 +192,7 @@ public class PictureStatisticsUtil {
         return pictureStatistics(
                 statisticsMap,
                 PStatisticsTypeEnum.STATISTICS_TYPE_6.getValue(),
-                PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT_KEY,
                 PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY,
                 PICTURE_STATISTICS_PICTURE_HOT_TOTAL_NAME,
                 false,

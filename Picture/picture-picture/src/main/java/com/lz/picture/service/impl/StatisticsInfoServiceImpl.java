@@ -6,13 +6,19 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.config.OssConfig;
+import com.lz.common.config.RuoYiConfig;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.manager.file.PictureDownloadManager;
+import com.lz.common.manager.file.model.BatchDownloadFileDto;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.file.FileUtils;
 import com.lz.picture.mapper.StatisticsInfoMapper;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
+import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
@@ -22,6 +28,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -43,6 +50,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     private StatisticsInfoMapper statisticsInfoMapper;
     @Resource
     private RedisCache redisCache;
+    @Resource
+    private PictureDownloadManager pictureDownloadManager;
     //region mybatis代码
 
     /**
@@ -211,5 +220,53 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         }
         return statisticsInfo.getStages();
     }
+
+    //region 获取统计文件
+    @Override
+    public StatisticsFileDto getStatisticsPictureHotFilePath(String type, String commonKey, String statisticsKey, Long stage, int number) {
+        ThrowUtils.throwIf(StringUtils.isEmpty(statisticsKey) && StringUtils.isNull(stage) && StringUtils.isEmpty(commonKey) && StringUtils.isEmpty(type),
+                "参数错误");
+        //如果有统计key，则优先使用
+        if (StringUtils.isNotEmpty(statisticsKey)) {
+            stage = null;
+        }
+        StatisticsInfo statisticsInfo = this.getOne(
+                new LambdaQueryWrapper<StatisticsInfo>().eq(StatisticsInfo::getCommonKey, commonKey)
+                        .eq(StringUtils.isNotEmpty(type), StatisticsInfo::getType, type)
+                        .eq(StringUtils.isNotEmpty(statisticsKey), StatisticsInfo::getStatisticsKey, statisticsKey)
+                        .eq(StringUtils.isNotNull(stage), StatisticsInfo::getStages, stage)
+                        .orderBy(true, false, StatisticsInfo::getCreateTime).last("limit 1"));
+        ThrowUtils.throwIf(StringUtils.isNull(statisticsInfo) || StringUtils.isEmpty(statisticsInfo.getContent()), "未找到统计信息");
+        //转换为 List
+        List<PictureInfoStatisticsVo> statisticsVoList = JSONObject.parseArray(statisticsInfo.getContent(), PictureInfoStatisticsVo.class);
+        List<PictureInfoStatisticsVo> vos = statisticsVoList.subList(0, Math.min(number, statisticsVoList.size()));
+        //文件夹路径,替换statisticsKey里的: 为/
+        String keyPath = StringUtils.replace(statisticsInfo.getStatisticsKey(), ":", File.separator);
+        String filePath = RuoYiConfig.getPicturePath() + keyPath;
+        List<BatchDownloadFileDto> batchDownloadFileDtos = new ArrayList<>();
+        for (PictureInfoStatisticsVo vo : vos) {
+            //获取文件名
+            if (StringUtils.isEmpty(vo.getThumbnailUrl())) {
+                continue;
+            }
+            String fileName = FileUtils.getName(vo.getThumbnailUrl());
+            String localPath = filePath + File.separator + fileName;
+            if (FileUtils.isFileExists(localPath)) {
+                //存在则跳过
+                continue;
+            }
+            BatchDownloadFileDto batchDownloadFileDto = new BatchDownloadFileDto();
+            batchDownloadFileDto.setLocalPath(localPath);
+            batchDownloadFileDto.setOssFilePath(vo.getThumbnailUrl());
+            batchDownloadFileDtos.add(batchDownloadFileDto);
+        }
+        if (!batchDownloadFileDtos.isEmpty()) {
+            //下载文件
+            pictureDownloadManager.downloadFile(batchDownloadFileDtos);
+        }
+
+        return null;
+    }
+    //endregion
 
 }

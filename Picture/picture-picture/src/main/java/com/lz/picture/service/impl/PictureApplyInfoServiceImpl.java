@@ -9,7 +9,7 @@ import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.redis.RedisCache;
-import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.PictureDownloadManager;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
@@ -72,7 +72,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     private ISpaceInfoService spaceInfoService;
 
     @Resource
-    private PictureUploadManager pictureUploadManager;
+    private PictureDownloadManager pictureDownloadManager;
 
     @Resource
     private ISysConfigService sysConfigService;
@@ -170,7 +170,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         String[] split = fileUrl.split(COMMON_SEPARATOR);
         StringBuilder buffer = new StringBuilder();
         for (String str : split) {
-            String downloadUrl = pictureUploadManager.generateDownloadUrl(str, 60L);
+            String downloadUrl = pictureDownloadManager.generateDownloadUrl(str, 60L);
             buffer.append(downloadUrl).append(COMMON_SEPARATOR);
         }
         buffer.deleteCharAt(buffer.length() - 1);
