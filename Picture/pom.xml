@@ -46,6 +46,7 @@
         <redisson.version>3.27.2</redisson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <serpapi.version>2.6.0</serpapi.version>
+        <commonmark.version>0.25.0</commonmark.version>
     </properties>
 
     <!-- 依赖声明 -->

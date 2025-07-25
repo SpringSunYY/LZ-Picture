@@ -113,14 +113,14 @@ public class StatisticsInfoController extends BaseController {
         return success(statisticsInfoService.getStatisticsInfoStages(request));
     }
 
-    @GetMapping("/picture/hot")
-    public void hot(Boolean delete, String type, String commonKey, String statisticsKey, Long stage, int number, HttpServletResponse response, HttpServletRequest request) {
+    @GetMapping("/download/hot")
+    public void hot(Boolean isDelete, String type, String commonKey, String statisticsKey, Long stage, int number, HttpServletResponse response, HttpServletRequest request) {
         try {
             StatisticsFileDto dto = statisticsInfoService.getStatisticsPictureHotFilePath(type, commonKey, statisticsKey, stage, number);
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, dto.getFileName());
             FileUtils.writeBytes(dto.getFilePath(), response.getOutputStream());
-            if (delete) {
+            if (isDelete) {
                 FileUtils.deleteFile(dto.getFilePath());
             }
         } catch (Exception e) {

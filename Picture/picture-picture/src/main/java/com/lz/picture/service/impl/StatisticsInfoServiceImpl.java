@@ -24,11 +24,13 @@ import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
+import com.lz.picture.utils.MarkdownBuilder;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -242,7 +244,82 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         List<PictureInfoStatisticsVo> vos = statisticsVoList.subList(0, Math.min(number, statisticsVoList.size()));
         //文件夹路径,替换statisticsKey里的: 为/
         String keyPath = StringUtils.replace(statisticsInfo.getStatisticsKey(), ":", File.separator);
-        String filePath = RuoYiConfig.getPicturePath() + keyPath;
+        String bastPath = RuoYiConfig.getPicturePath() + keyPath;
+        String imagesPath = bastPath + File.separator + "images";
+        downloadHotPictureImage(vos, imagesPath);
+        String mdPath = downloadHotPictureMd(statisticsInfo, bastPath, vos);
+        //给文件压缩成 zip
+        String zipPath = bastPath + File.separator + statisticsInfo.getStatisticsName() + "_" + System.currentTimeMillis() + ".zip";
+        String compressZip = FileUtils.compressZip(List.of(imagesPath, mdPath), zipPath);
+        //压缩成功删除md文件
+        FileUtils.deleteFile(mdPath);
+        return new StatisticsFileDto(FileUtils.getName(compressZip), compressZip);
+    }
+
+    /**
+     * 生成md文件
+     *
+     * @param bastPath 基础路径
+     * @param vos      vos
+     */
+    private String downloadHotPictureMd(StatisticsInfo statisticsInfo, String bastPath, List<PictureInfoStatisticsVo> vos) {
+        //判断是否存在describe.md,如果存在直接删除
+        String describePath = bastPath + File.separator + "图片热门统计_" + statisticsInfo.getStatisticsName() + "_" + System.currentTimeMillis() + ".md";
+        if (FileUtils.isFileExists(describePath)) {
+            FileUtils.deleteFile(describePath);
+        }
+        //开始写入md文件
+        MarkdownBuilder builder = new MarkdownBuilder();
+        builder.addHeading(statisticsInfo.getStatisticsName(), 1);
+        builder.addParagraph(statisticsInfo.getRemark());
+        builder.addParagraph("本次统计KEY:" + statisticsInfo.getStatisticsKey());
+        builder.addHeading("图片列表", 2);
+        //图片列表
+        ArrayList<String> headers = new ArrayList<>(List.of("排名", "图片编号", "图片名称", "图片分数"));
+        ArrayList<List<String>> rows = new ArrayList<>();
+        //图片列表
+        List<StatisticsFileDto> imageList = new ArrayList<>();
+        for (PictureInfoStatisticsVo vo : vos) {
+            //获取文件名
+            if (StringUtils.isEmpty(vo.getThumbnailUrl())) {
+                continue;
+            }
+            String fileName = FileUtils.getName(vo.getThumbnailUrl());
+            rows.add(List.of(
+                    String.valueOf(rows.size() + 1),
+                    vo.getPictureId(),
+                    vo.getName(),
+                    String.valueOf(vo.getScore())
+            ));
+            StatisticsFileDto statisticsFileDto = new StatisticsFileDto(vo.getName(), "./images/" + fileName);
+            imageList.add(statisticsFileDto);
+        }
+        builder.addTable(headers, rows);
+        //图片列表
+        builder.addHeading("图片列表", 2);
+        for (int i = 0; i < imageList.size(); i++) {
+            StatisticsFileDto file = imageList.get(i);
+            builder.addHeading("排名:" + (i + 1), 3);
+            builder.addParagraph(file.getFileName());
+            builder.addImage(file.getFileName(), file.getFilePath());
+        }
+        try {
+            builder.writeToFile(describePath);
+        } catch (IOException e) {
+            log.error("写入md文件失败:{}", e.getMessage());
+            throw new RuntimeException("写入md文件失败");
+        }
+        return describePath;
+    }
+
+    /**
+     * 下载图片
+     *
+     * @param vos        vos
+     * @param imagesPath 图片保存路径
+     * @return
+     */
+    private void downloadHotPictureImage(List<PictureInfoStatisticsVo> vos, String imagesPath) {
         List<BatchDownloadFileDto> batchDownloadFileDtos = new ArrayList<>();
         for (PictureInfoStatisticsVo vo : vos) {
             //获取文件名
@@ -250,7 +327,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                 continue;
             }
             String fileName = FileUtils.getName(vo.getThumbnailUrl());
-            String localPath = filePath + File.separator + fileName;
+            String localPath = imagesPath + File.separator + fileName;
             if (FileUtils.isFileExists(localPath)) {
                 //存在则跳过
                 continue;
@@ -264,8 +341,6 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             //下载文件
             pictureDownloadManager.downloadFile(batchDownloadFileDtos);
         }
-
-        return null;
     }
     //endregion
 

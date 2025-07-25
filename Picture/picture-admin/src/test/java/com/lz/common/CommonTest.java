@@ -87,4 +87,9 @@ public class CommonTest {
     public void testDownloadPictureHot() {
         statisticsInfoService.getStatisticsPictureHotFilePath(PStatisticsTypeEnum.STATISTICS_TYPE_6.getValue(), PICTURE_STATISTICS_PICTURE_HOT, PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY, 1L, 10);
     }
+
+    @Test
+    public void testMarkdown() {
+
+    }
 }

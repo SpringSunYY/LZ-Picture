@@ -50,6 +50,7 @@
           <el-date-picker
               v-model="formDownloadPictureHot.date"
               :type="dateTypeDownloadPictureHot"
+              :format="formateDownloadPictureHot"
               placeholder="请选择时间"
           />
         </el-form-item>
@@ -66,7 +67,8 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="openDownloadPictureHot = false">关闭</el-button>
-          <el-button type="primary" :disabled="isDisableDownloadPictureHot" @click="downloadPictureHot">
+          <el-button type="primary" :loading="loadingDownloadPictureHot" :disabled="isDisableDownloadPictureHot"
+                     @click="downloadPictureHot">
             确认
           </el-button>
         </div>
@@ -79,7 +81,7 @@
 import {ref} from 'vue';
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import {checkPermi} from "@/utils/permission.js";
-import {ElMessage} from "element-plus";
+import {dayjs, ElMessage} from "element-plus";
 import {getStatisticsInfoStages} from "@/api/picture/statisticsInfo.js";
 
 const {proxy} = getCurrentInstance();
@@ -200,11 +202,14 @@ const formDownloadPictureHot = ref({
   number: 10,
   stages: 0,
   maxStages: 1,
-  minStages: 0
+  minStages: 0,
+  date: ''
 })
 const isDisableDownloadPictureHot = ref(false)
 const dateTypeDownloadPictureHot = ref('dates')
 const statisticsKeyDownloadPictureHot = ref('picture:statistics:picture:hot')
+const formateDownloadPictureHot = ref('yyyy-MM-dd')
+const loadingDownloadPictureHot = ref(false)
 const ruleDownloadPictureHot = ref({
   type: [{
     required: true,
@@ -224,19 +229,49 @@ const ruleDownloadPictureHot = ref({
 })
 
 function downloadPictureHot() {
-
+  let statisticsKey = statisticsKeyDownloadPictureHot.value
+  if (dateTypeDownloadPictureHot.value.type === '1') {
+    ElMessage.error('此类型不可导出！！！');
+    return
+  }
+  if (ruleDownloadPictureHot.value.type !== '' && ruleDownloadPictureHot.value.date != null && ruleDownloadPictureHot.value.date !== '') {
+    if (dateTypeDownloadPictureHot.value.type === '6') {
+      statisticsKey = dateTypeDownloadPictureHot.value + ":total"
+    } else {
+      statisticsKey = statisticsKey + ":" + formDownloadPictureHot.value.date
+    }
+    console.log(statisticsKey)
+  } else {
+    statisticsKey = ''
+  }
+  //获取当前时间精确到秒
+  const format = dayjs().format('YYYY-MM-DD HH:mm:ss');
+  const fileName = 'picture_hot_' + format + ".zip";
+  loadingDownloadPictureHot.value = true
+  proxy.$download.downloadStatisticsPicture(true,
+      formDownloadPictureHot.value.type,
+      statisticsKeyDownloadPictureHot.value,
+      statisticsKey,
+      formDownloadPictureHot.value.stages,
+      formDownloadPictureHot.value.number, fileName);
+  ElMessage.success('获取文件成功，请不要刷新页面')
+  loadingDownloadPictureHot.value = false
 }
 
 function handleChangeDownloadPictureHotType() {
   if (formDownloadPictureHot.value.type === '1') {
     dateTypeDownloadPictureHot.value = 'dates'
   } else if (formDownloadPictureHot.value.type === '2') {
+    formateDownloadPictureHot.value = 'YYYY-MM-DD'
     dateTypeDownloadPictureHot.value = 'date'
   } else if (formDownloadPictureHot.value.type === '3') {
+    formateDownloadPictureHot.value = 'ww'
     dateTypeDownloadPictureHot.value = 'week'
   } else if (formDownloadPictureHot.value.type === '4') {
+    formateDownloadPictureHot.value = 'YYYY-MM'
     dateTypeDownloadPictureHot.value = 'month'
   } else if (formDownloadPictureHot.value.type === '5') {
+    formateDownloadPictureHot.value = 'YYYY'
     dateTypeDownloadPictureHot.value = 'year'
   } else if (formDownloadPictureHot.value.type === '6') {
     ElMessage.info('全部无需选择时间')
