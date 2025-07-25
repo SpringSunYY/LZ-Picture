@@ -80,11 +80,4 @@ public interface IPaymentOrderInfoService extends IService<PaymentOrderInfo>
      * @return PaymentOrderInfoVO集合
      */
     List<PaymentOrderInfoVo> convertVoList(List<PaymentOrderInfo> paymentOrderInfoList);
-
-    /**
-     * 自动更新过期订单
-     *
-     * @param expiredTime 超时时间
-     */
-    int autoUpdateExpiredOrder(Date expiredTime);
 }

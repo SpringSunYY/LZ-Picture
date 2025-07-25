@@ -223,19 +223,6 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
     }
 
     @Override
-    public int autoUpdateExpiredOrder(Date expiredTime) {
-        //查询到未支付且超过过期时间的订单
-        List<PointsRechargeInfo> list = this.list(new LambdaQueryWrapper<PointsRechargeInfo>()
-                .lt(PointsRechargeInfo::getCreateTime, expiredTime)
-                .eq(PointsRechargeInfo::getRechargeStatus, PoRechargeStatusEnum.RECHARGE_STATUS_0.getValue()));
-        //更新为过期
-        list.forEach(item -> {
-            item.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_3.getValue());
-        });
-        return this.updateBatchById(list) ? 1 : 0;
-    }
-
-    @Override
     public Page<PointsRechargeInfo> selectMyPointsRechargeInfoList(UserPointsRechargeInfoQuery userPointsRechargeInfoQuery) {
         // 提取基础参数
         Integer pageNum = userPointsRechargeInfoQuery.getPageNum();

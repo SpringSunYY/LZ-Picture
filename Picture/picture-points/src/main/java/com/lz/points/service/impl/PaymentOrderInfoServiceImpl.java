@@ -190,18 +190,4 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
         return paymentOrderInfoList.stream().map(PaymentOrderInfoVo::objToVo).collect(Collectors.toList());
     }
 
-
-    @Override
-    public int autoUpdateExpiredOrder(Date expiredTime) {
-        //查询到过期的订单 未支付的订单
-        List<PaymentOrderInfo> paymentOrderInfos = this.list(new LambdaQueryWrapper<PaymentOrderInfo>()
-                .eq(PaymentOrderInfo::getOrderStatus, PoOrderStatusEnum.ORDER_STATUS_0.getValue())
-                .lt(PaymentOrderInfo::getCreateTime, expiredTime));
-        //更新订单为已过期
-        paymentOrderInfos.forEach(paymentOrderInfo ->
-                paymentOrderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_3.getValue())
-        );
-        return this.updateBatchById(paymentOrderInfos) ? 1 : 0;
-    }
-
 }

@@ -92,17 +92,17 @@
                     </div>
                   </div>
                 </a-radio>
-                <a-radio disabled value="wechat" class="payment-option">
-                  <div class="payment-option-content">
-                    <div class="payment-icon wechat-icon">
-                      <SvgIcon size="1.5em" name="weChat" />
-                    </div>
-                    <div class="payment-label">
-                      <div>微信支付</div>
-                      <div class="payment-description">使用微信扫码支付</div>
-                    </div>
-                  </div>
-                </a-radio>
+<!--                <a-radio disabled value="wechat" class="payment-option">-->
+<!--                  <div class="payment-option-content">-->
+<!--                    <div class="payment-icon wechat-icon">-->
+<!--                      <SvgIcon size="1.5em" name="weChat" />-->
+<!--                    </div>-->
+<!--                    <div class="payment-label">-->
+<!--                      <div>微信支付</div>-->
+<!--                      <div class="payment-description">使用微信扫码支付</div>-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--                </a-radio>-->
               </a-radio-group>
 
               <div class="payment-summary">

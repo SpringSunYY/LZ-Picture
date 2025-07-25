@@ -88,13 +88,6 @@ public interface IPointsRechargeInfoService extends IService<PointsRechargeInfo>
     List<PointsRechargeInfoVo> convertVoList(List<PointsRechargeInfo> pointsRechargeInfoList);
 
     /**
-     * 自动更新过期订单
-     *
-     * @param expiredTime 过期时间
-     */
-    int autoUpdateExpiredOrder(Date expiredTime);
-
-    /**
      * 用户查询自己的充值记录
      *
      * @param userPointsRechargeInfoQuery
