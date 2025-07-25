@@ -46,6 +46,13 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="时间" prop="statisticsName">
+          <el-date-picker
+              v-model="formDownloadPictureHot.date"
+              :type="dateTypeDownloadPictureHot"
+              placeholder="Pick a week"
+          />
+        </el-form-item>
         <el-form-item label="期数" prop="stages">
           <el-input-number :min="formDownloadPictureHot.minStages" :max="formDownloadPictureHot.maxStages"
                            v-model="formDownloadPictureHot.stages" placeholder="请输入期数"/>
@@ -196,6 +203,7 @@ const formDownloadPictureHot = ref({
   minStages: 0
 })
 const isDisableDownloadPictureHot = ref(false)
+const dateTypeDownloadPictureHot = ref('dates')
 const ruleDownloadPictureHot = ref({
   type: [{
     required: true,
@@ -221,14 +229,18 @@ function downloadPictureHot() {
 function handleChangeDownloadPictureHotType() {
   let commonKey = null
   if (formDownloadPictureHot.value.type === '1') {
-    commonKey = "picture:statistics:hot:minute"
+    dateTypeDownloadPictureHot.value = 'dates'
   } else if (formDownloadPictureHot.value.type === '2') {
+    dateTypeDownloadPictureHot.value = 'date'
     commonKey = "picture:statistics:hot:day"
   } else if (formDownloadPictureHot.value.type === '3') {
+    dateTypeDownloadPictureHot.value = 'week'
     commonKey = "picture:statistics:hot:week"
   } else if (formDownloadPictureHot.value.type === '4') {
+    dateTypeDownloadPictureHot.value = 'month'
     commonKey = "picture:statistics:hot:month"
   } else if (formDownloadPictureHot.value.type === '5') {
+    dateTypeDownloadPictureHot.value = 'year'
     commonKey = "picture:statistics:hot:year"
   } else if (formDownloadPictureHot.value.type === '6') {
     commonKey = "picture:statistics:hot:total"

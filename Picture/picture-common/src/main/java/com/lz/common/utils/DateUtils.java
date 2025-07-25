@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.Date;
 
 /**
@@ -210,6 +211,36 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * 根据指定时间返回所在年份的第几周
+     */
+    public static Long getWeekDayNumber(Date day, Date year) {
+        LocalDate dayDate = day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate yearDate = year.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // 获取year参数所在年份
+        int targetYear = yearDate.getYear();
+
+        // 创建一个带有周数计算规则的日期对象（周一作为一周的开始，第一周最少包含1天）
+        WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY, 1);
+
+        // 获取目标年份的第一天和最后一天
+        LocalDate firstDayOfYear = LocalDate.of(targetYear, 1, 1);
+        LocalDate lastDayOfYear = LocalDate.of(targetYear, 12, 31);
+
+        // 如果day日期在目标年份之前或之后，也可以计算其在该年份中的相对周数
+        if (dayDate.isBefore(firstDayOfYear)) {
+            // 日期在目标年份之前，返回第0周或第1周
+            return 1L;
+        } else if (dayDate.isAfter(lastDayOfYear)) {
+            // 日期在目标年份之后，返回最后一周
+            return (long) lastDayOfYear.get(weekFields.weekOfYear());
+        } else {
+            // 日期在目标年份内，正常计算周数
+            return (long) dayDate.get(weekFields.weekOfYear());
+        }
+    }
+
+    /**
      * 获取指定时间所在月的指定日
      *
      * @param date 时间
@@ -263,9 +294,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         //加减年份
         localDate = localDate.plusYears(year);
         //根据年份获取指定日
-        day = Math.min(day, localDate.lengthOfMonth());
+         day = Math.min(day, localDate.lengthOfYear());
         day = Math.max(day, 1);
-        LocalDate temporalAccessor = localDate.withDayOfMonth(day);
+        LocalDate temporalAccessor = localDate.withDayOfYear(day);
         return toDate(temporalAccessor);
     }
 
@@ -314,6 +345,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         System.out.println(getMonthDay(date, 12, 1, "yyyy-MM-dd"));
         System.out.println(getMonthDay(date, 0, 1, "yyyy-MM-dd"));
         System.out.println(getMonthDay(date, -12, 1, "yyyy-MM-dd"));
+        Date yearDay = getYearDay(date, -1, 10);
+        System.out.println("yearDay = " + yearDay);
+        System.out.println(getWeekDayNumber(yearDay, yearDay));
     }
 
 }

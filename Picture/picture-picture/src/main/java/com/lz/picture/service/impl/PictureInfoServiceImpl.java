@@ -70,7 +70,8 @@ import static com.lz.common.constant.picture.PictureInfoConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.config.utils.ConfigInfoUtils.*;
-import static com.lz.picture.utils.PictureStatisticsUtil.*;
+import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT;
+import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY;
 
 /**
  * 图片信息Service业务层处理
@@ -1201,26 +1202,33 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     //region 热门图片 我一点一点猜 猜猜不出你的独白
     @Override
     public TableDataInfo getPictureInfoHot(PictureInfoHotRequest request) {
-        if (request.getType().equals(PICTURE_HOT_TOTAL)) {
-            return statisticsInfoService.getStatisticsPictureInfo(PICTURE_STATISTICS_HOT_TOTAL_KEY, request);
-        } else if (request.getType().equals(PICTURE_HOT_DAY)) {
-            //如果是今天五点之前，获取上一期缓存，保证有数量可以拿
-            Date date = DateUtils.getNowDate();
-            String key = "";
-            if (DateUtils.isAfterToday(date, 60 * 60 * 5)) {
-                key = pictureStatisticsUtil.getCurrentStatisticsDayKey(PICTURE_STATISTICS_HOT_DAY_KEY, date);
-            } else {
-                key = pictureStatisticsUtil.getLastStatisticsDayKey(PICTURE_STATISTICS_HOT_DAY_KEY, date);
+        switch (request.getType()) {
+            case PICTURE_HOT_TOTAL -> {
+                return statisticsInfoService.getStatisticsPictureInfo(PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY, request);
             }
-            return statisticsInfoService.getStatisticsPictureInfo(key, request);
-        } else if (request.getType().equals(PICTURE_HOT_WEEK)) {
-            return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsWeekKey(PICTURE_STATISTICS_HOT_WEEK_KEY, DateUtils.getNowDate()), request);
-        } else if (request.getType().equals(PICTURE_HOT_MONTH)) {
-            return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsMonthKey(PICTURE_STATISTICS_HOT_MONTH_KEY, DateUtils.getNowDate()), request);
-        } else if (request.getType().equals(PICTURE_HOT_YEAR)) {
-            return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsYearKey(PICTURE_STATISTICS_HOT_YEAR_KEY, DateUtils.getNowDate()), request);
-        } else {
-            return getPictureInfoByNew(request);
+            case PICTURE_HOT_DAY -> {
+                //如果是今天五点之前，获取上一期缓存，保证有数量可以拿
+                Date date = DateUtils.getNowDate();
+                String key = "";
+                if (DateUtils.isAfterToday(date, 60 * 60 * 5)) {
+                    key = pictureStatisticsUtil.getCurrentStatisticsDayKey(PICTURE_STATISTICS_PICTURE_HOT, date);
+                } else {
+                    key = pictureStatisticsUtil.getLastStatisticsDayKey(PICTURE_STATISTICS_PICTURE_HOT, date);
+                }
+                return statisticsInfoService.getStatisticsPictureInfo(key, request);
+            }
+            case PICTURE_HOT_WEEK -> {
+                return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsWeekKey(PICTURE_STATISTICS_PICTURE_HOT, DateUtils.getNowDate()), request);
+            }
+            case PICTURE_HOT_MONTH -> {
+                return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsMonthKey(PICTURE_STATISTICS_PICTURE_HOT, DateUtils.getNowDate()), request);
+            }
+            case PICTURE_HOT_YEAR -> {
+                return statisticsInfoService.getStatisticsPictureInfo(pictureStatisticsUtil.getCurrentStatisticsYearKey(PICTURE_STATISTICS_PICTURE_HOT, DateUtils.getNowDate()), request);
+            }
+            default -> {
+                return getPictureInfoByNew(request);
+            }
         }
     }
 

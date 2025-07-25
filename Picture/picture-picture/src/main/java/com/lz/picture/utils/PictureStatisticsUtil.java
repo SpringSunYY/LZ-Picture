@@ -51,25 +51,22 @@ public class PictureStatisticsUtil {
     @Resource
     private RedisCache redisCache;
 
-    private static final String PICTURE_STATISTICS_HOT_KEY = "picture:statistics:hot:minute";
-    private static final Integer PICTURE_STATISTICS_HOT_EXPIRE_TIME = 60 * 60 * 24;
+    private static final String PICTURE_STATISTICS_PICTURE_HOT_KEY = "picture:statistics:picture:hot:minute";
+    private static final Integer PICTURE_STATISTICS_PICTURE_HOT_EXPIRE_TIME = 60 * 60 * 24;
     //图片热门统计缓存key，日
-    public static final String PICTURE_STATISTICS_HOT_DAY_KEY = "picture:statistics:hot:day";
-    private static final String PICTURE_STATISTICS_HOT_DAY_NAME = "图片热门统计日排行";
+    public static final String PICTURE_STATISTICS_PICTURE_HOT = "picture:statistics:picture:hot";
+    private static final String PICTURE_STATISTICS_PICTURE_HOT_DAY_NAME = "图片热门统计日排行";
     //图片热门统计缓存key，周
-    public static final String PICTURE_STATISTICS_HOT_WEEK_KEY = "picture:statistics:hot:week";
-    private static final String PICTURE_STATISTICS_HOT_WEEK_NAME = "图片热门统计周排行";
+    private static final String PICTURE_STATISTICS_PICTURE_HOT_WEEK_NAME = "图片热门统计周排行";
     //图片热门统计缓存key，月
-    public static final String PICTURE_STATISTICS_HOT_MONTH_KEY = "picture:statistics:hot:month";
-    private static final String PICTURE_STATISTICS_HOT_MONTH_NAME = "图片热门统计月排行";
+    private static final String PICTURE_STATISTICS_PICTURE_HOT_MONTH_NAME = "图片热门统计月排行";
     //图片热门统计缓存key，年
-    public static final String PICTURE_STATISTICS_HOT_YEAR_KEY = "picture:statistics:hot:year";
-    private static final String PICTURE_STATISTICS_HOT_YEAR_NAME = "图片热门统计年排行";
+    private static final String PICTURE_STATISTICS_PICTURE_HOT_YEAR_NAME = "图片热门统计年排行";
     //图片热门统计缓存key，总
-    public static final String PICTURE_STATISTICS_HOT_TOTAL_KEY = "picture:statistics:hot:total";
-    private static final String PICTURE_STATISTICS_HOT_TOTAL_NAME = "图片热门统计总排行";
+    public static final String PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY = "picture:statistics:picture:hot:total";
+    private static final String PICTURE_STATISTICS_PICTURE_HOT_TOTAL_NAME = "图片热门统计总排行";
     //当前key,需要存入缓存的
-    private static String currentKey = PICTURE_STATISTICS_HOT_KEY + COMMON_SEPARATOR_CACHE + System.currentTimeMillis();
+    private static String currentKey = PICTURE_STATISTICS_PICTURE_HOT_KEY + COMMON_SEPARATOR_CACHE + System.currentTimeMillis();
     private static String oldKey = "";
 
     //多线程
@@ -77,7 +74,7 @@ public class PictureStatisticsUtil {
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     public void pictureHotStatisticsIncrementScore(String pictureId, Double score) {
-        redisCache.zSetIncrementScore(currentKey, pictureId, score, PICTURE_STATISTICS_HOT_EXPIRE_TIME);
+        redisCache.zSetIncrementScore(currentKey, pictureId, score, PICTURE_STATISTICS_PICTURE_HOT_EXPIRE_TIME);
     }
 
     //region 自动统计图片热门信息
@@ -111,7 +108,7 @@ public class PictureStatisticsUtil {
         //更新当前key,把当前时间戳赋给oldKey，构建当前key
         oldKey = currentKey;
 //        System.out.println("old = " + oldKey);
-        currentKey = PICTURE_STATISTICS_HOT_KEY + COMMON_SEPARATOR_CACHE + now;
+        currentKey = PICTURE_STATISTICS_PICTURE_HOT_KEY + COMMON_SEPARATOR_CACHE + now;
 //        System.out.println("currentKey = " + currentKey);
         //从旧key中获取数据
         Set<ZSetOperations.TypedTuple<String>> typedTuples = redisCache.zSetRangeWithScores(oldKey, 0, -1);
@@ -171,13 +168,14 @@ public class PictureStatisticsUtil {
      * @date: 2025/7/20 17:27
      **/
     private PictureStatisticsDto pictureStatisticsDay(LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap, Date nowDate) {
-        String statisticsKey = getCurrentStatisticsDayKey(PICTURE_STATISTICS_HOT_DAY_KEY, nowDate);
+        String statisticsKey = getCurrentStatisticsDayKey(PICTURE_STATISTICS_PICTURE_HOT, nowDate);
         return pictureStatistics(
                 statisticsMap,
                 PStatisticsTypeEnum.STATISTICS_TYPE_2.getValue(),
-                PICTURE_STATISTICS_HOT_DAY_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT,
                 statisticsKey,
-                PICTURE_STATISTICS_HOT_DAY_NAME,
+                PICTURE_STATISTICS_PICTURE_HOT_DAY_NAME,
+                true,
                 PICTURE_STATISTICS_HOT_DAY_RANK_VALUE
         );
     }
@@ -194,89 +192,88 @@ public class PictureStatisticsUtil {
         return pictureStatistics(
                 statisticsMap,
                 PStatisticsTypeEnum.STATISTICS_TYPE_6.getValue(),
-                PICTURE_STATISTICS_HOT_TOTAL_KEY,
-                PICTURE_STATISTICS_HOT_TOTAL_KEY,
-                PICTURE_STATISTICS_HOT_TOTAL_NAME,
+                PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT_TOTAL_NAME,
+                false,
                 PICTURE_STATISTICS_HOT_TOTAL_RANK_VALUE
         );
     }
 
     private PictureStatisticsDto pictureStatisticsWeek(LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap, Date nowDate) {
-        String statisticsKey = getCurrentStatisticsWeekKey(PICTURE_STATISTICS_HOT_WEEK_KEY, nowDate);
+        String statisticsKey = getCurrentStatisticsWeekKey(PICTURE_STATISTICS_PICTURE_HOT, nowDate);
         return pictureStatistics(
                 statisticsMap,
                 PStatisticsTypeEnum.STATISTICS_TYPE_3.getValue(),
-                PICTURE_STATISTICS_HOT_WEEK_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT,
                 statisticsKey,
-                PICTURE_STATISTICS_HOT_WEEK_NAME,
+                PICTURE_STATISTICS_PICTURE_HOT_WEEK_NAME,
+                true,
                 PICTURE_STATISTICS_HOT_WEEK_RANK_VALUE
         );
     }
 
     public String getLastStatisticsWeekKey(String key, Date nowDate) {
         //获取上周一周的开始时间，周日时间
-        String weekDay1Last = DateUtils.getWeekDay(nowDate, -1, 1, DateUtils.YYYY_MM_DD);
-        String weekDay7Last = DateUtils.getWeekDay(nowDate, -1, 7, DateUtils.YYYY_MM_DD);
-        return key + COMMON_SEPARATOR_CACHE + weekDay1Last + COMMON_SEPARATOR_CACHE + weekDay7Last;
+        Date weekDay = DateUtils.getWeekDay(nowDate, -1, 1);
+        Long weekDayNumber = DateUtils.getWeekDayNumber(weekDay, nowDate);
+        return key + COMMON_SEPARATOR_CACHE + weekDayNumber;
     }
 
     public String getCurrentStatisticsWeekKey(String key, Date nowDate) {
         //获取到本周一的时间，本周日的时间
-        String weekDay1 = DateUtils.getWeekDay(nowDate, 1, DateUtils.YYYY_MM_DD);
-        String weekDay7 = DateUtils.getWeekDay(nowDate, 7, DateUtils.YYYY_MM_DD);
-        return key + COMMON_SEPARATOR_CACHE + weekDay1 + COMMON_SEPARATOR_CACHE + weekDay7;
+        Long weekDayNumber = DateUtils.getWeekDayNumber(nowDate, nowDate);
+        return key + COMMON_SEPARATOR_CACHE + weekDayNumber;
     }
 
     private PictureStatisticsDto pictureStatisticsMonth(LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap, Date nowDate) {
-        String statisticsKey = getCurrentStatisticsMonthKey(PICTURE_STATISTICS_HOT_MONTH_KEY, nowDate);
+        String statisticsKey = getCurrentStatisticsMonthKey(PICTURE_STATISTICS_PICTURE_HOT, nowDate);
         return pictureStatistics(
                 statisticsMap,
                 PStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
-                PICTURE_STATISTICS_HOT_MONTH_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT,
                 statisticsKey,
-                PICTURE_STATISTICS_HOT_MONTH_NAME,
+                PICTURE_STATISTICS_PICTURE_HOT_MONTH_NAME,
+                true,
                 PICTURE_STATISTICS_HOT_MONTH_RANK_VALUE
         );
     }
 
     public static String getLsatStatisticsMonthKey(String key, Date nowDate) {
         //获取上个月的开始结束时间
-        String lastMonthStart = DateUtils.getMonthDay(nowDate, -1, 1, DateUtils.YYYY_MM_DD);
-        String lastMonthEnd = DateUtils.getMonthDay(nowDate, -1, 31, DateUtils.YYYY_MM_DD);
-        return key + COMMON_SEPARATOR_CACHE + lastMonthStart + COMMON_SEPARATOR_CACHE + lastMonthEnd;
+        String lastMonthStart = DateUtils.getMonthDay(nowDate, -1, 1, DateUtils.YYYY_MM);
+        return key + COMMON_SEPARATOR_CACHE + lastMonthStart;
     }
 
     public String getCurrentStatisticsMonthKey(String key, Date nowDate) {
         //获取本月的开始时间
-        String monthStart = DateUtils.getMonthDay(nowDate, 1, DateUtils.YYYY_MM_DD);
-        String monthEnd = DateUtils.getMonthDay(nowDate, 31, DateUtils.YYYY_MM_DD);
-        return key + COMMON_SEPARATOR_CACHE + monthStart + COMMON_SEPARATOR_CACHE + monthEnd;
+        String monthStr = DateUtils.getMonthDay(nowDate, 1, DateUtils.YYYY_MM);
+        return key + COMMON_SEPARATOR_CACHE + monthStr;
     }
 
     private PictureStatisticsDto pictureStatisticsYear(LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap, Date nowDate) {
-        String statisticsKey = getCurrentStatisticsYearKey(PICTURE_STATISTICS_HOT_YEAR_KEY, nowDate);
+        String statisticsKey = getCurrentStatisticsYearKey(PICTURE_STATISTICS_PICTURE_HOT, nowDate);
         return pictureStatistics(
                 statisticsMap,
                 PStatisticsTypeEnum.STATISTICS_TYPE_5.getValue(),
-                PICTURE_STATISTICS_HOT_YEAR_KEY,
+                PICTURE_STATISTICS_PICTURE_HOT,
                 statisticsKey,
-                PICTURE_STATISTICS_HOT_YEAR_NAME,
+                PICTURE_STATISTICS_PICTURE_HOT_YEAR_NAME,
+                true,
                 PICTURE_STATISTICS_HOT_YEAR_RANK_VALUE
         );
     }
 
     public static String getLastStatisticsYearKey(String key, Date nowDate) {
         //上一年
-        String lastYearStart = DateUtils.getYearDay(nowDate, -1, 1, DateUtils.YYYY_MM_DD);
-        String lastYearEnd = DateUtils.getYearDay(nowDate, -1, 366, DateUtils.YYYY_MM_DD);
-        return key + COMMON_SEPARATOR_CACHE + lastYearStart + COMMON_SEPARATOR_CACHE + lastYearEnd;
+        String lastYearStart = DateUtils.getYearDay(nowDate, -1, 1, DateUtils.YYYY);
+        return key + COMMON_SEPARATOR_CACHE + lastYearStart;
     }
 
     public String getCurrentStatisticsYearKey(String key, Date nowDate) {
         //获取今年的开始时间
-        String yearStart = DateUtils.getYearDay(nowDate, 1, DateUtils.YYYY_MM_DD);
-        String yearEnd = DateUtils.getYearDay(nowDate, 366, DateUtils.YYYY_MM_DD);
-        return key + COMMON_SEPARATOR_CACHE + yearStart + COMMON_SEPARATOR_CACHE + yearEnd;
+        String yearStart = DateUtils.getYearDay(nowDate, 1, DateUtils.YYYY);
+        return key + COMMON_SEPARATOR_CACHE + yearStart;
     }
 
     /**
@@ -287,6 +284,7 @@ public class PictureStatisticsUtil {
      * @param statisticsType 统计类型
      * @param statisticsKey  统计key
      * @param statisticsName 统计名称
+     * @param isQueryLast    是否查询上一次
      * @param rank           统计数量排行
      * @return PictureStatisticsDto
      * @author: YY
@@ -298,6 +296,7 @@ public class PictureStatisticsUtil {
                                                    String commonKey,
                                                    String statisticsKey,
                                                    String statisticsName,
+                                                   boolean isQueryLast,
                                                    Integer rank) {
         //查询到对应的统计信息
         StatisticsInfo statisticsInfo = statisticsInfoService.selectStatisticsInfoByStatisticsKey(statisticsKey);
@@ -309,6 +308,7 @@ public class PictureStatisticsUtil {
                     commonKey,
                     statisticsKey,
                     statisticsName,
+                    isQueryLast,
                     rank);
         } else {
             PictureStatisticsDto pictureStatisticsDto = statisticsPictureUpdate(statisticsInfo, statisticsMap, rank);
@@ -486,10 +486,11 @@ public class PictureStatisticsUtil {
      * 为什么不做其他操作？？因为日只统计当天正常的
      *
      * @param statisticsMap  排序结果MAP
+     * @param statisticsType 统计类型
      * @param commonKey      公共key
      * @param statisticsKey  统计key
-     * @param statisticsType 统计类型
      * @param statisticsName 统计名称
+     * @param isQueryLast
      * @param rank           排序
      * @return void
      * @author: YY
@@ -502,6 +503,7 @@ public class PictureStatisticsUtil {
             String commonKey,
             String statisticsKey,
             String statisticsName,
+            boolean isQueryLast,
             Integer rank
     ) {
         //构建结果 因为查询到的Ids是有序的，所以直接从resultMap中获取
@@ -510,7 +512,7 @@ public class PictureStatisticsUtil {
         //查询到他的上一期
         Date nowDate = DateUtils.getNowDate();
         StatisticsInfo statisticsInfo = new StatisticsInfo();
-        if (commonKey.equals(PICTURE_STATISTICS_HOT_TOTAL_KEY)) {
+        if (!isQueryLast) {
             statisticsInfo.setStages(1L);
         } else {
             StatisticsInfo lastStatisticsInfo = statisticsInfoService.selectNewStatisticsInfoByCommonKey(commonKey);
