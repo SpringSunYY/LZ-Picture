@@ -105,4 +105,14 @@ public interface INoticeInfoService extends IService<NoticeInfo> {
      * @return UserNoticeInfoVo
      **/
     UserNoticeInfoVo selectUserNoticeInfoByNoticeId(String noticeId);
+
+    /**
+     * 用户获取必读展示公告
+     * @author: YY
+     * @method: selectUserNoticeInfoByExhibit
+     * @date: 2025/7/26 19:59
+     * @param noticeInfoRequest
+     * @return UserNoticeInfoVo
+     **/
+    UserNoticeInfoVo selectUserNoticeInfoByExhibit(NoticeInfoRequest noticeInfoRequest);
 }

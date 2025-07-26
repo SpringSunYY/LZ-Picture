@@ -15,8 +15,8 @@ export interface NoticeInfoRequest extends PageDomain {
   noticeTitle?: string
 
   /**分页 */
-  pageNum: number
-  pageSize: number
+  pageNum?: number
+  pageSize?: number
 }
 
 /**
@@ -35,7 +35,6 @@ export interface NoticeInfoVo {
   /** 公告内容 */
   content: string
 
-
   /** 创建时间，格式为 yyyy-MM-dd HH:mm:ss */
   createTime: string
 }
@@ -47,19 +46,17 @@ export enum CNoticeTypeEnum {
   NOTICE_TYPE_2 = '2', // 用户须知
 }
 
-// 获取标签函数
-export function getCNoticeTypeLabel(value: CNoticeTypeEnum): string | undefined {
-  switch (value) {
-    case CNoticeTypeEnum.NOTICE_TYPE_0:
-      return '其他'
-    case CNoticeTypeEnum.NOTICE_TYPE_1:
-      return '平台推送'
-    case CNoticeTypeEnum.NOTICE_TYPE_2:
-      return '用户须知'
-    default:
-      return undefined
-  }
+
+const CNoticeTypeLabels: Record<string, string> = {
+  "0": "其他",
+  "1": "平台推送",
+  "2": "用户须知",
+};
+
+export function getCNoticeTypeLabel(value: string): string | undefined {
+  return CNoticeTypeLabels[value];
 }
+
 
 // 获取枚举值函数
 export function getCNoticeTypeByValue(value: string): CNoticeTypeEnum | undefined {
@@ -97,3 +94,5 @@ export function getCNoticePlatformByValue(value: string): CNoticePlatformEnum | 
   }
   return undefined
 }
+
+

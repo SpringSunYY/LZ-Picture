@@ -40,6 +40,7 @@ const usePermissionStore = defineStore('permission', {
       // 递归转换路由结构
       // @ts-ignore
       const transformRoutes = (routes, parentPath = '') => {
+         // @ts-ignore
         return routes.map((route) => {
           // 拼接完整路径
           const currentPath = route.path.startsWith('/')

@@ -130,6 +130,7 @@ public class SecurityConfig {
                             .requestMatchers("/user/login", "user/captchaImage", "user/getSmsLoginCode",
                                     "user/smsLogin", "user/register", "user/getRegisterCode",
                                     "/user/getForgetPasswordCode", "/user/forgetPassword",
+                                    "/user/config/noticeInfo/exhibit",
                                     "/user/picture/pictureInfo/list",
                                     "/user/picture/pictureInfo/search/recommend",
                                     "/user/picture/pictureInfo/recommend",

@@ -25,6 +25,7 @@ declare module 'vue' {
     JoinUsSelection: typeof import('./src/components/about/JoinUsSelection.vue')['default']
     MarkdownView: typeof import('./src/components/MarkdownView.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']
+    NoticeWindows: typeof import('./src/components/NoticeWindows.vue')['default']
     PictureBatchUpload: typeof import('./src/components/PictureBatchUpload.vue')['default']
     PictureDownloadLogInfoTable: typeof import('./src/components/PictureDownloadLogInfoTable.vue')['default']
     PictureInfoList: typeof import('./src/components/PictureInfoList.vue')['default']

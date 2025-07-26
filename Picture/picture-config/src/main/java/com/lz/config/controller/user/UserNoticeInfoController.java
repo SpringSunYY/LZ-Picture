@@ -3,7 +3,6 @@ package com.lz.config.controller.user;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
-import com.lz.config.model.domain.NoticeInfo;
 import com.lz.config.model.dto.noticeInfo.NoticeInfoRequest;
 import com.lz.config.model.vo.noticeInfo.UserNoticeInfoVo;
 import com.lz.config.service.INoticeInfoService;
@@ -40,10 +39,29 @@ public class UserNoticeInfoController extends BaseController {
         }
         return noticeInfoService.selectUserNoticeInfoList(noticeInfoRequest);
     }
+
+    /**
+     * 获取公告详情
+     *
+     * @param noticeId 公告ID
+     * @return
+     */
     @PreAuthorize("@uss.hasPermi('notice')")
     @GetMapping("/{noticeId}")
     public AjaxResult getInfo(@PathVariable String noticeId) {
         UserNoticeInfoVo noticeInfo = noticeInfoService.selectUserNoticeInfoByNoticeId(noticeId);
+        return AjaxResult.success(noticeInfo);
+    }
+
+    /**
+     * 查询公告必读公告
+     *
+     * @param noticeInfoRequest 请求
+     * @return
+     */
+    @GetMapping("/exhibit")
+    public AjaxResult exhibit(NoticeInfoRequest noticeInfoRequest) {
+        UserNoticeInfoVo noticeInfo = noticeInfoService.selectUserNoticeInfoByExhibit(noticeInfoRequest);
         return AjaxResult.success(noticeInfo);
     }
 }

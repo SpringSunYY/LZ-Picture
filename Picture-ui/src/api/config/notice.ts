@@ -17,3 +17,11 @@ export function getNoticeInfo(id: string): Promise<API.ResponseInfo<NoticeInfoVo
     params: { id },
   })
 }
+
+export function getNoticeInfoByExhibit(params: NoticeInfoRequest): Promise<API.ResponseInfo<NoticeInfoVo>> {
+  return request({
+    url: '/config/noticeInfo/exhibit',
+    method: 'get',
+    params: params,
+  })
+}

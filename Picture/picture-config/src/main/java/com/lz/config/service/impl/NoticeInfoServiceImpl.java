@@ -217,4 +217,28 @@ public class NoticeInfoServiceImpl extends ServiceImpl<NoticeInfoMapper, NoticeI
         return UserNoticeInfoVo.objToVo(byId);
     }
 
+    @CustomCacheable(keyPrefix = CONFIG_NOTICE_INFO, expireTime = CONFIG_NOTICE_INFO_EXPIRE_TIME, keyField = "request.platform")
+    @Override
+    public UserNoticeInfoVo selectUserNoticeInfoByExhibit(NoticeInfoRequest request) {
+        //首先判断平台是否为空
+        if (StringUtils.isEmpty(request.getPlatform())) {
+            NoticeInfo noticeInfo = this.getOne(new LambdaQueryWrapper<NoticeInfo>()
+                    .eq(NoticeInfo::getIsExhibit, CNoticeIsExhibitEnum.NOTICE_IS_EXHIBIT_1.getValue())
+                    .orderByDesc(NoticeInfo::getUpdateTime).last("limit 1"));
+            return UserNoticeInfoVo.objToVo(noticeInfo);
+        }
+        //不为空的时候，查询指定平台下的最新一条数据
+        NoticeInfo noticeInfo = this.getOne(new LambdaQueryWrapper<NoticeInfo>()
+                .eq(NoticeInfo::getPlatform, request.getPlatform())
+                .eq(NoticeInfo::getIsExhibit, CNoticeIsExhibitEnum.NOTICE_IS_EXHIBIT_1.getValue())
+                .orderByDesc(NoticeInfo::getUpdateTime).last("limit 1"));
+        if (StringUtils.isNull(noticeInfo)) {
+            NoticeInfo noticeInfoByBase = this.getOne(new LambdaQueryWrapper<NoticeInfo>()
+                    .eq(NoticeInfo::getIsExhibit, CNoticeIsExhibitEnum.NOTICE_IS_EXHIBIT_1.getValue())
+                    .orderByDesc(NoticeInfo::getUpdateTime).last("limit 1"));
+            return UserNoticeInfoVo.objToVo(noticeInfoByBase);
+        }
+        return UserNoticeInfoVo.objToVo(noticeInfo);
+    }
+
 }
