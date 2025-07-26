@@ -143,32 +143,32 @@
                 <span style="font-size: 16px; padding-left: 8px">积分</span>
               </a-button>
             </a-tooltip>
-<!--            <a-tooltip v-else>
-              <template #title>
-                <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
-                  使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
-                  注意事项：<br />
-                  1. 当前资源作者拥有原图信息；<br />
-                  2. 如果存在版权纠纷，请联系平台，平台会为您联系作者，作者会及时处理；<br />
-                  3. 平台不承担任何版权纠纷责任。<br />
-                  4. 如若版权虚假，存在侵权行为，请及时联系平台，我们会及时处理。<br />
-                </div>
-              </template>
-              <a-button
-                :loading="buyPictureLoading"
-                class="icon-button download-bounce"
-                type="warn"
-                @click="buyPicture"
-              >
-                <template #icon>
-                  <SvgIcon name="download" />
-                </template>
-                <span style="font-size: 16px; padding-left: 8px; color: green">
-                  {{ picture?.moreInfo?.priceNeed || 0 }}
-                </span>
-                <span>元</span>
-              </a-button>
-            </a-tooltip>-->
+            <!--            <a-tooltip v-else>
+                          <template #title>
+                            <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                              使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
+                              注意事项：<br />
+                              1. 当前资源作者拥有原图信息；<br />
+                              2. 如果存在版权纠纷，请联系平台，平台会为您联系作者，作者会及时处理；<br />
+                              3. 平台不承担任何版权纠纷责任。<br />
+                              4. 如若版权虚假，存在侵权行为，请及时联系平台，我们会及时处理。<br />
+                            </div>
+                          </template>
+                          <a-button
+                            :loading="buyPictureLoading"
+                            class="icon-button download-bounce"
+                            type="warn"
+                            @click="buyPicture"
+                          >
+                            <template #icon>
+                              <SvgIcon name="download" />
+                            </template>
+                            <span style="font-size: 16px; padding-left: 8px; color: green">
+                              {{ picture?.moreInfo?.priceNeed || 0 }}
+                            </span>
+                            <span>元</span>
+                          </a-button>
+                        </a-tooltip>-->
           </a-space>
         </a-card>
       </a-col>
@@ -286,6 +286,11 @@
         <a-button @click="openOriginal = false">关闭</a-button>
       </div>
     </a-modal>
+
+    <a-modal v-model:visible="openShare" title="分享图片" @ok="openShare = !openShare">
+      <QRCode :value="shareLink" />
+      <QuickCopy :content="shareLink" />
+    </a-modal>
   </div>
 </template>
 
@@ -321,6 +326,8 @@ import { PictureApplyTypeEnum } from '@/types/picture/pictureApplyInfo.d.ts'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { getPictureOriginalLogInfo } from '@/api/common/file.ts'
 import PictureView from '@/components/PictureView.vue'
+import QRCode from '@/components/QRCode.vue'
+import QuickCopy from '@/components/QuickCopy.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -360,20 +367,24 @@ const getPictureInfo = () => {
 }
 //region 用户行为
 const addUserBehavior = (behaviorType: string) => {
-  console.log('behaviorType', behaviorType)
   const targetType = '0'
   let msg = '点赞成功'
+  //如果是分享
+  if (behaviorType === '2') {
+    shareLink.value = window.location.href
+    console.log('shareLink', shareLink.value)
+  }
 
   addUserBehaviorInfo({
     behaviorType: behaviorType,
     targetType: targetType,
     targetId: pictureId.value,
+    shareLink: shareLink.value,
   }).then((res) => {
     if (res.code === 200 && res.data != undefined && res.data) {
       switch (behaviorType) {
         case '0':
           msg = '点赞成功'
-          console.log('msg', msg)
           picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
           picture.value.isLike = !picture.value.isLike
           break
@@ -384,8 +395,8 @@ const addUserBehavior = (behaviorType: string) => {
           break
         case '2':
           msg = '分享成功'
-          console.log('msg', msg)
           picture.value.shareCount = Number(picture.value?.shareCount || 0) + 1
+          handleShare()
           break
       }
     } else {
@@ -402,11 +413,17 @@ const addUserBehavior = (behaviorType: string) => {
           break
         case '2':
           msg = '分享成功'
+          handleShare()
           break
       }
     }
     message.success(msg)
   })
+}
+const openShare = ref(false)
+const shareLink = ref('')
+const handleShare = () => {
+  openShare.value = true
 }
 //endregion
 //region 购买图片

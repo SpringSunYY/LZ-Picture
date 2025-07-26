@@ -10,6 +10,9 @@ export interface UserBehaviorInfoAdd {
 
   /** 目标对象ID（不能为空） */
   targetId: string
+
+  /** 分享链接 */
+  shareLink?: string
 }
 
 /**

@@ -1,32 +1,26 @@
 package com.lz.picture.controller.admin;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.lz.system.service.ISysConfigService;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.access.prepost.PreAuthorize;
-import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.lz.common.annotation.Log;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.enums.BusinessType;
-import com.lz.picture.model.domain.UserBehaviorInfo;
-import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
-import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
-import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoInsert;
-import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoEdit;
-import com.lz.picture.service.IUserBehaviorInfoService;
-import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.poi.ExcelUtil;
+import com.lz.picture.model.domain.UserBehaviorInfo;
+import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoEdit;
+import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoInsert;
+import com.lz.picture.model.dto.userBehaviorInfo.UserBehaviorInfoQuery;
+import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
+import com.lz.picture.service.IUserBehaviorInfoService;
+import com.lz.system.service.ISysConfigService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 
@@ -57,7 +51,7 @@ public class UserBehaviorInfoController extends BaseController {
         List<UserBehaviorInfoVo> listVo = list.stream().map(UserBehaviorInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserBehaviorInfoVo vo : listVo) {
-            vo.setTargetCover(vo.getTargetCover() + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setTargetCover(OssConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
         }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

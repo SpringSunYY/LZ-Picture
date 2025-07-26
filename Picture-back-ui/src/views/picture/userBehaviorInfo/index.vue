@@ -220,7 +220,13 @@
       <el-table-column label="分数" align="center" prop="score" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="分享链接" align="center" prop="shareLink" v-if="columns[7].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          <a v-if="scope.row.shareLink!==undefined&&scope.row.shareLink!==''" target="_bank" :href="scope.row.shareLink"
+             style="width: 100%; " >查看</a>
+          <span v-else></span>
+        </template>
+      </el-table-column>
       <el-table-column label="图片分类" align="center" prop="categoryId" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="空间" align="center" prop="spaceId" v-if="columns[9].visible"

@@ -34,6 +34,8 @@ declare module 'vue' {
     PictureUpload: typeof import('./src/components/PictureUpload.vue')['default']
     PictureView: typeof import('./src/components/PictureView.vue')['default']
     PointsRechargeTable: typeof import('./src/components/PointsRechargeTable.vue')['default']
+    QRCode: typeof import('./src/components/QRCode.vue')['default']
+    QuickCopy: typeof import('./src/components/QuickCopy.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchInput: typeof import('./src/components/SearchInput.vue')['default']

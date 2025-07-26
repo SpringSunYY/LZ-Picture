@@ -38,6 +38,8 @@ public class UserBehaviorInfoAdd implements Serializable {
     @NotEmpty(message = "目标对象不能为空")
     private String targetId;
 
+    private String shareLink;
+
 
     /**
      * 对象转封装类
