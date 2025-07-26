@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -23,10 +24,10 @@ import com.lz.points.manager.AlipayManager;
 import com.lz.points.manager.model.AlipayCallbackRequest;
 import com.lz.points.manager.model.AlipayPcPaymentRequest;
 import com.lz.points.manager.model.AlipayPcPaymentResponse;
+import com.lz.points.manager.model.AlipayPcPaymentVo;
 import com.lz.points.model.domain.*;
 import com.lz.points.model.dto.pay.PayRequest;
 import com.lz.points.model.enums.*;
-import com.lz.points.manager.model.AlipayPcPaymentVo;
 import com.lz.points.model.vo.paymentOrderInfo.UserPaymentOrderInfoVo;
 import com.lz.points.service.*;
 import com.lz.user.manager.UserAsyncManager;
@@ -129,12 +130,41 @@ public class PayServiceImpl implements IPayService {
         alipayPcPaymentRequest.setTimeoutExpress(alipayPaymentConfig.getTimeoutExpress());
         alipayPcPaymentRequest.setProductCode(alipayPaymentConfig.getProductCode());
 
-        AlipayPcPaymentResponse alipayPcPaymentResponse = alipayManager.pcPay(alipayPcPaymentRequest);
+        AlipayPcPaymentResponse alipayPcPaymentResponse = getAlipayPcPaymentResponse(payRequest, alipayPcPaymentRequest);
         AlipayPcPaymentVo paymentVo = new AlipayPcPaymentVo();
         BeanUtils.copyProperties(alipayPcPaymentResponse, paymentVo);
         //创建订单
         createOrder(payRequest, pointsRechargePackageInfo);
         return paymentVo;
+    }
+
+    private AlipayPcPaymentResponse getAlipayPcPaymentResponse(PayRequest payRequest, AlipayPcPaymentRequest alipayPcPaymentRequest) {
+        try {
+            return alipayManager.pcPay(alipayPcPaymentRequest);
+        } catch (AlipayApiException e) {
+            //记录日志
+            errorLogInfoService.saveErrorLogInfo(
+                    payRequest.getUserId(),
+                    PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                    ALIPAY_WEB,
+                    PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    null,
+                    null,
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
+                    e.getErrCode(), e.getMessage(), e.getCause());
+            throw new ServiceException("支付请求创建失败，正在解决中。。。");
+        } catch (Exception e) {
+            errorLogInfoService.saveErrorLogInfo(
+                    payRequest.getUserId(),
+                    PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                    ALIPAY_WEB,
+                    PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    null,
+                    null,
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_1.getValue(),
+                    null, e.getMessage(), e.getMessage());
+            throw new ServiceException("支付请求创建失败，正在解决中。。。");
+        }
     }
 
     private void createOrder(PayRequest request, PointsRechargePackageInfo packageInfo) {
@@ -207,7 +237,7 @@ public class PayServiceImpl implements IPayService {
                     null,
                     null,
                     PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
-                    null, null, e);
+                    e.getErrCode(), e.getMessage(), e);
             return alipayPaymentConfig.getRedirectUrl();
         }
 
@@ -235,6 +265,13 @@ public class PayServiceImpl implements IPayService {
         return alipayPaymentConfig.getRedirectUrl();
     }
 
+    /**
+     * 获取支付宝订单
+     *
+     * @param outTradeNo 商户自定义订单号
+     * @param tradeNo    支付宝交易号
+     * @return
+     */
     private PaymentOrderInfo getAlipayOrder(String outTradeNo, String tradeNo) {
         AlipayTradeQueryResponse response = null;
         try {
