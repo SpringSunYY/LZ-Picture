@@ -302,6 +302,20 @@ public class PayServiceImpl implements IPayService {
                         StringUtils.isNotEmpty(response.getMsg()) ? response.getMsg() + (StringUtils.isNotEmpty(response.getSubMsg()) ? response.getSubMsg() : "") : "",
                         response);
             }
+        } catch (AlipayApiException e) {
+            log.error("时间：{}获取支付宝签名失败：{}", DateUtils.getNowDate(), JSON.toJSONString(e));
+//            throw new RuntimeException("获取支付宝签名失败！！！");
+            //记录日志
+            errorLogInfoService.saveErrorLogInfo(
+                    null,
+                    PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue(),
+                    ALIPAY_WEB,
+                    PoOrderTypeEnum.ORDER_TYPE_0.getValue(),
+                    null,
+                    null,
+                    PoErrorLogTypeEnum.ERROR_LOG_TYPE_2.getValue(),
+                    e.getErrCode(), e.getMessage(), e.getMessage());
+            return null;
         } catch (Exception e) {
             log.error("时间：{}支付宝回调失败：{}", DateUtils.getNowDate(), JSON.toJSONString(e));
             //记录日志
@@ -373,18 +387,19 @@ public class PayServiceImpl implements IPayService {
         paymentOrderInfo.setTotalAmount(new BigDecimal(totalAmount));
         String buyerPayAmount = response.getBuyerPayAmount();
         if (StringUtils.isEmpty(buyerPayAmount)) {
-            buyerPayAmount = "0";
+            //TODO 没有就是用户付的金额
+            buyerPayAmount = totalAmount;
         }
         BigDecimal rechargeAmount = new BigDecimal(buyerPayAmount);
         paymentOrderInfo.setBuyerPayAmount(rechargeAmount);
         String receiptAmount = response.getReceiptAmount();
         if (StringUtils.isEmpty(receiptAmount)) {
-            receiptAmount = "0";
+            receiptAmount = totalAmount;
         }
         paymentOrderInfo.setReceiptAmount(new BigDecimal(receiptAmount));
         String discountAmount = response.getDiscountAmount();
         if (StringUtils.isEmpty(discountAmount)) {
-            discountAmount = "0";
+            discountAmount = totalAmount;
         }
         paymentOrderInfo.setDiscountAmount(new BigDecimal(discountAmount));
         paymentOrderInfo.setThirdUserId(response.getBuyerUserId());
