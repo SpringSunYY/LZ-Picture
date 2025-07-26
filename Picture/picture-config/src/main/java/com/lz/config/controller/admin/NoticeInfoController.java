@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -86,9 +87,10 @@ public class NoticeInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('config:noticeInfo:add')")
     @Log(title = "用户公告", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody NoticeInfoInsert noticeInfoInsert)
+    public AjaxResult add(@RequestBody @Validated NoticeInfoInsert noticeInfoInsert)
     {
         NoticeInfo noticeInfo = NoticeInfoInsert.insertToObj(noticeInfoInsert);
+        noticeInfo.setUserId(getUserId());
         return toAjax(noticeInfoService.insertNoticeInfo(noticeInfo));
     }
 

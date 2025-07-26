@@ -6,6 +6,7 @@ import com.lz.config.model.domain.NoticeInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import java.util.Date;
  */
 @Data
 public class NoticeInfoVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -28,7 +30,7 @@ public class NoticeInfoVo implements Serializable {
     /**
      * 语言 默认zh-CN
      */
-    @Excel(name = "语言 默认zh-CN")
+    @Excel(name = "语言")
     private String locale;
 
     /**
@@ -77,6 +79,7 @@ public class NoticeInfoVo implements Serializable {
      * 创建人
      */
     @Excel(name = "创建人")
+    private String userName;
     private Long userId;
 
     /**

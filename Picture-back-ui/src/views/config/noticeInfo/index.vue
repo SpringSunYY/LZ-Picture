@@ -9,13 +9,25 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="语言 默认zh-CN" prop="locale">
-        <el-input
+      <el-form-item label="语言" prop="locale">
+        <el-select
             v-model="queryParams.locale"
-            placeholder="请输入语言 默认zh-CN"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入简称"
+            remote-show-suffix
+            :remote-method="remoteGetLocaleList"
+            :loading="localeLoading"
+            style="width: 200px"
+        >
+          <el-option
+              v-for="item in localeList"
+              :key="item.localeId"
+              :label="item.locale"
+              :value="item.locale"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="通知平台" prop="platform">
         <el-select v-model="queryParams.platform" style="width: 200px" placeholder="请选择通知平台" clearable>
@@ -149,7 +161,7 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="公告编号" align="center" prop="noticeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="语言 默认zh-CN" align="center" prop="locale" v-if="columns[1].visible"
+      <el-table-column label="语言" align="center" prop="locale" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="通知平台" align="center" prop="platform" v-if="columns[2].visible">
         <template #default="scope">
@@ -177,7 +189,7 @@
           <dict-tag :options="u_notice_status" :value="scope.row.noticeStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建人" align="center" prop="userId" v-if="columns[9].visible"
+      <el-table-column label="创建人" align="center" prop="userName" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
@@ -214,63 +226,101 @@
     />
 
     <!-- 添加或修改用户公告对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="800px" append-to-body>
       <el-form ref="noticeInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="语言 默认zh-CN" prop="locale">
-          <el-input v-model="form.locale" placeholder="请输入语言 默认zh-CN"/>
-        </el-form-item>
-        <el-form-item label="通知平台" prop="platform">
-          <el-radio-group v-model="form.platform">
-            <el-radio
-                v-for="dict in u_notice_platform"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="公告类型" prop="noticeType">
-          <el-select v-model="form.noticeType" placeholder="请选择公告类型">
-            <el-option
-                v-for="dict in u_notice_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="是否展示" prop="isExhibit">
-          <el-radio-group v-model="form.isExhibit">
-            <el-radio
-                v-for="dict in u_notice_is_exhibit"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="公告标题" prop="noticeTitle">
-          <el-input v-model="form.noticeTitle" placeholder="请输入公告标题"/>
-        </el-form-item>
-        <el-form-item label="公告内容">
-          <editor v-model="form.content" :min-height="192"/>
-        </el-form-item>
-        <el-form-item label="排序" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入排序"/>
-        </el-form-item>
-        <el-form-item label="公告状态" prop="noticeStatus">
-          <el-radio-group v-model="form.noticeStatus">
-            <el-radio
-                v-for="dict in u_notice_status"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="语言" prop="locale">
+              <el-select
+                  v-model="form.locale"
+                  filterable
+                  remote
+                  reserve-keyword
+                  placeholder="请输入简称"
+                  remote-show-suffix
+                  :remote-method="remoteGetLocaleList"
+                  :loading="localeLoading"
+                  style="width: 240px"
+              >
+                <el-option
+                    v-for="item in localeList"
+                    :key="item.localeId"
+                    :label="item.locale"
+                    :value="item.locale"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="通知平台" prop="platform">
+              <el-radio-group v-model="form.platform">
+                <el-radio
+                    v-for="dict in u_notice_platform"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="公告类型" prop="noticeType">
+              <el-select v-model="form.noticeType" placeholder="请选择公告类型">
+                <el-option
+                    v-for="dict in u_notice_type"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="是否展示" prop="isExhibit">
+              <el-radio-group v-model="form.isExhibit">
+                <el-radio
+                    v-for="dict in u_notice_is_exhibit"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="公告状态" prop="noticeStatus">
+              <el-radio-group v-model="form.noticeStatus">
+                <el-radio
+                    v-for="dict in u_notice_status"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="排序" prop="orderNum">
+              <el-input-number :min="0" :max="10" v-model="form.orderNum" placeholder="请输入排序"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="公告标题" prop="noticeTitle">
+              <el-input v-model="form.noticeTitle" placeholder="请输入公告标题"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="公告内容">
+              <MarkdownEditor v-model="form.content" theme="light"
+                              previewTheme="github"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -284,6 +334,8 @@
 
 <script setup name="NoticeInfo">
 import {listNoticeInfo, getNoticeInfo, delNoticeInfo, addNoticeInfo, updateNoticeInfo} from "@/api/config/noticeInfo";
+import {listI18nLocaleInfo} from "@/api/config/i18nLocaleInfo.js";
+import MarkdownEditor from "@/components/MarkdownEditor/index.vue";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -306,6 +358,14 @@ const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
 const data = reactive({
+  localeList: [],
+  localeLoading: false,
+  localeQueryParams: {
+    pageNum: 1,
+    pageSize: 10,
+    locale: '',
+    localeStatus: '0',
+  },
   form: {},
   queryParams: {
     pageNum: 1,
@@ -358,23 +418,60 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '公告编号', visible: true},
-    {key: 1, label: '语言 默认zh-CN', visible: true},
+    {key: 0, label: '公告编号', visible: false},
+    {key: 1, label: '语言', visible: true},
     {key: 2, label: '通知平台', visible: true},
     {key: 3, label: '公告类型', visible: true},
     {key: 4, label: '是否展示', visible: true},
     {key: 5, label: '公告标题', visible: true},
     {key: 6, label: '公告内容', visible: true},
-    {key: 7, label: '排序', visible: true},
+    {key: 7, label: '排序', visible: false},
     {key: 8, label: '公告状态', visible: true},
     {key: 9, label: '创建人', visible: true},
     {key: 10, label: '创建时间', visible: true},
-    {key: 11, label: '更新时间', visible: true},
-    {key: 12, label: '备注', visible: true},
+    {key: 11, label: '更新时间', visible: false},
+    {key: 12, label: '备注', visible: false},
   ],
 });
 
-const {queryParams, form, rules, columns} = toRefs(data);
+const {
+  queryParams, form, rules, columns,
+  localeQueryParams, localeList, localeLoading,
+} = toRefs(data);
+
+/**
+ * 远程获取国际化简称
+ * @param query
+ */
+const remoteGetLocaleList = (query) => {
+  if (query) {
+    console.log(query)
+    localeLoading.value = true;
+    localeQueryParams.value.locale = query;
+    setTimeout(() => {
+      getLocaleList()
+    }, 200)
+  } else {
+    if (form.value.locale) {
+      localeQueryParams.value.locale = form.value.locale;
+    } else {
+      localeQueryParams.value.locale = ''
+    }
+    getLocaleList()
+  }
+}
+
+/**
+ * 获取国际化简称列表
+ */
+function getLocaleList() {
+  listI18nLocaleInfo(localeQueryParams.value).then(response => {
+    localeList.value = response.rows;
+    localeLoading.value = false
+  })
+}
+
+getLocaleList()
 
 /** 查询用户公告列表 */
 function getList() {
@@ -410,7 +507,7 @@ function reset() {
     noticeType: null,
     isExhibit: null,
     noticeTitle: null,
-    content: null,
+    content: '',
     orderNum: null,
     noticeStatus: null,
     userId: null,
