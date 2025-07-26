@@ -24,11 +24,11 @@ public class AlipayPaymentConfig {
     /**
      * 支付宝私钥
      */
-    private String privateKey;
+    private String privateKeyPath;
     /**
      * 支付宝公钥
      */
-    private String publicKey;
+    private String publicKeyPath;
     /**
      * 服务URL
      */

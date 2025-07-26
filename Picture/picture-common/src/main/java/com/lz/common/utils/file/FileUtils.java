@@ -373,4 +373,32 @@ public class FileUtils {
             }
         }
     }
+
+    /**
+     * 根据文件路径读取文件内容
+     */
+    public static String readFileContent(String filePath) {
+        if (StringUtils.isEmpty(filePath)) {
+            log.error("文件路径不能为空");
+            return null;
+        }
+        try (FileInputStream fis = new FileInputStream(filePath);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) != -1) {
+                bos.write(buffer, 0, length);
+            }
+            return bos.toString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("读取文件内容失败", e);
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        String s = readFileContent("E:\\Project\\Picture\\alipay_public_key.txt");
+        System.out.println(s);
+    }
 }

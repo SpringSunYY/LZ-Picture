@@ -13,6 +13,7 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
@@ -191,7 +192,7 @@ public class PayServiceImpl implements IPayService {
         boolean sign = false;
         try {
             sign = AlipaySignature.rsaCheckV1(map,
-                    alipayPaymentConfig.getPublicKey(),
+                    FileUtils.readFileContent(alipayPaymentConfig.getPublicKeyPath()),
                     alipayPaymentConfig.getCharset(),
                     alipayPaymentConfig.getSignType());
         } catch (AlipayApiException e) {

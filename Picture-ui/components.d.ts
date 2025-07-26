@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AboutLayout: typeof import('./src/components/about/AboutLayout.vue')['default']
-    AboutSection: typeof import('./src/components/about/AboutSection.vue')['default']
     AvatarUpload: typeof import('./src/components/AvatarUpload.vue')['default']
     BackToUp: typeof import('./src/components/BackToUp.vue')['default']
     Comment: typeof import('./src/components/Comment/Comment.vue')['default']
@@ -24,7 +23,6 @@ declare module 'vue' {
     HelpCenterSection: typeof import('./src/components/about/HelpCenterSection.vue')['default']
     HorizontalFallLayout: typeof import('./src/components/HorizontalFallLayout.vue')['default']
     JoinUsSelection: typeof import('./src/components/about/JoinUsSelection.vue')['default']
-    LayoutAboutLayout: typeof import('./src/components/about/LayoutAboutLayout.vue')['default']
     MarkdownView: typeof import('./src/components/MarkdownView.vue')['default']
     MasonryImage: typeof import('./src/components/MasonryImage.vue')['default']
     PictureBatchUpload: typeof import('./src/components/PictureBatchUpload.vue')['default']
@@ -38,13 +36,10 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchInput: typeof import('./src/components/SearchInput.vue')['default']
-    SponsorsSection: typeof import('./src/components/about/SponsorsSection.vue')['default']
     StorySection: typeof import('./src/components/about/StorySection.vue')['default']
     SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
     Tags: typeof import('./src/components/Tags.vue')['default']
-    TeamMember: typeof import('./src/components/about/TeamMember.vue')['default']
     TeamSection: typeof import('./src/components/about/TeamSection.vue')['default']
-    TermsSection: typeof import('./src/components/about/TermsSection.vue')['default']
     UFold: typeof import('undraw-ui')['UFold']
     UserAgreementSection: typeof import('./src/components/about/UserAgreementSection.vue')['default']
     UserBehaviorTable: typeof import('./src/components/UserBehaviorTable.vue')['default']
@@ -52,7 +47,6 @@ declare module 'vue' {
     UserPointsUsageLog: typeof import('./src/components/UserPointsUsageLog.vue')['default']
     UserViewInfoTable: typeof import('./src/components/UserViewInfoTable.vue')['default']
     VerticalFallLayout: typeof import('./src/components/VerticalFallLayout.vue')['default']
-    VerticalFallLayoutTemp: typeof import('./src/components/VerticalFallLayoutTemp.vue')['default']
     VisionSection: typeof import('./src/components/about/VisionSection.vue')['default']
   }
 }
