@@ -42,7 +42,6 @@ public class UserNoticeInfoVo implements Serializable {
      */
     private String content;
 
-
     /**
      * 创建时间
      */
