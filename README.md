@@ -533,6 +533,53 @@ create index idx_template_type
 
 
 
+#### 用户公告表：c_notice_info
+
+| 字段名        | 类型         | 长度 | 键类型/索引                       | Null | 默认值   | 描述           |
+| ------------- | ------------ | ---- | --------------------------------- | ---- | -------- | -------------- |
+| notice_id     | varchar      | 128  | 主键                              | 否   |          | 公告编号       |
+| locale        | varchar      | 8    | 外键（c_i18n_locale_info:locale） | 否   |          | 语言 默认zh-CN |
+| platform      | char         | 1    |                                   | 否   |          | 通知平台       |
+| notice_type   | char         | 1    |                                   | 否   |          | 公告类型       |
+| is_exhibit    | char         | 1    |                                   | 否   |          | 是否展示       |
+| notice_title  | varchar      | 128  |                                   | 否   |          | 公告标题       |
+| content       | text         |      |                                   | 否   |          | 公告内容       |
+| order_num     | int          |      |                                   | 否   |          | 排序           |
+| notice_status | char         | 1    |                                   | 否   |          | 公告状态       |
+| user_id       | bigint       |      |                                   | 否   |          | 创建人         |
+| create_time   | datetime     |      | 索引                              | 否   | 当前时间 | 创建时间       |
+| update_time   | datetime     |      |                                   | 否   |          | 更新时间       |
+| remark        | varchar(500) | 500  |                                   | 是   |          | 备注           |
+
+是否展示：是否每天第一次访问页面的时候展示此公告
+
+公告状态：是否隐藏
+
+```sql
+-- 如果已存在则先删除
+DROP TABLE IF EXISTS c_notice_info;
+
+-- 创建用户公告表
+CREATE TABLE c_notice_info (
+  notice_id      VARCHAR(128)    NOT NULL PRIMARY KEY COMMENT '公告编号',
+  locale         VARCHAR(8)      NOT NULL COMMENT '语言 默认zh-CN',
+  platform       CHAR(1)         NOT NULL COMMENT '通知平台',
+  notice_type    CHAR(1)         NOT NULL COMMENT '公告类型',
+  is_exhibit     CHAR(1)         NOT NULL COMMENT '是否展示',
+  notice_title   VARCHAR(128)    NOT NULL COMMENT '公告标题',
+  content        TEXT            NOT NULL COMMENT '公告内容',
+  order_num      INT             NOT NULL COMMENT '排序',
+  notice_status  CHAR(1)         NOT NULL COMMENT '公告状态',
+  user_id        BIGINT          NOT NULL COMMENT '创建人',
+  create_time    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  remark         VARCHAR(500)             COMMENT '备注',
+  -- 索引与外键
+  KEY idx_create_time (create_time),
+  CONSTRAINT fk_notice_info_locale FOREIGN KEY (locale) REFERENCES c_i18n_locale_info(locale)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户公告表';
+```
+
 
 
 #### 文件日志表：c_file_log_info
