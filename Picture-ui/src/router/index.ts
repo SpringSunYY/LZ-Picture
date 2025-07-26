@@ -154,6 +154,17 @@ export const constantRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/noticeDetail',
+    name: 'NoticeDetail',
+    component: () => import('@/views/user/inform/noticeDetail.vue'),
+    meta: {
+      title: '公告详情',
+      cacheKey: 'noticeDetail',
+      isHidden: true,
+      isCache: false,
+    }
+  },
+  {
     path: '/points/payment',
     name: 'PointsPayment',
     component: () => import('@/views/points/payment.vue'),
@@ -244,7 +255,7 @@ export const lastRouteConstants: RouteRecordRaw[] = [
       icon: 'about',
       menuAddress: '2',
     },
-  }
+  },
 ]
 
 // 创建路由实例

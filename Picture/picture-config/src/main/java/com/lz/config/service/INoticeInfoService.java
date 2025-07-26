@@ -1,21 +1,25 @@
 package com.lz.config.service;
 
-import java.util.List;
-import com.lz.config.model.domain.NoticeInfo;
-import com.lz.config.model.vo.noticeInfo.NoticeInfoVo;
-import com.lz.config.model.dto.noticeInfo.NoticeInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.config.model.domain.NoticeInfo;
+import com.lz.config.model.dto.noticeInfo.NoticeInfoQuery;
+import com.lz.config.model.dto.noticeInfo.NoticeInfoRequest;
+import com.lz.config.model.vo.noticeInfo.NoticeInfoVo;
+import com.lz.config.model.vo.noticeInfo.UserNoticeInfoVo;
+
+import java.util.List;
+
 /**
  * 用户公告Service接口
  *
  * @author YY
  * @date 2025-07-26
  */
-public interface INoticeInfoService extends IService<NoticeInfo>
-{
+public interface INoticeInfoService extends IService<NoticeInfo> {
     //region mybatis代码
+
     /**
      * 查询用户公告
      *
@@ -64,6 +68,7 @@ public interface INoticeInfoService extends IService<NoticeInfo>
      */
     public int deleteNoticeInfoByNoticeId(String noticeId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +84,25 @@ public interface INoticeInfoService extends IService<NoticeInfo>
      * @return NoticeInfoVO集合
      */
     List<NoticeInfoVo> convertVoList(List<NoticeInfo> noticeInfoList);
+
+    /**
+     * 用户查询公告
+     *
+     * @param request 查询条件
+     * @return TableDataInfo
+     * @author: YY
+     * @method: selectUserNoticeInfoList
+     * @date: 2025/7/26 18:24
+     **/
+    TableDataInfo selectUserNoticeInfoList(NoticeInfoRequest request);
+
+    /**
+     * 获取用户公告详细信息
+     * @author: YY
+     * @method: selectUserNoticeInfoByNoticeId
+     * @date: 2025/7/26 19:45
+     * @param noticeId
+     * @return UserNoticeInfoVo
+     **/
+    UserNoticeInfoVo selectUserNoticeInfoByNoticeId(String noticeId);
 }

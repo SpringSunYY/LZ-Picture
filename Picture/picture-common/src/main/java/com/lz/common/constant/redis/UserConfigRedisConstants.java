@@ -33,4 +33,13 @@ public class UserConfigRedisConstants {
      * 模版缓存
      */
     public static final String CONFIG_TEMPLATE_INFO = "config:template:info:";
+
+    /**
+     * 公告缓存
+     */
+    public static final String CONFIG_NOTICE_INFO = "config:notice:info:";
+    /**
+     * 缓存超时时间
+     */
+    public static final int CONFIG_NOTICE_INFO_EXPIRE_TIME = 60 * 60 * 24;
 }

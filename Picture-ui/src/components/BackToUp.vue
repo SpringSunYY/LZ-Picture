@@ -97,8 +97,8 @@ onUnmounted(() => {
 <style scoped>
 .custom-back-top {
   position: fixed;
-  bottom: 50px;
-  right: 50px;
+  bottom: 120px;
+  right: 80px;
   width: 70px;
   height: 70px;
   border: 3px solid #1890ff;
@@ -289,7 +289,7 @@ onUnmounted(() => {
   .custom-back-top {
     width: 60px;
     height: 60px;
-    bottom: 30px;
+    bottom: 80px;
     right: 30px;
   }
 

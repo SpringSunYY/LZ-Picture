@@ -1,22 +1,14 @@
 <template>
   <div class="inform-detail">
-    <a-card class="detail-card" :title="detail.informTitle">
+    <a-card class="detail-card" :title="detail.noticeTitle">
       <template #extra>
-        <DictTag :value="detail.templateType" :options="c_template_type" />
+        <DictTag :value="detail.noticeType" :options="u_notice_type" />
       </template>
 
       <div class="meta">
         <div>
-          <span>类型：</span>
-          <DictTag :value="detail.informType" :options="u_inform_type" />
-        </div>
-        <div>
-          <span>状态：</span>
-          <DictTag :value="detail.isRead" :options="u_inform_is_read" />
-        </div>
-        <div>
           <span>时间：</span>
-          <span>{{ detail.sendTime }}</span>
+          <span>{{ detail.createTime }}</span>
         </div>
       </div>
       <div class="content">
@@ -29,34 +21,28 @@
 <script setup lang="ts">
 import { getCurrentInstance, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getInformInfo } from '@/api/user/inform.ts'
 import DictTag from '@/components/DictTag.vue'
 import MarkdownView from '@/components/MarkdownView.vue'
-import type { InformInfoVo } from '@/types/user/informInfo'
+import { getNoticeInfo } from '@/api/config/notice.ts'
+import type { NoticeInfoVo } from '@/types/config/notice'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { u_inform_type, u_inform_is_read, c_template_type } = proxy?.useDict(
-  'u_inform_type',
-  'u_inform_is_read',
-  'c_template_type',
-)
+const { u_notice_type } = proxy?.useDict('u_notice_type')
 const route = useRoute()
-const recordId = route.query.recordId as string
+const noticeId = route.query.noticeId as string
 
-const detail = ref<InformInfoVo>({
-  recordId: '',
-  informTitle: '',
-  templateType: '',
+const detail = ref<NoticeInfoVo>({
+  noticeId: '',
+  noticeTitle: '',
+  noticeType: '',
   content: '',
-  informType: '',
-  isRead: 1,
-  sendTime: '',
+  createTime: '',
 })
 
-if (recordId) {
-  getInformInfo(recordId).then((res) => {
-    detail.value = res.data
+if (noticeId) {
+  getNoticeInfo(noticeId).then((res) => {
+    detail.value = res.data || null
   })
 }
 </script>
@@ -66,6 +52,7 @@ if (recordId) {
   padding: 20px;
   max-width: 1280px;
   margin: 0 auto;
+
   .detail-card {
     .meta {
       display: flex;

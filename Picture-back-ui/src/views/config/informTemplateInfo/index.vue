@@ -373,8 +373,8 @@
               </template>
               <!--              <el-input type="textarea" placeholder="请输入内容，例：例：你好我是${userName},我想对你说${tell}" :rows="5"-->
               <!--                        v-model="form.content" :min-height="192"/>-->
-             <MarkdownEditor v-model="form.content"  theme="light"
-                         previewTheme="github" />
+              <MarkdownEditor v-model="form.content" theme="light"
+                              previewTheme="github"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
