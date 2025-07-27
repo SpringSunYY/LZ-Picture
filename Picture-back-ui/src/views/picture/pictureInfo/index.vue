@@ -210,7 +210,7 @@
     </el-row>
 
     <el-table v-loading="loading" :data="pictureInfoList" @selection-change="handleSelectionChange"
-              @sort-change="customSort()">
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="图片" align="center" prop="pictureId" v-if="columns[0].visible"
