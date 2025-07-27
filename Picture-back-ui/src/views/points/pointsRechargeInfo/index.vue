@@ -248,7 +248,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="pointsRechargeInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="充值记录编号" align="center" prop="rechargeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="套餐名称" align="center" prop="packageName" v-if="columns[1].visible"

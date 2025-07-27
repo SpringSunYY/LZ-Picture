@@ -116,7 +116,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="i18nLocaleInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="编号" align="center" prop="localeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="国家地区" align="center" prop="localeName" v-if="columns[1].visible"

@@ -145,6 +145,7 @@
 
     <el-table v-loading="loading" :data="pictureApplyInfoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="申请编号" align="center" prop="applyId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片编号" align="center" prop="pictureId" v-if="columns[1].visible"
@@ -235,7 +236,7 @@
             </template>
           </el-popconfirm>
 
-          <el-button link  type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['picture:pictureApplyInfo:edit']">修改/审核
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"

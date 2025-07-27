@@ -188,7 +188,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="informTemplateInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="主键" align="center" prop="templateId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="模版名称" align="center" prop="templateName" v-if="columns[1].visible"

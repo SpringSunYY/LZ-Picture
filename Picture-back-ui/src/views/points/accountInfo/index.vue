@@ -100,7 +100,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="accountInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="账户编号" align="center" prop="accountId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[1].visible"

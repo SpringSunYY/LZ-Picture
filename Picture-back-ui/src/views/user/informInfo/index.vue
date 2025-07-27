@@ -172,7 +172,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="informInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="通知记录编号" align="center" prop="recordId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="模板KEY" align="center" prop="templateKey" v-if="columns[1].visible"

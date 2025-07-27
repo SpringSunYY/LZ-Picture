@@ -114,7 +114,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="statisticsInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="统计编号" align="center" prop="statisticsId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="统计类型" align="center" prop="type" v-if="columns[1].visible">

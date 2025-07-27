@@ -158,7 +158,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="noticeInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
+            <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="公告编号" align="center" prop="noticeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="语言" align="center" prop="locale" v-if="columns[1].visible"
