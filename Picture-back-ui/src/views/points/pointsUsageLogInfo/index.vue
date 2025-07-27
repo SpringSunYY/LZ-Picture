@@ -183,8 +183,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pointsUsageLogInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="pointsUsageLogInfoList"
+              @selection-change="handleSelectionChange" @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="记录编号" align="center" prop="logId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -204,11 +205,11 @@
       </el-table-column>
       <el-table-column label="目标编号" align="center" prop="targetId" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="使用前积分" align="center" prop="pointsBefore" v-if="columns[6].visible"
+      <el-table-column label="使用前积分" align="center" prop="pointsBefore" sortable="custom" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="消费积分" align="center" prop="pointsUsed" v-if="columns[7].visible"
+      <el-table-column label="消费积分" align="center" prop="pointsUsed" sortable="custom" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="使用后积分" align="center" prop="pointsAfter" v-if="columns[8].visible"
+      <el-table-column label="使用后积分" align="center" prop="pointsAfter" sortable="custom" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
@@ -224,13 +225,15 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="备注" align="center" prop="remark" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[16].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[17].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" width="180"
+                       v-if="columns[17].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -354,6 +357,8 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -430,10 +435,28 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询积分使用记录列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -491,6 +514,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

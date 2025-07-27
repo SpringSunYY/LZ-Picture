@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.PictureUploadManager;
@@ -62,6 +63,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
      * @param fileLogInfo 文件日志
      * @return 文件日志
      */
+    @CustomSort(sortFields = {"createTime", "deleteTime"}, sortMappingFields = {"create_time", "delete_time"})
     @Override
     public List<FileLogInfo> selectFileLogInfoList(FileLogInfo fileLogInfo) {
         List<FileLogInfo> fileLogInfos = fileLogInfoMapper.selectFileLogInfoList(fileLogInfo);

@@ -110,7 +110,6 @@
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -157,8 +156,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="spaceInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="spaceInfoList" @sort-change="customSort"
+              @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="空间编号" align="center" prop="spaceId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -176,27 +176,34 @@
       </el-table-column>
       <el-table-column label="存储配置" align="center" prop="ossConfig" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="最大容量" align="center" prop="maxSize" v-if="columns[5].visible"
+      <el-table-column label="最大容量" align="center" prop="maxSize" sortable="custom" column-key="max_size"
+                       v-if="columns[5].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.maxSize) }}
         </template>
       </el-table-column>
-      <el-table-column label="最大文件数" align="center" prop="maxCount" v-if="columns[6].visible"
+      <el-table-column label="最大文件数" align="center" prop="maxCount" sortable="custom" column-key="max_count"
+                       v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="已用容量" align="center" prop="totalSize" v-if="columns[7].visible"
+      <el-table-column label="已用容量" align="center" prop="totalSize" sortable="custom" column-key="total_size"
+                       v-if="columns[7].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.totalSize) }}
         </template>
       </el-table-column>
-      <el-table-column label="文件总数" align="center" prop="totalCount" v-if="columns[8].visible"
+      <el-table-column label="文件总数" align="center" prop="totalCount" sortable="custom" column-key="total_count"
+                       v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[9].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[10].visible"
+      <el-table-column label="收藏次数" align="center" prop="collectCount" sortable="custom" column-key="collect_count"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[11].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom"
+                       column-key="download_count" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="所属用户" align="center" prop="userId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
@@ -212,23 +219,28 @@
           <dict-tag :options="p_space_type" :value="scope.row.spaceType"/>
         </template>
       </el-table-column>
-      <el-table-column label="成员上限" align="center" prop="memberLimit" v-if="columns[16].visible"
+      <el-table-column label="成员上限" align="center" prop="memberLimit" sortable="custom" column-key="member_limit"
+                       v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="当前成员数" align="center" prop="currentMembers" v-if="columns[17].visible"
+      <el-table-column label="当前成员数" align="center" prop="currentMembers" sortable="custom"
+                       column-key="current_members" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[18].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable="custom"
+                       column-key="create_time" v-if="columns[18].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最后上传时间" align="center" prop="lastUpdateTime" width="180" v-if="columns[19].visible"
+      <el-table-column label="最后上传时间" align="center" prop="lastUpdateTime" sortable="custom"
+                       column-key="last_update_time" width="180" v-if="columns[19].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.lastUpdateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" v-if="columns[20].visible"
+      <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" sortable="custom"
+                       column-key="update_time" v-if="columns[20].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -239,7 +251,8 @@
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[22].visible"
+      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" sortable="custom"
+                       column-key="deleted_time" v-if="columns[22].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -383,7 +396,8 @@ const daterangeCreateTime = ref([]);
 const daterangeLastUpdateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 const daterangeDeletedTime = ref([]);
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -436,7 +450,7 @@ const data = reactive({
     {key: 7, label: '已用容量', visible: true},
     {key: 8, label: '文件总数', visible: true},
     {key: 9, label: '查看次数', visible: true},
-    {key: 10, label: '收藏次数', visible: true},
+    {key: 10, label: '收藏次数', visible: false},
     {key: 11, label: '下载次数', visible: true},
     {key: 12, label: '所属用户', visible: true},
     {key: 13, label: '空间描述', visible: false},
@@ -454,10 +468,26 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
 /** 查询空间信息列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -473,6 +503,11 @@ function getList() {
   if (null != daterangeDeletedTime && '' != daterangeDeletedTime) {
     queryParams.value.params["beginDeletedTime"] = daterangeDeletedTime.value[0];
     queryParams.value.params["endDeletedTime"] = daterangeDeletedTime.value[1];
+  }
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
   }
   listSpaceInfo(queryParams.value).then(response => {
     spaceInfoList.value = response.rows;
@@ -529,6 +564,8 @@ function resetQuery() {
   daterangeLastUpdateTime.value = [];
   daterangeUpdateTime.value = [];
   daterangeDeletedTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }

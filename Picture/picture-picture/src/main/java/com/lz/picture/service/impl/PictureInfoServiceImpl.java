@@ -165,10 +165,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @param pictureInfo 图片信息
      * @return 图片信息
      */
-    @CustomSort(sortFields = {
-            "create_time", "update_time", "publish_time", "delete_time",
-            "look_count", "collect_count", "like_count", "share_count", "download_count",
-            "pic_size", "pic_width", "pic_height"})
+    @CustomSort(
+            sortFields = {"createTime", "updateTime", "publishTime", "deletedTime",
+                    "lookCount", "collectCount", "likeCount", "shareCount", "downloadCount",
+                    "picSize", "picWidth", "picHeight"},
+            sortMappingFields = {
+                    "create_time", "update_time", "publish_time", "deleted_time",
+                    "look_count", "collect_count", "like_count", "share_count", "download_count",
+                    "pic_size", "pic_width", "pic_height"})
     @Override
     public List<PictureInfo> selectPictureInfoList(PictureInfo pictureInfo) {
         List<PictureInfo> pictureInfos = pictureInfoMapper.selectPictureInfoList(pictureInfo);

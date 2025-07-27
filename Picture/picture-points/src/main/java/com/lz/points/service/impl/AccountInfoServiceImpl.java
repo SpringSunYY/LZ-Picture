@@ -3,6 +3,7 @@ package com.lz.points.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.constant.CacheConstants;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.config.TemplateInfoKeyConstants;
@@ -14,7 +15,6 @@ import com.lz.common.exception.user.CaptchaExpireException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.config.manager.sms.SmsTemplate;
-import com.lz.config.service.IConfigInfoService;
 import com.lz.points.mapper.AccountInfoMapper;
 import com.lz.points.model.domain.AccountInfo;
 import com.lz.points.model.dto.accountInfo.AccountInfoQuery;
@@ -57,9 +57,6 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
     private RedisCache redisCache;
 
     @Resource
-    private IConfigInfoService configInfoService;
-
-    @Resource
     private SmsTemplate smsTemplate;
 
     @Resource
@@ -84,6 +81,10 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
      * @param accountInfo 积分账户
      * @return 积分账户
      */
+    @CustomSort(sortFields = {"pointsEarned", "pointsUsed", "rechargeAmount", "pointsBalance",
+            "createTime", "updateTime"},
+            sortMappingFields = {"points_earned", "points_used", "recharge_amount", "points_balance",
+                    "create_time", "update_time"})
     @Override
     public List<AccountInfo> selectAccountInfoList(AccountInfo accountInfo) {
         return accountInfoMapper.selectAccountInfoList(accountInfo);

@@ -63,7 +63,7 @@
             <if test="os != null  and os != ''">and os = #{os}</if>
             <if test="platform != null  and platform != ''">and platform = #{platform}</if>
             <if test="ipAddr != null  and ipAddr != ''">and ip_addr like concat('%', #{ipAddr}, '%')</if>
-            <if test="ipAddress != null  and ipAddress != ''"> and ip_address like concat('%', #{ipAddress}, '%')</if>
+            <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
@@ -72,7 +72,14 @@
             </if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPointsUsageLogInfoByLogId" parameterType="String" resultMap="PointsUsageLogInfoResult">

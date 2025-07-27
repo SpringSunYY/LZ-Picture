@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
@@ -79,6 +80,14 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
      * @param spaceInfo 空间信息
      * @return 空间信息
      */
+    @CustomSort(sortMappingFields = {
+            "max_size", "max_count", "total_size", "total_count", "look_count", "collect_count", "download_count",
+            "member_limit", "current_members",
+            "create_time", "last_update_time", "update_time", "deleted_time"
+    }, sortFields = {
+            "maxSize", "maxCount", "totalSize", "totalCount", "lookCount", "collectCount", "downloadCount",
+            "member_limit", "current_members",
+            "createTime", "lastUpdateTime", "updateTime", "deletedTime"})
     @Override
     public List<SpaceInfo> selectSpaceInfoList(SpaceInfo spaceInfo) {
         return spaceInfoMapper.selectSpaceInfoList(spaceInfo);

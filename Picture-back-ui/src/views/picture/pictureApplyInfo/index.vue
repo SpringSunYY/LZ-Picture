@@ -143,7 +143,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pictureApplyInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="pictureApplyInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="申请编号" align="center" prop="applyId" v-if="columns[0].visible"
@@ -179,13 +180,15 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户" align="center" prop="userId" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[12].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" column-key="create_time" sortable="custom"
+                       width="180" v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" column-key="update_time"
+                       sortable="custom" v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -200,7 +203,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="审核人编号" align="center" prop="reviewUserId" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="审核时间" align="center" prop="reviewTime" width="180" v-if="columns[17].visible"
+      <el-table-column label="审核时间" align="center" prop="reviewTime"
+                       sortable="custom" column-key="review_time" width="180" v-if="columns[17].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -344,7 +348,8 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 const daterangeReviewTime = ref([]);
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -418,6 +423,19 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 function rejectApply(apply) {
   apply.reviewMessage = '审核未通过,请检查您提交的证明文件'
   apply.reviewStatus = '2'
@@ -442,6 +460,10 @@ function agreeApply(apply) {
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -503,6 +525,9 @@ function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
   daterangeReviewTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

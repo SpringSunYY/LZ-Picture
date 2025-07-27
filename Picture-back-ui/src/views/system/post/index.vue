@@ -81,19 +81,20 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="postList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="postList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="岗位编号" align="center" prop="postId"/>
       <el-table-column label="岗位编码" align="center" prop="postCode"/>
       <el-table-column label="岗位名称" align="center" prop="postName"/>
-      <el-table-column label="岗位排序" align="center" prop="postSort"/>
+      <el-table-column label="岗位排序" align="center" prop="postSort" sortable="custom"/>
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
           <dict-tag :options="sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -185,12 +186,31 @@ const data = reactive({
     postSort: [{required: true, message: "岗位顺序不能为空", trigger: "blur"}],
   }
 });
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const {queryParams, form, rules} = toRefs(data);
+
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
 
 /** 查询岗位列表 */
 function getList() {
   loading.value = true;
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   listPost(queryParams.value).then(response => {
     postList.value = response.rows;
     total.value = response.total;
@@ -225,6 +245,9 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

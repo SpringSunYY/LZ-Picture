@@ -83,7 +83,14 @@
                 #{params.endResolveTime}
             </if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectErrorLogInfoByErrorId" parameterType="String" resultMap="ErrorLogInfoResult">

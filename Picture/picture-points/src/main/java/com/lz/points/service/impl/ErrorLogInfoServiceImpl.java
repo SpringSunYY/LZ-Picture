@@ -1,31 +1,25 @@
 package com.lz.points.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.alibaba.fastjson.JSON;
-import com.alipay.api.AlipayApiException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.DeviceInfo;
-import com.lz.common.utils.StringUtils;
-
-import java.util.Date;
-
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
+import com.lz.points.mapper.ErrorLogInfoMapper;
+import com.lz.points.model.domain.ErrorLogInfo;
+import com.lz.points.model.dto.errorLogInfo.ErrorLogInfoQuery;
+import com.lz.points.model.vo.errorLogInfo.ErrorLogInfoVo;
+import com.lz.points.service.IErrorLogInfoService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.points.mapper.ErrorLogInfoMapper;
-import com.lz.points.model.domain.ErrorLogInfo;
-import com.lz.points.service.IErrorLogInfoService;
-import com.lz.points.model.dto.errorLogInfo.ErrorLogInfoQuery;
-import com.lz.points.model.vo.errorLogInfo.ErrorLogInfoVo;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 异常捕获Service业务层处理
@@ -58,6 +52,8 @@ public class ErrorLogInfoServiceImpl extends ServiceImpl<ErrorLogInfoMapper, Err
      * @param errorLogInfo 异常捕获
      * @return 异常捕获
      */
+    @CustomSort(sortFields = {"createTime","resolveTime"},
+    sortMappingFields = {"create_time","resolve_time"})
     @Override
     public List<ErrorLogInfo> selectErrorLogInfoList(ErrorLogInfo errorLogInfo) {
         return errorLogInfoMapper.selectErrorLogInfoList(errorLogInfo);

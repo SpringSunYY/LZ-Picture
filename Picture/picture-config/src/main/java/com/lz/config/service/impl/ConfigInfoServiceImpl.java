@@ -3,6 +3,7 @@ package com.lz.config.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.exception.sql.SQLDuplicateKeyException;
 import com.lz.common.utils.DateUtils;
@@ -75,6 +76,8 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
      * @param configInfo 配置信息
      * @return 配置信息
      */
+    @CustomSort(sortFields = {"createTime", "configName", "configKey", "orderNum", "updateTime"},
+            sortMappingFields = {"create_time", "config_name", "config_key", "order_num", "update_time"})
     @Override
     public List<ConfigInfo> selectConfigInfoList(ConfigInfo configInfo) {
         return configInfoMapper.selectConfigInfoList(configInfo);
@@ -215,7 +218,7 @@ public class ConfigInfoServiceImpl extends ServiceImpl<ConfigInfoMapper, ConfigI
             return "";
         }
         //数据库如果有则存缓存
-        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE+ configKey, configInfo.getConfigValue());
+        redisCache.setCacheObject(CONFIG_CONFIG_INFO_KEY + configInfo.getConfigIsIn() + COMMON_SEPARATOR_CACHE + configKey, configInfo.getConfigValue());
         return configInfo.getConfigValue();
     }
 }

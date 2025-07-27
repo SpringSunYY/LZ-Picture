@@ -157,8 +157,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="noticeInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="noticeInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="公告编号" align="center" prop="noticeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -192,13 +193,15 @@
       </el-table-column>
       <el-table-column label="创建人" align="center" prop="userName" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[10].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" width="180"
+                       v-if="columns[11].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -358,6 +361,8 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   localeList: [],
   localeLoading: false,
@@ -440,6 +445,19 @@ const {
   localeQueryParams, localeList, localeLoading,
 } = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /**
  * 远程获取国际化简称
  * @param query
@@ -478,6 +496,10 @@ getLocaleList()
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -529,6 +551,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

@@ -54,7 +54,14 @@
                 and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}
             </if>
         </where>
-        order by order_num asc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by order_num asc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectConfigInfoByConfigId" parameterType="Long" resultMap="ConfigInfoResult">

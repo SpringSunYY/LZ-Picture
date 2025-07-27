@@ -131,6 +131,7 @@
         </if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
+        ${params.sortSql}
     </select>
 
     <select id="selectAllocatedList" parameterType="SysUser" resultMap="SysUserResult">

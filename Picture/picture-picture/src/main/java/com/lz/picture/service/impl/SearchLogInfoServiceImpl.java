@@ -1,23 +1,21 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
-import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
-import com.lz.common.utils.uuid.IdUtils;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.mapper.SearchLogInfoMapper;
 import com.lz.picture.model.domain.SearchLogInfo;
-import com.lz.picture.service.ISearchLogInfoService;
 import com.lz.picture.model.dto.searchLogInfo.SearchLogInfoQuery;
 import com.lz.picture.model.vo.searchLogInfo.SearchLogInfoVo;
+import com.lz.picture.service.ISearchLogInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 用户搜索记录Service业务层处理
@@ -49,6 +47,8 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @param searchLogInfo 用户搜索记录
      * @return 用户搜索记录
      */
+    @CustomSort(sortFields = {"createTime", "resultCount", "searchDuration"},
+            sortMappingFields = {"createTime", "resultCount", "searchDuration"})
     @Override
     public List<SearchLogInfo> selectSearchLogInfoList(SearchLogInfo searchLogInfo) {
         return searchLogInfoMapper.selectSearchLogInfoList(searchLogInfo);

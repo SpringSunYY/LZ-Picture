@@ -120,6 +120,7 @@
         :data="pictureCategoryInfoList"
         row-key="categoryId"
         :default-expand-all="isExpandAll"
+        @sort-change="customSort"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
       <el-table-column label="父级分类" prop="parentId" v-if="columns[1].visible" :show-overflow-tooltip="true"/>
@@ -151,19 +152,24 @@
           <dict-tag :options="p_category_query_status" :value="scope.row.queryStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="使用次数" align="center" prop="usageCount" v-if="columns[10].visible"
+      <el-table-column label="使用次数" align="center" prop="usageCount" sortable="custom" column-key="usage_count"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[11].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
+                       v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[12].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom"
+                       column-key="download_count" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" column-key="create_time"
+                       width="180" v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" column-key="update_time"
+                       width="180" v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -301,7 +307,8 @@ const isExpandAll = ref(true);
 const refreshTable = ref(true);
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -376,10 +383,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /** 查询图片分类信息列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -443,6 +467,9 @@ function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
   proxy.resetForm("queryRef");
+  proxy.$refs.tableRef.clearSort();
+  orderByColumn.value = null
+  isAsc.value = null;
   handleQuery();
 }
 

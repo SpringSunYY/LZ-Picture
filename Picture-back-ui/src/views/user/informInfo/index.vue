@@ -171,7 +171,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="informInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="informInfoList" @selection-change="handleSelectionChange"  @sort-change="customSort">
             <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="通知记录编号" align="center" prop="recordId" v-if="columns[0].visible"
@@ -343,6 +343,8 @@ const title = ref("");
 const daterangeReadTime = ref([]);
 const daterangeSendTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -422,10 +424,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询用户通知记录列表 */
 function getList() {
   loading.value = true;
-  queryParams.value.params = {};
+ queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeReadTime && '' != daterangeReadTime) {
     queryParams.value.params["beginReadTime"] = daterangeReadTime.value[0];
     queryParams.value.params["endReadTime"] = daterangeReadTime.value[1];
@@ -479,6 +498,8 @@ function handleQuery() {
 function resetQuery() {
   daterangeReadTime.value = [];
   daterangeSendTime.value = [];
+    orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }

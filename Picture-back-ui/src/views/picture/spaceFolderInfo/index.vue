@@ -98,7 +98,8 @@
         :default-expand-all="isExpandAll"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
-      <el-table-column label="空间编号" prop="spaceId" v-if="columns[1].visible" :show-overflow-tooltip="true"/>
+      <el-table-column label="空间编号" prop="spaceId" v-if="columns[1].visible" :show-overflow-tooltip="true"
+                       @sort-change="customSort"/>
       <el-table-column label="父文件夹编号" align="center" prop="parentId" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="祖级列表" align="center" prop="ancestors" v-if="columns[3].visible"
@@ -203,6 +204,8 @@ const refreshTable = ref(true);
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -263,10 +266,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询空间文件夹列表 */
 function getList() {
   loading.value = true;
-  queryParams.value.params = {};
+ queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -325,6 +345,8 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+    orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }

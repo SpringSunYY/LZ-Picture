@@ -96,7 +96,14 @@
             <if test="os != null  and os != ''">and os = #{os}</if>
             <if test="platform != null  and platform != ''">and platform like concat('%', #{platform}, '%')</if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPictureDownloadLogInfoByDownloadId" parameterType="String"

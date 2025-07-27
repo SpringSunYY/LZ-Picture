@@ -155,7 +155,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="riskControlLogInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="riskControlLogInfoList" @selection-change="handleSelectionChange"  @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="风控日志编号" align="center" prop="logId" v-if="columns[0].visible"
@@ -308,6 +308,8 @@ const title = ref("");
 const daterangeActionTime = ref([]);
 const daterangeCreateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -377,10 +379,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询风控日志列表 */
 function getList() {
   loading.value = true;
-  queryParams.value.params = {};
+ queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeActionTime && '' != daterangeActionTime) {
     queryParams.value.params["beginActionTime"] = daterangeActionTime.value[0];
     queryParams.value.params["endActionTime"] = daterangeActionTime.value[1];
@@ -434,6 +453,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeActionTime.value = [];
   daterangeCreateTime.value = [];
+    orderByColumn.value = null
+  isAsc.value = null;
+     proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

@@ -118,6 +118,7 @@
         v-if="refreshTable"
         v-loading="loading"
         :data="pictureCommentInfoList"
+        @sort-change="customSort"
         row-key="commentId"
         :default-expand-all="isExpandAll"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -248,6 +249,8 @@ const isExpandAll = ref(true);
 const refreshTable = ref(true);
 const daterangeCreateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -302,10 +305,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询图片评论列表 */
 function getList() {
   loading.value = true;
-  queryParams.value.params = {};
+ queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -359,6 +379,8 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   daterangeCreateTime.value = [];
+    orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }

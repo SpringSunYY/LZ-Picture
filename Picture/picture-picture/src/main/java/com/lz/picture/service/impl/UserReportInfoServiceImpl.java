@@ -2,6 +2,7 @@ package com.lz.picture.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonDeleteEnum;
@@ -75,6 +76,7 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
      * @param userReportInfo 用户举报信息
      * @return 用户举报信息
      */
+    @CustomSort(sortFields = {"createTime", "reviewTime"}, sortMappingFields = {"create_time", "review_time"})
     @Override
     public List<UserReportInfo> selectUserReportInfoList(UserReportInfo userReportInfo) {
         return userReportInfoMapper.selectUserReportInfoList(userReportInfo);
@@ -329,13 +331,13 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
             Optional<PReportTargetTypeEnum> authorTargetTypeEnumOptional = PReportTargetTypeEnum.getEnumByValue(userReportInfoDb.getTargetType());
             if (authorTargetTypeEnumOptional.isPresent()) {
                 authorParams.put("targetType", authorTargetTypeEnumOptional.get().getLabel());
-            }else {
+            } else {
                 authorParams.put("targetType", "未知类型");
             }
             Optional<PReportTypeEnum> authorReportTypeEnumOptional = PReportTypeEnum.getEnumByValue(userReportInfo.getReportType());
             if (authorReportTypeEnumOptional.isPresent()) {
                 authorParams.put("reportType", authorReportTypeEnumOptional.get().getLabel());
-            }else {
+            } else {
                 authorParams.put("reportType", "未知类型");
             }
             authorParams.put("reviewMessage", userReportInfo.getReviewMessage());

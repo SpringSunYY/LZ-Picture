@@ -72,7 +72,8 @@
               <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
             </el-row>
 
-            <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
+            <el-table ref="tableRef" v-loading="loading" :data="userList" @selection-change="handleSelectionChange"
+                      @sort-change="customSort">
               <el-table-column type="selection" width="50" align="center"/>
               <el-table-column label="序号" type="index" width="50"/>
               <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible"/>
@@ -94,7 +95,8 @@
                   ></el-switch>
                 </template>
               </el-table-column>
-              <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[6].visible" width="160">
+              <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom"
+                               column-key="createTime" v-if="columns[6].visible" width="160">
                 <template #default="scope">
                   <span>{{ parseTime(scope.row.createTime) }}</span>
                 </template>
@@ -318,6 +320,8 @@ const columns = ref([
   {key: 6, label: `创建时间`, visible: true}
 ]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -349,6 +353,19 @@ const data = reactive({
 
 const {queryParams, form, rules} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /** 通过条件过滤节点  */
 const filterNode = (value, data) => {
   if (!value) return true;
@@ -363,7 +380,16 @@ watch(deptName, val => {
 /** 查询用户列表 */
 function getList() {
   loading.value = true;
-  listUser(proxy.addDateRange(queryParams.value, dateRange.value)).then(res => {
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
+  if (null != dateRange.value && '' != dateRange.value) {
+    queryParams.value.params["beginTime"] = dateRange.value[0];
+    queryParams.value.params["endTime"] = dateRange.value[1];
+  }
+  listUser(queryParams.value).then(res => {
     loading.value = false;
     userList.value = res.rows;
     total.value = res.total;
@@ -406,6 +432,9 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   dateRange.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   queryParams.value.deptId = undefined;
   proxy.$refs.deptTreeRef.setCurrentKey(null);

@@ -3,6 +3,7 @@ package com.lz.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
@@ -67,6 +68,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
      * @param userInfo 用户信息
      * @return 用户信息
      */
+    @CustomSort(sortFields = {"birthday", "lastLoginTime", "createTime", "updateTime"},
+            sortMappingFields = {"birthday", "last_login_time", "create_time", "update_time"})
     @Override
     public List<UserInfo> selectUserInfoList(UserInfo userInfo) {
         return userInfoMapper.selectUserInfoList(userInfo);

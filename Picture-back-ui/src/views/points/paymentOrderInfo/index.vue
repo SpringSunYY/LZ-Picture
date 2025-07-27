@@ -235,8 +235,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="paymentOrderInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="paymentOrderInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="订单编号" align="center" prop="orderId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -257,13 +258,14 @@
           <dict-tag :options="po_payment_type" :value="scope.row.paymentType"/>
         </template>
       </el-table-column>
-      <el-table-column label="订单总金额" align="center" prop="totalAmount" v-if="columns[5].visible"
+      <el-table-column label="订单总额" align="center" prop="totalAmount" sortable="custom" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" v-if="columns[6].visible"
+      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" sortable="custom" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实收金额" align="center" prop="receiptAmount" v-if="columns[7].visible"
+      <el-table-column label="实收金额" align="center" prop="receiptAmount" sortable="custom" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台优惠金额" align="center" prop="discountAmount" v-if="columns[8].visible"
+      <el-table-column label="平台优惠金额" align="center" prop="discountAmount" sortable="custom"
+                       v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="第三方支付平台" align="center" prop="thirdParty" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
@@ -271,7 +273,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="第三方支付平台订单号" align="center" prop="thirdPartyOrder" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="支付时间" align="center" prop="paymentTime" width="180" v-if="columns[12].visible"
+      <el-table-column label="支付时间" align="center" prop="paymentTime" width="180" sortable="custom"
+                       v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.paymentTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -284,7 +287,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="支付返回额外信息" align="center" prop="paymentExtend" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[17].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable="custom"
+                       v-if="columns[17].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -453,6 +457,8 @@ const daterangePaymentTime = ref([]);
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -546,10 +552,28 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询支付订单列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangePaymentTime && '' != daterangePaymentTime) {
     queryParams.value.params["beginPaymentTime"] = daterangePaymentTime.value[0];
     queryParams.value.params["endPaymentTime"] = daterangePaymentTime.value[1];
@@ -620,6 +644,9 @@ function resetQuery() {
   daterangePaymentTime.value = [];
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

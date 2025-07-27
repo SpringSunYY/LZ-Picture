@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.utils.StringUtils;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.Date;
 import com.lz.common.utils.DateUtils;
 import com.lz.points.model.enums.PoOrderStatusEnum;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -54,6 +56,12 @@ public class PaymentOrderInfoServiceImpl extends ServiceImpl<PaymentOrderInfoMap
      * @param paymentOrderInfo 支付订单
      * @return 支付订单
      */
+    @CustomSort(
+            sortFields = {"totalAmount","buyerPayAmount","receiptAmount","discountAmount",
+                    "paymentTime","createTime"},
+            sortMappingFields = {"total_amount","buyer_pay_amount","receipt_amount","discount_amount",
+            "payment_time","create_time"}
+    )
     @Override
     public List<PaymentOrderInfo> selectPaymentOrderInfoList(PaymentOrderInfo paymentOrderInfo) {
         return paymentOrderInfoMapper.selectPaymentOrderInfoList(paymentOrderInfo);

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.DateUtils;
@@ -64,6 +65,7 @@ public class NoticeInfoServiceImpl extends ServiceImpl<NoticeInfoMapper, NoticeI
      * @param noticeInfo 用户公告
      * @return 用户公告
      */
+    @CustomSort(sortFields = {"createTime", "updateTime"}, sortMappingFields = {"create_time", "update_time"})
     @Override
     public List<NoticeInfo> selectNoticeInfoList(NoticeInfo noticeInfo) {
         List<NoticeInfo> noticeInfos = noticeInfoMapper.selectNoticeInfoList(noticeInfo);

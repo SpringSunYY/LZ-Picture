@@ -217,8 +217,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="errorLogInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="errorLogInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="异常编号" align="center" prop="errorId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -251,7 +252,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="相关订单编号" align="center" prop="relatedOrderId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="异常记录时间" align="center" prop="createTime" width="180" v-if="columns[11].visible"
+      <el-table-column label="异常记录时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[11].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -274,7 +276,8 @@
           <dict-tag :options="po_error_resolve_status" :value="scope.row.resolveStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="解决时间" align="center" prop="resolveTime" width="180" v-if="columns[19].visible"
+      <el-table-column label="解决时间" align="center" prop="resolveTime" sortable="custom" width="180"
+                       v-if="columns[19].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.resolveTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -387,7 +390,7 @@ const {
   po_payment_type,
   po_order_type,
   po_error_log_type
-} = proxy.useDict('po_error_resolve_status', 'po_payment_type', 'po_order_type','po_error_log_type');
+} = proxy.useDict('po_error_resolve_status', 'po_payment_type', 'po_order_type', 'po_error_log_type');
 
 const errorLogInfoList = ref([]);
 const open = ref(false);
@@ -401,6 +404,8 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeResolveTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -470,17 +475,35 @@ const data = reactive({
     {key: 16, label: 'IP地址', visible: false},
     {key: 17, label: 'IP属地', visible: false},
     {key: 18, label: '解决状态', visible: true},
-    {key: 19, label: '解决时间', visible: true},
+    {key: 19, label: '解决时间', visible: false},
     {key: 20, label: '备注', visible: false},
   ],
 });
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询异常捕获列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -540,6 +563,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeResolveTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

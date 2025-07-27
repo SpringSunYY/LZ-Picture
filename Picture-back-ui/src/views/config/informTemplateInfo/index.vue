@@ -187,14 +187,15 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="informTemplateInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="informTemplateInfoList"
+              @selection-change="handleSelectionChange" @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="主键" align="center" prop="templateId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="模版名称" align="center" prop="templateName" v-if="columns[1].visible"
+      <el-table-column label="模版名称" align="center" prop="templateName" sortable="custom" v-if="columns[1].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="模版KEY" align="center" prop="templateKey" v-if="columns[2].visible"
+      <el-table-column label="模版KEY" align="center" prop="templateKey" sortable="custom" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="语言" align="center" prop="locale" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
@@ -238,7 +239,8 @@
       </el-table-column>
       <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[18].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[18].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -246,7 +248,8 @@
       </el-table-column>
       <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[20].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" width="180"
+                       v-if="columns[20].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -479,6 +482,8 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   //版本
   templateVersion: null,
@@ -581,6 +586,19 @@ const {
   currentVersion
 } = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 // 计算属性，过滤小于最大版本的选项
 const filteredTemplateVersions = computed(() => {
   var versions = [];
@@ -617,6 +635,10 @@ function getTemplateExample() {
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -678,6 +700,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

@@ -98,8 +98,8 @@
             </if>
         </where>
         <choose>
-            <when test="params.SORT_SQL != null and params.SORT_SQL != ''">
-                ${params.SORT_SQL}
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
             </when>
             <otherwise>
                 order by create_time desc

@@ -101,12 +101,15 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="configList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="configList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="参数主键" align="center" prop="configId"/>
-      <el-table-column label="参数名称" align="center" prop="configName" :show-overflow-tooltip="true"/>
-      <el-table-column label="参数键名" align="center" prop="configKey" :show-overflow-tooltip="true"/>
+      <el-table-column label="参数名称" align="center" prop="configName" sortable="custom"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="参数键名" align="center" prop="configKey" sortable="custom"
+                       :show-overflow-tooltip="true"/>
       <el-table-column label="参数键值" align="center" prop="configValue" :show-overflow-tooltip="true"/>
       <el-table-column label="系统内置" align="center" prop="configType">
         <template #default="scope">
@@ -114,7 +117,7 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -192,6 +195,8 @@ const total = ref(0);
 const title = ref("");
 const dateRange = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -210,10 +215,32 @@ const data = reactive({
 
 const {queryParams, form, rules} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /** 查询参数列表 */
 function getList() {
   loading.value = true;
-  listConfig(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
+  if (null != dateRange.value && '' != dateRange.value) {
+    queryParams.value.params["beginTime"] = dateRange.value[0];
+    queryParams.value.params["endTime"] = dateRange.value[1];
+  }
+  listConfig(queryParams.value).then(response => {
     configList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -248,6 +275,9 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   dateRange.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

@@ -247,8 +247,10 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pointsRechargeInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="pointsRechargeInfoList"
+              @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="充值记录编号" align="center" prop="rechargeId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -258,17 +260,18 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="订单编号" align="center" prop="orderId" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="总数" align="center" prop="totalCount" v-if="columns[4].visible"
+      <el-table-column label="总数" align="center" prop="totalCount" sortable="custom" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="充值积分数量" align="center" prop="pointsCount" v-if="columns[5].visible"
+      <el-table-column label="充值数量" align="center" prop="pointsCount" sortable="custom"
+                       v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="赠送数量" align="center" prop="bonusCount" v-if="columns[6].visible"
+      <el-table-column label="赠送数量" align="center" prop="bonusCount" sortable="custom" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="充值金额" align="center" prop="priceCount" v-if="columns[7].visible"
+      <el-table-column label="充值金额" align="center" prop="priceCount" sortable="custom" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" v-if="columns[8].visible"
+      <el-table-column label="实付金额" align="center" prop="buyerPayAmount" sortable="custom" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="数量" align="center" prop="rechargeCount" v-if="columns[9].visible"
+      <el-table-column label="数量" align="center" prop="rechargeCount" sortable="custom" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="支付方式" align="center" prop="paymentType" v-if="columns[10].visible">
         <template #default="scope">
@@ -284,19 +287,22 @@
           <dict-tag :options="po_recharge_status" :value="scope.row.rechargeStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="充值时间" align="center" prop="createTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="充值时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="到账时间" align="center" prop="arrivalTime" width="180" v-if="columns[15].visible"
+      <el-table-column label="到账时间" align="center" prop="arrivalTime" sortable="custom" width="180"
+                       v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.arrivalTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[16].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" width="180"
+                       v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -438,6 +444,8 @@ const daterangeCreateTime = ref([]);
 const daterangeArrivalTime = ref([]);
 const daterangeUpdateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -517,11 +525,11 @@ const data = reactive({
     {key: 4, label: '总数', visible: true},
     {key: 5, label: '充值积分数量', visible: true},
     {key: 6, label: '赠送数量', visible: true},
-    {key: 7, label: '充值金额', visible: true},
+    {key: 7, label: '充值金额', visible: false},
     {key: 8, label: '实付金额', visible: true},
     {key: 9, label: '数量', visible: false},
     {key: 10, label: '支付方式', visible: true},
-    {key: 11, label: '第三方支付平台', visible: true},
+    {key: 11, label: '第三方支付平台', visible: false},
     {key: 12, label: '第三方支付平台订单号', visible: false},
     {key: 13, label: '充值状态', visible: true},
     {key: 14, label: '充值时间', visible: true},
@@ -540,10 +548,28 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询积分充值记录列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -611,6 +637,9 @@ function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeArrivalTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

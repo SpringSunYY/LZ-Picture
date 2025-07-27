@@ -2,6 +2,7 @@ package com.lz.picture.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
@@ -80,6 +81,8 @@ public class SpaceDilatationInfoServiceImpl extends ServiceImpl<SpaceDilatationI
      * @param spaceDilatationInfo 空间扩容信息
      * @return 空间扩容信息
      */
+    @CustomSort(sortFields = {"createTime", "pointsTotal", "dilatationTotal", "dilatationUnit"},
+            sortMappingFields = {"create_time", "points_total", "dilatation_total", "dilatation_unit"})
     @Override
     public List<SpaceDilatationInfo> selectSpaceDilatationInfoList(SpaceDilatationInfo spaceDilatationInfo) {
         return spaceDilatationInfoMapper.selectSpaceDilatationInfoList(spaceDilatationInfo);

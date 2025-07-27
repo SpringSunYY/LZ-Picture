@@ -48,7 +48,14 @@
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectSpaceDilatationInfoByDilatationId" parameterType="String" resultMap="SpaceDilatationInfoResult">

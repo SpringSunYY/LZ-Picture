@@ -18,8 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
@@ -46,11 +46,13 @@ public class SpaceInfoController extends BaseController {
         SpaceInfo spaceInfo = SpaceInfoQuery.queryToObj(spaceInfoQuery);
         startPage();
         List<SpaceInfo> list = spaceInfoService.selectSpaceInfoList(spaceInfo);
-        List<SpaceInfoVo> listVo = list.stream().map(SpaceInfoVo::objToVo).collect(Collectors.toList());
-        listVo.forEach(vo -> {
+        List<SpaceInfoVo> listVo = new ArrayList<>();
+        list.forEach(vo -> {
             vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            SpaceInfoVo spaceInfoVo = SpaceInfoVo.objToVo(vo);
+            listVo.add(spaceInfoVo);
         });
-        TableDataInfo table = getDataTable(list);
+        TableDataInfo table = getDataTable(listVo);
         table.setRows(listVo);
         return table;
     }

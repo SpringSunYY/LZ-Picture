@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
@@ -58,6 +59,11 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
      * @param pictureCategoryInfo 图片分类信息
      * @return 图片分类信息
      */
+    @CustomSort(
+            sortFields = {"usageCount", "lookCount", "downloadCount", "createTime", "updateTime"},
+            sortMappingFields = {
+                    "usage_count", "look_count", "download_count", "create_time", "update_time"
+            })
     @Override
     public List<PictureCategoryInfo> selectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo) {
         return pictureCategoryInfoMapper.selectPictureCategoryInfoList(pictureCategoryInfo);

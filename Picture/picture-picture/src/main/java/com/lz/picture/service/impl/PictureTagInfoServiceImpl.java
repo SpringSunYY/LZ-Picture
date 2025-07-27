@@ -2,6 +2,7 @@ package com.lz.picture.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.PictureTagInfoMapper;
@@ -45,6 +46,11 @@ public class PictureTagInfoServiceImpl extends ServiceImpl<PictureTagInfoMapper,
      * @param pictureTagInfo 图片标签信息
      * @return 图片标签信息
      */
+    @CustomSort(sortFields = {
+            "usageCount", "lookCount", "downloadCount", "createTime", "updateTime"
+    }, sortMappingFields = {
+            "usage_count", "look_count", "download_count", "create_time", "update_time"
+    })
     @Override
     public List<PictureTagInfo> selectPictureTagInfoList(PictureTagInfo pictureTagInfo) {
         return pictureTagInfoMapper.selectPictureTagInfoList(pictureTagInfo);

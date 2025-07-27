@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.redis.PictureRedisConstants;
 import com.lz.common.core.redis.RedisCache;
@@ -110,6 +111,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      * @param pictureApplyInfo 图片申请信息
      * @return 图片申请信息
      */
+    @CustomSort(sortFields = {"createTime","reviewTime","updateTime"},sortMappingFields = {"create_time","review_time","update_time"})
     @Override
     public List<PictureApplyInfo> selectPictureApplyInfoList(PictureApplyInfo pictureApplyInfo) {
         List<PictureApplyInfo> pictureApplyInfos = pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);

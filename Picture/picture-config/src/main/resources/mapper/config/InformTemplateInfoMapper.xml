@@ -86,6 +86,14 @@
                 and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}
             </if>
         </where>
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by cerate_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectInformTemplateInfoByTemplateId" parameterType="Long" resultMap="InformTemplateInfoResult">

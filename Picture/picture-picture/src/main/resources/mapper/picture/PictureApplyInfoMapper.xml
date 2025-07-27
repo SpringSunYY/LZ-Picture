@@ -51,7 +51,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 and DATE_FORMAT(review_time, '%Y-%m-%d') between #{params.beginReviewTime} and #{params.endReviewTime}
             </if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPictureApplyInfoByApplyId" parameterType="String" resultMap="PictureApplyInfoResult">

@@ -209,7 +209,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pictureInfoList" @selection-change="handleSelectionChange"
+    <el-table ref="tableRef" v-loading="loading" :data="pictureInfoList" @selection-change="handleSelectionChange"
               @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
@@ -559,10 +559,9 @@ const {queryParams, form, rules, columns} = toRefs(data);
 
 //自定义排序
 function customSort({column, prop, order}) {
-  if (column.columnKey !== undefined && column.columnKey !== '' && order !== null && order !== '') {
-    orderByColumn.value = column.columnKey;
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
     isAsc.value = order === "ascending";
-    console.log(orderByColumn.value, isAsc.value);
   } else {
     orderByColumn.value = null;
     isAsc.value = null;
@@ -575,6 +574,10 @@ function customSort({column, prop, order}) {
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -590,10 +593,6 @@ function getList() {
   if (null != daterangeDeletedTime && '' != daterangeDeletedTime) {
     queryParams.value.params["beginDeletedTime"] = daterangeDeletedTime.value[0];
     queryParams.value.params["endDeletedTime"] = daterangeDeletedTime.value[1];
-  }
-  if (orderByColumn.value != null && isAsc.value !== null) {
-    queryParams.value.params["orderByColumn"] = orderByColumn.value;
-    queryParams.value.params["isAsc"] = isAsc.value;
   }
   listPictureInfo(queryParams.value).then(response => {
     pictureInfoList.value = response.rows;
@@ -656,6 +655,7 @@ function resetQuery() {
   daterangeDeletedTime.value = [];
   orderByColumn.value = null
   isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

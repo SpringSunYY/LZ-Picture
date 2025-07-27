@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
@@ -79,6 +80,11 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
      * @param pointsUsageLogInfo 积分使用记录
      * @return 积分使用记录
      */
+    @CustomSort(sortFields = {
+            "pointsBefore", "pointsUsed", "pointsAfter", "createTime", "updateTime"
+    }, sortMappingFields = {
+            "points_before", "points_used", "points_after", "create_time", "update_time"
+    })
     @Override
     public List<PointsUsageLogInfo> selectPointsUsageLogInfoList(PointsUsageLogInfo pointsUsageLogInfo) {
         return pointsUsageLogInfoMapper.selectPointsUsageLogInfoList(pointsUsageLogInfo);

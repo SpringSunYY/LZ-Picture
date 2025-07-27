@@ -1,33 +1,31 @@
 package com.lz.config.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.constant.redis.UserConfigRedisConstants;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.exception.ServiceException;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
-import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
-import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoVersionQuery;
-import com.lz.config.model.enmus.CTemplateStatusEnum;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lz.config.mapper.InformTemplateInfoMapper;
 import com.lz.config.model.domain.InformTemplateInfo;
-import com.lz.config.service.IInformTemplateInfoService;
+import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoHistory;
 import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoQuery;
+import com.lz.config.model.dto.informTemplateInfo.InformTemplateInfoVersionQuery;
+import com.lz.config.model.enmus.CTemplateStatusEnum;
 import com.lz.config.model.vo.informTemplateInfo.InformTemplateInfoVo;
+import com.lz.config.service.IInformTemplateInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 通知模版Service业务层处理
@@ -62,6 +60,8 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
      * @param informTemplateInfo 通知模版
      * @return 通知模版
      */
+    @CustomSort(sortFields = {"createTime", "templateName", "templateKey", "updateTime"},
+            sortMappingFields = {"create_time", "templateName", "templateKey", "update_time"})
     @Override
     public List<InformTemplateInfo> selectInformTemplateInfoList(InformTemplateInfo informTemplateInfo) {
         return informTemplateInfoMapper.selectInformTemplateInfoList(informTemplateInfo);

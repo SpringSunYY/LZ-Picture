@@ -97,7 +97,14 @@
             <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by arrival_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPointsRechargeInfoByRechargeId" parameterType="String" resultMap="PointsRechargeInfoResult">

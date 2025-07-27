@@ -1,35 +1,27 @@
 package com.lz.points.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
+import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
-
-import java.math.BigDecimal;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.utils.DateUtils;
+import com.lz.points.mapper.PointsRechargeInfoMapper;
+import com.lz.points.model.domain.PointsRechargeInfo;
 import com.lz.points.model.domain.PointsRechargePackageInfo;
+import com.lz.points.model.dto.pointsRechargeInfo.PointsRechargeInfoQuery;
 import com.lz.points.model.dto.pointsRechargeInfo.UserPointsRechargeInfoQuery;
-import com.lz.points.model.enums.PoRechargeStatusEnum;
+import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
+import com.lz.points.service.IPointsRechargeInfoService;
 import com.lz.points.service.IPointsRechargePackageInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lz.points.mapper.PointsRechargeInfoMapper;
-import com.lz.points.model.domain.PointsRechargeInfo;
-import com.lz.points.service.IPointsRechargeInfoService;
-import com.lz.points.model.dto.pointsRechargeInfo.PointsRechargeInfoQuery;
-import com.lz.points.model.vo.pointsRechargeInfo.PointsRechargeInfoVo;
-import org.springframework.transaction.support.TransactionTemplate;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 积分充值记录Service业务层处理
@@ -64,6 +56,13 @@ public class PointsRechargeInfoServiceImpl extends ServiceImpl<PointsRechargeInf
      * @param pointsRechargeInfo 积分充值记录
      * @return 积分充值记录
      */
+    @CustomSort(sortFields = {
+            "totalCount", "pointsCount", "bonusCount", "priceCount", "buyerPayAmount",
+            "rechargeCount", "createTime", "arrivalTime", "updateTime"
+    }, sortMappingFields = {
+            "total_count", "points_count", "bonus_count", "price_count", "buyer_pay_amount",
+            "recharge_count", "create_time", "arrival_time", "update_time"
+    })
     @Override
     public List<PointsRechargeInfo> selectPointsRechargeInfoList(PointsRechargeInfo pointsRechargeInfo) {
         List<PointsRechargeInfo> pointsRechargeInfos = pointsRechargeInfoMapper.selectPointsRechargeInfoList(pointsRechargeInfo);

@@ -15,5 +15,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface CustomSort {
-    String[] sortFields() default {};
+    String[] sortFields() default {};   //排序字段
+    String[] sortMappingFields() default {}; //映射字段，前端只需要传过来字段名，如果多表查询设置映射字段，映射字段为查询时所需字段
 }

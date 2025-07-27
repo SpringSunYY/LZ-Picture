@@ -45,7 +45,14 @@
                 and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
             </if>
         </where>
-        order by download_count desc,look_count desc,usage_count desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by download_count desc,look_count desc,usage_count desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPictureTagInfoByTagId" parameterType="String" resultMap="PictureTagInfoResult">

@@ -82,7 +82,14 @@
                 #{params.endDeletedTime}
             </if>
         </where>
-        order by space_type asc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by space_type asc ,create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectSpaceInfoBySpaceId" parameterType="String" resultMap="SpaceInfoResult">

@@ -28,7 +28,7 @@ public class CustomSortAspect {
     /**
      * 排序SQL
      */
-    public static final String SORT_SQL = "SORT_SQL";
+    public static final String SORT_SQL = "sortSql";
 
     /**
      * 排序字段
@@ -43,7 +43,9 @@ public class CustomSortAspect {
     @Before("@annotation(customSort)")
     public void doBefore(JoinPoint joinPoint, CustomSort customSort) throws Throwable {
         //清除排序字段参数
-        clearSort(joinPoint);
+        if (!clearSortJudgeParams(joinPoint)) {
+            return;
+        }
         //执行sql
         handleSort(joinPoint, customSort);
     }
@@ -65,12 +67,22 @@ public class CustomSortAspect {
                     return;
                 }
                 String[] sortFields = customSort.sortFields();
+                String[] sortMappingFields = customSort.sortMappingFields();
                 //从params参数中获取排序字段，和排序方式
                 String filed = paramsMap.get(ORDER_BY_COLUMN).toString();
                 boolean isAsc = paramsMap.get(IS_ASC).toString().equalsIgnoreCase("true");
                 //校验字段是否存在
                 if (!ArrayUtils.contains(sortFields, filed)) {
-                    throw new ServiceException("排序字段不存在");
+                    return;
+                }
+                if (StringUtils.isNotEmpty(sortMappingFields)) {
+                    //获取到此字段在字段的索引
+                    int index = ArrayUtils.indexOf(sortFields, filed);
+                    filed = sortMappingFields[index];
+                }
+                if (StringUtils.isEmpty(filed)) {
+                    //排序字段不存在
+                    return;
                 }
                 //拼接sql
                 String sql = "order by " + filed + " " + (isAsc ? "asc" : "desc");
@@ -85,9 +97,9 @@ public class CustomSortAspect {
     }
 
     /**
-     * 拼接sql之前先清除排序字段参数，防止sql注入
+     * 拼接sql之前先清除排序字段参数，防止sql注入，并查看是否有排序字段参数
      */
-    private void clearSort(JoinPoint joinPoint) {
+    private boolean clearSortJudgeParams(JoinPoint joinPoint) {
         Object params = joinPoint.getArgs()[0];
         if (StringUtils.isNotNull(params) && hasGetParamsMethod(params)) {
             try {
@@ -100,11 +112,18 @@ public class CustomSortAspect {
                     paramsMap = new HashMap<>();
                 }
                 paramsMap.put(SORT_SQL, "");
+                //获取排序参数
+                Object orderBy = paramsMap.get(ORDER_BY_COLUMN);
+                Object asc = paramsMap.get(IS_ASC);
+                return StringUtils.isNotNull(orderBy) && StringUtils.isNotNull(asc);
             } catch (Exception e) {
                 throw new ServiceException("排序出错:" + e.getMessage());
             }
         }
+        return false;
     }
+
+    ;
 
     /**
      * 判断对象是否有 getParams 方法

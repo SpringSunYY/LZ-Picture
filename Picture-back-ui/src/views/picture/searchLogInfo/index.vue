@@ -181,8 +181,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="searchLogInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="searchLogInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="搜索记录编号" align="center" prop="searchId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -207,15 +208,16 @@
       </el-table-column>
       <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="返回数量" align="center" prop="resultCount" v-if="columns[7].visible"
+      <el-table-column label="返回数量" align="center" prop="resultCount" sortable="custom" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="搜索时间" align="center" prop="createTime" width="180" v-if="columns[8].visible"
+      <el-table-column label="搜索时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[8].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="搜索时长" align="center" prop="searchDuration" v-if="columns[9].visible"
+      <el-table-column label="搜索时长" align="center" prop="searchDuration" sortable="custom" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
@@ -290,6 +292,8 @@ const total = ref(0);
 const title = ref("");
 const daterangeCreateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -351,10 +355,28 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询用户搜索记录列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -404,6 +426,9 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   daterangeCreateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

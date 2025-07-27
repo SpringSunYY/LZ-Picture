@@ -89,7 +89,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="userBindingInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="userBindingInfoList" @selection-change="handleSelectionChange"  @sort-change="customSort">
             <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="绑定ID" align="center" prop="bindingId" v-if="columns[0].visible"
@@ -187,6 +187,8 @@ const total = ref(0);
 const title = ref("");
 const daterangeBindingTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -221,10 +223,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 /** 查询用户第三方账号绑定列表 */
 function getList() {
   loading.value = true;
-  queryParams.value.params = {};
+ queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeBindingTime && '' != daterangeBindingTime) {
     queryParams.value.params["beginBindingTime"] = daterangeBindingTime.value[0];
     queryParams.value.params["endBindingTime"] = daterangeBindingTime.value[1];
@@ -264,6 +283,8 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   daterangeBindingTime.value = [];
+    orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }

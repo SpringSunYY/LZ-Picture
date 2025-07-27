@@ -183,8 +183,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="userReportInfoList" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="userReportInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="举报编号" align="center" prop="reportId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -213,7 +214,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="联系方式" align="center" prop="contact" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="举报时间" align="center" prop="createTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="举报时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -228,7 +230,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="审核人编号" align="center" prop="reviewUserId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="审核时间" align="center" prop="reviewTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="审核时间" align="center" prop="reviewTime" sortable="custom" width="180"
+                       v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -415,6 +418,8 @@ const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeReviewTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -492,6 +497,20 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
+
 const openAudit = ref(false);
 
 function handleAudit(row) {
@@ -523,6 +542,10 @@ function submitAudit() {
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -580,6 +603,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeReviewTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.$refs.tableRef.clearSort();
   proxy.resetForm("queryRef");
   handleQuery();
 }

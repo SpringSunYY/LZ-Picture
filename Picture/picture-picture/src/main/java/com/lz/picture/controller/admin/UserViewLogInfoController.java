@@ -3,6 +3,7 @@ package com.lz.picture.controller.admin;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lz.common.config.OssConfig;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
 import com.lz.system.service.ISysConfigService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,7 +58,7 @@ public class UserViewLogInfoController extends BaseController {
         List<UserViewLogInfoVo> listVo = list.stream().map(UserViewLogInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserViewLogInfoVo vo : listVo) {
-            vo.setTargetCover(vo.getTargetCover() + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setTargetCover(OssConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
         }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
