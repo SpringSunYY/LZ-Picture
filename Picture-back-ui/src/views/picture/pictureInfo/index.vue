@@ -209,7 +209,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pictureInfoList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="pictureInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort()">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="图片" align="center" prop="pictureId" v-if="columns[0].visible"
@@ -232,35 +233,45 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="分类" align="center" prop="categoryId" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片体积" align="center" prop="picSize" v-if="columns[7].visible"
+      <el-table-column label="图片体积" align="center" sortable="custom" prop="picSize" column-key="pic_size"
+                       v-if="columns[7].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.picSize) }}
         </template>
       </el-table-column>
-      <el-table-column label="图片宽度" align="center" prop="picWidth" v-if="columns[8].visible"
+      <el-table-column label="图片宽度" align="center" prop="picWidth" sortable="custom" column-key="pic_width"
+                       v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片高度" align="center" prop="picHeight" v-if="columns[9].visible"
+      <el-table-column label="图片高度" align="center" prop="picHeight" sortable="custom" column-key="pic_height"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="宽高比例" align="center" prop="picScale" v-if="columns[10].visible"
+      <el-table-column label="宽高比例" align="center" prop="picScale" sortable="custom" column-key="pic_scale"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片格式" align="center" prop="picFormat" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="上传用户" align="center" prop="userId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[13].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" column-key="create_time"
+                       width="180"
+                       v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="发布时间" align="center" prop="publishTime" width="180" v-if="columns[14].visible"
+      <el-table-column label="发布时间" align="center" prop="publishTime" width="180" sortable="custom"
+                       column-key="publish_time"
+                       v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[15].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" sortable="custom"
+                       column-key="update_time"
+                       v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -271,19 +282,24 @@
           <dict-tag :options="p_picture_status" :value="scope.row.pictureStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[17].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
+                       v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[18].visible"
+      <el-table-column label="收藏次数" align="center" prop="collectCount" sortable="custom" column-key="collect_count"
+                       v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="点赞次数" align="center" prop="likeCount" v-if="columns[19].visible"
+      <el-table-column label="点赞次数" align="center" prop="likeCount" sortable="custom" column-key="like_count"
+                       v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="分享次数" align="center" prop="shareCount" v-if="columns[20].visible"
+      <el-table-column label="分享次数" align="center" prop="shareCount" sortable="custom" column-key="share_count"
+                       v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[21].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom"
+                       column-key="download_count" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
 
       <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[22].visible"
@@ -297,7 +313,9 @@
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
-      <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" v-if="columns[26].visible"
+      <el-table-column label="删除时间" align="center" prop="deletedTime" sortable="custom" column-key="deleted_time"
+                       width="180"
+                       v-if="columns[26].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -430,10 +448,10 @@
 
 <script setup name="PictureInfo">
 import {
-  listPictureInfo,
-  getPictureInfo,
-  delPictureInfo,
   addPictureInfo,
+  delPictureInfo,
+  getPictureInfo,
+  listPictureInfo,
   updatePictureInfo
 } from "@/api/picture/pictureInfo";
 import {formatSize} from "@/utils/ruoyi.js";
@@ -457,7 +475,8 @@ const daterangeCreateTime = ref([]);
 const daterangePublishTime = ref([]);
 const daterangeUpdateTime = ref([]);
 const daterangeDeletedTime = ref([]);
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -479,7 +498,7 @@ const data = reactive({
     spaceId: null,
     folderId: null,
     isDelete: null,
-    deletedTime: null
+    deletedTime: null,
   },
   rules: {
     pictureUrl: [
@@ -523,7 +542,7 @@ const data = reactive({
     {key: 14, label: '发布时间', visible: false},
     {key: 15, label: '更新时间', visible: false},
     {key: 16, label: '图片状态', visible: true},
-    {key: 17, label: '查看次数', visible: true},
+    {key: 17, label: '查看次数', visible: false},
     {key: 18, label: '收藏次数', visible: true},
     {key: 19, label: '点赞次数', visible: true},
     {key: 20, label: '分享次数', visible: true},
@@ -537,6 +556,20 @@ const data = reactive({
 });
 
 const {queryParams, form, rules, columns} = toRefs(data);
+
+//自定义排序
+function customSort({column, prop, order}) {
+  if (column.columnKey !== undefined && column.columnKey !== '' && order !== null && order !== '') {
+    orderByColumn.value = column.columnKey;
+    isAsc.value = order === "ascending";
+    console.log(orderByColumn.value, isAsc.value);
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
 
 /** 查询图片信息列表 */
 function getList() {
@@ -557,6 +590,10 @@ function getList() {
   if (null != daterangeDeletedTime && '' != daterangeDeletedTime) {
     queryParams.value.params["beginDeletedTime"] = daterangeDeletedTime.value[0];
     queryParams.value.params["endDeletedTime"] = daterangeDeletedTime.value[1];
+  }
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
   }
   listPictureInfo(queryParams.value).then(response => {
     pictureInfoList.value = response.rows;
@@ -617,6 +654,8 @@ function resetQuery() {
   daterangePublishTime.value = [];
   daterangeUpdateTime.value = [];
   daterangeDeletedTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }

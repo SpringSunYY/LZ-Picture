@@ -97,7 +97,14 @@
                 #{params.endDeletedTime}
             </if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.SORT_SQL != null and params.SORT_SQL != ''">
+                ${params.SORT_SQL}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPictureInfoByPictureId" parameterType="String" resultMap="PictureInfoResult">

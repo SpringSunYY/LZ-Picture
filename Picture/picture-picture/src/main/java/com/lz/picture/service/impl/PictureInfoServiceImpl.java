@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.constant.redis.PictureRedisConstants;
@@ -164,6 +165,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * @param pictureInfo 图片信息
      * @return 图片信息
      */
+    @CustomSort(sortFields = {
+            "create_time", "update_time", "publish_time", "delete_time",
+            "look_count", "collect_count", "like_count", "share_count", "download_count",
+            "pic_size", "pic_width", "pic_height"})
     @Override
     public List<PictureInfo> selectPictureInfoList(PictureInfo pictureInfo) {
         List<PictureInfo> pictureInfos = pictureInfoMapper.selectPictureInfoList(pictureInfo);
