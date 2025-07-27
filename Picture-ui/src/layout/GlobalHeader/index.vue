@@ -187,7 +187,9 @@ onMounted(async () => {
 })
 
 const clickInform = () => {
-  router.push('/inform')
+  router.push({
+    name: 'inform',
+  })
 }
 // 动态生成菜单项
 const items = computed(() => {
