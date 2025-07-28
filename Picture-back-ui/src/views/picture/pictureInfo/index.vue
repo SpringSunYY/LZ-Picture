@@ -466,6 +466,7 @@ import {
 } from "@/api/picture/pictureInfo";
 import {formatSize} from "@/utils/ruoyi.js";
 import {listPictureCategoryInfo} from "@/api/picture/pictureCategoryInfo.js";
+import {useRoute} from "vue-router";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -490,6 +491,8 @@ const isAsc = ref();
 const orderByColumn = ref('');
 const pictureCategoryInfoOptions = ref([]);
 
+//从路由里面获取参数
+const ruoteQuery = proxy.$route.query && proxy.$route.query.pictureStatus;
 const data = reactive({
   form: {},
   queryParams: {
@@ -512,6 +515,7 @@ const data = reactive({
     folderId: null,
     isDelete: null,
     deletedTime: null,
+    pictureStatus: ruoteQuery,
   },
   rules: {
     pictureUrl: [
