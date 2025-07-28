@@ -98,6 +98,8 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
     @CustomCacheEvict(keyPrefixes = PICTURE_CATEGORY)
     @Override
     public int updatePictureCategoryInfo(PictureCategoryInfo pictureCategoryInfo) {
+        StringBuilder ancestors = TreeUtils.getAncestors(pictureCategoryInfo.getParentId(), new StringBuilder(pictureCategoryInfo.getCategoryId()), pictureCategoryInfoMapper::selectPictureCategoryInfoByCategoryId, PictureCategoryInfo::getCategoryId, PictureCategoryInfo::getParentId, "0", ",");
+        pictureCategoryInfo.setAncestors(ancestors.toString());
         pictureCategoryInfo.setUpdateTime(DateUtils.getNowDate());
         return pictureCategoryInfoMapper.updatePictureCategoryInfo(pictureCategoryInfo);
     }
@@ -198,6 +200,11 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
                 .orderByAsc(PictureCategoryInfo::getOrderNum)
                 .orderBy(true, false, PictureCategoryInfo::getUsageCount)
         );
+    }
+
+    @Override
+    public List<PictureCategoryInfo> findCategoryChildren(String categoryId) {
+        return pictureCategoryInfoMapper.findCategoryChildren(categoryId);
     }
 
 }

@@ -1,21 +1,19 @@
 package com.lz.picture.model.domain;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.Date;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.common.annotation.Excel;
+import lombok.Data;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 图片信息对象 p_picture_info
@@ -63,8 +61,12 @@ public class PictureInfo implements Serializable {
     /**
      * 分类编号
      */
-    @Excel(name = "分类编号")
+    @Excel(name = "分类")
+    @TableField(exist = false)
+    private String categoryName;
     private String categoryId;
+    @TableField(exist = false)
+    private String[] categoryIds;
 
     /**
      * 图片体积（字节）
@@ -135,24 +137,34 @@ public class PictureInfo implements Serializable {
     @Excel(name = "缩略图URL")
     private String thumbnailUrl;
 
-    /** 查看次数 */
+    /**
+     * 查看次数
+     */
     @Excel(name = "查看次数")
     private Long lookCount;
 
-    /** 收藏次数 */
+    /**
+     * 收藏次数
+     */
     @Excel(name = "收藏次数")
     private Long collectCount;
 
-    /** 点赞次数 */
+    /**
+     * 点赞次数
+     */
     @Excel(name = "点赞次数")
     private Long likeCount;
 
-    /** 分享次数 */
+    /**
+     * 分享次数
+     */
     @Excel(name = "分享次数")
     private Long shareCount;
 
 
-    /** 下载次数 */
+    /**
+     * 下载次数
+     */
     @Excel(name = "下载次数")
     private Long downloadCount;
 

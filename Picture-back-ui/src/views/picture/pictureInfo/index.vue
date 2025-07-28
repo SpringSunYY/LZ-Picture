@@ -26,11 +26,14 @@
         />
       </el-form-item>
       <el-form-item label="分类" prop="categoryId">
-        <el-input
+        <el-tree-select
+            style="width: 200px;"
             v-model="queryParams.categoryId"
-            placeholder="请输入分类"
-            clearable
-            @keyup.enter="handleQuery"
+            :data="pictureCategoryInfoOptions"
+            :props="{ value: 'categoryId', label: 'name', children: 'children' }"
+            value-key="categoryId"
+            placeholder="请选择父级分类"
+            check-strictly
         />
       </el-form-item>
       <el-form-item label="图片体积" prop="picSize">
@@ -231,7 +234,7 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="简介" align="center" prop="introduction" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类" align="center" prop="categoryId" v-if="columns[6].visible"
+      <el-table-column label="分类" align="center" prop="categoryName" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片体积" align="center" sortable="custom" prop="picSize" column-key="pic_size"
                        v-if="columns[7].visible"
@@ -357,7 +360,14 @@
           <el-input v-model="form.introduction" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="分类" prop="categoryId">
-          <el-input v-model="form.categoryId" placeholder="请输入分类"/>
+          <el-tree-select
+              v-model="form.categoryId"
+              :data="pictureCategoryInfoOptions"
+              :props="{ value: 'categoryId', label: 'name', children: 'children' }"
+              value-key="categoryId"
+              placeholder="请选择父级分类"
+              check-strictly
+          />
         </el-form-item>
         <!--        <el-form-item label="图片体积" prop="picSize">-->
         <!--          <el-input v-model="form.picSize" placeholder="请输入图片体积"/>-->
@@ -455,6 +465,7 @@ import {
   updatePictureInfo
 } from "@/api/picture/pictureInfo";
 import {formatSize} from "@/utils/ruoyi.js";
+import {listPictureCategoryInfo} from "@/api/picture/pictureCategoryInfo.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -477,6 +488,8 @@ const daterangeUpdateTime = ref([]);
 const daterangeDeletedTime = ref([]);
 const isAsc = ref();
 const orderByColumn = ref('');
+const pictureCategoryInfoOptions = ref([]);
+
 const data = reactive({
   form: {},
   queryParams: {
@@ -600,6 +613,18 @@ function getList() {
     loading.value = false;
   });
 }
+
+/** 查询图片分类信息下拉树结构 */
+function getTreeselect() {
+  listPictureCategoryInfo().then(response => {
+    pictureCategoryInfoOptions.value = [];
+    const data = {categoryId: 0, name: '顶级节点', children: []};
+    data.children = proxy.handleTree(response.data, "categoryId", "parentId");
+    pictureCategoryInfoOptions.value.push(data);
+  });
+}
+
+getTreeselect()
 
 // 取消按钮
 function cancel() {

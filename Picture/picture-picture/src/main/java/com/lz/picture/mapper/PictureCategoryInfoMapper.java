@@ -1,8 +1,9 @@
 package com.lz.picture.mapper;
 
-import java.util.List;
-import com.lz.picture.model.domain.PictureCategoryInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.picture.model.domain.PictureCategoryInfo;
+
+import java.util.List;
 
 /**
  * 图片分类信息Mapper接口
@@ -10,8 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author YY
  * @date 2025-03-24
  */
-public interface PictureCategoryInfoMapper extends BaseMapper<PictureCategoryInfo>
-{
+public interface PictureCategoryInfoMapper extends BaseMapper<PictureCategoryInfo> {
     /**
      * 查询图片分类信息
      *
@@ -59,4 +59,15 @@ public interface PictureCategoryInfoMapper extends BaseMapper<PictureCategoryInf
      * @return 结果
      */
     public int deletePictureCategoryInfoByCategoryIds(String[] categoryIds);
+
+    /**
+     * 查询图片分类信息列表
+     *
+     * @param categoryId 图片编号
+     * @return List<PictureCategoryInfo>
+     * @author: YY
+     * @method: findCategoryChildren 查询图片分类信息列表
+     * @date: 2025/7/28 22:54
+     **/
+    List<PictureCategoryInfo> findCategoryChildren(String categoryId);
 }

@@ -176,11 +176,18 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public List<PictureInfo> selectPictureInfoList(PictureInfo pictureInfo) {
         List<PictureInfo> pictureInfos = pictureInfoMapper.selectPictureInfoList(pictureInfo);
+        //获取到所有的分类编号
+        List<String> categoryIds = pictureInfos.stream().map(PictureInfo::getCategoryId).distinct().collect(Collectors.toList());
+        Map<String, String> categoryIdNameMap = pictureCategoryInfoService.list(new LambdaQueryWrapper<PictureCategoryInfo>()
+                        .select(PictureCategoryInfo::getCategoryId, PictureCategoryInfo::getName)
+                        .in(PictureCategoryInfo::getCategoryId, categoryIds))
+                .stream().collect(Collectors.toMap(PictureCategoryInfo::getCategoryId, PictureCategoryInfo::getName));
         for (PictureInfo info : pictureInfos) {
             String pictureUrl = OssConfig.builderUrl(info.getPictureUrl(), info.getDnsUrl());
             info.setPictureUrl(pictureUrl);
             String thumbnailUrl = OssConfig.builderUrl(info.getThumbnailUrl(), info.getDnsUrl());
             info.setThumbnailUrl(thumbnailUrl);
+            info.setCategoryName(categoryIdNameMap.get(info.getCategoryId()));
         }
         return pictureInfos;
     }

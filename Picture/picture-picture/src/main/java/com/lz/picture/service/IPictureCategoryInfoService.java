@@ -104,4 +104,14 @@ public interface IPictureCategoryInfoService extends IService<PictureCategoryInf
      * @date: 2025/7/21 17:57
      **/
     List<PictureCategoryInfo> userSelectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo);
+
+    /**
+     * 查询到分类的所有子节点
+     * @author: YY
+     * @method: findCategoryChildren
+     * @date: 2025/7/28 22:43
+     * @param categoryId 分类id
+     * @return List<PictureCategoryInfo>
+     **/
+    List<PictureCategoryInfo> findCategoryChildren(String categoryId);
 }

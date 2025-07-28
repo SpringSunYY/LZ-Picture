@@ -81,7 +81,15 @@
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
             <if test="dnsUrl != null  and dnsUrl != ''">and dns_url like concat('%', #{dnsUrl}, '%')</if>
             <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
-            <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="categoryId != null and categoryId != '' and categoryIds == null  ">
+                and category_id = #{categoryId}
+            </if>
+            <if test="categoryId == null  and categoryIds != null and categoryIds.length > 0">
+                and category_id in
+                <foreach item="item" index="index" collection="categoryIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="picWidth != null ">and pic_width = #{picWidth}</if>
             <if test="picHeight != null ">and pic_height = #{picHeight}</if>
             <if test="picScale != null ">and pic_scale = #{picScale}</if>

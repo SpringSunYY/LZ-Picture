@@ -1,32 +1,28 @@
 package com.lz.picture.controller.admin;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.lz.system.service.ISysConfigService;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.access.prepost.PreAuthorize;
-import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.lz.common.annotation.Log;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.enums.BusinessType;
-import com.lz.picture.model.domain.PictureInfo;
-import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoInsert;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoEdit;
-import com.lz.picture.service.IPictureInfoService;
-import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.poi.ExcelUtil;
+import com.lz.picture.model.domain.PictureCategoryInfo;
+import com.lz.picture.model.domain.PictureInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoEdit;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoInsert;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoQuery;
+import com.lz.picture.model.vo.pictureInfo.PictureInfoVo;
+import com.lz.picture.service.IPictureCategoryInfoService;
+import com.lz.picture.service.IPictureInfoService;
+import com.lz.system.service.ISysConfigService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 
@@ -45,6 +41,9 @@ public class PictureInfoController extends BaseController {
     @Resource
     private ISysConfigService sysConfigService;
 
+    @Resource
+    private IPictureCategoryInfoService pictureCategoryInfoService;
+
     /**
      * 查询图片信息列表
      */
@@ -52,6 +51,12 @@ public class PictureInfoController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo list(PictureInfoQuery pictureInfoQuery) {
         PictureInfo pictureInfo = PictureInfoQuery.queryToObj(pictureInfoQuery);
+        //查询到分类的所有子节点
+        if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
+            List<PictureCategoryInfo> categories = pictureCategoryInfoService.findCategoryChildren(pictureInfo.getCategoryId());
+            pictureInfo.setCategoryId(null);
+            pictureInfo.setCategoryIds(categories.stream().map(PictureCategoryInfo::getCategoryId).toArray(String[]::new));
+        }
         startPage();
         List<PictureInfo> list = pictureInfoService.selectPictureInfoList(pictureInfo);
         List<PictureInfoVo> listVo = list.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
@@ -73,6 +78,12 @@ public class PictureInfoController extends BaseController {
     @PostMapping("/export")
     public void export(HttpServletResponse response, PictureInfoQuery pictureInfoQuery) {
         PictureInfo pictureInfo = PictureInfoQuery.queryToObj(pictureInfoQuery);
+        //查询到分类的所有子节点
+        if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
+            List<PictureCategoryInfo> categories = pictureCategoryInfoService.findCategoryChildren(pictureInfo.getCategoryId());
+            pictureInfo.setCategoryId(null);
+            pictureInfo.setCategoryIds(categories.stream().map(PictureCategoryInfo::getCategoryId).toArray(String[]::new));
+        }
         List<PictureInfo> list = pictureInfoService.selectPictureInfoList(pictureInfo);
         ExcelUtil<PictureInfo> util = new ExcelUtil<PictureInfo>(PictureInfo.class);
         util.exportExcel(response, list, "图片信息数据");

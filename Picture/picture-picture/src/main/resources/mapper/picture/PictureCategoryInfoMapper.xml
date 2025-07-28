@@ -78,6 +78,9 @@
         <include refid="selectPictureCategoryInfoVo"/>
         where category_id = #{categoryId}
     </select>
+    <select id="findCategoryChildren" resultMap="PictureCategoryInfoResult">
+        <include refid="selectPictureCategoryInfoVo"/> where find_in_set(#{categoryId}, ancestors)
+    </select>
 
     <insert id="insertPictureCategoryInfo" parameterType="PictureCategoryInfo">
         insert into p_picture_category_info

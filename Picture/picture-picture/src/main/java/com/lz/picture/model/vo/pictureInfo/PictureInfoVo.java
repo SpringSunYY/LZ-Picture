@@ -54,7 +54,8 @@ public class PictureInfoVo implements Serializable {
     /**
      * 分类编号
      */
-    @Excel(name = "分类编号")
+    @Excel(name = "分类")
+    private String categoryName;
     private String categoryId;
 
     /**
