@@ -260,3 +260,27 @@ export const formatSize = (bytes) => {
     const formattedSize = Number(size).toFixed(2);
     return `${formattedSize}${units[unitIndex]}`
 }
+
+/**
+ * 判断是否为空对象
+ * @param obj
+ * @returns {boolean}
+ */
+export function isEmptyObject(obj) {
+    if (obj === null || obj === undefined) return true;
+
+    // 如果不是对象，直接判断是否为空值
+    if (typeof obj !== 'object') return !obj;
+
+    // 如果是数组，判断是否为空数组
+    if (Array.isArray(obj)) return obj.length === 0;
+
+    // 遍历对象的每个属性，检查是否都为空
+    return Object.values(obj).every(value => {
+        if (value === null || value === undefined) return true;
+        if (typeof value === 'string' && value.trim() === '') return true;
+        if (Array.isArray(value) && value.length === 0) return true;
+        if (typeof value === 'object' && !Array.isArray(value)) return isEmptyObject(value);
+        return false;
+    });
+}

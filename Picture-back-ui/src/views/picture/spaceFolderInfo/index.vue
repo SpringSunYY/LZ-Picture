@@ -190,6 +190,8 @@ import {
   addSpaceFolderInfo,
   updateSpaceFolderInfo
 } from "@/api/picture/spaceFolderInfo";
+import {isEmptyObject} from "@/utils/ruoyi.js";
+import {ElMessage} from "element-plus";
 
 const {proxy} = getCurrentInstance();
 
@@ -283,7 +285,14 @@ function customSort({column, prop, order}) {
 /** 查询空间文件夹列表 */
 function getList() {
   loading.value = true;
- queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+  //判断查询条件是否存在，不存在不可查询
+  if (isEmptyObject(queryParams.value)) {
+    ElMessage.warning('查询条件不能为空')
+    loading.value = false;
+    return;
+  }
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
     queryParams.value.params["orderByColumn"] = orderByColumn.value;
     queryParams.value.params["isAsc"] = isAsc.value;
   }
@@ -345,10 +354,10 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
-    orderByColumn.value = null
+  orderByColumn.value = null
   isAsc.value = null;
   proxy.resetForm("queryRef");
-  handleQuery();
+  // handleQuery();
 }
 
 /** 新增按钮操作 */
@@ -418,6 +427,6 @@ function handleDelete(row) {
   }).catch(() => {
   });
 }
-
-getList();
+ElMessage.success("请先输入查询条件")
+// getList();
 </script>
