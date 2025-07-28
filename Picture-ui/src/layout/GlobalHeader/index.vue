@@ -57,7 +57,10 @@
 
             <a-dropdown>
               <div class="user-avatar" @click="showDrawer">
-                <a-avatar :size="36" :src="formatDnsUrl(avatar)" />
+                <a-avatar
+                  :size="36"
+                  :src="avatar != '' ? formatDnsUrl(avatar) : '/src/assets/images/avatar.jpg'"
+                />
               </div>
               <template #overlay>
                 <a-menu>
@@ -84,7 +87,10 @@
         <template #title>
           <a-dropdown>
             <a-space align="center">
-              <a-avatar :src="formatDnsUrl(avatar)" size="large" />
+              <a-avatar
+                :src="avatar != '' ? formatDnsUrl(avatar) : '/src/assets/images/avatar.jpg'"
+                size="large"
+              />
               <div>
                 <div class="nickname" style="font-size: 14px">{{ userName }}</div>
                 <div class="nickname" style="font-size: 12px; color: #616161">{{ nickName }}</div>

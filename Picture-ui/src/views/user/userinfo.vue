@@ -5,7 +5,7 @@
         <div class="avatar-wrapper">
           <a-avatar
             :size="{ xs: 180, sm: 200, md: 240, lg: 240, xl: 240, xxl: 240 }"
-            :src="formatDnsUrl(userInfo?.avatarUrl) || '/placeholder.svg?height=240&width=240'"
+            :src="userInfo?.avatarUrl != '' ? formatDnsUrl(userInfo?.avatarUrl) : '/src/assets/images/avatar.jpg'"
           />
           <!--          <div class="status-badge" :class="'status-' + user.status">-->
           <!--            {{ getStatusText(user.status) }}-->
