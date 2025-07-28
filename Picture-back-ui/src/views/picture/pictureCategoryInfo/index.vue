@@ -135,47 +135,49 @@
       </el-table-column>
       <el-table-column label="封面图标" align="center" prop="categoryIcon" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类描述" align="center" prop="categoryDesc" v-if="columns[6].visible"
+      <el-table-column label="显示顺序" align="center" prop="orderNum" sortable="custom" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分类状态" align="center" prop="categoryStatus" v-if="columns[7].visible">
+      <el-table-column label="分类描述" align="center" prop="categoryDesc" v-if="columns[8].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="分类状态" align="center" prop="categoryStatus" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="p_category_status" :value="scope.row.categoryStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="分类类型" align="center" prop="categoryType" v-if="columns[8].visible">
+      <el-table-column label="分类类型" align="center" prop="categoryType" v-if="columns[9].visible">
         <template #default="scope">
           <dict-tag :options="p_category_type" :value="scope.row.categoryType"/>
         </template>
       </el-table-column>
-      <el-table-column label="查询状态" align="center" prop="queryStatus" v-if="columns[9].visible">
+      <el-table-column label="查询状态" align="center" prop="queryStatus" v-if="columns[10].visible">
         <template #default="scope">
           <dict-tag :options="p_category_query_status" :value="scope.row.queryStatus"/>
         </template>
       </el-table-column>
       <el-table-column label="使用次数" align="center" prop="usageCount" sortable="custom" column-key="usage_count"
-                       v-if="columns[10].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
                        v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
+      <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
+                       v-if="columns[12].visible"
+                       :show-overflow-tooltip="true"/>
       <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom"
-                       column-key="download_count" v-if="columns[12].visible"
+                       column-key="download_count" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" column-key="create_time"
-                       width="180" v-if="columns[13].visible"
+                       width="180" v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" column-key="update_time"
-                       width="180" v-if="columns[14].visible"
+                       width="180" v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[15].visible">
+      <el-table-column label="删除标记" align="center" prop="isDelete" v-if="columns[16].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
@@ -216,6 +218,10 @@
         </el-form-item>
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入分类名称"/>
+        </el-form-item>
+        <el-form-item label="显示顺序" prop="orderNum">
+          <el-input-number :min="0" :max="10" v-model="form.orderNum" controls-position="right"
+                           placeholder="请输入显示顺序"/>
         </el-form-item>
         <el-form-item label="分类描述" prop="categoryDesc">
           <el-input v-model="form.categoryDesc" type="textarea" placeholder="请输入内容"/>
@@ -368,16 +374,17 @@ const data = reactive({
     {key: 3, label: '封面图', visible: true},
     {key: 4, label: '封面图标', visible: true},
     {key: 5, label: '分类名称', visible: true},
-    {key: 6, label: '分类描述', visible: false},
-    {key: 7, label: '分类状态', visible: true},
-    {key: 8, label: '分类类型', visible: true},
-    {key: 9, label: '查询状态', visible: true},
-    {key: 10, label: '使用次数', visible: true},
-    {key: 11, label: '查看次数', visible: true},
-    {key: 12, label: '下载次数', visible: true},
-    {key: 13, label: '创建时间', visible: false},
-    {key: 14, label: '更新时间', visible: false},
-    {key: 15, label: '删除标记', visible: false},
+    {key: 6, label: '图标', visible: true},
+    {key: 7, label: '分类描述', visible: false},
+    {key: 8, label: '分类状态', visible: true},
+    {key: 9, label: '分类类型', visible: true},
+    {key: 10, label: '查询状态', visible: true},
+    {key: 11, label: '使用次数', visible: true},
+    {key: 12, label: '查看次数', visible: true},
+    {key: 13, label: '下载次数', visible: true},
+    {key: 14, label: '创建时间', visible: false},
+    {key: 15, label: '更新时间', visible: false},
+    {key: 16, label: '删除标记', visible: false},
   ],
 });
 
@@ -443,6 +450,7 @@ function reset() {
     coverUrl: null,
     categoryIcon: null,
     name: null,
+    orderNum: null,
     categoryDesc: null,
     categoryStatus: null,
     categoryType: null,
