@@ -67,7 +67,12 @@
             :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
           />
         </a-card>
-        <a-card title="" :bordered="false" class="card action-card">
+        <a-card
+          title=""
+          :bordered="false"
+          class="card action-card"
+          v-if="picture.pictureId !== ''"
+        >
           <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
             <a-tooltip title="View">
               <a-button class="icon-button" @click="clickLook">

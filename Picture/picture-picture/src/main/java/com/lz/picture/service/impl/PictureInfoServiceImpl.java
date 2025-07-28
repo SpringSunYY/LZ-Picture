@@ -499,7 +499,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         });
     }
 
-    @CustomCacheable(keyPrefix = PICTURE_PICTURE_DETAIL, keyField = "pictureId", expireTime = PictureRedisConstants.PICTURE_PICTURE_DETAIL_EXPIRE_TIME)
     @Override
     public UserPictureDetailInfoVo userSelectPictureInfoByPictureId(String pictureId, String userId) {
         //先查询缓存是否存在
@@ -549,7 +548,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     userPictureDetailInfoVo.setIsCollect(true);
                 }
             }
-            redisCache.setCacheObject(behaviorKey, userBehaviorInfoCaches, 5, TimeUnit.MINUTES);
+            redisCache.setCacheObject(behaviorKey, userBehaviorInfoCaches, PICTURE_USER_BEHAVIOR_EXPIRE_TIME, TimeUnit.MINUTES);
         }
     }
 
@@ -564,6 +563,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      * return: com.lz.picture.model.vo.pictureInfo.UserPictureDetailInfoVo
      **/
     private UserPictureDetailInfoVo getUserPictureDetailInfoVo(String pictureId) {
+        //手动设置缓存，这里基本内部调用，spring没有托管，所以需要手动设置缓存
+        String key = PICTURE_PICTURE_DETAIL + COMMON_SEPARATOR_CACHE + pictureId;
+        if (redisCache.hasKey(key)) {
+            return redisCache.getCacheObject(key);
+        }
         UserPictureDetailInfoVo userPictureDetailInfoVo = new UserPictureDetailInfoVo();
         PictureInfo pictureInfo = this.getById(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
@@ -608,6 +612,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         } else {
             userPictureDetailInfoVo.setMoreInfo(new PictureMoreInfo());
         }
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, PictureRedisConstants.PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.MINUTES);
         return userPictureDetailInfoVo;
     }
 
@@ -645,14 +650,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         userPictureDetailInfoVo.setShareCount(StringUtils.isNull(userPictureDetailInfoVo.getShareCount()) ? 0 : userPictureDetailInfoVo.getShareCount());
     }
 
-    @CustomCacheable(keyPrefix = PICTURE_PICTURE_DETAIL
-            , keyField = "pictureId",
-            expireTime = PICTURE_PICTURE_DETAIL_EXPIRE_TIME)
-
     @Override
     public void resetPictureInfoCacheByBehavior(String pictureId, String behaviorType, Boolean exist) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
-        userPictureDetailInfoVo.setPictureUrl(null);
 
         if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_0.getValue())) {
             if (exist) {
@@ -669,6 +669,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         } else if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue())) {
             userPictureDetailInfoVo.setShareCount(userPictureDetailInfoVo.getShareCount() + 1);
         }
+        //这里不是更新数据，所以要重新手动更新缓存
+        redisCache.setCacheObject(PICTURE_PICTURE_DETAIL + COMMON_SEPARATOR_CACHE + pictureId, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
     }
 
     @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_DETAIL}, keyFields = {"pictureId"})
