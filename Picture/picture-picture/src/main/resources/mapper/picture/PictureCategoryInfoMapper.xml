@@ -11,6 +11,7 @@
         <result property="coverUrl" column="cover_url"/>
         <result property="categoryIcon" column="category_icon"/>
         <result property="name" column="name"/>
+        <result property="orderNum" column="order_num"/>
         <result property="categoryDesc" column="category_desc"/>
         <result property="categoryStatus" column="category_status"/>
         <result property="categoryType" column="category_type"/>
@@ -30,6 +31,7 @@
                cover_url,
                category_icon,
                name,
+               order_num,
                category_desc,
                category_status,
                category_type,
@@ -50,6 +52,7 @@
             <if test="categoryId != null  and categoryId != ''">and category_id = #{categoryId}</if>
             <if test="parentId != null  and parentId != ''">and parent_id = #{parentId}</if>
             <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="orderNum !=null">and order_num = #{orderNum}</if>
             <if test="categoryStatus != null  and categoryStatus != ''">and category_status = #{categoryStatus}</if>
             <if test="categoryType != null  and categoryType != ''">and category_type = #{categoryType}</if>
             <if test="queryStatus != null  and queryStatus != ''">and query_status = #{queryStatus}</if>
@@ -85,6 +88,7 @@
             <if test="coverUrl != null">cover_url,</if>
             <if test="categoryIcon != null">category_icon,</if>
             <if test="name != null and name != ''">name,</if>
+            <if test="orderNum !=null">order_num,</if>
             <if test="categoryDesc != null">category_desc,</if>
             <if test="categoryStatus != null and categoryStatus != ''">category_status,</if>
             <if test="categoryType != null and categoryType != ''">category_type,</if>
@@ -103,6 +107,7 @@
             <if test="coverUrl != null">#{coverUrl},</if>
             <if test="categoryIcon != null">#{categoryIcon},</if>
             <if test="name != null and name != ''">#{name},</if>
+            <if test="orderNum !=null">#{orderNum},</if>
             <if test="categoryDesc != null">#{categoryDesc},</if>
             <if test="categoryStatus != null and categoryStatus != ''">#{categoryStatus},</if>
             <if test="categoryType != null and categoryType != ''">#{categoryType},</if>
@@ -124,6 +129,7 @@
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryIcon != null">category_icon = #{categoryIcon},</if>
             <if test="name != null and name != ''">name = #{name},</if>
+            <if test="orderNum !=null">order_num = #{orderNum},</if>
             <if test="categoryDesc != null">category_desc = #{categoryDesc},</if>
             <if test="categoryStatus != null and categoryStatus != ''">category_status = #{categoryStatus},</if>
             <if test="categoryType != null and categoryType != ''">category_type = #{categoryType},</if>

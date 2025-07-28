@@ -6,6 +6,7 @@ import com.lz.picture.model.domain.PictureCategoryInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import java.util.Date;
  */
 @Data
 public class PictureCategoryInfoVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -54,6 +56,12 @@ public class PictureCategoryInfoVo implements Serializable {
      */
     @Excel(name = "分类名称")
     private String name;
+
+    /**
+     * 显示顺序
+     */
+    @Excel(name = "显示顺序")
+    private Long orderNum;
 
     /**
      * 分类描述

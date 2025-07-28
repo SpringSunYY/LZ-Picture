@@ -60,9 +60,9 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
      * @return 图片分类信息
      */
     @CustomSort(
-            sortFields = {"usageCount", "lookCount", "downloadCount", "createTime", "updateTime"},
+            sortFields = {"usageCount", "lookCount", "downloadCount", "createTime", "updateTime", "orderNum"},
             sortMappingFields = {
-                    "usage_count", "look_count", "download_count", "create_time", "update_time"
+                    "usage_count", "look_count", "download_count", "create_time", "update_time", "order_num"
             })
     @Override
     public List<PictureCategoryInfo> selectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo) {
@@ -195,6 +195,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getQueryStatus()), PictureCategoryInfo::getQueryStatus, pictureCategoryInfo.getQueryStatus())
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getCategoryStatus()), PictureCategoryInfo::getCategoryStatus, pictureCategoryInfo.getCategoryStatus())
                 .eq(PictureCategoryInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .orderByAsc(PictureCategoryInfo::getOrderNum)
                 .orderBy(true, false, PictureCategoryInfo::getUsageCount)
         );
     }

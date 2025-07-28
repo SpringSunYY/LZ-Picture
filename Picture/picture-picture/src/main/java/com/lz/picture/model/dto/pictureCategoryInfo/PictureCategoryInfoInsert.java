@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.pictureCategoryInfo;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import lombok.Data;
@@ -14,6 +15,7 @@ import com.lz.picture.model.domain.PictureCategoryInfo;
  */
 @Data
 public class PictureCategoryInfoInsert implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -46,6 +48,11 @@ public class PictureCategoryInfoInsert implements Serializable {
      * 分类名称
      */
     private String name;
+
+    /**
+     * 显示顺序
+     */
+    private Long orderNum;
 
     /**
      * 分类描述

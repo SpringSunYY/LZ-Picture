@@ -1,5 +1,6 @@
 package com.lz.picture.model.dto.pictureCategoryInfo;
 
+import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 
@@ -21,6 +22,7 @@ import com.lz.picture.model.domain.PictureCategoryInfo;
  */
 @Data
 public class PictureCategoryInfoQuery implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

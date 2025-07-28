@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.common.annotation.Excel;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Map;
 @TableName("p_picture_category_info")
 @Data
 public class PictureCategoryInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -61,6 +63,12 @@ public class PictureCategoryInfo implements Serializable {
      */
     @Excel(name = "分类名称")
     private String name;
+
+    /**
+     * 显示顺序
+     */
+    @Excel(name = "显示顺序")
+    private Long orderNum;
 
     /**
      * 分类描述

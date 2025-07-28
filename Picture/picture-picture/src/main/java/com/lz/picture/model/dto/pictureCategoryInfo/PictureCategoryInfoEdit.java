@@ -1,10 +1,12 @@
 package com.lz.picture.model.dto.pictureCategoryInfo;
 
-import java.io.Serializable;
-
+import com.lz.common.annotation.Excel;
+import com.lz.picture.model.domain.PictureCategoryInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.PictureCategoryInfo;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * 图片分类信息Vo对象 p_picture_category_info
@@ -14,6 +16,7 @@ import com.lz.picture.model.domain.PictureCategoryInfo;
  */
 @Data
 public class PictureCategoryInfoEdit implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -46,6 +49,11 @@ public class PictureCategoryInfoEdit implements Serializable {
      * 分类名称
      */
     private String name;
+
+    /**
+     * 显示顺序
+     */
+    private Long orderNum;
 
     /**
      * 分类描述
