@@ -362,9 +362,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             PictureInfo pictureInfoById = selectPictureInfoByPictureId(pictureInfo.getPictureId());
             ThrowUtils.throwIf(StringUtils.isNull(pictureInfoById), HttpStatus.NO_CONTENT, "图片不存在");
             pictureInfo.setUserId(pictureInfoById.getUserId());
+            //如果图片已经发布不可以修改
+            ThrowUtils.throwIf(pictureInfoById.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "图片已发布，请勿重复操作");
         }
-        //如果图片已经发布不可以修改
-        ThrowUtils.throwIf(pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()), "图片已发布，请勿重复操作");
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         if (StringUtils.isNull(spaceInfo) || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())) {
@@ -487,6 +487,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 rel.setPictureName(pictureName);
                 rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
+                rel.setUserId(pictureInfo.getUserId());
                 pictureTagRelInfos.add(rel);
             });
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
@@ -668,7 +669,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         } else if (behaviorType.equals(PUserBehaviorTypeEnum.USER_BEHAVIOR_TYPE_2.getValue())) {
             userPictureDetailInfoVo.setShareCount(userPictureDetailInfoVo.getShareCount() + 1);
         }
-        //存入缓存 五分钟即可
     }
 
     @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_DETAIL}, keyFields = {"pictureId"})
@@ -851,6 +851,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 rel.setPictureId(pictureInfo.getPictureId());
                 rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
+                rel.setUserId(pictureInfo.getUserId());
                 //判断是否之前有关联标签，如果有设置默认记录值下载、浏览、分享、点赞、收藏次数
                 if (tagRelInfoMap.containsKey(tagInfo.getTagId())) {
                     PictureTagRelInfo tagRelInfo = tagRelInfoMap.get(tagInfo.getTagId());

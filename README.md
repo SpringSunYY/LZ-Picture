@@ -2150,6 +2150,7 @@ CREATE TABLE p_space_folder_info
 | cover_url       | varchar  | 512  |        | 是   |          | 封面图   |
 | category_icon   | varchar  | 64   |        | 是   |          | 封面图标 |
 | name            | varchar  | 32   | 唯一键 | 否   |          | 分类名称 |
+| order_num       | int      | 4    |        | 是   |          | 显示顺序 |
 | category_desc   | varchar  | 512  |        | 是   |          | 分类描述 |
 | category_status | char     | 1    |        | 否   |          | 分类状态 |
 | category_type   | char     | 1    |        | 否   |          | 分类类型 |
@@ -2176,6 +2177,7 @@ create table p_picture_category_info
     cover_url       varchar(512)                           null comment '封面图URL',
     category_icon   varchar(64)                            null comment '封面图标',
     name            varchar(32)                            not null comment '分类名称',
+    order_num       int                                    not null comment '分类排序'
     category_desc   varchar(512)                           null comment '分类描述',
     category_status char         default '0'               not null comment '分类状态（0正常 1关闭）',
     category_type   char         default '0'               not null comment '分类类型',
@@ -2344,6 +2346,7 @@ CREATE TABLE p_picture_info
 | like_count     | bigint  |      | 索引                             | 否   | 0      | 点赞次数  |
 | share_count    | bigint  |      | 索引                             | 否   | 0      | 分享次数  |
 | download_count | bigint  |      | 索引                             | 否   | 0      | 下载次数  |
+| user_id        | varchar | 128  |                                  | 是   |        | 用户编号  |
 
 一张图片最多保存5个标签
 
@@ -2360,6 +2363,7 @@ CREATE TABLE p_picture_tag_rel_info
     like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
     share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
     download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
+    user_id varchar(128) NOT NULL COMMONT '用户编号',
     PRIMARY KEY (picture_id, tag_id),
     INDEX idx_picture_id (picture_id),
     INDEX idx_tag_id (tag_id),

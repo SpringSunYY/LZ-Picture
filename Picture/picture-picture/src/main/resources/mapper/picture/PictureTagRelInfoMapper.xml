@@ -15,6 +15,7 @@
         <result property="likeCount" column="like_count"/>
         <result property="shareCount" column="share_count"/>
         <result property="downloadCount" column="download_count"/>
+        <result property="userId" column="user_id"/>
     </resultMap>
 
     <sql id="selectPictureTagRelInfoVo">
@@ -27,7 +28,8 @@
                collect_count,
                like_count,
                share_count,
-               download_count
+               download_count,
+               user_id
         from p_picture_tag_rel_info
     </sql>
 
@@ -41,6 +43,7 @@
             </if>
             <if test="tagId != null  and tagId != ''">and tag_id = #{tagId}</if>
             <if test="tagName != null  and tagName != ''">and tag_name like concat('%', #{tagName}, '%')</if>
+            <if test="userId != null and userId !=''">and user_id = #{userId}</if>
         </where>
         <if test="params.sortSql != null and params.sortSql != ''">
             ${params.sortSql}
@@ -65,6 +68,7 @@
             <if test="likeCount != null">like_count,</if>
             <if test="shareCount != null">share_count,</if>
             <if test="downloadCount != null">download_count,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="relId != null">#{relId},</if>
@@ -77,6 +81,7 @@
             <if test="likeCount != null">#{likeCount},</if>
             <if test="shareCount != null">#{shareCount},</if>
             <if test="downloadCount != null">#{downloadCount},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
         </trim>
     </insert>
 
@@ -92,6 +97,7 @@
             <if test="likeCount != null">like_count = #{likeCount},</if>
             <if test="shareCount != null">share_count = #{shareCount},</if>
             <if test="downloadCount != null">download_count = #{downloadCount},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
         </trim>
         where rel_id = #{relId}
     </update>

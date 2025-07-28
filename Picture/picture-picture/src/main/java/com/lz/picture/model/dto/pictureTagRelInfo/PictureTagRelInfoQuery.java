@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.util.Map;
 import java.io.Serializable;
 
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.BeanUtils;
@@ -49,6 +50,11 @@ public class PictureTagRelInfoQuery implements Serializable {
      * 标签名称
      */
     private String tagName;
+
+    /**
+     * 所属用户
+     */
+    private String userId;
 
     /**
      * 请求参数

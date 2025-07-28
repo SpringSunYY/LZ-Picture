@@ -41,6 +41,14 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="用户编号" prop="userId">
+        <el-input
+            v-model="queryParams.userId"
+            placeholder="请输入用户编号"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -93,7 +101,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pictureTagRelInfoList" @sort-change="customSort"
+    <el-table ref="tableRef" v-loading="loading" :data="pictureTagRelInfoList" @sort-change="customSort"
               @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
@@ -116,6 +124,8 @@
       <el-table-column label="分享次数" align="center" prop="shareCount" sortable="custom" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom" v-if="columns[9].visible"
+                       :show-overflow-tooltip="true"/>
+      <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -237,6 +247,7 @@ const data = reactive({
     {key: 7, label: '点赞次数', visible: true},
     {key: 8, label: '分享次数', visible: true},
     {key: 9, label: '下载次数', visible: true},
+    {key: 10, label: '用户编号', visible: false},
   ],
 });
 
@@ -288,7 +299,8 @@ function reset() {
     collectCount: null,
     likeCount: null,
     shareCount: null,
-    downloadCount: null
+    downloadCount: null,
+    userId: null,
   };
   proxy.resetForm("pictureTagRelInfoRef");
 }
@@ -302,8 +314,6 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   proxy.$refs.tableRef.clearSort();
-  daterangeCreateTime.value = [];
-  daterangeUpdateTime.value = [];
   proxy.resetForm("queryRef");
   handleQuery();
 }

@@ -1,18 +1,16 @@
 package com.lz.picture.model.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.common.annotation.Excel;
+import lombok.Data;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Date;
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * 图片标签关联对象 p_picture_tag_rel_info
@@ -86,6 +84,12 @@ public class PictureTagRelInfo implements Serializable {
      */
     @Excel(name = "下载次数")
     private Long downloadCount;
+
+    /**
+     * 所属用户
+     */
+    @Excel(name = "所属用户")
+    private String userId;
 
     /**
      * 请求参数
