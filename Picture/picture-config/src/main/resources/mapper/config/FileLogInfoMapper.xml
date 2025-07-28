@@ -77,7 +77,14 @@
             <if test="platform != null  and platform != ''">and platform = #{platform}</if>
             <if test="ipAddress != null  and ipAddress != ''">and ip_address like concat('%', #{ipAddress}, '%')</if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectFileLogInfoByLogId" parameterType="String" resultMap="FileLogInfoResult">

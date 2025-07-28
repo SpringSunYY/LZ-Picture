@@ -133,8 +133,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table ref="tableRef" v-loading="loading" :data="spaceInvitationInfoList" @selection-change="handleSelectionChange"  @sort-change="customSort">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="spaceInvitationInfoList"
+              @selection-change="handleSelectionChange" @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="邀请编号" align="center" prop="invitationId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -142,7 +143,7 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="空间名称" align="center" prop="spaceName" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间封面URL" align="center" prop="spaceAvatar" width="100" v-if="columns[3].visible">
+      <el-table-column label="空间封面" align="center" prop="spaceAvatar" width="100" v-if="columns[3].visible">
         <template #default="scope">
           <image-preview :src="scope.row.spaceAvatar" :width="50" :height="50"/>
         </template>
@@ -163,13 +164,15 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="邀请人编号" align="center" prop="invitationUserId" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="过期时间" align="center" prop="expireTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="过期时间" align="center" prop="expireTime" sortable="custom" width="180"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.expireTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[10].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable="custom"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -363,7 +366,8 @@ function customSort({column, prop, order}) {
 /** 查询空间成员邀请记录列表 */
 function getList() {
   loading.value = true;
- queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
     queryParams.value.params["orderByColumn"] = orderByColumn.value;
     queryParams.value.params["isAsc"] = isAsc.value;
   }
@@ -417,9 +421,10 @@ function handleQuery() {
 function resetQuery() {
   daterangeExpireTime.value = [];
   daterangeCreateTime.value = [];
-    orderByColumn.value = null
+  orderByColumn.value = null
   isAsc.value = null;
   proxy.resetForm("queryRef");
+  proxy.$refs.tableRef.clearSort();
   handleQuery();
 }
 

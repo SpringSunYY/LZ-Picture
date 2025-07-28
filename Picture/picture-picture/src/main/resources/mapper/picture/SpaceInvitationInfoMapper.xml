@@ -57,7 +57,14 @@
             </if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectSpaceInvitationInfoByInvitationId" parameterType="String" resultMap="SpaceInvitationInfoResult">

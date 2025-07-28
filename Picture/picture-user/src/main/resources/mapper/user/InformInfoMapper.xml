@@ -64,7 +64,14 @@
             </if>
             <if test="isDelete != null ">and is_delete = #{isDelete}</if>
         </where>
-        order by send_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by send_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectInformInfoByRecordId" parameterType="String" resultMap="InformInfoResult">

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.page.TableDataInfo;
@@ -88,6 +89,8 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
      * @param spaceInvitationInfo 空间成员邀请记录
      * @return 空间成员邀请记录
      */
+    @CustomSort(sortFields = {"createTime", "expireTime"},
+            sortMappingFields = {"create_time", "expire_time"})
     @Override
     public List<SpaceInvitationInfo> selectSpaceInvitationInfoList(SpaceInvitationInfo spaceInvitationInfo) {
         return spaceInvitationInfoMapper.selectSpaceInvitationInfoList(spaceInvitationInfo);

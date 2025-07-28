@@ -184,7 +184,7 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="公告内容" align="center" prop="content" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="排序" align="center" prop="orderNum" v-if="columns[7].visible"
+      <el-table-column label="排序" align="center" prop="orderNum" sortable="custom" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="公告状态" align="center" prop="noticeStatus" v-if="columns[8].visible">
         <template #default="scope">

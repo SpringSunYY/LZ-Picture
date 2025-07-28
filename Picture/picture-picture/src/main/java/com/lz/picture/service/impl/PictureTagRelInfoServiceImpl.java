@@ -1,23 +1,23 @@
 package com.lz.picture.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lz.common.utils.StringUtils;
-import com.lz.picture.model.domain.PictureTagInfo;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
+import com.lz.common.utils.StringUtils;
 import com.lz.picture.mapper.PictureTagRelInfoMapper;
 import com.lz.picture.model.domain.PictureTagRelInfo;
-import com.lz.picture.service.IPictureTagRelInfoService;
 import com.lz.picture.model.dto.pictureTagRelInfo.PictureTagRelInfoQuery;
 import com.lz.picture.model.vo.pictureTagRelInfo.PictureTagRelInfoVo;
+import com.lz.picture.service.IPictureTagRelInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 
@@ -53,6 +53,11 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
      * @param pictureTagRelInfo 图片标签关联
      * @return 图片标签关联
      */
+    @CustomSort(sortFields = {
+            "lookCount", "collectCount", "likeCount", "shareCount", "downloadCount"
+    }, sortMappingFields = {
+            "look_count", "collect_count", "like_count", "share_count", "download_count"
+    })
     @Override
     public List<PictureTagRelInfo> selectPictureTagRelInfoList(PictureTagRelInfo pictureTagRelInfo) {
         return pictureTagRelInfoMapper.selectPictureTagRelInfoList(pictureTagRelInfo);

@@ -93,7 +93,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="pictureTagRelInfoList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="pictureTagRelInfoList" @sort-change="customSort"
+              @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="关联编号" align="center" prop="relId" v-if="columns[0].visible"
@@ -106,15 +107,15 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="标签名称" align="center" prop="tagName" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="查看次数" align="center" prop="lookCount" v-if="columns[5].visible"
+      <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="收藏次数" align="center" prop="collectCount" v-if="columns[6].visible"
+      <el-table-column label="收藏次数" align="center" prop="collectCount" sortable="custom" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="点赞次数" align="center" prop="likeCount" v-if="columns[7].visible"
+      <el-table-column label="点赞次数" align="center" prop="likeCount" sortable="custom" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="分享次数" align="center" prop="shareCount" v-if="columns[8].visible"
+      <el-table-column label="分享次数" align="center" prop="shareCount" sortable="custom" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="下载次数" align="center" prop="downloadCount" v-if="columns[9].visible"
+      <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -182,7 +183,8 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -240,9 +242,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /** 查询图片标签关联列表 */
 function getList() {
   loading.value = true;
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   listPictureTagRelInfo(queryParams.value).then(response => {
     pictureTagRelInfoList.value = response.rows;
     total.value = response.total;
@@ -281,6 +301,9 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
+  proxy.$refs.tableRef.clearSort();
+  daterangeCreateTime.value = [];
+  daterangeUpdateTime.value = [];
   proxy.resetForm("queryRef");
   handleQuery();
 }

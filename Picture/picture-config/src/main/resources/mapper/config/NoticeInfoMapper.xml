@@ -57,7 +57,14 @@
                 and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
             </if>
         </where>
-        order by order_num asc ,update_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by order_num asc ,update_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectNoticeInfoByNoticeId" parameterType="String" resultMap="NoticeInfoResult">

@@ -48,7 +48,7 @@ public class SearchLogInfoServiceImpl extends ServiceImpl<SearchLogInfoMapper, S
      * @return 用户搜索记录
      */
     @CustomSort(sortFields = {"createTime", "resultCount", "searchDuration"},
-            sortMappingFields = {"createTime", "resultCount", "searchDuration"})
+            sortMappingFields = {"create_time", "result_count", "search_duration"})
     @Override
     public List<SearchLogInfo> selectSearchLogInfoList(SearchLogInfo searchLogInfo) {
         return searchLogInfoMapper.selectSearchLogInfoList(searchLogInfo);

@@ -171,8 +171,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table ref="tableRef" v-loading="loading" :data="informInfoList" @selection-change="handleSelectionChange"  @sort-change="customSort">
-            <el-table-column type="selection" width="55" align="center"/>
+    <el-table ref="tableRef" v-loading="loading" :data="informInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="通知记录编号" align="center" prop="recordId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -206,7 +207,8 @@
           <dict-tag :options="u_inform_is_read" :value="scope.row.isRead"/>
         </template>
       </el-table-column>
-      <el-table-column label="读取时间" align="center" prop="readTime" width="180" v-if="columns[10].visible"
+      <el-table-column label="读取时间" align="center" prop="readTime" width="180" sortable="custom"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.readTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -214,7 +216,8 @@
       </el-table-column>
       <el-table-column label="重试次数" align="center" prop="retryCount" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="发送时间" align="center" prop="sendTime" width="180" v-if="columns[12].visible"
+      <el-table-column label="发送时间" align="center" prop="sendTime" width="180" sortable="custom"
+                       v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.sendTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -441,7 +444,8 @@ function customSort({column, prop, order}) {
 /** 查询用户通知记录列表 */
 function getList() {
   loading.value = true;
- queryParams.value.params = {}; if (orderByColumn.value != null && isAsc.value !== null) {
+  queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
     queryParams.value.params["orderByColumn"] = orderByColumn.value;
     queryParams.value.params["isAsc"] = isAsc.value;
   }
@@ -498,9 +502,10 @@ function handleQuery() {
 function resetQuery() {
   daterangeReadTime.value = [];
   daterangeSendTime.value = [];
-    orderByColumn.value = null
+  orderByColumn.value = null
   isAsc.value = null;
   proxy.resetForm("queryRef");
+  proxy.$refs.tableRef.clearSort();
   handleQuery();
 }
 

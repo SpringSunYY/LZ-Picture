@@ -65,7 +65,7 @@ public class NoticeInfoServiceImpl extends ServiceImpl<NoticeInfoMapper, NoticeI
      * @param noticeInfo 用户公告
      * @return 用户公告
      */
-    @CustomSort(sortFields = {"createTime", "updateTime"}, sortMappingFields = {"create_time", "update_time"})
+    @CustomSort(sortFields = {"createTime", "updateTime", "orderNum"}, sortMappingFields = {"create_time", "update_time", "order_num"})
     @Override
     public List<NoticeInfo> selectNoticeInfoList(NoticeInfo noticeInfo) {
         List<NoticeInfo> noticeInfos = noticeInfoMapper.selectNoticeInfoList(noticeInfo);

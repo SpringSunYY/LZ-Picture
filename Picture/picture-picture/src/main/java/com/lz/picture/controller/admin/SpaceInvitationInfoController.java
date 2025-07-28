@@ -13,6 +13,7 @@ import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoInsert;
 import com.lz.picture.model.dto.spaceInvitationInfo.SpaceInvitationInfoQuery;
 import com.lz.picture.model.vo.spaceInvitationInfo.SpaceInvitationInfoVo;
 import com.lz.picture.service.ISpaceInvitationInfoService;
+import com.lz.system.service.ISysConfigService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 
@@ -36,6 +38,8 @@ public class SpaceInvitationInfoController extends BaseController {
     @Resource
     private ISpaceInvitationInfoService spaceInvitationInfoService;
 
+    @Resource
+    private ISysConfigService sysConfigService;
     /**
      * 查询空间成员邀请记录列表
      */
@@ -47,8 +51,9 @@ public class SpaceInvitationInfoController extends BaseController {
         List<SpaceInvitationInfo> list = spaceInvitationInfoService.selectSpaceInvitationInfoList(spaceInvitationInfo);
         List<SpaceInvitationInfoVo> listVo = list.stream().map(SpaceInvitationInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
+        String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
         });
         table.setRows(listVo);
         return table;

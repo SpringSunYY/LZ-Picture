@@ -42,6 +42,9 @@
             <if test="tagId != null  and tagId != ''">and tag_id = #{tagId}</if>
             <if test="tagName != null  and tagName != ''">and tag_name like concat('%', #{tagName}, '%')</if>
         </where>
+        <if test="params.sortSql != null and params.sortSql != ''">
+            ${params.sortSql}
+        </if>
     </select>
 
     <select id="selectPictureTagRelInfoByRelId" parameterType="String" resultMap="PictureTagRelInfoResult">

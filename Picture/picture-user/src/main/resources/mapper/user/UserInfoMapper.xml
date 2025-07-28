@@ -84,7 +84,14 @@
             </if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
-        order by create_time desc
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectUserInfoByUserId" parameterType="String" resultMap="UserInfoResult">

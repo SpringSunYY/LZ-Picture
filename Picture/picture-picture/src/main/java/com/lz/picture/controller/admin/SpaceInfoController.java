@@ -13,6 +13,7 @@ import com.lz.picture.model.dto.spaceInfo.SpaceInfoInsert;
 import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
+import com.lz.system.service.ISysConfigService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lz.common.constant.ConfigConstants.PICTURE_P;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
 
@@ -36,6 +38,8 @@ public class SpaceInfoController extends BaseController {
     @Resource
     private ISpaceInfoService spaceInfoService;
 
+    @Resource
+    private ISysConfigService sysConfigService;
 
     /**
      * 查询空间信息列表
@@ -47,8 +51,9 @@ public class SpaceInfoController extends BaseController {
         startPage();
         List<SpaceInfo> list = spaceInfoService.selectSpaceInfoList(spaceInfo);
         List<SpaceInfoVo> listVo = new ArrayList<>();
+        String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         list.forEach(vo -> {
-            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
             SpaceInfoVo spaceInfoVo = SpaceInfoVo.objToVo(vo);
             listVo.add(spaceInfoVo);
         });

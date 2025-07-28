@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
@@ -67,6 +68,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
      * @param informInfo 用户通知记录
      * @return 用户通知记录
      */
+    @CustomSort(sortFields = {"sendTime", "readTime"}, sortMappingFields = {"send_time", "read_time"})
     @Override
     public List<InformInfo> selectInformInfoList(InformInfo informInfo) {
         return informInfoMapper.selectInformInfoList(informInfo);
