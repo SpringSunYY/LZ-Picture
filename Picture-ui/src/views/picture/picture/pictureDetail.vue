@@ -4,7 +4,7 @@
       <!-- 左侧：标题、简介、图片 -->
       <a-col :xs="24" :md="16" class="left-view">
         <div class="image-wrapper">
-          <FancyImage :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
+          <ImageView :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
             <template #content>
               <div style="position: relative; padding: 40px">
                 <p style="font-size: 5vh; color: #00ff95; text-align: center">
@@ -19,7 +19,7 @@
                 </p>
               </div>
             </template>
-          </FancyImage>
+          </ImageView>
         </div>
       </a-col>
 
@@ -67,12 +67,7 @@
             :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
           />
         </a-card>
-        <a-card
-          title=""
-          :bordered="false"
-          class="card action-card"
-          v-if="picture.pictureId !== ''"
-        >
+        <a-card title="" :bordered="false" class="card action-card" v-if="picture.pictureId !== ''">
           <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
             <a-tooltip title="View">
               <a-button class="icon-button" @click="clickLook">
@@ -274,7 +269,7 @@
       </a-form>
     </a-modal>
 
-    <a-modal v-model:open="openOriginal" :footer="null" centered destroyOnClose>
+    <a-modal v-model:open="openOriginal" :footer="null" centered destroyOnClose :width="600">
       <!-- 自定义标题插槽 -->
       <template #title>
         <div class="custom-modal-title">
@@ -285,7 +280,7 @@
           </a-tooltip>
         </div>
       </template>
-      <PictureView :src="originalPictureUrl" :width="500" />
+      <ImageView :src="originalPictureUrl" alt="点击预览" :zoom-scale="1.05" />
       <div class="form-footer">
         <a-button type="primary" @click="resetOriginalUrl">重置URL</a-button>
         <a-button @click="openOriginal = false">关闭</a-button>
@@ -301,7 +296,7 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, ref } from 'vue'
-import FancyImage from '@/components/FancyImage.vue'
+import ImageView from '@/components/ImageView.vue'
 import Tags from '@/components/Tags.vue'
 import { getPictureDetailInfo, getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
 import { useRoute } from 'vue-router'
@@ -322,15 +317,12 @@ import {
 import SvgIcon from '@/components/SvgIcon.vue'
 import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
-import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
 import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
 import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
 import { useConfig } from '@/utils/config.ts'
-import { PictureApplyTypeEnum } from '@/types/picture/pictureApplyInfo.d.ts'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { getPictureOriginalLogInfo } from '@/api/common/file.ts'
-import PictureView from '@/components/PictureView.vue'
 import QRCode from '@/components/QRCode.vue'
 import QuickCopy from '@/components/QuickCopy.vue'
 

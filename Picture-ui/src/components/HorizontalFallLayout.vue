@@ -18,8 +18,8 @@
 
     <!-- 触底加载 -->
     <div ref="loadMoreTrigger" class="load-more-trigger">
-      <div v-if="loading">加载中...</div>
-      <div v-else-if="noMore">没有更多了</div>
+      <LoadingData v-if="loading" />
+      <NoMoreData v-else-if="noMore" />
     </div>
   </div>
 </template>
@@ -30,6 +30,8 @@ import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo } from '@/types/picture/picture'
 import { useConfig } from '@/utils/config.ts'
 import { useRouter } from 'vue-router'
+import NoMoreData from '@/components/NoMoreData.vue'
+import LoadingData from '@/components/LoadingData.vue'
 
 const props = defineProps({
   pictureList: {

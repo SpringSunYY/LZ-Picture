@@ -1,22 +1,13 @@
 <template>
   <!-- 外层容器 -->
-  <div class="fancy-image" :style="wrapperStyle">
+  <div class="image-view" :style="wrapperStyle">
     <!-- 图片容器 -->
     <div class="image-container" @click="handlePreview">
       <!-- 图片主体 -->
-      <img
-        :src="src"
-        :alt="alt"
-        class="main-image"
-        :style="imageStyle"
-      />
+      <img :src="src" :alt="alt" class="main-image" :style="imageStyle" />
 
       <!-- 悬停蒙版 -->
-      <div
-        class="custom-layer"
-        @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false"
-      >
+      <div class="custom-layer" @mouseenter="isHovered = true" @mouseleave="isHovered = false">
         <slot name="content">
           <div class="default-content">
             {{ alt }}
@@ -36,59 +27,59 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-import { Image as AImage } from 'ant-design-vue';
+import { ref, computed } from 'vue'
+import { Image as AImage } from 'ant-design-vue'
 
 const props = defineProps({
   src: String,
   alt: String,
   zoomScale: {
     type: Number,
-    default: 1.1
+    default: 1.1,
   },
   // 新增容器比例参数
   aspectRatio: {
     type: String,
     default: '16/9',
-    validator: value => {
+    validator: (value) => {
       const [w, h] = value.split('/')
       return Number(w) > 0 && Number(h) > 0
-    }
+    },
   },
   // 最大高度限制
   maxHeight: {
     type: String,
-    default: '100vh'
-  }
-});
+    default: '100vh',
+  },
+})
 
-const isHovered = ref(false);
-const showPreview = ref(false);
+const isHovered = ref(false)
+const showPreview = ref(false)
 
 // 容器样式计算
 const wrapperStyle = computed(() => ({
   '--aspect-ratio': props.aspectRatio,
-  '--max-height': props.maxHeight
-}));
+  '--max-height': props.maxHeight,
+}))
 
 // 图片动态样式
 const imageStyle = computed(() => ({
   transform: isHovered.value ? `scale(${props.zoomScale})` : 'scale(1)',
-  transformOrigin: 'center center'
-}));
+  transformOrigin: 'center center',
+}))
 
 const handlePreview = () => {
-  showPreview.value = true;
-};
+  showPreview.value = true
+}
 
 const handlePreviewClose = () => {
-  showPreview.value = false;
-};
+  showPreview.value = false
+}
 </script>
 
 <style scoped lang="scss">
 /* 外层容器 */
-.fancy-image {
+.image-view {
   position: relative;
   width: 100%;
   height: 0;
@@ -98,6 +89,7 @@ const handlePreviewClose = () => {
 
   /* 图片容器 */
   .image-container {
+    overflow: hidden;
     position: absolute;
     top: 0;
     left: 0;
@@ -142,8 +134,6 @@ const handlePreviewClose = () => {
     text-align: center;
   }
 }
-
-
 
 /* 预览样式调整 */
 :deep(.ant-image-preview-root) {
