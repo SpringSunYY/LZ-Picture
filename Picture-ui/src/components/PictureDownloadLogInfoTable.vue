@@ -127,7 +127,7 @@
           </a-tooltip>
         </div>
       </template>
-      <PictureView :src="originalPictureUrl" :width="500" />
+      <ImageView :src="originalPictureUrl" :width="600" />
       <div class="form-footer">
         <a-button @click="openOriginal = false" style="">关闭</a-button>
       </div>
@@ -146,11 +146,11 @@ import type {
   PictureDownloadLogInfoVo,
 } from '@/types/picture/pictureDownloadLogInfo'
 import { useRouter } from 'vue-router'
-import { downloadImageByLog } from '@/utils/file.ts'
 import { message } from 'ant-design-vue'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import PictureView from '@/components/PictureView.vue'
 import { getPictureOriginalLogInfoByLog } from '@/api/common/file.ts'
+import ImageView from '@/components/ImageView.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
