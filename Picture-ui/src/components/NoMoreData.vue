@@ -28,7 +28,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  text: '哎呀，让您发现了所有内容！！！',
+  text: '糟糕，让您发现了所有内容！！！',
   showIcon: true,
   variant: 'default',
   scrollBehavior: 'smooth'
