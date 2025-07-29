@@ -3323,3 +3323,72 @@ CREATE TABLE `p_user_behavior_info` (
 我现在要根据这几个表给用户做一个个人推荐算法，分数根据他自己每条记录来计算，分数也要根据时间降权不用给每种类型降权，根据他的分数来算就行了，每条数据都有分数的，我应该怎么做这个推荐算法呢，我的是Java，可以先写SQL做事例,查询到的数据比如说下载可以取最近n条，记录、行为这些也可以取最近n条，不然后面数据量怕太大了，我的MySQL版本8.0.33
 ```
 
+```
+const formatPictureListByRow = () => {
+  const container = document.querySelector('.horizontal-masonry')
+  if (!container) return
+
+  const containerWidth = container.clientWidth
+  const baseHeight = Number(pictureHeight.value) || 250
+  const spacing = 12
+  const minWidth = 150
+
+  const rows: any[][] = []
+  let tempRow: PictureInfoVo[] = []
+  let totalRatio = 0
+
+  for (const pic of rawPictureList.value) {
+    if (!pic.picWidth || !pic.picHeight) continue
+
+    const r = pic.picWidth / pic.picHeight
+    const estimatedWidth = r * baseHeight
+    if (estimatedWidth < minWidth) {
+      continue // 丢掉太瘦图
+    }
+
+    tempRow.push(pic)
+    totalRatio += r
+
+    const totalSpacing = spacing * (tempRow.length - 1)
+    const targetWidth = containerWidth - totalSpacing
+    const currentHeight = targetWidth / totalRatio
+
+    if (currentHeight < baseHeight) {
+      // 当前高度符合要求，开始构造该行
+      const row = tempRow.map((p) => {
+        const r = p.picWidth / p.picHeight
+        const height = currentHeight
+        const width = r * height
+
+        return {
+          ...p,
+          displayWidth: width,
+          displayHeight: height,
+        }
+      })
+
+      rows.push(row)
+      tempRow = []
+      totalRatio = 0
+    }
+  }
+
+  // 最后一行
+  if (tempRow.length > 0) {
+    const row = tempRow.map((p) => {
+      const r = p.picWidth / p.picHeight
+      const height = baseHeight
+      const width = r * height
+      return {
+        ...p,
+        displayWidth: width,
+        displayHeight: height,
+      }
+    })
+    rows.push(row)
+  }
+
+  pictureRows.value = rows
+}
+```
+

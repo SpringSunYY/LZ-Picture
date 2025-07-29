@@ -16,8 +16,8 @@
 
     <!-- 触底加载 -->
     <div ref="loadMoreTrigger" class="load-more-trigger">
-      <div v-if="loading">加载中...</div>
-      <div v-else-if="noMore">没有更多了</div>
+      <LoadingData v-if="loading" />
+      <NoMoreData v-else-if="noMore" />
     </div>
   </div>
 </template>
@@ -27,6 +27,8 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo } from '@/types/picture/picture'
 import { useRouter } from 'vue-router'
+import NoMoreData from '@/components/NoMoreData.vue'
+import LoadingData from '@/components/LoadingData.vue'
 
 const props = defineProps({
   pictureList: {
@@ -54,15 +56,38 @@ async function loadMore() {
   if (props.loading || props.noMore) return
   emits('loadMore')
 }
+
 function generate() {
   const newData = (props.pictureList || []).map((data) => ({
     ...data,
-    rowSpan: Math.ceil((data?.picHeight / data?.picWidth) * 15), // 根据比例动态计算 rowSpan
+    rowSpan: calculateRowSpan(data?.picWidth, data?.picHeight),
   }))
   if (newData.length > 0) {
     pictrures.value.push(...newData)
   }
 }
+
+function calculateRowSpan(width: number, height: number): number {
+  if (!width || !height) return 12 // 默认值
+
+  const aspectRatio = height / width
+
+  // 横图处理 (宽大于高)
+  if (aspectRatio <= 0.75) {
+    // 非常宽的图片，减少高度
+    return Math.max(8, Math.round(20 * aspectRatio))
+  }
+
+  // 竖图处理 (高大于宽)
+  if (aspectRatio >= 1.5) {
+    // 非常高的图片，增加高度
+    return Math.min(40, Math.round(12 * aspectRatio))
+  }
+
+  // 正常比例的图片
+  return Math.round(15 * aspectRatio)
+}
+
 // 设置 observer
 function setupObserver() {
   if (observer) observer.disconnect()

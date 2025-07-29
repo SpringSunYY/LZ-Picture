@@ -38,7 +38,7 @@ const pictureQuery = ref<PictureRecommendRequest>({
   currentPage: 0,
   //list接口需要 从第一页开始
   pageNum: 1,
-  pageSize: 35,
+  pageSize: 50,
   offset: 0,
 })
 const count = ref(0)

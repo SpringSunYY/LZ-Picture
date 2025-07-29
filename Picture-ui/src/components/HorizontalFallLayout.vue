@@ -94,67 +94,65 @@ const formatPictureListByRow = () => {
 
   const containerWidth = container.clientWidth
   const baseHeight = Number(pictureHeight.value) || 250
-  // console.log('baseHeight', baseHeight)
-  const spacing = 8
-  const rows: PictureInfoVo[][] = []
+  const spacing = 12
+  const minWidth = 150
+
+  const rows: any[][] = []
   let tempRow: PictureInfoVo[] = []
   let totalRatio = 0
 
   for (const pic of rawPictureList.value) {
-    if (
-      pic.picWidth === undefined ||
-      pic.picWidth === 0 ||
-      pic.picHeight === undefined ||
-      pic.picHeight === 0
-    ) {
-      continue
+    if (!pic.picWidth || !pic.picHeight) continue
+
+    const r = pic.picWidth / pic.picHeight
+    const estimatedWidth = r * baseHeight
+    if (estimatedWidth < minWidth) {
+      continue // 丢掉太瘦图
     }
-    pic.picScale = pic.picWidth / pic.picHeight
-    const ratio = pic.picScale
+
     tempRow.push(pic)
-    totalRatio += ratio
+    totalRatio += r
 
     const totalSpacing = spacing * (tempRow.length - 1)
     const targetWidth = containerWidth - totalSpacing
     const currentHeight = targetWidth / totalRatio
 
     if (currentHeight < baseHeight) {
+      // 当前高度符合要求，开始构造该行
       const row = tempRow.map((p) => {
         const r = p.picWidth / p.picHeight
         const height = currentHeight
+        const width = r * height
+
         return {
           ...p,
-          displayWidth: r * height,
+          displayWidth: width,
           displayHeight: height,
         }
       })
+
       rows.push(row)
       tempRow = []
       totalRatio = 0
     }
   }
 
-  // 收尾最后一行
+  // 最后一行
   if (tempRow.length > 0) {
     const row = tempRow.map((p) => {
       const r = p.picWidth / p.picHeight
+      const height = baseHeight
+      const width = r * height
       return {
         ...p,
-        displayHeight: baseHeight,
-        displayWidth: r * baseHeight,
+        displayWidth: width,
+        displayHeight: height,
       }
     })
     rows.push(row)
   }
 
   pictureRows.value = rows
-  var count = 0
-  for (let i = 0; i < pictureRows.value.length; i++) {
-    for (let j = 0; j < pictureRows.value[i].length; j++) {
-      count++
-    }
-  }
-  console.log('count', count)
 }
 
 // observer 设置
