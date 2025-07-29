@@ -31,6 +31,7 @@
                 style="display: flex; align-items: center; justify-content: center"
                 type="text"
                 :icon="h(FullscreenOutlined)"
+                v-if="checkPermiSingle('picture:ai:outPainting:createTask')"
                 @click="doSelectOperation('external')"
                 >AI 扩图
               </a-button>
@@ -62,7 +63,7 @@
                 :is-delete="true"
               />
               <PictureOutPainting
-                v-if="externalOpen"
+                v-if="externalOpen && checkPermiSingle('picture:ai:outPainting:createTask')"
                 ref="pictureOutPainting"
                 :spaceId="formState.spaceId"
                 :picture="formState"
@@ -204,6 +205,7 @@ import { useRoute } from 'vue-router'
 import PictureOutPainting from '@/components/PictureOutPainting.vue'
 import type { PictureFileResponse } from '@/types/file'
 import { findPathById } from '@/utils/common.ts'
+import { checkPermiSingle } from '@/utils/permission.ts'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
