@@ -101,7 +101,7 @@ public class AuthUserInfoController extends BaseUserInfoController {
         loginCode.setCountryCode(RsaUtils.decryptUserByPrivateKey(loginCode.getCountryCode()));
         loginCode.setCaptchaEnabled(USER_LOGIN_CAPTCHA_ENABLED_VALUE);
         String smsLoginCode = loginService.getSmsCode(loginCode.getPhone(), loginCode.getCountryCode(), loginCode.getCode(), loginCode.isCaptchaEnabled(), loginCode.getUuid());
-        System.err.println(smsLoginCode);
+//        System.err.println(smsLoginCode);
         return AjaxResult.success("验证码发送成功");
     }
 

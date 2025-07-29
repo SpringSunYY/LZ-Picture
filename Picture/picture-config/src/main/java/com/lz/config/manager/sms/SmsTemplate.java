@@ -2,6 +2,9 @@ package com.lz.config.manager.sms;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
+import com.lz.common.constant.HttpStatus;
+import com.lz.common.core.redis.RedisCache;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.config.manager.sms.model.SmsResponse;
@@ -31,7 +34,14 @@ public class SmsTemplate {
     @Resource
     private IInformTemplateInfoService informTemplateInfoService;
 
-    public SmsResponse sendCode(String templateKey,String code, String phone, String locale) {
+    @Resource
+    private RedisCache redisCache;
+
+    public SmsResponse sendCode(String key, String templateKey, String code, String phone, String locale) {
+        //查询缓存是否存在
+        if (redisCache.hasKey(key)) {
+            throw new ServiceException("验证码已发送，如果未收到，请查看是否被手机拦截，如果存在请输入验证码", HttpStatus.ACCEPTED);
+        }
         InformTemplateInfo templateInfo = informTemplateInfoService.getInformTemplateInfoByKeyAndLocale(templateKey, locale, CTemplateTypeEnum.TEMPLATE_TYPE_1.getValue());
         if (StringUtils.isNull(templateInfo)) {
             log.error("短信模板不存在或者未启用");

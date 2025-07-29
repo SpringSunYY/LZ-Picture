@@ -5,6 +5,8 @@ import com.lz.common.constant.Constants;
 import com.lz.common.constant.UserConstants;
 import com.lz.common.constant.config.TemplateInfoKeyConstants;
 import com.lz.common.constant.redis.UserRedisConstants;
+import com.lz.common.core.domain.model.AuthUserInfo;
+import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.ULoginStatus;
 import com.lz.common.enums.ULoginType;
@@ -20,13 +22,10 @@ import com.lz.framework.manager.AsyncManager;
 import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.framework.manager.factory.UserInfoLoginAsyncFactory;
 import com.lz.framework.security.context.AuthenticationContextHolder;
-import com.lz.common.core.domain.model.AuthUserInfo;
-import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.userauth.service.IAuthUserInfoService;
 import com.lz.userauth.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,8 +37,8 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.LocaleConstants.ZH_CN;
-import static com.lz.common.constant.config.TemplateInfoKeyConstants.SMS_LOGIN_CODE;
 import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
 
 
@@ -167,9 +166,10 @@ public class UserInfoLoginService {
         //校验成功发送验证码
         //随机6位数验证码
         String code = StringUtils.generateCode();
-        redisCache.setCacheObject(UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone, code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        String key = UserRedisConstants.USER_SMS_LOGIN_CODE + countryCode + ":" + phone;
         // TODO 发送真正验证码 先写死zh
-        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_LOGIN_CODE, code, phone, ZH_CN);
+        smsTemplate.sendCode(key, TemplateInfoKeyConstants.SMS_LOGIN_CODE, code, phone, ZH_CN);
+        redisCache.setCacheObject(key, code, UserRedisConstants.USER_SMS_LOGIN_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         return code;
     }
 
@@ -247,9 +247,10 @@ public class UserInfoLoginService {
         validateCaptcha(code, captchaEnabled, uuid);
         //校验成功发送验证码
         String registerCode = StringUtils.generateCode();
-        redisCache.setCacheObject(UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_REGISTER_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
+        String key = UserRedisConstants.USER_SMS_REGISTER_CODE + countryCode + ":" + phone;
         //发送短信验证码
-        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_REGISTER_CODE, registerCode, phone, ZH_CN);
+        smsTemplate.sendCode(key, TemplateInfoKeyConstants.SMS_REGISTER_CODE, registerCode, phone, ZH_CN);
+        redisCache.setCacheObject(key, registerCode, UserRedisConstants.USER_SMS_REGISTER_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
 //        System.out.println("smsResponse = " + smsResponse);
         return registerCode;
     }
@@ -277,16 +278,18 @@ public class UserInfoLoginService {
     public String getForgetPasswordCode(String phone, String countryCode, String code, boolean captchaEnabled, String uuid) {
         validateCaptcha(code, captchaEnabled, uuid);
         String registerCode = StringUtils.generateCode();
-        redisCache.setCacheObject(UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE + countryCode + ":" + phone, registerCode, UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
-        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_FORGET_PASSWORD_CODE, registerCode, phone, ZH_CN);
+        String key = UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE + countryCode + COMMON_SEPARATOR_CACHE + phone;
+        smsTemplate.sendCode(key,TemplateInfoKeyConstants.SMS_FORGET_PASSWORD_CODE, registerCode, phone, ZH_CN);
+        redisCache.setCacheObject(key, registerCode, UserRedisConstants.USER_SMS_FORGET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         return registerCode;
     }
 
     /**
      * 手机号码登录
-     * @param phone 手机号码
+     *
+     * @param phone       手机号码
      * @param countryCode 国家码
-     * @param password 密码
+     * @param password    密码
      * @return String
      * @author: YY
      * @method: phoneLogin     手机号码登录

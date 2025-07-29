@@ -254,8 +254,9 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
             throw new ServiceException("手机号与用户手机号不一致");
         }
         String registerCode = StringUtils.generateCode();
-        redisCache.setCacheObject(POINTS_ACCOUNT_RESET_PASSWORD_CODE + countryCode + COMMON_SEPARATOR_CACHE + phone, registerCode, POINTS_ACCOUNT_RESET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
-        smsTemplate.sendCode(TemplateInfoKeyConstants.SMS_ACCOUNT_RESET_PASSWORD_CODE, registerCode, phone, ZH_CN);
+        String key = POINTS_ACCOUNT_RESET_PASSWORD_CODE + countryCode + COMMON_SEPARATOR_CACHE + phone;
+        smsTemplate.sendCode(key, TemplateInfoKeyConstants.SMS_ACCOUNT_RESET_PASSWORD_CODE, registerCode, phone, ZH_CN);
+        redisCache.setCacheObject(key, registerCode, POINTS_ACCOUNT_RESET_PASSWORD_CODE_EXPIRE_TIME, TimeUnit.SECONDS);
         return registerCode;
     }
 
