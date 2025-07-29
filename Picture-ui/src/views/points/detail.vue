@@ -135,7 +135,7 @@ const handlePurchase = () => {
     path: '/points/payment',
     query: { packageId: packageId },
   })
-  console.log(routeData) // 调试路由解析结果
+  // console.log(routeData) // 调试路由解析结果
   window.open(routeData.href, '_blank')
 }
 </script>

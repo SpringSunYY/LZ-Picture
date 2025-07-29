@@ -159,7 +159,7 @@ watch(
   () => props.modelValue,
   async (newVal) => {
     // console.log(isInit.value, isEdit.value)
-    console.log('newVal', newVal)
+    // console.log('newVal', newVal)
     if (newVal === '') {
       innerFileList.value = []
       return

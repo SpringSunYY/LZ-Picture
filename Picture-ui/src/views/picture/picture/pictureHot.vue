@@ -58,7 +58,7 @@ import type { PictureInfoHotRequest, PictureInfoVo } from '@/types/picture/pictu
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { getHotPictureInfoList } from '@/api/picture/picture.ts'
-
+import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 const router = useRouter()
 const type = ref(router.currentRoute.value.query.type)
 

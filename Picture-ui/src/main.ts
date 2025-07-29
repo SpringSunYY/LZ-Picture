@@ -10,7 +10,6 @@ import SvgIcon from '@/components/SvgIcon.vue'
 import '@/router/permisson'
 import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'
-import UndrawUI from 'undraw-ui'
 import './output.css'
 import dragScroll from '@/directives/dragScroll'
 
@@ -27,6 +26,5 @@ const pinia = createPinia()
 pinia.use(persistedState)
 app.use(pinia)
 app.use(router)
-app.use(UndrawUI)
 app.mount('#app')
 app.directive('drag-scroll', dragScroll)

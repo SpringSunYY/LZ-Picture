@@ -58,7 +58,7 @@ onMounted(async () => {
     openNotification()
   } else {
     // 今日已推送或无新公告
-    console.log('不展示')
+    console.log('不推送今日公共')
   }
 })
 </script>

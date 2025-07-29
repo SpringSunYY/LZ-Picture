@@ -39,11 +39,7 @@
         <a-card title="" :bordered="false" class="card">
           <div class="title-block">
             <h1 class="picture-name">{{ picture.name }}</h1>
-            <u-fold unfold line="2">
-              <p class="picture-desc">
-                {{ picture.introduction || '作者还没有抒写他的故事哦。' }}
-              </p>
-            </u-fold>
+            <TextView :text="picture.introduction || '作者没有抒写他的故事哦'" :max-lines="2" />
           </div>
         </a-card>
         <!-- 图片信息 -->
@@ -287,7 +283,7 @@
       </div>
     </a-modal>
 
-    <a-modal v-model:visible="openShare" title="分享图片" @ok="openShare = !openShare">
+    <a-modal v-model:open="openShare" title="分享图片" @ok="openShare = !openShare">
       <QRCode :value="shareLink" />
       <QuickCopy :content="shareLink" />
     </a-modal>
@@ -325,6 +321,7 @@ import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { getPictureOriginalLogInfo } from '@/api/common/file.ts'
 import QRCode from '@/components/QRCode.vue'
 import QuickCopy from '@/components/QuickCopy.vue'
+import TextView from '@/components/TextView.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -627,8 +624,15 @@ getPictureInfo()
 
     .card {
       width: 100%;
-      //border-radius: 12px;
-      background-color: #fff;
+      background-color: rgba(211, 211, 211, 0.35);
+    }
+
+    .card:hover {
+      //  放大
+      transform: scale(1.02);
+      transition: all 0.2s ease-in-out;
+      border-radius: 12px;
+      background-color: rgba(211, 211, 211, 0.55);
     }
 
     .action-card {

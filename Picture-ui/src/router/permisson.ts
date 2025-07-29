@@ -179,7 +179,7 @@ export function toMenu(route: RouteRecordRaw) {
   // 处理外部链接
   if (route.item?.isFrame && route.item.isFrame) {
     let url = route.item.path
-    console.log('url', url)
+    // console.log('url', url)
     // 构造查询参数
     const queryStr = new URLSearchParams(queryObj).toString()
     if (queryStr) {

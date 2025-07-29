@@ -83,7 +83,6 @@
               <a-button
                 type="primary"
                 block
-
                 :disabled="pkg.packageStatus !== '1'"
               >
                 立即购买

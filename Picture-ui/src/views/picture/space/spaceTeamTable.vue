@@ -42,7 +42,9 @@
       >
         <template #bodyCell="{ column, text, record }">
           <template v-if="column.dataIndex === 'spaceName'">
-            <router-link :to="`/spaceManage/member?spaceId=${record.spaceId}`"
+            <router-link
+              :to="`/spaceManage/member?spaceId=${record.spaceId}`"
+              :style="{ textDecoration: 'underline' ,color: 'blue'}"
               >{{ text }}
             </router-link>
           </template>
@@ -71,8 +73,9 @@
                 "
                 >邀请</a
               >
-              <router-link :to="`/spaceManage/pictureTeamTable?spaceId=${record.spaceId}&spaceName=${record.spaceName}`"
-              >查看
+              <router-link
+                :to="`/spaceManage/pictureTeamTable?spaceId=${record.spaceId}&spaceName=${record.spaceName}`"
+                >查看
               </router-link>
             </a-space>
           </template>

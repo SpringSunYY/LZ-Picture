@@ -177,7 +177,7 @@ const getPictureCategoryList = async () => {
       'parentId',
       'children',
     )
-    console.log('pictureCategoryList', pictureCategoryList.value)
+    // console.log('pictureCategoryList', pictureCategoryList.value)
   })
 }
 getPictureCategoryList()

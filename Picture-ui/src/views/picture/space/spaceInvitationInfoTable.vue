@@ -87,7 +87,7 @@
           <template v-if="column.dataIndex === 'action'">
             <a-space-compact>
               <a-dropdown placement="bottomRight" :trigger="['click']">
-                <a-button> 操作</a-button>
+                <a-button @click="clickOperation">操作</a-button>
                 <template #overlay>
                   <a-menu>
                     <a-menu-item
@@ -287,6 +287,9 @@ const handleTableChange = (pag, filters, sorter) => {
 const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 //endregion
 //region 操作列
+const clickOperation = () => {
+  message.info('点击了操作列，如果没看到其他操作表示当前已经不可以操作了哦')
+}
 const confirmAction = (action: string, record: SpaceInvitationInfoVo) => {
   if (
     action === PSpaceInvitationStatusEnum.P_SPACE_INVITATION_STATUS_1 ||

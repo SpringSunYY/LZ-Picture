@@ -667,7 +667,7 @@ const rulesAccountPassword = {
 const handleUpdateAccountPassword = () => {
   openAccountPassword.value = true
   getCode()
-  title.value = '修改账户密码'
+  title.value = '修改支付密码'
 }
 const handleSubmitAccountPassword = async () => {
   accountPasswordLoading.value = true
@@ -675,7 +675,7 @@ const handleSubmitAccountPassword = async () => {
   try {
     const res = await resetAccountPassword(accountPasswordForm.value)
     if (res.code === 200) {
-      message.success('修改账户密码成功')
+      message.success('修改支付密码成功')
       openAccountPassword.value = false
       accountPasswordForm.value = {
         password: '',
@@ -770,8 +770,9 @@ const handleUpdateUserInfo = () => {
     occupation: userInfo.value?.occupation || '',
     introductory: userInfo.value?.introductory || '',
   }
-  console.log(formState)
+  // console.log(formState)
   open.value = true
+  title.value = '修改用户信息'
 }
 //修改用户信息
 const handleSubmit = async () => {
