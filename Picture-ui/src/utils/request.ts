@@ -9,7 +9,7 @@ const http = axios.create({
   //@ts-ignore
   baseURL: import.meta.env.VITE_APP_BASE_API,
   // 超时
-  timeout: 10000,
+  timeout: 30000,
 })
 
 // 定义是否需要重新登录的状态

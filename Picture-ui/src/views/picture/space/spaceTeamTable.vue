@@ -1,5 +1,5 @@
 <template>
-  <div class="user-team-space-info">
+  <div class="team-space-table">
     <a-card title="我的团队空间" :bordered="false">
       <a-form layout="inline" :model="queryParams">
         <a-form-item>
@@ -312,7 +312,7 @@ const handleInvitationSubmit = () => {
 onMounted(getTeamSpaceList)
 </script>
 <style scoped lang="scss">
-.space-team-table {
+.team-space-table {
   margin: 0 2em;
 }
 

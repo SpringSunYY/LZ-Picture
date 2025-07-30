@@ -624,7 +624,7 @@ getPictureInfo()
 
     .card {
       width: 100%;
-      background-color: rgba(211, 211, 211, 0.35);
+      background-color: rgba(211, 211, 211, 0.25);
     }
 
     .card:hover {
@@ -632,7 +632,7 @@ getPictureInfo()
       transform: scale(1.02);
       transition: all 0.2s ease-in-out;
       border-radius: 12px;
-      background-color: rgba(211, 211, 211, 0.55);
+      background-color: rgba(211, 211, 211, 0.45);
     }
 
     .action-card {

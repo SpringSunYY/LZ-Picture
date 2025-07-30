@@ -16,7 +16,8 @@ import dragScroll from '@/directives/dragScroll'
 // 局部注册指令
 message.config({
   maxCount: 5, // 最大显示数量
-  duration: 3, // 默认持续时间（秒）
+  duration: 1.5, // 默认持续时间（秒）
+  top: "100px",
 })
 const app = createApp(App)
 app.config.globalProperties.useDict = useDict

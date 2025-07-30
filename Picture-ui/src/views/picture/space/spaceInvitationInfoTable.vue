@@ -288,7 +288,7 @@ const dateRange = ref<[dayjs.Dayjs, dayjs.Dayjs] | null>(null)
 //endregion
 //region 操作列
 const clickOperation = () => {
-  message.info('点击了操作列，如果没看到其他操作表示当前已经不可以操作了哦')
+  message.info('点击了操作列，如果没看到其他操作表示当前没有多余操作了哦')
 }
 const confirmAction = (action: string, record: SpaceInvitationInfoVo) => {
   if (

@@ -41,7 +41,7 @@ import { onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 
 onMounted(() => {
-  message.info('欢迎来到关于我们页面,划到底部查看用户服务协议、版权声明与帮助中心')
+  message.info('欢迎来到关于我们页面,划到底部查看用户服务协议、版权声明与帮助中心', 1.5)
 })
 </script>
 

@@ -6,8 +6,6 @@
         <div class="tooltip-trigger">
           <span
             class="info-icon"
-            @mouseenter="showTooltip = true"
-            @mouseleave="showTooltip = false"
             @click="toggleTooltip"
             ref="infoIconRef"
           >
@@ -935,6 +933,21 @@ $breakpoint-tablet: 1024px;
       color: #1890ff;
     }
   }
+}
+/* 全局提示框 */
+.global-tooltip {
+  position: fixed;
+  width: 380px;
+  max-width: 90vw;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(103, 126, 234, 0.1);
+  z-index: 9000;
+  animation: tooltip-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(103, 126, 234, 0.2);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 // 主容器样式

@@ -114,8 +114,8 @@ onBeforeUnmount(() => {
 
   .content {
     padding-top: 0; // header 有 wrapper 占位，无需 padding
-    padding-bottom: 60px; // footer 高度
-    background: linear-gradient(to right, #fefefe, #fff);
+    min-height: 90vh;
+    background: linear-gradient(to right, #fefefe, #f4f4f4);
   }
 
   .footer {
