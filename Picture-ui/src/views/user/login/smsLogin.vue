@@ -122,9 +122,8 @@ const rules = {
   phone: [
     {
       validator: (_, value) => {
-        const fullNumber = smsLoginForm.value.countryCode + value
-        const phoneNumber = parsePhoneNumberFromString(fullNumber)
-        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('请输入有效的国际手机号')
+        const phoneNumber = parsePhoneNumberFromString(value, 'CN')
+        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('请输入有效的手机号码')
       },
       trigger: 'blur',
     },
@@ -157,10 +156,8 @@ const getCode = () => {
 // 修改短信发送验证
 const sendSmsCode = () => {
   // 验证国际号码格式
-  const fullNumber = smsLoginForm.value.countryCode + smsLoginForm.value.phone
-  const phoneNumber = parsePhoneNumberFromString(fullNumber)
-
-  if (!phoneNumber?.isValid()) {
+  const phoneNumber = parsePhoneNumberFromString(smsLoginForm.value.phone, 'CN')
+  if (!phoneNumber.isValid()) {
     message.error('手机号格式错误')
     return
   }

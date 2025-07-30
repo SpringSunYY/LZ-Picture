@@ -3392,3 +3392,7 @@ const formatPictureListByRow = () => {
 }
 ```
 
+```
+{"applyType":"1","pointsNeed":0,"priceNeed":0}
+```
+

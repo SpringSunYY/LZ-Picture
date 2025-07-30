@@ -5,7 +5,11 @@
         <div class="avatar-wrapper">
           <a-avatar
             :size="{ xs: 180, sm: 200, md: 240, lg: 240, xl: 240, xxl: 240 }"
-            :src="userInfo?.avatarUrl != '' ? formatDnsUrl(userInfo?.avatarUrl) : '/src/assets/images/avatar.jpg'"
+            :src="
+              userInfo?.avatarUrl != ''
+                ? formatDnsUrl(userInfo?.avatarUrl)
+                : '/src/assets/images/avatar.jpg'
+            "
           />
           <!--          <div class="status-badge" :class="'status-' + user.status">-->
           <!--            {{ getStatusText(user.status) }}-->
@@ -63,7 +67,7 @@
       <a-tabs default-active-key="1">
         <template #rightExtra>
           <!-- 桌面端显示 -->
-          <div class="desktop-buttons" style="padding:10px">
+          <div class="desktop-buttons" style="padding: 10px">
             <a-space direction="horizontal" align="center" :wrap="true">
               <a-button @click="handleUpdateAvatar">修改头像</a-button>
               <a-button @click="handleUpdateUserInfo">修改信息</a-button>
@@ -73,28 +77,28 @@
           </div>
 
           <!-- 移动端显示下拉菜单 -->
-          <div class="mobile-buttons" style="padding:10px">
+          <div class="mobile-buttons" style="padding: 10px">
             <a-dropdown :trigger="['click']" placement="bottomRight">
-              <a-button >
+              <a-button>
                 操作
                 <DownOutlined />
               </a-button>
               <template #overlay>
                 <a-menu>
                   <a-menu-item key="avatar" @click="handleUpdateAvatar">
-                    <UserOutlined style="margin-right: 8px;" />
+                    <UserOutlined style="margin-right: 8px" />
                     修改头像
                   </a-menu-item>
                   <a-menu-item key="info" @click="handleUpdateUserInfo">
-                    <EditOutlined style="margin-right: 8px;" />
+                    <EditOutlined style="margin-right: 8px" />
                     修改信息
                   </a-menu-item>
                   <a-menu-item key="password" @click="handleUpdatePassword">
-                    <LockOutlined style="margin-right: 8px;" />
+                    <LockOutlined style="margin-right: 8px" />
                     修改密码
                   </a-menu-item>
                   <a-menu-item key="account-password" @click="handleUpdateAccountPassword">
-                    <SafetyOutlined style="margin-right: 8px;" />
+                    <SafetyOutlined style="margin-right: 8px" />
                     修改支付密码
                   </a-menu-item>
                 </a-menu>
@@ -656,9 +660,8 @@ const rulesAccountPassword = {
   phone: [
     {
       validator: (_, value) => {
-        const fullNumber = accountPasswordForm.value.countryCode + value
-        const phoneNumber = parsePhoneNumberFromString(fullNumber)
-        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('请输入有效的国际手机号')
+        const phoneNumber = parsePhoneNumberFromString(value, 'CN')
+        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('请输入有效的手机号码')
       },
       trigger: 'blur',
     },
@@ -714,14 +717,12 @@ const isSending = ref(false)
 // 发送验证码
 const sendVerificationCode = async () => {
   try {
-    // 验证国际手机号
-    const fullNumber = accountPasswordForm.value.countryCode + accountPasswordForm.value.phone
-    const phoneNumber = parsePhoneNumberFromString(fullNumber)
-    if (!phoneNumber?.isValid()) {
+    // 验证手机号码
+    const phoneNumber = parsePhoneNumberFromString(accountPasswordForm.value.phone, 'CN')
+    if (!phoneNumber.isValid()) {
       message.error('手机号格式错误')
       return
     }
-
     // 验证图形验证码
     if (!accountPasswordForm.value.code) {
       message.error('请先输入图形验证码')
@@ -1067,6 +1068,7 @@ $purple-color: #9c27b0;
     display: none;
   }
 }
+
 :deep(.ant-dropdown-menu-item) {
   display: flex !important;
   align-items: center !important;

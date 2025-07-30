@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
@@ -226,22 +227,16 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
                         .orderBy(true, false, InformInfo::getSendTime));
     }
 
+    @CustomCacheable(keyPrefix = USER_INFORM_UNREAD_COUNT, keyField = "userId", expireTime = USER_INFORM_UNREAD_COUNT_EXPIRE_TIME)
     @Override
     public Integer getUnReadInformCount(String userId) {
         if (StringUtils.isEmpty(userId)) {
             return 0;
         }
-        String key = USER_INFORM_UNREAD_COUNT + userId;
-        Integer cacheObject = redisCache.getCacheObject(key);
-        if (StringUtils.isNotNull(cacheObject)) {
-            return cacheObject;
-        }
         long count = this.count(new LambdaQueryWrapper<InformInfo>()
                 .eq(InformInfo::getUserId, userId)
                 .eq(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_0.getValue()));
-        int intExact = Math.toIntExact(count);
-        redisCache.setCacheObject(key, intExact, USER_INFORM_UNREAD_COUNT_EXPIRE_TIME, TimeUnit.SECONDS);
-        return intExact;
+        return Math.toIntExact(count);
     }
 
     @Override
@@ -269,6 +264,9 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
     @Override
     public int resetRead(String userId) {
         boolean update = this.update(new LambdaUpdateWrapper<InformInfo>().set(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_1.getValue()).eq(InformInfo::getUserId, userId).eq(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_0.getValue()));
+        if (update) {
+            redisCache.deleteObject(USER_INFORM_UNREAD_COUNT + userId);
+        }
         return update ? 1 : 0;
     }
 

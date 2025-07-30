@@ -1,6 +1,7 @@
 package com.lz.userauth.model.domain;
 
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Project: Picture

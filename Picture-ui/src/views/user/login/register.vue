@@ -120,7 +120,7 @@ import { onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { LockOutlined, PhoneOutlined } from '@ant-design/icons-vue'
-import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import { parsePhoneNumberFromString, parsePhoneNumberWithError } from 'libphonenumber-js'
 import useUserStore from '@/stores/modules/user.ts'
 import { getCodeImg, getRegisterCode } from '@/api/user/login.js'
 import { validateConfirmPassword, validatePassword } from '@/types/user/validators.d.ts'
@@ -156,9 +156,8 @@ const rules = {
   phone: [
     {
       validator: (_, value) => {
-        const fullNumber = registerForm.value.countryCode + value
-        const phoneNumber = parsePhoneNumberFromString(fullNumber)
-        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('无效的国际手机号')
+        const phoneNumber = parsePhoneNumberFromString(value, 'CN')
+        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('无效的手机号码')
       },
       trigger: 'blur',
     },
@@ -209,10 +208,8 @@ const getCode = () => {
 // 发送短信验证码
 const sendSmsCode = () => {
   // 验证国际号码
-  const fullNumber = registerForm.value.countryCode + registerForm.value.phone
-  const phoneNumber = parsePhoneNumberFromString(fullNumber)
-
-  if (!phoneNumber?.isValid()) {
+  const phoneNumber = parsePhoneNumberFromString(registerForm.value.phone, 'CN')
+  if (!phoneNumber.isValid()) {
     message.error('手机号格式错误')
     return
   }

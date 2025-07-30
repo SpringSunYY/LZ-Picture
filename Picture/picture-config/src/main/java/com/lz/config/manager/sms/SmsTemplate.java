@@ -1,5 +1,6 @@
 package com.lz.config.manager.sms;
 
+import cn.hutool.core.util.PhoneUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.lz.common.constant.HttpStatus;
@@ -38,6 +39,9 @@ public class SmsTemplate {
     private RedisCache redisCache;
 
     public SmsResponse sendCode(String key, String templateKey, String code, String phone, String locale) {
+        if (!PhoneUtil.isPhone(phone)) {
+            throw new ServiceException("手机号码格式错误", HttpStatus.BAD_REQUEST);
+        }
         //查询缓存是否存在
         if (redisCache.hasKey(key)) {
             throw new ServiceException("验证码已发送，如果未收到，请查看是否被手机拦截，如果存在请输入验证码", HttpStatus.ACCEPTED);

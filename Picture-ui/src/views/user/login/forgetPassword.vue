@@ -172,9 +172,8 @@ const rules = {
   phone: [
     {
       validator: (_, value) => {
-        const fullNumber = forgotPasswordForm.value.countryCode + value
-        const phoneNumber = parsePhoneNumberFromString(fullNumber)
-        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('无效的国际手机号')
+        const phoneNumber = parsePhoneNumberFromString(value, 'CN')
+        return phoneNumber?.isValid() ? Promise.resolve() : Promise.reject('无效的手机号码')
       },
       trigger: 'blur',
     },
@@ -219,10 +218,9 @@ const getCode = () => {
 // 发送验证码
 const sendVerificationCode = async () => {
   try {
-    // 验证国际手机号
-    const fullNumber = forgotPasswordForm.value.countryCode + forgotPasswordForm.value.phone
-    const phoneNumber = parsePhoneNumberFromString(fullNumber)
-    if (!phoneNumber?.isValid()) {
+    // 验证手机号码
+    const phoneNumber = parsePhoneNumberFromString(forgotPasswordForm.value.phone, 'CN')
+    if (!phoneNumber.isValid()) {
       message.error('手机号格式错误')
       return
     }
