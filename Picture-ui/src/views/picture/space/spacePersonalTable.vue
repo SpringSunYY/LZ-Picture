@@ -289,8 +289,12 @@ const getSpaceList = () => {
   loading.value = true
   queryParams.value.params = {}
   if (dateRange.value != null && Array.isArray(dateRange.value) && dateRange.value.length > 0) {
-    queryParams.value.params['beginCreateTime'] = dateRange.value[0].format('YYYY-MM-DD').concat(' 00:00:00')
-    queryParams.value.params['endCreateTime'] = dateRange.value[1].format('YYYY-MM-DD').concat(' 23:59:59')
+    queryParams.value.params['beginCreateTime'] = dateRange.value[0]
+      .format('YYYY-MM-DD')
+      .concat(' 00:00:00')
+    queryParams.value.params['endCreateTime'] = dateRange.value[1]
+      .format('YYYY-MM-DD')
+      .concat(' 23:59:59')
   }
   listUserPersonalSpaceInfo(queryParams.value).then((res) => {
     spaceList.value = res?.rows || []
@@ -342,7 +346,7 @@ const handleSpaceDilatationSubmit = async () => {
   //如果是个人空间&&扩容人数，提示不可以
   if (
     spaceList.value.find((item) => item.spaceId === formDilatation.value.spaceId)?.spaceType ===
-    PSpaceType.SPACE_TYPE_2 &&
+      PSpaceType.SPACE_TYPE_2 &&
     formDilatation.value.dilatationType === PSpaceDilatationTypeEnum.P_SPACE_DILATATION_TYPE_2
   ) {
     message.error('个人空间不允许扩容人数！！！')

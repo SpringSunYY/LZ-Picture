@@ -70,7 +70,7 @@ public class ConfigInfoUtils {
      * 空间最大容量
      */
     public static final String PICTURE_SPACE_MAX_SIZE_KEY = "picture:space:maxSize";
-    public static Long PICTURE_SPACE_MAX_SIZE_VALUE = 1024 * 1024 * 1024 * 1024L;
+    public static Long PICTURE_SPACE_MAX_SIZE_VALUE = 1L;
 
     /**
      * 用户最大团队空间数

@@ -268,6 +268,9 @@ public class SpaceDilatationInfoServiceImpl extends ServiceImpl<SpaceDilatationI
                     UInformTypeEnum.INFORM_TYPE_0.getValue(),
                     params
             ));
+            //删除空间缓存
+            spaceInfoService.deleteSpacePersonalTableCacheByUserId(spaceDilatationInfo.getUserId());
+            spaceInfoService.deleteSpaceTeamTableCacheByUserId(spaceDilatationInfo.getUserId());
             return execute;
         } else {
             return 0;

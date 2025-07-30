@@ -44,7 +44,7 @@
           <template v-if="column.dataIndex === 'spaceName'">
             <router-link
               :to="`/spaceManage/member?spaceId=${record.spaceId}`"
-              :style="{ textDecoration: 'underline' ,color: 'blue'}"
+              :style="{ textDecoration: 'underline', color: 'blue' }"
               >{{ text }}
             </router-link>
           </template>
@@ -52,6 +52,9 @@
             <dict-tag :options="p_space_role" :value="text" />
           </template>
           <template v-if="column.dataIndex === 'maxSize'">
+            <span>{{ formatSize(text) }}</span>
+          </template>
+          <template v-if="column.dataIndex === 'totalSize'">
             <span>{{ formatSize(text) }}</span>
           </template>
           <template v-if="column.dataIndex === 'spaceStatus'">

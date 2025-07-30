@@ -226,14 +226,14 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         //查询用户此类型空间创建了多少个
         long count = this.count(new LambdaQueryWrapper<SpaceInfo>().eq(SpaceInfo::getUserId, spaceInfo.getUserId()).eq(SpaceInfo::getSpaceType, spaceInfo.getSpaceType()));
         if (count >= maxSpaceCount) {
-            throw new ServiceException("此类型空间创建了10个，不能再创建了！！！");
+            throw new ServiceException("空间类型创建上限，不能再创建了！！！");
         }
         Date nowDate = DateUtils.getNowDate();
         spaceInfo.setCreateTime(nowDate);
         spaceInfo.setUpdateTime(nowDate);
 
         spaceInfo.setMaxCount(PICTURE_SPACE_MAX_COUNT_VALUE);
-        spaceInfo.setMaxSize(PICTURE_SPACE_MAX_SIZE_VALUE);
+        spaceInfo.setMaxSize(PICTURE_SPACE_MAX_SIZE_VALUE * 1024 * 1024 * 1024);
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         spaceInfo.setOssType(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue());
 
@@ -359,19 +359,19 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
      **/
     @Override
     public void deleteSpacePersonalTableCacheByUserId(String userId) {
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_DATA + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_PERSONAL_TABLE_DATA + COMMON_SEPARATOR_CACHE + userId + "*");
     }
 
     @CustomCacheable(keyPrefix = PICTURE_SPACE_TEAM_TABLE_DATA, expireTime = PICTURE_SPACE_TEAM_TABLE_DATA_EXPIRE_TIME,
             keyField = "query.userId", useQueryParamsAsKey = true)
     @Override
-    public TableDataInfo listTeamSpaceInfoTable(UserTeamSpaceInfoQuery userTeamSpaceInfoQuery) {
+    public TableDataInfo listTeamSpaceInfoTable(UserTeamSpaceInfoQuery query) {
         //构造查询条件
         Page<SpaceMemberInfo> spaceMemberInfoPage = new Page<>();
-        spaceMemberInfoPage.setCurrent(userTeamSpaceInfoQuery.getPageNum());
-        spaceMemberInfoPage.setSize(userTeamSpaceInfoQuery.getPageSize());
+        spaceMemberInfoPage.setCurrent(query.getPageNum());
+        spaceMemberInfoPage.setSize(query.getPageSize());
         //获取时间范围
-        Map<String, Object> params = userTeamSpaceInfoQuery.getParams();
+        Map<String, Object> params = query.getParams();
         // 提取 beginCreateTime 和 endCreateTime（安全获取）
         String beginCreateTime = Optional.ofNullable(params)
                 .map(p -> p.get("beginCreateTime"))
@@ -385,11 +385,11 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                 .filter(StringUtils::isNotEmpty)
                 .orElse(null);
         LambdaQueryWrapper<SpaceMemberInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getMemberId()), SpaceMemberInfo::getMemberId, userTeamSpaceInfoQuery.getMemberId())
-                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getSpaceId()), SpaceMemberInfo::getSpaceId, userTeamSpaceInfoQuery.getSpaceId())
-                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getUserId()), SpaceMemberInfo::getUserId, userTeamSpaceInfoQuery.getUserId())
-                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getRoleType()), SpaceMemberInfo::getRoleType, userTeamSpaceInfoQuery.getRoleType())
-                .eq(StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getJoinType()), SpaceMemberInfo::getJoinType, userTeamSpaceInfoQuery.getJoinType())
+        queryWrapper.eq(StringUtils.isNotEmpty(query.getMemberId()), SpaceMemberInfo::getMemberId, query.getMemberId())
+                .eq(StringUtils.isNotEmpty(query.getSpaceId()), SpaceMemberInfo::getSpaceId, query.getSpaceId())
+                .eq(StringUtils.isNotEmpty(query.getUserId()), SpaceMemberInfo::getUserId, query.getUserId())
+                .eq(StringUtils.isNotEmpty(query.getRoleType()), SpaceMemberInfo::getRoleType, query.getRoleType())
+                .eq(StringUtils.isNotEmpty(query.getJoinType()), SpaceMemberInfo::getJoinType, query.getJoinType())
                 .apply(
                         StringUtils.isNotEmpty(beginCreateTime) && StringUtils.isNotEmpty(endCreateTime),
                         "create_time between {0} and {1}",
@@ -397,14 +397,14 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                         endCreateTime
                 );
         //构建排序规则
-        if (StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getIsAsc()) && StringUtils.isNotEmpty(userTeamSpaceInfoQuery.getOrderByColumn())
-                && Arrays.asList("createTime", "lastActiveTime").contains(userTeamSpaceInfoQuery.getOrderByColumn())) {
-            if (userTeamSpaceInfoQuery.getOrderByColumn().equals("createTime")) {
+        if (StringUtils.isNotEmpty(query.getIsAsc()) && StringUtils.isNotEmpty(query.getOrderByColumn())
+                && Arrays.asList("createTime", "lastActiveTime").contains(query.getOrderByColumn())) {
+            if (query.getOrderByColumn().equals("createTime")) {
                 queryWrapper
-                        .orderBy(true, userTeamSpaceInfoQuery.getIsAsc().equals("asc"), SpaceMemberInfo::getCreateTime);
-            } else if (userTeamSpaceInfoQuery.getOrderByColumn().equals("lastActiveTime")) {
+                        .orderBy(true, query.getIsAsc().equals("asc"), SpaceMemberInfo::getCreateTime);
+            } else if (query.getOrderByColumn().equals("lastActiveTime")) {
                 queryWrapper
-                        .orderBy(true, userTeamSpaceInfoQuery.getIsAsc().equals("asc"), SpaceMemberInfo::getLastActiveTime);
+                        .orderBy(true, query.getIsAsc().equals("asc"), SpaceMemberInfo::getLastActiveTime);
             }
         } else {
             queryWrapper
@@ -444,7 +444,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
 
     @Override
     public void deleteSpaceTeamTableCacheByUserId(String userId) {
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_DATA + userId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_DATA + COMMON_SEPARATOR_CACHE + userId + "*");
         redisCache.deleteObjectsByPattern(PICTURE_SPACE_LIST + COMMON_SEPARATOR_CACHE + userId + "*");
     }
 
