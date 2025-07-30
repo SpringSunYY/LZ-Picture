@@ -204,7 +204,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
         informInfo.setInformTitle(informTemplateInfoByKeyLocaleType.getInformTitle());
         informInfo.setUserId(userId);
         informInfo.setContent(StringUtils.parseTemplate(informTemplateInfoByKeyLocaleType.getContent(), params));
-        String key = USER_INFORM_UNREAD_COUNT + userId;
+        String key = USER_INFORM_UNREAD_COUNT + COMMON_SEPARATOR_CACHE + userId;
         redisCache.increment(key, 1);
         return this.save(informInfo) ? 1 : 0;
     }
@@ -241,7 +241,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
 
     @Override
     public InformInfo selectInformInfoByRecordIdAndUserId(String recordId, String userId) {
-        String key = USER_INFORM_DETAIL + userId + COMMON_SEPARATOR_CACHE + recordId;
+        String key = USER_INFORM_DETAIL + COMMON_SEPARATOR_CACHE + userId + COMMON_SEPARATOR_CACHE + recordId;
         InformInfo informInfo = redisCache.getCacheObject(key);
         if (StringUtils.isNotNull(informInfo)) {
             return informInfo;
@@ -255,7 +255,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
             informInfo.setReadTime(DateUtils.getNowDate());
             this.updateById(informInfo);
             //删除缓存未读数
-            redisCache.deleteObject(USER_INFORM_UNREAD_COUNT + userId);
+            redisCache.deleteObject(USER_INFORM_UNREAD_COUNT + COMMON_SEPARATOR_CACHE + userId);
         }
         redisCache.setCacheObject(key, informInfo, USER_INFORM_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
         return informInfo;
@@ -265,7 +265,7 @@ public class InformInfoServiceImpl extends ServiceImpl<InformInfoMapper, InformI
     public int resetRead(String userId) {
         boolean update = this.update(new LambdaUpdateWrapper<InformInfo>().set(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_1.getValue()).eq(InformInfo::getUserId, userId).eq(InformInfo::getIsRead, UInformIsReadEnum.INFORM_IS_READ_0.getValue()));
         if (update) {
-            redisCache.deleteObject(USER_INFORM_UNREAD_COUNT + userId);
+            redisCache.deleteObject(USER_INFORM_UNREAD_COUNT + COMMON_SEPARATOR_CACHE + userId);
         }
         return update ? 1 : 0;
     }

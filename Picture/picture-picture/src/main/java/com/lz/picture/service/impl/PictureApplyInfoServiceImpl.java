@@ -381,9 +381,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(pictureInfo.getSpaceId());
         //如果是团队空间
         if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
-            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceMemberAnyPerm(
-                            spaceAuthUtils.buildSpaceMemberPerm(pictureInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_1.getValue()) + ","
-                                    + spaceAuthUtils.buildSpaceMemberPerm(pictureInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_0.getValue())),
+            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()),
                     "您当前没有权限操作此图片");
         }
         //如果是个人空间或者团队空间

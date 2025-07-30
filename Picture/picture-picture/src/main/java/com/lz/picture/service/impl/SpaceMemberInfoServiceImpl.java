@@ -35,9 +35,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_SPACE_INVITATION_DELETE;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_SPACE_MEMBER_DATA_EXPIRE_TIME;
@@ -234,8 +234,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
             if (query.getOrderByColumn().equals("createTime")) {
                 queryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceMemberInfo::getCreateTime);
-            }
-            else if (query.getOrderByColumn().equals("lastActiveTime")) {
+            } else if (query.getOrderByColumn().equals("lastActiveTime")) {
                 queryWrapper
                         .orderBy(true, query.getIsAsc().equals("asc"), SpaceMemberInfo::getLastActiveTime);
             }
@@ -278,7 +277,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
     //删除空间成员缓存
     @Override
     public void deleteSpaceMemberCacheBySpaceId(String spaceId) {
-        redisCache.deleteObjectsByPattern(PICTURE_SPACE_MEMBER_DATA + spaceId + "*");
+        redisCache.deleteObjectsByPattern(PICTURE_SPACE_MEMBER_DATA + COMMON_SEPARATOR_CACHE + spaceId + "*");
     }
 
     @Override
@@ -346,7 +345,9 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         //查询是否存在
         SpaceMemberInfo db = spaceMemberInfoMapper.selectSpaceMemberInfoByMemberId(spaceMemberInfo.getMemberId());
         ThrowUtils.throwIf(StringUtils.isNull(db), "空间成员不存在！！！");
-        ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceMemberAnyPerm(spaceAuthUtils.buildSpaceMemberPerm(db.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_0.getValue()) + "," + spaceAuthUtils.buildSpaceMemberPerm(db.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_1.getValue())),
+        //判断是否有编辑权限
+        ThrowUtils.throwIf(
+                !spaceAuthUtils.checkSpaceCreatorPerm(db.getSpaceId()),
                 "权限不足！！！");
         ThrowUtils.throwIf(db.getRoleType().equals(PSpaceRoleEnum.SPACE_ROLE_0.getValue()), "创建者不能修改角色！！！");
         ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(db.getRoleType()), "角色不能修改为相同角色！！！");

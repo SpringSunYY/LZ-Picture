@@ -72,7 +72,10 @@
               <a-popconfirm
                 v-if="
                   checkPermiSingle('space:invitation') &&
-                  record.roleType !== PSpaceRole.SPACE_ROLE_0
+                  record.roleType !== PSpaceRole.SPACE_ROLE_0 &&
+                  checkSpacePermsAny([
+                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
+                  ])
                 "
                 title="确定要删除吗，删除之后成员将被踢出团队空间?"
                 ok-text="是"
@@ -86,7 +89,6 @@
                   record.roleType !== PSpaceRole.SPACE_ROLE_0 &&
                   checkSpacePermsAny([
                     buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
-                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_1),
                   ])
                 "
                 @click="handleMember(record)"

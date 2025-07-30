@@ -95,12 +95,8 @@ public class SpaceAuthUtils {
             return false;
         }
         Set<String> spaceMemberPerm = getSpaceMemberPerm(userId);
-        for (String perm : spaceMemberPerm) {
-            if (perm.contains(permission)) {
-                return true;
-            }
-        }
-        return false;
+        // 判断是否包含
+        return spaceMemberPerm.contains(permission);
     }
 
     public boolean checkSpaceMemberPerm(String permission) {
@@ -133,13 +129,21 @@ public class SpaceAuthUtils {
 
     /**
      * 是否有编辑权限
+     *
      * @param spaceId 空间编号
      * @return
      */
     public boolean checkSpaceEditPerm(String spaceId) {
-        return !checkSpaceMemberAnyPerm(
+        return checkSpaceMemberAnyPerm(
                 buildSpaceMemberPerm(spaceId, PSpaceRoleEnum.SPACE_ROLE_1.getValue()) + ","
                         + buildSpaceMemberPerm(spaceId, PSpaceRoleEnum.SPACE_ROLE_0.getValue()));
+    }
+
+    /**
+     * 是否是创建者
+     */
+    public boolean checkSpaceCreatorPerm(String spaceId) {
+        return checkSpaceMemberAnyPerm(buildSpaceMemberPerm(spaceId, PSpaceRoleEnum.SPACE_ROLE_0.getValue()));
     }
 
     /**

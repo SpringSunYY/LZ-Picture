@@ -385,9 +385,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //如果空间是团队空间
         if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
             //判断此用户是否对此空间有权限
-            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceMemberAnyPerm(
-                            spaceAuthUtils.buildSpaceMemberPerm(spaceInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_1.getValue()) + ","
-                                    + spaceAuthUtils.buildSpaceMemberPerm(spaceInfo.getSpaceId(), PSpaceRoleEnum.SPACE_ROLE_0.getValue())),
+            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()),
                     "您对此空间没有权限修改！！！");
 
             //判断文件夹是否存在且文件夹作者是自己

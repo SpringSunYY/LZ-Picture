@@ -116,7 +116,7 @@ public class SpaceInfo implements Serializable {
     /**
      * 空间状态
      */
-    @Excel(name = "空间状态")
+    @Excel(name = "空间状态",readConverterExp = "0=私有,1=公共")
     private String spaceStatus;
 
     /**

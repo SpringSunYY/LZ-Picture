@@ -44,7 +44,7 @@ public class UserRedisConstants {
     /**
      * 用户未读信息数量
      */
-    public static final String USER_INFORM_UNREAD_COUNT = "user:inform:unread:count:";
+    public static final String USER_INFORM_UNREAD_COUNT = "user:inform:unread:count";
 
     /**
      * 用户未读信息数量超时时间
@@ -54,7 +54,7 @@ public class UserRedisConstants {
     /**
      * 用户通知信息缓存保存信息
      */
-    public static final String USER_INFORM_DETAIL = "user:inform:detail:";
+    public static final String USER_INFORM_DETAIL = "user:inform:detail";
     /**
      * 用户通知信息缓存超时时间
      */

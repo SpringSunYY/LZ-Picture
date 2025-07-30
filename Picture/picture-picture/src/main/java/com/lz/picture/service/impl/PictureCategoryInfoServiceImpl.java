@@ -113,7 +113,14 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
     @CustomCacheEvict(keyPrefixes = PICTURE_CATEGORY)
     @Override
     public int deletePictureCategoryInfoByCategoryIds(String[] categoryIds) {
-        return pictureCategoryInfoMapper.deletePictureCategoryInfoByCategoryIds(categoryIds);
+        ArrayList<PictureCategoryInfo> categorys = new ArrayList<>();
+        for (String categoryId : categoryIds) {
+            PictureCategoryInfo pictureCategoryInfo = new PictureCategoryInfo();
+            pictureCategoryInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
+            pictureCategoryInfo.setCategoryId(categoryId);
+            categorys.add(pictureCategoryInfo);
+        }
+        return this.updateBatchById(categorys) ? 1 : 0;
     }
 
     /**

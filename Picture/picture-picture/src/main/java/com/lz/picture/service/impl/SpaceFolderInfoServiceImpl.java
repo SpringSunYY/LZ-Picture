@@ -179,8 +179,8 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
         //查询空间是否存在
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
         ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), "空间不存在");
-        if (!spaceInfo.getSpaceStatus().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
-            ThrowUtils.throwIf(spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()), "您没有权限创建文件夹");
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
+            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()), "您没有权限创建文件夹");
         } else {
             if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
                     || !spaceInfo.getIsDelete().equals(CommonDeleteEnum.NORMAL.getValue())
@@ -225,6 +225,13 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
 
     @Override
     public int userUpdateSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo) {
+        //查询空间是否存在
+        SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
+        ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), "空间不存在");
+        if (spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())) {
+            ThrowUtils.throwIf(!spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()), "您没有权限创建文件夹");
+        }
+        spaceFolderInfo.setSpaceId(null);
         //查询文件夹是否已存在
         SpaceFolderInfo folderInfo = this.selectSpaceFolderInfoByFolderId(spaceFolderInfo.getFolderId());
         if (StringUtils.isNull(folderInfo)) {

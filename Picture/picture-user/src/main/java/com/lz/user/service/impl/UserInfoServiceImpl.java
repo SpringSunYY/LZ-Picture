@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.redis.UserRedisConstants.USER_INFO;
 
 /**
@@ -205,7 +206,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public MyUserInfoVo getMyUserInfoByUserName(String userName) {
         //首先查询缓存是否存在
-        String key = USER_INFO + userName;
+        String key = USER_INFO + COMMON_SEPARATOR_CACHE + userName;
         MyUserInfoVo cache = redisCache.getCacheObject(key);
         if (StringUtils.isNotNull(cache)) {
             return cache;
@@ -241,7 +242,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfoMapper.updateById(userInfo);
         userInfo.setUserName(userInfoDb.getUserName());
         //删除缓存
-        redisCache.deleteObject(USER_INFO + userInfoDb.getUserName());
+        redisCache.deleteObject(USER_INFO + COMMON_SEPARATOR_CACHE + userInfoDb.getUserName());
         return userInfo;
     }
 
@@ -280,7 +281,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfoDb.setAvatarUrl(userInfoUpdateAvatar.getAvatarUrl());
         userInfoMapper.updateById(userInfoDb);
         //删除缓存
-        redisCache.deleteObject(USER_INFO + userInfoDb.getUserName());
+        redisCache.deleteObject(USER_INFO + COMMON_SEPARATOR_CACHE + userInfoDb.getUserName());
         //更新文件日志 因为老的数据赋值给userInfoOld，新数据重新赋值头像给userInfoDb
         UserAsyncManager.me().execute(UserFileLogAsyncFactory.updateUserInfoAvatarFileLog(userInfoOld, userInfoDb));
         return userInfoDb;
