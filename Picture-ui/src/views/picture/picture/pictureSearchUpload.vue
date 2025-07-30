@@ -716,9 +716,10 @@ const handleSubmit = async () => {
     }
     for (const item of submitedImageUrls) {
       try {
+        const pictureName = searchQuery.value.keyword || '不知道名字肯定是最好的'
         const res = await addPictureInfoUrl({
           url: item.url,
-          name: item.title,
+          name: pictureName,
           introduction: formState.introduction,
           categoryId,
           spaceId: formState.spaceId,

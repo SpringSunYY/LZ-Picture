@@ -36,6 +36,8 @@ public class SpaceFolderInfoUserUpdate implements Serializable {
     @Size(max = 32, message = "文件夹名称不能超过32个字符")
     private String folderName;
 
+    private String spaceId;
+
 
     /**
      * 排序权重
