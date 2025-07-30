@@ -53,4 +53,10 @@ public class PointsRedisConstants {
      * 账户重置密码验证码超时时间
      */
     public static final Integer POINTS_ACCOUNT_RESET_PASSWORD_CODE_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 充值套餐缓存
+     */
+    public static final String POINTS_RECHARGE_PACKAGE_INFO_LIST = "points:recharge:package:info:";
+
 }

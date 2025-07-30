@@ -428,7 +428,7 @@ function reset() {
     pointsBonus: null,
     description: null,
     isLongTerm: null,
-    sortOrder: null,
+    sortOrder: 10,
     startTime: null,
     endTime: null,
     packageStatus: null,

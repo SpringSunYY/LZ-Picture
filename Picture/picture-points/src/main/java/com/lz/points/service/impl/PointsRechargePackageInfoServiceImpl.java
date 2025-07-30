@@ -1,31 +1,27 @@
 package com.lz.points.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lz.common.utils.StringUtils;
-
-import java.util.Date;
-
-import com.lz.common.utils.DateUtils;
-import com.lz.common.utils.ThrowUtils;
-import com.lz.common.utils.http.HttpUtils;
-import com.lz.common.utils.uuid.IdUtils;
-import com.lz.points.model.enums.PoPackageIsLongTermEnum;
-import com.lz.points.model.enums.PoPackageStatusEnum;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheEvict;
+import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.constant.redis.PointsRedisConstants;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import com.lz.points.mapper.PointsRechargePackageInfoMapper;
 import com.lz.points.model.domain.PointsRechargePackageInfo;
-import com.lz.points.service.IPointsRechargePackageInfoService;
 import com.lz.points.model.dto.pointsRechargePackageInfo.PointsRechargePackageInfoQuery;
+import com.lz.points.model.enums.PoPackageIsLongTermEnum;
+import com.lz.points.model.enums.PoPackageStatusEnum;
 import com.lz.points.model.vo.pointsRechargePackageInfo.PointsRechargePackageInfoVo;
+import com.lz.points.service.IPointsRechargePackageInfoService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 充值积分套餐Service业务层处理
@@ -46,6 +42,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @param packageId 充值积分套餐主键
      * @return 充值积分套餐
      */
+    @CustomCacheable(keyPrefix = PointsRedisConstants.POINTS_RECHARGE_PACKAGE_INFO_LIST, keyField = "packageId")
     @Override
     public PointsRechargePackageInfo selectPointsRechargePackageInfoByPackageId(String packageId) {
         return pointsRechargePackageInfoMapper.selectPointsRechargePackageInfoByPackageId(packageId);
@@ -68,6 +65,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @param pointsRechargePackageInfo 充值积分套餐
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = {PointsRedisConstants.POINTS_RECHARGE_PACKAGE_INFO_LIST})
     @Override
     public int insertPointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo) {
         //如果不是长期套餐必须要设置套餐生效时间
@@ -87,6 +85,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
      * @param pointsRechargePackageInfo 充值积分套餐
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = {PointsRedisConstants.POINTS_RECHARGE_PACKAGE_INFO_LIST})
     @Override
     public int updatePointsRechargePackageInfo(PointsRechargePackageInfo pointsRechargePackageInfo) {
         //如果不是长期套餐必须要设置套餐生效时间
@@ -171,6 +170,7 @@ public class PointsRechargePackageInfoServiceImpl extends ServiceImpl<PointsRech
                 .eq(PointsRechargePackageInfo::getPackageName, packageName));
     }
 
+    @CustomCacheable(keyPrefix = PointsRedisConstants.POINTS_RECHARGE_PACKAGE_INFO_LIST, useQueryParamsAsKey = true)
     @Override
     public List<PointsRechargePackageInfo> userSelectPointsRechargePackageInfoList(PointsRechargePackageInfo pointsRechargePackageInfo) {
         //指定查询未开始和正常的

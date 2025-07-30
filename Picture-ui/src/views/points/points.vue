@@ -186,7 +186,7 @@ onMounted(() => {
 .points {
   //padding: 24px;
   //background-color: #f5f5f5;
-  //min-height: 100vh;
+  min-height: 100vh;
   margin: 0 auto;
   max-width: 90%;
 
