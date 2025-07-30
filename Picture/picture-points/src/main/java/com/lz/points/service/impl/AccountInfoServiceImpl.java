@@ -14,6 +14,7 @@ import com.lz.common.exception.user.CaptchaException;
 import com.lz.common.exception.user.CaptchaExpireException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.config.manager.sms.SmsTemplate;
 import com.lz.points.mapper.AccountInfoMapper;
 import com.lz.points.model.domain.AccountInfo;
@@ -212,6 +213,7 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         if (StringUtils.isNull(accountInfoDb)) {
             throw new ServiceException("您当前还没有账户，请先购买积分，平台会为您创建账户！！！", HttpStatus.NO_CONTENT);
         }
+        ThrowUtils.throwIf(!accountInfoDb.getAccountStatus().equals(PoAccountStatusEnum.ACCOUNT_STATUS_0.getValue()), HttpStatus.UNAUTHORIZED, "账号异常，请联系管理员！！！");
         //获取密码以及加密方式
         String salt = accountInfoDb.getSalt();
         if (!PasswordUtils.checkPassword(salt, password, accountInfoDb.getPassword())) {
