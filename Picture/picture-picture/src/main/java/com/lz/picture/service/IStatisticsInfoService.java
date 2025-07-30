@@ -106,7 +106,7 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: selectNewStatisticsInfoByCommonKey
      * @date: 2025/7/25 00:14
      **/
-    StatisticsInfo selectNewStatisticsInfoByCommonKey(String key);
+    StatisticsInfo selectNewStatisticsInfoByCommonKeyAndType(String key, String type);
 
     /**
      * 获取统计信息列表

@@ -515,7 +515,7 @@ public class PictureStatisticsUtil {
         if (!isQueryLast) {
             statisticsInfo.setStages(1L);
         } else {
-            StatisticsInfo lastStatisticsInfo = statisticsInfoService.selectNewStatisticsInfoByCommonKey(commonKey);
+            StatisticsInfo lastStatisticsInfo = statisticsInfoService.selectNewStatisticsInfoByCommonKeyAndType(commonKey, statisticsType);
             if (StringUtils.isNull(lastStatisticsInfo)) {
                 statisticsInfo.setStages(1L);
             } else {

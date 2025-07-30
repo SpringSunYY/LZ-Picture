@@ -84,7 +84,7 @@
             <if test="categoryId != null and categoryId != '' and categoryIds == null  ">
                 and category_id = #{categoryId}
             </if>
-            <if test="categoryId == null  and categoryIds != null and categoryIds.length > 0">
+            <if test="categoryId == null and categoryIds != null and categoryIds.length > 0">
                 and category_id in
                 <foreach item="item" index="index" collection="categoryIds" open="(" separator="," close=")">
                     #{item}

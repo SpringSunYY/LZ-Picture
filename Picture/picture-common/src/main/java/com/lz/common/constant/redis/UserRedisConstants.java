@@ -49,7 +49,7 @@ public class UserRedisConstants {
     /**
      * 用户未读信息数量超时时间
      */
-    public static final Integer USER_INFORM_UNREAD_COUNT_EXPIRE_TIME = 60 * 60 * 24;
+    public static final int USER_INFORM_UNREAD_COUNT_EXPIRE_TIME = 60 * 60 * 24;
 
     /**
      * 用户通知信息缓存保存信息

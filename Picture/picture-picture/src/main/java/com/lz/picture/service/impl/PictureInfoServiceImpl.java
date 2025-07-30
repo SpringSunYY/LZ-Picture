@@ -152,10 +152,12 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public PictureInfo selectPictureInfoByPictureId(String pictureId) {
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
-        String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
-        pictureInfo.setPictureUrl(pictureUrl);
-        String thumbnailUrl = OssConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
-        pictureInfo.setThumbnailUrl(thumbnailUrl);
+        if (StringUtils.isNotNull(pictureInfo)) {
+            String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+            pictureInfo.setPictureUrl(pictureUrl);
+            String thumbnailUrl = OssConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+            pictureInfo.setThumbnailUrl(thumbnailUrl);
+        }
         return pictureInfo;
     }
 
@@ -176,6 +178,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public List<PictureInfo> selectPictureInfoList(PictureInfo pictureInfo) {
         List<PictureInfo> pictureInfos = pictureInfoMapper.selectPictureInfoList(pictureInfo);
+        if (StringUtils.isEmpty(pictureInfos)) {
+            return Collections.emptyList();
+        }
         //获取到所有的分类编号
         List<String> categoryIds = pictureInfos.stream().map(PictureInfo::getCategoryId).distinct().collect(Collectors.toList());
         Map<String, String> categoryIdNameMap = pictureCategoryInfoService.list(new LambdaQueryWrapper<PictureCategoryInfo>()
@@ -417,7 +422,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             //是公共空间，使用官方域名,官方不指定域名，根据配置文件获取域名
             pictureInfo.setDnsUrl(null);
         } else {
-            //TODO 从空间配置获取域名
+            pictureInfo.setDnsUrl(pictureInfo.getDnsUrl());
         }
         return spaceInfo;
     }
