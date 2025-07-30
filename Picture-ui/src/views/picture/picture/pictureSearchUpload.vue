@@ -4,11 +4,7 @@
       <div class="title-with-tooltip">
         <h1>图片搜索多选</h1>
         <div class="tooltip-trigger">
-          <span
-            class="info-icon"
-            @click="toggleTooltip"
-            ref="infoIconRef"
-          >
+          <span class="info-icon" @click="toggleTooltip" ref="infoIconRef">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
@@ -149,7 +145,8 @@
           </button>
         </div>
         <div class="preview-image-container">
-          <img
+          <ImageView
+            :zoomScale="1.1"
             :src="previewImage.url"
             :alt="previewImage.title"
             referrerpolicy="no-referrer"
@@ -347,6 +344,7 @@ import type {
   PictureCategoryInfoVo,
 } from '@/types/picture/pictureCategory'
 import { addPictureInfoUrl } from '@/api/picture/picture.ts'
+import ImageView from '@/components/ImageView.vue'
 
 // 接口定义
 interface ImageItem {
@@ -535,7 +533,7 @@ const searchImages = async (): Promise<void> => {
       images.value = res.data.urls.map((url: string, index: number) => ({
         id: `${url}_${Date.now()}_${index}`,
         url,
-        title: `${searchQuery.value.keyword} - ${index}`,
+        title: `${searchQuery.value.keyword}`,
         width: 0,
         height: 0,
       }))
@@ -934,6 +932,7 @@ $breakpoint-tablet: 1024px;
     }
   }
 }
+
 /* 全局提示框 */
 .global-tooltip {
   position: fixed;
@@ -942,7 +941,9 @@ $breakpoint-tablet: 1024px;
   background: white;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(103, 126, 234, 0.1);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(103, 126, 234, 0.1);
   z-index: 9000;
   animation: tooltip-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(103, 126, 234, 0.2);
@@ -1252,7 +1253,7 @@ $breakpoint-tablet: 1024px;
   }
 
   &.btn-add {
-    @include gradient-bg();
+    @include button-bg();
     color: white;
   }
 
@@ -1655,6 +1656,8 @@ $breakpoint-tablet: 1024px;
   flex: 1;
   @include flex-center;
   padding: 10px;
+  width: 90vh;
+  max-width: 90vh;
   min-height: 300px;
   height: auto;
   overflow: hidden;
