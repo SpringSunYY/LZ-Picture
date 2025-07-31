@@ -146,6 +146,9 @@ public class PictureStatisticsUtil {
                 log.error("获取图片信息失败:{}", e.getMessage());
             }
         }
+        if (StringUtils.isEmpty(pictureInfos)) {
+            return null;
+        }
         //遍历结果,为resultMap赋值
         for (PictureInfo pictureInfo : pictureInfos) {
             PictureInfoStatisticsVo pictureInfoStatisticsVo = resultMap.get(pictureInfo.getPictureId());
