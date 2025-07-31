@@ -299,6 +299,9 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                 spaceInfo.setCurrentMembers(spaceMemberNumberCount);
             }
             deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
+            spaceInfoService.deleteSpaceTeamTableCacheByUserId(spaceMemberInfo.getUserId());
+            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getInviterUserId());
+            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getUserId());
             /*
                 {
                  "userName":"YY",
@@ -332,7 +335,6 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                     CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
                     UInformTypeEnum.INFORM_TYPE_0.getValue(),
                     params));
-            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getUserId());
         }
         return i;
     }
@@ -353,7 +355,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         ThrowUtils.throwIf(spaceMemberInfo.getRoleType().equals(db.getRoleType()), "角色不能修改为相同角色！！！");
         deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
         spaceMemberInfo.setUpdateTime(DateUtils.getNowDate());
-        spaceAuthUtils.deleteSpacePerm(db.getUserId());
+        spaceAuthUtils.deleteSpacePerm(db.getInviterUserId());
         this.deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
         spaceMemberInfo.setUserId(null);
         return spaceMemberInfoMapper.updateSpaceMemberInfo(spaceMemberInfo);

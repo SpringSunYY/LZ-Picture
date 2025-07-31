@@ -64,32 +64,29 @@
             <dict-tag :options="p_space_join_type" :value="text" />
           </template>
           <template v-if="column.dataIndex === 'avatarUrl'">
-            <a-image v-if="text" :src="text" width="60" />
+            <a-image v-if="text" :src="text" :alt="record.userName" width="60" />
             <span v-else>-</span>
           </template>
           <template v-if="column.dataIndex === 'action'">
             <a-space>
               <a-popconfirm
                 v-if="
-                  checkPermiSingle('space:invitation') &&
-                  record.roleType !== PSpaceRole.SPACE_ROLE_0 &&
-                  checkSpacePermsAny([
-                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
-                  ])
+                  (checkPermiSingle('space:invitation') &&
+                    record.roleType !== PSpaceRole.SPACE_ROLE_0 &&
+                    checkSpaceCreator(record.spaceId)) ||
+                  (checkUser(record.userId) && record.roleType !== PSpaceRole.SPACE_ROLE_0)
                 "
-                title="确定要删除吗，删除之后成员将被踢出团队空间?"
+                title="确定要退出吗，删除之后成员将被踢出团队空间?"
                 ok-text="是"
                 cancel-text="否"
                 @confirm="handleDelete(record)"
-                ><a style="color: red">删除</a>
+                ><a style="color: red">退出</a>
               </a-popconfirm>
               <a
                 v-if="
                   checkPermiSingle('space:invitation') &&
                   record.roleType !== PSpaceRole.SPACE_ROLE_0 &&
-                  checkSpacePermsAny([
-                    buildSpacePermByUser(record.spaceId, PSpaceRole.SPACE_ROLE_0),
-                  ])
+                  checkSpaceCreator(record.spaceId)
                 "
                 @click="handleMember(record)"
                 >角色</a
@@ -177,7 +174,14 @@ import type {
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
-import { buildSpacePermByUser, checkPermiSingle, checkSpacePermsAny } from '@/utils/permission.ts'
+import {
+  buildSpacePermByUser,
+  checkPermiSingle,
+  checkSpaceCreator,
+  checkSpaceEditor,
+  checkSpacePermsAny,
+  checkUser,
+} from '@/utils/permission.ts'
 import { PSpaceRole } from '@/types/picture/space.d.ts'
 import { spacePerm } from '@/stores/modules/space.ts'
 

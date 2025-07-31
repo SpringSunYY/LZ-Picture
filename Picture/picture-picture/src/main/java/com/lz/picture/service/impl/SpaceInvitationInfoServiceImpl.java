@@ -29,12 +29,14 @@ import com.lz.picture.model.vo.spaceInvitationInfo.UserSpaceInvitationInfoVo;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceInvitationInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
+import com.lz.picture.utils.SpaceAuthUtils;
 import com.lz.user.manager.UserAsyncManager;
 import com.lz.user.manager.factory.InformInfoAsyncFactory;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -68,6 +70,8 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
 
     @Resource
     private IUserInfoService userInfoService;
+    @Autowired
+    private SpaceAuthUtils spaceAuthUtils;
 
 
     //region mybatis代码
@@ -355,6 +359,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
                     UInformTypeEnum.INFORM_TYPE_0.getValue(),
                     params));
             spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getInvitationUserId());
+            spaceAuthUtils.deleteSpacePerm(db.getInvitationUserId());
             spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getUserId());
             spaceMemberInfoService.deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
             return StringUtils.isNotNull(execute) && execute ? 1 : 0;

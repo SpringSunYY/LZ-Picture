@@ -231,6 +231,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
      */
     @Override
     public int deletePictureInfoByPictureIds(String[] pictureIds) {
+        pictureTagRelInfoService.remove(new LambdaQueryWrapper<PictureTagRelInfo>().in(PictureTagRelInfo::getPictureId, (Object) pictureIds));
         return pictureInfoMapper.deletePictureInfoByPictureIds(pictureIds);
     }
 

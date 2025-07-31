@@ -279,11 +279,11 @@ public class PictureUploadManager {
 
         //获取水印字体大小
         try {
-            Long pSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_SP);
+            Long pSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_PS);
             if (StringUtils.isNull(pSize)) {
                 pSize = 50L;
             }
-            Long uSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_SU);
+            Long uSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_US);
             if (StringUtils.isNull(uSize)) {
                 uSize = 30L;
             }

@@ -100,7 +100,7 @@ export function checkLogin(): boolean {
  * 判断是否是创建则
  */
 export function checkSpaceCreator(spaceId: string): boolean {
-  return checkPermiSingle(buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0))
+  return checkSpacePerm(buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0))
 }
 
 /**
@@ -118,6 +118,8 @@ export function checkSpaceEditor(spaceId: string): boolean {
  */
 export function checkSpacePerm(perm: string): boolean {
   try {
+    console.log('检查权限：', perm)
+    console.log('已加载权限：', spacePerm.getSpacePerms())
     return spacePerm.getSpacePerms().includes(perm)
   } catch {
     console.warn('权限未加载，暂时拒绝访问')

@@ -34,10 +34,10 @@ public class ConfigConstants {
     /**
      * 图片文字水印平台大小
      */
-    public static final String PICTURE_WATERMARK_TEXT_SP = "sys_config:picture:watermark:text:sp";
+    public static final String PICTURE_WATERMARK_TEXT_PS = "sys_config:picture:watermark:text:ps";
 
     /**
      * 图片文字水印用户大小
      */
-    public static final String PICTURE_WATERMARK_TEXT_SU = "sys_config:picture:watermark:text:su";
+    public static final String PICTURE_WATERMARK_TEXT_US = "sys_config:picture:watermark:text:us";
 }
