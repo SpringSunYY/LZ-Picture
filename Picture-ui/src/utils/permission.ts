@@ -1,6 +1,7 @@
 import useUserStore from '@/stores/modules/user'
-import { getSpacePerm } from '@/api/picture/space.ts'
 import { spacePerm } from '@/stores/modules/space.ts'
+//@ts-ignore
+import { PSpaceRole } from '@/types/picture/space.d.ts'
 
 /**
  * 字符权限校验：必须满足所有条件（AND）
@@ -96,6 +97,23 @@ export function checkLogin(): boolean {
 }
 
 /**
+ * 判断是否是创建则
+ */
+export function checkSpaceCreator(spaceId: string): boolean {
+  return checkPermiSingle(buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0))
+}
+
+/**
+ * 判断是否可以编辑
+ */
+export function checkSpaceEditor(spaceId: string): boolean {
+  return checkSpacePermsAny([
+    buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_1),
+    buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0),
+  ])
+}
+
+/**
  * 检查是否有指定空间权限
  */
 export function checkSpacePerm(perm: string): boolean {
@@ -112,7 +130,12 @@ export function checkSpacePerm(perm: string): boolean {
  */
 export function checkSpacePermsAny(perms: string[]): boolean {
   try {
-    return perms.some((p) => spacePerm.getSpacePerms().includes(p))
+    for (const perm of perms) {
+      if (checkSpacePerm(perm)) {
+        return true
+      }
+    }
+    return false
   } catch {
     return false
   }

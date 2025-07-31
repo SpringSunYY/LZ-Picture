@@ -81,7 +81,7 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('picture:space:spaceFolder:delete')")
     @DeleteMapping("/{folderId}")
     public AjaxResult delete(@PathVariable("folderId") String folderId) {
-        return toAjax(spaceFolderInfoService.deleteSpaceFolderInfoByFolderId(folderId));
+        return toAjax(spaceFolderInfoService.deleteUserSpaceFolderInfoByFolderId(folderId,getUserId()));
     }
 
     /**
@@ -125,10 +125,7 @@ public class UserSpaceFolderInfoController extends BaseUserInfoController {
     @GetMapping("/{folderId}")
     public AjaxResult getFolderListBySpaceId(@PathVariable("folderId") String folderId) {
         //查询是否有这个文件夹
-        SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectSpaceFolderInfoByFolderId(folderId);
-        if (StringUtils.isNull(spaceFolderInfo) || !spaceFolderInfo.getUserId().equals(getLoginUser().getUserId())) {
-            throw new ServiceException("文件夹不存在");
-        }
+        SpaceFolderInfo spaceFolderInfo = spaceFolderInfoService.selectUserSpaceFolderInfoByFolderId(folderId,getUserId());
         return AjaxResult.success(SpaceFolderInfoVo.objToVo(spaceFolderInfo));
     }
 }

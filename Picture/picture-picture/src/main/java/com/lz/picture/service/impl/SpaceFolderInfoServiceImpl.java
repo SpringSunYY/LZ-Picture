@@ -3,6 +3,7 @@ package com.lz.picture.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.constant.HttpStatus;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
@@ -117,16 +118,7 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
     public int deleteSpaceFolderInfoByFolderId(String folderId) {
         //查询是否有下级
         SpaceFolderInfo spaceFolderInfo = new SpaceFolderInfo();
-        spaceFolderInfo.setParentId(folderId);
-        List<SpaceFolderInfo> spaceFolderInfos = spaceFolderInfoMapper.selectSpaceFolderInfoList(spaceFolderInfo);
-        if (StringUtils.isNotEmpty(spaceFolderInfos)) {
-            throw new ServiceException("存在下级文件夹，不允许删除");
-        }
-        //查询是否有图片
-        List<PictureInfo> list = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getFolderId, folderId));
-        if (StringUtils.isNotEmpty(list)) {
-            throw new ServiceException("存在图片，不允许删除");
-        }
+        checkFolderData(spaceFolderInfo);
         return spaceFolderInfoMapper.deleteSpaceFolderInfoByFolderId(folderId);
     }
 
@@ -248,6 +240,61 @@ public class SpaceFolderInfoServiceImpl extends ServiceImpl<SpaceFolderInfoMappe
         initSpaceFolderInfo(spaceFolderInfo);
         spaceFolderInfo.setUpdateTime(DateUtils.getNowDate());
         return spaceFolderInfoMapper.updateSpaceFolderInfo(spaceFolderInfo);
+    }
+
+    @Override
+    public SpaceFolderInfo selectUserSpaceFolderInfoByFolderId(String folderId, String userId) {
+        SpaceFolderInfo spaceFolderInfo = spaceFolderInfoMapper.selectSpaceFolderInfoByFolderId(folderId);
+        ThrowUtils.throwIf(StringUtils.isNull(spaceFolderInfo), HttpStatus.NO_CONTENT, "文件夹不存在");
+        //查询空间
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
+        ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), HttpStatus.NO_CONTENT, "空间不存在");
+        //如果是个人空间
+        ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())
+                && !spaceInfo.getUserId().equals(userId), HttpStatus.NO_CONTENT, "您没有权限访问该空间");
+        ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())
+                && !spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()), HttpStatus.NO_CONTENT, "您没有权限访问该空间");
+        ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue()), HttpStatus.NO_CONTENT, "您没有权限访问该空间");
+        return spaceFolderInfo;
+    }
+
+    @Override
+    public int deleteUserSpaceFolderInfoByFolderId(String folderId, String userId) {
+        SpaceFolderInfo spaceFolderInfo = spaceFolderInfoMapper.selectSpaceFolderInfoByFolderId(folderId);
+        ThrowUtils.throwIf(StringUtils.isNull(spaceFolderInfo), HttpStatus.NO_CONTENT, "文件夹不存在");
+        //查询空间
+        SpaceInfo spaceInfo = spaceInfoService.selectNormalSpaceInfoBySpaceId(spaceFolderInfo.getSpaceId());
+        ThrowUtils.throwIf(StringUtils.isNull(spaceInfo), HttpStatus.NO_CONTENT, "空间不存在");
+        //如果是个人空间
+        ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_2.getValue())
+                && !spaceInfo.getUserId().equals(userId), HttpStatus.NO_CONTENT, "您没有权限访问该空间");
+        ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_1.getValue())
+                && !spaceAuthUtils.checkSpaceEditPerm(spaceInfo.getSpaceId()), HttpStatus.NO_CONTENT, "您没有权限访问该空间");
+        ThrowUtils.throwIf(spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue()), HttpStatus.NO_CONTENT, "您没有权限访问该空间");
+        checkFolderData(spaceFolderInfo);
+        return spaceFolderInfoMapper.deleteSpaceFolderInfoByFolderId(folderId);
+    }
+
+    /**
+     * 校验文件夹数据
+     *
+     * @param spaceFolderInfo 文件夹信息
+     * @return void
+     * @author: YY
+     * @method: checkFolderData
+     * @date: 2025/7/31 16:38
+     **/
+    private void checkFolderData(SpaceFolderInfo spaceFolderInfo) {
+        spaceFolderInfo.setParentId(spaceFolderInfo.getFolderId());
+        List<SpaceFolderInfo> spaceFolderInfos = spaceFolderInfoMapper.selectSpaceFolderInfoList(spaceFolderInfo);
+        if (StringUtils.isNotEmpty(spaceFolderInfos)) {
+            throw new ServiceException("存在下级文件夹，不允许删除");
+        }
+        //查询是否有图片
+        List<PictureInfo> list = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getFolderId, spaceFolderInfo.getFolderId()));
+        if (StringUtils.isNotEmpty(list)) {
+            throw new ServiceException("存在图片，不允许删除");
+        }
     }
 
 

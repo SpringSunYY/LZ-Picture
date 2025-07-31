@@ -342,7 +342,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         //判断是否有缓存如果有先删除
         String key = PICTURE_RECOMMEND_USER + COMMON_SEPARATOR_CACHE + userId;
         redisCache.deleteObject(key);
-        long count = redisCache.setCacheListRightPushAll(key, vos, PICTURE_RECOMMEND_USER_EXPIRE_TIME, TimeUnit.SECONDS);
+        if (StringUtils.isNotEmpty(vos)) {
+            long count = redisCache.setCacheListRightPushAll(key, vos, PICTURE_RECOMMEND_USER_EXPIRE_TIME, TimeUnit.SECONDS);
+        }
 //        if (count > 0) {
 //            log.debug("用户{}推荐结果缓存成功，数据数：{}", userId, count);
 //        }

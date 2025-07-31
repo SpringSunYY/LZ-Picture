@@ -1,13 +1,12 @@
 package com.lz.picture.service;
 
-import java.util.List;
-
-import com.lz.picture.model.domain.SpaceFolderInfo;
-import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
-import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.picture.model.domain.SpaceFolderInfo;
+import com.lz.picture.model.dto.spaceFolderInfo.SpaceFolderInfoQuery;
+import com.lz.picture.model.vo.spaceFolderInfo.SpaceFolderInfoVo;
+
+import java.util.List;
 
 /**
  * 空间文件夹Service接口
@@ -104,4 +103,22 @@ public interface ISpaceFolderInfoService extends IService<SpaceFolderInfo> {
      * return: int
      **/
     int userUpdateSpaceFolderInfo(SpaceFolderInfo spaceFolderInfo);
+
+    /**
+     * 用户查询文件夹
+     *
+     * @param folderId
+     * @param userId
+     * @return
+     */
+    SpaceFolderInfo selectUserSpaceFolderInfoByFolderId(String folderId, String userId);
+
+    /**
+     * 用户删除文件夹
+     *
+     * @param folderId 文件夹编号
+     * @param userId   用户编号
+     * @return
+     */
+    int deleteUserSpaceFolderInfoByFolderId(String folderId, String userId);
 }

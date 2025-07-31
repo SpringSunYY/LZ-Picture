@@ -31,7 +31,11 @@
       >
         <FolderTwoTone class="icon" @click="enterFolder(folder)" />
         <div class="text" @click="enterFolder(folder)">{{ folder.folderName }}</div>
-        <a-row style="margin-top: 10px" :gutter="20">
+        <a-row
+          style="margin-top: 10px"
+          :gutter="20"
+          v-if="checkUser(folder.userId) || checkSpaceEditor(folder.spaceId)"
+        >
           <a-col :span="12">
             <a-tooltip title="删除文件夹">
               <DeleteTwoTone class="folder-footer" @click="handleDelete(folder.folderId)" />
@@ -147,7 +151,7 @@
             @upload-accomplish="handleUploadAccomplish"
             :hasUpload="hasUpload"
             :maxCount="100"
-            :maxSize="15"
+            :maxSize="50"
           ></PictureBatchUpload>
         </a-form-item>
       </a-form>
@@ -156,7 +160,7 @@
 </template>
 
 <script setup lang="ts" name="PictureSpaceFolder">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import {
   DeleteTwoTone,
   EditTwoTone,
@@ -184,12 +188,18 @@ import PictureBatchUpload from '@/components/PictureBatchUpload.vue'
 import type { PictureFileResponse } from '@/types/file'
 import { addPictureInfo } from '@/api/picture/picture.ts'
 import { PPictureStatus } from '@/types/picture/picture.d.ts'
+import { checkSpaceEditor, checkUser } from '@/utils/permission.ts'
+import { spacePerm } from '@/stores/modules/space.ts'
 
 interface Folder {
   folderId: string
   folderName: string
   parentId: string
 }
+
+onMounted(async () => {
+  await spacePerm.loadSpacePerms()
+})
 
 const pictureInfoListRef = ref<InstanceType<typeof PictureInfoList>>()
 
@@ -388,6 +398,7 @@ getFolderList()
     margin-left: 10px;
   }
 }
+
 .custom-modal-title {
   display: flex;
   align-items: center;
@@ -404,6 +415,7 @@ getFolderList()
     }
   }
 }
+
 .space-folder {
   max-width: 1440px;
   margin: 0 auto;
