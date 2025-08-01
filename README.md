@@ -491,14 +491,14 @@ public @interface CustomSort {
    - 空间文件夹的新增修改，最多七层
    - 空间封面上传
 
-2. 团队空间
+2. ### 团队空间
 
    - 创建团队空间，用户创建团队空间自己默认成为创建者
 
    - 邀请别人成为空间成员，编辑者、预览者，在自己空间的成员可以免费查看图片和下载图片
    - 编辑成除了不可以删除其他的都可以，预览者只可以查看
 
-3. 团队空间权限**SpaceAuthUtils**
+3. #### 团队空间权限**SpaceAuthUtils**
 
    - 用户同意进入空间之后删除原有的加入空间缓存，后续重新获取并缓存，也需要删除原有的空间权限
 
@@ -552,7 +552,80 @@ public @interface CustomSort {
                  spaceMemberInfoService.deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
      ```
 
-     
+   #### 4.前端使用
+
+   ```js
+   /**
+    * 检查是否有指定空间权限
+    */
+   export function checkSpacePerm(perm: string): boolean {
+     try {
+       // console.log('检查权限：', perm)
+       // console.log('已加载权限：', spacePerm.getSpacePerms())
+       return spacePerm.getSpacePerms().includes(perm)
+     } catch {
+       console.warn('权限未加载，暂时拒绝访问')
+       return false
+     }
+   ```
+
+   ```js
+   /**
+    * 检查是否拥有任意一组权限
+    */
+   export function checkSpacePermsAny(perms: string[]): boolean {
+     try {
+       for (const perm of perms) {
+         if (checkSpacePerm(perm)) {
+           return true
+         }
+       }
+       return false
+     } catch {
+       return false
+     }
+   }
+   ```
+
+   ```js
+   /**
+    * 构建空间权限
+    * @param spaceId 空间编号
+    * @param roleType 角色类型
+    */
+   export function buildSpacePermByUser(spaceId: string, roleType: string) {
+     return buildSpacePerm(useUserStore().userId, spaceId, roleType)
+   }
+   ```
+
+   ```js
+   export function buildSpacePerm(userId: string, spaceId: string, roleType: string) {
+     return userId + ':' + spaceId + ':' + roleType
+   }
+   ```
+
+   ```js
+   /**
+    * 判断是否可以编辑
+    */
+   export function checkSpaceEditor(spaceId: string): boolean {
+     return checkSpacePermsAny([
+       buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_1),
+       buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0),
+     ])
+   }
+   ```
+
+   ```js
+   /**
+    * 判断是否是创建则
+    */
+   export function checkSpaceCreator(spaceId: string): boolean {
+     return checkSpacePerm(buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0))
+   }
+   ```
+
+   
 
 ## 积分模块
 
