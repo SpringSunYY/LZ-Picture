@@ -99,89 +99,193 @@ LZ-Picture遵循现代多层架构：
 
 ## 配置模块
 
-### 配置信息
+### 1. 配置信息
 
-> 配置信息存入缓存信息，name是键名，value是值，键值对
->
-> 值可以是文件和值
->
-> 初始化项目加载所有配置信息
->
-> 根据order_num升序
->
-> 配置信息添加是否内置，如果内置则用户端不可以通过接口获取到数据
+- 配置信息存入缓存信息，name是键名，value是值，键值对
 
-### 菜单信息
+- 值可以是文件和值
 
-> 动态路由，为用户端实现动态路由
->
-> 权限管理，菜单作为权限管理
->
-> 缓存，刷新缓存
->
-> 状态和是否显示都可以作为改菜单是否有权限，是否开启权限，是否显示对应接口，如果不显示表示这个接口不开启
+- 初始化项目加载所有配置信息
 
-### 国际化
+- 根据order_num升序
 
-#### 国际化国家
+- 配置信息添加是否内置，如果内置则用户端不可以通过接口获取到数据
 
-1. 简称是唯一的
+- 新增及使用方式：
 
-#### 国际化键名
+  1. 首先新增key，例如：user:login:captchaEnabled
 
-1. 根据order_num升序
+  2. 在类ConfigInfoUtils添加对应字段和默认值
 
-2. 键是唯一的
+     ```java
+         public static final String USER_LOGIN_CAPTCHA_ENABLED_KEY = "user:login:captchaEnabled";
+         public static Boolean USER_LOGIN_CAPTCHA_ENABLED_VALUE = true;
+     ```
 
-#### 国际化信息
+     3. 在refreshConfig新增，即完成
 
-1. 后续国际化信息根据国家（简称）+键名，同时组成唯一键 （待完成）
+        ```
+        USER_LOGIN_CAPTCHA_ENABLED_VALUE = getBool(USER_LOGIN_CAPTCHA_ENABLED_KEY);
+        ```
 
-2. 信息需要存入缓存，根据国家作为redis key存入  map key（键名）——value（信息）
+     4. 使用直接调用**USER_LOGIN_CAPTCHA_ENABLED_VALUE**
 
-3. 新增国际化信息并存入缓存，项目启动初始化至缓存
+     5. 用户前端使用方式
 
-#### 消息模块
+        1. 用户第一次获取配置之后会存入本地缓存，在utils/config.js
 
-1. 可以新增，生成事例，根据变量生成事例
+        2. 存入缓存stores/config.js
 
-2. 回退对应版本
+        3. 使用方式：
 
-### 菜单信息
+           ```js
+           titleDesc.value = await useConfig('picture:report:content')
+           ```
 
-1. 路由
+           
 
-   自定义路由信息，根据用户权限
+### 2. 菜单信息
 
-   用户权限
+- 创建规则：根据提示创建
+- 动态路由，为用户端实现动态路由
+- 权限管理，菜单作为权限管理
+- 缓存，刷新缓存
+- 状态和是否显示都可以作为改菜单是否有权限，是否开启权限，是否显示对应接口，如果不显示表示这个接口不开启
+- 自定义路由信息，根据用户权限
+- 写死的路由不做排序，但是有前后之分，动态路由是中间的，有排序的
 
-### 文件日志
+### 3.国际化
 
-> 记录文件上传的日志，防止冗余图片，比如头像、图片、封面
+​		当前尚未完全实现。
+
+#### 	1.国际化国家
+
+- 简称是唯一的
+
+#### 	2.国际化键名
+
+- 根据order_num升序
+- 键是唯一的
+
+#### 	3.国际化信息
+
+- 后续国际化信息根据国家（简称）+键名，同时组成唯一键 （待完成）
+- 信息需要存入缓存，根据国家作为redis key存入  map key（键名）——value（信息）
+- 新增国际化信息并存入缓存，项目启动初始化至缓存
+
+### 4.消息模板
+
+- 可以新增，生成事例，根据变量生成事例
+- 回退对应版本
+
+### 5.公告
+
+- 公告没有模板，基本填写，不为所有用户推送，所有用户可以查看
+- 前端每日会刷新一次，每日会通知一次
+- 前端位置components/NoticeWindows.vue
+
+
+
+### 6.文件日志
+
+- 记录文件上传的日志，防止冗余图片，比如头像、图片、封面
+
+- 使用方式，异步执行：
+
+  ```java
+          //异步执行存入文件日志
+          PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
+                  getLoginUser().getUserId(),
+                  CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
+                  CFileLogTypeEnum.LOG_TYPE_0.getValue()
+          ));
+  ```
+
+  ```java
+     /**
+       * 记录文件日志
+       *
+       * @param fileResponse 图片信息
+       * @param userId              用户编号
+       * @param ossType             存储类型
+       * @param logType             日志类型
+       * @param deviceInfo          设备信息
+       * @return void
+       * @author: YY
+       * @date: 2025/5/10 22:56
+       **/
+      void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
+  ```
+
+  其中逻辑：如果传入原图和压缩图，就执行保存对应的信息
+
+- 更新逻辑，需要自己实现，当前的直接去看项目注释，例如：
+
+  ```java
+      /**
+       * 异步更新文件日志，判断是否和存入数据库日志一样，如果不一样则更新，如果一样则不更新，表示没有新上传图片
+       * 因为新增时图片已经为正常
+       * 不一样表示新上传图片，要把上传的图片更新为正常，老图片为冗余
+       *
+       * @param old 老的用户信息
+       * @param userInfo 新的用户信息
+       * @return TimerTask
+       * @author: YY
+       * @method: updateUserInfoAvatarFileLog
+       * @date: 2025/5/31 16:03
+       **/
+      public static TimerTask updateUserInfoAvatarFileLog(UserInfo old, UserInfo userInfo) {
+          return new TimerTask() {
+              @Override
+              public void run() {
+                  //如果头像地址不一致
+                  if (!old.getAvatarUrl().equals(userInfo.getAvatarUrl())) {
+                      FileLogUpdate newFileLogUpdate = new FileLogUpdate();
+                      newFileLogUpdate.setUserId(userInfo.getUserId());
+                      newFileLogUpdate.setTargetId(userInfo.getUserId());
+                      newFileLogUpdate.setTargetContent(userInfo.getUserName());
+                      //为什么只要压缩图片？？？因为头像和封面只有压缩图
+                      newFileLogUpdate.setThumbnailUrl(userInfo.getAvatarUrl());
+                      newFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_2.getValue());
+                      //新的新增时为冗余，要更新为正常
+                      newFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                      newFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                      SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(newFileLogUpdate);
+  
+                      FileLogUpdate oldFileLogUpdate = new FileLogUpdate();
+                      oldFileLogUpdate.setTargetId(old.getUserId());
+                      oldFileLogUpdate.setTargetContent(old.getUserName());
+                      oldFileLogUpdate.setThumbnailUrl(old.getAvatarUrl());
+                      oldFileLogUpdate.setUserId(old.getUserId());
+                      oldFileLogUpdate.setQueryLogType(CFileLogTypeEnum.LOG_TYPE_2.getValue());
+                      oldFileLogUpdate.setQueryLogStatus(CFileLogStatusEnum.LOG_STATUS_1.getValue());
+                      oldFileLogUpdate.setUpdateLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
+                      SpringUtils.getBean(IFileLogInfoService.class).updateFileLog(oldFileLogUpdate);
+                  }
+              }
+          };
+      }
+  ```
+
+  
 
 ## 用户模块
 
-### 登录
+### 1.登录
 
-> 账号密码登录，自定义密码加密方式，根据密码加密方式判断密码
->
-> 手机短信登录
->
-> 注册
->
-> 忘记密码
+- 账号密码登录，自定义密码加密方式，根据密码加密方式判断密码
+- 手机短信登录
+- 注册
+- 忘记密码
 
 ### 用户详情
 
-> 多种加密方式加密用户密码
->
-> 用户详细信息
->
-> 用户修改自己的信息
->
-> 用户修改密码
->
-> 查看最近登录记录
+- 多种加密方式加密用户密码
+- 用户详细信息
+- 用户修改自己的信息
+- 用户修改密码
+- 查看最近登录记录
+- 以及各种日志
 
 ## 图片模块
 
