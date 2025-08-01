@@ -95,6 +95,80 @@ LZ-Picture遵循现代多层架构：
    - 参数不能使用基类，必须使用对应的vo、dto，前端同理使用type，防止参数耦合
    - 前端使用多的，相似度高的地方要提取为组件
 
+## 公共功能
+
+### 1.自定义缓存
+
+#### 	1.缓存注解
+
+```java
+/**
+ * 自定义缓存注解，父类字段无法拿到
+ * 坚持是前行的舟
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CustomCacheable {
+    String keyPrefix();          // 缓存 key 的前缀
+
+    String keyField() default "";           // 从入参中提取 key 的字段路径（支持嵌套字段）
+
+    long expireTime() default 3600L; // 缓存时间（秒）
+
+    boolean paginate() default false; // 是否启用分页缓存
+
+    String pageNumberField() default ""; // 页码字段（如果 paginate 为 true，则使用该字段）
+
+    String pageSizeField() default "";  // 每页大小字段（如果 paginate 为 true，则使用该字段）
+
+    boolean useQueryParamsAsKey() default false; // 是否将整个查询对象转换为 JSON 字符串作为缓存 key 的一部分
+}
+
+```
+
+2. #### 删除缓存
+
+   ```java
+   /**
+    * 自定义缓存删除注解
+    */
+   @Target(ElementType.METHOD)
+   @Retention(RetentionPolicy.RUNTIME)
+   @Documented
+   public @interface CustomCacheEvict {
+   
+       String[] keyPrefixes();
+   
+       String[] keyFields() default {}; // 支持嵌套，如 "request.userId"
+   
+       boolean useQueryParamsAsKey() default false; // 如果true，加上参数JSON串模糊删除
+   
+   }
+   ```
+
+   
+
+### 2.自定义排序
+
+```java
+/**
+ * 自定义排序注解
+ * 首先我希望我变好，也希望你
+ *
+ * @Project: Picture
+ * @Author: YY
+ * @CreateTime: 2025-07-27  16:41
+ * @Version: 1.0
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface CustomSort {
+    String[] sortFields() default {};   //排序字段
+    String[] sortMappingFields() default {}; //映射字段，前端只需要传过来字段名，如果多表查询设置映射字段，映射字段为查询时所需字段
+}
+```
+
 
 
 ## 配置模块
@@ -271,14 +345,14 @@ LZ-Picture遵循现代多层架构：
 
 ## 用户模块
 
-### 1.登录
+### 1 .登录
 
 - 账号密码登录，自定义密码加密方式，根据密码加密方式判断密码
 - 手机短信登录
 - 注册
 - 忘记密码
 
-### 用户详情
+### 2. 用户详情
 
 - 多种加密方式加密用户密码
 - 用户详细信息
@@ -289,56 +363,225 @@ LZ-Picture遵循现代多层架构：
 
 ## 图片模块
 
-### 图片信息
+### 1. 图片信息
 
-1. 图片上传：
+1. #### 图片上传
 
-   图片上传会压缩图片，同时也会保留原图，添加水印，返回图片基本信息
+   - 图片上传会压缩图片，同时也会保留原图，添加水印，返回图片基本信息
 
-   用户上传图片，选择图片文件夹、图片空间、图片标签，如果标签不存在则新增标签
 
-   用户上传图片后会异步更新对应空间的使用量
+   - 用户上传图片，选择图片文件夹、图片空间、图片标签，如果标签不存在则新增标签
 
-2. 图片详情
 
-   图片信息存入缓存，用户的点赞收藏也会存入缓存，获取图片信息同时获取用户是否点赞的缓存
+   - 用户上传图片后会异步更新对应空间的使用量，会判断用户空间使用量，对于团队空间，团队内的成员也可以创建，创建者和编辑者
 
-   用户点赞收藏转发会异步更新图片信息，这里使用的是策略模式更新对应信息
+   - 图片分类，如果用户选择了图片分类，会判断图片分类是否存在，状态是否为正常，只有正常的才可以选择
 
-3. 图片下载
+     ```java
+     if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
+                 //查询分类是否存在
+                 categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+                 ThrowUtils.throwIf(StringUtils.isNull(categoryInfo)
+                                 || !categoryInfo.getCategoryStatus().equals(PCategoryStatusEnum.CATEGORY_STATUS_0.getValue()),
+                         HttpStatus.MOVED_PERM, "分类不存在或不可选");
+                 categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
+             }
+     ```
 
-   当前只完成图片从oss服务下载图片，未完成积分扣减，待积分模块完成则实现对应的功能
+   - 空间文件夹，和分类同理，会判断是否是该空间内文件夹，判断是否有团队空间对应权限
 
-4. 图片列表
+2. #### 图片详情
 
-   首页图片列表
+   - 用户自己查看详情，获取图片所有信息，接口：
 
-### 空间信息
+     ```java
+      /**
+          * 获取我的图片详细信息
+          */
+         @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
+         @GetMapping("/my/{pictureId}")
+         public AjaxResult getMyInfo(@PathVariable("pictureId") String pictureId) {
+             UserPictureDetailInfoVo userPictureDetailInfoVo = pictureInfoService.userMySelectPictureInfoByPictureId(pictureId, getUserId());
+             return success(userPictureDetailInfoVo);
+         }
+     ```
 
-1. 空间信息
+     会判断做以下判断
 
-   空间信息新增修改以及列表，空间信息的个数的限制
+     ```java
+       //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者，且不是空间的成员
+             if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                     && !userPictureDetailInfoVo.getUserId().equals(UserInfoSecurityUtils.getUserId())
+                     && !spaceAuthUtils.checkUserJoinSpace(userPictureDetailInfoVo.getSpaceId())) {
+                 throw new ServiceException("图片审核不通过，无法查看");
+             }
+     ```
 
-   空间文件夹的新增修改
+   - 用户查看详情，用户查看详情不会获取所有信息，会判断自己是否点赞收藏
+
+     ```java
+        //查询是否有行为，点赞、收藏
+             isBehavior(pictureId, userId, userPictureDetailInfoVo);
+             //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
+             if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                     && !userPictureDetailInfoVo.getUserId().equals(UserInfoSecurityUtils.getUserId())
+                     && !spaceAuthUtils.checkUserJoinSpace(userPictureDetailInfoVo.getSpaceId())) {
+                 throw new ServiceException("图片审核不通过，无法查看");
+             }
+     ```
+
+   - 图片缓存，用户查看详情和查看自己图片详情其实本质就是一个，只不过有了不同处理逻辑，其中走的是同一个，都是先查数据库然后存入缓存拿缓存，但是此处缓存因为springAop，所以做了手动缓存。
+
+     ```java
+      //手动设置缓存，这里基本内部调用，spring没有托管，所以需要手动设置缓存
+             String key = PICTURE_PICTURE_DETAIL + COMMON_SEPARATOR_CACHE + pictureId;
+             if (redisCache.hasKey(key)) {
+                 return redisCache.getCacheObject(key);
+             }
+     ```
+
+   - 图片更新及快捷更新名字，同理，会删除对应缓存
+
+   - 用户点赞收藏转发会异步更新图片信息，这里使用的是策略模式更新对应信息，每个模式可能不同，需具体实现，同时会存入图片热门统计排行
+   - 其他逻辑当前基本同理，没有什么比较复杂逻辑
+
+3. #### 图片下载
+
+   - 获取原图链接
+
+     ​	1.查询图片是否存在且是正常的
+
+     ```java
+             //判断图片1、是否存在，2、是否是作者，如果不是是否是正常，如果也不是判断是否不是空间成员，如果都false判断是否删除
+             ThrowUtils.throwIf(StringUtils.isNull(pictureInfo)
+                             || ((
+                             !pictureInfo.getUserId().equals(userId)
+                                     && pictureInfo.getPictureStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
+                                     && !spaceAuthUtils.checkUserJoinSpace(pictureInfo.getSpaceId())
+                     )
+                             || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue())),
+                     "图片不存在");
+     ```
+
+     2. 执行下载逻辑：作者或者加入空间的无需使用积分，积分大于0需消耗积分，大于等于10才分成积分,且必须是10的倍数
+
+   - 根据下载记录获取原图链接，无需消耗积分，基本逻辑和获取原图链接一样。
+
+2. ### 图片推荐
+
+   1. 用户推荐模型：图片推荐是指根据用户的推荐模型推荐图片
+      - 用户当前点赞，浏览，下载等行为都会给对应图片的标签，分类加分，根据分数为用户推荐图片
+      - 默认缓存最热门的分类和图片，可以自定义数量
+   2. 图片推荐
+      - 根据用户推荐模型，计算给用户推荐的图片并存入缓存
+      - 如果没有了直接推荐热门图片
+   3. 图片详情推荐
+      - 根据图片的标签和分数进行推荐图片
+   4. 搜索建议
+      - like查询热门图片
+      - 搜索推荐：查看热门的图片
+
+### 3. 空间信息
+
+1. #### 空间信息
+
+   - 空间信息新增修改以及列表，空间信息的个数的限制
+
+
+   - 空间文件夹的新增修改，最多七层
+   - 空间封面上传
+
+2. 团队空间
+
+   - 创建团队空间，用户创建团队空间自己默认成为创建者
+
+   - 邀请别人成为空间成员，编辑者、预览者，在自己空间的成员可以免费查看图片和下载图片
+   - 编辑成除了不可以删除其他的都可以，预览者只可以查看
+
+3. 团队空间权限**SpaceAuthUtils**
+
+   - 用户同意进入空间之后删除原有的加入空间缓存，后续重新获取并缓存，也需要删除原有的空间权限
+
+   - 获取空间成员的权限、是否包含某权限、任意权限
+
+   - 判断是否有编辑权限、是否为创建者
+
+   - 注意，需要删除的缓存很多，这里要熟读代码，比如表格的缓存，让用户实时看到，权限缓存
+
+   - 关键删除，删除的时候邀请人和用户自己都要删除，不然可能数据不一致
+
+     ```java
+         /**
+          * 删除空间权限 用户编号
+          */
+         public void deleteSpacePerm(String userId) {
+             spaceInfoService.deleteSpaceTeamTableCacheByUserId(userId);
+             deleteUserJoinSpace(userId);
+             deleteSpaceMemberPerm(userId);
+         }
+     ```
+
+     ```java
+         //删除空间成员缓存
+         @Override
+         public void deleteSpaceMemberCacheBySpaceId(String spaceId) {
+             redisCache.deleteObjectsByPattern(PICTURE_SPACE_MEMBER_DATA + COMMON_SEPARATOR_CACHE + spaceId + "*");
+         }
+     ```
+
+     ```Java
+           /**
+          * 删除团队空间表格缓存
+          *
+          * @param userId
+          * @return void
+          * @author: YY
+          * @method: deleteSpaceTeamTableCacheByUserId
+          * @date: 2025/6/29 18:59
+          **/
+        @Override
+         public void deleteSpaceTeamTableCacheByUserId(String userId) {
+             redisCache.deleteObjectsByPattern(PICTURE_SPACE_TEAM_TABLE_DATA + COMMON_SEPARATOR_CACHE + userId + "*");
+             redisCache.deleteObjectsByPattern(PICTURE_SPACE_LIST + COMMON_SEPARATOR_CACHE + userId + "*");
+         }
+     ```
+
+     ```java
+                 spaceAuthUtils.deleteSpacePerm(db.getUserId());
+                 spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getUserId());
+                 spaceMemberInfoService.deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
+     ```
+
+     
 
 ## 积分模块
 
-### 积分套餐
+### 1. 积分套餐
 
-1. 积分套餐新增修改：积分套餐也有赠送积分。
-2. 用户选择积分套餐可以进行充值
+- 积分套餐新增修改：积分套餐也有赠送积分。
 
-### 积分充值
+- 用户选择积分套餐可以进行充值
+- 定时任务，每天定时更新积分套餐
+
+### 2. 积分充值
 
 1. 用户选择积分套餐后进行充值
 
 2. 支付
 
-   > 用户首先选择积分套餐，选择完成后选择支付渠道，例：支付宝
-   >
-   > 选择支付渠道后开始进行支付，后台创建支付订单并向支付宝发起支付请求，请求成功后创建支付订单，存订单如缓存并，返回订单号给前端，前端跳转支付页面并轮训获取订单状态，支付成功后支付页面跳转套餐页面，原页面获取到订单支付成功后跳转下一步，用户点击返回返回套餐页面，此时后端任务支付宝回调接口后更新订单状态并充值。
-   >
-   > 如果原来用户没有账号为用户创建账户。
+   1. 用户首先选择积分套餐，选择完成后选择支付渠道，例：支付宝
+   2. 选择支付渠道后开始进行支付，后台创建支付订单并向支付宝发起支付请求，请求成功后创建支付订单，存订单如缓存并，返回订单号给前端，前端跳转支付页面并轮训获取订单状态，支付成功后支付页面跳转套餐页面，原页面获取到订单支付成功后跳转下一步，用户点击返回返回套餐页面，此时后端任务支付宝回调接口后更新订单状态并充值。
+   3. 如果原来用户没有账号为用户创建账户。
+   4. 充值成功
+
+3. ### 异常捕获
+
+   - 捕获支付期间所有的异常
+
+4. 积分记录
+
+- 记录积分充值记录，金额，充值数
+- 积分使用记录：记录用户积分使用记录，使用之前多少，使用之后多少
 
 ## 配置信息
 
