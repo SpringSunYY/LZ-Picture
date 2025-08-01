@@ -584,10 +584,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
         //查询分类
         PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+        BeanUtils.copyProperties(pictureInfo, userPictureDetailInfoVo);
         if (StringUtils.isNotNull(categoryInfo)) {
             userPictureDetailInfoVo.setCategoryName(categoryInfo.getName());
         }
-        BeanUtils.copyProperties(pictureInfo, userPictureDetailInfoVo);
         //构建图片url
         String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
         userPictureDetailInfoVo.setPictureUrl(pictureUrl);
@@ -623,7 +623,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         } else {
             userPictureDetailInfoVo.setMoreInfo(new PictureMoreInfo());
         }
-        redisCache.setCacheObject(key, userPictureDetailInfoVo, PictureRedisConstants.PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.MINUTES);
+        redisCache.setCacheObject(key, userPictureDetailInfoVo, PictureRedisConstants.PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
         return userPictureDetailInfoVo;
     }
 
@@ -1389,7 +1389,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ThrowUtils.throwIf(StringUtils.isNull(accountInfo)
                 || accountInfo.getPointsBalance() < totalPoints, "积分不足");
 
-        if (totalPoints != 0) {
+        //如果大于等于10才分成积分,且必须是10的倍数
+        if (totalPoints >= 10 && totalPoints % 10 == 0) {
             //获取官方、空间比例
             double authorProportion = 1 - PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE - PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE;
             pictureDownloadLogInfo.setPointsAuthorGain((long) (totalPoints * authorProportion));

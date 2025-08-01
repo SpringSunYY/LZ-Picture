@@ -30,7 +30,6 @@ export default defineConfig({
     open: true,
     proxy: {
       '/dev-api': {
-        // target: 'http://8.138.211.218:8080/user',
         target: 'http://localhost:8080/user',
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/dev-api/, ''),
@@ -53,5 +52,46 @@ export default defineConfig({
   },
   build: {
     sourcemap: false, // 禁用源映射
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 将第三方库单独打包
+          'vue-vendor': ['vue', 'vue-router', 'pinia', 'pinia-plugin-persistedstate'],
+          'ui-vendor': ['ant-design-vue', 'v-viewer', 'viewerjs', 'vue-cropperjs'],
+          'utils-vendor': ['axios', 'lodash-es', 'jsencrypt', 'libphonenumber-js'],
+          'uppy-vendor': [
+            '@uppy/core',
+            '@uppy/dashboard',
+            '@uppy/image-editor',
+            '@uppy/locales/lib/zh_CN'
+          ],
+          'filepond-vendor': [
+            'filepond-plugin-file-encode',
+            'filepond-plugin-file-validate-size',
+            'filepond-plugin-file-validate-type',
+            'filepond-plugin-image-exif-orientation',
+            'filepond-plugin-image-preview',
+            'filepond-plugin-image-transform',
+            'vue-filepond',
+          ],
+          'editor-vendor': ['md-editor-v3'],
+          'vueuse-vendor': ['@vueuse/core'],
+          // 将较大的组件单独打包
+          'about-components': [
+            '@/components/about/AboutLayout.vue',
+            '@/components/about/ContactSection.vue',
+            '@/components/about/ContactSponsorsSection.vue',
+            '@/components/about/CopyrightSection.vue',
+            '@/components/about/HelpCenterSection.vue',
+            '@/components/about/JoinUsSelection.vue',
+            '@/components/about/StorySection.vue',
+            '@/components/about/TeamSection.vue',
+            '@/components/about/UserAgreementSection.vue',
+            '@/components/about/VisionSection.vue',
+          ],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // 将警告阈值提高到 1000 kB
   },
 })

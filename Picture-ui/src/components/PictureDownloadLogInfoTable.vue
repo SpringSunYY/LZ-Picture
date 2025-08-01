@@ -148,7 +148,6 @@ import type {
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
-import PictureView from '@/components/PictureView.vue'
 import { getPictureOriginalLogInfoByLog } from '@/api/common/file.ts'
 import ImageView from '@/components/ImageView.vue'
 

@@ -243,11 +243,11 @@ public class MenuInfoServiceImpl extends ServiceImpl<MenuInfoMapper, MenuInfo> i
     public boolean checkMenu(String permission) {
         MenuInfo menu = redisCache.getCacheObject(CONFIG_MENU_PERMISSION + permission);
         if (StringUtils.isNull(menu)) {
-            menu = this.getOne(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, permission));
-            if (StringUtils.isNull(menu)) {
+            List<MenuInfo> menus = this.list(new LambdaQueryWrapper<>(MenuInfo.class).eq(MenuInfo::getPerms, permission));
+            if (StringUtils.isEmpty(menus)) {
                 return false;
             }
-            redisCache.setCacheObject(CONFIG_MENU_PERMISSION + permission, menu);
+            redisCache.setCacheObject(CONFIG_MENU_PERMISSION + permission, menus.getLast());
         }
         if (menu.getStatus().equals(MENU_VISIBLE_0.getValue())) {
             return true;

@@ -147,7 +147,7 @@ watch(
     query.value.type = newType || 'total'
     await reloadData()
   },
-  { deep: true, deep: true },
+  { deep: true },
 )
 
 // reloadData()

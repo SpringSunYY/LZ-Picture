@@ -136,7 +136,7 @@
                 <span style="font-size: 16px; padding-left: 8px; color: green">{{
                   picture?.moreInfo?.pointsNeed || 0
                 }}</span>
-                <span style="font-size: 16px; padding-left: 8px">积分</span>
+                <span style="font-size: 16px; padding-left: 8px">积分看原图</span>
               </a-button>
             </a-tooltip>
             <!--            <a-tooltip v-else>

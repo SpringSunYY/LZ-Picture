@@ -5,7 +5,7 @@
         <RouterLink to="/">
           <div class="title-bar">
             <img class="logo" src="@/assets/logo.svg" alt="logo" />
-            <div class="title">LZ-Picture</div>
+            <div class="title" v-if="!isMobile">LZ-Picture</div>
           </div>
         </RouterLink>
       </a-col>
@@ -218,6 +218,7 @@ const showDrawer = () => {
   .title-bar {
     display: flex;
     float: left;
+    height: 100%;
     align-items: center;
   }
 

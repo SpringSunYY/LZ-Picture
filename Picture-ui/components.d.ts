@@ -35,7 +35,6 @@ declare module 'vue' {
     PictureOutPainting: typeof import('./src/components/PictureOutPainting.vue')['default']
     PictureSearch: typeof import('./src/components/PictureSearch.vue')['default']
     PictureUpload: typeof import('./src/components/PictureUpload.vue')['default']
-    PictureView: typeof import('./src/components/PictureView.vue')['default']
     PointsRechargeTable: typeof import('./src/components/PointsRechargeTable.vue')['default']
     QRCode: typeof import('./src/components/QRCode.vue')['default']
     QuickCopy: typeof import('./src/components/QuickCopy.vue')['default']
