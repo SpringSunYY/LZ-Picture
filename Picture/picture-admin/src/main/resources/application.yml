@@ -101,7 +101,7 @@ token:
   soloLogin: false
   user:
     # 令牌有效期（默认30分钟）
-    expireTime: 14400
+    expireTime: 1440
     header: Authorization
     secret: abcdefghijklmnopqrstuvwxyz
     soloLogin: 30
