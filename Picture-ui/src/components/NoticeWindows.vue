@@ -29,6 +29,7 @@ const openNotification = () => {
           size: 'small',
           onClick: () => {
             notification.close(key)
+            noticeStore.markAsRead(noticeInfo.value)
             toNoticeInfo() // 点击后跳转到详情页
           },
         },
@@ -52,13 +53,13 @@ onMounted(async () => {
     platform: CNoticePlatformEnum.NOTICE_PLATFORM_1,
   })
   if (!noticeStore.hasPushedToday) {
-    console.log('今日已推送过公告',notice)
+    console.log('今日已推送过公告', notice)
     noticeInfo.value = notice
     // 今日首次展示公告
     openNotification()
   } else {
     // 今日已推送或无新公告
-    console.log('不推送今日公共')
+    console.log('不推送今日公告')
   }
 })
 </script>

@@ -93,7 +93,7 @@ const formatPictureListByRow = () => {
   if (!container) return
 
   const containerWidth = container.clientWidth
-  const baseHeight = Number(pictureHeight.value) || 250
+  const baseHeight = Number(pictureHeight.value) || 400
   const spacing = 12
   const minWidth = 150
 
@@ -107,7 +107,8 @@ const formatPictureListByRow = () => {
     const r = pic.picWidth / pic.picHeight
     const estimatedWidth = r * baseHeight
     if (estimatedWidth < minWidth) {
-      continue // 丢掉太瘦图
+      pic.picWidth = minWidth // 强制宽度
+      pic.picHeight = minWidth / r // 按比例缩放
     }
 
     tempRow.push(pic)
