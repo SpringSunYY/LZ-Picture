@@ -162,9 +162,7 @@
           <!-- 操作列 -->
           <template v-if="column.dataIndex === 'action'">
             <a-space-compact>
-              <a-button
-                @click="handleOpenApply(record.pictureId)"
-                v-if="checkPermiSingle('picture:upload:apply')"
+              <a-button @click="viewDetail(record)" v-if="checkPermiSingle('picture:upload:detail')"
                 >查看
               </a-button>
               <a-dropdown placement="bottomRight" :trigger="['click']">
@@ -187,8 +185,8 @@
                       >修改
                     </a-menu-item>
                     <a-menu-item
-                      @click="viewDetail(record)"
-                      v-if="checkPermiSingle('picture:upload:detail')"
+                      @click="handleOpenApply(record.pictureId)"
+                      v-if="checkPermiSingle('picture:upload:apply')"
                       >公开
                     </a-menu-item>
                     <a-menu-item @click="getOriginalPicture(record)">原图</a-menu-item>
