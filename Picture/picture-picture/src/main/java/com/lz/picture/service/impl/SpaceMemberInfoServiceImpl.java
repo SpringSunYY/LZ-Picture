@@ -65,9 +65,6 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
     private ISpaceInfoService spaceInfoService;
 
     @Resource
-    private OssConfig ossConfig;
-
-    @Resource
     @Lazy
     private SpaceAuthUtils spaceAuthUtils;
 
@@ -264,7 +261,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
             UserSpaceMemberInfoVo userSpaceMemberInfoVo = UserSpaceMemberInfoVo.objToVo(spaceMemberInfo);
             userSpaceMemberInfoVo.setSpaceName(spaceInfo.getSpaceName());
             userSpaceMemberInfoVo.setUserName(userInfoMap.get(spaceMemberInfo.getUserId()).getUserName());
-            userSpaceMemberInfoVo.setAvatarUrl(ossConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            userSpaceMemberInfoVo.setAvatarUrl(OssConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
             userSpaceMemberInfoVo.setInviterUserName(inviterUserInfoMap.get(spaceMemberInfo.getInviterUserId()).getUserName());
             userSpaceMemberInfoVos.add(userSpaceMemberInfoVo);
         });
@@ -299,9 +296,9 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
                 spaceInfo.setCurrentMembers(spaceMemberNumberCount);
             }
             deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
-            spaceInfoService.deleteSpaceTeamTableCacheByUserId(spaceMemberInfo.getUserId());
-            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getInviterUserId());
+            //删除用户空间缓存，删除空间权限缓存
             spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getUserId());
+            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getInviterUserId());
             /*
                 {
                  "userName":"YY",
@@ -356,7 +353,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
         deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
         spaceMemberInfo.setUpdateTime(DateUtils.getNowDate());
         spaceAuthUtils.deleteSpacePerm(db.getInviterUserId());
-        this.deleteSpaceMemberCacheBySpaceId(spaceMemberInfo.getSpaceId());
+        spaceAuthUtils.deleteSpacePerm(db.getUserId());
         spaceMemberInfo.setUserId(null);
         return spaceMemberInfoMapper.updateSpaceMemberInfo(spaceMemberInfo);
     }

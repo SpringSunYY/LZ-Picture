@@ -358,9 +358,9 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
                     CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
                     UInformTypeEnum.INFORM_TYPE_0.getValue(),
                     params));
-            spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getInvitationUserId());
-            spaceAuthUtils.deleteSpacePerm(db.getInvitationUserId());
-            spaceInfoService.deleteSpaceTeamTableCacheByUserId(db.getUserId());
+            //删除邀请者的缓存，用户自己的缓存
+            spaceAuthUtils.deleteSpacePerm(db.getUserId());
+            spaceAuthUtils.deleteSpacePerm(spaceMemberInfo.getInviterUserId());
             spaceMemberInfoService.deleteSpaceMemberCacheBySpaceId(db.getSpaceId());
             return StringUtils.isNotNull(execute) && execute ? 1 : 0;
         } else {

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
@@ -37,7 +38,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.redis.PointsRedisConstants.POINTS_USAGE_LOG_INFO_LOCK;
+import static com.lz.common.constant.redis.PointsRedisConstants.*;
 
 /**
  * 积分使用记录Service业务层处理
@@ -60,6 +61,9 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
 
     @Resource
     private RedissonClient redissonClient;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -274,6 +278,7 @@ public class PointsUsageLogInfoServiceImpl extends ServiceImpl<PointsUsageLogInf
                     return accountInfoService.saveOrUpdate(finalAccountInfo);
                 });
             }
+            redisCache.setCacheObject(POINTS_ACCOUNT_INFO + userId, accountInfo, POINTS_ACCOUNT_INFO_EXPIRE_TIME, TimeUnit.SECONDS);
             return 1;
         } catch (InterruptedException e) {
             log.error("获取锁失败", e);

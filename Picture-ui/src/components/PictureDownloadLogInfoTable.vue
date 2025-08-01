@@ -80,7 +80,6 @@
         :loading="loading"
         @change="handleTableChange"
         row-key="downloadId"
-        :scroll="{ x: 1000 }"
       >
         <template #bodyCell="{ column, text, record }">
           <template v-if="column.dataIndex === 'thumbnailUrl'">
@@ -184,13 +183,13 @@ const queryParams = ref<PictureDownloadLogInfoQuery>({
 })
 
 const columns = [
-  { title: '缩略图', dataIndex: 'thumbnailUrl' },
+  { title: '缩略图', dataIndex: 'thumbnailUrl',width: 100 },
   { title: '图片名称', dataIndex: 'pictureName' },
   { title: '标签', dataIndex: 'tags' },
-  { title: '消耗积分', dataIndex: 'pointsCost' },
+  { title: '消耗积分', dataIndex: 'pointsCost',width: 100 },
   { title: '下载状态', dataIndex: 'downloadStatus' },
-  { title: '下载方式', dataIndex: 'downloadType' },
-  { title: '来源', dataIndex: 'referSource' },
+  { title: '下载方式', dataIndex: 'downloadType',width: 100 },
+  { title: '来源', dataIndex: 'referSource',width: 60 },
   { title: '下载时间', dataIndex: 'createTime', width: 180, sorter: true },
   { title: '操作', dataIndex: 'action', fixed: 'right', width: 150 },
 ]
@@ -283,7 +282,7 @@ onMounted(getList)
 <style scoped>
 .form-footer {
   text-align: right;
-  padding: 16px 0 0;
+  padding: 0px 0 0;
   margin-top: 24px;
   border-top: 1px solid #f0f0f0;
 

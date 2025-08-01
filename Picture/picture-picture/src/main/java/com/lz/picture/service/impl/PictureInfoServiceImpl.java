@@ -684,22 +684,23 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         redisCache.setCacheObject(PICTURE_PICTURE_DETAIL + COMMON_SEPARATOR_CACHE + pictureId, userPictureDetailInfoVo, PICTURE_PICTURE_DETAIL_EXPIRE_TIME, TimeUnit.SECONDS);
     }
 
-    @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_DETAIL}, keyFields = {"pictureId"})
     @Override
     public UserPictureDetailInfoVo userMySelectPictureInfoByPictureId(String pictureId, String userId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = getUserPictureDetailInfoVo(pictureId);
-        //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
-        String url = pictureDownloadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE);
-        userPictureDetailInfoVo.setPictureUrl(url);
-        //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者
+        //如果图片不是公共且图片审核状态不是通过，且当前用户不是作者，且不是空间的成员
         if (!userPictureDetailInfoVo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 && !userPictureDetailInfoVo.getUserId().equals(UserInfoSecurityUtils.getUserId())
                 && !spaceAuthUtils.checkUserJoinSpace(userPictureDetailInfoVo.getSpaceId())) {
             throw new ServiceException("图片审核不通过，无法查看");
         }
+        //说明是自己，则获取修改图片权限，并且授权密钥让用户可以访问图片
+        String url = pictureDownloadManager.generateDownloadUrl(userPictureDetailInfoVo.getPictureUrl(), PICTURE_LOOK_ORIGINAL_TIMEOUT_VALUE);
+        userPictureDetailInfoVo.setPictureUrl(url);
         return userPictureDetailInfoVo;
     }
 
+    @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_TABLE_PERSON, PICTURE_PICTURE_DETAIL},
+            keyFields = {"picture.userId", "picture.pictureId"})
     @Override
     public UserPictureDetailInfoVo userUpdatePictureInfo(PictureInfo pictureInfo) {
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
@@ -1110,8 +1111,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return tableDataInfo;
     }
 
-    @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_TABLE_PERSON},
-            keyFields = {"picture.userId"})
+    @CustomCacheEvict(keyPrefixes = {PICTURE_PICTURE_TABLE_PERSON, PICTURE_PICTURE_DETAIL},
+            keyFields = {"picture.userId", "picture.pictureId"})
     @Override
     public int userUpdatePictureInfoName(PictureInfo pictureInfo) {
         //判断图片是否存在是否是作者
@@ -1157,15 +1158,16 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         if (StringUtils.isEmpty(userPictureInfoQuery.getSpaceId())) {
             throw new ServiceException("空间编号不能为空");
         }
-        SpaceMemberInfo spaceMemberInfo = spaceMemberInfoService.userIsJoinSpace(userPictureInfoQuery.getSpaceId(), UserInfoSecurityUtils.getUserId());
-
+/*        SpaceMemberInfo spaceMemberInfo = spaceMemberInfoService.userIsJoinSpace(userPictureInfoQuery.getSpaceId(), UserInfoSecurityUtils.getUserId());
+        if (StringUtils.isNull(spaceMemberInfo)) {
+        }*/
+        if (!spaceAuthUtils.checkUserJoinSpace(userPictureInfoQuery.getSpaceId())) {
+            throw new ServiceException("您没有加入此空间");
+        }
         String jsonStr = JSON.toJSONString(userPictureInfoQuery);
         //查询缓存是否存在
         String keyData = PICTURE_PICTURE_TABLE_SPACE + userPictureInfoQuery.getSpaceId() + COMMON_SEPARATOR_CACHE +
                 jsonStr;
-        if (StringUtils.isNull(spaceMemberInfo)) {
-            throw new ServiceException("您没有加入此空间");
-        }
         return getTableDataInfo(userPictureInfoQuery, keyData);
     }
 
@@ -1313,8 +1315,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public PictureInfoDto verifyPictureInfo(String pictureId, String userId, String downloadType) {
         //查询图片信息
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
+        //判断图片1、是否存在，2、是否是作者，如果不是是否是正常，如果也不是判断是否不是空间成员，如果都false判断是否删除
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo)
-                        || (!pictureInfo.getUserId().equals(userId) && pictureInfo.getPictureStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
+                        || ((
+                        !pictureInfo.getUserId().equals(userId)
+                                && pictureInfo.getPictureStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
+                                && !spaceAuthUtils.checkUserJoinSpace(pictureInfo.getSpaceId())
+                )
                         || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue())),
                 "图片不存在");
         //所需总积分
@@ -1360,8 +1367,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureDownloadLogInfo.setReferSource(PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_1.getValue());
         pictureDownloadLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
         BeanUtils.copyProperties(deviceInfo, pictureDownloadLogInfo);
-        //判断本人是否是作者
-        if (pictureInfo.getUserId().equals(userId)) {
+        //判断本人是否是作者，是否加入空间
+        if (pictureInfo.getUserId().equals(userId) || spaceAuthUtils.checkUserJoinSpace(pictureInfo.getSpaceId())) {
             pictureDownloadLogInfo.setPointsCost(0L);
             //是作者
             //如果已经下载过就不再新增下载记录
@@ -1379,10 +1386,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             return pictureInfo;
         }
         //不是作者 需要更新账号积分、积分使用记录、下载记录、如果不是免费需要给作者充值
-        //首先判断图片状态,如果图片状态为公开，且没有删除，则可以下载
-        ThrowUtils.throwIf(!PPictureStatusEnum.PICTURE_STATUS_0.getValue().equals(pictureInfo.getPictureStatus())
-                        || !CommonDeleteEnum.NORMAL.getValue().equals(pictureInfo.getIsDelete()),
-                "图片不存在");
         //判断用户积分是否足够 查询用户账户是否存在，存在判断积分
         AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(userId);
 
@@ -1390,15 +1393,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 || accountInfo.getPointsBalance() < totalPoints, "积分不足");
 
         //如果大于等于10才分成积分,且必须是10的倍数
-        if (totalPoints >= 10 && totalPoints % 10 == 0) {
-            //获取官方、空间比例
-            double authorProportion = 1 - PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE - PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE;
-            pictureDownloadLogInfo.setPointsAuthorGain((long) (totalPoints * authorProportion));
-            pictureDownloadLogInfo.setPointsOfficialGain((long) (totalPoints * PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE));
-            pictureDownloadLogInfo.setPointsSpaceGain((long) (totalPoints * PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE));
-            pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(authorProportion));
-            pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE));
-            pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE));
+        if (totalPoints > 0) {
+            //用户积分消费
             pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
                     userId,
                     null,
@@ -1407,17 +1403,27 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     pictureId,
                     -totalPoints,
                     deviceInfo);
-            //作者获取积分记录
-            pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
-                    pictureInfo.getUserId(),
-                    userId,
-                    PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_2.getValue(),
-                    PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_0.getValue(),
-                    pictureId,
-                    pictureDownloadLogInfo.getPointsAuthorGain(),
-                    deviceInfo
-            );
-            //发送消息提醒作者赚取积分
+            //积分大于等于10、10的倍数才分成
+            if (totalPoints >= 10 && totalPoints % 10 == 0) {
+                //获取官方、空间比例
+                double authorProportion = 1 - PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE - PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE;
+                pictureDownloadLogInfo.setPointsAuthorGain((long) (totalPoints * authorProportion));
+                pictureDownloadLogInfo.setPointsOfficialGain((long) (totalPoints * PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE));
+                pictureDownloadLogInfo.setPointsSpaceGain((long) (totalPoints * PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE));
+                pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(authorProportion));
+                pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(PICTURE_DOWNLOAD_OFFICIAL_PROPORTION_VALUE));
+                pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(PICTURE_DOWNLOAD_SPACE_PROPORTION_VALUE));
+                //作者获取积分记录
+                pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(
+                        pictureInfo.getUserId(),
+                        userId,
+                        PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_2.getValue(),
+                        PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_0.getValue(),
+                        pictureId,
+                        pictureDownloadLogInfo.getPointsAuthorGain(),
+                        deviceInfo
+                );
+                //发送消息提醒作者赚取积分
             /*
                 {
                    "pictureName":"YY",
@@ -1425,18 +1431,19 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                    "createTime":"2025-05-26 10:11:12"
                 }
              */
-            HashMap<String, String> params = new HashMap<>();
-            params.put("points", String.valueOf(pictureDownloadLogInfo.getPointsAuthorGain()));
-            params.put("pictureName", pictureInfo.getName());
-            params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, pictureDownloadLogInfo.getCreateTime()));
-            UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
-                    pictureInfo.getUserId(),
-                    DOWNLOAD_PICTURE_AUTHOR_PROPORTION,
-                    null,
-                    CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
-                    UInformTypeEnum.INFORM_TYPE_0.getValue(),
-                    params
-            ));
+                HashMap<String, String> params = new HashMap<>();
+                params.put("points", String.valueOf(pictureDownloadLogInfo.getPointsAuthorGain()));
+                params.put("pictureName", pictureInfo.getName());
+                params.put("createTime", DateUtils.parseDateToStr(YYYY_MM_DD_HH_MM_SS, pictureDownloadLogInfo.getCreateTime()));
+                UserAsyncManager.me().execute(InformInfoAsyncFactory.sendInform(
+                        pictureInfo.getUserId(),
+                        DOWNLOAD_PICTURE_AUTHOR_PROPORTION,
+                        null,
+                        CTemplateTypeEnum.TEMPLATE_TYPE_3.getValue(),
+                        UInformTypeEnum.INFORM_TYPE_0.getValue(),
+                        params
+                ));
+            }
         }
         //添加分数
         pictureDownloadLogInfo.setScore(PICTURE_STATISTICS_HOT_BEHAVIOR_SCORE_DOWNLOAD_VALUE);

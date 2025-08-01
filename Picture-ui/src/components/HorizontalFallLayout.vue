@@ -164,7 +164,7 @@ function setupObserver() {
         loadMore()
       }
     },
-    { rootMargin: '200px' },
+    { rootMargin: '150px' },
   )
   if (loadMoreTrigger.value) {
     observer.observe(loadMoreTrigger.value)

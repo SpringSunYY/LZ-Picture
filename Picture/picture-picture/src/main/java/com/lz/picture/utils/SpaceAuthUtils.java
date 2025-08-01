@@ -5,6 +5,7 @@ import com.lz.common.core.redis.RedisCache;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
+import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
 public class SpaceAuthUtils {
     @Resource
     private ISpaceMemberInfoService spaceMemberInfoService;
+    @Resource
+    private ISpaceInfoService spaceInfoService;
     @Resource
     private RedisCache redisCache;
 
@@ -203,6 +206,7 @@ public class SpaceAuthUtils {
      * 删除空间权限 用户编号
      */
     public void deleteSpacePerm(String userId) {
+        spaceInfoService.deleteSpaceTeamTableCacheByUserId(userId);
         deleteUserJoinSpace(userId);
         deleteSpaceMemberPerm(userId);
     }

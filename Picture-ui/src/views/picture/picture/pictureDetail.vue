@@ -2,8 +2,8 @@
   <div>
     <a-row class="picture-detail" :gutter="[24, 24]">
       <!-- 左侧：标题、简介、图片 -->
-      <a-col :xs="24" :md="16" class="left-view">
-        <div class="image-wrapper">
+      <a-col :xs="24" :md="24" class="left-view">
+        <div class="image-wrapper animate-fade-in-up">
           <ImageView :src="picture.thumbnailUrl" alt="点击预览" :zoom-scale="1.15">
             <template #content>
               <div style="position: relative; padding: 40px">
@@ -24,149 +24,167 @@
       </a-col>
 
       <!-- 右侧：作者 + 图片信息 -->
-      <a-col :xs="24" :md="8" class="right-info">
-        <!-- 作者信息 -->
-        <a-card :bordered="false" class="card author-card">
-          <a-space align="center" :wrap="true">
-            <a-avatar :src="formatDnsUrl(picture?.userInfoVo?.avatarUrl)" size="large" />
-            <div>
-              <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
-              <div class="ip-region">IP属地：{{ picture.userInfoVo?.ipAddress || '未知' }}</div>
-            </div>
-          </a-space>
-        </a-card>
-        <!-- 图片信息 -->
-        <a-card title="" :bordered="false" class="card">
-          <div class="title-block">
-            <h1 class="picture-name">{{ picture.name }}</h1>
-            <TextView :text="picture.introduction || '作者没有抒写他的故事哦'" :max-lines="2" />
-          </div>
-        </a-card>
-        <!-- 图片信息 -->
-        <a-card title="" :bordered="false" class="card">
-          <a-descriptions title="图片信息" :column="{ xs: 2, sm: 1, md: 2 }">
-            <a-descriptions-item label="分类">{{ picture.categoryName }}</a-descriptions-item>
-            <a-descriptions-item label="空间">{{ picture.spaceName }}</a-descriptions-item>
-            <a-descriptions-item label="格式">{{ picture.picFormat }}</a-descriptions-item>
-            <a-descriptions-item label="体积"
-              >{{ formatSize(picture.picSize || 0) }}
-            </a-descriptions-item>
-            <a-descriptions-item label="尺寸"
-              >{{ picture.picWidth }} * {{ picture.picHeight }}
-            </a-descriptions-item>
-            <a-descriptions-item label="比例">{{ picture.picScale }}</a-descriptions-item>
-            <a-descriptions-item label="发布时间">{{ picture?.publishTime }}</a-descriptions-item>
-          </a-descriptions>
-          <Tags
-            v-if="picture?.pictureTags"
-            :values="picture?.pictureTags"
-            :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
-          />
-        </a-card>
-        <a-card title="" :bordered="false" class="card action-card" v-if="picture.pictureId !== ''">
-          <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
-            <a-tooltip title="View">
-              <a-button class="icon-button" @click="clickLook">
-                <FireOutlined
-                  :style="{
-                    color: '#999',
-                    verticalAlign: 'middle',
-                    fontSize: '18px',
-                  }"
-                />
-                {{ picture?.lookCount || 0 }}
-              </a-button>
-            </a-tooltip>
-            <a-tooltip title="Like">
-              <a-button class="icon-button" @click="addUserBehavior('0')">
-                <LikeOutlined
-                  :style="{
-                    color: picture.isLike ? '#ff4d4f' : '#999',
-                    verticalAlign: 'middle',
-                    fontSize: '18px',
-                  }"
-                />
-                {{ picture?.likeCount || 0 }}
-              </a-button>
-            </a-tooltip>
-            <a-tooltip title="Star" @click="addUserBehavior('1')">
-              <a-button class="icon-button">
-                <StarOutlined
-                  :style="{
-                    color: picture.isCollect ? '#00ff95' : '#999',
-                    verticalAlign: 'middle',
-                    fontSize: '18px',
-                  }"
-                />
-                {{ picture?.collectCount || 0 }}
-              </a-button>
-            </a-tooltip>
-            <a-tooltip title="Share" @click="addUserBehavior('2')">
-              <a-button class="icon-button">
-                <ShareAltOutlined />
-                {{ picture?.shareCount || 0 }}
-              </a-button>
-            </a-tooltip>
-            <a-tooltip title="举报">
-              <a-button class="icon-button" @click="handleReport">
-                <SvgIcon name="report" />
-              </a-button>
-            </a-tooltip>
-            <!-- v-if="picture?.moreInfo?.applyType !== PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0"-->
-            <a-tooltip>
-              <template #title>
-                <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
-                  使用 {{ picture?.moreInfo?.pointsNeed || 0 }} 积分查看原图<br />
-                  注意事项：<br />
-                  1. 当前资源仅供展示，可以使用积分查看图片原图，请勿直接商用；<br />
-                  2. 使用前请自行核实版权归属；<br />
-                  3. 平台不承担任何版权纠纷责任。<br />
-                  4. 如若存在侵权行为，请及时联系平台，我们会及时处理。<br />
+      <a-col :xs="24" :md="24" class="right-info">
+        <a-row :gutter="[24, 24]">
+          <a-col :xs="24" :md="12">
+            <!-- 作者信息 -->
+            <a-card :bordered="false" class="card author-card animate-fade-in-left">
+              <a-space align="center" :wrap="true">
+                <a-avatar :src="formatDnsUrl(picture?.userInfoVo?.avatarUrl)" size="large" />
+                <div>
+                  <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
+                  <div class="ip-region">IP属地：{{ picture.userInfoVo?.ipAddress || '未知' }}</div>
                 </div>
-              </template>
-              <a-button
-                :loading="downloadPictureLoading"
-                class="icon-button"
-                type="warn"
-                @click="downloadPicture"
-              >
-                <template #icon>
-                  <SvgIcon name="viewPicture" />
-                </template>
-                <span style="font-size: 16px; padding-left: 8px; color: green">{{
-                  picture?.moreInfo?.pointsNeed || 0
-                }}</span>
-                <span style="font-size: 16px; padding-left: 8px">积分看原图</span>
-              </a-button>
-            </a-tooltip>
-            <!--            <a-tooltip v-else>
-                          <template #title>
-                            <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
-                              使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
-                              注意事项：<br />
-                              1. 当前资源作者拥有原图信息；<br />
-                              2. 如果存在版权纠纷，请联系平台，平台会为您联系作者，作者会及时处理；<br />
-                              3. 平台不承担任何版权纠纷责任。<br />
-                              4. 如若版权虚假，存在侵权行为，请及时联系平台，我们会及时处理。<br />
-                            </div>
-                          </template>
-                          <a-button
-                            :loading="buyPictureLoading"
-                            class="icon-button download-bounce"
-                            type="warn"
-                            @click="buyPicture"
-                          >
-                            <template #icon>
-                              <SvgIcon name="download" />
-                            </template>
-                            <span style="font-size: 16px; padding-left: 8px; color: green">
-                              {{ picture?.moreInfo?.priceNeed || 0 }}
-                            </span>
-                            <span>元</span>
-                          </a-button>
-                        </a-tooltip>-->
-          </a-space>
-        </a-card>
+              </a-space>
+            </a-card>
+          </a-col>
+          <a-col :xs="24" :md="12">
+            <a-card
+              title=""
+              :bordered="false"
+              class="card action-card animate-fade-in-right"
+              v-if="picture.pictureId !== ''"
+            >
+              <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
+                <a-tooltip title="View">
+                  <a-button class="icon-button" @click="clickLook">
+                    <FireOutlined
+                      :style="{
+                        color: '#999',
+                        verticalAlign: 'middle',
+                        fontSize: '18px',
+                      }"
+                    />
+                    {{ picture?.lookCount || 0 }}
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="Like">
+                  <a-button class="icon-button" @click="addUserBehavior('0')">
+                    <LikeOutlined
+                      :style="{
+                        color: picture.isLike ? '#ff4d4f' : '#999',
+                        verticalAlign: 'middle',
+                        fontSize: '18px',
+                      }"
+                    />
+                    {{ picture?.likeCount || 0 }}
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="Star" @click="addUserBehavior('1')">
+                  <a-button class="icon-button">
+                    <StarOutlined
+                      :style="{
+                        color: picture.isCollect ? '#00ff95' : '#999',
+                        verticalAlign: 'middle',
+                        fontSize: '18px',
+                      }"
+                    />
+                    {{ picture?.collectCount || 0 }}
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="Share" @click="addUserBehavior('2')">
+                  <a-button class="icon-button">
+                    <ShareAltOutlined />
+                    {{ picture?.shareCount || 0 }}
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="举报">
+                  <a-button class="icon-button" @click="handleReport">
+                    <SvgIcon name="report" />
+                  </a-button>
+                </a-tooltip>
+                <!-- v-if="picture?.moreInfo?.applyType !== PictureApplyTypeEnum.PICTURE_APPLY_TYPE_0"-->
+                <a-tooltip>
+                  <template #title>
+                    <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                      使用 {{ picture?.moreInfo?.pointsNeed || 0 }} 积分查看原图<br />
+                      注意事项：<br />
+                      1. 当前资源仅供展示，可以使用积分查看图片原图，请勿直接商用；<br />
+                      2. 使用前请自行核实版权归属；<br />
+                      3. 平台不承担任何版权纠纷责任。<br />
+                      4. 如若存在侵权行为，请及时联系平台，我们会及时处理。<br />
+                    </div>
+                  </template>
+                  <a-button
+                    :loading="downloadPictureLoading"
+                    class="icon-button download-bounce"
+                    type="warn"
+                    @click="downloadPicture"
+                  >
+                    <template #icon>
+                      <SvgIcon name="viewPicture" />
+                    </template>
+                    <span style="font-size: 16px; padding-left: 8px; color: green">{{
+                      picture?.moreInfo?.pointsNeed || 0
+                    }}</span>
+                    <span style="font-size: 16px; padding-left: 8px">积分看原图</span>
+                  </a-button>
+                </a-tooltip>
+                <!--            <a-tooltip v-else>
+                              <template #title>
+                                <div style="max-width: 350px; padding: 8px; font-size: 14px; line-height: 1.6">
+                                  使用 {{ picture?.moreInfo?.priceNeed || 0 }} 元购买原图<br />
+                                  注意事项：<br />
+                                  1. 当前资源作者拥有原图信息；<br />
+                                  2. 如果存在版权纠纷，请联系平台，平台会为您联系作者，作者会及时处理；<br />
+                                  3. 平台不承担任何版权纠纷责任。<br />
+                                  4. 如若版权虚假，存在侵权行为，请及时联系平台，我们会及时处理。<br />
+                                </div>
+                              </template>
+                              <a-button
+                                :loading="buyPictureLoading"
+                                class="icon-button download-bounce"
+                                type="warn"
+                                @click="buyPicture"
+                              >
+                                <template #icon>
+                                  <SvgIcon name="download" />
+                                </template>
+                                <span style="font-size: 16px; padding-left: 8px; color: green">
+                                  {{ picture?.moreInfo?.priceNeed || 0 }}
+                                </span>
+                                <span>元</span>
+                              </a-button>
+                            </a-tooltip>-->
+              </a-space>
+            </a-card>
+          </a-col>
+
+          <a-col :xs="24" :md="12">
+            <!-- 图片信息 -->
+            <a-card title="" :bordered="false" class="card animate-fade-in-left">
+              <div class="title-block">
+                <h1 class="picture-name">{{ picture.name }}</h1>
+                <TextView :text="picture.introduction || '作者没有抒写他的故事哦'" :max-lines="8" />
+              </div>
+            </a-card>
+          </a-col>
+          <a-col :xs="24" :md="12">
+            <!-- 图片信息 -->
+            <a-card title="" :bordered="false" class="card animate-fade-in-right">
+              <a-descriptions title="图片信息" :column="{ xs: 2, sm: 1, md: 2 }">
+                <a-descriptions-item label="分类">{{ picture.categoryName }}</a-descriptions-item>
+                <a-descriptions-item label="空间">{{ picture.spaceName }}</a-descriptions-item>
+                <a-descriptions-item label="格式">{{ picture.picFormat }}</a-descriptions-item>
+                <a-descriptions-item label="体积"
+                  >{{ formatSize(picture.picSize || 0) }}
+                </a-descriptions-item>
+                <a-descriptions-item label="尺寸"
+                  >{{ picture.picWidth }} * {{ picture.picHeight }}
+                </a-descriptions-item>
+                <a-descriptions-item label="比例">{{ picture.picScale }}</a-descriptions-item>
+                <a-descriptions-item label="发布时间"
+                  >{{ picture?.publishTime }}
+                </a-descriptions-item>
+              </a-descriptions>
+              <Tags
+                v-if="picture?.pictureTags"
+                :values="picture?.pictureTags"
+                :colors="['pink', 'pink', 'orange', 'green', 'cyan', 'blue', 'purple']"
+              />
+            </a-card>
+          </a-col>
+        </a-row>
       </a-col>
     </a-row>
     <VerticalFallLayout
@@ -623,6 +641,7 @@ getPictureInfo()
     gap: 16px;
 
     .card {
+      min-height: 280px;
       width: 100%;
       background-color: rgba(211, 211, 211, 0.25);
     }
@@ -636,6 +655,10 @@ getPictureInfo()
     }
 
     .action-card {
+      min-height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: start;
       .icon-button {
         display: flex;
         align-items: center;
@@ -656,6 +679,8 @@ getPictureInfo()
     }
 
     .author-card {
+      min-height: 90px;
+
       .nickname {
         font-size: 16px;
         font-weight: 600;
@@ -713,6 +738,63 @@ getPictureInfo()
   }
   75% {
     transform: translateY(-6px); // 二次弹跳
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft 1s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight 1s ease-out forwards;
+  opacity: 0;
+}
+
+.content-paragraph p {
+  text-indent: 2em;
+}
+
+.content-paragraph h3,
+.content-paragraph ul,
+.content-paragraph ol,
+.content-paragraph div {
+  text-indent: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 </style>

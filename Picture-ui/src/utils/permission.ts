@@ -118,8 +118,8 @@ export function checkSpaceEditor(spaceId: string): boolean {
  */
 export function checkSpacePerm(perm: string): boolean {
   try {
-    console.log('检查权限：', perm)
-    console.log('已加载权限：', spacePerm.getSpacePerms())
+    // console.log('检查权限：', perm)
+    // console.log('已加载权限：', spacePerm.getSpacePerms())
     return spacePerm.getSpacePerms().includes(perm)
   } catch {
     console.warn('权限未加载，暂时拒绝访问')
