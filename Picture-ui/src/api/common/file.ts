@@ -69,6 +69,18 @@ export function pictureDownload(pictureId: string): Promise<API.ResponseInfo<Blo
   })
 }
 
+export function pictureDownloadByMy(pictureId: string): Promise<API.ResponseInfo<Blob>> {
+  return request({
+    url: '/picture/file/download/my/' + pictureId,
+    headers: {
+      repeatSubmit: false,
+    },
+    responseType: 'blob',
+    method: 'get',
+    timeout: 60000,
+  })
+}
+
 export function pictureDownloadByLog(downloadId: string): Promise<API.ResponseInfo<Blob>> {
   return request({
     url: '/picture/file/download/log/' + downloadId,
@@ -95,6 +107,16 @@ export function getPictureOriginalLogInfoByLog(
 ): Promise<API.ResponseInfo<PictureDownloadVo>> {
   return request({
     url: '/picture/file/log/original/' + downloadId,
+    method: 'get',
+  })
+}
+
+
+export function getPictureOriginByMy(
+  pictureId: string,
+): Promise<API.ResponseInfo<PictureDownloadVo>> {
+  return request({
+    url: '/picture/file/original/my/' + pictureId,
     method: 'get',
   })
 }

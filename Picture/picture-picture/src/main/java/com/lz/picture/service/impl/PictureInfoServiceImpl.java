@@ -53,6 +53,7 @@ import com.lz.user.model.vo.userInfo.UserVo;
 import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.executor.BatchResult;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -127,10 +128,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private IPictureDownloadLogInfoService pictureDownloadLogInfoService;
-
-    @Resource
-    @Lazy
-    private ISpaceMemberInfoService spaceMemberInfoService;
 
     @Resource
     private SpaceAuthUtils spaceAuthUtils;
@@ -316,6 +313,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             return Collections.emptyList();
         }
         return pictureInfoList.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public PictureInfo selectPictureInfoNormalByPictureId(String pictureId) {
+        return this.getOne(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getPictureId, pictureId).eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
     }
 
     @Override
@@ -1138,9 +1140,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         List<PictureInfo> pictureInfos = this.list(new LambdaQueryWrapper<PictureInfo>()
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .in(PictureInfo::getPictureId, List.of(pictureIds)));
+        if (StringUtils.isEmpty(pictureInfos)) {
+            return 0;
+        }
         //获取当前用户
         String userId = UserInfoSecurityUtils.getUserId();
         Date nowDate = DateUtils.getNowDate();
+        //新建一个map，spaceId-SpaceInfo
+        Map<String, SpaceInfo> spaceInfoMap = new HashMap<>();
         //判断是否图片是自己的
         pictureInfos.forEach(pictureInfo -> {
             ThrowUtils.throwIf(!pictureInfo.getUserId().equals(userId), StringUtils.format("图片不存在或您不是作者:{}", pictureInfo.getName()));
@@ -1149,8 +1156,35 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureInfo.setDeletedTime(nowDate);
             this.deletePictureTableCacheBySpaceId(pictureInfo.getSpaceId());
             this.deletePictureTableCacheByUserId(pictureInfo.getUserId());
+            if (!spaceInfoMap.containsKey(pictureInfo.getSpaceId())) {
+                SpaceInfo spaceInfo = new SpaceInfo();
+                spaceInfo.setTotalCount(1L);
+                spaceInfo.setTotalSize(pictureInfo.getPicSize());
+                spaceInfo.setSpaceId(pictureInfo.getSpaceId());
+                spaceInfoMap.put(pictureInfo.getSpaceId(), spaceInfo);
+            } else {
+                spaceInfoMap.get(pictureInfo.getSpaceId()).setTotalCount(spaceInfoMap.get(pictureInfo.getSpaceId()).getTotalCount() + 1);
+            }
         });
-        return this.updateBatchById(pictureInfos) ? 1 : 0;
+        //如果没有空间直接返回
+        if (StringUtils.isEmpty(spaceInfoMap)) {
+            List<BatchResult> batchResults = pictureInfoMapper.insertOrUpdate(pictureInfos);
+            return StringUtils.isNotEmpty(batchResults) ? 1 : 0;
+        }
+        //从map中获取所有的空间编号
+        List<String> spaceIds = spaceInfoMap.values().stream().map(SpaceInfo::getSpaceId).toList();
+        List<SpaceInfo> spaceInfos = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>().in(SpaceInfo::getSpaceId, spaceIds));
+        //批量更新空间信息，从map里面拿出来
+        spaceInfos.forEach(spaceInfo -> {
+            SpaceInfo info = spaceInfoMap.get(spaceInfo.getSpaceId());
+            spaceInfo.setTotalSize(spaceInfo.getTotalSize() - info.getTotalSize());
+            spaceInfo.setTotalCount(spaceInfo.getTotalCount() - info.getTotalCount());
+        });
+        Integer execute = transactionTemplate.execute(res -> {
+            spaceInfoService.updateBatchById(spaceInfos);
+            return StringUtils.isNotEmpty(pictureInfoMapper.insertOrUpdate(pictureInfos)) ? 1 : 0;
+        });
+        return execute != null ? execute : 0;
     }
 
     @Override
@@ -1341,6 +1375,21 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         PictureInfoDto pictureInfoDto = PictureInfoDto.objToDto(pictureInfo);
         pictureInfoDto.setPictureMoreInfo(pictureMoreInfo);
         return pictureInfoDto;
+    }
+
+    @Override
+    public PictureInfoDto verifyPictureInfoByMy(String pictureId, String userId) {
+        PictureInfo pictureInfo = this.selectNormalPictureInfoByPictureId(pictureId);
+        ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), "图片不存在");
+        //判断图片1、是否存在，2、是否是作者，如果不是是否是正常，如果也不是判断是否不是空间成员，如果都false判断是否删除
+        ThrowUtils.throwIf(((
+                        !pictureInfo.getUserId().equals(userId)
+                                && pictureInfo.getPictureStatus().equals(PSpaceStatusEnum.SPACE_STATUS_1.getValue())
+                                && !spaceAuthUtils.checkUserJoinSpace(pictureInfo.getSpaceId())
+                )
+                        || pictureInfo.getIsDelete().equals(CommonDeleteEnum.DELETED.getValue())),
+                "图片不存在");
+        return PictureInfoDto.objToDto(pictureInfo);
     }
 
     private PictureInfo executeDownloadPicture(String pictureId, String userId, PictureInfo pictureInfo, Long totalPoints, String downloadType) {

@@ -99,4 +99,10 @@ public class UserSpaceInfoController extends BaseUserInfoController {
     public AjaxResult getPerm() {
         return success(spaceAuthUtils.getSpaceMemberPerm());
     }
+
+    @PreAuthorize("@uss.hasPermi('space:member')")
+    @GetMapping("/space")
+    public AjaxResult getSpace() {
+        return success(spaceAuthUtils.getUserJoinSpace());
+    }
 }

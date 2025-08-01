@@ -114,6 +114,17 @@ export function checkSpaceEditor(spaceId: string): boolean {
 }
 
 /**
+ * 判断是否可以查看
+ */
+export function checkSpaceJoin(spaceId: string): boolean {
+  return checkSpacePermsAny([
+    buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_1),
+    buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0),
+    buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_2),
+  ])
+}
+
+/**
  * 检查是否有指定空间权限
  */
 export function checkSpacePerm(perm: string): boolean {

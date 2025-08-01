@@ -155,6 +155,18 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     PictureInfoDto verifyPictureInfo(String pictureId, String userId, String downloadType);
 
     /**
+     * 用户自己下载图片
+     *
+     * @param pictureId 图片编号
+     * @param userId    用户编号
+     * @return PictureInfoDto
+     * @author: YY
+     * @method: verifyPictureInfoByMy
+     * @date: 2025/8/1 22:49
+     **/
+    PictureInfoDto verifyPictureInfoByMy(String pictureId, String userId);
+
+    /**
      * 用户根据自己下载记录校验图片
      *
      * @param pictureDownloadLogInfoRequest 图片下载记录信息
@@ -288,4 +300,9 @@ public interface IPictureInfoService extends IService<PictureInfo> {
 
     //获取图片总数
     Long getPictureCountByPictureStatus(String pictureStatus, String isDelete);
+
+    /**
+     * 获取未删除图片
+     */
+    PictureInfo selectPictureInfoNormalByPictureId(String pictureId);
 }

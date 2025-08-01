@@ -161,27 +161,42 @@
 
           <!-- 操作列 -->
           <template v-if="column.dataIndex === 'action'">
-            <a-space>
-              <a
+            <a-space-compact>
+              <a-button
                 @click="handleOpenApply(record.pictureId)"
-                v-if="record.pictureStatus !== '0' && checkPermiSingle('picture:upload:apply')"
-                >公开</a
-              >
-              <a @click="handleUpdate(record.pictureId)" v-if="checkPermiSingle('picture:upload')"
-                >修改</a
-              >
-              <a @click="viewDetail(record)" v-if="checkPermiSingle('picture:upload:detail')"
-                >查看</a
-              >
-              <a-popconfirm
-                title="确定要删除这条记录吗?"
-                ok-text="是"
-                cancel-text="否"
-                @confirm="handleDelete(record)"
-              >
-                <a class="text-red-500">删除</a>
-              </a-popconfirm>
-            </a-space>
+                v-if="checkPermiSingle('picture:upload:apply')"
+                >查看
+              </a-button>
+              <a-dropdown placement="bottomRight" :trigger="['click']">
+                <a-button>操作</a-button>
+                <template #overlay>
+                  <a-menu>
+                    <a-menu-item>
+                      <a-popconfirm
+                        title="确定要删除这条记录吗?"
+                        ok-text="是"
+                        cancel-text="否"
+                        @confirm="handleDelete(record)"
+                      >
+                        <a class="text-red-500">删除</a>
+                      </a-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item
+                      @click="handleUpdate(record.pictureId)"
+                      v-if="checkPermiSingle('picture:upload')"
+                      >修改
+                    </a-menu-item>
+                    <a-menu-item
+                      @click="viewDetail(record)"
+                      v-if="checkPermiSingle('picture:upload:detail')"
+                      >公开
+                    </a-menu-item>
+                    <a-menu-item @click="getOriginalPicture(record)">原图</a-menu-item>
+                    <a-menu-item @click="downloadPicture(record)">下载</a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown>
+            </a-space-compact>
           </template>
         </template>
       </a-table>
@@ -312,6 +327,23 @@
         </div>
       </a-form>
     </a-modal>
+
+    <a-modal v-model:open="openOriginal" :footer="null" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          LZ-Picture
+          <a-tooltip title="感谢您使用本平台，如果觉得不错可以在关于我们请平台工作人员喝杯咖啡">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <ImageView :src="originalPictureUrl" :width="600" />
+      <div class="form-footer">
+        <a-button @click="openOriginal = false" style="">关闭</a-button>
+      </div>
+    </a-modal>
   </div>
 </template>
 <script setup lang="ts">
@@ -327,7 +359,7 @@ import {
   QuestionCircleOutlined,
 } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
-import type { PictureInfoQuery } from '@/types/picture/picture'
+import type { PictureInfoQuery, PictureInfoTableVo } from '@/types/picture/picture'
 import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
 import type {
@@ -346,6 +378,9 @@ import CoverUpload from '@/components/CoverUpload.vue'
 import FileUpload from '@/components/FileUpload.vue'
 import { addPictureApplyInfo } from '@/api/picture/pictureApplyInfo.ts'
 import dayjs from 'dayjs'
+import { getPictureOriginByMy } from '@/api/common/file.ts'
+import ImageView from '@/components/ImageView.vue'
+import { downloadImageByMy } from '@/utils/file.ts'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status, p_picture_apply_type } = proxy?.useDict(
@@ -440,7 +475,7 @@ const columns = [
   { title: '状态', dataIndex: 'pictureStatus', width: 100 },
   { title: '标签', dataIndex: 'tags' },
   { title: '创建时间', dataIndex: 'createTime', sorter: true, width: 180 },
-  { title: '操作', dataIndex: 'action', width: 180 },
+  { title: '操作', dataIndex: 'action', width: 100 },
 ]
 
 // 多选相关
@@ -655,6 +690,50 @@ const handleUpdate = (id: string) => {
   })
   window.open(routeData.href, '_blank')
 }
+
+//region 原图
+const downloadPictureLoading = ref(false)
+const originalPictureUrl = ref('')
+const openOriginal = ref(false)
+//下载
+const getOriginalPicture = async (record: PictureInfoTableVo) => {
+  try {
+    // console.log('下载', record)
+    message.success('获取图片资源中...', 3)
+    message.info('请不要刷新页面', 3)
+    downloadPictureLoading.value = true
+    const res = await getPictureOriginByMy(record.pictureId)
+    // message.success('图片查看有效时间五分钟，如果图片路径失效，请点击重置URL', 5)
+    if (res.code === 200) {
+      openOriginal.value = true
+      originalPictureUrl.value = res.data.pictureUrl || ''
+    }
+  } catch (e) {
+    console.log(e)
+  } finally {
+    downloadPictureLoading.value = false
+  }
+}
+
+const downloadPicture = async (record: PictureInfoTableVo) => {
+  if (originalPictureUrl.value !== '') {
+    openOriginal.value = true
+    return
+  }
+  try {
+    downloadPictureLoading.value = true
+    message.success('获取图片资源中...', 3)
+    message.info('请不要刷新页面', 3)
+    await downloadImageByMy(
+      record.pictureId,
+      record.name + '_' + dayjs(record.createTime) + '.' + record.picFormat,
+    )
+    message.success('资源获取成功，如果觉得不错可以在关于我们请平台工作人员喝杯咖啡', 3)
+  } finally {
+    downloadPictureLoading.value = false
+  }
+}
+//endregion
 
 getMySpaceList()
 getPictureCategoryList()

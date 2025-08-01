@@ -204,6 +204,51 @@ public class UserFileController extends BaseUserInfoController {
     }
 
     /**
+     * 用户自己下载图片
+     *
+     * @param pictureId 图片id
+     * @param response  响应
+     */
+    @PreAuthorize("@uss.hasPermi('picture:download')")
+    @GetMapping("/download/my/{pictureId}")
+    public void downloadPictureByMy(@PathVariable("pictureId") String pictureId, HttpServletResponse response) {
+        try {
+            // 校验图片
+            PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfoByMy(pictureId, getUserId());
+            String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+
+            response.reset();
+            response.setContentType("application/octet-stream");
+            String fileName = FileUtils.getName(pictureInfo.getPictureUrl());
+            response.setCharacterEncoding(Constants.UTF8);
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+
+            // 打开 URL 作为输入流
+            try (InputStream inputStream = new URL(url).openStream();
+                 OutputStream out = response.getOutputStream()) {
+
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = inputStream.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                }
+                out.flush();
+            }
+        } catch (Exception e) {
+            try {
+                response.reset(); // 清除之前的响应头和内容
+//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 设置状态码
+                response.setContentType("application/json"); // 设置响应类型为 JSON
+                response.setCharacterEncoding("UTF-8");
+                AjaxResult error = error(e.getMessage());
+                response.getWriter().write(JSON.toJSONString(error)); // 写入错误信息
+            } catch (IOException ioEx) {
+                log.error("写入错误响应失败", ioEx);
+            }
+        }
+    }
+
+    /**
      * 用户下载图片
      *
      * @param downloadId 图片下载记录编号
@@ -262,6 +307,17 @@ public class UserFileController extends BaseUserInfoController {
         PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfo(pictureId, getUserId(), PDownloadTypeEnum.DOWNLOAD_TYPE_0.getValue());
         String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
         return success(new PictureDownloadVo(pictureId, url, pictureInfo.getPictureMoreInfo().getPointsNeed(), pictureInfo.getPictureMoreInfo().getPriceNeed()));
+    }
+
+    /**
+     * 用户自己查看原图，获取原图链接
+     */
+    @GetMapping("/original/my/{pictureId}")
+    public AjaxResult getOriginalPictureByMy(@PathVariable("pictureId") String pictureId) {
+        // 校验图片
+        PictureInfoDto pictureInfo = pictureInfoService.verifyPictureInfoByMy(pictureId, getUserId());
+        String url = pictureDownloadManager.generateDownloadUrl(pictureInfo.getPictureUrl(), 5L);
+        return success(new PictureDownloadVo(pictureId, url, null, null));
     }
 
     /**

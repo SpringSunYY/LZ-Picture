@@ -282,7 +282,7 @@ const columns = [
   { title: '创建时间', dataIndex: 'createTime', width: 140, sorter: true },
   { title: '更新时间', dataIndex: 'updateTime', width: 140 },
   { title: '最后上传时间', dataIndex: 'lastUpdateTime', width: 140, sorter: true },
-  { title: '操作', dataIndex: 'action', width: 140 },
+  { title: '操作', dataIndex: 'action', width: 100 },
 ]
 
 const getSpaceList = () => {
