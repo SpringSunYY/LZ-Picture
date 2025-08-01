@@ -107,8 +107,7 @@ const formatPictureListByRow = () => {
     const r = pic.picWidth / pic.picHeight
     const estimatedWidth = r * baseHeight
     if (estimatedWidth < minWidth) {
-      pic.picWidth = minWidth // 强制宽度
-      pic.picHeight = minWidth / r // 按比例缩放
+      continue // 丢掉太瘦图
     }
 
     tempRow.push(pic)
