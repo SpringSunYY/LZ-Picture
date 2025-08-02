@@ -1,10 +1,13 @@
 <template>
   <div class="image-wrapper">
     <img :src="src" :alt="alt" loading="lazy" class="image" />
-
     <!-- 悬停时显示的蒙版 + 文字 -->
     <div class="hover-mask">
-      <div class="hover-content">{{ alt }}</div>
+      <div class="hover-content">
+        <slot>
+          {{ alt }}
+        </slot>
+      </div>
     </div>
   </div>
 </template>

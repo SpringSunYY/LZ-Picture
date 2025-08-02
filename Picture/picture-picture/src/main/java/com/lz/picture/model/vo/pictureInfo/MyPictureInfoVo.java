@@ -43,6 +43,11 @@ public class MyPictureInfoVo implements Serializable {
     private String categoryId;
 
     /**
+     * 空间编号
+     */
+    private String spaceId;
+
+    /**
      * 图片体积
      */
     private Long picSize;

@@ -251,6 +251,9 @@ export interface MyPictureInfoVo {
    */
   categoryId: string
 
+  /** 空间编号 */
+  spaceId: string
+
   /**
    * 图片体积
    */
@@ -317,18 +320,17 @@ export interface PictureInfoSearchRecommendVo {
  */
 export interface PictureDownloadVo {
   /** 图片编号 */
-  pictureId: string;
+  pictureId: string
 
   /** 图片URL */
-  pictureUrl: string;
+  pictureUrl: string
 
   /** 所需积分 */
-  pointsNeed: number;
+  pointsNeed: number
 
   /** 所需金额 */
-  priceNeed: BigDecimal;
+  priceNeed: BigDecimal
 }
-
 
 /**
  * 用户推荐的图片信息 VO（前端对应类）

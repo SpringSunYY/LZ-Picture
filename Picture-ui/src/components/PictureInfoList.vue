@@ -10,41 +10,76 @@
         :md="6"
         :lg="6"
       >
-        <div class="picture-card">
-          <img
-            class="picture-image"
-            :src="picture?.thumbnailUrl"
-            @click="goDetail(picture.pictureId)"
-            :alt="picture.name"
-          />
-          <div class="picture-info">
-            <h3 class="title">{{ picture.name }}</h3>
-            <a-space class="meta" :wrap="true" direction="horizontal">
-              <span>{{ formatSize(picture.picSize) }}</span>
-              <a-divider type="vertical" />
-              <Tags
-                :values="[getPictureStatusLabel(picture.pictureStatus)]"
-                :colors="['#0084ff']"
-              />
+        <!--        <div class="picture-card">-->
+        <!--          <img-->
+        <!--            class="picture-image"-->
+        <!--            :src="picture?.thumbnailUrl"-->
+        <!--            @click="goDetail(picture.pictureId)"-->
+        <!--            :alt="picture.name"-->
+        <!--          />-->
+        <!--          <div class="picture-info">-->
+        <!--            <h3 class="title">{{ picture.name }}</h3>-->
+        <!--            <a-space class="meta" :wrap="true" direction="horizontal">-->
+        <!--              <span>{{ formatSize(picture.picSize) }}</span>-->
+        <!--              <a-divider type="vertical" />-->
+        <!--              <Tags-->
+        <!--                :values="[getPictureStatusLabel(picture.pictureStatus)]"-->
+        <!--                :colors="['#0084ff']"-->
+        <!--              />-->
 
-              <a-button
-                v-if="checkUser(picture.userId) && checkPermiSingle('picture:upload')"
-                style="float: right"
-                type="primary"
-                size="small"
-                @click="handleUpdate(picture.pictureId)"
-              >
-                修改
-              </a-button>
-            </a-space>
+        <!--              <a-button-->
+        <!--                v-if="checkUser(picture.userId) && checkPermiSingle('picture:upload')"-->
+        <!--                style="float: right"-->
+        <!--                type="primary"-->
+        <!--                size="small"-->
+        <!--                @click="handleUpdate(picture.pictureId)"-->
+        <!--              >-->
+        <!--                修改-->
+        <!--              </a-button>-->
+        <!--            </a-space>-->
+        <!--          </div>-->
+        <!--        </div>-->
+        <MasonryImage
+          :src="picture?.thumbnailUrl"
+          @click="goDetail(picture.pictureId)"
+          :alt="picture.name"
+          class="picture-card"
+        >
+          <div class="picture-info">
+            <div>
+              <a-space class="meta" :wrap="true" direction="horizontal">
+                <h3 class="title">{{ picture.name }}</h3>
+                <h3 class="title">{{ picture.picFormat }}</h3>
+              </a-space>
+            </div>
+            <div>
+              <a-space class="meta" :wrap="true" direction="horizontal">
+                <span>{{ formatSize(picture.picSize) }}</span>
+                <span>{{ picture.picWidth }} * {{ picture.picHeight }}</span>
+                <a-divider type="vertical" />
+                <dict-tag :options="p_picture_status" :value="picture.pictureStatus" />
+                <a-button
+                  v-if="
+                    (checkUser(picture.userId) && checkPermiSingle('picture:upload')) ||
+                    (checkSpaceEditor(picture.spaceId) && checkPermiSingle('picture:upload'))
+                  "
+                  style="float: right"
+                  type="primary"
+                  size="small"
+                  @click="handleUpdate(picture.pictureId)"
+                >
+                  修改
+                </a-button>
+              </a-space>
+            </div>
           </div>
-        </div>
+        </MasonryImage>
       </a-col>
     </a-row>
 
     <div v-if="pictureTotal > 12" style="text-align: center; margin-top: 20px; margin-bottom: 10px">
       <a-pagination
-        v-model:current="current"
+        :current="pictureQuery.pageNum"
         :pageSize="pictureQuery.pageSize"
         show-quick-jumper
         :total="pictureTotal"
@@ -54,63 +89,59 @@
           }
         "
         :showSizeChanger="true"
-        @change="onChange"
-        @showSizeChange="onShowSizeChange"
+        @change="onPageChange"
         :pageSizeOptions="['12', '24', '48', '96']"
       />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
-import { ref, watchEffect } from 'vue'
+import { checkPermiSingle, checkSpaceEditor, checkUser } from '@/utils/permission.ts'
+import { getCurrentInstance, ref, watch, watchEffect } from 'vue'
 import type { MyPictureInfoVo, PictureInfoQuery } from '@/types/picture/picture.d.ts'
-import { getPictureStatusLabel } from '@/types/picture/picture.d.ts'
 import { listMyPictureInfo } from '@/api/picture/picture.ts'
 import { formatSize } from '@/utils/common.ts'
-import Tags from '@/components/Tags.vue'
 import { useRouter } from 'vue-router'
+import MasonryImage from '@/components/MasonryImage.vue'
+import DictTag from '@/components/DictTag.vue'
 
+const instance = getCurrentInstance()
+const proxy = instance?.proxy
+const { p_picture_status } = proxy?.useDict('p_picture_status')
 const props = defineProps({
   currentParentId: {
     type: String,
-    default: ''
+    default: '',
   },
   spaceId: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 const pictureList = ref<MyPictureInfoVo[]>([]) // 图片
 const pictureQuery = ref<PictureInfoQuery>({
   pageNum: 1,
-  pageSize: 12
+  pageSize: 12,
 })
-const current = ref(1)
 const pictureTotal = ref(1)
 // 路由跳转
 const router = useRouter()
 const goDetail = (pictureId: string) => {
   const routeData = router.resolve({
     path: '/pictureDetail',
-    query: { pictureId }
+    query: { pictureId },
   })
   window.open(routeData.href, '_blank')
 }
 
-// 分页器每页条数变化回调
-const onShowSizeChange = (currentPage: number, size: number) => {
-  pictureQuery.value.pageSize = size
-  pictureQuery.value.pageNum = 1 // 切换条数后重置到第一页
-  current.value = 1
-  getPictureInfoList()
-}
-
-// 修改现有 onChange 方法保持页码同步
-const onChange = (pageNumber: number) => {
-  current.value = pageNumber
-  pictureQuery.value.pageNum = pageNumber
+const onPageChange = (page: number, pageSize: number) => {
+  console.log('change 页码:', page, pageSize)
+  pictureQuery.value.pageNum = page
+  if (pageSize !== pictureQuery.value.pageSize) {
+    pictureQuery.value.pageNum = 1
+  }
+  pictureQuery.value.pageSize = pageSize
   getPictureInfoList()
 }
 
@@ -136,20 +167,25 @@ const getPictureInfoList = () => {
 const handleUpdate = (id: string) => {
   const routeData = router.resolve({
     path: '/picture/pictureEdit',
-    query: { pictureId: id }
+    query: { pictureId: id },
   })
   window.open(routeData.href, '_blank')
 }
 
-watchEffect(() => {
-  if (props.currentParentId|| props.spaceId) {
+watch(
+  [() => props.currentParentId, () => props.spaceId],
+  ([newCurrentParentId, newSpaceId], [oldCurrentParentId, oldSpaceId]) => {
+    console.log('Prop changed:', { newCurrentParentId, newSpaceId, oldCurrentParentId, oldSpaceId })
+    pictureQuery.value.pageNum = 1
     getPictureInfoList()
-  }
-})
+  },
+)
+
+getPictureInfoList()
 
 // getPictureInfoList()
 defineExpose({
-  refreshData: getPictureInfoList
+  refreshData: getPictureInfoList,
 })
 </script>
 
@@ -175,13 +211,15 @@ defineExpose({
       background-position: center;
     }
 
-    .picture-image{
+    .picture-image {
       width: 100%;
       height: 160px;
       object-fit: cover;
     }
+
     .picture-info {
       padding: 16px;
+      color: white;
 
       .title {
         margin: 0;
@@ -189,7 +227,7 @@ defineExpose({
       }
 
       .meta {
-        color: rgba(0, 0, 0, 0.45);
+        color: white;
         font-size: 12px;
       }
     }

@@ -1,21 +1,20 @@
 <template>
   <div class="space-folder">
     <a-page-header class="folder-header" :title="'空间文件夹管理'" @back="goBack">
-      <template #breadcrumb>
-        <a-breadcrumb>
-          <a-breadcrumb-item @click="goToLevel(0)" style="cursor: pointer">
-            根目录
-          </a-breadcrumb-item>
-          <a-breadcrumb-item
-            v-for="(item, index) in folderPathStack"
-            :key="item.folderId"
-            @click="goToLevel(index + 1)"
-            style="cursor: pointer"
-          >
-            {{ item.folderName }}
-          </a-breadcrumb-item>
-        </a-breadcrumb>
-      </template>
+      <!-- 将面包屑放在标题下方 -->
+      <a-breadcrumb class="folder-breadcrumb" style="margin: 8px 0">
+        <a-breadcrumb-item @click="goToLevel(0)" style="cursor: pointer">
+          根目录
+        </a-breadcrumb-item>
+        <a-breadcrumb-item
+          v-for="(item, index) in folderPathStack"
+          :key="item.folderId"
+          @click="goToLevel(index + 1)"
+          style="cursor: pointer"
+        >
+          {{ item.folderName }}
+        </a-breadcrumb-item>
+      </a-breadcrumb>
     </a-page-header>
 
     <!-- 文件夹展示 -->
@@ -49,7 +48,15 @@
         </a-row>
       </a-col>
 
-      <a-col :xs="24" :sm="9" :md="6" :lg="3" class="folder-item add-folder" @click="handleAdd">
+      <a-col
+        :xs="24"
+        :sm="9"
+        :md="6"
+        :lg="3"
+        class="folder-item add-folder"
+        @click="handleAdd"
+        v-if="checkSpaceJoin(spaceId)"
+      >
         <FolderAddTwoTone class="icon" />
         <div class="text">添加文件夹</div>
       </a-col>
@@ -60,6 +67,7 @@
         :lg="3"
         class="folder-item add-folder"
         @click="handleBatchUpload"
+        v-if="checkSpaceJoin(spaceId)"
       >
         <ToTopOutlined class="icon" />
         <div class="text">批量上传图片</div>
@@ -188,7 +196,7 @@ import PictureBatchUpload from '@/components/PictureBatchUpload.vue'
 import type { PictureFileResponse } from '@/types/file'
 import { addPictureInfo } from '@/api/picture/picture.ts'
 import { PPictureStatus } from '@/types/picture/picture.d.ts'
-import { checkSpaceEditor, checkUser } from '@/utils/permission.ts'
+import { checkSpaceEditor, checkSpaceJoin, checkUser } from '@/utils/permission.ts'
 import { spacePerm } from '@/stores/modules/space.ts'
 
 interface Folder {
