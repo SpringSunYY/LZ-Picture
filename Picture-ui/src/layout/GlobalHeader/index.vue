@@ -59,7 +59,7 @@
               <div class="user-avatar" @click="showDrawer">
                 <a-avatar
                   :size="36"
-                  :src="avatar != '' ? formatDnsUrl(avatar) : '/src/assets/images/avatar.jpg'"
+                  :src="avatar != '' ? formatDnsUrl(avatar) : '../assets/images/avatar.jpg'"
                 />
               </div>
               <template #overlay>
@@ -88,7 +88,7 @@
           <a-dropdown>
             <a-space align="center">
               <a-avatar
-                :src="avatar != '' ? formatDnsUrl(avatar) : '/src/assets/images/avatar.jpg'"
+                :src="avatar != '' ? formatDnsUrl(avatar) : '../assets/images/avatar.jpg'"
                 size="large"
               />
               <div>
