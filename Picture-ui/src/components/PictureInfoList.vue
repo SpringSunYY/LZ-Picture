@@ -6,39 +6,10 @@
         v-for="picture in pictureList"
         :key="picture.pictureId"
         :xs="24"
-        :sm="6"
-        :md="6"
+        :sm="12"
+        :md="12"
         :lg="6"
       >
-        <!--        <div class="picture-card">-->
-        <!--          <img-->
-        <!--            class="picture-image"-->
-        <!--            :src="picture?.thumbnailUrl"-->
-        <!--            @click="goDetail(picture.pictureId)"-->
-        <!--            :alt="picture.name"-->
-        <!--          />-->
-        <!--          <div class="picture-info">-->
-        <!--            <h3 class="title">{{ picture.name }}</h3>-->
-        <!--            <a-space class="meta" :wrap="true" direction="horizontal">-->
-        <!--              <span>{{ formatSize(picture.picSize) }}</span>-->
-        <!--              <a-divider type="vertical" />-->
-        <!--              <Tags-->
-        <!--                :values="[getPictureStatusLabel(picture.pictureStatus)]"-->
-        <!--                :colors="['#0084ff']"-->
-        <!--              />-->
-
-        <!--              <a-button-->
-        <!--                v-if="checkUser(picture.userId) && checkPermiSingle('picture:upload')"-->
-        <!--                style="float: right"-->
-        <!--                type="primary"-->
-        <!--                size="small"-->
-        <!--                @click="handleUpdate(picture.pictureId)"-->
-        <!--              >-->
-        <!--                修改-->
-        <!--              </a-button>-->
-        <!--            </a-space>-->
-        <!--          </div>-->
-        <!--        </div>-->
         <MasonryImage
           :src="picture?.thumbnailUrl"
           @click="goDetail(picture.pictureId)"
@@ -63,10 +34,10 @@
                     (checkUser(picture.userId) && checkPermiSingle('picture:upload')) ||
                     (checkSpaceEditor(picture.spaceId) && checkPermiSingle('picture:upload'))
                   "
-                  style="float: right"
+                  style="pointer-events: auto"
                   type="primary"
                   size="small"
-                  @click="handleUpdate(picture.pictureId)"
+                  @click.stop="handleUpdate(picture.pictureId)"
                 >
                   修改
                 </a-button>

@@ -1,15 +1,18 @@
 package com.lz.picture.utils;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lz.common.constant.Constants;
 import com.lz.common.core.redis.RedisCache;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.StringUtils;
+import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.domain.SpaceMemberInfo;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.service.ISpaceInfoService;
 import com.lz.picture.service.ISpaceMemberInfoService;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -39,8 +42,7 @@ public class SpaceAuthUtils {
     public static final String SPACE_MEMBER_INFO_KEY_USER = "picture:space:user:space:";
 
     // 令牌有效期（默认30分钟）
-    @Value("${token.user.expireTime}")
-    private int expireTime;
+    private static final int expireTime = 60 * 30;
 
     /**
      * 获取空间成员权限
@@ -188,7 +190,15 @@ public class SpaceAuthUtils {
             return redisCache.getCacheObject(key);
         }
         List<SpaceMemberInfo> spaceMemberInfos = spaceMemberInfoService.selectSpaceMemberInfoByUserId(userId);
+        List<SpaceInfo> spaceInfos = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>()
+                .eq(SpaceInfo::getUserId, userId)
+                .eq(SpaceInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .eq(SpaceInfo::getSpaceType, PSpaceTypeEnum.SPACE_TYPE_2.getValue()));
+        //查询自己私有的
         Set<String> collect = spaceMemberInfos.stream().map(SpaceMemberInfo::getSpaceId).collect(Collectors.toSet());
+        for (SpaceInfo spaceInfo : spaceInfos) {
+            collect.add(spaceInfo.getSpaceId());
+        }
         redisCache.setCacheObject(key, collect, expireTime, TimeUnit.MINUTES);
         return collect;
     }

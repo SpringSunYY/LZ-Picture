@@ -26,10 +26,6 @@ public class PictureInfoEdit implements Serializable {
      */
     private String pictureId;
 
-    /**
-     * 图片URL
-     */
-    private String pictureUrl;
 
     /**
      * 域名URL
@@ -70,11 +66,6 @@ public class PictureInfoEdit implements Serializable {
      * 图片格式
      */
     private String picFormat;
-
-    /**
-     * 上传用户编号
-     */
-    private String userId;
 
     /**
      * 图片状态（0公共 1私有）

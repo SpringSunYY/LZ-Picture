@@ -429,7 +429,7 @@ getFolderList()
   margin: 0 auto;
 
   .folder-header {
-    background-color: #fff;
+    //background-color: #fff;
   }
 
   .folder-container {
@@ -437,15 +437,16 @@ getFolderList()
     flex-wrap: wrap;
     gap: 24px;
     padding: 10px;
-    background-color: #fff;
+
     border-radius: 6px;
     //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .folder-item {
+    background-color: #fff;
     width: 130px;
     border-radius: 8px;
-    background-color: #f5f5f5;
+    //background-color: #f5f5f5;
     text-align: center;
     cursor: pointer;
     transition: background-color 0.3s;

@@ -1,5 +1,5 @@
 <template>
-  <div class="image-wrapper">
+  <div class="image-wrapper" @click="$emit('click', $event)">
     <img :src="src" :alt="alt" loading="lazy" class="image" />
     <!-- 悬停时显示的蒙版 + 文字 -->
     <div class="hover-mask">
@@ -17,6 +17,8 @@ defineProps({
   src: String,
   alt: String,
 })
+
+defineEmits(['click'])
 </script>
 
 <style lang="scss" scoped>
@@ -67,3 +69,4 @@ defineProps({
   pointer-events: none;
 }
 </style>
+

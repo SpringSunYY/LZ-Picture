@@ -13,32 +13,33 @@
     <a-row v-else :gutter="[24, 24]">
       <a-col v-for="space in spaceList" :key="space.spaceId" :xs="24" :sm="12" :md="8" :lg="6">
         <div class="space-card">
-          <img
+          <MasonryImage
             class="cover-image"
             @click="goDetail(space.spaceId)"
             :src="space.spaceAvatar"
             :alt="space.spaceName"
-          />
-          <div class="space-info">
-            <h3 class="title">{{ space.spaceName }}</h3>
-            <div class="meta">
-              <span>{{ formatSize(space?.totalSize ?? 0) }}</span>
-              <a-divider type="vertical" />
-              <span>{{ space.totalCount }}个文件</span>
-              <a-divider type="vertical" />
-              <dict-tag :options="p_space_status" :value="space?.spaceStatus" />
-              <dict-tag :options="p_space_type" :value="space?.spaceType" />
-              <a-button
-                v-if="checkUser(space.userId ?? '') && checkPermiSingle('picture:space:update')"
-                style="float: right"
-                type="primary"
-                @click="handleUpdate(space.spaceId)"
-                size="small"
-              >
-                修改
-              </a-button>
+          >
+            <div class="space-info">
+              <h3 class="title">{{ space.spaceName }}</h3>
+              <div class="meta">
+                <span>{{ formatSize(space?.totalSize ?? 0) }}</span>
+                <a-divider type="vertical" />
+                <span>{{ space.totalCount }}个文件</span>
+                <a-divider type="vertical" />
+                <dict-tag :options="p_space_status" :value="space?.spaceStatus" />
+                <dict-tag :options="p_space_type" :value="space?.spaceType" />
+                <a-button
+                  v-if="checkUser(space.userId ?? '') && checkPermiSingle('picture:space:update')"
+                  style="pointer-events: auto"
+                  type="primary"
+                  @click.stop="handleUpdate(space.spaceId)"
+                  size="small"
+                >
+                  修改
+                </a-button>
+              </div>
             </div>
-          </div>
+          </MasonryImage>
         </div>
       </a-col>
       <a-col :xs="24" :sm="12" :md="8" :lg="6">
@@ -142,6 +143,7 @@ import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
 import PictureInfoList from '@/components/PictureInfoList.vue'
 import DictTag from '@/components/DictTag.vue'
+import MasonryImage from '@/components/MasonryImage.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -220,7 +222,6 @@ const handleSubmit = () => {
   }
 }
 const handleUpdate = (spaceId: string) => {
-  // console.log(spaceId)
   resetForm()
   title.value = '修改空间'
   getSpaceInfo(spaceId).then((res) => {
@@ -231,7 +232,7 @@ const handleUpdate = (spaceId: string) => {
 const getMySpaceList = () => {
   // 获取我的空间列表
   mySpaceInfo(spaceQuery).then((res) => {
-      spaceList.value = res?.rows || []
+    spaceList.value = res?.rows || []
   })
 }
 const pictureInfoListRef = ref()
@@ -342,7 +343,7 @@ getMySpaceList()
 
     .cover-image {
       width: 100%;
-      height: 160px;
+      height: 300px;
       object-fit: cover;
     }
 
@@ -355,7 +356,7 @@ getMySpaceList()
       }
 
       .meta {
-        color: rgba(0, 0, 0, 0.45);
+        color: rgba(255, 255, 255, 0.45);
         font-size: 12px;
       }
     }
