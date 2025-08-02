@@ -61,6 +61,7 @@ LZ-Picture遵循现代多层架构：
    - 缓存每个单词统一使用：分割，最后一个使用：Constants.COMMON_SEPARATOR_CACHE公共字段拼接所需内容，因为自定义缓存是有自动添加COMMON_SEPARATOR_CACHE的
    - 首个单词必须为每个模块的模块名，比如ai，命名为：ai:ai:....
    - 注意：如果是若依自带的，缓存默认会加上：sys_config
+   - 缓存缓存时间统一为秒
 
 2. ### 后端
 

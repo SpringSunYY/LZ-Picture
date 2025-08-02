@@ -561,7 +561,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                     userPictureDetailInfoVo.setIsCollect(true);
                 }
             }
-            redisCache.setCacheObject(behaviorKey, userBehaviorInfoCaches, PICTURE_USER_BEHAVIOR_EXPIRE_TIME, TimeUnit.MINUTES);
+            redisCache.setCacheObject(behaviorKey, userBehaviorInfoCaches, PICTURE_USER_BEHAVIOR_EXPIRE_TIME, TimeUnit.SECONDS);
         }
     }
 

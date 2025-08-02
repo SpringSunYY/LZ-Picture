@@ -63,7 +63,7 @@ public class SpaceAuthUtils {
         for (SpaceMemberInfo spaceMemberInfo : spaceMemberInfoList) {
             hashSet.add(spaceMemberInfo.getUserId() + ":" + spaceMemberInfo.getSpaceId() + ":" + spaceMemberInfo.getRoleType());
         }
-        redisCache.setCacheObject(key, hashSet, expireTime, TimeUnit.MINUTES);
+        redisCache.setCacheObject(key, hashSet, expireTime, TimeUnit.SECONDS);
         return hashSet;
     }
 
@@ -199,7 +199,7 @@ public class SpaceAuthUtils {
         for (SpaceInfo spaceInfo : spaceInfos) {
             collect.add(spaceInfo.getSpaceId());
         }
-        redisCache.setCacheObject(key, collect, expireTime, TimeUnit.MINUTES);
+        redisCache.setCacheObject(key, collect, expireTime, TimeUnit.SECONDS);
         return collect;
     }
 
