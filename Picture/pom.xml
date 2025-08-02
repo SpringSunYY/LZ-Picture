@@ -233,6 +233,7 @@
                 <version>${aliyun.sdk.version}</version>
             </dependency>
             <!--   阿里云OSS    -->
+            <!--https://help.aliyun.com/zh/oss/img-implementation-modes?spm=5176.8465980.console-base_help.dexternal.4e7014507a8b5P&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%4044686.S_RQW%40ag0%2BBB2%40ag0%2BBB1%40ag0%2Bhot%2Bos0.ID_44686-RL_%E5%9B%BE%E7%89%87%E5%A4%84%E7%90%86-LOC_console~UND~help-OR_ser-PAR1_2150447b17541232784584893e714b-V_4-P0_1-P1_0-->
             <dependency>
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
