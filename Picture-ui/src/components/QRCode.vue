@@ -34,7 +34,7 @@ const props = defineProps({
     type: Number,
   },
   iconPath: {
-    default: '/src/assets/logo.svg',
+    default: '../assets/logo.svg',
     type: String,
   },
 })
