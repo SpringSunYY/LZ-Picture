@@ -30,12 +30,12 @@
               </template>
             </a-dropdown>
             <div style="margin-top: 10px"></div>
-<!--            <div @click="clickInform">-->
-<!--              <SvgIcon name="inform" size="1.5em" />-->
-<!--            </div>-->
-<!--            <div @click="clickPoints">-->
-<!--              <SvgIcon name="pointsBlue" size="1.2em" />-->
-<!--            </div>-->
+            <!--            <div @click="clickInform">-->
+            <!--              <SvgIcon name="inform" size="1.5em" />-->
+            <!--            </div>-->
+            <!--            <div @click="clickPoints">-->
+            <!--              <SvgIcon name="pointsBlue" size="1.2em" />-->
+            <!--            </div>-->
           </div>
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
@@ -65,8 +65,6 @@ import { generateMenu, toMenu } from '@/router/permisson.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
 import { LogoutOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
-import SvgIcon from '@/components/SvgIcon.vue'
-import TextView from '@/components/TextView.vue'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
@@ -76,11 +74,6 @@ const router = useRouter()
 // 当前选中菜单
 const current = ref<string[]>([])
 
-// 监听路由变化，更新当前选中菜单
-router.afterEach((to) => {
-  current.value = [to.name as string]
-})
-
 const doMenuClick = (route: RouteRecordRaw) => {
   if (isMobile.value) {
     menuVisible.value = false
@@ -89,12 +82,17 @@ const doMenuClick = (route: RouteRecordRaw) => {
 }
 onMounted(() => {
   if (router.currentRoute.value.name === 'toAi') {
-    router.push({ name: 'ai' })
+    router.push({ name: 'aiDiscover' })
+    return
   }
   if (userStore.token) {
     userName.value = userStore.userName
     avatar.value = userStore.avatar
   }
+})
+// 监听路由变化，更新当前选中菜单
+router.afterEach((to) => {
+  current.value = [to.name as string]
 })
 // 动态生成菜单项
 const items = computed(() => {

@@ -260,7 +260,7 @@ export const constantRoutes: RouteRecordRaw[] = [
 export const aiRouteConstants: RouteRecordRaw[] = [
   {
     path: '/ai',
-    name: 'ai',
+    name: 'aiDiscover',
     component: () => import('@/views/ai/index.vue'),
     meta: {
       title: '发现',

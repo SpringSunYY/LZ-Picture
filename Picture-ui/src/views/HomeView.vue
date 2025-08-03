@@ -50,6 +50,7 @@
     <!--    </div>-->
     <Picture ref="pictureRef" />
     <NoticeWindows />
+    <AiInput/>
   </div>
 </template>
 <script setup lang="ts" name="HomeView">
@@ -65,6 +66,7 @@ import type {
   PictureInfoSearchSuggestionVo,
 } from '@/types/picture/picture'
 import NoticeWindows from '@/components/NoticeWindows.vue'
+import AiInput from '@/components/AiInput.vue'
 
 const searchHistoryName = ref<string>('pictureHistory')
 
