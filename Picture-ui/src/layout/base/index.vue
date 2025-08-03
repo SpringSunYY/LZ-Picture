@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import GlobalHeader from '@/layout/GlobalHeader/index.vue'
+import GlobalHeader from '@/layout/base/GlobalHeader/index.vue'
 import BackToUp from '@/components/BackToUp.vue'
 
 // 控制顶部和底部显隐

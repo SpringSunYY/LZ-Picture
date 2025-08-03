@@ -15,6 +15,11 @@ const whiteList = [
   '/user/register',
   '/user/smsLogin',
   '/user/forgetPassword',
+  '/toAi',
+  '/ai',
+  '/ai/index',
+  '/ai/generate',
+  '/ai/assets',
   '/about',
   '/git',
   '/pictureDetail',
@@ -109,7 +114,9 @@ export const checkRouteHidden = (
   const permissionStore = usePermissionStore()
 
   if (route.meta?.isHidden) return true
-  if (route.meta?.menuAddress !== undefined && route.meta?.menuAddress !== menuAddress) return true
+    // 如果路由有 redirect 属性，则不检查 menuAddress
+  if (!route.redirect && route.meta?.menuAddress !== undefined && route.meta?.menuAddress !== menuAddress)
+    return true
 
   const parentPath = route.path.split('/').slice(0, -1).join('/') || '/'
   if (parentPath === route.path) return false

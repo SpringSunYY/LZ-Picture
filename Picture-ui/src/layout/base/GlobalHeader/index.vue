@@ -4,7 +4,7 @@
       <a-col>
         <RouterLink to="/">
           <div class="title-bar">
-            <img class="logo" src="@/assets/logo.svg" alt="logo" />
+            <img class="logo" src="../../../assets/logo.svg" alt="logo" />
             <div class="title" v-if="!isMobile">LZ-Picture</div>
           </div>
         </RouterLink>
@@ -117,10 +117,10 @@ import { computed, onMounted, ref } from 'vue'
 import { LogoutOutlined, MenuOutlined, NotificationOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
-import useUserStore from '@/stores/modules/user.js'
+import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import usePermissionStore from '@/stores/modules/permission.ts'
-import SideRight from '@/layout/SideRight.vue'
+import SideRight from '@/layout/base/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
 import { generateMenu, toMenu } from '@/router/permisson.ts'

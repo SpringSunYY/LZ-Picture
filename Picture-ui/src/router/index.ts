@@ -15,6 +15,21 @@ export const constantRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/toAi',
+    name: 'toAi',
+    component: () => import('@/layout/ai/index.vue'), // 直接指定组件
+    meta: {
+      title: '荔枝AI',
+      cacheKey: 'ai',
+      fullPage: true,
+      isHidden: false,
+      isCache: true,
+      icon: 'ai',
+      menuAddress: '2', // 设置为 '4' 以便在相应菜单中显示
+      isFrame: true,
+    },
+  },
+  {
     path: '/pictureQuery',
     name: 'pictureQuery',
     component: () => import('@/views/picture/picture/pictureQuery.vue'),
@@ -162,7 +177,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       cacheKey: 'noticeDetail',
       isHidden: true,
       isCache: false,
-    }
+    },
   },
   {
     path: '/points/payment',
@@ -241,6 +256,48 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/404.vue'),
   },
 ]
+//AI路由
+export const aiRouteConstants: RouteRecordRaw[] = [
+  {
+    path: '/ai',
+    name: 'ai',
+    component: () => import('@/views/ai/index.vue'),
+    meta: {
+      title: '发现',
+      cacheKey: 'discover',
+      isHidden: false,
+      isCache: true,
+      icon: 'discover',
+      menuAddress: '4',
+    },
+  },
+  {
+    path: '/ai/generate',
+    name: 'aiGenerate',
+    component: () => import('@/views/ai/generate.vue'),
+    meta: {
+      title: '生成图片',
+      cacheKey: 'generate',
+      isHidden: false,
+      isCache: true,
+      icon: 'generate',
+      menuAddress: '4',
+    },
+  },
+  {
+    path: '/ai/assets',
+    name: 'aiAssets',
+    component: () => import('@/views/ai/assets.vue'),
+    meta: {
+      title: '资产',
+      cacheKey: 'assets',
+      isHidden: false,
+      isCache: true,
+      icon: 'assets',
+      menuAddress: '4',
+    },
+  },
+]
 // 最后添加的路由
 export const lastRouteConstants: RouteRecordRaw[] = [
   {
@@ -261,7 +318,7 @@ export const lastRouteConstants: RouteRecordRaw[] = [
 // 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
-  routes: [...constantRoutes, ...lastRouteConstants],
+  routes: [...constantRoutes, ...aiRouteConstants, ...lastRouteConstants],
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { top: 0 }
   },

@@ -1,4 +1,4 @@
-import { constantRoutes, lastRouteConstants } from '@/router'
+import { aiRouteConstants, constantRoutes, lastRouteConstants } from '@/router'
 import { getMenuInfo } from '@/api/user/menu'
 import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
@@ -11,19 +11,21 @@ interface PermissionState {
   routes: RouteRecordRaw[]
   lastRoutes: RouteRecordRaw[]
   addRoutes: RouteRecordRaw[]
+  aiRoutes: RouteRecordRaw[]
 }
 
 const usePermissionStore = defineStore('permission', {
   state: (): PermissionState => ({
-    routes: [...constantRoutes, ...lastRouteConstants],
+    routes: [...constantRoutes, ...aiRouteConstants, ...lastRouteConstants],
     lastRoutes: lastRouteConstants,
+    aiRoutes: aiRouteConstants,
     addRoutes: [],
   }),
   actions: {
     setRoutes(routes: RouteRecordRaw[]) {
       this.addRoutes = routes
       // console.log('constantRoutes', this.addRoutes)
-      this.routes = constantRoutes.concat(routes).concat(this.lastRoutes)
+      this.routes = constantRoutes.concat(this.aiRoutes).concat(routes).concat(this.lastRoutes)
     },
     getAddRoutes() {
       return this.addRoutes
@@ -32,7 +34,7 @@ const usePermissionStore = defineStore('permission', {
       return this.routes
     },
     removeRoutes() {
-      this.routes = constantRoutes.concat(this.lastRoutes)
+      this.routes = constantRoutes.concat(this.aiRoutes).concat(this.lastRoutes)
     },
     async generateRoutes(): Promise<RouteRecordRaw[]> {
       const res = await getMenuInfo()
@@ -40,7 +42,7 @@ const usePermissionStore = defineStore('permission', {
       // 递归转换路由结构
       // @ts-ignore
       const transformRoutes = (routes, parentPath = '') => {
-         // @ts-ignore
+        // @ts-ignore
         return routes.map((route) => {
           // 拼接完整路径
           const currentPath = route.path.startsWith('/')
