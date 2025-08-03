@@ -1,5 +1,6 @@
 package com.lz.points;
 
+import com.alipay.api.AlipayApiException;
 import com.lz.points.manager.AlipayManager;
 import com.lz.points.manager.model.AlipayPcPaymentRequest;
 import com.lz.points.manager.model.AlipayPcPaymentResponse;
@@ -32,7 +33,12 @@ public class AlipayTest {
         alipayPcPaymentRequest.setTimeoutExpress("10m");
         alipayPcPaymentRequest.setProductCode("FAST_INSTANT_TRADE_PAY");
 
-        AlipayPcPaymentResponse alipayPcPaymentResponse = alipayManager.pcPay(alipayPcPaymentRequest);
+        AlipayPcPaymentResponse alipayPcPaymentResponse = null;
+        try {
+            alipayPcPaymentResponse = alipayManager.pcPay(alipayPcPaymentRequest);
+        } catch (AlipayApiException e) {
+            throw new RuntimeException(e);
+        }
         System.err.println("alipayPcPaymentResponse = " + alipayPcPaymentResponse);
     }
 }
