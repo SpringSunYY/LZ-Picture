@@ -310,6 +310,19 @@ export const aiRouteConstants: RouteRecordRaw[] = [
       menuAddress: '4',
     },
   },
+  {
+    path: '/ai/detail',
+    name: 'aiDetail',
+    component: () => import('@/views/ai/detail.vue'),
+    meta: {
+      title: '资产详情',
+      cacheKey: 'detail',
+      isHidden: false,
+      isCache: false,
+      icon: 'detail',
+      menuAddress: '4',
+    }
+  }
 ]
 // 最后添加的路由
 export const lastRouteConstants: RouteRecordRaw[] = [
