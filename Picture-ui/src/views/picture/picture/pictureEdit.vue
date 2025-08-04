@@ -50,17 +50,12 @@
           <a-col :span="24">
             <!-- 图片上传 -->
             <a-form-item label="图片文件" name="pictureUrl">
-              <PictureUpload
+              <ImageView
                 ref="pictureUpload"
                 v-if="editOpen"
-                :modelValue="formState.pictureUrl"
-                v-model:value="formState.pictureUrl"
-                :allowedFormats="['image/jpeg', 'image/png']"
-                :maxSizeMB="50"
-                :maxCount="1"
-                @upload-success="handleSuccess"
-                :isEdit="true"
-                :is-delete="true"
+                :src="formState.pictureUrl"
+                :width="500"
+                :alt="formState.name"
               />
               <PictureOutPainting
                 v-if="externalOpen && checkPermiSingle('picture:ai:outPainting:createTask')"
@@ -183,7 +178,6 @@
 <script setup lang="ts" name="PictureEdit">
 import { h, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import PictureUpload from '@/components/PictureUpload.vue'
 import {
   PCategoryStatusEnum,
   type PictureCategoryInfoQuery,
@@ -206,6 +200,7 @@ import PictureOutPainting from '@/components/PictureOutPainting.vue'
 import type { PictureFileResponse } from '@/types/file'
 import { findPathById } from '@/utils/common.ts'
 import { checkPermiSingle } from '@/utils/permission.ts'
+import ImageView from '@/components/ImageView.vue'
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -231,13 +226,6 @@ const tagQuery = ref<PictureTagInfoQuery>({})
 const tagLoading = ref(false)
 
 const rules = {
-  pictureUrl: [
-    {
-      required: true,
-      message: '请选择图片',
-      trigger: 'change',
-    },
-  ],
   name: [
     {
       required: true,
@@ -259,15 +247,9 @@ const rules = {
       trigger: 'change',
     },
   ],
-  pictureStatus: [
-    {
-      required: true,
-      message: '请选择图片状态',
-      trigger: 'change',
-    },
-  ],
 }
 const formState = reactive<PictureInfoUpdate>({
+  pictureId: '',
   pictureUrl: '',
   name: '',
   introduction: '',
@@ -275,36 +257,14 @@ const formState = reactive<PictureInfoUpdate>({
   spaceId: '',
   folderId: '',
   tags: [],
-  picSize: 0,
-  picHeight: 0,
-  picWidth: 0,
-  pictureStatus: '0',
-  picFormat: '',
-  picScale: 0,
 })
-const handleSuccess = (modelValue: any) => {
-  // 提交到后端或处理数据
-  formState.name = modelValue.name
-  formState.thumbnailUrl = modelValue.thumbnailUrl
-  formState.pictureUrl = modelValue.pictureUrl
-  formState.picWidth = modelValue.meta.width
-  formState.picHeight = modelValue.meta.height
-  formState.picScale = modelValue.meta.ratio
-  formState.picFormat = modelValue.meta.format
-  formState.picSize = modelValue.meta.size
-}
+
 const handleExternalSuccess = (moderValue: PictureFileResponse) => {
-  console.log(moderValue)
+  // console.log(moderValue)
   loading.value = true
-  console.log(loading.value)
+  // console.log(loading.value)
   message.success('正在更新...', 1.5)
-  formState.dnsUrl = moderValue.dnsUrl
-  formState.thumbnailUrl = moderValue.thumbnailUrl
   formState.pictureUrl = moderValue.url
-  formState.picWidth = moderValue.picWidth
-  formState.picHeight = moderValue.picHeight
-  formState.picScale = Number(moderValue.picScale.toFixed(2))
-  formState.picFormat = moderValue.picFormat
   updatePicture()
 }
 
@@ -322,7 +282,6 @@ const updatePicture = async () => {
     .then((res) => {
       if (res.code === 200) {
         message.success('修改成功')
-        Object.assign(formState, res.data)
       }
     })
     .finally(() => {
@@ -424,6 +383,7 @@ const getPictureInfo = () => {
   }
   getMyPictureDetailInfo(pictureId.value).then((res) => {
     Object.assign(formState, res.data)
+    formState.pictureId = res?.data?.pictureId || ''
     tagList.value = res?.data?.pictureTags?.map((item: string) => {
       return {
         name: item,

@@ -719,8 +719,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                             && !categoryInfo.getCategoryId().equals(pictureInfoDb.getCategoryId()),
                     HttpStatus.MOVED_PERM, "当前分类不可选择");
         }
-        //更新空间信息
-        spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize() - pictureInfoDb.getPicSize());
         Date updateTime = new Date();
         spaceInfo.setLastUpdateTime(updateTime);
         //判断当前空间是否到达最大值 官方空间没有限制
@@ -728,38 +726,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.MOVED_PERM);
         }
-        //根据图片域名信息去除域名
-        //判断空间是否是自定义存储
-        if (spaceInfo.getOssType().equals(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue())) {
-            //不是判断图片域名是否正确
-            if (pictureInfo.getPictureUrl().startsWith(OssConfig.getDnsUrl())) {
-                //删除图片传过来的域名前缀
-                pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().replace(OssConfig.getDnsUrl(), ""));
-            }
-            if (pictureInfo.getThumbnailUrl().startsWith(OssConfig.getDnsUrl())) {
-                //删除图片传过来的域名前缀
-                pictureInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl().replace(OssConfig.getDnsUrl(), ""));
-            }
-            pictureInfo.setDnsUrl(null);
-        } else {
-            //反之是用户自定义域名
-            //TODO 判断、删除域名前缀、添加域名
-            //删除路径参数
-            pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().split("\\?")[0]);
-        }
-        //删除路径参数
-        pictureInfo.setPictureUrl(pictureInfo.getPictureUrl().split("\\?")[0]);
-        //删除路径参数
-        pictureInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl().split("\\?")[0]);
-        // 计算宽高比例
-        double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
-        //保留小数点后1位
-        picScale = Double.parseDouble(String.format("%.1f", picScale));
-        pictureInfo.setPicScale(picScale);
-        pictureInfo.setUpdateTime(updateTime);
         pictureInfoMapper.updatePictureInfo(pictureInfo);
+        if (!pictureInfoDb.getSpaceId().equals(spaceInfo.getSpaceId())) {
+            //更新空间信息
+            spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize() - pictureInfoDb.getPicSize());
+            spaceInfoService.updateSpaceInfo(spaceInfo);
+        }
         //同步更新图片空间、标签、标签关联
-        implementPictureUpdate(pictureInfo, spaceInfo);
+        implementPictureUpdate(pictureInfo);
         //更新分类信息
         if (StringUtils.isNotEmpty(categoryInfo.getCategoryId())) {
             pictureCategoryInfoService.updatePictureCategoryInfo(categoryInfo.getCategoryId(), pictureInfoDb.getCategoryId());
@@ -771,16 +745,15 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     /**
-     * 更新标签、空间
+     * 更新标签、
      *
      * @param pictureInfo
-     * @param spaceInfo
      * @return void
      * @author YY
      * @method implementPictureUpdate
      * @date 2025/4/26 21:07
      **/
-    private void implementPictureUpdate(PictureInfo pictureInfo, SpaceInfo spaceInfo) {
+    private void implementPictureUpdate(PictureInfo pictureInfo) {
         //获取图片原有关联
         List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>()
                 .eq(PictureTagRelInfo::getPictureId, pictureInfo.getPictureId()));
@@ -879,8 +852,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 }
                 pictureTagRelInfos.add(rel);
             });
-            pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
-            return spaceInfoService.updateById(spaceInfo);
+            return pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
         });
     }
 

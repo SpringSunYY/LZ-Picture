@@ -184,7 +184,13 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
         }
         PictureCategoryInfo newCategory = selectPictureCategoryInfoByCategoryId(categoryId);
         newCategory.setUsageCount(newCategory.getUsageCount() + 1);
+        if (StringUtils.isEmpty(categoryIdOld)) {
+            return this.updateById(newCategory) ? 1 : 0;
+        }
         PictureCategoryInfo oldCategory = selectPictureCategoryInfoByCategoryId(categoryIdOld);
+        if (StringUtils.isNull(oldCategory)) {
+            return this.updateById(newCategory) ? 1 : 0;
+        }
         oldCategory.setUsageCount(oldCategory.getUsageCount() - 1);
         if (oldCategory.getUsageCount() < 0) {
             oldCategory.setUsageCount(0L);

@@ -29,21 +29,10 @@ public class UserPictureInfoUpdate implements Serializable {
     private String pictureId;
 
     /**
-     * 图片URL
-     */
-    @NotEmpty(message = "请先上传文件")
-    private String pictureUrl;
-
-    /**
      * 图片名称
      */
     @NotEmpty(message = "图片名称不能为空")
     private String name;
-
-    /**
-     * 域名URL
-     */
-    private String dnsUrl;
 
     /**
      * 简介
@@ -56,39 +45,6 @@ public class UserPictureInfoUpdate implements Serializable {
      */
     private String categoryId;
 
-    /**
-     * 图片体积（字节）
-     */
-    @NotNull(message = "图片体积不能为空")
-    private Long picSize;
-
-    /**
-     * 图片宽度
-     */
-    @NotNull(message = "图片宽度不能为空")
-    private Long picWidth;
-
-    /**
-     * 宽高比例
-     */
-    private Double picScale;
-
-    /**
-     * 图片高度
-     */
-    @NotNull(message = "图片高度不能为空")
-    private Long picHeight;
-
-
-    /**
-     * 图片格式
-     */
-    private String picFormat;
-
-    /**
-     * 缩略图URL
-     */
-    private String thumbnailUrl;
 
     /**
      * 所属空间编号
