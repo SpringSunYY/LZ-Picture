@@ -302,12 +302,11 @@ getMySpaceList()
 
   .add-card {
     border: 2px dashed #d9d9d9;
-    height: 224px;
+    height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-
     &:hover {
       border-color: #1890ff;
     }
@@ -329,7 +328,7 @@ getMySpaceList()
 
   .space-card {
     position: relative;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     transition: all 0.3s;
     cursor: pointer;
