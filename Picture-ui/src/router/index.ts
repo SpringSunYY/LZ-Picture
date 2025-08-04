@@ -20,7 +20,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: () => import('@/layout/ai/index.vue'), // 直接指定组件
     meta: {
       title: '荔枝AI',
-      cacheKey: 'ai',
+      cacheKey: 'toAi',
       fullPage: true,
       isHidden: false,
       isCache: true,
@@ -260,8 +260,21 @@ export const constantRoutes: RouteRecordRaw[] = [
 export const aiRouteConstants: RouteRecordRaw[] = [
   {
     path: '/ai',
-    name: 'aiDiscover',
+    name: 'ai',
     component: () => import('@/views/ai/index.vue'),
+    meta: {
+      title: '灵感',
+      cacheKey: 'ai',
+      isHidden: false,
+      isCache: true,
+      icon: 'inspiration',
+      menuAddress: '4',
+    },
+  },
+  {
+    path: '/ai/discover',
+    name: 'aiDiscover',
+    component: () => import('@/views/ai/discover.vue'),
     meta: {
       title: '发现',
       cacheKey: 'discover',

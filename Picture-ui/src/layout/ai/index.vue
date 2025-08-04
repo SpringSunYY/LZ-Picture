@@ -82,13 +82,14 @@ const doMenuClick = (route: RouteRecordRaw) => {
 }
 onMounted(() => {
   if (router.currentRoute.value.name === 'toAi') {
-    router.push({ name: 'aiDiscover' })
+    router.push({ name: 'ai' })
     return
   }
   if (userStore.token) {
     userName.value = userStore.userName
     avatar.value = userStore.avatar
   }
+  current.value = [router.currentRoute.value.name as string]
 })
 // 监听路由变化，更新当前选中菜单
 router.afterEach((to) => {
