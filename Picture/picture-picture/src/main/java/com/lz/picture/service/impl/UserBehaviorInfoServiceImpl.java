@@ -20,6 +20,7 @@ import com.lz.picture.model.enums.PUserBehaviorTargetTypeEnum;
 import com.lz.picture.model.enums.PUserBehaviorTypeEnum;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoStaticVo;
 import com.lz.picture.model.vo.userBehaviorInfo.UserBehaviorInfoVo;
+import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IUserBehaviorInfoService;
 import com.lz.picture.strategy.userBehaviorInfoStrategy.UserBehaviorInfoStrategyExecutor;
 import jakarta.annotation.Resource;

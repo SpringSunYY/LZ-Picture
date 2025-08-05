@@ -157,6 +157,11 @@ public class PictureStatisticsUtil {
             statisticsVo.setScore(pictureInfoStatisticsVo.getScore());
             resultMap.put(pictureInfo.getPictureId(), statisticsVo);
         }
+        //遍历resultMap，判断是否有的图片丢失，如果有，则直接删除，根据图片URL判断
+        resultMap.entrySet().removeIf(entry -> {
+            PictureInfoStatisticsVo value = entry.getValue();
+            return StringUtils.isNull(value) || StringUtils.isEmpty(value.getPictureStatus()) || value.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_1.getValue()) || StringUtils.isEmpty(value.getThumbnailUrl());
+        });
         return resultMap;
     }
 
@@ -220,13 +225,13 @@ public class PictureStatisticsUtil {
         //获取上周一周的开始时间，周日时间
         Date weekDay = DateUtils.getWeekDay(nowDate, -1, 1);
         Long weekDayNumber = DateUtils.getWeekDayNumber(weekDay, nowDate);
-        return key + COMMON_SEPARATOR_CACHE + weekDayNumber;
+        return key + COMMON_SEPARATOR_CACHE + DateUtils.parseDateToStr(DateUtils.YYYY, nowDate) + "-" + weekDayNumber;
     }
 
     public String getCurrentStatisticsWeekKey(String key, Date nowDate) {
         //获取到本周一的时间，本周日的时间
         Long weekDayNumber = DateUtils.getWeekDayNumber(nowDate, nowDate);
-        return key + COMMON_SEPARATOR_CACHE + weekDayNumber;
+        return key + COMMON_SEPARATOR_CACHE + DateUtils.parseDateToStr(DateUtils.YYYY, nowDate) + "-" + weekDayNumber;
     }
 
     private PictureStatisticsDto pictureStatisticsMonth(LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap, Date nowDate) {
@@ -431,7 +436,9 @@ public class PictureStatisticsUtil {
         // 2.1 首先从pictureMap里面查询图片信息，因为这里图片信息都是最新数据,然后再为这些数据重新赋值
         for (PictureInfoStatisticsVo statisticsVo : topNList) {
             PictureInfoStatisticsVo pictureInfo = statisticsMap.get(statisticsVo.getPictureId());
-            if (StringUtils.isNotNull(pictureInfo) && pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())) {
+            if (StringUtils.isNotNull(pictureInfo) &&
+                    pictureInfo.getPictureStatus() != null &&
+                    pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())) {
                 cacheList.add(statisticsVo);
                 sortedMap.put(statisticsVo.getPictureId(), statisticsVo);
             } else {
@@ -457,19 +464,31 @@ public class PictureStatisticsUtil {
                 break;
             }
         }
-        //5.查询到的图片更新至排序后的map
-        for (PictureInfo pictureInfo : pictureInfoList) {
-            PictureInfoStatisticsVo value = PictureInfoStatisticsVo.objToVo(pictureInfo);
-            //拿到分数
-            value.setScore(allMap.get(pictureInfo.getPictureId()).getScore());
-            sortedMap.put(pictureInfo.getPictureId(), value);
+        //5 转换结果集为map
+        Map<String, PictureInfo> pictureInfoMap = pictureInfoList.stream().collect(Collectors.toMap(PictureInfo::getPictureId, v -> v));
+        for (String pictureId : noDisposePictureIds) {
+            //获取到图片信息
+            PictureInfo pictureInfo = pictureInfoMap.get(pictureId);
+            PictureInfoStatisticsVo statisticsVo = sortedMap.get(pictureId);
+            //如果图片不存在，则表示该图片为私有或者删除
+            if (StringUtils.isNull(pictureInfo)) {
+                statisticsVo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
+                sortedMap.put(pictureId, statisticsVo);
+            }else {
+                PictureInfoStatisticsVo value = PictureInfoStatisticsVo.objToVo(pictureInfo);
+                //拿到分数
+                value.setScore(allMap.get(pictureInfo.getPictureId()).getScore());
+                sortedMap.put(pictureInfo.getPictureId(), value);
+            }
         }
         // 6. 构建返回结果
         List<PictureInfoStatisticsVo> resultCache = new ArrayList<>(needSize);
         //转换为List
         for (Map.Entry<String, PictureInfoStatisticsVo> entry : sortedMap.entrySet()) {
             PictureInfoStatisticsVo value = entry.getValue();
-            if (StringUtils.isNotEmpty(value.getPictureStatus()) && value.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue()) && resultCache.size() < needSize) {
+            if (StringUtils.isNotEmpty(value.getPictureStatus())
+                    && value.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                    && resultCache.size() < needSize) {
                 resultCache.add(value);
             }
         }
