@@ -64,8 +64,8 @@ public class JMApi {
 
     public static void main(String[] args) throws Exception {
         // 火山官网密钥信息, 注意sk结尾有==
-        String AccessKeyID = "AKLTNjE0MzdkZDA0YmU2NDEyMjhlM2E3MzA1NTRjMWIyZGY";
-        String SecretAccessKey = "TlRZME1EZzVPVGd6WWpFek5HSm1ZVGd6WmprNE1UaG1OalkwWVRJMVptVQ==";
+        String AccessKeyID = "";
+        String SecretAccessKey = "";
         // 请求域名
         String endpoint = "visual.volcengineapi.com";
         String path = "/"; // 路径，不包含 Query// 请求接口信息
