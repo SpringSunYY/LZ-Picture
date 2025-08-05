@@ -582,7 +582,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             return redisCache.getCacheObject(key);
         }
         UserPictureDetailInfoVo userPictureDetailInfoVo = new UserPictureDetailInfoVo();
-        PictureInfo pictureInfo = this.getById(pictureId);
+        PictureInfo pictureInfo = this.selectNormalPictureInfoByPictureId(pictureId);
         ThrowUtils.throwIf(StringUtils.isNull(pictureInfo), HttpStatus.NO_CONTENT, "图片不存在");
         //查询分类
         PictureCategoryInfo categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
