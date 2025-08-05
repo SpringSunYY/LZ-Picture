@@ -356,7 +356,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   min-width: 0; // 确保在小屏幕上能够正确收缩
-  padding-left: 32px;
+  padding-left: 2em;
 }
 
 .gallery-scroll-area {
@@ -428,7 +428,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 
 .generated-image {
   width: 100%;
-  height: 300px;
+  //height: 300px;
   object-fit: cover;
   display: block;
 }

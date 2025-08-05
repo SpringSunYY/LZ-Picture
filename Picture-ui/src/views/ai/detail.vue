@@ -88,9 +88,9 @@
         </div>
 
         <div class="action-buttons-bottom">
-          <GenerateButton class="main-button"/>
-          <ReferToButton class="secondary-button"/>
-          <DownloadButton class="download-button"/>
+          <GenerateButton class="main-button" />
+          <ReferToButton class="secondary-button" />
+          <DownloadButton class="download-button" />
         </div>
       </div>
     </main>
@@ -157,7 +157,6 @@ const openModal = () => {
 const closeModal = () => {
   isModalVisible.value = false
 }
-
 </script>
 
 <style lang="scss" scoped>
@@ -182,8 +181,9 @@ $content-padding: 5px; //详情内容边距
   min-height: 100vh;
   width: 100%;
   color: $text-color;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
-  sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -353,6 +353,7 @@ $content-padding: 5px; //详情内容边距
 
 .image-description-container {
   margin-bottom: $padding;
+
   .section-title {
     font-size: 0.8rem;
     //font-weight: 600;
@@ -424,9 +425,11 @@ $content-padding: 5px; //详情内容边距
     transition: background-color 0.2s;
     border: none;
   }
-  .download-button{
+
+  .download-button {
     background-color: $button-bg-color;
   }
+
   .main-button {
     background-color: $accent-color;
     color: $white;
@@ -518,8 +521,9 @@ $content-padding: 5px; //详情内容边距
 
 .fade-in-up-enter-active,
 .fade-in-up-leave-active {
-  transition: opacity 0.2s,
-  transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .fade-in-up-enter-from,
