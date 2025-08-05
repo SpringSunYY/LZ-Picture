@@ -158,27 +158,19 @@ const closeModal = () => {
   isModalVisible.value = false
 }
 
-const toggleMoreMenu = () => {
-  isMoreMenuVisible.value = !isMoreMenuVisible.value
-}
-
-const closeMoreMenu = () => {
-  isMoreMenuVisible.value = false
-}
 </script>
 
 <style lang="scss" scoped>
-// 全新浅色主题，严格还原你提供的图片
-$bg-color: #ffffff; // 页面背景
-$panel-bg-color: #ffffff; // 详情面板背景
-$image-bg-color: #eaeaea; //图片背景颜色
-$prompt-bg-color: #f6f7f9; // 提示词背景
-$text-color: #262626; // 主要文本颜色
-$secondary-text-color: #8c8c8c; // 次要文本颜色
-$accent-color: #1890ff; // 强调色，用于按钮
-$border-color: #f0f0f0; // 边框颜色
-$button-bg-color: #f5f5f5;
-$button-hover-bg: #e6e6e6;
+$bg-color: #18181b; // 页面背景
+$panel-bg-color: #1e1e1e; // 详情面板背景
+$image-bg-color: #333; //图片背景颜色
+$prompt-bg-color: #2c2c2c; // 提示词背景
+$text-color: #f0f0f0; // 主要文本颜色
+$secondary-text-color: #a9a9a9; // 次要文本颜色
+$accent-color: #1976d2; // 强调色，用于按钮
+$border-color: #424242; // 边框颜色
+$button-bg-color: #303030;
+$button-hover-bg: #424242;
 $white: #fff;
 $radius: 4px;
 $padding: 24px;
@@ -419,7 +411,6 @@ $content-padding: 5px; //详情内容边距
   border-top: 1px solid $border-color;
 
   .main-button,
-  download-button,
   .secondary-button {
     display: flex;
     align-items: center;
@@ -433,7 +424,9 @@ $content-padding: 5px; //详情内容边距
     transition: background-color 0.2s;
     border: none;
   }
-
+  .download-button{
+    background-color: $button-bg-color;
+  }
   .main-button {
     background-color: $accent-color;
     color: $white;
