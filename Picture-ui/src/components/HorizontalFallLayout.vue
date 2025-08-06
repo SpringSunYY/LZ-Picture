@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
   }
 
   .masonry-item {
-    border-radius: 6px;
+    border-radius: 12px;
     overflow: hidden;
     background: #f5f5f5;
     transition: all 0.3s;

@@ -1,22 +1,22 @@
 <template>
   <div class="ai">
     <div class="text-center">
-      <h1 class="text-4xl font-bold text-blue-500 p-3">
+      <h1 class="text-5xl font-bold text-white p-3">
         LZ-Picture，和我一起用AI打造属于我们的图片生态
       </h1>
     </div>
-    <SearchInput
-      class="container mx-auto p-4"
-      @search="searchSearch"
-      @clear-search="clearSearch"
-      @input="searchInput"
-      @search-by-recommend="searchByRecommend"
-      @search-by-suggestion="searchBySuggestion"
-      @search-by-history="searchByHistory"
-      :recommendationList="recommendationList"
-      :suggestionList="suggestionList"
-      :searchHistoryName="searchHistoryName"
-    ></SearchInput>
+<!--    <SearchInput-->
+<!--      class="container mx-auto p-4"-->
+<!--      @search="searchSearch"-->
+<!--      @clear-search="clearSearch"-->
+<!--      @input="searchInput"-->
+<!--      @search-by-recommend="searchByRecommend"-->
+<!--      @search-by-suggestion="searchBySuggestion"-->
+<!--      @search-by-history="searchByHistory"-->
+<!--      :recommendationList="recommendationList"-->
+<!--      :suggestionList="suggestionList"-->
+<!--      :searchHistoryName="searchHistoryName"-->
+<!--    ></SearchInput>-->
     <!-- Grid with proper spacing and responsive design -->
     <div style="margin-top: 20px"></div>
     <div class="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
@@ -64,6 +64,7 @@
     <Picture ref="pictureRef" />
     <NoticeWindows />
     <AiInput />
+    <BackToUp />
   </div>
 </template>
 <script setup lang="ts" name="HomeView">
@@ -81,6 +82,7 @@ import type {
 import NoticeWindows from '@/components/NoticeWindows.vue'
 import AiInput from '@/components/AiInput.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
+import BackToUp from '@/components/BackToUp.vue'
 
 const searchHistoryName = ref<string>('pictureHistory')
 
@@ -161,9 +163,10 @@ const getRecommendationList = () => {
 getRecommendationList()
 </script>
 <style scoped lang="scss">
+$dark-bg-color: #1f1f1f;
 .ai {
   margin: 0 auto;
-
+  background-color: $dark-bg-color;
   .text-center {
     padding-top: 50px;
   }
