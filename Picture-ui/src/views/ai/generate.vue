@@ -327,7 +327,7 @@ $color-text-primary: #f4f4f5;
 $color-text-secondary: #a1a1aa;
 $color-border: #3f3f46;
 $color-accent: #6366f1;
-$color-accent-hover: lighten($color-accent, 5%); // 使用SCSS函数处理颜色
+$color-accent-hover: color.adjust($color-accent, $lightness: 5%); // 使用SCSS函数处理颜色
 $color-hover: #2e2e32;
 $color-shadow: rgba(0, 0, 0, 0.4);
 
