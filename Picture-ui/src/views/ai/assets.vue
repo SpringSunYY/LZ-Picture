@@ -10,30 +10,28 @@
             <div v-for="group in galleryItems" :key="group.date" class="image-group">
               <h2 class="group-date">{{ group.date }}</h2>
               <div class="image-grid">
-                <div v-for="(item, itemIndex) in group.items" :key="itemIndex" class="list-item">
-                  <div class="list-item-grid-inner">
-                    <div
-                      v-for="(image, imgIndex) in item.images"
-                      :key="imgIndex"
-                      class="image-card"
-                      :class="{ selected: isImageSelected(item, imgIndex) }"
-                      @click="handleImageSelect(item, imgIndex)"
-                    >
-                      <img
-                        :src="image"
-                        :alt="item.prompt"
-                        class="generated-image"
-                        @click.stop="openFullscreen(image)"
-                      />
-                      <div class="image-card-overlay">
-                        <div class="overlay-text">{{ item.prompt }}</div>
-                        <div class="overlay-actions">
-                          <button class="overlay-button">再次生成</button>
-                        </div>
+                <template v-for="(item, itemIndex) in group.items" :key="itemIndex">
+                  <div
+                    v-for="(image, imgIndex) in item.images"
+                    :key="imgIndex"
+                    class="image-card"
+                    :class="{ selected: isImageSelected(item, imgIndex) }"
+                    @click="handleImageSelect(item, imgIndex)"
+                  >
+                    <img
+                      :src="image"
+                      :alt="item.prompt"
+                      class="generated-image"
+                      @click.stop="openFullscreen(image)"
+                    />
+                    <div class="image-card-overlay">
+                      <div class="overlay-text">{{ item.prompt }}</div>
+                      <div class="overlay-actions">
+                        <button class="overlay-button">再次生成</button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </template>
               </div>
             </div>
           </div>
@@ -126,7 +124,7 @@
         </div>
       </div>
     </transition>
-    <AiInput/>
+    <AiInput />
   </div>
 </template>
 
@@ -138,7 +136,7 @@ import GenerateButton from '@/components/GenerateButton.vue'
 import AiInput from '@/components/AiInput.vue'
 
 const USER_IMAGE_URL =
-  'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D'
+  'https://p3-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/873f7f47d5c44c24a83425b3aa59541a~tplv-tb4s082cfz-aigc_resize:360:360.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=FaH7lXW6wgGqMAIXOFvdQDSpYNc%3D'
 
 interface GalleryItem {
   id: number
@@ -184,7 +182,63 @@ const initialData: GalleryItem[] = [
   },
   {
     id: 5,
+    prompt: '复肖像,光影...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 6,
     prompt: '复古黑白肖像,光影...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 7,
+    prompt: '复古黑白肖像,光影...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: ['https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D', USER_IMAGE_URL],
+  },
+  {
+    id: 8,
+    prompt: '复古黑白肖像8,光影...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 9,
+    prompt: '复古黑白肖像9,光影...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 10,
+    prompt: '复古黑白肖像10,光影...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 11,
+    prompt: '复古黑白肖像,光影11...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 12,
+    prompt: '复古黑白肖像,光影12...',
+    version: '2.0',
+    date: new Date('2025-05-15T09:45:00'),
+    images: [USER_IMAGE_URL, USER_IMAGE_URL],
+  },
+  {
+    id: 13,
+    prompt: '复古黑白肖像,光影13...',
     version: '2.0',
     date: new Date('2025-05-15T09:45:00'),
     images: [USER_IMAGE_URL, USER_IMAGE_URL],
@@ -207,7 +261,7 @@ const loadMoreData = () => {
       ? new Date(lastItem.date.getTime() - 10 * 24 * 60 * 60 * 1000)
       : new Date()
 
-    const newItems = Array.from({ length: 5 }, (_, i) => {
+    const newItems = Array.from({ length: 8 }, (_, i) => {
       const newItemId = lastId + i + 1
       const newItemDate = new Date(newDate.getTime() - i * 24 * 60 * 60 * 1000)
       return {
@@ -382,6 +436,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 
 .image-group {
   margin-bottom: 32px;
+  padding-right: 16px;
 }
 
 .group-date {
@@ -393,12 +448,6 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 }
 
 .image-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.list-item-grid-inner {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
@@ -428,7 +477,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 
 .generated-image {
   width: 100%;
-  //height: 300px;
+  height: 300px;
   object-fit: cover;
   display: block;
 }
