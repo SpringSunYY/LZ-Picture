@@ -311,28 +311,28 @@ export const aiRouteConstants: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/ai/space',
-    name: 'aiSpace',
-    component: () => import('@/views/ai/space.vue'),
-    meta: {
-      title: '空间',
-      cacheKey: 'space',
-      isHidden: false,
-      isCache: true,
-      icon: 'aiSpace',
-      menuAddress: '4',
-    }
-  },
-  {
     path: '/ai/detail',
     name: 'aiDetail',
     component: () => import('@/views/ai/detail.vue'),
     meta: {
       title: '资产详情',
       cacheKey: 'detail',
-      isHidden: false,
+      isHidden: true,
       isCache: false,
       icon: 'detail',
+      menuAddress: '4',
+    }
+  },
+  {
+    path:'/ai/user',
+    name: 'aiUser',
+    component: () => import('@/views/ai/user.vue'),
+    meta: {
+      title: '用户信息',
+      cacheKey: 'user',
+      isHidden: true,
+      isCache: true,
+      icon: 'user',
       menuAddress: '4',
     }
   }

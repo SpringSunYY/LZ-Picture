@@ -12,7 +12,7 @@
           />
         </div>
         <div class="user">
-          <div class="user-info" v-if="userName">
+          <div class="user-info" v-if="userName" @click="clickUser">
             <a-dropdown>
               <div class="user-avatar">
                 <a-avatar
@@ -118,6 +118,12 @@ const clickInform = () => {
 const clickPoints = () => {
   router.push({
     name: 'Points',
+  })
+}
+//用户
+const clickUser = () => {
+  router.push({
+    name: 'aiUser',
   })
 }
 // 用户注销
@@ -241,8 +247,9 @@ $dark-menu-active-color: #003fb8;
   background-color: $dark-menu-hover-bg;
   color: $dark-text-primary;
 }
-:deep( .svg-icon){
-  color: $dark-text-secondary ;
+
+:deep(.svg-icon) {
+  color: $dark-text-secondary;
   width: 1.2em;
   height: 1.2em;
 }

@@ -130,9 +130,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import ReferToButton from '@/components/ReferToButton.vue'
-import DownloadButton from '@/components/DownloadButton.vue'
-import GenerateButton from '@/components/GenerateButton.vue'
+import ReferToButton from '@/components/button/ReferToButton.vue'
+import DownloadButton from '@/components/button/DownloadButton.vue'
+import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiInput from '@/components/AiInput.vue'
 
 const USER_IMAGE_URL =
