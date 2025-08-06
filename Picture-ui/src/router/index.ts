@@ -319,7 +319,7 @@ export const aiRouteConstants: RouteRecordRaw[] = [
       cacheKey: 'space',
       isHidden: false,
       isCache: true,
-      icon: 'space',
+      icon: 'aiSpace',
       menuAddress: '4',
     }
   },

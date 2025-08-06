@@ -140,18 +140,30 @@ const doLogout = async () => {
 //endregion
 </script>
 <style scoped lang="scss">
+// 深色主题颜色常量
+$dark-bg-color: #1f1f1f;
+$dark-bg-secondary: #27272a;
+$dark-text-primary: rgba(255, 255, 255, 0.85);
+$dark-text-secondary: rgba(255, 255, 255, 0.65);
+$dark-border-color: #303030;
+$dark-menu-selected-bg: #004898;
+$dark-menu-hover-bg: rgba(255, 255, 255, 0.08);
+$dark-menu-active-color: #003fb8;
+
 .navigate {
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
   width: 70px;
-  background-color: white;
+  background-color: $dark-bg-color;
   display: flex;
   flex-direction: column;
-  align-items: center; // 水平居中用
+  align-items: center;
   justify-content: space-between;
-  overflow: hidden; // 禁止溢出，确保子项不乱跑
+  overflow: hidden;
+  border-right: 1px solid $dark-border-color;
+
   .logo {
     width: 100%;
     height: 100px;
@@ -184,12 +196,54 @@ const doLogout = async () => {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px; // 图标和头像间距可调
+      gap: 8px;
     }
 
     .user-avatar {
       cursor: pointer;
     }
   }
+}
+
+/* 深色主题下的菜单样式 */
+:deep(.ant-menu) {
+  background: $dark-bg-color;
+  color: $dark-text-primary;
+}
+
+:deep(.ant-menu-item) {
+  color: $dark-text-secondary;
+}
+
+:deep(.ant-menu-item:hover) {
+  color: $dark-menu-active-color;
+  background-color: $dark-menu-hover-bg;
+}
+
+:deep(.ant-menu-item-selected) {
+  color: $dark-menu-active-color;
+  background-color: $dark-menu-selected-bg;
+}
+
+:deep(.ant-menu-item-selected:hover) {
+  background-color: $dark-menu-selected-bg;
+}
+
+:deep(.ant-dropdown-menu) {
+  background-color: $dark-bg-color;
+}
+
+:deep(.ant-dropdown-menu-item) {
+  color: $dark-text-secondary;
+}
+
+:deep(.ant-dropdown-menu-item:hover) {
+  background-color: $dark-menu-hover-bg;
+  color: $dark-text-primary;
+}
+:deep( .svg-icon){
+  color: $dark-text-secondary ;
+  width: 1.2em;
+  height: 1.2em;
 }
 </style>

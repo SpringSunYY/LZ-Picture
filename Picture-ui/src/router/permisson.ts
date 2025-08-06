@@ -49,8 +49,8 @@ router.beforeEach(async (to, from, next) => {
       // 在免登录白名单，直接进入
       return next()
     }
-    console.log('to.fullPath', to.fullPath)
-    console.log('encoded redirect:', encodeURIComponent(to.fullPath))
+    // console.log('to.fullPath', to.fullPath)
+    // console.log('encoded redirect:', encodeURIComponent(to.fullPath))
     return next({
       path: '/user/login',
       query: {
