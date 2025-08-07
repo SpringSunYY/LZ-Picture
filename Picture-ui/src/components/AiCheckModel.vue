@@ -1,0 +1,580 @@
+<template>
+  <div class="action-buttons">
+    <div class="left-buttons">
+      <div class="dropdown-wrapper" ref="imageGenDropdownRef">
+        <button class="action-button dropdown-toggle" @click.stop="toggleDropdown('imageGen')">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-image"
+          >
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+            <circle cx="9" cy="9" r="2" />
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+          </svg>
+          <span>{{ selectedImageOption }}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-down"
+            :class="{ rotated: showImageDropdown }"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        <ul v-if="showImageDropdown" class="dropdown-menu">
+          <li
+            v-for="option in imageGenOptions"
+            :key="option"
+            :class="{ 'is-selected': selectedImageOption === option }"
+            @click.stop="selectOption('imageGen', option)"
+          >
+            {{ option }}
+          </li>
+        </ul>
+      </div>
+      <div class="dropdown-wrapper" ref="imageModelDropdownRef">
+        <button
+          class="action-button dropdown-toggle model-button"
+          @click.stop="toggleDropdown('imageModel')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-image"
+          >
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+            <circle cx="9" cy="9" r="2" />
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+          </svg>
+          <div class="selected-models-container">
+            <template v-if="selectedModelOptions.length > 0">
+              <span
+                v-for="model in selectedModelOptions"
+                :key="model"
+                class="selected-model-tag"
+                @click.stop="toggleModelSelection(model)"
+              >
+                {{ model }}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-x model-remove-icon"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </span>
+            </template>
+            <span v-else class="placeholder-text">选择模型</span>
+          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-down"
+            :class="{ rotated: showModelDropdown }"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        <ul v-if="showModelDropdown" class="dropdown-menu">
+          <li
+            v-for="option in imageModelOptions"
+            :key="option.name"
+            :class="{ 'is-selected': selectedModelOptions.includes(option.name) }"
+            @click.stop="toggleModelSelection(option.name)"
+            :title="option.description"
+          >
+            {{ option.name }}
+          </li>
+        </ul>
+      </div>
+      <div class="dropdown-wrapper" ref="imageRatioDropdownRef">
+        <button class="action-button dropdown-toggle" @click.stop="toggleDropdown('imageRatio')">
+          <span>{{ selectedRatioDisplay }}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-down"
+            :class="{ rotated: showRatioDropdown }"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        <ul v-if="showRatioDropdown" class="dropdown-menu ratio-dropdown-menu">
+          <li
+            v-for="option in imageRatioOptions"
+            :key="option.label"
+            :class="{ 'is-selected': selectedRatioOption.label === option.label }"
+            @click.stop="selectRatio(option)"
+          >
+            <span>{{ option.label }}</span>
+            <span class="ratio-value">{{ option.width }}x{{ option.height }}</span>
+          </li>
+          <li class="custom-ratio-item">
+            <label>自定义:</label>
+            <div class="custom-ratio-inputs">
+              <input
+                type="number"
+                v-model.number="customWidth"
+                min="64"
+                max="4096"
+                placeholder="宽"
+                @click.stop
+              />
+              <span class="x-separator">×</span>
+              <input
+                type="number"
+                v-model.number="customHeight"
+                min="64"
+                max="4096"
+                placeholder="高"
+                @click.stop
+              />
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
+<script lang="ts" setup name="AiCheckModel">
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
+interface ImageRatioOption {
+  label: string
+  width?: number
+  height?: number
+}
+
+interface ImageModelOption {
+  name: string
+  description: string
+}
+
+const isMobile = ref(false)
+
+const checkIsMobile = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+const inputContainerRef = ref<HTMLElement | null>(null)
+
+// 新增下拉菜单的引用
+const imageGenDropdownRef = ref<HTMLElement | null>(null)
+const imageModelDropdownRef = ref<HTMLElement | null>(null)
+const imageRatioDropdownRef = ref<HTMLElement | null>(null)
+
+
+const showImageDropdown = ref(false)
+const showModelDropdown = ref(false)
+const showRatioDropdown = ref(false)
+
+const selectedImageOption = ref('图片生成')
+const selectedModelOptions = ref<string[]>([])
+const selectedRatioOption = ref<ImageRatioOption>({
+  label: '9:16 标清 1K',
+  width: 1024,
+  height: 1792,
+})
+
+const customWidth = ref(1024)
+const customHeight = ref(1792)
+
+const selectedRatioDisplay = computed(() => {
+  if (selectedRatioOption.value.label === '自定义') {
+    return `${customWidth.value}x${customHeight.value}`
+  }
+  return `${selectedRatioOption.value.label} (${selectedRatioOption.value.width}x${selectedRatioOption.value.height})`
+})
+
+const imageGenOptions = [
+  '图片生成',
+  '视频生成',
+  '文本生成',
+  '模型融合',
+  '高级渲染',
+  '智能增强',
+  '图像修复',
+  '超分辨率',
+  '艺术滤镜',
+]
+const imageModelOptions: ImageModelOption[] = [
+  { name: '图片 3.0', description: '最新一代图像生成模型，画质精美，细节丰富。' },
+  { name: '图片 2.0', description: '成熟稳定模型，适合多种风格。' },
+  { name: '图片 1.0', description: '基础模型，快速出图。' },
+  { name: '专业版 v4', description: '专为专业设计师打造，提供更多细节控制。' },
+  { name: '超真实模型', description: '擅长生成逼真、写实的图像。' },
+  { name: '动漫风格', description: '专为动漫、二次元创作优化。' },
+  { name: '水彩风格', description: '生成具有水彩画效果的图像。' },
+  { name: '素描模型', description: '生成素描、铅笔画风格图像。' },
+  { name: '3D渲染模型', description: '擅长生成高质量的3D渲染图。' },
+  { name: '复古滤镜', description: '为图像添加复古、怀旧的滤镜效果。' },
+  { name: '未来科技', description: '生成充满未来感、科幻风格的图像。' },
+]
+const imageRatioOptions = [
+  { label: '9:16 标清 1K', width: 1024, height: 1792 },
+  { label: '16:9 标清 1K', width: 1792, height: 1024 },
+  { label: '1:1 标清 1K', width: 1024, height: 1024 },
+  { label: '4:5 高清 2K', width: 1536, height: 1920 },
+  { label: '16:10 高清 2K', width: 2048, height: 1280 },
+  { label: '3:2 超清 4K', width: 3072, height: 2048 },
+  { label: '2.35:1 超宽屏', width: 3584, height: 1536 },
+  { label: '21:9 电影级', width: 2560, height: 1088 },
+  { label: '32:9 全景模式', width: 3840, height: 1080 },
+]
+
+const closeAllDropdowns = () => {
+  showImageDropdown.value = false
+  showModelDropdown.value = false
+  showRatioDropdown.value = false
+}
+
+
+const toggleDropdown = (dropdownName: 'imageGen' | 'imageModel' | 'imageRatio') => {
+  if (dropdownName !== 'imageGen') showImageDropdown.value = false
+  if (dropdownName !== 'imageModel') showModelDropdown.value = false
+  if (dropdownName !== 'imageRatio') showRatioDropdown.value = false
+  if (dropdownName === 'imageGen') showImageDropdown.value = !showImageDropdown.value
+  else if (dropdownName === 'imageModel') showModelDropdown.value = !showModelDropdown.value
+  else if (dropdownName === 'imageRatio') showRatioDropdown.value = !showRatioDropdown.value
+}
+
+const selectOption = (dropdownName: 'imageGen', option: string) => {
+  if (dropdownName === 'imageGen') selectedImageOption.value = option
+  closeAllDropdowns()
+}
+
+const toggleModelSelection = (model: string) => {
+  const index = selectedModelOptions.value.indexOf(model)
+  if (index > -1) {
+    selectedModelOptions.value.splice(index, 1)
+  } else {
+    selectedModelOptions.value.push(model)
+  }
+}
+
+const selectRatio = (option: ImageRatioOption) => {
+  selectedRatioOption.value = option
+  if (option.label !== '自定义') {
+    closeAllDropdowns()
+  }
+}
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as Node
+
+  // 检查点击事件是否发生在 inputContainerRef 内部
+  const isClickInsideContainer = inputContainerRef.value && inputContainerRef.value.contains(target)
+
+  // 如果点击发生在外部，并且目前是展开状态，则收起输入框并关闭所有下拉菜单
+  if (!isClickInsideContainer) {
+    closeAllDropdowns()
+  } else {
+    // 如果点击在容器内部，但不是在下拉菜单按钮或菜单内容上，也应该关闭下拉菜单
+    const isClickInsideDropdown =
+      (imageGenDropdownRef.value && imageGenDropdownRef.value.contains(target)) ||
+      (imageModelDropdownRef.value && imageModelDropdownRef.value.contains(target)) ||
+      (imageRatioDropdownRef.value && imageRatioDropdownRef.value.contains(target))
+
+    if (!isClickInsideDropdown) {
+      closeAllDropdowns()
+    }
+  }
+}
+
+onMounted(() => {
+  checkIsMobile()
+  window.addEventListener('resize', checkIsMobile)
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkIsMobile)
+  document.removeEventListener('click', handleClickOutside)
+})
+
+watch([customWidth, customHeight], () => {
+  selectedRatioOption.value = {
+    label: '自定义',
+    width: customWidth.value,
+    height: customHeight.value,
+  }
+})
+</script>
+<style lang="scss" scoped>
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  padding-top: 8px;
+  width: 100%;
+
+  .left-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex-grow: 1;
+    width: 100%;
+  }
+
+  .dropdown-wrapper {
+    position: relative;
+    min-width: 0;
+    box-sizing: border-box;
+
+    .action-button {
+      width: auto;
+      flex-shrink: 1;
+    }
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    min-width: 0;
+    box-sizing: border-box;
+
+    &.model-button {
+      align-items: flex-start;
+      height: auto;
+      white-space: normal;
+      flex-grow: 1;
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    svg {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: #fff;
+    }
+
+    &.dropdown-toggle svg:last-child {
+      margin-left: auto;
+      transition: transform 0.3s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+
+    .selected-models-container {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 4px;
+      flex-grow: 1;
+      padding: 0 4px;
+      align-content: flex-start;
+      flex-basis: 0;
+    }
+
+    .selected-model-tag {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background-color: rgba(255, 255, 255, 0.25);
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 12px;
+      white-space: nowrap;
+
+      .model-remove-icon {
+        cursor: pointer;
+        width: 10px;
+        height: 10px;
+        color: rgba(255, 255, 255, 0.7);
+
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+
+    .placeholder-text {
+      padding-left: 6px;
+    }
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 8px;
+    background-color: #444;
+    border-radius: 8px;
+    padding: 8px 0;
+    list-style: none;
+    min-width: 140px;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    transform-origin: bottom;
+
+    &.ratio-dropdown-menu {
+      li {
+        justify-content: space-between;
+
+        .ratio-value {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.7);
+          margin-left: 10px;
+        }
+      }
+    }
+
+    li {
+      padding: 8px 16px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #555;
+      }
+
+      &.is-selected {
+        background-color: #666;
+      }
+    }
+
+    .custom-ratio-item {
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      label {
+        font-size: 14px;
+        color: #ddd;
+      }
+
+      .custom-ratio-inputs {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        input {
+          width: 80px;
+          height: 32px;
+          background-color: #555;
+          border: 1px solid #777;
+          color: #fff;
+          border-radius: 6px;
+          padding: 0 8px;
+          font-size: 14px;
+          -moz-appearance: textfield;
+
+          &::-webkit-outer-spin-button,
+          &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+          }
+
+          &::placeholder {
+            color: #bbb;
+          }
+        }
+
+        .x-separator {
+          color: #bbb;
+        }
+      }
+    }
+  }
+}
+
+// 手机端样式
+@media (max-width: 768px) {
+
+  .action-buttons {
+    .action-button {
+      padding: 6px 10px;
+      font-size: 13px;
+      gap: 4px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .action-buttons {
+    .action-button {
+      padding: 6px 10px;
+      font-size: 12px;
+      gap: 4px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+}
+</style>
