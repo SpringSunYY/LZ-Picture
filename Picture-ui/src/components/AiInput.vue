@@ -25,53 +25,7 @@
 
     <div v-show="isExpanded || !isMobile" class="content-wrapper">
       <div class="input-wrapper" @click="expandInput">
-        <div class="image-thumbnail" @click.stop="handleThumbnailClick">
-          <img v-if="uploadedImage" :src="uploadedImage" alt="已上传图片" class="thumbnail-image" />
-          <div v-else class="upload-placeholder">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-image-plus"
-            >
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-              <line x1="16" x2="22" y1="5" y2="5" />
-              <line x1="19" x2="19" y1="2" y2="8" />
-              <circle cx="9" cy="9" r="2" />
-              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-            </svg>
-          </div>
-          <input
-            type="file"
-            ref="fileInputRef"
-            @change="handleImageUpload"
-            accept="image/*"
-            style="display: none"
-          />
-          <button v-if="uploadedImage" class="clear-image-button" @click.stop="clearImage">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-x"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-        </div>
+        <AiPictureUpload class="input-image" />
         <textarea
           ref="textareaRef"
           v-model="inputText"
@@ -112,20 +66,12 @@
       </div>
     </div>
   </div>
-  <div
-    v-if="showImagePreviewModal"
-    class="image-preview-modal"
-    @click.stop="closeImagePreviewModal"
-  >
-    <div class="modal-content" @click.stop>
-      <img :src="uploadedImage" alt="图片预览" style="max-height: calc(100vh - 100px)" />
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
 import AiCheckModel from '@/components/AiCheckModel.vue'
+import AiPictureUpload from '@/components/AiPictureUpload.vue'
 
 interface ImageRatioOption {
   label: string
@@ -146,11 +92,9 @@ const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const inputContainerRef = ref<HTMLElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
-
 const maxChars = ref(1000)
 const charCount = computed(() => inputText.value.length)
 const textareaHeight = ref(60)
-const showImagePreviewModal = ref(false)
 
 const selectedImageOption = ref('图片生成')
 const selectedModelOptions = ref<string[]>([])
@@ -197,13 +141,7 @@ const expandInput = () => {
   }
 }
 
-const handleThumbnailClick = () => {
-  if (uploadedImage.value) {
-    showImagePreviewModal.value = true
-  } else {
-    fileInputRef.value?.click()
-  }
-}
+
 
 const handleTextInput = (event: Event) => {
   const target = event.target as HTMLTextAreaElement
@@ -216,26 +154,9 @@ const handleTextInput = (event: Event) => {
   adjustTextareaHeight()
 }
 
-const handleImageUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    const file = target.files[0]
-    if (file.size > 5 * 1024 * 1024) {
-      alert('图片大小不能超过5MB')
-      return
-    }
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      uploadedImage.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }
-}
 
-const clearImage = () => {
-  uploadedImage.value = null
-  if (fileInputRef.value) fileInputRef.value.value = ''
-}
+
+
 
 const adjustTextareaHeight = () => {
   if (!textareaRef.value) return
@@ -247,11 +168,19 @@ const adjustTextareaHeight = () => {
   textareaHeight.value = newHeight
 }
 
-const closeImagePreviewModal = () => {
-  showImagePreviewModal.value = false
+
+
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as Node
+
+  // 检查点击事件是否发生在 inputContainerRef 内部
+  const isClickInsideContainer = inputContainerRef.value && inputContainerRef.value.contains(target)
+
+  // 如果点击发生在外部，并且目前是展开状态，则收起输入框并关闭所有下拉菜单
+  if (!isClickInsideContainer) {
+    isExpanded.value = false
+  }
 }
-
-
 
 watch(inputText, (newVal) => {
   if (newVal.length > 0 && !isExpanded.value) {
@@ -263,10 +192,12 @@ watch(inputText, (newVal) => {
 onMounted(() => {
   checkIsMobile()
   window.addEventListener('resize', checkIsMobile)
+  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkIsMobile)
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -313,69 +244,12 @@ onUnmounted(() => {
     display: contents;
   }
 
-  .image-thumbnail {
-    flex-shrink: 0;
-    position: relative;
+  .input-image {
     width: 60px;
     height: 60px;
-    border-radius: 10px;
-    overflow: visible;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    .upload-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-
-      svg {
-        color: rgba(255, 255, 255, 0.6);
-        width: 32px;
-        height: 32px;
-      }
-    }
 
     .thumbnail-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background-color: #222;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .clear-image-button {
-      position: absolute;
-      top: -12px;
-      right: -12px;
-      background-color: rgba(0, 0, 0, 0.6);
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 0;
-      z-index: 1;
-
-      svg {
-        color: #fff;
-        width: 16px;
-        height: 16px;
-      }
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-      }
+      object-fit: cover !important;
     }
   }
 
@@ -590,7 +464,7 @@ onUnmounted(() => {
     }
   }
 
-  .image-thumbnail,
+  .input-image,
   .send-button {
     width: 50px;
     height: 50px;
@@ -609,7 +483,7 @@ onUnmounted(() => {
       width: calc(100% - 16px);
     }
   }
-  .image-thumbnail,
+  .input-image,
   .send-button {
     width: 45px;
     height: 45px;

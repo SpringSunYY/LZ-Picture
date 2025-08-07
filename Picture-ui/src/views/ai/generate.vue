@@ -3,30 +3,33 @@
     <div class="left w-full md:w-1/3 p-4">
       <a-tabs v-model:activeKey="activeTab" class="tab-container" size="large" centered>
         <a-tab-pane key="1" tab="文生图">
-          <h1 class="text-xl text-blue-4 font-bold">创意描述</h1>
-          <a-textarea
-            placeholder="请输入内容"
-            :border="false"
-            :auto-size="{ minRows: 5, maxRows: 10 }"
-            :maxlength="512"
-            :allowClear="true"
-            show-count
-            class="text-area mt-1"
-          />
-          <div class="tag-container mt-4">
-            <a-space wrap>
-              <h1 class="text-xl font-600">推荐</h1>
-              <a-tag color="success">success</a-tag>
-              <a-tag color="processing">processing</a-tag>
-              <a-tag color="error">error</a-tag>
-              <a-tag color="warning">warning</a-tag>
-              <a-tag color="default">default</a-tag>
-            </a-space>
-          </div>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="参考生图"> </a-tab-pane>
-        <a-tab-pane key="3" tab="风格转换">Content of Tab Pane 3</a-tab-pane>
+        <a-tab-pane key="2" tab="图生图">
+          <AiPictureUpload style="width: 100%; height: 300px" />
+        </a-tab-pane>
       </a-tabs>
+      <div class="prompt mt-4">
+        <h1 class="text-xl text-blue-4 font-bold">创意描述</h1>
+        <a-textarea
+          placeholder="请输入内容"
+          :border="false"
+          :auto-size="{ minRows: 5, maxRows: 10 }"
+          :maxlength="512"
+          :allowClear="true"
+          show-count
+          class="text-area mt-1"
+        />
+        <div class="tag-container mt-4">
+          <a-space wrap>
+            <h1 class="text-xl font-600">推荐</h1>
+            <a-tag color="success">success</a-tag>
+            <a-tag color="processing">processing</a-tag>
+            <a-tag color="error">error</a-tag>
+            <a-tag color="warning">warning</a-tag>
+            <a-tag color="default">default</a-tag>
+          </a-space>
+        </div>
+      </div>
       <div class="model mt-4">
         <AiCheckModel />
       </div>
@@ -47,6 +50,7 @@
 import { ref } from 'vue'
 import AiCheckModel from '@/components/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
+import AiPictureUpload from '@/components/AiPictureUpload.vue'
 
 const activeTab = ref('1')
 </script>
@@ -66,7 +70,7 @@ $text-color: #ffffff;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
+  .prompt,
   .tab-container {
     color: $text-color;
 
