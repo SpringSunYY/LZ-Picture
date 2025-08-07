@@ -215,7 +215,7 @@ onUnmounted(() => {
 
   .sidebar {
     flex: 0 0 320px; // 调整为更合理的宽度
-    padding: 50px 20px;
+    padding: 20vh 20px;
     box-sizing: border-box;
     height: 100vh;
     overflow-y: auto;

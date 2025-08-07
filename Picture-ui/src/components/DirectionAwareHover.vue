@@ -158,7 +158,7 @@ function getDirection(ev: MouseEvent, obj: HTMLElement) {
 
 const containerClass = computed(() =>
   cn(
-    "group/card relative overflow-hidden rounded-lg bg-transparent transition-all duration-300",
+    "group/card relative overflow-hidden rounded-lg bg-transparent transition-all duration-300 border-0 outline-none",
     // Mobile first responsive sizing
     "h-48 w-48", // Base mobile size
     "xs:h-56 xs:w-56", // Extra small screens

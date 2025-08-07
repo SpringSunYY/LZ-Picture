@@ -147,7 +147,7 @@ const doLogout = async () => {
 </script>
 <style scoped lang="scss">
 // 深色主题颜色常量
-$dark-bg-color: #1f1f1f;
+$dark-bg-color: #0b0b0b;
 $dark-bg-secondary: #27272a;
 $dark-text-primary: rgba(255, 255, 255, 0.85);
 $dark-text-secondary: rgba(255, 255, 255, 0.65);

@@ -233,7 +233,10 @@
             </ul>
           </div>
           <div class="dropdown-wrapper" ref="imageRatioDropdownRef">
-            <button class="action-button dropdown-toggle" @click.stop="toggleDropdown('imageRatio')">
+            <button
+              class="action-button dropdown-toggle"
+              @click.stop="toggleDropdown('imageRatio')"
+            >
               <span>{{ selectedRatioDisplay }}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -526,34 +529,34 @@ const closeImagePreviewModal = () => {
 }
 
 const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as Node;
+  const target = event.target as Node
 
   // 检查点击事件是否发生在 inputContainerRef 内部
-  const isClickInsideContainer = inputContainerRef.value && inputContainerRef.value.contains(target);
+  const isClickInsideContainer = inputContainerRef.value && inputContainerRef.value.contains(target)
 
   // 如果点击发生在外部，并且目前是展开状态，则收起输入框并关闭所有下拉菜单
   if (!isClickInsideContainer) {
-    isExpanded.value = false;
-    closeAllDropdowns();
+    isExpanded.value = false
+    closeAllDropdowns()
   } else {
     // 如果点击在容器内部，但不是在下拉菜单按钮或菜单内容上，也应该关闭下拉菜单
     const isClickInsideDropdown =
       (imageGenDropdownRef.value && imageGenDropdownRef.value.contains(target)) ||
       (imageModelDropdownRef.value && imageModelDropdownRef.value.contains(target)) ||
-      (imageRatioDropdownRef.value && imageRatioDropdownRef.value.contains(target));
+      (imageRatioDropdownRef.value && imageRatioDropdownRef.value.contains(target))
 
     if (!isClickInsideDropdown) {
-      closeAllDropdowns();
+      closeAllDropdowns()
     }
   }
 }
 
 watch(inputText, (newVal) => {
   if (newVal.length > 0 && !isExpanded.value) {
-    expandInput();
+    expandInput()
   }
-  adjustTextareaHeight();
-});
+  adjustTextareaHeight()
+})
 
 watch([customWidth, customHeight], () => {
   selectedRatioOption.value = {
@@ -589,7 +592,7 @@ onUnmounted(() => {
   bottom: 20px;
   padding: 12px;
   border-radius: 32px;
-  background: linear-gradient(90deg, #4a90e2, #8b5cf6);
+  background: linear-gradient(90deg, #4b5055, rgba(49, 40, 69, 0.99));
   color: #fff;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -1112,6 +1115,7 @@ onUnmounted(() => {
       padding: 6px 10px;
       font-size: 13px;
       gap: 4px;
+
       svg {
         width: 16px;
         height: 16px;
@@ -1138,6 +1142,7 @@ onUnmounted(() => {
       padding: 6px 10px;
       font-size: 12px;
       gap: 4px;
+
       svg {
         width: 14px;
         height: 14px;

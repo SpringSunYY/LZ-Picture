@@ -282,8 +282,8 @@ async function loadMore() {
   --color-control-panel-bg: #1f1f35; // 深紫色控制面板背景
 
   // 导航条背景色 - 渐变
-  --color-nav-main-gradient-start: rgba(139, 92, 246, 0.83); // 紫色开始
-  --color-nav-main-gradient-end: rgba(236, 72, 153, 0.79); // 粉色结束
+  --color-nav-main-gradient-start: #414851; // 紫色开始
+  --color-nav-main-gradient-end: rgba(99, 65, 174, 0.82); // 粉色结束
   --color-nav-sub-bg: #8b5cf6; // 子导航背景色
 
   // 强调色

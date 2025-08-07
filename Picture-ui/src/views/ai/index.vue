@@ -24,7 +24,7 @@
       <div class="flex justify-center">
         <DirectionAwareHover
           image-url="https://images.unsplash.com/photo-1728755833852-2c138c84cfb1?q=80&w=2672&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          class="shadow-lg ring-1 ring-gray-200 dark:ring-gray-800"
+          class="shadow-lg  ring-gray-200 dark:ring-gray-800"
         >
           <h2 class="text-lg font-semibold sm:text-xl">Beautiful Landscape</h2>
           <p class="mt-1 text-sm opacity-90 sm:mt-2 sm:text-base">Discover nature's wonders</p>
@@ -35,7 +35,7 @@
       <div class="flex justify-center">
         <DirectionAwareHover
           image-url="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
-          class="border-2 border-blue-500 shadow-xl ring-2 ring-blue-200 dark:border-blue-400 dark:ring-blue-800"
+          class="border-2 border-blue-500 shadow-xl  ring-blue-200 dark:border-blue-400 dark:ring-blue-800"
           image-class="scale-110 hover:scale-125 transition-transform duration-500"
           children-class="bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4 rounded-b-lg backdrop-blur-sm"
         >
@@ -48,7 +48,7 @@
       <div class="flex justify-center md:col-span-2 lg:col-span-1">
         <DirectionAwareHover
           image-url="https://images.unsplash.com/photo-1664710476481-1213c456c56c?q=80&w=2672&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          class="overflow-hidden rounded-xl shadow-2xl ring-1 ring-gray-300 dark:ring-gray-700"
+          class="overflow-hidden rounded-xl shadow-2xl  ring-gray-300 dark:ring-gray-700"
           children-class="bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 sm:p-4 rounded-b-xl"
         >
           <h2 class="text-lg font-semibold sm:text-xl">Culinary Delights</h2>
@@ -163,7 +163,7 @@ const getRecommendationList = () => {
 getRecommendationList()
 </script>
 <style scoped lang="scss">
-$dark-bg-color: #1f1f1f;
+$dark-bg-color: #000000;
 .ai {
   margin: 0 auto;
   background-color: $dark-bg-color;
