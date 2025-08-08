@@ -45,7 +45,7 @@
       <div class="content" v-for="i in 4" :key="i">
         <div class="content-heard">
           <div class="heard-left">
-            <a-space>
+            <a-space align="center" direction="horizontal" :wrap="true">
               <div class="px-1">
                 <SvgIcon name="space" size="1.3em" />
               </div>
@@ -83,6 +83,28 @@
         </div>
         <div class="content-picture mt-5">
           <AiPictureView class="picture" :image-url="i % 2 == 0 ? imageUrl1 : imageUrl2" />
+          <div class="picture-overlay">
+            <a-space class="overlay-right-top">
+              <DownloadSvgButton
+                class="action-button"
+                @click.stop="
+                  () => {
+                    console.log('删除')
+                  }
+                "
+              />
+              <DeleteButton
+                @click.stop="
+                  () => {
+                    console.log('删除')
+                  }
+                "
+              />
+            </a-space>
+            <div class="overlay-bottom">
+              <AiBatchButton />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -99,6 +121,9 @@ import DictTag from '@/components/DictTag.vue'
 import type { Dict } from '@/types/common'
 import TextView from '@/components/TextView.vue'
 import AiPictureView from '@/components/AiPictureView.vue'
+import DeleteButton from '@/components/button/DeleteButton.vue'
+import DownloadSvgButton from '@/components/button/DownloadSvgButton.vue'
+import AiBatchButton from '@/components/button/AiBatchButton.vue'
 
 const activeTab = ref('1')
 
@@ -117,7 +142,6 @@ const imageUrl1 =
   'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D'
 const imageUrl2 =
   'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/0dd94401c13c45c69d9e5eb0a95b4807~tplv-tb4s082cfz-aigc_resize:1080:1080.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=rU%2B9dDTCb3nSIAMZ%2BA3Bxl3brTU%3D'
-
 </script>
 
 <style scoped lang="scss">
@@ -186,14 +210,23 @@ $text-color: #ffffff;
   background-color: $bg-right-color;
   height: 100vh;
   overflow-y: auto;
+  min-width: 50vh;
 
   .content {
-    margin: 2em 5em;
+    margin: 2em 2em;
 
     .content-heard {
       display: flex;
+      flex-wrap: wrap; // 允许换行
       justify-content: space-between; // 左右分布
       align-items: center; // 垂直居中
+      gap: 1em; // 添加元素间距
+
+      .heard-left,
+      .heard-right {
+        // 确保两侧内容可以响应式换行
+        min-width: 0; // 允许子元素收缩
+      }
 
       .heard-right .heard-right-svg {
         display: flex;
@@ -204,6 +237,23 @@ $text-color: #ffffff;
         cursor: pointer;
         background-color: $bg-right-svg-color;
         border-radius: 15%;
+      }
+
+      // 响应式处理 - 在小屏幕上垂直排列
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .heard-left,
+        .heard-right {
+          width: 100%;
+          margin-bottom: 0.5em;
+        }
+
+        .heard-right {
+          display: flex;
+          justify-content: flex-end;
+        }
       }
     }
 
@@ -216,9 +266,42 @@ $text-color: #ffffff;
       height: 45vh;
       background-color: $bg-right-image-color;
       border-radius: 2vh;
+      position: relative;
 
       .picture {
         height: 100%;
+      }
+
+      .picture-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        opacity: 0; /* 默认隐藏 */
+        pointer-events: none; /* 避免挡住下面的组件点击 */
+        transition: opacity 0.3s ease; /* 渐变效果 */
+
+        .overlay-right-top {
+          position: absolute;
+          top: 1em;
+          right: 1em;
+        }
+
+        .overlay-bottom {
+          position: absolute;
+          bottom: 1em;
+          left: 1em;
+        }
+      }
+
+      &:hover .picture-overlay {
+        opacity: 1; /* 悬停时显示 */
+      }
+
+      .picture-overlay > * {
+        pointer-events: auto; /* 只有子元素可以点 */
       }
     }
   }
