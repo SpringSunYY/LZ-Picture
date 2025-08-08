@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import com.lz.common.utils.StringUtils;
+import java.math.BigDecimal;
 import com.lz.common.utils.DateUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
  * AI模型参数配置Service业务层处理
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-08-08
  */
 @Service
 public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMapper, ModelParamsInfo> implements IModelParamsInfoService
@@ -115,17 +116,26 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
     String modelId = modelParamsInfoQuery.getModelId();
         queryWrapper.eq(StringUtils.isNotEmpty(modelId) ,"model_id",modelId);
 
+    String modelKey = modelParamsInfoQuery.getModelKey();
+        queryWrapper.like(StringUtils.isNotEmpty(modelKey) ,"model_key",modelKey);
+
     String modelName = modelParamsInfoQuery.getModelName();
         queryWrapper.like(StringUtils.isNotEmpty(modelName) ,"model_name",modelName);
 
     String modelType = modelParamsInfoQuery.getModelType();
         queryWrapper.eq(StringUtils.isNotEmpty(modelType) ,"model_type",modelType);
 
+    String model = modelParamsInfoQuery.getModel();
+        queryWrapper.like(StringUtils.isNotEmpty(model) ,"model",model);
+
+    String modelLabel = modelParamsInfoQuery.getModelLabel();
+        queryWrapper.like(StringUtils.isNotEmpty(modelLabel) ,"model_label",modelLabel);
+
     String paramsStatus = modelParamsInfoQuery.getParamsStatus();
         queryWrapper.eq(StringUtils.isNotEmpty(paramsStatus) ,"params_status",paramsStatus);
 
-    Long userId = modelParamsInfoQuery.getUserId();
-        queryWrapper.eq( StringUtils.isNotNull(userId),"user_id",userId);
+    Long orderNum = modelParamsInfoQuery.getOrderNum();
+        queryWrapper.eq( StringUtils.isNotNull(orderNum),"order_num",orderNum);
 
     String createBy = modelParamsInfoQuery.getCreateBy();
         queryWrapper.like(StringUtils.isNotEmpty(createBy) ,"create_by",createBy);

@@ -2,6 +2,7 @@ package com.lz.ai.model.dto.modelParamsInfo;
 
 import java.util.Map;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.BeanUtils;
@@ -13,7 +14,7 @@ import com.lz.ai.model.domain.ModelParamsInfo;
  * AI模型参数配置Query对象 ai_model_params_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-08-08
  */
 @Data
 public class ModelParamsInfoQuery implements Serializable
@@ -23,17 +24,26 @@ public class ModelParamsInfoQuery implements Serializable
     /** 模型编号 */
     private String modelId;
 
+    /** 模型KEY */
+    private String modelKey;
+
     /** 模型名称 */
     private String modelName;
 
     /** 模型类型 */
     private String modelType;
 
-    /** 状态（0开启 1关闭） */
+    /** 模型 */
+    private String model;
+
+    /** 名称 */
+    private String modelLabel;
+
+    /** 状态 */
     private String paramsStatus;
 
-    /** 管理员编号 */
-    private Long userId;
+    /** 排序 */
+    private Long orderNum;
 
     /** 创建人 */
     private String createBy;

@@ -2058,6 +2058,7 @@ CREATE TABLE po_points_usage_log_info
 | price_use         | decimal  | 5,2  |        | 否   |          | 价格     |
 | model_params      | text     |      |        | 否   |          | 模型参数 |
 | model_description | varchar  | 1024 |        | 是   |          | 模型介绍 |
+| order_num         | int      |      |        | 否   | 默认10   | 排序     |
 | usage_count       | int      |      |        | 否   | 0        | 使用次数 |
 | ponints_need      | int      |      |        | 是   | 0        | 积分     |
 | extend_config     | varchar  | 1024 |        | 是   |          | 扩展配置 |
@@ -2105,11 +2106,13 @@ CREATE TABLE ai_model_params_info (
   ponints_need      INT          DEFAULT 0 COMMENT '积分',
   extend_config     VARCHAR(1024) DEFAULT NULL COMMENT '扩展配置',
   params_status     CHAR(1)      NOT NULL DEFAULT '1' COMMENT '状态',
+  order_num    INT          NOT NULL DEFAULT 10 COMMENT '排序',  
   create_by         VARCHAR(32)  NOT NULL COMMENT '创建人',
   create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   update_by         VARCHAR(32)  DEFAULT NULL COMMENT '更新人',
   update_time       DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  remark            VARCHAR(512) DEFAULT NULL COMMENT '备注'
+  remark            VARCHAR(512) DEFAULT NULL COMMENT '备注',
+    UNIQUE KEY uk_ai_model_params_info_model_key (model_key),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型参数表';
 ```
 

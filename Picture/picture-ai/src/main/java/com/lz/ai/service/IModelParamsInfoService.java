@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
  * AI模型参数配置Service接口
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-08-08
  */
 public interface IModelParamsInfoService extends IService<ModelParamsInfo>
 {

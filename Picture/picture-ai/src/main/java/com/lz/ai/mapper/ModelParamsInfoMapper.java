@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * AI模型参数配置Mapper接口
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-08-08
  */
 public interface ModelParamsInfoMapper extends BaseMapper<ModelParamsInfo>
 {

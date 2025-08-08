@@ -2,6 +2,7 @@ package com.lz.ai.model.vo.modelParamsInfo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.math.BigDecimal;
 import lombok.Data;
 import com.lz.common.annotation.Excel;
 import org.springframework.beans.BeanUtils;
@@ -11,7 +12,7 @@ import com.lz.ai.model.domain.ModelParamsInfo;
  * AI模型参数配置Vo对象 ai_model_params_info
  *
  * @author YY
- * @date 2025-03-25
+ * @date 2025-08-08
  */
 @Data
 public class ModelParamsInfoVo implements Serializable
@@ -22,6 +23,10 @@ public class ModelParamsInfoVo implements Serializable
     @Excel(name = "模型编号")
     private String modelId;
 
+    /** 模型KEY */
+    @Excel(name = "模型KEY")
+    private String modelKey;
+
     /** 模型名称 */
     @Excel(name = "模型名称")
     private String modelName;
@@ -29,6 +34,14 @@ public class ModelParamsInfoVo implements Serializable
     /** 模型类型 */
     @Excel(name = "模型类型")
     private String modelType;
+
+    /** 模型 */
+    @Excel(name = "模型")
+    private String model;
+
+    /** 名称 */
+    @Excel(name = "名称")
+    private String modelLabel;
 
     /** 安全密钥 */
     @Excel(name = "安全密钥")
@@ -38,6 +51,10 @@ public class ModelParamsInfoVo implements Serializable
     @Excel(name = "安全KEY")
     private String secretKey;
 
+    /** 价格 */
+    @Excel(name = "价格")
+    private BigDecimal priceUse;
+
     /** 模型参数 */
     @Excel(name = "模型参数")
     private String modelParams;
@@ -46,33 +63,25 @@ public class ModelParamsInfoVo implements Serializable
     @Excel(name = "模型介绍")
     private String modelDescription;
 
-    /** 平均使用tokens/次 */
-    @Excel(name = "平均使用tokens/次")
-    private Long tokensAvg;
-
-    /** 累计消耗Tokens */
-    @Excel(name = "累计消耗Tokens")
-    private Long tokensTotal;
-
     /** 使用次数 */
     @Excel(name = "使用次数")
     private Long usageCount;
 
-    /** 积分消耗比例 */
-    @Excel(name = "积分消耗比例")
-    private Long pointsNeed;
+    /** 积分 */
+    @Excel(name = "积分")
+    private Long ponintsNeed;
 
     /** 扩展配置 */
     @Excel(name = "扩展配置")
     private String extendConfig;
 
-    /** 状态（0开启 1关闭） */
-    @Excel(name = "状态", readConverterExp = "0=开启,1=关闭")
+    /** 状态 */
+    @Excel(name = "状态")
     private String paramsStatus;
 
-    /** 管理员编号 */
-    @Excel(name = "管理员编号")
-    private Long userId;
+    /** 排序 */
+    @Excel(name = "排序")
+    private Long orderNum;
 
     /** 创建人 */
     @Excel(name = "创建人")
@@ -97,7 +106,7 @@ public class ModelParamsInfoVo implements Serializable
     private String remark;
 
 
-    /**
+     /**
      * 对象转封装类
      *
      * @param modelParamsInfo ModelParamsInfo实体对象
