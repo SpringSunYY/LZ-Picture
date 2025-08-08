@@ -3,7 +3,7 @@ package com.lz.ai.strategy.generate.impl;
 import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
 
 /**
- * TODO
+ * 即梦生成
  *
  * @Project: Picture
  * @Author: YY
