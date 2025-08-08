@@ -1,21 +1,22 @@
 package com.lz.ai.service;
 
-import java.util.List;
-import com.lz.ai.model.domain.ModelParamsInfo;
-import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
-import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.ai.model.domain.ModelParamsInfo;
+import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoQuery;
+import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
+
+import java.util.List;
+
 /**
  * AI模型参数配置Service接口
  *
  * @author YY
  * @date 2025-08-08
  */
-public interface IModelParamsInfoService extends IService<ModelParamsInfo>
-{
+public interface IModelParamsInfoService extends IService<ModelParamsInfo> {
     //region mybatis代码
+
     /**
      * 查询AI模型参数配置
      *
@@ -64,6 +65,7 @@ public interface IModelParamsInfoService extends IService<ModelParamsInfo>
      */
     public int deleteModelParamsInfoByModelId(String modelId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +81,15 @@ public interface IModelParamsInfoService extends IService<ModelParamsInfo>
      * @return ModelParamsInfoVO集合
      */
     List<ModelParamsInfoVo> convertVoList(List<ModelParamsInfo> modelParamsInfoList);
+
+    /**
+     * 根据模型KEY获取模型参数配置
+     *
+     * @param modelKey 模型KEY
+     * @return ModelParamsInfo
+     * @author: YY
+     * @method: selectModelParamsInfoByModelKey
+     * @date: 2025/8/8 23:57
+     **/
+    ModelParamsInfo selectModelParamsInfoByModelKey(String modelKey);
 }

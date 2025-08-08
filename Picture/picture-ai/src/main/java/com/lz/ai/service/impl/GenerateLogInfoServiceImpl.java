@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
+import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
+import com.lz.ai.strategy.generate.AiGenerateStrategyExecutor;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import jakarta.annotation.Resource;
@@ -26,6 +28,8 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
     @Resource
     private GenerateLogInfoMapper generateLogInfoMapper;
 
+    @Resource
+    private AiGenerateStrategyExecutor aiGenerateStrategyExecutor;
     //region mybatis代码
 
     /**
@@ -183,6 +187,11 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
             return Collections.emptyList();
         }
         return generateLogInfoList.stream().map(GenerateLogInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public String userGenerate(GenerateLogInfoRequest request) {
+        return aiGenerateStrategyExecutor.executeUserGenerate(request);
     }
 
 }

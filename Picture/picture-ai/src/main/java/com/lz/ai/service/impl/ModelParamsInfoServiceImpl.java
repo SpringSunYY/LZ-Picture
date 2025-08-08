@@ -7,6 +7,8 @@ import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoQuery;
 import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
 import com.lz.ai.service.IModelParamsInfoService;
+import com.lz.common.annotation.CustomCacheEvict;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.redis.AiRedisConstants.AI_MODEL_DETAIL;
+import static com.lz.common.constant.redis.AiRedisConstants.AI_MODEL_DETAIL_EXPIRE_TIME;
 
 /**
  * AI模型参数配置Service业务层处理
@@ -66,6 +71,7 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
      * @param modelParamsInfo AI模型参数配置
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = AI_MODEL_DETAIL, keyFields = {"modelParamsInfo.modelKey"})
     @Override
     public int insertModelParamsInfo(ModelParamsInfo modelParamsInfo) {
         //查询模型KEY是否存在
@@ -84,6 +90,7 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
      * @param modelParamsInfo AI模型参数配置
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = AI_MODEL_DETAIL, keyFields = {"modelParamsInfo.modelKey"})
     @Override
     public int updateModelParamsInfo(ModelParamsInfo modelParamsInfo) {
         //查询模型KEY是否存在
@@ -168,6 +175,14 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
             return Collections.emptyList();
         }
         return modelParamsInfoList.stream().map(ModelParamsInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @CustomCacheable(keyPrefix = AI_MODEL_DETAIL,
+            expireTime = AI_MODEL_DETAIL_EXPIRE_TIME,
+            keyField = "modelKey")
+    @Override
+    public ModelParamsInfo selectModelParamsInfoByModelKey(String modelKey) {
+        return modelParamsInfoMapper.selectModelParamsInfoByModelKey(modelKey);
     }
 
 }

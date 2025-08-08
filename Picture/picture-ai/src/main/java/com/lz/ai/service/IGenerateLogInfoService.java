@@ -1,21 +1,23 @@
 package com.lz.ai.service;
 
-import java.util.List;
-import com.lz.ai.model.domain.GenerateLogInfo;
-import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
+import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
+import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
+
+import java.util.List;
+
 /**
  * 用户生成记录Service接口
  *
  * @author YY
  * @date 2025-08-08
  */
-public interface IGenerateLogInfoService extends IService<GenerateLogInfo>
-{
+public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
     //region mybatis代码
+
     /**
      * 查询用户生成记录
      *
@@ -64,6 +66,7 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo>
      */
     public int deleteGenerateLogInfoByLogId(String logId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +82,15 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo>
      * @return GenerateLogInfoVO集合
      */
     List<GenerateLogInfoVo> convertVoList(List<GenerateLogInfo> generateLogInfoList);
+
+    /**
+     * 用户生成图片
+     *
+     * @param request 请求参数
+     * @return int
+     * @author: YY
+     * @method: userGenerate
+     * @date: 2025/8/8 23:39
+     **/
+    String userGenerate(GenerateLogInfoRequest request);
 }
