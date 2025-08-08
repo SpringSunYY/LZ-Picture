@@ -2045,31 +2045,38 @@ CREATE TABLE po_points_usage_log_info
 
 #### 模型参数表：ai_model_params_info
 
-| 字段名            | 类型     | 长度 | 键类型                    | Null | 默认值   | 描述           |
-| ----------------- | -------- | ---- | ------------------------- | ---- | -------- | -------------- |
-| model_id          | varchar  | 128  | 主键                      | 否   |          | 模型编号       |
-| model_name        | varchar  | 128  |                           | 否   |          | 模型名称       |
-| model_type        | varchar  | 50   |                           | 否   |          | 模型类型       |
-| api_key           | varchar  | 256  |                           | 是   |          | 安全密钥       |
-| secret_key        | varchar  | 256  |                           | 是   |          | 安全KEY        |
-| model_params      | text     |      |                           | 否   |          | 模型参数       |
-| model_description | varchar  | 1024 |                           | 是   |          | 模型介绍       |
-| tokens_avg        | int      |      |                           | 否   | 0        | 平均使用tokens |
-| tokens_total      | int      |      |                           | 否   | 0        | 总共消耗Tokens |
-| usage_count       | int      |      |                           | 否   | 0        | 使用次数       |
-| ponints_need      | int      |      |                           | 是   | 0        | 积分           |
-| extend_config     | varchar  | 1024 |                           | 是   |          | 扩展配置       |
-| params_status     | char     | 1    |                           | 否   | 1        | 状态           |
-| user_id           | bigint   |      | 外键（sys_user：user_id） | 否   |          | 管理员         |
-| create_by         | varchar  | 32   |                           | 否   |          | 创建人         |
-| create_time       | datetime |      |                           | 否   | 当前时间 | 创建时间       |
-| update_by         | varchar  | 32   |                           | 是   |          | 更新人         |
-| update_time       | datetime |      |                           | 是   | 当前时间 | 更新时间       |
-| remark            | varchar  | 512  |                           | 是   |          | 备注           |
+| 字段名            | 类型     | 长度 | 键类型 | Null | 默认值   | 描述     |
+| ----------------- | -------- | ---- | ------ | ---- | -------- | -------- |
+| model_id          | varchar  | 128  | 主键   | 否   |          | 模型编号 |
+| model_key         | varchar  | 128  |        | 否   |          | 模型KEY  |
+| model_name        | varchar  | 128  |        | 否   |          | 模型名称 |
+| model_type        | varchar  | 50   |        | 否   |          | 模型类型 |
+| model             | varchar  | 64   |        | 否   |          | 模型     |
+| model_label       | varchar  | 128  |        | 否   |          | 名称     |
+| api_key           | varchar  | 256  |        | 是   |          | 安全密钥 |
+| secret_key        | varchar  | 256  |        | 是   |          | 安全KEY  |
+| price_use         | decimal  | 5,2  |        | 否   |          | 价格     |
+| model_params      | text     |      |        | 否   |          | 模型参数 |
+| model_description | varchar  | 1024 |        | 是   |          | 模型介绍 |
+| usage_count       | int      |      |        | 否   | 0        | 使用次数 |
+| ponints_need      | int      |      |        | 是   | 0        | 积分     |
+| extend_config     | varchar  | 1024 |        | 是   |          | 扩展配置 |
+| params_status     | char     | 1    |        | 否   | 1        | 状态     |
+| create_by         | varchar  | 32   |        | 否   |          | 创建人   |
+| create_time       | datetime |      |        | 否   | 当前时间 | 创建时间 |
+| update_by         | varchar  | 32   |        | 是   |          | 更新人   |
+| update_time       | datetime |      |        | 是   | 当前时间 | 更新时间 |
+| remark            | varchar  | 512  |        | 是   |          | 备注     |
 
 状态：0开启 1关闭
 
+模型KEY：信息关联键
+
 模型类型：自定义，比如编辑图片，对话模型
+
+模型：调用各个模型时调用的具体模型
+
+名称：用户查看到的模型名称，例如：可灵1.0
 
 api_key:必须加密
 
@@ -2078,36 +2085,152 @@ secret_key:必须加密
 积分：单位1，比如一个积分替换多少tokens
 
 ```sql
+-- 如果表存在，先删除
 DROP TABLE IF EXISTS ai_model_params_info;
-CREATE TABLE ai_model_params_info
-(
-    model_id          VARCHAR(128) NOT NULL COMMENT '模型编号',
-    model_name        VARCHAR(128) NOT NULL COMMENT '模型名称',
-    model_type        VARCHAR(50)  NOT NULL COMMENT '模型类型',
-    api_key           VARCHAR(256) COMMENT '安全密钥',
-    secret_key        VARCHAR(256) COMMENT '安全KEY',
-    model_params            TEXT         NOT NULL COMMENT '模型参数',
-    model_description VARCHAR(1024) COMMENT '模型介绍',
-    tokens_avg        INT          NOT NULL DEFAULT 0 COMMENT '平均使用tokens/次',
-    tokens_total      INT          NOT NULL DEFAULT 0 COMMENT '累计消耗Tokens',
-    usage_count       INT          NOT NULL DEFAULT 0 COMMENT '使用次数',
-    points_need       INT                   DEFAULT 0 COMMENT '积分消耗比例',
-    extend_config     VARCHAR(1024) COMMENT '扩展配置',
-    params_status     CHAR(1)      NOT NULL DEFAULT '1' COMMENT '状态（0开启 1关闭）',
-    user_id           BIGINT       NOT NULL COMMENT '管理员编号',
-    create_by         VARCHAR(32)  NOT NULL COMMENT '创建人',
-    create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_by         VARCHAR(32) COMMENT '更新人',
-    update_time       DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    remark            VARCHAR(512) COMMENT '备注',
-    PRIMARY KEY (model_id),
-    UNIQUE KEY uk_model_name (model_name),
-    FOREIGN KEY (user_id) REFERENCES sys_user (user_id) ON DELETE SET NULL ,
-    INDEX idx_model_type (model_type),
-    INDEX idx_status (params_status)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='AI模型参数配置表';
+
+-- 创建模型参数表
+CREATE TABLE ai_model_params_info (
+  model_id          VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '模型编号',
+  model_key         VARCHAR(128) NOT NULL COMMENT '模型KEY',
+  model_name        VARCHAR(128) NOT NULL COMMENT '模型名称',
+  model_type        VARCHAR(50)  NOT NULL COMMENT '模型类型',
+  model             VARCHAR(64)  NOT NULL COMMENT '模型',
+  model_label       VARCHAR(128) NOT NULL COMMENT '名称',
+  api_key           VARCHAR(256) DEFAULT NULL COMMENT '安全密钥',
+  secret_key        VARCHAR(256) DEFAULT NULL COMMENT '安全KEY',
+  price_use         DECIMAL(5,2) NOT NULL COMMENT '价格',
+  model_params      TEXT         NOT NULL COMMENT '模型参数',
+  model_description VARCHAR(1024) DEFAULT NULL COMMENT '模型介绍',
+  usage_count       INT          NOT NULL DEFAULT 0 COMMENT '使用次数',
+  ponints_need      INT          DEFAULT 0 COMMENT '积分',
+  extend_config     VARCHAR(1024) DEFAULT NULL COMMENT '扩展配置',
+  params_status     CHAR(1)      NOT NULL DEFAULT '1' COMMENT '状态',
+  create_by         VARCHAR(32)  NOT NULL COMMENT '创建人',
+  create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_by         VARCHAR(32)  DEFAULT NULL COMMENT '更新人',
+  update_time       DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  remark            VARCHAR(512) DEFAULT NULL COMMENT '备注'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型参数表';
 ```
+
+#### 提示词信息表：ai_prompt_info
+
+| 字段        | 类型     | 长度 | 键类型 | null | 默认值   | 描述     |
+| :---------- | -------- | ---- | ------ | ---- | -------- | -------- |
+| info_id     | varchar  | 128  | 主键   | 否   |          | 编号     |
+| name        | varchar  | 128  |        | 否   |          | 名称     |
+| content     | text     |      |        | 否   |          | 提示内容 |
+| order_num   | int      |      |        | 否   | 默认10   | 排序     |
+| create_by   | varchar  | 64   |        | 否   |          | 创建人   |
+| create_time | datetime |      |        | 否   | 当前时间 | 创建时间 |
+| update_by   | varchar  | 64   |        | 是   |          | 更新人   |
+| update_time | datetime |      |        | 是   |          | 更新时间 |
+| remark      | varchar  | 512  |        | 是   |          | 备注     |
+
+```sql
+-- 如果已存在则先删除
+DROP TABLE IF EXISTS ai_prompt_info;
+
+-- 创建提示词信息表
+CREATE TABLE ai_prompt_info (
+  info_id      VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '编号',
+  name         VARCHAR(128) NOT NULL COMMENT '名称',
+  content      TEXT         NOT NULL COMMENT '提示内容',
+  order_num    INT          NOT NULL DEFAULT 10 COMMENT '排序',
+  create_by    VARCHAR(64)  NOT NULL COMMENT '创建人',
+  create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_by    VARCHAR(64)           COMMENT '更新人',
+  update_time  DATETIME              COMMENT '更新时间',
+  remark       VARCHAR(512)          COMMENT '备注'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='提示词信息表';
+```
+
+
+
+#### 用户生成记录：ai_generate_log_info
+
+| 字段名           | 类型     | 长度     | 键类型                                 | Null | 默认值   | 描述             |
+| ---------------- | -------- | -------- | -------------------------------------- | ---- | -------- | ---------------- |
+| log_id           | varchar  | 128      | 主键                                   | 否   |          | 记录编号         |
+| user_id          | varchar  | 128      | 外键（u_user_info:user_id）            | 否   |          | 用户编号         |
+| model_key        | varchar  | 128      | 外键（ai_model_params_info:model_key） | 否   |          | 模型KEY          |
+| model_type       | varchar  | 50       |                                        | 否   |          | 模型类型         |
+| input_file       | text     |          |                                        | 是   |          | 输入文件         |
+| prompt           | varchar  | text     |                                        | 否   |          | 提示词           |
+| negative_prompt  | varchar  | text     |                                        | 是   |          | 负向提示词       |
+| seed             | float    | （10,2） |                                        | 是   |          | 随机种子         |
+| numbers          | int      |          |                                        | 是   |          | 数量             |
+| input_params     | varchar  | 1024     |                                        | 是   |          | 输入参数         |
+| task_id          | varchar  | 128      |                                        | 否   |          | 任务编号         |
+| output_result    | text     |          |                                        | 是   |          | 返回结果         |
+| file_urls        | text     |          |                                        | 是   |          | 文件地址         |
+| width            | int      |          |                                        | 是   |          | 宽度             |
+| height           | int      |          |                                        | 是   |          | 高度             |
+| request_time     | datetime |          |                                        | 否   |          | 请求时间         |
+| request_duration | bigint   |          |                                        | 是   |          | 请求时长         |
+| price_used       | decimal  | 5,2      |                                        | 否   | 0        | 价格             |
+| points_used      | int      |          |                                        | 否   | 0        | 消耗的积分       |
+| target_id        | varchar  | 128      |                                        | 是   |          | 参考对象         |
+| log_status       | char     | 1        |                                        | 否   |          | 状态             |
+| ai_status_code   | varchar  | 16       |                                        | 是   |          | 模型返回码       |
+| fail_reason      | varchar  | 128      |                                        | 是   |          | 失败原因         |
+| ip_addr          | varchar  | 50       |                                        | 否   |          | 用户IP地址       |
+| device_id        | varchar  | 255      |                                        | 是   |          | 用户设备唯一标识 |
+| browser          | varchar  | 50       |                                        | 是   |          | 浏览器类型       |
+| os               | varchar  | 50       |                                        | 是   |          | 操作系统         |
+| platform         | varchar  | 20       |                                        | 是   |          | 平台             |
+| create_time      | datetime |          |                                        | 否   | 当前时间 | 创建时间         |
+| update_time      | datetime |          |                                        | 否   | 当前时间 | 更新时间         |
+| is_delete        | char     | 1        |                                        | 否   | 0        | 删除             |
+
+使用类型：0ai扩图 1AI编辑 2AI搜索。。。。
+
+状态：0成功 1失败 2超时
+
+```sql
+-- 如果表存在，先删除
+DROP TABLE IF EXISTS ai_generate_log_info;
+
+CREATE TABLE ai_generate_log_info (
+  log_id           VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '记录编号',
+  user_id          VARCHAR(128) NOT NULL COMMENT '用户编号',
+  model_key        VARCHAR(128) NOT NULL COMMENT '模型KEY',
+  model_type       VARCHAR(50)  NOT NULL COMMENT '模型类型',
+  input_file       TEXT                   COMMENT '输入文件',
+  prompt           TEXT         NOT NULL COMMENT '提示词',
+  negative_prompt  TEXT                   COMMENT '负向提示词',
+  seed             FLOAT                  COMMENT '随机种子',
+  numbers          INT                    COMMENT '数量',
+  input_params     VARCHAR(1024)          COMMENT '输入参数',
+  task_id          VARCHAR(128) NOT NULL COMMENT '任务编号',
+  output_result    TEXT                   COMMENT '返回结果',
+  file_urls        TEXT                   COMMENT '文件地址',
+  width            INT                    COMMENT '宽度',
+  height           INT                    COMMENT '高度',
+  request_time     DATETIME    NOT NULL COMMENT '请求时间',
+  request_duration BIGINT                  COMMENT '请求时长',
+  price_used       DECIMAL(5,2) NOT NULL DEFAULT 0 COMMENT '价格',
+  points_used      INT          NOT NULL DEFAULT 0 COMMENT '消耗的积分',
+  target_id        VARCHAR(128)           COMMENT '参考对象',
+  log_status       CHAR(1)     NOT NULL COMMENT '状态',
+  ai_status_code   VARCHAR(16)            COMMENT '模型返回码',
+  fail_reason      VARCHAR(128)           COMMENT '失败原因',
+  ip_addr          VARCHAR(50)  NOT NULL COMMENT '用户IP地址',
+  device_id        VARCHAR(255)           COMMENT '用户设备唯一标识',
+  browser          VARCHAR(50)            COMMENT '浏览器类型',
+  os               VARCHAR(50)            COMMENT '操作系统',
+  platform         VARCHAR(20)            COMMENT '平台',
+  create_time      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time      DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  is_delete        CHAR(1)     NOT NULL DEFAULT '0' COMMENT '删除',
+
+  -- 外键约束
+  CONSTRAINT fk_generate_user_id_log FOREIGN KEY (user_id) REFERENCES u_user_info(user_id),
+  CONSTRAINT fk_generate_model_key_log FOREIGN KEY (model_key) REFERENCES ai_model_params_info(model_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户生成记录表';
+```
+
+
 
 
 
@@ -2121,10 +2244,10 @@ CREATE TABLE ai_model_params_info
 | input_params     | varchar  | 1024 |                                       | 是   |          | 输入参数           |
 | output_result    | text     |      |                                       | 是   |          | 返回结果           |
 | request_time     | datetime |      |                                       | 否   |          | 请求时间           |
-| request_duration | bigint   |      |                                       | 是   |          | 请求时长·          |
+| request_duration | bigint   |      |                                       | 是   |          | 请求时长           |
 | tokens_used      | int      |      |                                       | 否   | 0        | 使用的 tokens 数量 |
 | points_used      | int      |      |                                       | 否   | 0        | 消耗的积分         |
-| usage_type       | varchar  | 50   |                                       | 否   |          | 使用类型           |
+| model_type       | varchar  | 50   |                                       | 否   |          | 模型类型           |
 | target_id        | varchar  | 128  |                                       | 是   |          | 目标编号           |
 | log_status       | char     | 1    |                                       | 否   |          | 状态               |
 | ai_status_code   | varchar  | 16   |                                       | 是   |          | 模型返回码         |
