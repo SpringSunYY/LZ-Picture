@@ -1,12 +1,12 @@
 package com.lz.ai.model.dto.generateLogInfo;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.ai.model.domain.GenerateLogInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.ai.model.domain.GenerateLogInfo;
+
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * 用户生成记录Vo对象 ai_generate_log_info
  *
@@ -14,18 +14,29 @@ import com.lz.ai.model.domain.GenerateLogInfo;
  * @date 2025-08-08
  */
 @Data
-public class GenerateLogInfoEdit implements Serializable
-{
+public class GenerateLogInfoEdit implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /** 记录编号 */
+    /**
+     * 记录编号
+     */
     private String logId;
 
-    /** 任务编号 */
-    private String taskId;
+    /**
+     * 用户编号
+     */
+    private String userId;
 
-    /** 状态 */
-    private String logStatus;
+    /**
+     * 模型KEY
+     */
+    private String modelKey;
+
+    /**
+     * 模型类型
+     */
+    private String modelType;
 
     /**
      * 对象转封装类

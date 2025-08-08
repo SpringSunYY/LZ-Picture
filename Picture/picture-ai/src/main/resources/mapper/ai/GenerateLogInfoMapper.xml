@@ -1,72 +1,111 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.ai.mapper.GenerateLogInfoMapper">
-    
+
     <resultMap type="GenerateLogInfo" id="GenerateLogInfoResult">
-        <result property="logId"    column="log_id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="modelKey"    column="model_key"    />
-        <result property="modelType"    column="model_type"    />
-        <result property="inputFile"    column="input_file"    />
-        <result property="prompt"    column="prompt"    />
-        <result property="negativePrompt"    column="negative_prompt"    />
-        <result property="seed"    column="seed"    />
-        <result property="numbers"    column="numbers"    />
-        <result property="inputParams"    column="input_params"    />
-        <result property="taskId"    column="task_id"    />
-        <result property="outputResult"    column="output_result"    />
-        <result property="fileUrls"    column="file_urls"    />
-        <result property="width"    column="width"    />
-        <result property="height"    column="height"    />
-        <result property="requestTime"    column="request_time"    />
-        <result property="requestDuration"    column="request_duration"    />
-        <result property="priceUsed"    column="price_used"    />
-        <result property="pointsUsed"    column="points_used"    />
-        <result property="targetId"    column="target_id"    />
-        <result property="logStatus"    column="log_status"    />
-        <result property="aiStatusCode"    column="ai_status_code"    />
-        <result property="failReason"    column="fail_reason"    />
-        <result property="ipAddr"    column="ip_addr"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="browser"    column="browser"    />
-        <result property="os"    column="os"    />
-        <result property="platform"    column="platform"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="isDelete"    column="is_delete"    />
+        <result property="logId" column="log_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="modelKey" column="model_key"/>
+        <result property="modelType" column="model_type"/>
+        <result property="inputFile" column="input_file"/>
+        <result property="prompt" column="prompt"/>
+        <result property="negativePrompt" column="negative_prompt"/>
+        <result property="seed" column="seed"/>
+        <result property="numbers" column="numbers"/>
+        <result property="inputParams" column="input_params"/>
+        <result property="taskId" column="task_id"/>
+        <result property="outputResult" column="output_result"/>
+        <result property="fileUrls" column="file_urls"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+        <result property="requestTime" column="request_time"/>
+        <result property="requestDuration" column="request_duration"/>
+        <result property="priceUsed" column="price_used"/>
+        <result property="pointsUsed" column="points_used"/>
+        <result property="targetId" column="target_id"/>
+        <result property="logStatus" column="log_status"/>
+        <result property="aiStatusCode" column="ai_status_code"/>
+        <result property="failReason" column="fail_reason"/>
+        <result property="ipAddr" column="ip_addr"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="platform" column="platform"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
     </resultMap>
 
     <sql id="selectGenerateLogInfoVo">
-        select log_id, user_id, model_key, model_type, input_file, prompt, negative_prompt, seed, numbers, input_params, task_id, output_result, file_urls, width, height, request_time, request_duration, price_used, points_used, target_id, log_status, ai_status_code, fail_reason, ip_addr, device_id, browser, os, platform, create_time, update_time, is_delete from ai_generate_log_info
+        select log_id,
+               user_id,
+               model_key,
+               model_type,
+               input_file,
+               prompt,
+               negative_prompt,
+               seed,
+               numbers,
+               input_params,
+               task_id,
+               output_result,
+               file_urls,
+               width,
+               height,
+               request_time,
+               request_duration,
+               price_used,
+               points_used,
+               target_id,
+               log_status,
+               ai_status_code,
+               fail_reason,
+               ip_addr,
+               device_id,
+               browser,
+               os,
+               platform,
+               create_time,
+               update_time,
+               is_delete
+        from ai_generate_log_info
     </sql>
 
     <select id="selectGenerateLogInfoList" parameterType="GenerateLogInfo" resultMap="GenerateLogInfoResult">
         <include refid="selectGenerateLogInfoVo"/>
-        <where>  
-            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="modelKey != null  and modelKey != ''"> and model_key = #{modelKey}</if>
-            <if test="modelType != null  and modelType != ''"> and model_type = #{modelType}</if>
-            <if test="numbers != null "> and numbers = #{numbers}</if>
-            <if test="taskId != null  and taskId != ''"> and task_id = #{taskId}</if>
-            <if test="width != null "> and width = #{width}</if>
-            <if test="height != null "> and height = #{height}</if>
-            <if test="logStatus != null  and logStatus != ''"> and log_status = #{logStatus}</if>
-            <if test="aiStatusCode != null  and aiStatusCode != ''"> and ai_status_code = #{aiStatusCode}</if>
-            <if test="failReason != null  and failReason != ''"> and fail_reason = #{failReason}</if>
-            <if test="ipAddr != null  and ipAddr != ''"> and ip_addr = #{ipAddr}</if>
-            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
-            <if test="browser != null  and browser != ''"> and browser like concat('%', #{browser}, '%')</if>
-            <if test="os != null  and os != ''"> and os like concat('%', #{os}, '%')</if>
-            <if test="platform != null  and platform != ''"> and platform like concat('%', #{platform}, '%')</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
-            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+        <where>
+            <if test="logId != null  and logId != ''">and log_id = #{logId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+            <if test="modelKey != null  and modelKey != ''">and model_key = #{modelKey}</if>
+            <if test="modelType != null  and modelType != ''">and model_type = #{modelType}</if>
+            <if test="prompt != null  and prompt != ''">and prompt = #{prompt}</if>
+            <if test="negativePrompt != null  and negativePrompt != ''">and negative_prompt = #{negativePrompt}</if>
+            <if test="seed != null ">and seed = #{seed}</if>
+            <if test="numbers != null ">and numbers = #{numbers}</if>
+            <if test="taskId != null  and taskId != ''">and task_id = #{taskId}</if>
+            <if test="width != null ">and width = #{width}</if>
+            <if test="height != null ">and height = #{height}</if>
+            <if test="requestDuration != null ">and request_duration = #{requestDuration}</if>
+            <if test="targetId != null  and targetId != ''">and target_id = #{targetId}</if>
+            <if test="logStatus != null  and logStatus != ''">and log_status = #{logStatus}</if>
+            <if test="aiStatusCode != null  and aiStatusCode != ''">and ai_status_code = #{aiStatusCode}</if>
+            <if test="ipAddr != null  and ipAddr != ''">and ip_addr = #{ipAddr}</if>
+            <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
+            <if test="browser != null  and browser != ''">and browser like concat('%', #{browser}, '%')</if>
+            <if test="os != null  and os != ''">and os like concat('%', #{os}, '%')</if>
+            <if test="platform != null  and platform != ''">and platform like concat('%', #{platform}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
+            <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
     </select>
-    
+
     <select id="selectGenerateLogInfoByLogId" parameterType="String" resultMap="GenerateLogInfoResult">
         <include refid="selectGenerateLogInfoVo"/>
         where log_id = #{logId}
@@ -106,7 +145,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="logId != null">#{logId},</if>
             <if test="userId != null and userId != ''">#{userId},</if>
@@ -139,7 +178,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateGenerateLogInfo" parameterType="GenerateLogInfo">
@@ -180,11 +219,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteGenerateLogInfoByLogId" parameterType="String">
-        delete from ai_generate_log_info where log_id = #{logId}
+        delete
+        from ai_generate_log_info
+        where log_id = #{logId}
     </delete>
 
     <delete id="deleteGenerateLogInfoByLogIds" parameterType="String">
-        delete from ai_generate_log_info where log_id in 
+        delete from ai_generate_log_info where log_id in
         <foreach item="logId" collection="array" open="(" separator="," close=")">
             #{logId}
         </foreach>

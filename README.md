@@ -2053,6 +2053,7 @@ CREATE TABLE po_points_usage_log_info
 | model_type        | varchar  | 50   |        | 否   |          | 模型类型 |
 | model             | varchar  | 64   |        | 否   |          | 模型     |
 | model_label       | varchar  | 128  |        | 否   |          | 名称     |
+| api_addr          | varchar  | 128  |        | 否   |          | API地址  |
 | api_key           | varchar  | 256  |        | 是   |          | 安全密钥 |
 | secret_key        | varchar  | 256  |        | 是   |          | 安全KEY  |
 | price_use         | decimal  | 5,2  |        | 否   |          | 价格     |
@@ -2060,6 +2061,7 @@ CREATE TABLE po_points_usage_log_info
 | model_description | varchar  | 1024 |        | 是   |          | 模型介绍 |
 | order_num         | int      |      |        | 否   | 默认10   | 排序     |
 | usage_count       | int      |      |        | 否   | 0        | 使用次数 |
+| points_earned     | bigint   |      |        | 否   | 0        | 赚取积分 |
 | ponints_need      | int      |      |        | 是   | 0        | 积分     |
 | extend_config     | varchar  | 1024 |        | 是   |          | 扩展配置 |
 | params_status     | char     | 1    |        | 否   | 1        | 状态     |
@@ -2097,12 +2099,14 @@ CREATE TABLE ai_model_params_info (
   model_type        VARCHAR(50)  NOT NULL COMMENT '模型类型',
   model             VARCHAR(64)  NOT NULL COMMENT '模型',
   model_label       VARCHAR(128) NOT NULL COMMENT '名称',
+  api_url           VARCHAR(256) DEFAULT NULL COMMENT 'API地址',  
   api_key           VARCHAR(256) DEFAULT NULL COMMENT '安全密钥',
   secret_key        VARCHAR(256) DEFAULT NULL COMMENT '安全KEY',
   price_use         DECIMAL(5,2) NOT NULL COMMENT '价格',
   model_params      TEXT         NOT NULL COMMENT '模型参数',
   model_description VARCHAR(1024) DEFAULT NULL COMMENT '模型介绍',
   usage_count       INT          NOT NULL DEFAULT 0 COMMENT '使用次数',
+  points_earned      INT          DEFAULT 0 COMMENT '赚取积分',  
   ponints_need      INT          DEFAULT 0 COMMENT '积分',
   extend_config     VARCHAR(1024) DEFAULT NULL COMMENT '扩展配置',
   params_status     CHAR(1)      NOT NULL DEFAULT '1' COMMENT '状态',
@@ -2176,6 +2180,7 @@ CREATE TABLE ai_prompt_info (
 | target_id        | varchar  | 128      |                                        | 是   |          | 参考对象         |
 | log_status       | char     | 1        |                                        | 否   |          | 状态             |
 | ai_status_code   | varchar  | 16       |                                        | 是   |          | 模型返回码       |
+| has_statistics   | char     | 1        |                                        | 否   |          | 是否统计         |
 | fail_reason      | varchar  | 128      |                                        | 是   |          | 失败原因         |
 | ip_addr          | varchar  | 50       |                                        | 否   |          | 用户IP地址       |
 | device_id        | varchar  | 255      |                                        | 是   |          | 用户设备唯一标识 |
@@ -2217,6 +2222,7 @@ CREATE TABLE ai_generate_log_info (
   target_id        VARCHAR(128)           COMMENT '参考对象',
   log_status       CHAR(1)     NOT NULL COMMENT '状态',
   ai_status_code   VARCHAR(16)            COMMENT '模型返回码',
+  has_statistics      CHAR(1) NOT NULL COMMENT '是否统计',  
   fail_reason      VARCHAR(128)           COMMENT '失败原因',
   ip_addr          VARCHAR(50)  NOT NULL COMMENT '用户IP地址',
   device_id        VARCHAR(255)           COMMENT '用户设备唯一标识',
