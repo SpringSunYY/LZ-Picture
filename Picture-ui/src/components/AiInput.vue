@@ -209,7 +209,7 @@ onUnmounted(() => {
   width: calc(100% - 24px);
   max-width: 768px;
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: 99;
 
   // PC端默认样式
   bottom: 20px;
