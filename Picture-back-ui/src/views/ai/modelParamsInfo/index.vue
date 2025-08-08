@@ -149,7 +149,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="modelParamsInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="modelParamsInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="模型编号" align="center" prop="modelId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -172,7 +173,7 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="安全KEY" align="center" prop="secretKey" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="价格" align="center" prop="priceUse" v-if="columns[9].visible"
+      <el-table-column label="价格" align="center" sortable="custom" prop="priceUse" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="模型参数" align="center" prop="modelParams" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
@@ -180,9 +181,9 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="使用次数" align="center" prop="usageCount" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="赚取积分" align="center" prop="pointsEarned" v-if="columns[13].visible"
+      <el-table-column label="赚取积分" align="center" sortable="custom" prop="pointsEarned" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="积分" align="center" prop="ponintsNeed" v-if="columns[14].visible"
+      <el-table-column label="积分" align="center" sortable="custom" prop="pointsNeed" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="扩展配置" align="center" prop="extendConfig" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
@@ -191,11 +192,12 @@
           <dict-tag :options="ai_model_params_status" :value="scope.row.paramsStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="排序" align="center" prop="orderNum" v-if="columns[17].visible"
+      <el-table-column label="排序" align="center" sortable="custom" prop="orderNum" v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[19].visible"
+      <el-table-column label="创建时间" align="center" sortable="custom" prop="createTime" width="180"
+                       v-if="columns[19].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -203,7 +205,8 @@
       </el-table-column>
       <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[21].visible"
+      <el-table-column label="更新时间" align="center" sortable="custom" prop="updateTime" width="180"
+                       v-if="columns[21].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -232,70 +235,111 @@
     />
 
     <!-- 添加或修改AI模型参数配置对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="1000px" append-to-body>
       <el-form ref="modelParamsInfoRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="模型KEY" prop="modelKey">
-          <el-input v-model="form.modelKey" placeholder="请输入模型KEY"/>
-        </el-form-item>
-        <el-form-item label="模型名称" prop="modelName">
-          <el-input v-model="form.modelName" placeholder="请输入模型名称"/>
-        </el-form-item>
-        <el-form-item label="模型类型" prop="modelType">
-          <el-select v-model="form.modelType" placeholder="请选择模型类型">
-            <el-option
-                v-for="dict in ai_model_params_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="模型" prop="model">
-          <el-input v-model="form.model" placeholder="请输入模型"/>
-        </el-form-item>
-        <el-form-item label="名称" prop="modelLabel">
-          <el-input v-model="form.modelLabel" placeholder="请输入名称"/>
-        </el-form-item>
-        <el-form-item label="API地址" prop="apiUrl">
-          <el-input v-model="form.apiUrl" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
-        <el-form-item label="安全密钥" prop="apiKey">
-          <el-input v-model="form.apiKey" placeholder="请输入安全密钥"/>
-        </el-form-item>
-        <el-form-item label="安全KEY" prop="secretKey">
-          <el-input v-model="form.secretKey" placeholder="请输入安全KEY"/>
-        </el-form-item>
-        <el-form-item label="价格" prop="priceUse">
-          <el-input v-model="form.priceUse" placeholder="请输入价格"/>
-        </el-form-item>
-        <el-form-item label="模型参数" prop="modelParams">
-          <el-input v-model="form.modelParams" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
-        <el-form-item label="模型介绍" prop="modelDescription">
-          <el-input v-model="form.modelDescription" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
-        <el-form-item label="积分" prop="ponintsNeed">
-          <el-input v-model="form.ponintsNeed" placeholder="请输入积分"/>
-        </el-form-item>
-        <el-form-item label="扩展配置" prop="extendConfig">
-          <el-input v-model="form.extendConfig" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
-        <el-form-item label="状态" prop="paramsStatus">
-          <el-radio-group v-model="form.paramsStatus">
-            <el-radio
-                v-for="dict in ai_model_params_status"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="排序" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入排序"/>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="模型KEY" prop="modelKey">
+              <el-input v-model="form.modelKey" placeholder="请输入模型KEY"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="模型名称" prop="modelName">
+              <el-input v-model="form.modelName" placeholder="请输入模型名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="模型类型" prop="modelType">
+              <el-select v-model="form.modelType" placeholder="请选择模型类型">
+                <el-option
+                    v-for="dict in ai_model_params_type"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="模型" prop="model">
+              <el-input v-model="form.model" placeholder="请输入模型"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="名称" prop="modelLabel">
+              <el-input v-model="form.modelLabel" placeholder="请输入名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态" prop="paramsStatus">
+              <el-radio-group v-model="form.paramsStatus">
+                <el-radio
+                    v-for="dict in ai_model_params_status"
+                    :key="dict.value"
+                    :value="dict.value"
+                >{{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="安全密钥" prop="apiKey">
+              <el-input type="password" show-password v-model="form.apiKey" placeholder="请输入安全密钥"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="安全KEY" prop="secretKey">
+              <el-input type="password" show-password v-model="form.secretKey" placeholder="请输入安全KEY"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="价格" prop="priceUse">
+              <el-input-number style="width: 100%;" :min="0" :precision="2" :step="0.1" v-model="form.priceUse"
+                               placeholder="请输入价格"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="积分" prop="pointsNeed">
+              <el-input-number style="width: 100%;" :min="0" :step="10" v-model="form.pointsNeed"
+                               placeholder="请输入积分"/>
+            </el-form-item>
+
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="排序" prop="orderNum">
+              <el-input-number style="width: 100%;" :min="0" :step="1" v-model="form.orderNum"
+                               placeholder="请输入排序"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="API地址" prop="apiUrl">
+              <el-input v-model="form.apiUrl" :rows="5" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="模型介绍" prop="modelDescription">
+              <el-input v-model="form.modelDescription" :rows="5" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="模型参数" prop="modelParams">
+              <el-input v-model="form.modelParams" :rows="5" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="扩展配置" prop="extendConfig">
+              <el-input v-model="form.extendConfig" :rows="5" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" :rows="5" type="textarea" placeholder="请输入内容"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -330,7 +374,8 @@ const total = ref(0);
 const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -422,10 +467,27 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /** 查询AI模型参数配置列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -464,7 +526,7 @@ function reset() {
     modelDescription: null,
     usageCount: null,
     pointsEarned: null,
-    ponintsNeed: null,
+    pointsNeed: null,
     extendConfig: null,
     paramsStatus: null,
     orderNum: null,
@@ -487,7 +549,10 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
+  proxy.$refs.tableRef.clearSort();
   handleQuery();
 }
 

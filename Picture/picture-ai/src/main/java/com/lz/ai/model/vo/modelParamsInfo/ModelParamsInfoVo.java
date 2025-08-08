@@ -110,7 +110,7 @@ public class ModelParamsInfoVo implements Serializable {
      * 积分
      */
     @Excel(name = "积分")
-    private Long ponintsNeed;
+    private Long pointsNeed;
 
     /**
      * 扩展配置

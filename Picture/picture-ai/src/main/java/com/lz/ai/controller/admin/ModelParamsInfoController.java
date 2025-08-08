@@ -89,6 +89,7 @@ public class ModelParamsInfoController extends BaseController
     public AjaxResult add(@RequestBody ModelParamsInfoInsert modelParamsInfoInsert)
     {
         ModelParamsInfo modelParamsInfo = ModelParamsInfoInsert.insertToObj(modelParamsInfoInsert);
+        modelParamsInfo.setCreateBy(getUsername());
         return toAjax(modelParamsInfoService.insertModelParamsInfo(modelParamsInfo));
     }
 
@@ -101,6 +102,7 @@ public class ModelParamsInfoController extends BaseController
     public AjaxResult edit(@RequestBody ModelParamsInfoEdit modelParamsInfoEdit)
     {
         ModelParamsInfo modelParamsInfo = ModelParamsInfoEdit.editToObj(modelParamsInfoEdit);
+        modelParamsInfo.setUpdateBy(getUsername());
         return toAjax(modelParamsInfoService.updateModelParamsInfo(modelParamsInfo));
     }
 

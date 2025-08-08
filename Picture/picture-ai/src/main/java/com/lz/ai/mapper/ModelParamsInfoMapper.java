@@ -59,4 +59,6 @@ public interface ModelParamsInfoMapper extends BaseMapper<ModelParamsInfo>
      * @return 结果
      */
     public int deleteModelParamsInfoByModelIds(String[] modelIds);
+
+    ModelParamsInfo selectModelParamsInfoByModelKey(String modelKey);
 }

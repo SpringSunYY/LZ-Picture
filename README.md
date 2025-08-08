@@ -2062,7 +2062,7 @@ CREATE TABLE po_points_usage_log_info
 | order_num         | int      |      |        | 否   | 默认10   | 排序     |
 | usage_count       | int      |      |        | 否   | 0        | 使用次数 |
 | points_earned     | bigint   |      |        | 否   | 0        | 赚取积分 |
-| ponints_need      | int      |      |        | 是   | 0        | 积分     |
+| points_need       | int      |      |        | 是   | 0        | 积分     |
 | extend_config     | varchar  | 1024 |        | 是   |          | 扩展配置 |
 | params_status     | char     | 1    |        | 否   | 1        | 状态     |
 | create_by         | varchar  | 32   |        | 否   |          | 创建人   |
@@ -2107,7 +2107,7 @@ CREATE TABLE ai_model_params_info (
   model_description VARCHAR(1024) DEFAULT NULL COMMENT '模型介绍',
   usage_count       INT          NOT NULL DEFAULT 0 COMMENT '使用次数',
   points_earned      INT          DEFAULT 0 COMMENT '赚取积分',  
-  ponints_need      INT          DEFAULT 0 COMMENT '积分',
+  points_need      INT          DEFAULT 0 COMMENT '积分',
   extend_config     VARCHAR(1024) DEFAULT NULL COMMENT '扩展配置',
   params_status     CHAR(1)      NOT NULL DEFAULT '1' COMMENT '状态',
   order_num    INT          NOT NULL DEFAULT 10 COMMENT '排序',  

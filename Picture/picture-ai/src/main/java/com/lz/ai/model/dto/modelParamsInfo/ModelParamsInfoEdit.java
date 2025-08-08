@@ -82,7 +82,7 @@ public class ModelParamsInfoEdit implements Serializable {
     /**
      * 积分
      */
-    private Long ponintsNeed;
+    private Long pointsNeed;
 
     /**
      * 扩展配置

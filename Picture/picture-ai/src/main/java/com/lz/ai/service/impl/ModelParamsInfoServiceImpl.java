@@ -7,8 +7,11 @@ import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoQuery;
 import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
 import com.lz.ai.service.IModelParamsInfoService;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -45,9 +48,16 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
      * @param modelParamsInfo AI模型参数配置
      * @return AI模型参数配置
      */
+    @CustomSort(sortFields = {"priceUse", "pointsEarned", "pointsNeed", "orderNum", "createTime", "updateTime"},
+            sortMappingFields = {"price_use", "points_earned", "points_need", "order_num", "create_time", "update_time"})
     @Override
     public List<ModelParamsInfo> selectModelParamsInfoList(ModelParamsInfo modelParamsInfo) {
-        return modelParamsInfoMapper.selectModelParamsInfoList(modelParamsInfo);
+        List<ModelParamsInfo> modelParamsInfos = modelParamsInfoMapper.selectModelParamsInfoList(modelParamsInfo);
+        for (ModelParamsInfo info : modelParamsInfos) {
+            info.setSecretKey(null);
+            info.setApiKey(null);
+        }
+        return modelParamsInfos;
     }
 
     /**
@@ -58,7 +68,13 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
      */
     @Override
     public int insertModelParamsInfo(ModelParamsInfo modelParamsInfo) {
+        //查询模型KEY是否存在
+        ModelParamsInfo modelParamsInfoByModelKey = modelParamsInfoMapper.selectModelParamsInfoByModelKey(modelParamsInfo.getModelKey());
+        ThrowUtils.throwIf(StringUtils.isNotNull(modelParamsInfoByModelKey), "模型KEY已存在");
+        modelParamsInfo.setModelId(IdUtils.snowflakeId().toString());
         modelParamsInfo.setCreateTime(DateUtils.getNowDate());
+        modelParamsInfo.setPointsNeed(0L);
+        modelParamsInfo.setUsageCount(0L);
         return modelParamsInfoMapper.insertModelParamsInfo(modelParamsInfo);
     }
 
@@ -70,6 +86,11 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
      */
     @Override
     public int updateModelParamsInfo(ModelParamsInfo modelParamsInfo) {
+        //查询模型KEY是否存在
+        ModelParamsInfo modelParamsInfoByModelKey = modelParamsInfoMapper.selectModelParamsInfoByModelKey(modelParamsInfo.getModelKey());
+        ThrowUtils.throwIf(StringUtils.isNotNull(modelParamsInfoByModelKey)
+                        && !modelParamsInfoByModelKey.getModelId().equals(modelParamsInfo.getModelId()),
+                "模型KEY已存在");
         modelParamsInfo.setUpdateTime(DateUtils.getNowDate());
         return modelParamsInfoMapper.updateModelParamsInfo(modelParamsInfo);
     }

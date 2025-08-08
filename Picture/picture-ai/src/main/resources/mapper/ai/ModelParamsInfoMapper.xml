@@ -19,7 +19,7 @@
         <result property="modelDescription" column="model_description"/>
         <result property="usageCount" column="usage_count"/>
         <result property="pointsEarned" column="points_earned"/>
-        <result property="ponintsNeed" column="ponints_need"/>
+        <result property="pointsNeed" column="points_need"/>
         <result property="extendConfig" column="extend_config"/>
         <result property="paramsStatus" column="params_status"/>
         <result property="orderNum" column="order_num"/>
@@ -45,7 +45,7 @@
                model_description,
                usage_count,
                points_earned,
-               ponints_need,
+               points_need,
                extend_config,
                params_status,
                order_num,
@@ -77,11 +77,23 @@
                 and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
             </if>
         </where>
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by order_num asc ,update_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectModelParamsInfoByModelId" parameterType="String" resultMap="ModelParamsInfoResult">
         <include refid="selectModelParamsInfoVo"/>
         where model_id = #{modelId}
+    </select>
+    <select id="selectModelParamsInfoByModelKey" parameterType="String" resultMap="ModelParamsInfoResult">
+        <include refid="selectModelParamsInfoVo"/>
+        where model_key = #{modelKey}
     </select>
 
     <insert id="insertModelParamsInfo" parameterType="ModelParamsInfo">
@@ -101,7 +113,7 @@
             <if test="modelDescription != null">model_description,</if>
             <if test="usageCount != null">usage_count,</if>
             <if test="pointsEarned != null">points_earned,</if>
-            <if test="ponintsNeed != null">ponints_need,</if>
+            <if test="pointsNeed != null">points_need,</if>
             <if test="extendConfig != null">extend_config,</if>
             <if test="paramsStatus != null and paramsStatus != ''">params_status,</if>
             <if test="orderNum != null">order_num,</if>
@@ -126,7 +138,7 @@
             <if test="modelDescription != null">#{modelDescription},</if>
             <if test="usageCount != null">#{usageCount},</if>
             <if test="pointsEarned != null">#{pointsEarned},</if>
-            <if test="ponintsNeed != null">#{ponintsNeed},</if>
+            <if test="pointsNeed != null">#{pointsNeed},</if>
             <if test="extendConfig != null">#{extendConfig},</if>
             <if test="paramsStatus != null and paramsStatus != ''">#{paramsStatus},</if>
             <if test="orderNum != null">#{orderNum},</if>
@@ -154,7 +166,7 @@
             <if test="modelDescription != null">model_description = #{modelDescription},</if>
             <if test="usageCount != null">usage_count = #{usageCount},</if>
             <if test="pointsEarned != null">points_earned = #{pointsEarned},</if>
-            <if test="ponintsNeed != null">ponints_need = #{ponintsNeed},</if>
+            <if test="pointsNeed != null">points_need = #{pointsNeed},</if>
             <if test="extendConfig != null">extend_config = #{extendConfig},</if>
             <if test="paramsStatus != null and paramsStatus != ''">params_status = #{paramsStatus},</if>
             <if test="orderNum != null">order_num = #{orderNum},</if>
