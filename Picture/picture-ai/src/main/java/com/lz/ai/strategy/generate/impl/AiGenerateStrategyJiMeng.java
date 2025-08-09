@@ -2,19 +2,20 @@ package com.lz.ai.strategy.generate.impl;
 
 
 import com.alibaba.fastjson2.JSONObject;
+import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
+import com.lz.ai.strategy.generate.domain.dto.JiMengResponse;
 import com.lz.ai.strategy.generate.domain.params.JiMengParams;
 import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
 import com.lz.common.utils.StringUtils;
+import jakarta.annotation.Resource;
 import org.apache.commons.codec.binary.Hex;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * 即梦生成
@@ -34,6 +36,8 @@ import java.util.*;
  */
 @AiGenerateStrategyConfig(model = "JiMeng")
 public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
+    @Resource
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     private static final BitSet URLENCODER = new BitSet(256);
     private static final String CONST_ENCODE = "0123456789ABCDEF";
     public static final Charset UTF_8 = StandardCharsets.UTF_8;
@@ -63,15 +67,64 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         String json = JSONObject.toJSONString(params);
         try {
             System.out.println("json = " + json);
-            doRequest(params.getMethod(), new HashMap<>(), json.getBytes(UTF_8), new Date(),
-                    params.getAction(), params.getVersion(), params.getRegion(), params.getService(),
-                    params.getPath(), info.getApiKey(), info.getSecretKey(
-
-                    ), params.getHost(), params.getSchema());
+            List<Future<JiMengResponse>> futures = new ArrayList<>();
+            for (Integer i = 0; i < info.getNumbers(); i++) {
+                Future<JiMengResponse> future = threadPoolTaskExecutor.submit(() -> {
+                    long startTime = System.currentTimeMillis();
+                    JiMengResponse jiMengResponse = null;
+                    try {
+                        jiMengResponse = doRequest(params.getMethod(), new HashMap<>(), json.getBytes(UTF_8), new Date(),
+                                params.getAction(), params.getVersion(), params.getRegion(), params.getService(),
+                                params.getPath(), info.getApiKey(), info.getSecretKey(), params.getHost(), params.getSchema());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    long totalTime = System.currentTimeMillis() - startTime;
+                    processResult(jiMengResponse, info, totalTime);
+                    return jiMengResponse;
+                });
+                futures.add(future);
+            }
+            futures.forEach(future -> {
+                try {
+                    JiMengResponse jiMengResponse = future.get();
+                    System.out.println("jiMengResponse = " + jiMengResponse);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            //处理结果
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return info.getTargetId();
+    }
+
+    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, long totalTime) {
+        GenerateLogInfo generateLogInfo = new GenerateLogInfo();
+
+        if (jiMengResponse.getCode() == 10000) {
+            JiMengResponse.DataContent data = jiMengResponse.getData();
+            List<String> imageUrls = data.getImage_urls();
+            for (String imageUrl : imageUrls) {
+                try {
+                    // 下载图片
+                    URL urlImage = new URL(imageUrl);
+                    try (InputStream in = urlImage.openStream();
+                         FileOutputStream fos = new FileOutputStream("E:/Project/Picture/files/AIgenerate/generated_image" + System.currentTimeMillis() + ".jpg")) {
+                        byte[] bufferImage = new byte[1024];
+                        int bytesReadImage;
+                        while ((bytesReadImage = in.read(bufferImage)) != -1) {
+                            fos.write(bufferImage, 0, bytesReadImage);
+                        }
+                        System.out.println("图片已保存为 generated_image.jpg");
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return generateLogInfo;
     }
 
     public JiMengParams verify(GenerateLogInfoDto info) {
@@ -93,10 +146,10 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         return jiMengParams;
     }
 
-    public void doRequest(String method, Map<String, String> queryList, byte[] body,
-                          Date date, String action, String version,
-                          String region, String service, String path,
-                          String ak, String sk,String host,String schema) throws Exception {
+    public JiMengResponse doRequest(String method, Map<String, String> queryList, byte[] body,
+                                    Date date, String action, String version,
+                                    String region, String service, String path,
+                                    String ak, String sk, String host, String schema) throws Exception {
         if (body == null) {
             body = new byte[0];
         }
@@ -173,27 +226,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         }
         String responseBody = buffer.toString(StandardCharsets.UTF_8);
         is.close();
-
-        System.out.println(responseCode);
-        System.out.println(responseBody);
-        // 在响应处理部分添加
-        JSONObject responseJson = JSONObject.parseObject(responseBody);
-        if (responseJson.getInteger("code") == 10000) {
-            JSONObject data = responseJson.getJSONObject("data");
-            String imageUrl = data.getJSONArray("image_urls").getString(0);
-
-            // 下载图片
-            URL urlImage = new URL(imageUrl);
-            try (InputStream in = urlImage.openStream();
-                 FileOutputStream fos = new FileOutputStream("E:/Project/Picture/files/AIgenerate/generated_image" + System.currentTimeMillis() + ".jpg")) {
-                byte[] bufferImage = new byte[1024];
-                int bytesReadImage;
-                while ((bytesReadImage = in.read(bufferImage)) != -1) {
-                    fos.write(bufferImage, 0, bytesReadImage);
-                }
-                System.out.println("图片已保存为 generated_image.jpg");
-            }
-        }
+        return JSONObject.parseObject(responseBody, JiMengResponse.class);
     }
 
     private String signStringEncoder(String source) {
