@@ -127,19 +127,19 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         String negativePrompt = generateLogInfoQuery.getNegativePrompt();
         queryWrapper.eq(StringUtils.isNotEmpty(negativePrompt), "negative_prompt", negativePrompt);
 
-        Long seed = generateLogInfoQuery.getSeed();
+        Float seed = generateLogInfoQuery.getSeed();
         queryWrapper.eq(StringUtils.isNotNull(seed), "seed", seed);
 
-        Long numbers = generateLogInfoQuery.getNumbers();
+        Integer numbers = generateLogInfoQuery.getNumbers();
         queryWrapper.eq(StringUtils.isNotNull(numbers), "numbers", numbers);
 
         String taskId = generateLogInfoQuery.getTaskId();
         queryWrapper.eq(StringUtils.isNotEmpty(taskId), "task_id", taskId);
 
-        Long width = generateLogInfoQuery.getWidth();
+        Integer width = generateLogInfoQuery.getWidth();
         queryWrapper.eq(StringUtils.isNotNull(width), "width", width);
 
-        Long height = generateLogInfoQuery.getHeight();
+        Integer height = generateLogInfoQuery.getHeight();
         queryWrapper.eq(StringUtils.isNotNull(height), "height", height);
 
         Long requestDuration = generateLogInfoQuery.getRequestDuration();

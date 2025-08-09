@@ -56,26 +56,26 @@ public class GenerateLogInfoRequest implements Serializable {
     /**
      * 随机种子
      */
-    private Long seed;
+    private Float seed;
 
     /**
      * 数量
      */
     @NotNull(message = "数量不能为空")
-    private Long numbers;
+    private Integer numbers;
 
 
     /**
      * 宽度
      */
     @NotNull(message = "宽度不能为空")
-    private Long width;
+    private Integer width;
 
     /**
      * 高度
      */
     @NotNull(message = "高度不能为空")
-    private Long height;
+    private Integer height;
 
 
     /**

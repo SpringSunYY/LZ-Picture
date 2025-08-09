@@ -2,6 +2,8 @@ package com.lz.ai.strategy.generate.impl;
 
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.AiGenerateStrategyService;
+import com.lz.ai.strategy.generate.domain.params.Params;
+import com.lz.ai.strategy.generate.domain.verify.Verify;
 
 /**
  * AI生成模板方法模板
@@ -14,14 +16,49 @@ import com.lz.ai.strategy.generate.AiGenerateStrategyService;
 public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
     /**
      * 用户生成
+     *
+     * @param info
+     * @return String
      * @author: YY
      * @method: userGenerate
      * @date: 2025/8/9 00:25
-     * @param info
-     * @return String
      **/
     @Override
     public String userGenerate(GenerateLogInfoDto info) {
         return "";
+    }
+    public static void commonVerify(GenerateLogInfoDto info, Integer width, Integer minWidth, Integer maxWidth, Integer height, Integer minHeight, Integer maxHeight, Params jiMengParams, Verify jiMengVerify) {
+        //如果宽高都在范围内
+        if (width >= minWidth && width <= maxWidth && height >= minHeight && height <= maxHeight) {
+            jiMengParams.setWidth(width);
+            jiMengParams.setHeight(height);
+        }
+        //如果宽高不在范围内，
+        // 第一种情况：宽或者高在范围外，则取大的值的最大值，等比例缩小
+        if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+                jiMengParams.setWidth(maxWidth);
+                jiMengParams.setHeight((int) (maxWidth * height / width));
+            } else {
+                jiMengParams.setWidth((int) (maxHeight * width / height));
+                jiMengParams.setHeight(maxHeight);
+            }
+        }
+        //第二种情况：宽或者高在范围外,小于最小值，则取小的值最小值，等比例放大
+        if (width < minWidth || height < minHeight) {
+            if (width < height) {
+                jiMengParams.setWidth(minWidth);
+                jiMengParams.setHeight((int) (minWidth * height / width));
+            } else {
+                jiMengParams.setWidth((int) (minHeight * width / height));
+                jiMengParams.setHeight(minHeight);
+            }
+        }
+        //如果提示词的长度超过最大长度
+        if (info.getPrompt().length() > jiMengVerify.getPromptLength()) {
+            jiMengParams.setPrompt(info.getPrompt().substring(0, jiMengVerify.getPromptLength()));
+        } else {
+            jiMengParams.setPrompt(info.getPrompt());
+        }
     }
 }

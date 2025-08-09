@@ -54,23 +54,23 @@ public class GenerateLogInfoDto implements Serializable {
     /**
      * 随机种子
      */
-    private Long seed;
+    private Float seed;
 
     /**
      * 数量
      */
-    private Long numbers;
+    private Integer numbers;
 
 
     /**
      * 宽度
      */
-    private Long width;
+    private Integer width;
 
     /**
      * 高度
      */
-    private Long height;
+    private Integer height;
 
 
     /**

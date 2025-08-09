@@ -71,7 +71,6 @@
         <dependency>
             <groupId>com.lz</groupId>
             <artifactId>picture-user-auth</artifactId>
-            <version>${picture.version}</version>
         </dependency>
 
         <!--C端用户图片模块-->

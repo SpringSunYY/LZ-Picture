@@ -17,12 +17,6 @@
 
     <dependencies>
 
-        <!-- 通用工具-->
-        <dependency>
-            <groupId>com.lz</groupId>
-            <artifactId>picture-common</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
@@ -31,6 +25,13 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-json</artifactId>
+        </dependency>
+
+
+        <!-- 通用工具-->
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-common</artifactId>
         </dependency>
 
         <dependency>

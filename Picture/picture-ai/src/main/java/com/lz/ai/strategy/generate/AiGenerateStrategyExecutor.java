@@ -58,7 +58,7 @@ public class AiGenerateStrategyExecutor {
             //遍历执行，拿到对应的执行器
             for (AiGenerateStrategyService strategyService : aiGenerateStrategyServiceList) {
                 AiGenerateStrategyConfig annotation = strategyService.getClass().getAnnotation(AiGenerateStrategyConfig.class);
-                if (annotation.modelKey().equals(info.getModelKey())) {
+                if (annotation.model().equals(info.getModel())) {
                     buffer.append(strategyService.userGenerate(info)).append("\n");
                 }
             }

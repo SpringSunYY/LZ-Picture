@@ -54,12 +54,12 @@ public class GenerateLogInfoQuery implements Serializable {
     /**
      * 随机种子
      */
-    private Long seed;
+    private Float seed;
 
     /**
      * 数量
      */
-    private Long numbers;
+    private Integer numbers;
 
     /**
      * 任务编号
@@ -69,12 +69,12 @@ public class GenerateLogInfoQuery implements Serializable {
     /**
      * 宽度
      */
-    private Long width;
+    private Integer width;
 
     /**
      * 高度
      */
-    private Long height;
+    private Integer height;
 
     /**
      * 请求时长

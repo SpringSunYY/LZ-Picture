@@ -68,13 +68,13 @@ public class GenerateLogInfoVo implements Serializable {
      * 随机种子
      */
     @Excel(name = "随机种子")
-    private Long seed;
+    private Float seed;
 
     /**
      * 数量
      */
     @Excel(name = "数量")
-    private Long numbers;
+    private Integer numbers;
 
     /**
      * 输入参数
@@ -104,13 +104,13 @@ public class GenerateLogInfoVo implements Serializable {
      * 宽度
      */
     @Excel(name = "宽度")
-    private Long width;
+    private Integer width;
 
     /**
      * 高度
      */
     @Excel(name = "高度")
-    private Long height;
+    private Integer height;
 
     /**
      * 请求时间

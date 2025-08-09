@@ -1,9 +1,6 @@
 package com.lz.picture.strategy.userPictureApiSearchStrategy.impl;
 
 import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONString;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lz.picture.model.dto.pictureApiSearch.PictureApiSearchRequest;
 import com.lz.picture.model.vo.pictureApiSearch.PictureApiSearchVo;
