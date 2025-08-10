@@ -7,7 +7,10 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.alibaba.fastjson2.JSONObject;
-import com.aliyun.oss.*;
+import com.aliyun.oss.HttpMethod;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.ServiceException;
 import com.aliyun.oss.model.DeleteObjectsRequest;
 import com.aliyun.oss.model.DeleteObjectsResult;
 import com.aliyun.oss.model.GeneratePresignedUrlRequest;
@@ -98,11 +101,11 @@ public class PictureUploadManager {
      * param: fileBytes
      * return: java.lang.String
      **/
-    public FileResponse uploadPicture(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+    public FileResponse uploadPicture(MultipartFile multipartFile, String fileDir, String username) {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir);
+        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir, "-compressed.webp");
 
         try {
             file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
@@ -146,7 +149,7 @@ public class PictureUploadManager {
             long picHeight = Long.parseLong(exif.getImageHeight().getValue());
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
-            String process = getWatermark(loginUser, picWidth, picHeight);
+            String process = getWatermark(username, picWidth, picHeight);
             req.setExpiration(expiration);
             req.setProcess(process);
             URL compressedUrl = ossClient.generatePresignedUrl(req);
@@ -165,19 +168,7 @@ public class PictureUploadManager {
             throw new RuntimeException("文件上传异常");
         } finally {
             // 确保关闭OSSClient
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    log.error("文件关闭失败", e);
-                }
-            }
-            if (file.exists()) {
-                boolean delete = file.delete();
-            }
+            close(ossClient, inputStream, file);
         }
     }
 
@@ -220,14 +211,15 @@ public class PictureUploadManager {
     /**
      * 获取文件基本信息
      *
-     * @param fileName 文件名
-     * @param fileDir  文件目录
+     * @param fileName         文件名
+     * @param fileDir          文件目录
+     * @param compressedSuffix 压缩文件后缀
      * @return com.lz.common.manager.file.model.PictureFileInfo
      * @author YY
      * @method getPictureFileInfo
      * @date 2025/4/24 20:14
      **/
-    public FileInfo getPictureFileInfo(String fileName, String fileDir) {
+    public FileInfo getPictureFileInfo(String fileName, String fileDir, String compressedSuffix) {
         String nameNotSuffix = FileUtils.getNameNotSuffix(fileName);
         String fileSuffix = FileUtil.getSuffix(fileName);
 //        System.err.println("nameNotSuffix = " + nameNotSuffix);
@@ -242,7 +234,6 @@ public class PictureUploadManager {
         String parseDateToStr = DateUtils.parseDateToStr(DateUtils.yyyy_mm_dd, new Date());
         String filePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + newFileName;
         //压缩文件信息
-        String compressedSuffix = "-compressed.webp";
         String compressedFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + compressedSuffix;
         String compressedFilePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + compressedFileName;
         FileInfo fileInfo = new FileInfo();
@@ -260,12 +251,12 @@ public class PictureUploadManager {
     /**
      * 获取水印基本信息
      *
-     * @param loginUser 当前登录用户信息
+     * @param username  当前登录用户信息
      * @param picWidth  图片宽度
      * @param picHeight 图片高度
      * @return
      */
-    public String getWatermark(LoginUserInfo loginUser, long picWidth, long picHeight) {
+    public String getWatermark(String username, long picWidth, long picHeight) {
         long fontSize = picWidth / 30;
         long userFontSize = picHeight / 30;
 
@@ -275,7 +266,7 @@ public class PictureUploadManager {
             text = "www.springsun.online";
         }
         String encodeToString = Base64.getEncoder().encodeToString(text.getBytes());
-        String userEncodeToString = Base64.getEncoder().encodeToString(loginUser.getUsername().getBytes());
+        String userEncodeToString = Base64.getEncoder().encodeToString(username.getBytes());
 
         //获取水印字体大小
         try {
@@ -327,11 +318,11 @@ public class PictureUploadManager {
      * param: loginUser
      * return: String
      **/
-    public FileResponse uploadCover(MultipartFile multipartFile, String fileDir, LoginUserInfo loginUser) {
+    public FileResponse uploadCover(MultipartFile multipartFile, String fileDir) {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir);
+        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir, "-compressed.webp");
         try {
             file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
             multipartFile.transferTo(file);
@@ -375,20 +366,7 @@ public class PictureUploadManager {
             System.err.println("上传失败：" + e.getMessage());
             throw new RuntimeException("文件上传异常");
         } finally {
-            // 确保关闭OSSClient
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (file != null && file.exists()) {
-                boolean delete = file.delete();
-            }
+            close(ossClient, inputStream, file);
         }
     }
 
@@ -397,21 +375,21 @@ public class PictureUploadManager {
      * 根据url上传图片
      * 上传原始文件和压缩后的图片
      *
-     * @param url       路径
-     * @param fileDir   文件目录
-     * @param loginUser 登录用户
+     * @param url      路径
+     * @param fileDir  文件目录
+     * @param username 登录用户
      * @return com.lz.common.manager.file.model.PictureFileResponse
      * @author YY
      * @method uploadUrl
      * @date 2025/4/24 23:10
      **/
-    public FileResponse uploadUrl(String url, String fileDir, LoginUserInfo loginUser) {
+    public FileResponse uploadUrl(String url, String fileDir, String username) {
         //校验文件路径
         validPicture(url);
         //获取文件名
         String fileName = getValidFilename(url);
         //生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir);
+        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir, "-compressed.webp");
         //获取文件
         File file = null;
         InputStream inputStream = null;
@@ -429,8 +407,8 @@ public class PictureUploadManager {
             // 上传原始文件
             ossClient.putObject(ossConfig.getBucket(), fileInfo.getFilePath(), file);
             // 生成获取图片信息的预签名URL（包含目录路径）
-            String style = "image/info";
             Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
+            String style = "image/info";
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
                     ossConfig.getBucket(),
                     fileInfo.getFilePath(),  // 使用完整路径
@@ -447,7 +425,7 @@ public class PictureUploadManager {
             long picHeight = Long.parseLong(exif.getImageHeight().getValue());
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
-            String process = getWatermark(loginUser, picWidth, picHeight);
+            String process = getWatermark(username, picWidth, picHeight);
             // 创建获取压缩后图片的预签名URL
             req.setExpiration(expiration);
             req.setProcess(process);
@@ -465,22 +443,25 @@ public class PictureUploadManager {
 //            System.err.println("上传失败：" + e.getMessage());
             throw new RuntimeException("文件上传异常,获取是图片链接有误,请使用可访问的地址");
         } finally {
-            // 确保关闭OSSClient
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    log.error("文件关闭失败", e);
-                }
-            }
-            if (StringUtils.isNotNull(file) && file.exists()) {
-                boolean delete = file.delete();
+            close(ossClient, inputStream, file);
+        }
+    }
+
+    private static void close(OSS ossClient, InputStream inputStream, File file) {
+        // 确保关闭OSSClient
+        if (ossClient != null) {
+            ossClient.shutdown();
+        }
+        if (inputStream != null) {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                log.error("文件关闭失败", e);
             }
         }
-
+        if (StringUtils.isNotNull(file) && file.exists()) {
+            boolean delete = file.delete();
+        }
     }
 
     /**
@@ -695,4 +676,117 @@ public class PictureUploadManager {
         }
     }
 
+    public FileResponse uploadUrlByAiGenerate(String url, String fileDir, String username) {
+        validPicture(url);
+        System.err.println("url = " + url);
+        //获取文件名
+        String fileName = getValidFilename(url);
+        //需要标注是ai生成的
+        String nameNotSuffix = FileUtils.getNameNotSuffix(fileName);
+        String fileSuffix = FileUtil.getSuffix(fileName);
+        fileName = nameNotSuffix + "-ai." + fileSuffix;
+        //生成唯一文件名
+        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir, "-compressed.webp");
+        //获取文件
+        File file = null;
+        InputStream inputStream = null;
+        OSS ossClient = null;
+        try {
+            file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
+            processFile(url, file);
+            // 初始化OSS客户端
+            ossClient = new OSSClientBuilder().build(
+                    ossConfig.getEndpoint(),
+                    ossConfig.getAccessKeyId(),
+                    ossConfig.getAccessKeySecret()
+            );
+
+            // 上传原始文件
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getFilePath(), file);
+            // 生成获取图片信息的预签名URL（包含目录路径）
+            Date expiration = new Date(System.currentTimeMillis() + 600_000); // 10分钟有效期
+            String style = "image/info";
+            GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(
+                    ossConfig.getBucket(),
+                    fileInfo.getFilePath(),  // 使用完整路径
+                    HttpMethod.GET
+            );
+            req.setExpiration(expiration);
+            req.setProcess(style);
+            URL signedUrl = ossClient.generatePresignedUrl(req);
+
+            // 发送HTTP请求获取图片信息
+            String imageInfo = HttpUtils.sendGet(signedUrl.toString());
+            Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
+            long picWidth = Long.parseLong(exif.getImageWidth().getValue());
+            long picHeight = Long.parseLong(exif.getImageHeight().getValue());
+
+            // 设置图片处理参数（转换为 WebP 格式）并携带水印
+            String process = getAiWatermark(username, picWidth, picHeight);
+            // 创建获取压缩后图片的预签名URL
+            req.setExpiration(expiration);
+            req.setProcess(process);
+            URL compressedUrl = ossClient.generatePresignedUrl(req);
+            // 获取压缩后的图片输入流
+            HttpURLConnection connection = (HttpURLConnection) compressedUrl.openConnection();
+            connection.setRequestMethod("GET");
+            inputStream = connection.getInputStream();
+            // 将压缩图上传到OSS
+            ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
+            // 返回文件访问路径或URL
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
+        } catch (Exception e) {
+            // 记录详细日志
+//            System.err.println("上传失败：" + e.getMessage());
+            throw new RuntimeException("文件上传异常,获取是图片链接有误,请使用可访问的地址");
+        } finally {
+            close(ossClient, inputStream, file);
+        }
+    }
+
+    /**
+     * AI水印
+     *
+     * @param username  用户名称
+     * @param picWidth  图片宽度
+     * @param picHeight 图片高度
+     * @return String
+     * @author: YY
+     * @method: getAiWatermark
+     * @date: 2025/8/10 23:57
+     **/
+    private String getAiWatermark(String username, long picWidth, long picHeight) {
+        String watermark = getWatermark(username, picWidth, picHeight);
+        //重新加上ai水印
+        long fontSize = picHeight / 30;
+
+        //获取水印基本信息
+        String text = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_AI);
+        if (StringUtils.isEmpty(text)) {
+            text = "LZAI";
+        }
+        String encodeToString = Base64.getEncoder().encodeToString(text.getBytes());
+
+        //获取水印字体大小
+        try {
+            Long aSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_AI_S);
+            if (StringUtils.isNull(aSize)) {
+                aSize = 50L;
+            }
+            fontSize = picHeight / aSize;
+        } catch (Exception e) {
+            log.error("获取水印基本信息失败：{}", e.getMessage());
+        }
+        //获取水印透明度
+        String aAlpha = "70";
+        String pAlphaStr = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_AI_P);
+        if (StringUtils.isNotEmpty(pAlphaStr)) {
+            aAlpha = pAlphaStr;
+        }
+        watermark += "/watermark,text_" + encodeToString
+                + ",size_" + fontSize
+                + ",t_" + aAlpha
+                + ",color_FFFFFF,g_west,x_20,type_ZHJvaWRzYW5zZmFsbGJhY2s";
+        return watermark;
+    }
 }

@@ -67,7 +67,7 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload")
     public AjaxResult uploadPicture(@RequestPart("file") MultipartFile multipartFile) {
         // 执行业务上传
-        FileResponse picture = pictureUploadManager.uploadPicture(multipartFile, "picture", getLoginUser());
+        FileResponse picture = pictureUploadManager.uploadPicture(multipartFile, "picture", getUsername());
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
                 getLoginUser().getUserId(),
@@ -95,7 +95,7 @@ public class UserFileController extends BaseUserInfoController {
             fileDir = "cover";
         }
         // 执行业务上传
-        FileResponse fileResponse = pictureUploadManager.uploadCover(multipartFile, fileDir, getLoginUser());
+        FileResponse fileResponse = pictureUploadManager.uploadCover(multipartFile, fileDir);
         //防止线程变量共享
         FileResponse target = new FileResponse();
         BeanUtils.copyProperties(fileResponse, target);
@@ -147,7 +147,7 @@ public class UserFileController extends BaseUserInfoController {
     @PostMapping("/upload/url")
     public AjaxResult uploadUrl(@RequestBody UrlUploadRequest urlUploadRequest) {
         // 执行业务上传
-        FileResponse fileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getLoginUser());
+        FileResponse fileResponse = pictureUploadManager.uploadUrl(urlUploadRequest.getUrl(), "picture", getUsername());
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(
                 PictureFileLogAsyncFactory.recordFileLog(fileResponse,

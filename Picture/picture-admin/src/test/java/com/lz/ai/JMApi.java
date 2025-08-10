@@ -87,8 +87,7 @@ public class JMApi {
         req.put("use_sr", true);
         req.put("width",768);
         req.put("height", 768);
-        req.put("prompt", "头像插画 五官特写 极致光影 逆光 白色长发 少女 45度仰望天空 蓝色纯色背景 笔刷画 笔触质感 虚焦 颗粒感 朦胧感 复古 做旧 极简主义");
-
+        req.put("prompt", "采用细腻的半厚涂画风，展现一位气质阴郁的男子形象。他的浅金色中长发显得有些散乱，在俯视且近距离的视角构图中，画面聚焦于他的面部，对其面部细节精心描绘，尤其是那浓密纤长的睫毛十分吸睛，给人一种神秘的感觉。瞳孔是浅蓝色");
         JMApi.doRequest("POST", new HashMap(), req.toJSONString().getBytes(), date, action, version);
     }
 

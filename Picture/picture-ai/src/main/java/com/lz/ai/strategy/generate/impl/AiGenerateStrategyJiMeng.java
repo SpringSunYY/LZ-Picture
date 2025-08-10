@@ -9,12 +9,11 @@ import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
 import com.lz.ai.strategy.generate.domain.dto.JiMengResponse;
 import com.lz.ai.strategy.generate.domain.params.JiMengParams;
 import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
-import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
+import com.lz.common.manager.file.PictureUploadManager;
+import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.bean.BeanUtils;
-import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.binary.Hex;
@@ -48,6 +47,10 @@ import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
     @Resource
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    @Resource
+    private PictureUploadManager pictureUploadManager;
+
     private static final BitSet URLENCODER = new BitSet(256);
     private static final String CONST_ENCODE = "0123456789ABCDEF";
     public static final Charset UTF_8 = StandardCharsets.UTF_8;
@@ -78,7 +81,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         try {
             System.out.println("json = " + json);
             List<Future<JiMengResponse>> futures = new ArrayList<>();
-            for (Integer i = 0; i < info.getNumbers(); i++) {
+            for (int i = 0; i < info.getNumbers(); i++) {
                 Future<JiMengResponse> future = threadPoolTaskExecutor.submit(() -> {
                     long startTime = System.currentTimeMillis();
                     JiMengResponse jiMengResponse = null;
@@ -90,7 +93,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                         throw new RuntimeException(e);
                     }
                     long totalTime = System.currentTimeMillis() - startTime;
-                    GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json,totalTime);
+                    GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json, totalTime);
                     System.out.println("generateLogInfo = " + generateLogInfo);
                     return jiMengResponse;
                 });
@@ -160,6 +163,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                         }
                         System.out.println("图片已保存为 generated_image.jpg");
                     }
+                    //上传图片
+                    FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", "admin");
+                    System.out.println("fileResponse = " + fileResponse);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

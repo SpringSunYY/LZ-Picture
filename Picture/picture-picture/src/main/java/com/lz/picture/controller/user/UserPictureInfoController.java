@@ -1,7 +1,6 @@
 package com.lz.picture.controller.user;
 
 import com.alibaba.fastjson.JSON;
-import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
@@ -53,7 +52,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     private PictureUploadManager pictureUploadManager;
 
 
-
     /**
      * 新增图片
      */
@@ -73,7 +71,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult uploadUrl(@RequestBody @Validated PictureUrlUpload pictureUrlUpload) {
         System.err.println(pictureUrlUpload);
         // 执行业务上传
-        FileResponse fileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getLoginUser());
+        FileResponse fileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getUsername());
 
         //异步执行存入文件日志
         String userId = getUserId();
