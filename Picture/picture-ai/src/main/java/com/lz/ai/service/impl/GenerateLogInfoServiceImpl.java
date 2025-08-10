@@ -154,6 +154,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         String aiStatusCode = generateLogInfoQuery.getAiStatusCode();
         queryWrapper.eq(StringUtils.isNotEmpty(aiStatusCode), "ai_status_code", aiStatusCode);
 
+        String hasStatistics = generateLogInfoQuery.getHasStatistics();
+        queryWrapper.eq(StringUtils.isNotEmpty(hasStatistics), "has_statistics", hasStatistics);
+
         String ipAddr = generateLogInfoQuery.getIpAddr();
         queryWrapper.eq(StringUtils.isNotEmpty(ipAddr), "ip_addr", ipAddr);
 

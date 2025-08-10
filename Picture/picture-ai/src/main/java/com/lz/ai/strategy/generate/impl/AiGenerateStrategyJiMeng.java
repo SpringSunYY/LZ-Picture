@@ -1,14 +1,21 @@
 package com.lz.ai.strategy.generate.impl;
 
-
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
+import com.lz.ai.model.enums.AiLogStatusEnum;
 import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
 import com.lz.ai.strategy.generate.domain.dto.JiMengResponse;
 import com.lz.ai.strategy.generate.domain.params.JiMengParams;
 import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.enums.CommonDeleteEnum;
+import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.ip.IpUtils;
+import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -16,6 +23,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -25,6 +33,8 @@ import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Future;
+
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 
 /**
  * 即梦生成
@@ -80,7 +90,8 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                         throw new RuntimeException(e);
                     }
                     long totalTime = System.currentTimeMillis() - startTime;
-                    processResult(jiMengResponse, info, totalTime);
+                    GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json,totalTime);
+                    System.out.println("generateLogInfo = " + generateLogInfo);
                     return jiMengResponse;
                 });
                 futures.add(future);
@@ -100,10 +111,40 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         return info.getTargetId();
     }
 
-    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, long totalTime) {
+    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
         GenerateLogInfo generateLogInfo = new GenerateLogInfo();
+        generateLogInfo.setLogId(IdUtils.fastSimpleUUID());
+        generateLogInfo.setUserId(info.getUserId());
+        generateLogInfo.setModelKey(info.getModelKey());
+        generateLogInfo.setModelType(info.getModelType());
+        generateLogInfo.setInputFile(info.getInputFile());
+        generateLogInfo.setPrompt(info.getPrompt());
+        generateLogInfo.setNegativePrompt(info.getNegativePrompt());
+        generateLogInfo.setSeed(info.getSeed());
+        generateLogInfo.setNumbers(info.getNumbers());
+        generateLogInfo.setInputParams(json);
+        generateLogInfo.setTaskId(jiMengResponse.getRequest_id());
+        generateLogInfo.setOutputResult(JSON.toJSONString(jiMengResponse));
+        generateLogInfo.setWidth(info.getWidth());
+        generateLogInfo.setHeight(info.getHeight());
+        generateLogInfo.setRequestTime(new Date());
+        generateLogInfo.setRequestDuration(totalTime);
+        generateLogInfo.setPriceUsed(info.getPriceUse().multiply(BigDecimal.valueOf(info.getNumbers())));
+        generateLogInfo.setPointsUsed(info.getPointsNeed() * info.getNumbers());
+        generateLogInfo.setTargetId(info.getTargetId());
+        generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+        generateLogInfo.setAiStatusCode(String.valueOf(jiMengResponse.getCode()));
+        generateLogInfo.setFailReason(jiMengResponse.getMessage());
+        generateLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
+        generateLogInfo.setCreateTime(new Date());
+        generateLogInfo.setUpdateTime(new Date());
+        generateLogInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
 
+//        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+        //设置设备信息
+//        BeanUtils.copyProperties(deviceInfo, generateLogInfo);
         if (jiMengResponse.getCode() == 10000) {
+            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
             JiMengResponse.DataContent data = jiMengResponse.getData();
             List<String> imageUrls = data.getImage_urls();
             for (String imageUrl : imageUrls) {
@@ -123,6 +164,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                     throw new RuntimeException(e);
                 }
             }
+            generateLogInfo.setFileUrls(String.join(COMMON_SEPARATOR, imageUrls));
         }
         return generateLogInfo;
     }
@@ -140,6 +182,10 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         Integer maxHeight = jiMengVerify.getMaxHeight();
         Integer minHeight = jiMengVerify.getMinHeight();
         commonVerify(info, width, minWidth, maxWidth, height, minHeight, maxHeight, jiMengParams, jiMengVerify);
+        Integer numbers = info.getNumbers();
+        if (numbers > jiMengVerify.getMaxNumbers()) {
+            info.setNumbers(jiMengVerify.getMaxNumbers());
+        }
         if (StringUtils.isNotNull(info.getSeed())) {
             jiMengParams.setSeed(info.getSeed().intValue());
         }
@@ -187,7 +233,6 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 
         byte[] signKey = genSigningSecretKeyV4(sk, shortXDate, region, service);
         String signature = HexFormat.of().formatHex(hmacSHA256(signKey, signString));
-//        String signature = Hex.encodeHexString(Utils.hmacSHA256(signKey, signString));
 
         URL url = new URL(schema + "://" + host + path + "?" + querySB);
 

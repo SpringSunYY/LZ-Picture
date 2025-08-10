@@ -99,6 +99,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="是否统计" prop="hasStatistics">
+        <el-select v-model="queryParams.hasStatistics" style="width: 200px" placeholder="请选择是否统计" clearable>
+          <el-option
+              v-for="dict in common_has_statistics"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="用户IP地址" prop="ipAddr">
         <el-input
             v-model="queryParams.ipAddr"
@@ -274,29 +284,34 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="用户IP地址" align="center" prop="ipAddr" v-if="columns[23].visible"
+      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[23].visible">
+        <template #default="scope">
+          <dict-tag :options="common_has_statistics" :value="scope.row.hasStatistics"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="用户IP地址" align="center" prop="ipAddr" v-if="columns[24].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="用户设备唯一标识" align="center" prop="deviceId" v-if="columns[24].visible"
+      <el-table-column label="用户设备唯一标识" align="center" prop="deviceId" v-if="columns[25].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[25].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[26].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[26].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[27].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[27].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[28].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[28].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[29].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[29].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[30].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[30].visible"
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[31].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -327,6 +342,9 @@
         <el-form-item label="模型KEY" prop="modelKey">
           <el-input v-model="form.modelKey" placeholder="请输入模型KEY"/>
         </el-form-item>
+        <el-form-item label="是否统计" prop="hasStatistics">
+          <el-input v-model="form.hasStatistics" placeholder="请输入是否统计"/>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -348,7 +366,7 @@ import {
 } from "@/api/ai/generateLogInfo";
 
 const {proxy} = getCurrentInstance();
-const {ai_log_status} = proxy.useDict('ai_log_status');
+const {ai_log_status, common_has_statistics} = proxy.useDict('ai_log_status', 'common_has_statistics');
 
 const generateLogInfoList = ref([]);
 const open = ref(false);
@@ -382,6 +400,7 @@ const data = reactive({
     targetId: null,
     logStatus: null,
     aiStatusCode: null,
+    hasStatistics: null,
     ipAddr: null,
     deviceId: null,
     browser: null,
@@ -454,14 +473,15 @@ const data = reactive({
     {key: 20, label: '状态', visible: true},
     {key: 21, label: '模型返回码', visible: true},
     {key: 22, label: '失败原因', visible: true},
-    {key: 23, label: '用户IP地址', visible: true},
-    {key: 24, label: '用户设备唯一标识', visible: true},
-    {key: 25, label: '浏览器类型', visible: true},
-    {key: 26, label: '操作系统', visible: true},
-    {key: 27, label: '平台', visible: true},
-    {key: 28, label: '创建时间', visible: true},
-    {key: 29, label: '更新时间', visible: true},
-    {key: 30, label: '删除', visible: true},
+    {key: 23, label: '是否统计', visible: true},
+    {key: 24, label: '用户IP地址', visible: true},
+    {key: 25, label: '用户设备唯一标识', visible: true},
+    {key: 26, label: '浏览器类型', visible: true},
+    {key: 27, label: '操作系统', visible: true},
+    {key: 28, label: '平台', visible: true},
+    {key: 29, label: '创建时间', visible: true},
+    {key: 30, label: '更新时间', visible: true},
+    {key: 31, label: '删除', visible: true},
   ],
 });
 
@@ -518,6 +538,7 @@ function reset() {
     logStatus: null,
     aiStatusCode: null,
     failReason: null,
+    hasStatistics: null,
     ipAddr: null,
     deviceId: null,
     browser: null,

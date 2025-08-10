@@ -1,6 +1,7 @@
 package com.lz.ai.model.dto.generateLogInfo;
 
 import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.common.annotation.Excel;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -37,6 +38,11 @@ public class GenerateLogInfoEdit implements Serializable {
      * 模型类型
      */
     private String modelType;
+
+    /**
+     * 是否统计
+     */
+    private String hasStatistics;
 
     /**
      * 对象转封装类

@@ -1,11 +1,13 @@
 package com.lz.ai.model.dto.generateLogInfo;
 
 import com.lz.ai.model.domain.ModelParamsInfo;
+import com.lz.common.annotation.Excel;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -84,6 +86,16 @@ public class GenerateLogInfoDto implements Serializable {
     private String modelKey;
 
     /**
+     * 价格
+     */
+    private BigDecimal priceUse;
+
+    /**
+     * 积分
+     */
+    private Long pointsNeed;
+
+    /**
      * 模型名称
      */
     private String modelName;
@@ -115,12 +127,6 @@ public class GenerateLogInfoDto implements Serializable {
      */
     private String modelParams;
 
-
-    /**
-     * 积分
-     */
-    private Long pointsNeed;
-
     /**
      * 扩展配置
      */
@@ -142,6 +148,8 @@ public class GenerateLogInfoDto implements Serializable {
         this.modelKey = modelParamsInfo.getModelKey();
         this.modelName = modelParamsInfo.getModelName();
         this.model = modelParamsInfo.getModel();
+        this.priceUse = modelParamsInfo.getPriceUse();
+        this.pointsNeed = modelParamsInfo.getPointsNeed();
         this.apiUrl = modelParamsInfo.getApiUrl();
         this.apiKey = modelParamsInfo.getApiKey();
         this.secretKey = modelParamsInfo.getSecretKey();

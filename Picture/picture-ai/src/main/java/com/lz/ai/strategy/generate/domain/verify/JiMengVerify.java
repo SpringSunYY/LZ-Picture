@@ -18,6 +18,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class JiMengVerify extends Verify<JiMengVerify> {
+    //最大数量
+    private Integer maxNumbers;
     @Override
     public String objToJson(JiMengVerify verify) {
         return JSONObject.toJSONString(verify);

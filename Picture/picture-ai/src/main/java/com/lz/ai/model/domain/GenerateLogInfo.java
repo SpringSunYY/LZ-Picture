@@ -167,6 +167,14 @@ public class GenerateLogInfo implements Serializable {
     @Excel(name = "失败原因")
     private String failReason;
 
+
+    /**
+     * 是否统计
+     */
+    @Excel(name = "是否统计")
+    private String hasStatistics;
+
+
     /**
      * 用户IP地址
      */
