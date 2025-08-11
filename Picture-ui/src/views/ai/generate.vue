@@ -17,6 +17,7 @@
           :allowClear="true"
           show-count
           class="text-area mt-1"
+          v-model:value="prompt"
         />
         <div class="tag-container mt-4">
           <a-space wrap>
@@ -30,14 +31,14 @@
         </div>
       </div>
       <div class="model mt-4">
-        <AiCheckModel />
+        <AiCheckModel v-model="modelInfo" />
       </div>
       <div class="generate">
         <a-tooltip placement="top">
           <template #title>
             <span>一共需要消耗积分</span>
           </template>
-          <generate-button style="width: 60%" />
+          <generate-button :is-loading="isGenerating" @click="submitGenerate" style="width: 60%" />
         </a-tooltip>
       </div>
     </div>
@@ -124,6 +125,9 @@ import AiPictureView from '@/components/AiPictureView.vue'
 import DeleteButton from '@/components/button/DeleteButton.vue'
 import DownloadSvgButton from '@/components/button/DownloadSvgButton.vue'
 import AiBatchButton from '@/components/button/AiBatchButton.vue'
+import type { ModerInfo } from '@/types/ai/model'
+import { generate } from '@/api/ai/model.ts'
+import { message } from 'ant-design-vue'
 
 const activeTab = ref('1')
 
@@ -142,6 +146,56 @@ const imageUrl1 =
   'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D'
 const imageUrl2 =
   'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/0dd94401c13c45c69d9e5eb0a95b4807~tplv-tb4s082cfz-aigc_resize:1080:1080.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=rU%2B9dDTCb3nSIAMZ%2BA3Bxl3brTU%3D'
+
+const isGenerating = ref(false)
+const modelInfo = ref<ModerInfo>({
+  width: 682,
+  height: 1024,
+  modelType: '',
+  modelKeys: [],
+  numbers: 1,
+})
+const prompt = ref('')
+const submitGenerate = async () => {
+  console.log('提交生成')
+  console.log(modelInfo.value)
+  console.log(prompt.value)
+  //校验参数是否填写
+  if (
+    !modelInfo.value?.width ||
+    modelInfo.value?.width < 256 ||
+    !modelInfo.value?.height ||
+    modelInfo.value?.height < 0
+  ) {
+    message.warn('请填写图片尺寸,宽高不可小于256')
+    return
+  }
+  if (!modelInfo.value?.modelKeys || modelInfo.value?.modelKeys.length <= 0) {
+    message.warn('请选择模型')
+    return
+  }
+  if (!modelInfo.value?.numbers || modelInfo.value?.numbers <= 0) {
+    message.warn('请填写数量')
+  }
+  if (!prompt.value || prompt.value.length <= 0) {
+    message.warn('请填写提示词')
+    return
+  }
+  isGenerating.value = true
+  message.success('正在生成图片，请不要刷新界面...')
+  const res = await generate({
+    prompt: prompt.value,
+    modelKeys: modelInfo.value?.modelKeys,
+    modelType: modelInfo.value?.modelType || '',
+    width: modelInfo.value?.width,
+    height: modelInfo.value?.height,
+    numbers: modelInfo.value?.numbers || 1,
+  })
+  if (res.code === 200) {
+    message.success(res.msg)
+  }
+  isGenerating.value = false
+}
 </script>
 
 <style scoped lang="scss">

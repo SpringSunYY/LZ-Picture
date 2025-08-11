@@ -1,8 +1,7 @@
 package com.lz.ai.model.dto.generateLogInfo;
 
 import com.lz.ai.model.domain.GenerateLogInfo;
-import com.lz.common.annotation.Excel;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -35,13 +34,13 @@ public class GenerateLogInfoRequest implements Serializable {
     /**
      * 模型KEY
      */
-    @NotNull(message = "模型KEY不能为空")
+    @NotEmpty(message = "请选择模型")
     private List<String> modelKeys;
 
     /**
      * 模型类型
      */
-    @NotNull(message = "模型类型不能为空")
+    @NotBlank(message = "请选择模型类型")
     private String modelType;
 
     /**
@@ -75,12 +74,16 @@ public class GenerateLogInfoRequest implements Serializable {
      * 宽度
      */
     @NotNull(message = "宽度不能为空")
+    @Min(value = 256, message = "最小宽度为256")
+    @Max(value = 3024, message = "最大宽度为3024")
     private Integer width;
 
     /**
      * 高度
      */
     @NotNull(message = "高度不能为空")
+    @Min(value = 256, message = "最小高度为256")
+    @Max(value = 3024, message = "最大高度为3024")
     private Integer height;
 
 
@@ -114,7 +117,6 @@ public class GenerateLogInfoRequest implements Serializable {
      * 平台
      */
     private String platform;
-
 
 
     /**

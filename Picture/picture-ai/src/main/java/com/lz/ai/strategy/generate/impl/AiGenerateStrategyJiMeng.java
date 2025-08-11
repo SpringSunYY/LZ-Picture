@@ -12,6 +12,7 @@ import com.lz.ai.strategy.generate.domain.params.JiMengParams;
 import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
@@ -23,7 +24,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -116,9 +119,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             });
             //处理结果
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ServiceException("生成失败！！！");
         }
-        return info.getTargetId();
+        return info.getModelLabel() + "生成成功！！！";
     }
 
     private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {

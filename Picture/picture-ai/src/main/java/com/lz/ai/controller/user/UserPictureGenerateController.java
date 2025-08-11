@@ -11,6 +11,7 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,9 +29,9 @@ public class UserPictureGenerateController extends BaseUserInfoController {
     @Resource
     private IGenerateLogInfoService generateLogInfoService;
 
-    @PostMapping("/add")
+    @PostMapping("/generate")
     @PreAuthorize("@uss.hasLogin()")
-    public AjaxResult add(@Validated GenerateLogInfoRequest request) {
+    public AjaxResult add(@Validated @RequestBody GenerateLogInfoRequest request) {
         request.setUserId(getUserId());
         request.setUsername(getUsername());
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();

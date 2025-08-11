@@ -117,7 +117,7 @@
             v-for="option in modelList"
             :key="option.modelKey"
             :class="{ 'is-selected': selectedModelOptions.includes(option.modelKey) }"
-            @click.stop="toggleModelSelection(option.modelLabel)"
+            @click.stop="toggleModelSelection(option.modelKey)"
             :title="`${option.modelDescription}+\n\n所需${option.pointsNeed}积分`"
           >
             {{ option.modelLabel }}
@@ -153,7 +153,10 @@
             <span>{{ option.label }}</span>
             <span class="ratio-value">{{ option.width }}x{{ option.height }}</span>
           </li>
-          <li class="custom-ratio-item" @click.stop="selectRatio({ label: '自定义', width: customWidth, height: customHeight})">
+          <li
+            class="custom-ratio-item"
+            @click.stop="selectRatio({ label: '自定义', width: customWidth, height: customHeight })"
+          >
             <label>自定义:</label>
             <div class="custom-ratio-inputs">
               <input
@@ -184,10 +187,10 @@
       <div class="dropdown-wrapper">
         <input
           type="number"
-          v-model.number="number"
+          v-model.number="numbers"
           :min="1"
           :max="9"
-          @input="validateInput"
+          @input="resetModel"
           @blur="validateInput"
           @click.stop
           class="action-button"
@@ -200,7 +203,7 @@
 </template>
 <script lang="ts" setup name="AiCheckModel">
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
-import type { ModelParamsInfo, ModelParamsInfoRequest } from '@/types/ai/model'
+import type { ModelParamsInfo, ModelParamsInfoRequest, ModerInfo } from '@/types/ai/model'
 import { listModel } from '@/api/ai/model.ts'
 import type { Dict } from '@/types/common'
 
@@ -213,7 +216,7 @@ interface ImageRatioOption {
   height?: number
 }
 
-const number = ref(1)
+const numbers = ref(1)
 //region 模型信息
 const modelList = ref<ModelParamsInfo>()
 const modelQuery = ref<ModelParamsInfoRequest>({
@@ -249,8 +252,8 @@ const selectedImageOption = ref<Dict>({
 const selectedModelOptions = ref<string[]>([])
 const selectedRatioOption = ref<ImageRatioOption>({
   label: '9:16 标清 1K',
-  width: 1024,
-  height: 1792,
+  width: 682,
+  height: 1024,
 })
 
 const customWidth = ref(1024)
@@ -265,10 +268,12 @@ const imageRatioOptions = [
   { label: '4:3  标清 1K', width: 1024, height: 768 },
   { label: '3:4  标清 1K', width: 768, height: 1024 },
   { label: '16:9 标清 1K', width: 1024, height: 682 },
+  { label: '9:16 标清 1K', width: 682, height: 1024 },
   { label: '1:1  高清 2K', width: 2048, height: 2048 },
   { label: '4:3  高清 2K', width: 2304, height: 1728 },
   { label: '3:4  高清 2K', width: 1536, height: 2048 },
   { label: '16:9 高清 2K', width: 2560, height: 1440 },
+  { label: '9:16 高清 2K', width: 1440, height: 2560 },
   { label: '21:9 高清 2K', width: 3024, height: 1296 },
 ]
 
@@ -290,6 +295,10 @@ const toggleDropdown = (dropdownName: 'imageGen' | 'imageModel' | 'imageRatio') 
 const selectOption = (dropdownName: 'imageGen', option: Dict) => {
   if (dropdownName === 'imageGen') selectedImageOption.value = option
   closeAllDropdowns()
+  modelQuery.value.modelType = option.dictValue
+  selectedModelOptions.value = []
+  getModelList()
+  resetModel()
 }
 
 const toggleModelSelection = (model: string) => {
@@ -299,6 +308,7 @@ const toggleModelSelection = (model: string) => {
   } else {
     selectedModelOptions.value.push(model)
   }
+  resetModel()
 }
 
 const selectRatio = (option: ImageRatioOption) => {
@@ -306,6 +316,7 @@ const selectRatio = (option: ImageRatioOption) => {
   if (option.label !== '自定义') {
     closeAllDropdowns()
   }
+  resetModel()
 }
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node
@@ -346,7 +357,28 @@ watch([customWidth, customHeight], () => {
     width: customWidth.value,
     height: customHeight.value,
   }
+  resetModel()
 })
+
+const emit = defineEmits(['update:modelValue'])
+const modelInfo = ref<ModerInfo>({
+  modelType: selectedImageOption.value.dictValue,
+  modelKeys: selectedModelOptions.value,
+  width: selectedRatioOption.value.width,
+  height: selectedRatioOption.value.height,
+})
+const resetModel = () => {
+  modelInfo.value = {
+    modelType: selectedImageOption.value.dictValue,
+    modelKeys: selectedModelOptions.value,
+    width: selectedRatioOption.value.width,
+    height: selectedRatioOption.value.height,
+    numbers: numbers.value,
+  }
+  //数据返回给父组件，使用v-model可以直接绑定
+  emit('update:modelValue', modelInfo.value)
+  console.log('modelInfo:', modelInfo.value)
+}
 
 // 添加以下方法来处理输入验证
 const validateInput = (event: Event, strict = false) => {

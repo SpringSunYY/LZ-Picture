@@ -34,3 +34,44 @@ export interface ModelParamsInfoRequest {
   /** 模型类型 */
   modelType?: string | null
 }
+
+export interface GenerateLogInfoRequest {
+  /** 模型KEY列表 */
+  modelKeys: string[];
+
+  /** 模型类型 */
+  modelType: string;
+
+  /** 输入文件 */
+  inputFile?: string;
+
+  /** 提示词 */
+  prompt: string;
+
+  /** 负向提示词 */
+  negativePrompt?: string;
+
+  /** 随机种子 */
+  seed?: number;
+
+  /** 数量 */
+  numbers: number;
+
+  /** 宽度 */
+  width: number;
+
+  /** 高度 */
+  height: number;
+
+  /** 参考对象 */
+  targetId?: string;
+}
+
+
+export interface ModerInfo {
+  width?: number
+  height?: number
+  modelType?: string
+  modelKeys?: string[]
+  numbers?: number
+}

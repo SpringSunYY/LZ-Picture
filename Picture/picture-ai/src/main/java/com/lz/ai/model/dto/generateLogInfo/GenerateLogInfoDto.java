@@ -42,6 +42,12 @@ public class GenerateLogInfoDto implements Serializable {
     @NotNull(message = "模型类型不能为空")
     private String modelType;
 
+
+    /**
+     * 模型label
+     */
+    private String modelLabel;
+
     /**
      * 输入文件
      */
@@ -194,6 +200,7 @@ public class GenerateLogInfoDto implements Serializable {
         this.pointsNeed = modelParamsInfo.getPointsNeed();
         this.extendConfig = modelParamsInfo.getExtendConfig();
         this.model = modelParamsInfo.getModel();
+        this.modelLabel = modelParamsInfo.getModelLabel();
     }
 
     public GenerateLogInfoDto() {
