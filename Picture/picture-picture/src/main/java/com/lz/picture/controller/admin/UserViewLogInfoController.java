@@ -31,6 +31,7 @@ import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 /**
  * 用户浏览记录Controller
@@ -58,7 +59,7 @@ public class UserViewLogInfoController extends BaseController {
         List<UserViewLogInfoVo> listVo = list.stream().map(UserViewLogInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserViewLogInfoVo vo : listVo) {
-            vo.setTargetCover(OssConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setTargetCover(OssConfig.builderPictureUrl(vo.getTargetCover(), inCache));
         }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

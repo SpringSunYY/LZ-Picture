@@ -91,7 +91,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="模型返回码" prop="aiStatusCode">
+      <el-form-item label="返回码" prop="aiStatusCode">
         <el-input
             v-model="queryParams.aiStatusCode"
             placeholder="请输入模型返回码"
@@ -109,7 +109,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="用户IP地址" prop="ipAddr">
+      <el-form-item label="IP地址" prop="ipAddr">
         <el-input
             v-model="queryParams.ipAddr"
             placeholder="请输入用户IP地址"
@@ -117,7 +117,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="用户设备唯一标识" prop="deviceId">
+      <el-form-item label="唯一标识" prop="deviceId">
         <el-input
             v-model="queryParams.deviceId"
             placeholder="请输入用户设备唯一标识"
@@ -125,7 +125,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
@@ -170,12 +170,14 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item label="删除" prop="isDelete">
-        <el-input
-            v-model="queryParams.isDelete"
-            placeholder="请输入删除"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
+          <el-option
+              v-for="dict in common_delete"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -229,7 +231,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="generateLogInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="generateLogInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="记录编号" align="center" prop="logId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -248,7 +251,7 @@
       <el-table-column label="随机种子" align="center" prop="seed" v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="数量" align="center" prop="numbers" v-if="columns[8].visible"
-                       :show-overflow-tooltip="true"/>
+                       sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="输入参数" align="center" prop="inputParams" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="任务编号" align="center" prop="taskId" v-if="columns[10].visible"
@@ -256,23 +259,27 @@
       <el-table-column label="返回结果" align="center" prop="outputResult" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="文件地址" align="center" prop="fileUrls" v-if="columns[12].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="宽度" align="center" prop="width" v-if="columns[13].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="高度" align="center" prop="height" v-if="columns[14].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="请求时间" align="center" prop="requestTime" width="180" v-if="columns[15].visible"
                        :show-overflow-tooltip="true">
+        <template #default="scope">
+          <image-preview :src="scope.row.fileUrls" width="50" height="50"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="宽度" align="center" prop="width" v-if="columns[13].visible"
+                       sortable="custom" :show-overflow-tooltip="true"/>
+      <el-table-column label="高度" align="center" prop="height" v-if="columns[14].visible"
+                       sortable="custom" :show-overflow-tooltip="true"/>
+      <el-table-column label="请求时间" align="center" prop="requestTime" width="180" v-if="columns[15].visible"
+                       sortable="custom" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.requestTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="请求时长" align="center" prop="requestDuration" v-if="columns[16].visible"
-                       :show-overflow-tooltip="true"/>
+                       sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="价格" align="center" prop="priceUsed" v-if="columns[17].visible"
-                       :show-overflow-tooltip="true"/>
+                       sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="消耗的积分" align="center" prop="pointsUsed" v-if="columns[18].visible"
-                       :show-overflow-tooltip="true"/>
+                       sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="参考对象" align="center" prop="targetId" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[20].visible">
@@ -300,7 +307,7 @@
       <el-table-column label="平台" align="center" prop="platform" v-if="columns[28].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[29].visible"
-                       :show-overflow-tooltip="true">
+                       sortable="custom" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
@@ -312,7 +319,11 @@
         </template>
       </el-table-column>
       <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[31].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -343,7 +354,24 @@
           <el-input v-model="form.modelKey" placeholder="请输入模型KEY"/>
         </el-form-item>
         <el-form-item label="是否统计" prop="hasStatistics">
-          <el-input v-model="form.hasStatistics" placeholder="请输入是否统计"/>
+          <el-radio-group v-model="form.hasStatistics">
+            <el-radio
+                v-for="dict in common_has_statistics"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="删除" prop="isDelete">
+          <el-radio-group v-model="form.isDelete">
+            <el-radio
+                v-for="dict in common_delete"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -366,7 +394,11 @@ import {
 } from "@/api/ai/generateLogInfo";
 
 const {proxy} = getCurrentInstance();
-const {ai_log_status, common_has_statistics} = proxy.useDict('ai_log_status', 'common_has_statistics');
+const {
+  ai_log_status,
+  common_has_statistics,
+  common_delete
+} = proxy.useDict('ai_log_status', 'common_has_statistics', 'common_delete');
 
 const generateLogInfoList = ref([]);
 const open = ref(false);
@@ -379,7 +411,8 @@ const total = ref(0);
 const title = ref("");
 const daterangeCreateTime = ref([]);
 const daterangeUpdateTime = ref([]);
-
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -450,47 +483,64 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '记录编号', visible: true},
+    {key: 0, label: '记录编号', visible: false},
     {key: 1, label: '用户编号', visible: true},
     {key: 2, label: '模型KEY', visible: true},
     {key: 3, label: '模型类型', visible: true},
     {key: 4, label: '输入文件', visible: true},
     {key: 5, label: '提示词', visible: true},
-    {key: 6, label: '负向提示词', visible: true},
+    {key: 6, label: '负向提示词', visible: false},
     {key: 7, label: '随机种子', visible: true},
     {key: 8, label: '数量', visible: true},
-    {key: 9, label: '输入参数', visible: true},
+    {key: 9, label: '输入参数', visible: false},
     {key: 10, label: '任务编号', visible: true},
-    {key: 11, label: '返回结果', visible: true},
+    {key: 11, label: '返回结果', visible: false},
     {key: 12, label: '文件地址', visible: true},
     {key: 13, label: '宽度', visible: true},
     {key: 14, label: '高度', visible: true},
     {key: 15, label: '请求时间', visible: true},
     {key: 16, label: '请求时长', visible: true},
-    {key: 17, label: '价格', visible: true},
+    {key: 17, label: '价格', visible: false},
     {key: 18, label: '消耗的积分', visible: true},
-    {key: 19, label: '参考对象', visible: true},
+    {key: 19, label: '参考对象', visible: false},
     {key: 20, label: '状态', visible: true},
-    {key: 21, label: '模型返回码', visible: true},
-    {key: 22, label: '失败原因', visible: true},
-    {key: 23, label: '是否统计', visible: true},
-    {key: 24, label: '用户IP地址', visible: true},
-    {key: 25, label: '用户设备唯一标识', visible: true},
-    {key: 26, label: '浏览器类型', visible: true},
-    {key: 27, label: '操作系统', visible: true},
-    {key: 28, label: '平台', visible: true},
+    {key: 21, label: '模型返回码', visible: false},
+    {key: 22, label: '失败原因', visible: false},
+    {key: 23, label: '是否统计', visible: false},
+    {key: 24, label: '用户IP地址', visible: false},
+    {key: 25, label: '用户设备唯一标识', visible: false},
+    {key: 26, label: '浏览器类型', visible: false},
+    {key: 27, label: '操作系统', visible: false},
+    {key: 28, label: '平台', visible: false},
     {key: 29, label: '创建时间', visible: true},
-    {key: 30, label: '更新时间', visible: true},
-    {key: 31, label: '删除', visible: true},
+    {key: 30, label: '更新时间', visible: false},
+    {key: 31, label: '删除', visible: false},
   ],
 });
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+
 /** 查询用户生成记录列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -561,6 +611,9 @@ function handleQuery() {
 function resetQuery() {
   daterangeCreateTime.value = [];
   daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.resetForm("queryRef");
   proxy.resetForm("queryRef");
   handleQuery();
 }

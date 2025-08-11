@@ -1,6 +1,7 @@
 package com.lz.picture.controller.admin;
 
 import com.lz.common.annotation.Log;
+import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
@@ -62,8 +63,8 @@ public class PictureInfoController extends BaseController {
         List<PictureInfoVo> listVo = list.stream().map(PictureInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         listVo.forEach(item -> {
-            item.setPictureUrl(item.getPictureUrl() + "?x-oss-process=image/resize,p_" + inCache);
-            item.setThumbnailUrl(item.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + inCache);
+            item.setPictureUrl(OssConfig.builderPictureUrl(item.getPictureUrl(), inCache));
+            item.setThumbnailUrl(OssConfig.builderPictureUrl(item.getThumbnailUrl(),inCache));
         });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

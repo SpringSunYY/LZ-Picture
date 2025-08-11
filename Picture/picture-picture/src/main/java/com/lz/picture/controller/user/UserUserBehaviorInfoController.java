@@ -60,7 +60,7 @@ public class UserUserBehaviorInfoController extends BaseUserInfoController {
         //压缩图片
         for (UserBehaviorInfo userBehaviorInfo : page.getRecords()) {
             if (StringUtils.isNotEmpty(userBehaviorInfo.getTargetCover())) {
-                userBehaviorInfo.setTargetCover(OssConfig.builderUrl(userBehaviorInfo.getTargetCover()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                userBehaviorInfo.setTargetCover(OssConfig.builderPictureUrl(userBehaviorInfo.getTargetCover(),PICTURE_COVER_P_VALUE));
             }
         }
         List<MyUserBehaviorInfoVo> myUserBehaviorInfoVos = MyUserBehaviorInfoVo.objToVo(page.getRecords());

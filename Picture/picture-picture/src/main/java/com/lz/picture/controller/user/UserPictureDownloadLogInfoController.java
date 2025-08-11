@@ -49,7 +49,7 @@ public class UserPictureDownloadLogInfoController extends BaseUserInfoController
         //压缩图片
         page.getRecords().forEach(pictureDownloadLogInfo -> {
             if (StringUtils.isNotEmpty(pictureDownloadLogInfo.getThumbnailUrl())) {
-                pictureDownloadLogInfo.setThumbnailUrl(OssConfig.builderUrl(pictureDownloadLogInfo.getThumbnailUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                pictureDownloadLogInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureDownloadLogInfo.getThumbnailUrl(), PICTURE_COVER_P_VALUE));
             }
         });
         List<UserPictureDownloadLogInfoVo> listVo = UserPictureDownloadLogInfoVo.objToVo(page.getRecords());

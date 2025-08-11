@@ -52,7 +52,7 @@ public class UserInfoController extends BaseController {
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserInfo info : list) {
             UserInfoVo userInfoVo = UserInfoVo.objToVo(info);
-            userInfoVo.setAvatarUrl(OssConfig.builderUrl(userInfoVo.getAvatarUrl()) + "?x-oss-process=image/resize,p_" + inCache);
+            userInfoVo.setAvatarUrl(OssConfig.builderPictureUrl(info.getAvatarUrl(), inCache));
             listVo.add(userInfoVo);
         }
         TableDataInfo table = getDataTable(list);

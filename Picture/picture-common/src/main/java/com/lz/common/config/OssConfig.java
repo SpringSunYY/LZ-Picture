@@ -103,7 +103,7 @@ public class OssConfig {
      * @param p    缩略图比例
      * @return
      */
-    public static String builderBatchPictureUrl(String urls, Integer p) {
+    public static String builderBatchPictureUrl(String urls, Object p) {
         if (StringUtils.isEmpty(urls)) {
             return "";
         }
@@ -120,5 +120,23 @@ public class OssConfig {
         //删除尾部逗号
         buffer.deleteCharAt(buffer.length() - 1);
         return buffer.toString();
+    }
+
+    /**
+     * 构建图片URL
+     *
+     * @param url 图片地址
+     * @param p   缩略图比例
+     * @return
+     */
+    public static String builderPictureUrl(String url, Object p) {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
+        if (StringUtils.isNotNull(p)) {
+            return builderUrl(url) + "?x-oss-process=image/resize,p_" + p;
+        } else {
+            return builderUrl(url);
+        }
     }
 }

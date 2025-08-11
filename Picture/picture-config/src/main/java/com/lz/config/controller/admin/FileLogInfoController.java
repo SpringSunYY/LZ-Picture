@@ -3,6 +3,7 @@ package com.lz.config.controller.admin;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lz.common.config.OssConfig;
 import com.lz.system.service.ISysConfigService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +30,7 @@ import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 /**
  * 文件日志Controller
@@ -57,7 +59,7 @@ public class FileLogInfoController extends BaseController {
         List<FileLogInfoVo> listVo = list.stream().map(FileLogInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         listVo.forEach(item -> {
-            item.setFileUrl(item.getFileUrl() + "?x-oss-process=image/resize,p_"+inCache);
+            item.setFileUrl(OssConfig.builderPictureUrl(item.getFileUrl(), PICTURE_COVER_P_VALUE));
         });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

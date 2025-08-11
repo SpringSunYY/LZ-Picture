@@ -53,7 +53,7 @@ public class SpaceInfoController extends BaseController {
         List<SpaceInfoVo> listVo = new ArrayList<>();
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         list.forEach(vo -> {
-            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setSpaceAvatar(OssConfig.builderPictureUrl(vo.getSpaceAvatar(), inCache));
             SpaceInfoVo spaceInfoVo = SpaceInfoVo.objToVo(vo);
             listVo.add(spaceInfoVo);
         });

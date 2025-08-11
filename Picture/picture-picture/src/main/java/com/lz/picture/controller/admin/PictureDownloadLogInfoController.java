@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
+import static com.lz.config.utils.ConfigInfoUtils.PICTURE_COVER_P_VALUE;
 
 /**
  * 图片下载记录Controller
@@ -52,7 +53,7 @@ public class PictureDownloadLogInfoController extends BaseController {
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (PictureDownloadLogInfo info : list) {
             PictureDownloadLogInfoVo obj = PictureDownloadLogInfoVo.objToVo(info);
-            obj.setThumbnailUrl(OssConfig.builderUrl(obj.getThumbnailUrl()) + "?x-oss-process=image/resize,p_" + inCache);
+            obj.setThumbnailUrl(OssConfig.builderPictureUrl(info.getThumbnailUrl(), inCache));
             listVo.add(obj);
         }
         TableDataInfo table = getDataTable(list);

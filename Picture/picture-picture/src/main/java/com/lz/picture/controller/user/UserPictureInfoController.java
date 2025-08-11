@@ -1,6 +1,7 @@
 package com.lz.picture.controller.user;
 
 import com.alibaba.fastjson.JSON;
+import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
@@ -266,7 +267,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         //压缩图片
         for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
+            vo.setThumbnailUrl(OssConfig.builderPictureUrl(vo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
         }
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }

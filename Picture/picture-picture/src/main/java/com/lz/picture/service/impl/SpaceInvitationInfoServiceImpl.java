@@ -278,7 +278,7 @@ public class SpaceInvitationInfoServiceImpl extends ServiceImpl<SpaceInvitationI
         Page<SpaceInvitationInfo> spaceInvitationInfoPage = this.page(page, lambdaQueryWrapper);
         //压缩图片
         page.getRecords().forEach(spaceInvitationInfo -> {
-            spaceInvitationInfo.setSpaceAvatar(OssConfig.builderUrl(spaceInvitationInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            spaceInvitationInfo.setSpaceAvatar(OssConfig.builderPictureUrl(spaceInvitationInfo.getSpaceAvatar(), PICTURE_COVER_P_VALUE));
         });
         return new TableDataInfo(UserSpaceInvitationInfoVo.objToVo(spaceInvitationInfoPage.getRecords()), (int) spaceInvitationInfoPage.getTotal());
     }

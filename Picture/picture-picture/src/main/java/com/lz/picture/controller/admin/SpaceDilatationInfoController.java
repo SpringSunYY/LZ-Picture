@@ -46,7 +46,7 @@ public class SpaceDilatationInfoController extends BaseController {
         List<SpaceDilatationInfo> list = spaceDilatationInfoService.selectSpaceDilatationInfoList(spaceDilatationInfo);
         List<SpaceDilatationInfoVo> listVo = new ArrayList<>();
         list.forEach(vo -> {
-            vo.setThumbnailUrl(OssConfig.builderUrl(vo.getThumbnailUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            vo.setThumbnailUrl(OssConfig.builderPictureUrl(vo.getThumbnailUrl(), PICTURE_COVER_P_VALUE));
             SpaceDilatationInfoVo obj = SpaceDilatationInfoVo.objToVo(vo);
             listVo.add(obj);
         });

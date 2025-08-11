@@ -53,7 +53,7 @@ public class UserReportInfoController extends BaseController {
         List<UserReportInfoVo> listVo = list.stream().map(UserReportInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserReportInfoVo vo : listVo) {
-            vo.setTargetCover(OssConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setTargetCover(OssConfig.builderPictureUrl(vo.getTargetCover(), inCache));
         }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
