@@ -114,13 +114,13 @@
         </button>
         <ul v-if="showModelDropdown" class="dropdown-menu">
           <li
-            v-for="option in imageModelOptions"
-            :key="option.name"
-            :class="{ 'is-selected': selectedModelOptions.includes(option.name) }"
-            @click.stop="toggleModelSelection(option.name)"
-            :title="option.description"
+            v-for="option in modelList"
+            :key="option.modelKey"
+            :class="{ 'is-selected': selectedModelOptions.includes(option.modelKey) }"
+            @click.stop="toggleModelSelection(option.modelLabel)"
+            :title="`${option.modelDescription}+\n\n所需${option.pointsNeed}积分`"
           >
-            {{ option.name }}
+            {{ option.modelLabel }}
           </li>
         </ul>
       </div>
@@ -181,7 +181,9 @@
   </div>
 </template>
 <script lang="ts" setup name="AiCheckModel">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import type { ModelParamsInfo, ModelParamsInfoRequest } from '@/types/ai/model'
+import { listModel } from '@/api/ai/model.ts'
 
 interface ImageRatioOption {
   label: string
@@ -193,6 +195,17 @@ interface ImageModelOption {
   name: string
   description: string
 }
+
+//region 模型信息
+const modelList = ref<ModelParamsInfo>()
+const modelQuery = ref<ModelParamsInfoRequest>({
+  modelType: null,
+})
+const getModelList = async () => {
+  const res = await listModel(modelQuery.value)
+  modelList.value = res.data
+}
+getModelList()
 
 const isMobile = ref(false)
 
@@ -206,7 +219,6 @@ const inputContainerRef = ref<HTMLElement | null>(null)
 const imageGenDropdownRef = ref<HTMLElement | null>(null)
 const imageModelDropdownRef = ref<HTMLElement | null>(null)
 const imageRatioDropdownRef = ref<HTMLElement | null>(null)
-
 
 const showImageDropdown = ref(false)
 const showModelDropdown = ref(false)
@@ -241,19 +253,6 @@ const imageGenOptions = [
   '超分辨率',
   '艺术滤镜',
 ]
-const imageModelOptions: ImageModelOption[] = [
-  { name: '图片 3.0', description: '最新一代图像生成模型，画质精美，细节丰富。' },
-  { name: '图片 2.0', description: '成熟稳定模型，适合多种风格。' },
-  { name: '图片 1.0', description: '基础模型，快速出图。' },
-  { name: '专业版 v4', description: '专为专业设计师打造，提供更多细节控制。' },
-  { name: '超真实模型', description: '擅长生成逼真、写实的图像。' },
-  { name: '动漫风格', description: '专为动漫、二次元创作优化。' },
-  { name: '水彩风格', description: '生成具有水彩画效果的图像。' },
-  { name: '素描模型', description: '生成素描、铅笔画风格图像。' },
-  { name: '3D渲染模型', description: '擅长生成高质量的3D渲染图。' },
-  { name: '复古滤镜', description: '为图像添加复古、怀旧的滤镜效果。' },
-  { name: '未来科技', description: '生成充满未来感、科幻风格的图像。' },
-]
 const imageRatioOptions = [
   { label: '9:16 标清 1K', width: 1024, height: 1792 },
   { label: '16:9 标清 1K', width: 1792, height: 1024 },
@@ -271,7 +270,6 @@ const closeAllDropdowns = () => {
   showModelDropdown.value = false
   showRatioDropdown.value = false
 }
-
 
 const toggleDropdown = (dropdownName: 'imageGen' | 'imageModel' | 'imageRatio') => {
   if (dropdownName !== 'imageGen') showImageDropdown.value = false
@@ -548,7 +546,6 @@ watch([customWidth, customHeight], () => {
 
 // 手机端样式
 @media (max-width: 768px) {
-
   .action-buttons {
     .action-button {
       padding: 6px 10px;
