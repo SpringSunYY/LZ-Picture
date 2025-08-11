@@ -9,11 +9,10 @@ import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.ai.strategy.generate.AiGenerateStrategyExecutor;
-import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.annotation.CustomSort;
+import com.lz.common.config.OssConfig;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.bean.BeanUtils;
-import com.lz.common.utils.ip.IpUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -52,9 +51,15 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
      * @param generateLogInfo 用户生成记录
      * @return 用户生成记录
      */
+    @CustomSort(sortMappingFields = {"numbers", "width", "request_duration", "price_used", "points_used", "create_time"},
+            sortFields = {"numbers", "width", "requestDuration", "priceUsed", "pointsUsed", "createTime"})
     @Override
     public List<GenerateLogInfo> selectGenerateLogInfoList(GenerateLogInfo generateLogInfo) {
-        return generateLogInfoMapper.selectGenerateLogInfoList(generateLogInfo);
+        List<GenerateLogInfo> generateLogInfos = generateLogInfoMapper.selectGenerateLogInfoList(generateLogInfo);
+        for (GenerateLogInfo info : generateLogInfos) {
+            info.setFileUrls(OssConfig.builderBatchPictureUrl(info.getFileUrls(), null));
+        }
+        return generateLogInfos;
     }
 
     /**

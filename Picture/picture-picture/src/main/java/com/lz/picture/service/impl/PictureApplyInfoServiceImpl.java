@@ -95,9 +95,9 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         if (StringUtils.isNotNull(pictureApplyInfo)) {
             String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
             Integer p = Integer.valueOf(inCache);
-            String url = builderPictureUrl(pictureApplyInfo.getApplyImage(), p);
+            String url = OssConfig.builderBatchPictureUrl(pictureApplyInfo.getApplyImage(), p);
             pictureApplyInfo.setApplyImage(url);
-            String pictureUrl = builderPictureUrl(pictureApplyInfo.getThumbnailUrl(), p);
+            String pictureUrl = OssConfig.builderBatchPictureUrl(pictureApplyInfo.getThumbnailUrl(), p);
             pictureApplyInfo.setThumbnailUrl(pictureUrl);
             String fileUrl = builderFileUrl(pictureApplyInfo.getApplyFile());
             pictureApplyInfo.setApplyFile(fileUrl);
@@ -125,45 +125,19 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     private void builderUrl(PictureApplyInfo info, Integer p) {
         //构建url
         if (StringUtils.isNotEmpty(info.getApplyImage())) {
-            String url = builderPictureUrl(info.getApplyImage(), p);
+            String url = OssConfig.builderBatchPictureUrl(info.getApplyImage(), p);
             info.setApplyImage(url);
         }
         if (StringUtils.isNotEmpty(info.getApplyFile())) {
-            String url = builderUrl(info.getApplyFile());
+            String url = OssConfig.builderBatchUrl(info.getApplyFile());
             info.setApplyFile(url);
         }
         if (StringUtils.isNotEmpty(info.getThumbnailUrl())) {
-            info.setThumbnailUrl(builderUrl(info.getThumbnailUrl()));
+            info.setThumbnailUrl(OssConfig.builderBatchUrl(info.getThumbnailUrl()));
         }
     }
 
-    private String builderPictureUrl(String urls, Integer p) {
-        if (StringUtils.isEmpty(urls)) {
-            return "";
-        }
-        String[] split = urls.split(COMMON_SEPARATOR);
-        StringBuilder buffer = new StringBuilder();
-        for (String str : split) {
-            buffer.append(OssConfig.builderUrl(str)).append("?x-oss-process=image/resize,p_").append(p).append(COMMON_SEPARATOR);
-        }
-        //删除尾部逗号
-        buffer.deleteCharAt(buffer.length() - 1);
-        return buffer.toString();
-    }
 
-    private String builderUrl(String urls) {
-        if (StringUtils.isEmpty(urls)) {
-            return "";
-        }
-        String[] split = urls.split(COMMON_SEPARATOR);
-        StringBuilder buffer = new StringBuilder();
-        for (String str : split) {
-            buffer.append(OssConfig.builderUrl(str)).append(COMMON_SEPARATOR);
-        }
-        //删除尾部逗号
-        buffer.deleteCharAt(buffer.length() - 1);
-        return buffer.toString();
-    }
 
     private String builderFileUrl(String fileUrl) {
         if (StringUtils.isEmpty(fileUrl)) {

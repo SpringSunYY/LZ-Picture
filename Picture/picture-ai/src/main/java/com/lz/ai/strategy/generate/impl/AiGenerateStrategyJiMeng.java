@@ -199,7 +199,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
         generateLogInfo.setCreateTime(new Date());
         generateLogInfo.setUpdateTime(new Date());
-        generateLogInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
+        generateLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         return generateLogInfo;
     }
 
