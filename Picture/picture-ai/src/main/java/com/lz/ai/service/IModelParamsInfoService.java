@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoQuery;
+import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoRequest;
 import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
+import com.lz.ai.model.vo.modelParamsInfo.UserModelParamsInfoVo;
 
 import java.util.List;
 
@@ -92,4 +94,12 @@ public interface IModelParamsInfoService extends IService<ModelParamsInfo> {
      * @date: 2025/8/8 23:57
      **/
     ModelParamsInfo selectModelParamsInfoByModelKey(String modelKey);
+
+    /**
+     * 用户查询模型参数配置列表
+     *
+     * @param request 请求参数
+     * @return
+     */
+    List<UserModelParamsInfoVo> userSelectModelParamsInfoList(ModelParamsInfoRequest request);
 }
