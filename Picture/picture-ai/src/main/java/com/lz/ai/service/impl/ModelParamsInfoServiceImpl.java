@@ -1,5 +1,6 @@
 package com.lz.ai.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.ai.mapper.ModelParamsInfoMapper;
@@ -7,9 +8,11 @@ import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.dto.modelParamsInfo.ModelParamsInfoQuery;
 import com.lz.ai.model.vo.modelParamsInfo.ModelParamsInfoVo;
 import com.lz.ai.service.IModelParamsInfoService;
+import com.lz.ai.strategy.generate.domain.params.Params;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -74,6 +77,7 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
     @CustomCacheEvict(keyPrefixes = AI_MODEL_DETAIL, keyFields = {"modelParamsInfo.modelKey"})
     @Override
     public int insertModelParamsInfo(ModelParamsInfo modelParamsInfo) {
+        checkStr(modelParamsInfo);
         //查询模型KEY是否存在
         ModelParamsInfo modelParamsInfoByModelKey = modelParamsInfoMapper.selectModelParamsInfoByModelKey(modelParamsInfo.getModelKey());
         ThrowUtils.throwIf(StringUtils.isNotNull(modelParamsInfoByModelKey), "模型KEY已存在");
@@ -85,6 +89,27 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
     }
 
     /**
+     * 校验参数字符串是否正确
+     * @param modelParamsInfo
+     */
+    private void checkStr(ModelParamsInfo modelParamsInfo) {
+        if (StringUtils.isNotEmpty(modelParamsInfo.getModelParams())) {
+            try {
+                JSONObject.parseObject(modelParamsInfo.getModelParams());
+            } catch (Exception e) {
+                throw new ServiceException("模型参数(modelParams)格式不正确: " + e.getMessage());
+            }
+        }
+        if (StringUtils.isNotEmpty(modelParamsInfo.getExtendConfig())) {
+            try {
+                JSONObject.parseObject(modelParamsInfo.getExtendConfig());
+            } catch (Exception e) {
+                throw new ServiceException("扩展配置(extendConfig)格式不正确: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
      * 修改AI模型参数配置
      *
      * @param modelParamsInfo AI模型参数配置
@@ -93,6 +118,7 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
     @CustomCacheEvict(keyPrefixes = AI_MODEL_DETAIL, keyFields = {"modelParamsInfo.modelKey"})
     @Override
     public int updateModelParamsInfo(ModelParamsInfo modelParamsInfo) {
+        checkStr(modelParamsInfo);
         //查询模型KEY是否存在
         ModelParamsInfo modelParamsInfoByModelKey = modelParamsInfoMapper.selectModelParamsInfoByModelKey(modelParamsInfo.getModelKey());
         ThrowUtils.throwIf(StringUtils.isNotNull(modelParamsInfoByModelKey)

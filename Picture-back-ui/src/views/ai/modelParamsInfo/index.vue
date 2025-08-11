@@ -236,15 +236,32 @@
 
     <!-- 添加或修改AI模型参数配置对话框 -->
     <el-dialog :title="title" v-model="open" width="1000px" append-to-body>
-      <el-form ref="modelParamsInfoRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="modelParamsInfoRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="模型KEY" prop="modelKey">
+              <template #label>
+                <span class="custom-label">
+                 模型KEY
+                 <el-tooltip effect="light" placement="top"
+                             content="模型KEY，用户其他信息绑定该模型的KEY，也就是外键，例：模型_模型KEY">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.modelKey" placeholder="请输入模型KEY"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="模型名称" prop="modelName">
+              <template #label>
+                <span class="custom-label">
+                 模型名称
+                 <el-tooltip effect="light" placement="top" content="模型名称，大模型平台上对应的模型名">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.modelName" placeholder="请输入模型名称"/>
             </el-form-item>
           </el-col>
@@ -262,11 +279,27 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="模型" prop="model">
+              <template #label>
+               <span class="custom-label">
+                 模型
+                 <el-tooltip effect="light" placement="top" content="模型的哪个平台，例如：AliYun">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.model" placeholder="请输入模型"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="名称" prop="modelLabel">
+              <template #label>
+               <span class="custom-label">
+                 名称
+                 <el-tooltip effect="light" placement="top" content="用户端展示给用户的模型名称，例：通义 2.1">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.modelLabel" placeholder="请输入名称"/>
             </el-form-item>
           </el-col>
@@ -319,16 +352,40 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="模型介绍" prop="modelDescription">
+              <template #label>
+               <span class="custom-label">
+                 模型介绍
+                 <el-tooltip effect="light" placement="top" content="模型介绍，用于给用户介绍该模型的基本信息">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.modelDescription" :rows="5" type="textarea" placeholder="请输入内容"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="模型参数" prop="modelParams">
+              <template #label>
+               <span class="custom-label">
+                 模型参数
+                 <el-tooltip effect="light" placement="top" content="JSON对象，模型的基本参数">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.modelParams" :rows="5" type="textarea" placeholder="请输入内容"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="扩展配置" prop="extendConfig">
+              <template #label>
+               <span class="custom-label">
+                 扩展配置
+                 <el-tooltip effect="light" placement="top" content="JSON对象，模型扩展配置，例如一些校验">
+                   <QuestionFilled class="tooltip-icon"/>
+                 </el-tooltip>
+               </span>
+              </template>
               <el-input v-model="form.extendConfig" :rows="5" type="textarea" placeholder="请输入内容"/>
             </el-form-item>
           </el-col>
@@ -359,6 +416,7 @@ import {
   addModelParamsInfo,
   updateModelParamsInfo
 } from "@/api/ai/modelParamsInfo";
+import {QuestionFilled} from "@element-plus/icons-vue";
 
 const {proxy} = getCurrentInstance();
 const {ai_model_params_status, ai_model_params_type} = proxy.useDict('ai_model_params_status', 'ai_model_params_type');
@@ -623,3 +681,16 @@ function handleExport() {
 
 getList();
 </script>
+<style scoped lang="scss">
+.custom-label {
+  display: inline-flex; /* 保持内联弹性布局 */
+  align-items: center; /* 垂直居中 */
+}
+
+.tooltip-icon {
+  width: 14px;
+  height: 14px;
+  color: #F56C6C;
+  margin-left: 5px;
+}
+</style>
