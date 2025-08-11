@@ -364,11 +364,9 @@ import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/spaceFolder'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  buildSpacePermByUser,
   checkPermiSingle,
   checkSpaceEditor,
   checkSpaceJoin,
-  checkSpacePermsAny,
   checkUser,
 } from '@/utils/permission.ts'
 import type { PictureApplyInfoAdd } from '@/types/picture/pictureApplyInfo.d.ts'
@@ -377,7 +375,6 @@ import FileUpload from '@/components/FileUpload.vue'
 import { addPictureApplyInfo } from '@/api/picture/pictureApplyInfo.ts'
 import dayjs from 'dayjs'
 import { spacePerm } from '@/stores/modules/space.ts'
-import { PSpaceRole } from '@/types/picture/space.d.ts'
 import ImageView from '@/components/ImageView.vue'
 import { getPictureOriginByMy } from '@/api/common/file.ts'
 import { downloadImageByMy } from '@/utils/file.ts'

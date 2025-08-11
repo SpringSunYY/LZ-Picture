@@ -19,7 +19,7 @@
             <circle cx="9" cy="9" r="2" />
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
           </svg>
-          <span>{{ selectedImageOption }}</span>
+          <span>{{ selectedImageOption.dictLabel }}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -38,12 +38,12 @@
         </button>
         <ul v-if="showImageDropdown" class="dropdown-menu">
           <li
-            v-for="option in imageGenOptions"
-            :key="option"
-            :class="{ 'is-selected': selectedImageOption === option }"
+            v-for="option in ai_model_params_type"
+            :key="option.dictValue"
+            :class="{ 'is-selected': selectedImageOption === option.dictValue }"
             @click.stop="selectOption('imageGen', option)"
           >
-            {{ option }}
+            {{ option.dictLabel }}
           </li>
         </ul>
       </div>
@@ -181,19 +181,18 @@
   </div>
 </template>
 <script lang="ts" setup name="AiCheckModel">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ModelParamsInfo, ModelParamsInfoRequest } from '@/types/ai/model'
 import { listModel } from '@/api/ai/model.ts'
+import type { Dict } from '@/types/common'
+
+const { proxy } = getCurrentInstance()!
+const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 
 interface ImageRatioOption {
   label: string
   width?: number
   height?: number
-}
-
-interface ImageModelOption {
-  name: string
-  description: string
 }
 
 //region 模型信息
@@ -224,7 +223,10 @@ const showImageDropdown = ref(false)
 const showModelDropdown = ref(false)
 const showRatioDropdown = ref(false)
 
-const selectedImageOption = ref('图片生成')
+const selectedImageOption = ref<Dict>({
+  dictValue: '1',
+  dictLabel: '文生图',
+})
 const selectedModelOptions = ref<string[]>([])
 const selectedRatioOption = ref<ImageRatioOption>({
   label: '9:16 标清 1K',
@@ -242,17 +244,6 @@ const selectedRatioDisplay = computed(() => {
   return `${selectedRatioOption.value.label} (${selectedRatioOption.value.width}x${selectedRatioOption.value.height})`
 })
 
-const imageGenOptions = [
-  '图片生成',
-  '视频生成',
-  '文本生成',
-  '模型融合',
-  '高级渲染',
-  '智能增强',
-  '图像修复',
-  '超分辨率',
-  '艺术滤镜',
-]
 const imageRatioOptions = [
   { label: '9:16 标清 1K', width: 1024, height: 1792 },
   { label: '16:9 标清 1K', width: 1792, height: 1024 },
@@ -280,7 +271,7 @@ const toggleDropdown = (dropdownName: 'imageGen' | 'imageModel' | 'imageRatio') 
   else if (dropdownName === 'imageRatio') showRatioDropdown.value = !showRatioDropdown.value
 }
 
-const selectOption = (dropdownName: 'imageGen', option: string) => {
+const selectOption = (dropdownName: 'imageGen', option: Dict) => {
   if (dropdownName === 'imageGen') selectedImageOption.value = option
   closeAllDropdowns()
 }
