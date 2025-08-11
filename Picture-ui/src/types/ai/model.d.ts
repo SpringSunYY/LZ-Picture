@@ -37,36 +37,75 @@ export interface ModelParamsInfoRequest {
 
 export interface GenerateLogInfoRequest {
   /** 模型KEY列表 */
-  modelKeys: string[];
+  modelKeys: string[]
 
   /** 模型类型 */
-  modelType: string;
+  modelType: string
 
   /** 输入文件 */
-  inputFile?: string;
+  inputFile?: string
 
   /** 提示词 */
-  prompt: string;
+  prompt: string
 
   /** 负向提示词 */
-  negativePrompt?: string;
+  negativePrompt?: string
 
   /** 随机种子 */
-  seed?: number;
+  seed?: number
 
   /** 数量 */
-  numbers: number;
+  numbers: number
 
   /** 宽度 */
-  width: number;
+  width: number
 
   /** 高度 */
-  height: number;
+  height: number
 
   /** 参考对象 */
-  targetId?: string;
+  targetId?: string
 }
 
+export interface GenerateLogInfoQuery {
+  pageNum?: number
+  pageSize?: number
+}
+
+/**
+ * 用户生成记录 Vo 对象
+ */
+export interface UserGenerateLogInfoVo {
+  /** 记录编号 */
+  logId: string
+
+  /** 模型KEY */
+  modelName: string
+
+  /** 模型类型 */
+  modelType: string
+
+  /** 提示词 */
+  prompt: string
+
+  /** 负向提示词 */
+  negativePrompt: string
+
+  /** 随机种子 */
+  seed: number
+
+  /** 文件地址 */
+  fileUrls: string
+
+  /** 宽度 */
+  width: number
+
+  /** 高度 */
+  height: number
+
+  /** 创建时间（格式：yyyy-MM-dd HH:mm:ss） */
+  createTime: string // 前端通常用字符串接收
+}
 
 export interface ModerInfo {
   width?: number

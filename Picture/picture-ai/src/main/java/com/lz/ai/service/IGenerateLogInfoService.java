@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
+import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
+import com.lz.common.core.page.TableDataInfo;
 
 import java.util.List;
 
@@ -93,4 +95,15 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
      * @date: 2025/8/8 23:39
      **/
     String userGenerate(GenerateLogInfoRequest request);
+
+    /**
+     * 用户查询自己的生成记录
+     *
+     * @param request 查询条件
+     * @return TableDataInfo
+     * @author: YY
+     * @method: userSelectGenerateLogInfoList
+     * @date: 2025/8/12 00:05
+     **/
+    TableDataInfo userSelectGenerateLogInfoList(UserGenerateLogInfoRequest request);
 }

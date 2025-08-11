@@ -1,19 +1,18 @@
 package com.lz.ai.controller.user;
 
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
+import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户生成记录
@@ -37,5 +36,12 @@ public class UserPictureGenerateController extends BaseUserInfoController {
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         BeanUtils.copyProperties(deviceInfo, request);
         return success(generateLogInfoService.userGenerate(request));
+    }
+
+    @GetMapping("/list")
+    @PreAuthorize("@uss.hasLogin()")
+    public TableDataInfo list(UserGenerateLogInfoRequest request) {
+        request.setUserId(getUserId());
+        return generateLogInfoService.userSelectGenerateLogInfoList(request);
     }
 }

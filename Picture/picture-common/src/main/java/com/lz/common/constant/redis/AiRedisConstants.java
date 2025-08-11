@@ -19,6 +19,12 @@ public class AiRedisConstants {
      * 图片详细信息缓存时间
      */
     public static final int AI_MODEL_DETAIL_EXPIRE_TIME = 5 * 60;
-    public static final String AI_MODEL_LIST="ai:model:list";
+    public static final String AI_MODEL_LIST = "ai:model:list";
     public static final int AI_MODEL_LIST_EXPIRE_TIME = 5 * 60;
+
+    /**
+     * 生成记录缓存
+     */
+    public static final String AI_GENERATE_LIST = "ai:generate:list";
+    public static final int AI_GENERATE_LIST_EXPIRE_TIME = 10 * 60;
 }

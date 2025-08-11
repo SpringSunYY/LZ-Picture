@@ -1,16 +1,27 @@
 package com.lz.ai.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
+import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
+import com.lz.ai.model.enums.AiLogStatusEnum;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
+import com.lz.ai.model.vo.generateLogInfo.UserGenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
+import com.lz.ai.service.IModelParamsInfoService;
 import com.lz.ai.strategy.generate.AiGenerateStrategyExecutor;
+import com.lz.common.annotation.CustomCacheEvict;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
+import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import jakarta.annotation.Resource;
@@ -18,6 +29,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+import static com.lz.common.constant.redis.AiRedisConstants.AI_GENERATE_LIST;
+import static com.lz.common.constant.redis.AiRedisConstants.AI_GENERATE_LIST_EXPIRE_TIME;
 
 /**
  * 用户生成记录Service业务层处理
@@ -32,6 +47,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
 
     @Resource
     private AiGenerateStrategyExecutor aiGenerateStrategyExecutor;
+
+    @Resource
+    private IModelParamsInfoService modelParamsInfoService;
     //region mybatis代码
 
     /**
@@ -200,9 +218,41 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         return generateLogInfoList.stream().map(GenerateLogInfoVo::objToVo).collect(Collectors.toList());
     }
 
+    @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"request.userId"})
     @Override
     public String userGenerate(GenerateLogInfoRequest request) {
         return aiGenerateStrategyExecutor.executeUserGenerate(request);
+    }
+
+    @CustomCacheable(keyPrefix = AI_GENERATE_LIST, keyField = "request.userId",
+            expireTime = AI_GENERATE_LIST_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    @Override
+    public TableDataInfo userSelectGenerateLogInfoList(UserGenerateLogInfoRequest request) {
+        Page<GenerateLogInfo> pictureInfoPage = new Page<>();
+        pictureInfoPage.setCurrent(request.getPageNum());
+        pictureInfoPage.setSize(request.getPageSize());
+        LambdaQueryWrapper<GenerateLogInfo> query = new LambdaQueryWrapper<GenerateLogInfo>()
+                .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt,GenerateLogInfo::getModelType,
+                        GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls,
+                        GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime)
+                .eq(GenerateLogInfo::getUserId, request.getUserId())
+                .eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .eq(GenerateLogInfo::getLogStatus, AiLogStatusEnum.LOG_STATUS_1.getValue())
+                .eq(StringUtils.isNotEmpty(request.getUserId()), GenerateLogInfo::getUserId, request.getUserId())
+                .orderByDesc(GenerateLogInfo::getCreateTime);
+        Page<GenerateLogInfo> page = this.page(pictureInfoPage, query);
+        List<GenerateLogInfo> records = page.getRecords();
+        ArrayList<UserGenerateLogInfoVo> userGenerateLogInfoVos = new ArrayList<>();
+        for (GenerateLogInfo info : records) {
+            String url = OssConfig.builderPictureUrl(info.getFileUrls().split(COMMON_SEPARATOR)[0], null);
+            info.setFileUrls(url);
+            ModelParamsInfo modelParamsInfo = modelParamsInfoService.selectModelParamsInfoByModelKey(info.getModelKey());
+            UserGenerateLogInfoVo vo = UserGenerateLogInfoVo.objToVo(info);
+            vo.setModelName(modelParamsInfo.getModelLabel());
+            userGenerateLogInfoVos.add(vo);
+        }
+        return new TableDataInfo(userGenerateLogInfoVos, Math.toIntExact(page.getTotal()));
     }
 
 }

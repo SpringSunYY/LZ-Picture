@@ -88,12 +88,13 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         //拼接参数
         String json = JSONObject.toJSONString(params);
         try {
-            System.out.println("json = " + json);
             List<Future<JiMengResponse>> futures = new ArrayList<>();
             for (int i = 0; i < info.getNumbers(); i++) {
                 Future<JiMengResponse> future = threadPoolTaskExecutor.submit(() -> {
                     long startTime = System.currentTimeMillis();
                     JiMengResponse jiMengResponse = null;
+                    info.setWidth(params.getWidth());
+                    info.setHeight(params.getHeight());
                     try {
                         jiMengResponse = doRequest(params.getMethod(), new HashMap<>(), json.getBytes(UTF_8), new Date(),
                                 params.getAction(), params.getVersion(), params.getRegion(), params.getService(),
@@ -104,7 +105,6 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                     long totalTime = System.currentTimeMillis() - startTime;
                     GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json, totalTime);
                     generateLogInfoMapper.insert(generateLogInfo);
-                    System.out.println("generateLogInfo = " + generateLogInfo);
                     return jiMengResponse;
                 });
                 futures.add(future);
@@ -146,6 +146,8 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 //                    }
                     //上传图片
                     FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", info.getUsername());
+                    generateLogInfo.setWidth(Math.toIntExact(fileResponse.getPicWidth()));
+                    generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
                     generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
                     System.out.println("fileResponse = " + fileResponse);
                 } catch (Exception e) {

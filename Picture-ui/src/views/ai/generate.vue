@@ -13,7 +13,7 @@
           placeholder="请输入内容"
           :border="false"
           :auto-size="{ minRows: 5, maxRows: 10 }"
-          :maxlength="512"
+          :maxlength="800"
           :allowClear="true"
           show-count
           class="text-area mt-1"
@@ -42,24 +42,31 @@
         </a-tooltip>
       </div>
     </div>
-    <div class="right w-full md:w-2/3 p-4 overflow-y-auto">
-      <div class="content" v-for="i in 4" :key="i">
+    <div
+      class="right w-full md:w-2/3 p-4 overflow-y-auto"
+      @scroll="handleScroll"
+      ref="scrollContainer"
+    >
+      <div class="content" v-for="generate in generateList" :key="generate.logId">
         <div class="content-heard">
           <div class="heard-left">
             <a-space align="center" direction="horizontal" :wrap="true">
               <div class="px-1">
                 <SvgIcon name="space" size="1.3em" />
               </div>
-              <h1 class="text-xl font-bold text-white px-0.5">文生图</h1>
+              <h1 class="text-xl font-bold text-white px-0.5">
+                {{
+                  ai_model_params_type.find((item) => item.dictValue === generate.modelType)
+                    .dictLabel
+                }}
+              </h1>
               <div>
                 <SvgIcon name="dividingLine" size="1em"></SvgIcon>
               </div>
               <div class="text-white">
-                <dict-tag :options="modelOptions" value="图片 3.0" />
+                {{ generate.modelName }}
               </div>
-              <div class="text-white">
-                <dict-tag :options="typeOptions" :value="1" />
-              </div>
+              <div class="text-white">{{ generate.width }}x{{ generate.height }}</div>
             </a-space>
           </div>
           <div class="heard-right">
@@ -78,12 +85,10 @@
           </div>
         </div>
         <div class="content-text text-white mt-1">
-          <TextView
-            text="一位亚洲女性，年轻，长直黑发，戴着金色头戴式耳机，穿着黑色和棕色条纹毛衣，正坐在一个室内环境中，她的表情是微微抬头的侧脸，面向左侧，耳机线条清晰可见。背景中有另外两个人，他们坐在她身后，一个人穿着条纹衬衫，另一个人头部模糊不清。环境是一个室内场景，背景有木质墙面和一些模糊的，灯光，整体氛围略显昏暗。画面风格为照片，具有现实感，整体色调偏暖，给人一种，宁静，和放松的感觉。"
-          />
+          <TextView :text="generate.prompt" :max-lines="3"/>
         </div>
         <div class="content-picture mt-5">
-          <AiPictureView class="picture" :image-url="i % 2 == 0 ? imageUrl1 : imageUrl2" />
+          <AiPictureView class="picture" :image-url="generate.fileUrls" />
           <div class="picture-overlay">
             <a-space class="overlay-right-top">
               <DownloadSvgButton
@@ -108,45 +113,88 @@
           </div>
         </div>
       </div>
+      <div ref="loadMoreTrigger" class="load-more-trigger">
+        <LoadingData v-if="isLoadingMore" />
+        <NoMoreData v-else-if="noMore" text="没有更多数据了哦，快去生成吧！！！"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import AiCheckModel from '@/components/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiPictureUpload from '@/components/AiPictureUpload.vue'
 import SvgIcon from '@/components/SvgIcon.vue'
-import DictTag from '@/components/DictTag.vue'
-import type { Dict } from '@/types/common'
 import TextView from '@/components/TextView.vue'
 import AiPictureView from '@/components/AiPictureView.vue'
 import DeleteButton from '@/components/button/DeleteButton.vue'
 import DownloadSvgButton from '@/components/button/DownloadSvgButton.vue'
 import AiBatchButton from '@/components/button/AiBatchButton.vue'
-import type { ModerInfo } from '@/types/ai/model'
-import { generate } from '@/api/ai/model.ts'
+import type { GenerateLogInfoQuery, ModerInfo, UserGenerateLogInfoVo } from '@/types/ai/model'
+import { generate, listGenerateLogInfo } from '@/api/ai/model.ts'
 import { message } from 'ant-design-vue'
+import NoMoreData from '@/components/NoMoreData.vue'
+import LoadingData from '@/components/LoadingData.vue'
 
+const { proxy } = getCurrentInstance()!
+const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 const activeTab = ref('1')
 
-const modelOptions: Dict[] = [
-  { dictLabel: '图片 3.0', dictValue: '图片 3.0' },
-  { dictLabel: '图片 2.0', dictValue: '图片 2.0' },
-  { dictLabel: '图片 1.0', dictValue: '图片 1.0' },
-]
+//region 列表
+const generateList = ref<UserGenerateLogInfoVo[]>([])
+const generateQuery = ref<GenerateLogInfoQuery>({
+  pageNum: 1,
+  pageSize: 10,
+})
+const isLoadingMore = ref(false)
+const noMore = ref(false)
+const getGenerateList = async () => {
+  if (isLoadingMore.value||noMore.value) return
+  isLoadingMore.value = true
+  await listGenerateLogInfo(generateQuery.value).then((res) => {
+    if (!generateList.value) {
+      generateList.value = []
+    }
+    generateList.value = [...generateList.value, ...res.rows]
+    if (res.rows.length < generateQuery.value.pageSize) {
+      noMore.value = true
+    }
+  })
+  isLoadingMore.value = false
+}
+const loadMoreData = () => {
+  generateQuery.value.pageNum = 1 + generateQuery.value.pageNum
+  getGenerateList()
+}
+getGenerateList()
+const scrollContainer = ref<HTMLElement | null>(null)
+const handleScroll = () => {
+  const container = scrollContainer.value
+  if (container) {
+    const { scrollTop, scrollHeight, clientHeight } = container
+    if (scrollTop + clientHeight >= scrollHeight - 200 && !isLoadingMore.value) {
+      loadMoreData()
+    }
+  }
+}
 
-const typeOptions: Dict[] = [
-  { dictLabel: '文生图1.1', dictValue: '1' },
-  { dictLabel: '文生图 2.0', dictValue: '2' },
-  { dictLabel: '文生图 3.0', dictValue: '3' },
-]
-const imageUrl1 =
-  'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D'
-const imageUrl2 =
-  'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/0dd94401c13c45c69d9e5eb0a95b4807~tplv-tb4s082cfz-aigc_resize:1080:1080.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=rU%2B9dDTCb3nSIAMZ%2BA3Bxl3brTU%3D'
+onMounted(() => {
+  nextTick(() => {
+    if (scrollContainer.value) {
+      scrollContainer.value.addEventListener('scroll', handleScroll)
+    }
+  })
+})
 
+onUnmounted(() => {
+  if (scrollContainer.value) {
+    scrollContainer.value.removeEventListener('scroll', handleScroll)
+  }
+})
+//endregion
+//region 生成操作
 const isGenerating = ref(false)
 const modelInfo = ref<ModerInfo>({
   width: 682,
@@ -193,9 +241,15 @@ const submitGenerate = async () => {
   })
   if (res.code === 200) {
     message.success(res.msg)
+    generateQuery.value.pageNum = 1
+    generateList.value = []
+    isLoadingMore.value = false
+    noMore.value = false
+    await getGenerateList()
   }
   isGenerating.value = false
 }
+//endregion
 </script>
 
 <style scoped lang="scss">
@@ -236,7 +290,7 @@ $text-color: #ffffff;
   /* 修改 textarea 背景色和文字色 */
   ::v-deep(.text-area .ant-input) {
     background-color: $bg-left-color;
-    font-size: 1.5em;
+    font-size: 1.2em;
     color: $text-color;
     border-color: $bg-left-border-color;
   }
