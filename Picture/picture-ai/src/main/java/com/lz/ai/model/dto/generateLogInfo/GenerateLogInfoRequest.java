@@ -1,6 +1,7 @@
 package com.lz.ai.model.dto.generateLogInfo;
 
 import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.common.annotation.Excel;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +26,11 @@ public class GenerateLogInfoRequest implements Serializable {
      * 用户编号
      */
     private String userId;
+
+    /**
+     * 用户名
+     */
+    private String username;
 
     /**
      * 模型KEY
@@ -82,6 +88,33 @@ public class GenerateLogInfoRequest implements Serializable {
      * 参考对象
      */
     private String targetId;
+
+
+    /**
+     * 用户IP地址
+     */
+    private String ipAddr;
+
+    /**
+     * 用户设备唯一标识
+     */
+    private String deviceId;
+
+    /**
+     * 浏览器类型
+     */
+    private String browser;
+
+    /**
+     * 操作系统
+     */
+    private String os;
+
+    /**
+     * 平台
+     */
+    private String platform;
+
 
 
     /**

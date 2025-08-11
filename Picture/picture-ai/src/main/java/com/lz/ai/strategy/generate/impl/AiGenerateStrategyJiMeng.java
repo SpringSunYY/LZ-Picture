@@ -2,6 +2,7 @@ package com.lz.ai.strategy.generate.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
 import com.lz.ai.model.enums.AiLogStatusEnum;
@@ -16,6 +17,7 @@ import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -43,6 +45,7 @@ import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
  * @CreateTime: 2025-08-09  00:11
  * @Version: 1.0
  */
+@Slf4j
 @AiGenerateStrategyConfig(model = "JiMeng")
 public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
     @Resource
@@ -50,6 +53,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 
     @Resource
     private PictureUploadManager pictureUploadManager;
+
+    @Resource
+    private GenerateLogInfoMapper generateLogInfoMapper;
 
     private static final BitSet URLENCODER = new BitSet(256);
     private static final String CONST_ENCODE = "0123456789ABCDEF";
@@ -94,6 +100,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                     }
                     long totalTime = System.currentTimeMillis() - startTime;
                     GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json, totalTime);
+                    generateLogInfoMapper.insert(generateLogInfo);
                     System.out.println("generateLogInfo = " + generateLogInfo);
                     return jiMengResponse;
                 });
@@ -115,6 +122,52 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
     }
 
     private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
+        GenerateLogInfo generateLogInfo = GenerateLogInfo(jiMengResponse, info, json, totalTime);
+
+        if (jiMengResponse.getCode() == 10000) {
+            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
+            JiMengResponse.DataContent data = jiMengResponse.getData();
+            List<String> imageUrls = data.getImage_urls();
+            for (String imageUrl : imageUrls) {
+                try {
+//                    // 下载图片
+//                    URL urlImage = new URL(imageUrl);
+//                    try (InputStream in = urlImage.openStream();
+//                         FileOutputStream fos = new FileOutputStream("E:/Project/Picture/files/AIgenerate/generated_image" + System.currentTimeMillis() + ".jpg")) {
+//                        byte[] bufferImage = new byte[1024];
+//                        int bytesReadImage;
+//                        while ((bytesReadImage = in.read(bufferImage)) != -1) {
+//                            fos.write(bufferImage, 0, bytesReadImage);
+//                        }
+//                        System.out.println("图片已保存为 generated_image.jpg");
+//                    }
+                    //上传图片
+                    FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", info.getUsername());
+                    generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
+                    System.out.println("fileResponse = " + fileResponse);
+                } catch (Exception e) {
+                    log.error("图片保存失败: " + e.getMessage());
+                }
+            }
+        } else {
+            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+        }
+        return generateLogInfo;
+    }
+
+    /**
+     * 设置日志信息
+     *
+     * @param jiMengResponse 响应
+     * @param info           请求
+     * @param json           请求参数
+     * @param totalTime      总耗时
+     * @return GenerateLogInfo
+     * @author: YY
+     * @method: GenerateLogInfo 获取日志
+     * @date: 2025/8/11 16:16
+     **/
+    private GenerateLogInfo GenerateLogInfo(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
         GenerateLogInfo generateLogInfo = new GenerateLogInfo();
         generateLogInfo.setLogId(IdUtils.fastSimpleUUID());
         generateLogInfo.setUserId(info.getUserId());
@@ -125,6 +178,11 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setNegativePrompt(info.getNegativePrompt());
         generateLogInfo.setSeed(info.getSeed());
         generateLogInfo.setNumbers(info.getNumbers());
+        generateLogInfo.setIpAddr(info.getIpAddr());
+        generateLogInfo.setDeviceId(info.getDeviceId());
+        generateLogInfo.setBrowser(info.getBrowser());
+        generateLogInfo.setOs(info.getOs());
+        generateLogInfo.setPlatform(info.getPlatform());
         generateLogInfo.setInputParams(json);
         generateLogInfo.setTaskId(jiMengResponse.getRequest_id());
         generateLogInfo.setOutputResult(JSON.toJSONString(jiMengResponse));
@@ -142,36 +200,6 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setCreateTime(new Date());
         generateLogInfo.setUpdateTime(new Date());
         generateLogInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
-
-//        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
-        //设置设备信息
-//        BeanUtils.copyProperties(deviceInfo, generateLogInfo);
-        if (jiMengResponse.getCode() == 10000) {
-            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
-            JiMengResponse.DataContent data = jiMengResponse.getData();
-            List<String> imageUrls = data.getImage_urls();
-            for (String imageUrl : imageUrls) {
-                try {
-                    // 下载图片
-                    URL urlImage = new URL(imageUrl);
-                    try (InputStream in = urlImage.openStream();
-                         FileOutputStream fos = new FileOutputStream("E:/Project/Picture/files/AIgenerate/generated_image" + System.currentTimeMillis() + ".jpg")) {
-                        byte[] bufferImage = new byte[1024];
-                        int bytesReadImage;
-                        while ((bytesReadImage = in.read(bufferImage)) != -1) {
-                            fos.write(bufferImage, 0, bytesReadImage);
-                        }
-                        System.out.println("图片已保存为 generated_image.jpg");
-                    }
-                    //上传图片
-                    FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", "admin");
-                    System.out.println("fileResponse = " + fileResponse);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            generateLogInfo.setFileUrls(String.join(COMMON_SEPARATOR, imageUrls));
-        }
         return generateLogInfo;
     }
 

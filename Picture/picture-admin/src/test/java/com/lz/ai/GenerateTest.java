@@ -25,7 +25,8 @@ public class GenerateTest {
     @Test
     public void testGenerate() {
         GenerateLogInfoRequest request = new GenerateLogInfoRequest();
-        request.setUserId("1");
+        request.setUserId("009");
+        request.setUsername("YYYY");
         request.setModelKeys(List.of("JiMeng_CVSync2AsyncSubmitTask"));
         request.setModelType(AiModelParamsTypeEnum.MODEL_PARAMS_TYPE_1.getValue());
         request.setInputFile(null);
@@ -35,6 +36,11 @@ public class GenerateTest {
         request.setNumbers(4);
         request.setWidth(1024);
         request.setHeight(628);
+        request.setBrowser("Chrome");
+        request.setOs("Windows");
+        request.setPlatform("PC");
+        request.setIpAddr("192.168.1.1");
+        request.setDeviceId("1234567890");
         generateLogInfoService.userGenerate(request);
     }
 }

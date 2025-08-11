@@ -3,6 +3,9 @@ package com.lz.ai.controller.user;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.ip.IpUtils;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +32,9 @@ public class UserPictureGenerateController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasLogin()")
     public AjaxResult add(@Validated GenerateLogInfoRequest request) {
         request.setUserId(getUserId());
+        request.setUsername(getUsername());
+        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
+        BeanUtils.copyProperties(deviceInfo, request);
         return success(generateLogInfoService.userGenerate(request));
     }
 }

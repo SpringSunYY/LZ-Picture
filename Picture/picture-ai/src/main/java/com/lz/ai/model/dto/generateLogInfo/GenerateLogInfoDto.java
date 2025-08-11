@@ -1,7 +1,6 @@
 package com.lz.ai.model.dto.generateLogInfo;
 
 import com.lz.ai.model.domain.ModelParamsInfo;
-import com.lz.common.annotation.Excel;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -26,6 +25,11 @@ public class GenerateLogInfoDto implements Serializable {
      * 用户编号
      */
     private String userId;
+
+    /**
+     * 用户名
+     */
+    private String username;
 
     /**
      * 模型KEY
@@ -133,8 +137,35 @@ public class GenerateLogInfoDto implements Serializable {
     private String extendConfig;
 
 
+    /**
+     * 用户IP地址
+     */
+    private String ipAddr;
+
+    /**
+     * 用户设备唯一标识
+     */
+    private String deviceId;
+
+    /**
+     * 浏览器类型
+     */
+    private String browser;
+
+    /**
+     * 操作系统
+     */
+    private String os;
+
+    /**
+     * 平台
+     */
+    private String platform;
+
+
     public GenerateLogInfoDto(GenerateLogInfoRequest request, ModelParamsInfo modelParamsInfo) {
         this.userId = request.getUserId();
+        this.username = request.getUsername();
         this.modelKeys = request.getModelKeys();
         this.modelType = request.getModelType();
         this.inputFile = request.getInputFile();
@@ -145,6 +176,12 @@ public class GenerateLogInfoDto implements Serializable {
         this.width = request.getWidth();
         this.height = request.getHeight();
         this.targetId = request.getTargetId();
+        this.ipAddr = request.getIpAddr();
+        this.deviceId = request.getDeviceId();
+        this.browser = request.getBrowser();
+        this.os = request.getOs();
+        this.platform = request.getPlatform();
+
         this.modelKey = modelParamsInfo.getModelKey();
         this.modelName = modelParamsInfo.getModelName();
         this.model = modelParamsInfo.getModel();

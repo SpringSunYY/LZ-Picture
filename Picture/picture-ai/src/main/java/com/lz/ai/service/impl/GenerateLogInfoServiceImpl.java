@@ -9,8 +9,11 @@ import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.ai.strategy.generate.AiGenerateStrategyExecutor;
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.ip.IpUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
