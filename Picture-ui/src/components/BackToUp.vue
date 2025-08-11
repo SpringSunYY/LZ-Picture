@@ -110,7 +110,7 @@ onUnmounted(() => {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 4px 20px rgba(24, 144, 255, 0.3);
-  z-index: 1000;
+  z-index: 1;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   user-select: none;
   overflow: visible;
@@ -188,7 +188,7 @@ onUnmounted(() => {
 /* 火箭发射动画 - 改为直接向上 */
 .custom-back-top.rocket-launching {
   animation: rocketLaunch 1.5s ease-out;
-  z-index: 1001;
+  z-index: 1;
 }
 
 @keyframes rocketLaunch {

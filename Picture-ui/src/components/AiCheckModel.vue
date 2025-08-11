@@ -153,29 +153,47 @@
             <span>{{ option.label }}</span>
             <span class="ratio-value">{{ option.width }}x{{ option.height }}</span>
           </li>
-          <li class="custom-ratio-item">
+          <li class="custom-ratio-item" @click.stop="selectRatio({ label: '自定义', width: customWidth, height: customHeight})">
             <label>自定义:</label>
             <div class="custom-ratio-inputs">
               <input
                 type="number"
                 v-model.number="customWidth"
-                min="64"
-                max="4096"
+                min="256"
+                max="3024"
                 placeholder="宽"
                 @click.stop
+                @input="validateInput"
+                @blur="validateInput"
               />
               <span class="x-separator">×</span>
               <input
                 type="number"
                 v-model.number="customHeight"
-                min="64"
-                max="4096"
+                min="256"
+                max="3024"
                 placeholder="高"
                 @click.stop
+                @input="validateInput"
+                @blur="validateInput"
               />
             </div>
           </li>
         </ul>
+      </div>
+      <div class="dropdown-wrapper">
+        <input
+          type="number"
+          v-model.number="number"
+          :min="1"
+          :max="9"
+          @input="validateInput"
+          @blur="validateInput"
+          @click.stop
+          class="action-button"
+          style="width: 120px"
+          placeholder="请输入生成数量"
+        />
       </div>
     </div>
   </div>
@@ -195,6 +213,7 @@ interface ImageRatioOption {
   height?: number
 }
 
+const number = ref(1)
 //region 模型信息
 const modelList = ref<ModelParamsInfo>()
 const modelQuery = ref<ModelParamsInfoRequest>({
@@ -238,22 +257,19 @@ const customWidth = ref(1024)
 const customHeight = ref(1792)
 
 const selectedRatioDisplay = computed(() => {
-  if (selectedRatioOption.value.label === '自定义') {
-    return `${customWidth.value}x${customHeight.value}`
-  }
   return `${selectedRatioOption.value.label} (${selectedRatioOption.value.width}x${selectedRatioOption.value.height})`
 })
 
 const imageRatioOptions = [
-  { label: '9:16 标清 1K', width: 1024, height: 1792 },
-  { label: '16:9 标清 1K', width: 1792, height: 1024 },
-  { label: '1:1 标清 1K', width: 1024, height: 1024 },
-  { label: '4:5 高清 2K', width: 1536, height: 1920 },
-  { label: '16:10 高清 2K', width: 2048, height: 1280 },
-  { label: '3:2 超清 4K', width: 3072, height: 2048 },
-  { label: '2.35:1 超宽屏', width: 3584, height: 1536 },
-  { label: '21:9 电影级', width: 2560, height: 1088 },
-  { label: '32:9 全景模式', width: 3840, height: 1080 },
+  { label: '1:1  标清 1K', width: 1024, height: 1024 },
+  { label: '4:3  标清 1K', width: 1024, height: 768 },
+  { label: '3:4  标清 1K', width: 768, height: 1024 },
+  { label: '16:9 标清 1K', width: 1024, height: 682 },
+  { label: '1:1  高清 2K', width: 2048, height: 2048 },
+  { label: '4:3  高清 2K', width: 2304, height: 1728 },
+  { label: '3:4  高清 2K', width: 1536, height: 2048 },
+  { label: '16:9 高清 2K', width: 2560, height: 1440 },
+  { label: '21:9 高清 2K', width: 3024, height: 1296 },
 ]
 
 const closeAllDropdowns = () => {
@@ -331,6 +347,28 @@ watch([customWidth, customHeight], () => {
     height: customHeight.value,
   }
 })
+
+// 添加以下方法来处理输入验证
+const validateInput = (event: Event, strict = false) => {
+  const target = event.target as HTMLInputElement
+  // 只保留 0-9 及可选的小数点
+  target.value = target.value.replace(/[^\d.]/g, '')
+
+  if (target.value === '') return
+
+  const value = Number(target.value)
+  const min = target.min !== '' ? Number(target.min) : 64
+  const max = target.max !== '' ? Number(target.max) : 4096
+
+  let newValue = value
+  if (value > max) newValue = max
+  if (value < min) newValue = min
+
+  if (strict || newValue !== value) {
+    target.value = String(newValue)
+    target.dispatchEvent(new Event('input', { bubbles: true }))
+  }
+}
 </script>
 <style lang="scss" scoped>
 .action-buttons {
@@ -563,6 +601,16 @@ watch([customWidth, customHeight], () => {
         height: 14px;
       }
     }
+  }
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
 </style>
