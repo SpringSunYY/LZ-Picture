@@ -1,16 +1,15 @@
 package com.lz.config.service;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.config.model.domain.FileLogInfo;
+import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
 import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
-import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.util.List;
 
 /**
  * 文件日志Service接口
@@ -90,10 +89,10 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * 记录文件日志
      *
      * @param fileResponse 图片信息
-     * @param userId              用户编号
-     * @param ossType             存储类型
-     * @param logType             日志类型
-     * @param deviceInfo          设备信息
+     * @param userId       用户编号
+     * @param ossType      存储类型
+     * @param logType      日志类型
+     * @param deviceInfo   设备信息
      * @return void
      * @author: YY
      * @date: 2025/5/10 22:56
@@ -114,6 +113,7 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
     /**
      * 自动删除冗余文件
      * 比如说1000条，前第几天
+     *
      * @param size 长度
      * @param days 天数
      * @return int
@@ -122,4 +122,21 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * @date: 2025/5/11 18:04
      **/
     int autoDeleteFile(Integer size, Integer days);
+
+    /**
+     * 插入正常文件日志
+     *
+     * @param fileResponse  文件信息
+     * @param userId        用户编号
+     * @param logType       日志类型
+     * @param ossType       存储类型
+     * @param deviceInfo    设备信息
+     * @param targetId      目标编号
+     * @param targetContent 目标内容
+     * @return int
+     * @author: YY
+     * @method: recordNormalFileLog
+     * @date: 2025/8/12 17:30
+     **/
+    int recordNormalFileLog(FileResponse fileResponse, String userId, String targetId, String targetContent, String logType, String ossType, DeviceInfo deviceInfo);
 }

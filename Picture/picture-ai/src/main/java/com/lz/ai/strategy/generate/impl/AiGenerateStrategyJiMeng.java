@@ -2,6 +2,8 @@ package com.lz.ai.strategy.generate.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.lz.ai.manage.AiAsyncManager;
+import com.lz.ai.manage.factory.AiFileLogAsyncFactory;
 import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
@@ -10,6 +12,7 @@ import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
 import com.lz.ai.strategy.generate.domain.dto.JiMengResponse;
 import com.lz.ai.strategy.generate.domain.params.JiMengParams;
 import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
+import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.exception.ServiceException;
@@ -150,6 +153,14 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                     generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
                     generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
                     System.out.println("fileResponse = " + fileResponse);
+                    //添加文件日志
+                    DeviceInfo deviceInfo = new DeviceInfo();
+                    deviceInfo.setDeviceId(info.getDeviceId());
+                    deviceInfo.setIpAddr(info.getIpAddr());
+                    deviceInfo.setBrowser(info.getBrowser());
+                    deviceInfo.setOs(info.getOs());
+                    deviceInfo.setPlatform(info.getPlatform());
+                    AiAsyncManager.me().execute(AiFileLogAsyncFactory.recordFileLog(fileResponse, info.getUserId(), info.getUsername(), generateLogInfo.getLogId(), deviceInfo));
                 } catch (Exception e) {
                     log.error("图片保存失败: " + e.getMessage());
                 }

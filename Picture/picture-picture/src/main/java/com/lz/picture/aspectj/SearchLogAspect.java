@@ -53,10 +53,6 @@ import java.util.Map;
 @Slf4j
 public class SearchLogAspect {
 
-    /**
-     * 排除敏感属性字段
-     */
-    public static final String[] EXCLUDE_PROPERTIES = {"password", "oldPassword", "newPassword", "confirmPassword"};
 
     /**
      * 计算操作消耗时间
