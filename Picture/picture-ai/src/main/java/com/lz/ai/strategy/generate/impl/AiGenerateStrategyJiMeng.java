@@ -15,7 +15,6 @@ import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
 import com.lz.common.core.domain.DeviceInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
-import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
@@ -122,9 +121,10 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             });
             //处理结果
         } catch (Exception e) {
-            throw new ServiceException("生成失败！！！");
+            log.error("生成失败：{}", e.getMessage());
+            return info.getModelLabel() + "生成失败！！！";
         }
-        return info.getModelLabel() + "生成成功！！！";
+        return info.getModelLabel() + "生成成功，详细请看生成记录！！！";
     }
 
     private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
@@ -133,9 +133,52 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         if (jiMengResponse.getCode() == 10000) {
             generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
             JiMengResponse.DataContent data = jiMengResponse.getData();
-            List<String> imageUrls = data.getImage_urls();
-            for (String imageUrl : imageUrls) {
-                try {
+            if (StringUtils.isNull(data)) {
+                generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+            }
+            //如果是直接返回URL，则直接保存图片
+            if (StringUtils.isNotNull(data.getImage_urls())) {
+                saveGenerateLogInfoByImg(info, data, generateLogInfo);
+            } else if (StringUtils.isNotEmpty(data.getTask_id())) {
+                saveGenerateLogInfoByTask(info, data, generateLogInfo);
+            }
+
+        } else {
+            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+        }
+        return generateLogInfo;
+    }
+
+    /**
+     * 根据任务保存图片
+     *
+     * @param info
+     * @param data
+     * @param generateLogInfo
+     * @return void
+     * @author: YY
+     * @method: saveGenerateLogInfoByTask
+     * @date: 2025/8/12 18:49
+     **/
+    private void saveGenerateLogInfoByTask(GenerateLogInfoDto info, JiMengResponse.DataContent data, GenerateLogInfo generateLogInfo) {
+        generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_0.getValue());
+    }
+
+    /**
+     * 根据图片保存图片
+     *
+     * @param info
+     * @param data
+     * @param generateLogInfo
+     * @return void
+     * @author: YY
+     * @method: saveGenerateLogInfoByImg
+     * @date: 2025/8/12 18:49
+     **/
+    private void saveGenerateLogInfoByImg(GenerateLogInfoDto info, JiMengResponse.DataContent data, GenerateLogInfo generateLogInfo) {
+        List<String> imageUrls = data.getImage_urls();
+        for (String imageUrl : imageUrls) {
+            try {
 //                    // 下载图片
 //                    URL urlImage = new URL(imageUrl);
 //                    try (InputStream in = urlImage.openStream();
@@ -147,28 +190,24 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 //                        }
 //                        System.out.println("图片已保存为 generated_image.jpg");
 //                    }
-                    //上传图片
-                    FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", info.getUsername());
-                    generateLogInfo.setWidth(Math.toIntExact(fileResponse.getPicWidth()));
-                    generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
-                    generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
-                    System.out.println("fileResponse = " + fileResponse);
-                    //添加文件日志
-                    DeviceInfo deviceInfo = new DeviceInfo();
-                    deviceInfo.setDeviceId(info.getDeviceId());
-                    deviceInfo.setIpAddr(info.getIpAddr());
-                    deviceInfo.setBrowser(info.getBrowser());
-                    deviceInfo.setOs(info.getOs());
-                    deviceInfo.setPlatform(info.getPlatform());
-                    AiAsyncManager.me().execute(AiFileLogAsyncFactory.recordFileLog(fileResponse, info.getUserId(), info.getUsername(), generateLogInfo.getLogId(), deviceInfo));
-                } catch (Exception e) {
-                    log.error("图片保存失败: " + e.getMessage());
-                }
+                //上传图片
+                FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", info.getUsername());
+                generateLogInfo.setWidth(Math.toIntExact(fileResponse.getPicWidth()));
+                generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
+                generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
+                System.out.println("fileResponse = " + fileResponse);
+                //添加文件日志
+                DeviceInfo deviceInfo = new DeviceInfo();
+                deviceInfo.setDeviceId(info.getDeviceId());
+                deviceInfo.setIpAddr(info.getIpAddr());
+                deviceInfo.setBrowser(info.getBrowser());
+                deviceInfo.setOs(info.getOs());
+                deviceInfo.setPlatform(info.getPlatform());
+                AiAsyncManager.me().execute(AiFileLogAsyncFactory.recordFileLog(fileResponse, info.getUserId(), generateLogInfo.getTaskId(), generateLogInfo.getLogId(), deviceInfo));
+            } catch (Exception e) {
+                log.error("图片保存失败: " + e.getMessage());
             }
-        } else {
-            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
         }
-        return generateLogInfo;
     }
 
     /**
@@ -200,7 +239,11 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setOs(info.getOs());
         generateLogInfo.setPlatform(info.getPlatform());
         generateLogInfo.setInputParams(json);
-        generateLogInfo.setTaskId(jiMengResponse.getRequest_id());
+        if (StringUtils.isNotNull(jiMengResponse.getData()) && StringUtils.isNotEmpty(jiMengResponse.getData().getTask_id())) {
+            generateLogInfo.setTaskId(jiMengResponse.getData().getTask_id());
+        } else if (StringUtils.isNotNull(jiMengResponse.getRequest_id())) {
+            generateLogInfo.setTaskId(jiMengResponse.getRequest_id());
+        }
         generateLogInfo.setOutputResult(JSON.toJSONString(jiMengResponse));
         generateLogInfo.setWidth(info.getWidth());
         generateLogInfo.setHeight(info.getHeight());
@@ -320,6 +363,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             buffer.write(imageData, 0, bytesRead);
         }
         String responseBody = buffer.toString(StandardCharsets.UTF_8);
+        System.out.println("responseBody = " + responseBody);
         is.close();
         return JSONObject.parseObject(responseBody, JiMengResponse.class);
     }

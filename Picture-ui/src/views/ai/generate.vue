@@ -85,7 +85,7 @@
           </div>
         </div>
         <div class="content-text text-white mt-1">
-          <TextView :text="generate.prompt" :max-lines="3"/>
+          <TextView :text="generate.prompt" :max-lines="3" />
         </div>
         <div class="content-picture mt-5">
           <AiPictureView class="picture" :image-url="generate.fileUrls" />
@@ -115,7 +115,7 @@
       </div>
       <div ref="loadMoreTrigger" class="load-more-trigger">
         <LoadingData v-if="isLoadingMore" />
-        <NoMoreData v-else-if="noMore" text="没有更多数据了哦，快去生成吧！！！"/>
+        <NoMoreData v-else-if="noMore" text="没有更多数据了哦，快去生成吧！！！" />
       </div>
     </div>
   </div>
@@ -151,7 +151,7 @@ const generateQuery = ref<GenerateLogInfoQuery>({
 const isLoadingMore = ref(false)
 const noMore = ref(false)
 const getGenerateList = async () => {
-  if (isLoadingMore.value||noMore.value) return
+  if (isLoadingMore.value || noMore.value) return
   isLoadingMore.value = true
   await listGenerateLogInfo(generateQuery.value).then((res) => {
     if (!generateList.value) {
@@ -231,23 +231,26 @@ const submitGenerate = async () => {
   }
   isGenerating.value = true
   message.success('正在生成图片，请不要刷新界面...')
-  const res = await generate({
-    prompt: prompt.value,
-    modelKeys: modelInfo.value?.modelKeys,
-    modelType: modelInfo.value?.modelType || '',
-    width: modelInfo.value?.width,
-    height: modelInfo.value?.height,
-    numbers: modelInfo.value?.numbers || 1,
-  })
-  if (res.code === 200) {
-    message.success(res.msg)
-    generateQuery.value.pageNum = 1
-    generateList.value = []
-    isLoadingMore.value = false
-    noMore.value = false
-    await getGenerateList()
+  try {
+    const res = await generate({
+      prompt: prompt.value,
+      modelKeys: modelInfo.value?.modelKeys,
+      modelType: modelInfo.value?.modelType || '',
+      width: modelInfo.value?.width,
+      height: modelInfo.value?.height,
+      numbers: modelInfo.value?.numbers || 1,
+    })
+    if (res.code === 200) {
+      message.success(res.msg)
+      generateQuery.value.pageNum = 1
+      generateList.value = []
+      noMore.value = false
+      isLoadingMore.value = false
+      await getGenerateList()
+    }
+  } finally {
+    isGenerating.value = false
   }
-  isGenerating.value = false
 }
 //endregion
 </script>

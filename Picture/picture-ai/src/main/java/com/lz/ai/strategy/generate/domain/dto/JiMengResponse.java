@@ -34,6 +34,7 @@ public class JiMengResponse {
         private String rephraser_result;
         private String request_id;
         private String vlm_result;
+        private String task_id;
     }
 
     @Data
