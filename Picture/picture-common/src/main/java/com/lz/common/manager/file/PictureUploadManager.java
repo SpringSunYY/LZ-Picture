@@ -269,19 +269,25 @@ public class PictureUploadManager {
         String userEncodeToString = Base64.getEncoder().encodeToString(username.getBytes());
 
         //获取水印字体大小
+        //获取水印字体大小
         try {
-            Long pSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_PS);
-            if (StringUtils.isNull(pSize)) {
-                pSize = 50L;
+            String pSizeStr = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_PS);
+            if (StringUtils.isNotEmpty(pSizeStr)) {
+                fontSize = picWidth / Long.parseLong(pSizeStr);
+            } else {
+                fontSize = picWidth / 50L;
             }
-            Long uSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_US);
-            if (StringUtils.isNull(uSize)) {
-                uSize = 30L;
+
+            String uSizeStr = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_US);
+            if (StringUtils.isNotEmpty(uSizeStr)) {
+                userFontSize = picHeight / Long.parseLong(uSizeStr);
+            } else {
+                userFontSize = picHeight / 30L;
             }
-            fontSize = picWidth / pSize;
-            userFontSize = picHeight / uSize;
         } catch (Exception e) {
             log.error("获取水印基本信息失败：{}", e.getMessage());
+            fontSize = picWidth / 50L;
+            userFontSize = picHeight / 30L;
         }
         //获取水印透明度
         String pAlpha = "80";
@@ -737,7 +743,7 @@ public class PictureUploadManager {
             return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
-//            System.err.println("上传失败：" + e.getMessage());
+            System.err.println("上传失败：" + e.getMessage());
             throw new RuntimeException("文件上传异常,获取是图片链接有误,请使用可访问的地址");
         } finally {
             close(ossClient, inputStream, file);
@@ -769,13 +775,15 @@ public class PictureUploadManager {
 
         //获取水印字体大小
         try {
-            Long aSize = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_AI_S);
-            if (StringUtils.isNull(aSize)) {
-                aSize = 50L;
+            String aSizeStr = redisCache.getCacheObject(PICTURE_WATERMARK_TEXT_AI_S);
+            if (StringUtils.isNotEmpty(aSizeStr)) {
+                fontSize = picHeight / Long.parseLong(aSizeStr);
+            } else {
+                fontSize = picHeight / 50L;
             }
-            fontSize = picHeight / aSize;
         } catch (Exception e) {
             log.error("获取水印基本信息失败：{}", e.getMessage());
+            fontSize = picHeight / 50L;
         }
         //获取水印透明度
         String aAlpha = "70";

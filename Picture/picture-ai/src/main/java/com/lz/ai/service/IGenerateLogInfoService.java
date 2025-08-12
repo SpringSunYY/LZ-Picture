@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
+import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
 import com.lz.common.core.page.TableDataInfo;
 
 import java.util.List;
@@ -94,7 +94,7 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
      * @method: userGenerate
      * @date: 2025/8/8 23:39
      **/
-    String userGenerate(GenerateLogInfoRequest request);
+    String userGenerate(AiGenerateRequest request);
 
     /**
      * 用户查询自己的生成记录
@@ -106,4 +106,14 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
      * @date: 2025/8/12 00:05
      **/
     TableDataInfo userSelectGenerateLogInfoList(UserGenerateLogInfoRequest request);
+
+    /**
+     * 生成任务查询
+     *
+     * @param logId
+     * @param userId
+     * @param username
+     * @return
+     */
+    GenerateLogInfo queryTask(String logId, String userId, String username);
 }

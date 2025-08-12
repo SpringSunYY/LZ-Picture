@@ -1,8 +1,8 @@
 package com.lz.ai;
 
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.enums.AiModelParamsTypeEnum;
 import com.lz.ai.service.IGenerateLogInfoService;
+import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +24,7 @@ public class GenerateTest {
 
     @Test
     public void testGenerate() {
-        GenerateLogInfoRequest request = new GenerateLogInfoRequest();
+        AiGenerateRequest request = new AiGenerateRequest();
         request.setUserId("009");
         request.setUsername("YYYY");
         request.setModelKeys(List.of("JiMeng_CVSync2AsyncSubmitTask"));
@@ -42,5 +42,10 @@ public class GenerateTest {
         request.setIpAddr("192.168.1.1");
         request.setDeviceId("1234567890");
         generateLogInfoService.userGenerate(request);
+    }
+
+    @Test
+    public void testJMQuery() throws Exception {
+        generateLogInfoService.queryTask("42c5313eeae643d7b45cda3cb6f07369", "1", "admin");
     }
 }

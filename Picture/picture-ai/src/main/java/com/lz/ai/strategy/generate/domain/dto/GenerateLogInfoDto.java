@@ -1,6 +1,7 @@
-package com.lz.ai.model.dto.generateLogInfo;
+package com.lz.ai.strategy.generate.domain.dto;
 
 import com.lz.ai.model.domain.ModelParamsInfo;
+import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -169,7 +170,7 @@ public class GenerateLogInfoDto implements Serializable {
     private String platform;
 
 
-    public GenerateLogInfoDto(GenerateLogInfoRequest request, ModelParamsInfo modelParamsInfo) {
+    public GenerateLogInfoDto(AiGenerateRequest request, ModelParamsInfo modelParamsInfo) {
         this.userId = request.getUserId();
         this.username = request.getUsername();
         this.modelKeys = request.getModelKeys();

@@ -1,4 +1,4 @@
-package com.lz.ai.model.dto.generateLogInfo;
+package com.lz.ai.strategy.generate.domain;
 
 import com.lz.ai.model.domain.GenerateLogInfo;
 import jakarta.validation.constraints.*;
@@ -17,7 +17,7 @@ import java.util.List;
  * @date 2025-08-08
  */
 @Data
-public class GenerateLogInfoRequest implements Serializable {
+public class AiGenerateRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -125,7 +125,7 @@ public class GenerateLogInfoRequest implements Serializable {
      * @param generateLogInfoInsert 插入对象
      * @return GenerateLogInfoInsert
      */
-    public static GenerateLogInfo insertToObj(GenerateLogInfoRequest generateLogInfoInsert) {
+    public static GenerateLogInfo insertToObj(AiGenerateRequest generateLogInfoInsert) {
         if (generateLogInfoInsert == null) {
             return null;
         }

@@ -1,6 +1,8 @@
 package com.lz.ai.strategy.generate.impl;
 
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
+import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.ai.model.domain.ModelParamsInfo;
+import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.AiGenerateStrategyService;
 import com.lz.ai.strategy.generate.domain.params.Params;
 import com.lz.ai.strategy.generate.domain.verify.Verify;
@@ -27,6 +29,12 @@ public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
     public String userGenerate(GenerateLogInfoDto info) {
         return "";
     }
+
+    @Override
+    public GenerateLogInfo query(GenerateLogInfo query, ModelParamsInfo modelParamsInfo, String username) {
+        return null;
+    }
+
     public static void commonVerify(GenerateLogInfoDto info, Integer width, Integer minWidth, Integer maxWidth, Integer height, Integer minHeight, Integer maxHeight, Params jiMengParams, Verify jiMengVerify) {
         //如果宽高都在范围内
         if (width >= minWidth && width <= maxWidth && height >= minHeight && height <= maxHeight) {

@@ -6,9 +6,10 @@ import com.lz.ai.manage.AiAsyncManager;
 import com.lz.ai.manage.factory.AiFileLogAsyncFactory;
 import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
+import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.enums.AiLogStatusEnum;
 import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
+import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.domain.dto.JiMengResponse;
 import com.lz.ai.strategy.generate.domain.params.JiMengParams;
 import com.lz.ai.strategy.generate.domain.verify.JiMengVerify;
@@ -84,6 +85,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         URLENCODER.set('~');
     }
 
+    //region 生成
     @Override
     public String userGenerate(GenerateLogInfoDto info) {
         JiMengParams params = verify(info);
@@ -178,6 +180,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
     private void saveGenerateLogInfoByImg(GenerateLogInfoDto info, JiMengResponse.DataContent data, GenerateLogInfo generateLogInfo) {
         List<String> imageUrls = data.getImage_urls();
         for (String imageUrl : imageUrls) {
+            System.out.println("imageUrl = " + imageUrl);
             try {
 //                    // 下载图片
 //                    URL urlImage = new URL(imageUrl);
@@ -308,7 +311,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             querySB.append(signStringEncoder(key)).append("=").append(signStringEncoder(realQueryList.get(key))).append("&");
         }
         querySB.deleteCharAt(querySB.length() - 1);
-
+        System.out.println("querySB = " + querySB);
         String canonicalStringBuilder = method + "\n" + path + "\n" + querySB + "\n" +
                 "host:" + host + "\n" +
                 "x-date:" + xDate + "\n" +
@@ -368,6 +371,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         return JSONObject.parseObject(responseBody, JiMengResponse.class);
     }
 
+    //endregion
     private String signStringEncoder(String source) {
         if (source == null) {
             return null;
@@ -423,4 +427,83 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         byte[] kService = hmacSHA256(kRegion, service);
         return hmacSHA256(kService, "request");
     }
+
+    //region 查询
+    public GenerateLogInfo query(GenerateLogInfo generateLogInfo, ModelParamsInfo modelParamsInfo, String username) {
+//        System.out.println("generateLogInfo = " + generateLogInfo);
+//        System.out.println("modelParamsInfo = " + modelParamsInfo);
+        JiMengParams jiMengParams = new JiMengParams();
+        jiMengParams = jiMengParams.jsonToObj(modelParamsInfo.getModelParams());
+        jiMengParams.setTask_id(generateLogInfo.getTaskId());
+        JiMengParams.ReqJson reqJson = new JiMengParams.ReqJson();
+        reqJson.setReturn_url(true);
+        String reqJsonStr = JSONObject.toJSONString(reqJson);
+        jiMengParams.setReq_json(reqJsonStr);
+        jiMengParams.setAction(jiMengParams.getQueryAction());
+        jiMengParams.setWidth(null);
+        jiMengParams.setHeight(null);
+        jiMengParams.setPrompt(null);
+        jiMengParams.setUse_pre_llm(null);
+        String jsonString = JSONObject.toJSONString(jiMengParams);
+        System.out.println("jsonString = " + jsonString);
+        try {
+
+            JiMengResponse jiMengResponse = doRequest(jiMengParams.getMethod(), new HashMap<>(), jsonString.getBytes(UTF_8), new Date(),
+                    jiMengParams.getAction(), jiMengParams.getVersion(), jiMengParams.getRegion(), jiMengParams.getService(), jiMengParams.getPath(),
+                    modelParamsInfo.getApiKey(), modelParamsInfo.getSecretKey(), jiMengParams.getHost(), jiMengParams.getSchema());
+            System.out.println("jiMengResponse = " + jiMengResponse);
+            if (jiMengResponse.getCode() == 10000) {
+                JiMengResponse.DataContent data = jiMengResponse.getData();
+                if (StringUtils.isNull(data)) {
+                    generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+                }
+                //如果是直接返回URL，则直接保存图片
+                GenerateLogInfoDto info = new GenerateLogInfoDto();
+                info.setUsername(username);
+                info.setUserId(generateLogInfo.getUserId());
+                if (StringUtils.isNotNull(data.getImage_urls())) {
+                    saveGenerateLogInfoByImg(info, data, generateLogInfo);
+                } else if (StringUtils.isNotEmpty(data.getTask_id())) {
+                    saveGenerateLogInfoByTask(info, data, generateLogInfo);
+                }
+                generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
+                //重新计算花费时间
+                String timeElapsed = jiMengResponse.getTime_elapsed();
+                if (StringUtils.isNotEmpty(timeElapsed)) {
+                    String time = timeElapsed.split("\\.")[0];
+                    generateLogInfo.setRequestDuration(Long.parseLong(time));
+                }
+            } else {
+                generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return generateLogInfo;
+    }
+
+    public static void main(String[] args) throws Exception {
+        // 火山官网密钥信息, 注意sk结尾有==
+        String AccessKeyID = "";
+        String SecretAccessKey = "";
+        // 请求域名
+        String endpoint = "visual.volcengineapi.com";
+        String path = "/"; // 路径，不包含 Query// 请求接口信息
+        String service = "cv";
+        String region = "cn-north-1";
+        String schema = "https";
+        // 参考接口文档Query参数
+        String action = "CVProcess";
+        String version = "2022-08-31";
+        Date date = new Date();
+        // 参考接口文档Body参数
+        JSONObject body = new JSONObject();
+        body.put("req_key", "jimeng_t2i_v30");
+        body.put("task_id", "13583292287246105885");
+        body.put("return_url", true);
+        AiGenerateStrategyJiMeng aiGenerateStrategyJiMeng = new AiGenerateStrategyJiMeng();
+        aiGenerateStrategyJiMeng.doRequest("POST", new HashMap<>(), body.toJSONString().getBytes(StandardCharsets.UTF_8), date, action, version, region, service, path, AccessKeyID, SecretAccessKey, endpoint, schema);
+    }
+    //endregion
 }

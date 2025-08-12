@@ -8,7 +8,6 @@ import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
 import com.lz.ai.model.enums.AiLogStatusEnum;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
@@ -16,14 +15,17 @@ import com.lz.ai.model.vo.generateLogInfo.UserGenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.ai.service.IModelParamsInfoService;
 import com.lz.ai.strategy.generate.AiGenerateStrategyExecutor;
+import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
+import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -220,7 +222,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
 
     @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"request.userId"})
     @Override
-    public String userGenerate(GenerateLogInfoRequest request) {
+    public String userGenerate(AiGenerateRequest request) {
         return aiGenerateStrategyExecutor.executeUserGenerate(request);
     }
 
@@ -233,7 +235,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         pictureInfoPage.setCurrent(request.getPageNum());
         pictureInfoPage.setSize(request.getPageSize());
         LambdaQueryWrapper<GenerateLogInfo> query = new LambdaQueryWrapper<GenerateLogInfo>()
-                .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt,GenerateLogInfo::getModelType,
+                .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt, GenerateLogInfo::getModelType,
                         GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls,
                         GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime)
                 .eq(GenerateLogInfo::getUserId, request.getUserId())
@@ -245,14 +247,28 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         List<GenerateLogInfo> records = page.getRecords();
         ArrayList<UserGenerateLogInfoVo> userGenerateLogInfoVos = new ArrayList<>();
         for (GenerateLogInfo info : records) {
-            String url = OssConfig.builderPictureUrl(info.getFileUrls().split(COMMON_SEPARATOR)[0], null);
-            info.setFileUrls(url);
+            if (!StringUtils.isEmpty(info.getFileUrls())) {
+                String url = OssConfig.builderPictureUrl(info.getFileUrls().split(COMMON_SEPARATOR)[0], null);
+                info.setFileUrls(url);
+            }
             ModelParamsInfo modelParamsInfo = modelParamsInfoService.selectModelParamsInfoByModelKey(info.getModelKey());
             UserGenerateLogInfoVo vo = UserGenerateLogInfoVo.objToVo(info);
             vo.setModelName(modelParamsInfo.getModelLabel());
             userGenerateLogInfoVos.add(vo);
         }
         return new TableDataInfo(userGenerateLogInfoVos, Math.toIntExact(page.getTotal()));
+    }
+
+    @Override
+    public GenerateLogInfo queryTask(String logId, String userId, String username) {
+        GenerateLogInfo generateLogInfo = this.getById(logId);
+        ThrowUtils.throwIf(!generateLogInfo.getUserId().equals(userId),
+                HttpStatus.NO_CONTENT, "用户未查询到该任务");
+        ThrowUtils.throwIf(generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
+                "任务已完成，无需继续查询");
+        aiGenerateStrategyExecutor.executeQuery(generateLogInfo,username);
+        this.updateById(generateLogInfo);
+        return generateLogInfo;
     }
 
 }

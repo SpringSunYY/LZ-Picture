@@ -1,6 +1,8 @@
 package com.lz.ai.strategy.generate;
 
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
+import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.ai.model.domain.ModelParamsInfo;
+import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 
 /**
  * AI生成策略模式执行器
@@ -21,4 +23,9 @@ public interface AiGenerateStrategyService {
      * @date: 2025/8/9 00:25
      **/
     String userGenerate(GenerateLogInfoDto info);
+
+    /**
+     * 查询任务列表
+     */
+    public GenerateLogInfo query(GenerateLogInfo query, ModelParamsInfo modelParamsInfo, String username);
 }

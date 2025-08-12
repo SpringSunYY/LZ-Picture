@@ -1,10 +1,11 @@
 package com.lz.ai.strategy.generate;
 
+import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.domain.ModelParamsInfo;
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoDto;
-import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoRequest;
 import com.lz.ai.model.enums.AiModelParamsStatusEnum;
 import com.lz.ai.service.IModelParamsInfoService;
+import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
+import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
@@ -33,13 +34,14 @@ public class AiGenerateStrategyExecutor {
 
     /**
      * 用户生成执行
+     *
+     * @param request 请求参数
+     * @return String
      * @author: YY
      * @method: executeUserGenerate
      * @date: 2025/8/9 00:25
-     * @param request 请求参数
-     * @return String
      **/
-    public String executeUserGenerate(GenerateLogInfoRequest request) {
+    public String executeUserGenerate(AiGenerateRequest request) {
         //首先查询到所有的模型参数
         List<String> modelKeys = request.getModelKeys();
         List<GenerateLogInfoDto> generateLogInfoDtos = new ArrayList<>();
@@ -64,5 +66,19 @@ public class AiGenerateStrategyExecutor {
             }
         }
         return buffer.toString();
+    }
+
+    public GenerateLogInfo executeQuery(GenerateLogInfo generateLogInfo, String username) {
+        ModelParamsInfo modelParamsInfo = modelParamsInfoService.selectModelParamsInfoByModelKey(generateLogInfo.getModelKey());
+        ThrowUtils.throwIf(StringUtils.isNull(modelParamsInfo),
+                HttpStatus.NO_CONTENT,
+                "模型参数不存在或者未启用");
+        for (AiGenerateStrategyService aiGenerateStrategyService : aiGenerateStrategyServiceList) {
+            AiGenerateStrategyConfig annotation = aiGenerateStrategyService.getClass().getAnnotation(AiGenerateStrategyConfig.class);
+            if (annotation.model().equals(modelParamsInfo.getModel())) {
+                return aiGenerateStrategyService.query(generateLogInfo, modelParamsInfo,username);
+            }
+        }
+        return null;
     }
 }

@@ -18,9 +18,9 @@ public abstract class Params<T extends Params<T>> {
      * 公共参数
      */
     // 宽度
-    private int width;
+    private Integer width;
     // 高度
-    private int height;
+    private Integer height;
     // 提示词
     private String prompt;
 

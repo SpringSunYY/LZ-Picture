@@ -1,14 +1,9 @@
 package com.lz.ai.strategy.generate.domain.params;
 
 import com.alibaba.fastjson2.JSONObject;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.BitSet;
 
 /**
  * 即梦参数
@@ -26,13 +21,14 @@ public class JiMengParams extends Params<JiMengParams> {
     private String req_key;
 
     //开启文本扩写
-    private boolean use_pre_llm;
+    private Boolean use_pre_llm;
 
     //随机种子
     private Integer seed;
 
     //接口名
     private String action;
+    private String queryAction;
 
     //版本号
     private String version;
@@ -48,6 +44,14 @@ public class JiMengParams extends Params<JiMengParams> {
     private String path;
     private String ak;
     private String sk;
+    private String task_id;
+
+    private String req_json;
+
+    @Data
+    public static class ReqJson {
+        private boolean return_url;
+    }
 
     @Override
     public JiMengParams jsonToObj(String json) {
