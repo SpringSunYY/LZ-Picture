@@ -38,6 +38,8 @@ public class UserGenerateLogInfoVo implements Serializable {
      * 模型类型
      */
     private String modelType;
+
+    private String modelKey;
     /**
      * 提示词
      */

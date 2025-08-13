@@ -4,7 +4,7 @@
       <a-tabs v-model:activeKey="activeTab" class="tab-container" size="large" centered>
         <a-tab-pane key="1" tab="文生图"></a-tab-pane>
         <a-tab-pane key="2" tab="图生图">
-          <AiPictureUpload style="width: 100%; height: 300px" />
+          <AiPictureUpload v-model="fileInfo" style="width: 100%; height: 300px" />
         </a-tab-pane>
       </a-tabs>
       <div class="prompt mt-4">
@@ -73,12 +73,12 @@
             <a-space>
               <div class="px-1 heard-right-svg">
                 <a-tooltip title="使用本次创意生成">
-                  <svg-icon name="edit" size="1em" />
+                  <svg-icon name="edit" size="1em" @click="handlePrompt(generate)" />
                 </a-tooltip>
               </div>
               <div class="px-1 heard-right-svg">
                 <a-tooltip :title="`重新生成需要${generate.pointsUsed}积分`">
-                  <svg-icon name="reload" size="1em" />
+                  <svg-icon name="reload" size="1em" @click="handleReload(generate)" />
                 </a-tooltip>
               </div>
             </a-space>
@@ -119,7 +119,7 @@
               <AiBatchButton
                 @handle-refer-to="handleReferTo(generate)"
                 @handle-release="() => console.log('释放')"
-                @handle-reload="() => console.log('重新生成')"
+                @handle-reload="handleReload(generate)"
               />
             </div>
           </div>
@@ -159,12 +159,6 @@ import AiLoading from '@/components/AiLoading.vue'
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 const activeTab = ref('1')
-
-//region 操作
-const handleReferTo = (generate: UserGenerateLogInfoVo) => {
-  console.log('handleReferTo', generate)
-}
-//endregion
 
 //region 列表
 const generateList = ref<UserGenerateLogInfoVo[]>([])
@@ -240,51 +234,75 @@ const modelInfo = ref<ModerInfo>({
   numbers: 1,
 })
 const prompt = ref('')
+const fileInfo = ref<string>()
+const handleReferTo = (generate: UserGenerateLogInfoVo) => {
+  activeTab.value = '2'
+  console.log('handleReferTo', generate)
+  fileInfo.value = generate.fileUrls
+}
+const handleReload = (generate: UserGenerateLogInfoVo) => {
+  activeTab.value = '2'
+  console.log('handleReload', generate)
+  fileInfo.value = generate.fileUrls
+  prompt.value = generate.prompt
+  modelInfo.value = {
+    modelType: generate.modelType,
+    modelKeys: [generate.modelKey],
+    numbers: 1,
+    width: generate.width,
+    height: generate.height,
+    pointsNeed: generate.pointsUsed,
+  }
+}
+const handlePrompt = (generate: UserGenerateLogInfoVo) => {
+  prompt.value = generate.prompt
+}
 const submitGenerate = async () => {
   console.log('提交生成')
   console.log(modelInfo.value)
   console.log(prompt.value)
+  console.log('file', fileInfo.value)
   //校验参数是否填写
-  if (
-    !modelInfo.value?.width ||
-    modelInfo.value?.width < 256 ||
-    !modelInfo.value?.height ||
-    modelInfo.value?.height < 0
-  ) {
-    message.warn('请填写图片尺寸,宽高不可小于256')
-    return
-  }
-  if (!modelInfo.value?.modelKeys || modelInfo.value?.modelKeys.length <= 0) {
-    message.warn('请选择模型')
-    return
-  }
-  if (!modelInfo.value?.numbers || modelInfo.value?.numbers <= 0) {
-    message.warn('请填写数量')
-  }
-  if (!prompt.value || prompt.value.length <= 0) {
-    message.warn('请填写提示词')
-    return
-  }
-  isGenerating.value = true
-  message.success('正在生成图片，请不要刷新界面...', 5)
+  // if (
+  //   !modelInfo.value?.width ||
+  //   modelInfo.value?.width < 256 ||
+  //   !modelInfo.value?.height ||
+  //   modelInfo.value?.height < 0
+  // ) {
+  //   message.warn('请填写图片尺寸,宽高不可小于256')
+  //   return
+  // }
+  // if (!modelInfo.value?.modelKeys || modelInfo.value?.modelKeys.length <= 0) {
+  //   message.warn('请选择模型')
+  //   return
+  // }
+  // if (!modelInfo.value?.numbers || modelInfo.value?.numbers <= 0) {
+  //   message.warn('请填写数量')
+  // }
+  // if (!prompt.value || prompt.value.length <= 0) {
+  //   message.warn('请填写提示词')
+  //   return
+  // }
+  // isGenerating.value = true
+  // message.success('正在生成图片，请不要刷新界面...', 5)
   console.log('开始生成图片', modelInfo.value)
   try {
-    const res = await generate({
-      prompt: prompt.value,
-      modelKeys: modelInfo.value?.modelKeys,
-      modelType: modelInfo.value?.modelType || '',
-      width: modelInfo.value?.width,
-      height: modelInfo.value?.height,
-      numbers: modelInfo.value?.numbers || 1,
-    })
-    if (res.code === 200) {
-      message.success(res.msg)
-      generateQuery.value.pageNum = 1
-      generateList.value = []
-      noMore.value = false
-      isLoadingMore.value = false
-      await getGenerateList()
-    }
+    // const res = await generate({
+    //   prompt: prompt.value,
+    //   modelKeys: modelInfo.value?.modelKeys,
+    //   modelType: modelInfo.value?.modelType || '',
+    //   width: modelInfo.value?.width,
+    //   height: modelInfo.value?.height,
+    //   numbers: modelInfo.value?.numbers || 1,
+    // })
+    // if (res.code === 200) {
+    //   message.success(res.msg)
+    //   generateQuery.value.pageNum = 1
+    //   generateList.value = []
+    //   noMore.value = false
+    //   isLoadingMore.value = false
+    //   await getGenerateList()
+    // }
   } finally {
     isGenerating.value = false
   }
@@ -354,8 +372,9 @@ $text-color: #ffffff;
 
 .left {
   background-color: $bg-left-color;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
+  overflow-y: auto;
   flex-direction: column;
 
   .prompt,
@@ -372,7 +391,7 @@ $text-color: #ffffff;
     margin-top: auto;
     display: flex;
     justify-content: center;
-    padding: 20px 0;
+    padding: 10px 0;
   }
 
   /* 修改 textarea 背景色和文字色 */
@@ -409,7 +428,7 @@ $text-color: #ffffff;
   min-width: 50vh;
 
   .content {
-    margin: 2em 2em;
+    margin: 1em 2em;
 
     .content-heard {
       display: flex;
@@ -439,7 +458,6 @@ $text-color: #ffffff;
       @media (max-width: 768px) {
         flex-direction: column;
         align-items: flex-start;
-
         .heard-left,
         .heard-right {
           width: 100%;

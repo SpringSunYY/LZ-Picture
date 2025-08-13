@@ -1,7 +1,10 @@
 <template>
   <div class="image-uploader">
     <div class="image-thumbnail" @click.stop="handleThumbnailClick">
+      <!-- 显示上传的图片或父组件传入的URL -->
       <img v-if="uploadedImage" :src="uploadedImage" alt="已上传图片" class="thumbnail-image" />
+
+      <!-- 上传占位符 -->
       <div v-else class="upload-placeholder">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -22,6 +25,8 @@
           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
         </svg>
       </div>
+
+      <!-- 隐藏文件输入框 -->
       <input
         type="file"
         ref="fileInputRef"
@@ -29,6 +34,8 @@
         accept="image/*"
         style="display: none"
       />
+
+      <!-- 清除按钮 -->
       <button v-if="uploadedImage" class="clear-image-button" @click.stop="clearImage">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +54,8 @@
         </svg>
       </button>
     </div>
-    <!-- 修改模态框的挂载方式，使用teleport将其挂载到body上 -->
+
+    <!-- 图片预览模态框 -->
     <teleport to="body">
       <div
         v-if="showImagePreviewModal"
@@ -55,7 +63,7 @@
         @click.stop="closeImagePreviewModal"
       >
         <div class="modal-content" @click.stop>
-          <img :src="uploadedImage" alt="图片预览" style="max-height: calc(100vh - 100px)" />
+          <img :src="uploadedImage" alt="图片预览" style="max-height: calc(100vh)" />
         </div>
       </div>
     </teleport>
@@ -63,12 +71,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { message } from 'ant-design-vue'
 
-const uploadedImage = ref<string | null>(null)
+const emit = defineEmits(['update:modelValue'])
+const props = defineProps({
+  modelValue: { type: String, default: null }, // 支持父组件传入图片URL
+  limitSize: { type: Number, default: 5 },    // MB
+  fileTypes: {
+    type: Array as () => string[],
+    default: () => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
+  },
+})
+
+const uploadedImage = ref<string | null>(props.modelValue)
 const showImagePreviewModal = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
+// 监听父组件传入的URL
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    uploadedImage.value = newVal
+  }
+)
+
+// 点击缩略图
 const handleThumbnailClick = () => {
   if (uploadedImage.value) {
     showImagePreviewModal.value = true
@@ -76,42 +104,48 @@ const handleThumbnailClick = () => {
     fileInputRef.value?.click()
   }
 }
+
+// 上传图片处理
 const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    const file = target.files[0]
-    // 更严格的文件大小校验
-    const maxSize = 5 * 1024 * 1024 // 5MB
-    if (file.size > maxSize) {
-      alert(`图片大小不能超过5MB，当前文件大小为${(file.size / 1024 / 1024).toFixed(2)}MB`)
-      // 清空文件输入框，防止重复选择同一文件时不触发change事件
-      if (fileInputRef.value) fileInputRef.value.value = ''
-      return
-    }
+  if (!target.files || !target.files[0]) return
+  const file = target.files[0]
 
-    // 添加文件类型校验
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-    if (!allowedTypes.includes(file.type)) {
-      alert('只支持 JPG、PNG、GIF、WebP 格式的图片')
-      if (fileInputRef.value) fileInputRef.value.value = ''
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      uploadedImage.value = e.target?.result as string
-    }
-    reader.onerror = () => {
-      alert('图片读取失败，请重新选择')
-      if (fileInputRef.value) fileInputRef.value.value = ''
-    }
-    reader.readAsDataURL(file)
+  // 文件大小校验
+  const maxSize = props.limitSize * 1024 * 1024
+  if (file.size > maxSize) {
+    message.warn(`图片大小不能超过${props.limitSize}MB，当前文件大小为${(file.size / 1024 / 1024).toFixed(2)}MB`)
+    if (fileInputRef.value) fileInputRef.value.value = ''
+    return
   }
+
+  // 文件类型校验
+  if (!props.fileTypes.includes(file.type)) {
+    message.warn('请上传正确的图片格式，仅支持：' + props.fileTypes.join(';'))
+    if (fileInputRef.value) fileInputRef.value.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    uploadedImage.value = e.target?.result as string
+    emit('update:modelValue', uploadedImage.value)
+  }
+  reader.onerror = () => {
+    message.error('图片读取失败，请重新选择')
+    if (fileInputRef.value) fileInputRef.value.value = ''
+  }
+  reader.readAsDataURL(file)
 }
+
+// 清除图片
 const clearImage = () => {
   uploadedImage.value = null
+  emit('update:modelValue', null)
   if (fileInputRef.value) fileInputRef.value.value = ''
 }
+
+// 关闭预览
 const closeImagePreviewModal = () => {
   showImagePreviewModal.value = false
 }

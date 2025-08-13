@@ -244,7 +244,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         pictureInfoPage.setCurrent(request.getPageNum());
         pictureInfoPage.setSize(request.getPageSize());
         LambdaQueryWrapper<GenerateLogInfo> query = new LambdaQueryWrapper<GenerateLogInfo>()
-                .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt, GenerateLogInfo::getModelType,
+                .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt, GenerateLogInfo::getModelType, GenerateLogInfo::getModelKey,
                         GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls, GenerateLogInfo::getPointsUsed,
                         GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime, GenerateLogInfo::getLogStatus)
                 .eq(GenerateLogInfo::getUserId, request.getUserId())

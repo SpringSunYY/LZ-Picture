@@ -218,9 +218,15 @@ interface ImageRatioOption {
   height?: number
 }
 
+import { watchEffect } from 'vue'
+
+// 添加props接收modelValue
+const props = defineProps<{
+  modelValue?: ModerInfo
+}>()
 const numbers = ref(1)
 //region 模型信息
-const modelList = ref<ModelParamsInfo>()
+const modelList = ref<ModelParamsInfo[]>()
 const modelQuery = ref<ModelParamsInfoRequest>({
   modelType: null,
 })
@@ -364,6 +370,57 @@ watch([customWidth, customHeight], () => {
   resetModel()
 })
 
+watch(
+  () => props.modelValue,
+  async (newVal) => {
+    if (!newVal) return
+    numbers.value = newVal.numbers ?? 1
+    if (newVal.modelType !== modelQuery.value.modelType) {
+      modelQuery.value.modelType = newVal.modelType
+      await getModelList()
+    }
+    const typeOption = ai_model_params_type.value.find(
+      (item) => item.dictValue === newVal.modelType,
+    )
+    if (typeOption) selectedImageOption.value = typeOption
+    console.log(ai_model_params_type)
+    if (newVal.modelKeys?.length) {
+      selectedModelOptions.value =
+        modelList.value?.filter((m) => newVal.modelKeys.includes(m.modelKey)) || []
+    } else {
+      selectedModelOptions.value = []
+    }
+
+    if (newVal.width && newVal.height) {
+      const ratioOption = imageRatioOptions.find(
+        (r) => r.width === newVal.width && r.height === newVal.height,
+      )
+      if (ratioOption) {
+        selectedRatioOption.value = ratioOption
+      } else {
+        selectedRatioOption.value = { label: '自定义', width: newVal.width, height: newVal.height }
+        customWidth.value = newVal.width
+        customHeight.value = newVal.height
+      }
+    }
+    const modelKeys: string[] = []
+    let pointsNeed = 0
+    selectedModelOptions.value.map((model) => {
+      modelKeys.push(model.modelKey)
+      pointsNeed += Number(model.pointsNeed)
+    })
+    modelInfo.value = {
+      modelType: selectedImageOption.value.dictValue,
+      modelKeys: modelKeys,
+      width: selectedRatioOption.value.width,
+      height: selectedRatioOption.value.height,
+      numbers: numbers.value,
+      pointsNeed: pointsNeed,
+    }
+  },
+  { deep: true },
+)
+
 const emit = defineEmits(['update:modelValue'])
 const modelInfo = ref<ModerInfo>({
   modelType: selectedImageOption.value.dictValue,
@@ -379,7 +436,6 @@ const resetModel = () => {
     modelKeys.push(model.modelKey)
     pointsNeed += Number(model.pointsNeed)
   })
-  pointsNeed *= numbers.value
   modelInfo.value = {
     modelType: selectedImageOption.value.dictValue,
     modelKeys: modelKeys,
