@@ -240,7 +240,10 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
                         GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime)
                 .eq(GenerateLogInfo::getUserId, request.getUserId())
                 .eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
-                .eq(GenerateLogInfo::getLogStatus, AiLogStatusEnum.LOG_STATUS_1.getValue())
+                .and(wrapper ->
+                        wrapper.eq(GenerateLogInfo::getLogStatus, AiLogStatusEnum.LOG_STATUS_1.getValue())
+                                .or()
+                                .eq(GenerateLogInfo::getLogStatus, AiLogStatusEnum.LOG_STATUS_0.getValue()))
                 .eq(StringUtils.isNotEmpty(request.getUserId()), GenerateLogInfo::getUserId, request.getUserId())
                 .orderByDesc(GenerateLogInfo::getCreateTime);
         Page<GenerateLogInfo> page = this.page(pictureInfoPage, query);
@@ -266,7 +269,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
                 HttpStatus.NO_CONTENT, "用户未查询到该任务");
         ThrowUtils.throwIf(generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
                 "任务已完成，无需继续查询");
-        aiGenerateStrategyExecutor.executeQuery(generateLogInfo,username);
+        aiGenerateStrategyExecutor.executeQuery(generateLogInfo, username);
         this.updateById(generateLogInfo);
         return generateLogInfo;
     }

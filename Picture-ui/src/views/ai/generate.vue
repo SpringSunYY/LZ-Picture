@@ -36,7 +36,7 @@
       <div class="generate">
         <a-tooltip placement="top">
           <template #title>
-            <span>一共需要消耗积分</span>
+            <span>预计需要消耗{{modelInfo.pointsNeed}}积分</span>
           </template>
           <generate-button :is-loading="isGenerating" @click="submitGenerate" style="width: 60%" />
         </a-tooltip>
@@ -231,23 +231,24 @@ const submitGenerate = async () => {
   }
   isGenerating.value = true
   message.success('正在生成图片，请不要刷新界面...')
+  console.log('开始生成图片', modelInfo.value)
   try {
-    const res = await generate({
-      prompt: prompt.value,
-      modelKeys: modelInfo.value?.modelKeys,
-      modelType: modelInfo.value?.modelType || '',
-      width: modelInfo.value?.width,
-      height: modelInfo.value?.height,
-      numbers: modelInfo.value?.numbers || 1,
-    })
-    if (res.code === 200) {
-      message.success(res.msg)
-      generateQuery.value.pageNum = 1
-      generateList.value = []
-      noMore.value = false
-      isLoadingMore.value = false
-      await getGenerateList()
-    }
+    // const res = await generate({
+    //   prompt: prompt.value,
+    //   modelKeys: modelInfo.value?.modelKeys,
+    //   modelType: modelInfo.value?.modelType || '',
+    //   width: modelInfo.value?.width,
+    //   height: modelInfo.value?.height,
+    //   numbers: modelInfo.value?.numbers || 1,
+    // })
+    // if (res.code === 200) {
+    //   message.success(res.msg)
+    //   generateQuery.value.pageNum = 1
+    //   generateList.value = []
+    //   noMore.value = false
+    //   isLoadingMore.value = false
+    //   await getGenerateList()
+    // }
   } finally {
     isGenerating.value = false
   }

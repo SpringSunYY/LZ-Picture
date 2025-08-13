@@ -112,5 +112,6 @@ export interface ModerInfo {
   height?: number
   modelType?: string
   modelKeys?: string[]
-  numbers?: number
+  numbers?: number,
+  pointsNeed?: number
 }

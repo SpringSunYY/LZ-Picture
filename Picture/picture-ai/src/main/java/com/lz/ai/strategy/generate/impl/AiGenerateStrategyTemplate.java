@@ -2,8 +2,8 @@ package com.lz.ai.strategy.generate.impl;
 
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.domain.ModelParamsInfo;
-import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.AiGenerateStrategyService;
+import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.domain.params.Params;
 import com.lz.ai.strategy.generate.domain.verify.Verify;
 
@@ -42,16 +42,6 @@ public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
             jiMengParams.setHeight(height);
         }
         //如果宽高不在范围内，
-        // 第一种情况：宽或者高在范围外，则取大的值的最大值，等比例缩小
-        if (width > maxWidth || height > maxHeight) {
-            if (width > height) {
-                jiMengParams.setWidth(maxWidth);
-                jiMengParams.setHeight((int) (maxWidth * height / width));
-            } else {
-                jiMengParams.setWidth((int) (maxHeight * width / height));
-                jiMengParams.setHeight(maxHeight);
-            }
-        }
         //第二种情况：宽或者高在范围外,小于最小值，则取小的值最小值，等比例放大
         if (width < minWidth || height < minHeight) {
             if (width < height) {
@@ -60,6 +50,20 @@ public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
             } else {
                 jiMengParams.setWidth((int) (minHeight * width / height));
                 jiMengParams.setHeight(minHeight);
+            }
+        }
+        //如果得到的宽高比例比如宽高相乘没有超过最大宽高相乘，这可以直接调用
+        boolean isLimit = width * height > maxWidth * maxHeight;
+        if (isLimit) {
+            // 第一种情况：宽或者高在范围外，则取大的值的最大值，等比例缩小
+            if (width > maxWidth || height > maxHeight) {
+                if (width > height) {
+                    jiMengParams.setWidth(maxWidth);
+                    jiMengParams.setHeight((int) (maxWidth * height / width));
+                } else {
+                    jiMengParams.setWidth((int) (maxHeight * width / height));
+                    jiMengParams.setHeight(maxHeight);
+                }
             }
         }
         //如果提示词的长度超过最大长度

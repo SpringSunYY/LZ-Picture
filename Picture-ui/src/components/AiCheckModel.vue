@@ -72,11 +72,11 @@
             <template v-if="selectedModelOptions.length > 0">
               <span
                 v-for="model in selectedModelOptions"
-                :key="model"
+                :key="model.modelKey"
                 class="selected-model-tag"
                 @click.stop="toggleModelSelection(model)"
               >
-                {{ model }}
+                {{ model.modelLabel }}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
@@ -116,8 +116,10 @@
           <li
             v-for="option in modelList"
             :key="option.modelKey"
-            :class="{ 'is-selected': selectedModelOptions.includes(option.modelKey) }"
-            @click.stop="toggleModelSelection(option.modelKey)"
+            :class="{
+              'is-selected': selectedModelOptions.find((item) => item.modelKey === option.modelKey),
+            }"
+            @click.stop="toggleModelSelection(option)"
             :title="`${option.modelDescription}+\n\n所需${option.pointsNeed}积分`"
           >
             {{ option.modelLabel }}
@@ -249,7 +251,7 @@ const selectedImageOption = ref<Dict>({
   dictValue: '1',
   dictLabel: '文生图',
 })
-const selectedModelOptions = ref<string[]>([])
+const selectedModelOptions = ref<ModelParamsInfo[]>([])
 const selectedRatioOption = ref<ImageRatioOption>({
   label: '9:16 标清 1K',
   width: 682,
@@ -301,8 +303,10 @@ const selectOption = (dropdownName: 'imageGen', option: Dict) => {
   resetModel()
 }
 
-const toggleModelSelection = (model: string) => {
-  const index = selectedModelOptions.value.indexOf(model)
+const toggleModelSelection = (model: ModelParamsInfo) => {
+  const index = selectedModelOptions.value.findIndex(
+    (item: ModelParamsInfo) => item.modelKey === model.modelKey,
+  )
   if (index > -1) {
     selectedModelOptions.value.splice(index, 1)
   } else {
@@ -363,17 +367,26 @@ watch([customWidth, customHeight], () => {
 const emit = defineEmits(['update:modelValue'])
 const modelInfo = ref<ModerInfo>({
   modelType: selectedImageOption.value.dictValue,
-  modelKeys: selectedModelOptions.value,
+  modelKeys: selectedModelOptions.value.map((model) => model.modelKey),
   width: selectedRatioOption.value.width,
   height: selectedRatioOption.value.height,
+  pointsNeed: 0,
 })
 const resetModel = () => {
+  const modelKeys: string[] = []
+  let pointsNeed = 0
+  selectedModelOptions.value.map((model) => {
+    modelKeys.push(model.modelKey)
+    pointsNeed += Number(model.pointsNeed)
+  })
+  pointsNeed *= numbers.value
   modelInfo.value = {
     modelType: selectedImageOption.value.dictValue,
-    modelKeys: selectedModelOptions.value,
+    modelKeys: modelKeys,
     width: selectedRatioOption.value.width,
     height: selectedRatioOption.value.height,
     numbers: numbers.value,
+    pointsNeed: pointsNeed,
   }
   //数据返回给父组件，使用v-model可以直接绑定
   emit('update:modelValue', modelInfo.value)
