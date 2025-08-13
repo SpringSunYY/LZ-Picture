@@ -1,6 +1,7 @@
 package com.lz.ai.controller.user;
 
 import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
+import com.lz.ai.model.vo.generateLogInfo.UserGenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
 import com.lz.common.core.domain.AjaxResult;
@@ -41,7 +42,7 @@ public class UserPictureGenerateController extends BaseUserInfoController {
     @GetMapping("/query/{logId}")
     @PreAuthorize("@uss.hasLogin()")
     public AjaxResult getInfo(@PathVariable("logId") String logId) {
-        return success(generateLogInfoService.queryTask(logId,getUserId(),getUsername()));
+        return success(UserGenerateLogInfoVo.objToVo(generateLogInfoService.queryTask(logId, getUserId(), getUsername())));
     }
 
     @GetMapping("/list")

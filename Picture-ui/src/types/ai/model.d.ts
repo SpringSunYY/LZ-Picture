@@ -73,6 +73,28 @@ export interface GenerateLogInfoQuery {
 }
 
 /**
+ * 用户生成记录响应对象
+ * ai_generate_log_info
+ * ai生成返回对象
+ */
+export interface GenerateResponse {
+  /**
+   * 记录编号
+   */
+  logId: string
+
+  /**
+   * 任务编号
+   */
+  taskId: string
+
+  /**
+   * 状态
+   */
+  logStatus: string
+}
+
+/**
  * 用户生成记录 Vo 对象
  */
 export interface UserGenerateLogInfoVo {

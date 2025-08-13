@@ -27,7 +27,6 @@
             <artifactId>hutool-json</artifactId>
         </dependency>
 
-
         <!-- 通用工具-->
         <dependency>
             <groupId>com.lz</groupId>
@@ -42,6 +41,11 @@
         <dependency>
             <groupId>com.lz</groupId>
             <artifactId>picture-user-auth</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>picture-points</artifactId>
         </dependency>
 
     </dependencies>

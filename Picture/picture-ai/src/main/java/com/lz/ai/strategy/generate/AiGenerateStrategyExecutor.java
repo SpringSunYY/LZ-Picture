@@ -41,10 +41,11 @@ public class AiGenerateStrategyExecutor {
      * @method: executeUserGenerate
      * @date: 2025/8/9 00:25
      **/
-    public String executeUserGenerate(AiGenerateRequest request) {
+    public List<GenerateLogInfo> executeUserGenerate(AiGenerateRequest request) {
         //首先查询到所有的模型参数
         List<String> modelKeys = request.getModelKeys();
         List<GenerateLogInfoDto> generateLogInfoDtos = new ArrayList<>();
+        ArrayList<GenerateLogInfo> logInfos = new ArrayList<>();
         for (String modelKey : modelKeys) {
             //查询每个key是否存在
             ModelParamsInfo modelParamsInfo = modelParamsInfoService.selectModelParamsInfoByModelKey(modelKey);
@@ -61,11 +62,12 @@ public class AiGenerateStrategyExecutor {
             for (AiGenerateStrategyService strategyService : aiGenerateStrategyServiceList) {
                 AiGenerateStrategyConfig annotation = strategyService.getClass().getAnnotation(AiGenerateStrategyConfig.class);
                 if (annotation.model().equals(info.getModel())) {
-                    buffer.append(strategyService.userGenerate(info)).append("\n");
+                    List<GenerateLogInfo> generateLogInfos = strategyService.userGenerate(info);
+                    logInfos.addAll(generateLogInfos);
                 }
             }
         }
-        return buffer.toString();
+        return logInfos;
     }
 
     public GenerateLogInfo executeQuery(GenerateLogInfo generateLogInfo, String username) {
@@ -76,7 +78,7 @@ public class AiGenerateStrategyExecutor {
         for (AiGenerateStrategyService aiGenerateStrategyService : aiGenerateStrategyServiceList) {
             AiGenerateStrategyConfig annotation = aiGenerateStrategyService.getClass().getAnnotation(AiGenerateStrategyConfig.class);
             if (annotation.model().equals(modelParamsInfo.getModel())) {
-                return aiGenerateStrategyService.query(generateLogInfo, modelParamsInfo,username);
+                return aiGenerateStrategyService.query(generateLogInfo, modelParamsInfo, username);
             }
         }
         return null;

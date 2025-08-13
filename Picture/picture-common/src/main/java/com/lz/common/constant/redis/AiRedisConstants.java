@@ -27,4 +27,9 @@ public class AiRedisConstants {
      */
     public static final String AI_GENERATE_LIST = "ai:generate:list";
     public static final int AI_GENERATE_LIST_EXPIRE_TIME = 10 * 60;
+
+    /**
+     * 生成任务查询缓存
+     */
+    public static final String AI_GENERATE_QUERY_TASK = "ai:generate:query:task";
 }

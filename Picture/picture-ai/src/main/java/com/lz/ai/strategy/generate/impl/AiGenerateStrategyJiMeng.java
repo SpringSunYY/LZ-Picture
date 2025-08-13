@@ -19,6 +19,7 @@ import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -87,14 +88,15 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 
     //region 生成
     @Override
-    public String userGenerate(GenerateLogInfoDto info) {
+    public List<GenerateLogInfo> userGenerate(GenerateLogInfoDto info) {
         JiMengParams params = verify(info);
         //拼接参数
         String json = JSONObject.toJSONString(params);
+        ArrayList<GenerateLogInfo> generateLogInfos = new ArrayList<>();
         try {
-            List<Future<JiMengResponse>> futures = new ArrayList<>();
+            List<Future<GenerateLogInfo>> futures = new ArrayList<>();
             for (int i = 0; i < info.getNumbers(); i++) {
-                Future<JiMengResponse> future = threadPoolTaskExecutor.submit(() -> {
+                Future<GenerateLogInfo> future = threadPoolTaskExecutor.submit(() -> {
                     long startTime = System.currentTimeMillis();
                     JiMengResponse jiMengResponse = null;
                     info.setWidth(params.getWidth());
@@ -109,14 +111,15 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                     long totalTime = System.currentTimeMillis() - startTime;
                     GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json, totalTime);
                     generateLogInfoMapper.insert(generateLogInfo);
-                    return jiMengResponse;
+                    return generateLogInfo;
                 });
                 futures.add(future);
             }
             futures.forEach(future -> {
                 try {
-                    JiMengResponse jiMengResponse = future.get();
-                    System.out.println("jiMengResponse = " + jiMengResponse);
+                    GenerateLogInfo generateLogInfo = future.get();
+                    System.out.println("generateLogInfo = " + generateLogInfo);
+                    generateLogInfos.add(generateLogInfo);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -124,9 +127,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             //处理结果
         } catch (Exception e) {
             log.error("生成失败：{}", e.getMessage());
-            return info.getModelLabel() + "生成失败！！！";
+            return generateLogInfos;
         }
-        return info.getModelLabel() + "生成成功，详细请看生成记录！！！";
+        return generateLogInfos;
     }
 
     private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
@@ -169,7 +172,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
     /**
      * 根据图片保存图片
      *
-     * @param info
+     * @param infoDto
      * @param data
      * @param generateLogInfo
      * @return void
@@ -177,7 +180,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
      * @method: saveGenerateLogInfoByImg
      * @date: 2025/8/12 18:49
      **/
-    private void saveGenerateLogInfoByImg(GenerateLogInfoDto info, JiMengResponse.DataContent data, GenerateLogInfo generateLogInfo) {
+    private void saveGenerateLogInfoByImg(GenerateLogInfoDto infoDto, JiMengResponse.DataContent data, GenerateLogInfo generateLogInfo) {
         List<String> imageUrls = data.getImage_urls();
         for (String imageUrl : imageUrls) {
             System.out.println("imageUrl = " + imageUrl);
@@ -194,19 +197,19 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 //                        System.out.println("图片已保存为 generated_image.jpg");
 //                    }
                 //上传图片
-                FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", info.getUsername());
+                FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", infoDto.getUsername());
                 generateLogInfo.setWidth(Math.toIntExact(fileResponse.getPicWidth()));
                 generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
                 generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
                 System.out.println("fileResponse = " + fileResponse);
                 //添加文件日志
                 DeviceInfo deviceInfo = new DeviceInfo();
-                deviceInfo.setDeviceId(info.getDeviceId());
-                deviceInfo.setIpAddr(info.getIpAddr());
-                deviceInfo.setBrowser(info.getBrowser());
-                deviceInfo.setOs(info.getOs());
-                deviceInfo.setPlatform(info.getPlatform());
-                AiAsyncManager.me().execute(AiFileLogAsyncFactory.recordFileLog(fileResponse, info.getUserId(), generateLogInfo.getTaskId(), generateLogInfo.getLogId(), deviceInfo));
+                deviceInfo.setDeviceId(infoDto.getDeviceId());
+                deviceInfo.setIpAddr(infoDto.getIpAddr());
+                deviceInfo.setBrowser(infoDto.getBrowser());
+                deviceInfo.setOs(infoDto.getOs());
+                deviceInfo.setPlatform(infoDto.getPlatform());
+                AiAsyncManager.me().execute(AiFileLogAsyncFactory.recordFileLog(fileResponse, infoDto.getUserId(), generateLogInfo.getTaskId(), generateLogInfo.getLogId(), deviceInfo));
             } catch (Exception e) {
                 log.error("图片保存失败: " + e.getMessage());
             }
@@ -461,6 +464,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 GenerateLogInfoDto info = new GenerateLogInfoDto();
                 info.setUsername(username);
                 info.setUserId(generateLogInfo.getUserId());
+                BeanUtils.copyProperties(generateLogInfo, info);
                 if (StringUtils.isNotNull(data.getImage_urls())) {
                     saveGenerateLogInfoByImg(info, data, generateLogInfo);
                 } else if (StringUtils.isNotEmpty(data.getTask_id())) {

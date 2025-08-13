@@ -11,6 +11,7 @@ import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
 import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
 import com.lz.ai.model.enums.AiLogStatusEnum;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
+import com.lz.ai.model.vo.generateLogInfo.GenerateResponse;
 import com.lz.ai.model.vo.generateLogInfo.UserGenerateLogInfoVo;
 import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.ai.service.IModelParamsInfoService;
@@ -27,14 +28,17 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
-import static com.lz.common.constant.redis.AiRedisConstants.AI_GENERATE_LIST;
-import static com.lz.common.constant.redis.AiRedisConstants.AI_GENERATE_LIST_EXPIRE_TIME;
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
+import static com.lz.common.constant.redis.AiRedisConstants.*;
 
 /**
  * 用户生成记录Service业务层处理
@@ -42,6 +46,7 @@ import static com.lz.common.constant.redis.AiRedisConstants.AI_GENERATE_LIST_EXP
  * @author YY
  * @date 2025-08-08
  */
+@Slf4j
 @Service
 public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMapper, GenerateLogInfo> implements IGenerateLogInfoService {
     @Resource
@@ -52,6 +57,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
 
     @Resource
     private IModelParamsInfoService modelParamsInfoService;
+
+    @Resource
+    private RedissonClient redissonClient;
     //region mybatis代码
 
     /**
@@ -222,8 +230,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
 
     @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"request.userId"})
     @Override
-    public String userGenerate(AiGenerateRequest request) {
-        return aiGenerateStrategyExecutor.executeUserGenerate(request);
+    public List<GenerateResponse> userGenerate(AiGenerateRequest request) {
+        List<GenerateLogInfo> generateLogInfos = aiGenerateStrategyExecutor.executeUserGenerate(request);
+        return GenerateResponse.objToResponse(generateLogInfos);
     }
 
     @CustomCacheable(keyPrefix = AI_GENERATE_LIST, keyField = "request.userId",
@@ -250,10 +259,6 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         List<GenerateLogInfo> records = page.getRecords();
         ArrayList<UserGenerateLogInfoVo> userGenerateLogInfoVos = new ArrayList<>();
         for (GenerateLogInfo info : records) {
-            if (!StringUtils.isEmpty(info.getFileUrls())) {
-                String url = OssConfig.builderPictureUrl(info.getFileUrls().split(COMMON_SEPARATOR)[0], null);
-                info.setFileUrls(url);
-            }
             ModelParamsInfo modelParamsInfo = modelParamsInfoService.selectModelParamsInfoByModelKey(info.getModelKey());
             UserGenerateLogInfoVo vo = UserGenerateLogInfoVo.objToVo(info);
             vo.setModelName(modelParamsInfo.getModelLabel());
@@ -261,7 +266,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         }
         return new TableDataInfo(userGenerateLogInfoVos, Math.toIntExact(page.getTotal()));
     }
-
+    @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"userId"})
     @Override
     public GenerateLogInfo queryTask(String logId, String userId, String username) {
         GenerateLogInfo generateLogInfo = this.getById(logId);
@@ -269,8 +274,21 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
                 HttpStatus.NO_CONTENT, "用户未查询到该任务");
         ThrowUtils.throwIf(generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
                 "任务已完成，无需继续查询");
-        aiGenerateStrategyExecutor.executeQuery(generateLogInfo, username);
-        this.updateById(generateLogInfo);
+        //使用redis锁住任务，避免重复查询
+        String lockKey = AI_GENERATE_QUERY_TASK + COMMON_SEPARATOR_CACHE + logId;
+        RLock rLock = redissonClient.getLock(lockKey);
+        boolean locked = false;
+        try {
+            locked = rLock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (locked) {
+                aiGenerateStrategyExecutor.executeQuery(generateLogInfo, username);
+                this.updateById(generateLogInfo);
+            }
+        } catch (InterruptedException e) {
+            log.error("获取锁失败，生成任务：{}", logId, e);
+            Thread.currentThread().interrupt();
+            return generateLogInfo;
+        }
         return generateLogInfo;
     }
 

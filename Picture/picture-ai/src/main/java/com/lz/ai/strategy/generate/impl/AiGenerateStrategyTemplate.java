@@ -7,6 +7,9 @@ import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.domain.params.Params;
 import com.lz.ai.strategy.generate.domain.verify.Verify;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * AI生成模板方法模板
  *
@@ -26,8 +29,8 @@ public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
      * @date: 2025/8/9 00:25
      **/
     @Override
-    public String userGenerate(GenerateLogInfoDto info) {
-        return "";
+    public List<GenerateLogInfo> userGenerate(GenerateLogInfoDto info) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -36,6 +39,8 @@ public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
     }
 
     public static void commonVerify(GenerateLogInfoDto info, Integer width, Integer minWidth, Integer maxWidth, Integer height, Integer minHeight, Integer maxHeight, Params jiMengParams, Verify jiMengVerify) {
+        jiMengParams.setHeight(height);
+        jiMengParams.setWidth(width);
         //如果宽高都在范围内
         if (width >= minWidth && width <= maxWidth && height >= minHeight && height <= maxHeight) {
             jiMengParams.setWidth(width);

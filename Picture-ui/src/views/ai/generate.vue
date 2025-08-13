@@ -146,7 +146,7 @@ import {
   type ModerInfo,
   type UserGenerateLogInfoVo,
 } from '@/types/ai/model.d.ts'
-import { generate, listGenerateLogInfo } from '@/api/ai/model.ts'
+import { generate, listGenerateLogInfo, queryTask } from '@/api/ai/model.ts'
 import { message } from 'ant-design-vue'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
@@ -171,8 +171,20 @@ const getGenerateList = async () => {
     if (!generateList.value) {
       generateList.value = []
     }
-    generateList.value = [...generateList.value, ...res.rows]
-    if (res.rows.length < generateQuery.value.pageSize) {
+    if (res.rows && res.rows.length > 0) {
+      generateList.value = [...generateList.value, ...res.rows]
+      if (res.rows.length < generateQuery.value.pageSize) {
+        noMore.value = true
+      }
+      //如果还有未完成的
+      res.rows.forEach(async (item) => {
+        if (item.logStatus === AiLogStatusEnum.REQUESTING) {
+          setTimeout(async () => {
+            await pollGenerateTask(item.logId)
+          }, 5000)
+        }
+      })
+    } else {
       noMore.value = true
     }
   })
@@ -267,7 +279,55 @@ const submitGenerate = async () => {
     isGenerating.value = false
   }
 }
+
+// 定义一个定时器引用,每个任务都需要
+const pollingMap = new Map<string, NodeJS.Timeout>()
+//轮训获取生成结果
+const pollGenerateTask = async (logId: string) => {
+  try {
+    const res = await queryTask(logId)
+    if (res.code === 200 && res.data) {
+      //如果成功
+      if (res.data.logStatus === AiLogStatusEnum.SUCCESS) {
+        stopPolling(logId)
+        //如果成功，从generateList拿到对应的数据，修改他的数据
+        generateList.value = generateList.value.map((item) => {
+          if (item.logId === logId) {
+            return {
+              ...item,
+              logStatus: res.data?.logStatus || item.logStatus,
+              fileUrls: res.data?.fileUrls || item.fileUrls,
+            }
+          }
+          return item
+        })
+      } else if (res.data.logStatus === AiLogStatusEnum.REQUESTING) {
+        // 5秒后继续轮询
+        const timer = setTimeout(() => pollGenerateTask(logId), 5000)
+        pollingMap.set(logId, timer)
+      } else {
+        stopPolling(logId)
+      }
+    }
+  } catch (e) {
+    stopPolling(logId)
+  }
+}
+
+// 停止轮询
+const stopPolling = (logId: string) => {
+  const timer = pollingMap.get(logId)
+  if (timer) {
+    clearTimeout(timer)
+    pollingMap.delete(logId)
+  }
+}
 //endregion
+// 组件卸载时清理所有轮询
+onUnmounted(() => {
+  pollingMap.forEach((timer) => clearTimeout(timer))
+  pollingMap.clear()
+})
 </script>
 
 <style scoped lang="scss">

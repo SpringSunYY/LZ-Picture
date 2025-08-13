@@ -3,6 +3,8 @@ package com.lz.ai.model.vo.generateLogInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.common.annotation.Excel;
+import com.lz.common.config.OssConfig;
+import com.lz.common.utils.StringUtils;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -10,6 +12,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 
 /**
  * 用户生成记录Vo对象 ai_generate_log_info
@@ -79,6 +83,10 @@ public class UserGenerateLogInfoVo implements Serializable {
     public static UserGenerateLogInfoVo objToVo(GenerateLogInfo generateLogInfo) {
         if (generateLogInfo == null) {
             return null;
+        }
+        if (!StringUtils.isEmpty(generateLogInfo.getFileUrls())) {
+            String url = OssConfig.builderPictureUrl(generateLogInfo.getFileUrls().split(COMMON_SEPARATOR)[0], null);
+            generateLogInfo.setFileUrls(url);
         }
         UserGenerateLogInfoVo generateLogInfoVo = new UserGenerateLogInfoVo();
         BeanUtils.copyProperties(generateLogInfo, generateLogInfoVo);

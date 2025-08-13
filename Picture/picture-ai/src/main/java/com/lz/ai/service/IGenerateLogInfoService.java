@@ -7,6 +7,7 @@ import com.lz.ai.model.dto.generateLogInfo.GenerateLogInfoQuery;
 import com.lz.ai.model.dto.generateLogInfo.UserGenerateLogInfoRequest;
 import com.lz.ai.model.vo.generateLogInfo.GenerateLogInfoVo;
 import com.lz.ai.strategy.generate.domain.AiGenerateRequest;
+import com.lz.ai.model.vo.generateLogInfo.GenerateResponse;
 import com.lz.common.core.page.TableDataInfo;
 
 import java.util.List;
@@ -94,7 +95,7 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
      * @method: userGenerate
      * @date: 2025/8/8 23:39
      **/
-    String userGenerate(AiGenerateRequest request);
+    List<GenerateResponse> userGenerate(AiGenerateRequest request);
 
     /**
      * 用户查询自己的生成记录
