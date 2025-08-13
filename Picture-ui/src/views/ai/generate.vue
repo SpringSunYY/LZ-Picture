@@ -263,46 +263,46 @@ const submitGenerate = async () => {
   console.log(prompt.value)
   console.log('file', fileInfo.value)
   //校验参数是否填写
-  // if (
-  //   !modelInfo.value?.width ||
-  //   modelInfo.value?.width < 256 ||
-  //   !modelInfo.value?.height ||
-  //   modelInfo.value?.height < 0
-  // ) {
-  //   message.warn('请填写图片尺寸,宽高不可小于256')
-  //   return
-  // }
-  // if (!modelInfo.value?.modelKeys || modelInfo.value?.modelKeys.length <= 0) {
-  //   message.warn('请选择模型')
-  //   return
-  // }
-  // if (!modelInfo.value?.numbers || modelInfo.value?.numbers <= 0) {
-  //   message.warn('请填写数量')
-  // }
-  // if (!prompt.value || prompt.value.length <= 0) {
-  //   message.warn('请填写提示词')
-  //   return
-  // }
-  // isGenerating.value = true
-  // message.success('正在生成图片，请不要刷新界面...', 5)
+  if (
+    !modelInfo.value?.width ||
+    modelInfo.value?.width < 256 ||
+    !modelInfo.value?.height ||
+    modelInfo.value?.height < 0
+  ) {
+    message.warn('请填写图片尺寸,宽高不可小于256')
+    return
+  }
+  if (!modelInfo.value?.modelKeys || modelInfo.value?.modelKeys.length <= 0) {
+    message.warn('请选择模型')
+    return
+  }
+  if (!modelInfo.value?.numbers || modelInfo.value?.numbers <= 0) {
+    message.warn('请填写数量')
+  }
+  if (!prompt.value || prompt.value.length <= 0) {
+    message.warn('请填写提示词')
+    return
+  }
+  isGenerating.value = true
+  message.success('正在生成图片，请不要刷新界面...', 5)
   console.log('开始生成图片', modelInfo.value)
   try {
-    // const res = await generate({
-    //   prompt: prompt.value,
-    //   modelKeys: modelInfo.value?.modelKeys,
-    //   modelType: modelInfo.value?.modelType || '',
-    //   width: modelInfo.value?.width,
-    //   height: modelInfo.value?.height,
-    //   numbers: modelInfo.value?.numbers || 1,
-    // })
-    // if (res.code === 200) {
-    //   message.success(res.msg)
-    //   generateQuery.value.pageNum = 1
-    //   generateList.value = []
-    //   noMore.value = false
-    //   isLoadingMore.value = false
-    //   await getGenerateList()
-    // }
+    const res = await generate({
+      prompt: prompt.value,
+      modelKeys: modelInfo.value?.modelKeys,
+      modelType: modelInfo.value?.modelType || '',
+      width: modelInfo.value?.width,
+      height: modelInfo.value?.height,
+      numbers: modelInfo.value?.numbers || 1,
+    })
+    if (res.code === 200) {
+      message.success(res.msg)
+      generateQuery.value.pageNum = 1
+      generateList.value = []
+      noMore.value = false
+      isLoadingMore.value = false
+      await getGenerateList()
+    }
   } finally {
     isGenerating.value = false
   }
