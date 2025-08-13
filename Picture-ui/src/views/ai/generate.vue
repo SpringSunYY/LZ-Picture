@@ -133,7 +133,10 @@
       </div>
       <div ref="loadMoreTrigger" class="load-more-trigger">
         <LoadingData v-if="isLoadingMore" />
-        <NoMoreData v-else-if="noMore" text="没有更多数据了哦，快去生成吧！！！" />
+        <NoMoreData
+          v-else-if="noMore && generateList.length > 0"
+          text="没有更多数据了哦，快去生成吧！！！"
+        />
       </div>
     </div>
   </div>
@@ -161,6 +164,7 @@ import { message } from 'ant-design-vue'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
 import AiLoading from '@/components/AiLoading.vue'
+import { usePasswordVerify } from '@/utils/auth.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -267,6 +271,7 @@ const clickActiveTab = (key: string) => {
   modelInfo.value.modelType = key
   console.log('clickActiveTab', key)
 }
+const { verify } = usePasswordVerify()
 const submitGenerate = async () => {
   console.log('提交生成')
   console.log(modelInfo.value)
@@ -294,6 +299,9 @@ const submitGenerate = async () => {
     return
   }
   isGenerating.value = true
+  message.success('开始校验密码', 1)
+  const verified = await verify('生成图片')
+  if (!verified) return
   message.success('正在生成图片，请不要刷新界面...', 5)
   console.log('开始生成图片', modelInfo.value)
   try {

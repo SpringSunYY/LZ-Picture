@@ -9,6 +9,8 @@ import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.points.model.domain.AccountInfo;
+import com.lz.points.service.IAccountInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,9 @@ public class AiGenerateStrategyExecutor {
     private List<AiGenerateStrategyService> aiGenerateStrategyServiceList;
 
 
+    @Resource
+    private IAccountInfoService accountInfoService;
+
     /**
      * 用户生成执行
      *
@@ -46,6 +51,7 @@ public class AiGenerateStrategyExecutor {
         List<String> modelKeys = request.getModelKeys();
         List<GenerateLogInfoDto> generateLogInfoDtos = new ArrayList<>();
         ArrayList<GenerateLogInfo> logInfos = new ArrayList<>();
+        Long totalPoints = 0L;
         for (String modelKey : modelKeys) {
             //查询每个key是否存在
             ModelParamsInfo modelParamsInfo = modelParamsInfoService.selectModelParamsInfoByModelKey(modelKey);
@@ -55,8 +61,13 @@ public class AiGenerateStrategyExecutor {
                     "模型参数不存在或者未启用");
             GenerateLogInfoDto generateLogInfoDto = new GenerateLogInfoDto(request, modelParamsInfo);
             generateLogInfoDtos.add(generateLogInfoDto);
+            totalPoints += modelParamsInfo.getPointsNeed() * request.getNumbers();
         }
-        StringBuilder buffer = new StringBuilder();
+        //判断用户积分是否足够 查询用户账户是否存在，存在判断积分
+        AccountInfo accountInfo = accountInfoService.selectAccountInfoByUserId(request.getUserId());
+
+        ThrowUtils.throwIf(StringUtils.isNull(accountInfo)
+                || accountInfo.getPointsBalance() < totalPoints, "积分不足");
         for (GenerateLogInfoDto info : generateLogInfoDtos) {
             //遍历执行，拿到对应的执行器
             for (AiGenerateStrategyService strategyService : aiGenerateStrategyServiceList) {

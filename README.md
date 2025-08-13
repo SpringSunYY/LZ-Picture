@@ -2167,7 +2167,7 @@ CREATE TABLE ai_prompt_info (
 | negative_prompt  | varchar  | text     |                                        | 是   |          | 负向提示词       |
 | seed             | float    | （10,2） |                                        | 是   |          | 随机种子         |
 | numbers          | int      |          |                                        | 是   |          | 数量             |
-| input_params     | varchar  | 1024     |                                        | 是   |          | 输入参数         |
+| input_params     | varchar  | text     |                                        | 是   |          | 输入参数         |
 | task_id          | varchar  | 128      |                                        | 否   |          | 任务编号         |
 | output_result    | text     |          |                                        | 是   |          | 返回结果         |
 | file_urls        | text     |          |                                        | 是   |          | 文件地址         |
@@ -2209,7 +2209,7 @@ CREATE TABLE ai_generate_log_info (
   negative_prompt  TEXT                   COMMENT '负向提示词',
   seed             FLOAT                  COMMENT '随机种子',
   numbers          INT                    COMMENT '数量',
-  input_params     VARCHAR(1024)          COMMENT '输入参数',
+  input_params     TEXT          COMMENT '输入参数',
   task_id          VARCHAR(128) NOT NULL COMMENT '任务编号',
   output_result    TEXT                   COMMENT '返回结果',
   file_urls        TEXT                   COMMENT '文件地址',

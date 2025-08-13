@@ -27,6 +27,7 @@ import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.points.service.IAccountInfoService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -60,6 +61,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
 
     @Resource
     private RedissonClient redissonClient;
+
+    @Resource
+    private IAccountInfoService accountInfoService;
     //region mybatis代码
 
     /**
@@ -231,6 +235,8 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
     @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"request.userId"})
     @Override
     public List<GenerateResponse> userGenerate(AiGenerateRequest request) {
+        ThrowUtils.throwIf(accountInfoService.getVerifyPassword(request.getUserId()) != 1,
+                "请先输入密码");
         List<GenerateLogInfo> generateLogInfos = aiGenerateStrategyExecutor.executeUserGenerate(request);
         return GenerateResponse.objToResponse(generateLogInfos);
     }

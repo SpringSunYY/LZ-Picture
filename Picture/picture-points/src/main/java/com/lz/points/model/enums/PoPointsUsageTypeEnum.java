@@ -19,7 +19,11 @@ public enum PoPointsUsageTypeEnum {
     /**
      * 空间扩容
      */
-    POINTS_USAGE_TYPE_1("1", "空间扩容");
+    POINTS_USAGE_TYPE_1("1", "空间扩容"),
+    /**
+     * AI生成
+     */
+    POINTS_USAGE_TYPE_2("2", "AI生成");
 
     private static final Map<String, PoPointsUsageTypeEnum> VALUE_TO_ENUM = new HashMap<>();
 

@@ -21,6 +21,9 @@ import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
+import com.lz.points.model.enums.PoPointsUsageTypeEnum;
+import com.lz.points.service.IPointsUsageLogInfoService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
@@ -63,6 +66,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
 
     @Resource
     private GenerateLogInfoMapper generateLogInfoMapper;
+
+    @Resource
+    private IPointsUsageLogInfoService pointsUsageLogInfoService;
 
     private static final BitSet URLENCODER = new BitSet(256);
     private static final String CONST_ENCODE = "0123456789ABCDEF";
@@ -131,8 +137,8 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         }
     }
 
-    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto logInfoDto, JiMengParams params, long totalTime) {
-        GenerateLogInfo generateLogInfo = GenerateLogInfo(jiMengResponse, logInfoDto, params, totalTime);
+    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto infoDto, JiMengParams params, long totalTime) {
+        GenerateLogInfo generateLogInfo = GenerateLogInfo(jiMengResponse, infoDto, params, totalTime);
 
         if (jiMengResponse.getCode() == 10000) {
             generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
@@ -142,10 +148,26 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             }
             //如果是直接返回URL，则直接保存图片
             if (StringUtils.isNotNull(data.getImage_urls())) {
-                saveGenerateLogInfoByImg(logInfoDto, data, generateLogInfo);
+                saveGenerateLogInfoByImg(infoDto, data, generateLogInfo);
             } else if (StringUtils.isNotEmpty(data.getTask_id())) {
-                saveGenerateLogInfoByTask(logInfoDto, data, generateLogInfo);
+                saveGenerateLogInfoByTask(infoDto, data, generateLogInfo);
             }
+            //执行成功直接扣除
+            //添加文件日志
+            DeviceInfo deviceInfo = new DeviceInfo();
+            deviceInfo.setDeviceId(infoDto.getDeviceId());
+            deviceInfo.setIpAddr(infoDto.getIpAddr());
+            deviceInfo.setBrowser(infoDto.getBrowser());
+            deviceInfo.setOs(infoDto.getOs());
+            deviceInfo.setPlatform(infoDto.getPlatform());
+            //扣除积分
+            pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(infoDto.getUserId(),
+                    null,
+                    PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue(),
+                    PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_2.getValue(),
+                    generateLogInfo.getLogId(),
+                    -generateLogInfo.getPointsUsed(),
+                    deviceInfo);
 
         } else {
             generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());

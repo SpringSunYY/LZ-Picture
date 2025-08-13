@@ -22,6 +22,7 @@ export const usePasswordVerify = () => {
             onChange: (e: Event) => {
               password = (e.target as HTMLInputElement).value
             },
+            style: { width: '100%',marginTop: '1em' },
           }),
         ]),
         centered: true,
