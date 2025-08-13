@@ -1,6 +1,13 @@
 <template>
   <div class="image-uploader">
-    <div class="image-thumbnail" @click.stop="handleThumbnailClick">
+    <div
+      class="image-thumbnail"
+      :class="{ 'drag-over': isDragOver }"
+      @click.stop="handleThumbnailClick"
+      @drop="handleDrop"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+    >
       <!-- 显示上传的图片或父组件传入的URL -->
       <img v-if="uploadedImage" :src="uploadedImage" alt="已上传图片" class="thumbnail-image" />
 
@@ -87,6 +94,7 @@ const props = defineProps({
 const uploadedImage = ref<string | null>(props.modelValue)
 const showImagePreviewModal = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+const isDragOver = ref(false) // 拖拽状态
 
 // 监听父组件传入的URL
 watch(
@@ -105,26 +113,20 @@ const handleThumbnailClick = () => {
   }
 }
 
-// 上传图片处理
-const handleImageUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  if (!target.files || !target.files[0]) return
-  const file = target.files[0]
-
+// 统一的图片读取处理
+const readAndSetImage = (file: File) => {
   // 文件大小校验
   const maxSize = props.limitSize * 1024 * 1024
   if (file.size > maxSize) {
     message.warn(
       `图片大小不能超过${props.limitSize}MB，当前文件大小为${(file.size / 1024 / 1024).toFixed(2)}MB`,
     )
-    if (fileInputRef.value) fileInputRef.value.value = ''
     return
   }
 
   // 文件类型校验
   if (!props.fileTypes.includes(file.type)) {
     message.warn('请上传正确的图片格式，仅支持：' + props.fileTypes.join(';'))
-    if (fileInputRef.value) fileInputRef.value.value = ''
     return
   }
 
@@ -135,9 +137,33 @@ const handleImageUpload = (event: Event) => {
   }
   reader.onerror = () => {
     message.error('图片读取失败，请重新选择')
-    if (fileInputRef.value) fileInputRef.value.value = ''
   }
   reader.readAsDataURL(file)
+}
+
+// 点击选择文件上传
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (!target.files || !target.files[0]) return
+  readAndSetImage(target.files[0])
+  if (fileInputRef.value) fileInputRef.value.value = ''
+}
+
+// 拖拽上传
+const handleDrop = (event: DragEvent) => {
+  event.preventDefault()
+  isDragOver.value = false
+  const file = event.dataTransfer?.files?.[0]
+  if (file) readAndSetImage(file)
+}
+
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault()
+  isDragOver.value = true
+}
+
+const handleDragLeave = () => {
+  isDragOver.value = false
 }
 
 // 清除图片
@@ -166,20 +192,33 @@ const closeImagePreviewModal = () => {
   justify-content: center;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &.drag-over {
+    border-color: #409eff;
+    background-color: rgba(64, 158, 255, 0.1);
+  }
 
   .upload-placeholder {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
+    gap: 4px;
 
     svg {
       color: rgba(255, 255, 255, 0.6);
       width: 32px;
       height: 32px;
+    }
+
+    .placeholder-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
     }
   }
 
