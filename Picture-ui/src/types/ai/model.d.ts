@@ -105,6 +105,9 @@ export interface UserGenerateLogInfoVo {
 
   /** 创建时间（格式：yyyy-MM-dd HH:mm:ss） */
   createTime: string // 前端通常用字符串接收
+
+  /** 日志状态 */
+  logStatus: string
 }
 
 export interface ModerInfo {
@@ -112,6 +115,55 @@ export interface ModerInfo {
   height?: number
   modelType?: string
   modelKeys?: string[]
-  numbers?: number,
+  numbers?: number
   pointsNeed?: number
+}
+
+/**
+ * 所有枚举定义文件
+ * 自动生成，请勿手动修改
+ */
+
+/**
+ * AI 日志状态
+ */
+export enum AiLogStatusEnum {
+  /** 请求中 */
+  REQUESTING = '0',
+
+  /** 成功 */
+  SUCCESS = '1',
+
+  /** 失败 */
+  FAILED = '2',
+
+  /** 超时 */
+  TIMEOUT = '3',
+}
+
+/** AI 日志状态标签映射 */
+export const AiLogStatusLabels: Record<AiLogStatusEnum, string> = {
+  [AiLogStatusEnum.REQUESTING]: '请求中',
+  [AiLogStatusEnum.SUCCESS]: '成功',
+  [AiLogStatusEnum.FAILED]: '失败',
+  [AiLogStatusEnum.TIMEOUT]: '超时',
+}
+
+/**
+ * 根据值获取标签
+ * @param value 枚举值
+ * @returns 标签
+ */
+export function getAiLogStatusLabel(value: string): string {
+  return AiLogStatusLabels[value as AiLogStatusEnum] || ''
+}
+
+/**
+ * 根据值获取枚举 Key
+ * @param value 枚举值
+ * @returns 枚举 Key（如 SUCCESS），找不到返回 undefined
+ */
+export function getAiLogStatusByValue(value: string): keyof typeof AiLogStatusEnum | undefined {
+  const entry = Object.entries(AiLogStatusEnum).find(([_, v]) => v === value)
+  return entry ? (entry[0] as keyof typeof AiLogStatusEnum) : undefined
 }

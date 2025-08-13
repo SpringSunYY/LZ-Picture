@@ -64,6 +64,11 @@ public class UserGenerateLogInfoVo implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
+    /**
+     * 状态
+     */
+    private String logStatus;
+
 
     /**
      * 对象转封装类

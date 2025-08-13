@@ -237,7 +237,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         LambdaQueryWrapper<GenerateLogInfo> query = new LambdaQueryWrapper<GenerateLogInfo>()
                 .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt, GenerateLogInfo::getModelType,
                         GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls,
-                        GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime)
+                        GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime, GenerateLogInfo::getLogStatus)
                 .eq(GenerateLogInfo::getUserId, request.getUserId())
                 .eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .and(wrapper ->

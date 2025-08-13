@@ -36,7 +36,7 @@
       <div class="generate">
         <a-tooltip placement="top">
           <template #title>
-            <span>预计需要消耗{{modelInfo.pointsNeed}}积分</span>
+            <span>预计需要消耗{{ modelInfo.pointsNeed }}积分</span>
           </template>
           <generate-button :is-loading="isGenerating" @click="submitGenerate" style="width: 60%" />
         </a-tooltip>
@@ -88,7 +88,15 @@
           <TextView :text="generate.prompt" :max-lines="3" />
         </div>
         <div class="content-picture mt-5">
-          <AiPictureView class="picture" :image-url="generate.fileUrls" />
+          <AiPictureView
+            v-if="generate.logStatus === AiLogStatusEnum.SUCCESS"
+            class="picture"
+            :image-url="generate.fileUrls"
+          />
+          <AiLoading
+            class="picture"
+            v-else-if="generate.logStatus === AiLogStatusEnum.REQUESTING"
+          />
           <div class="picture-overlay">
             <a-space class="overlay-right-top">
               <DownloadSvgButton
@@ -132,11 +140,17 @@ import AiPictureView from '@/components/AiPictureView.vue'
 import DeleteButton from '@/components/button/DeleteButton.vue'
 import DownloadSvgButton from '@/components/button/DownloadSvgButton.vue'
 import AiBatchButton from '@/components/button/AiBatchButton.vue'
-import type { GenerateLogInfoQuery, ModerInfo, UserGenerateLogInfoVo } from '@/types/ai/model'
+import {
+  AiLogStatusEnum,
+  type GenerateLogInfoQuery,
+  type ModerInfo,
+  type UserGenerateLogInfoVo,
+} from '@/types/ai/model.d.ts'
 import { generate, listGenerateLogInfo } from '@/api/ai/model.ts'
 import { message } from 'ant-design-vue'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
+import AiLoading from '@/components/AiLoading.vue'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -230,25 +244,25 @@ const submitGenerate = async () => {
     return
   }
   isGenerating.value = true
-  message.success('正在生成图片，请不要刷新界面...')
+  message.success('正在生成图片，请不要刷新界面...', 5)
   console.log('开始生成图片', modelInfo.value)
   try {
-    // const res = await generate({
-    //   prompt: prompt.value,
-    //   modelKeys: modelInfo.value?.modelKeys,
-    //   modelType: modelInfo.value?.modelType || '',
-    //   width: modelInfo.value?.width,
-    //   height: modelInfo.value?.height,
-    //   numbers: modelInfo.value?.numbers || 1,
-    // })
-    // if (res.code === 200) {
-    //   message.success(res.msg)
-    //   generateQuery.value.pageNum = 1
-    //   generateList.value = []
-    //   noMore.value = false
-    //   isLoadingMore.value = false
-    //   await getGenerateList()
-    // }
+    const res = await generate({
+      prompt: prompt.value,
+      modelKeys: modelInfo.value?.modelKeys,
+      modelType: modelInfo.value?.modelType || '',
+      width: modelInfo.value?.width,
+      height: modelInfo.value?.height,
+      numbers: modelInfo.value?.numbers || 1,
+    })
+    if (res.code === 200) {
+      message.success(res.msg)
+      generateQuery.value.pageNum = 1
+      generateList.value = []
+      noMore.value = false
+      isLoadingMore.value = false
+      await getGenerateList()
+    }
   } finally {
     isGenerating.value = false
   }
