@@ -245,7 +245,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         pictureInfoPage.setSize(request.getPageSize());
         LambdaQueryWrapper<GenerateLogInfo> query = new LambdaQueryWrapper<GenerateLogInfo>()
                 .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt, GenerateLogInfo::getModelType,
-                        GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls,
+                        GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls, GenerateLogInfo::getPointsUsed,
                         GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime, GenerateLogInfo::getLogStatus)
                 .eq(GenerateLogInfo::getUserId, request.getUserId())
                 .eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
@@ -266,6 +266,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         }
         return new TableDataInfo(userGenerateLogInfoVos, Math.toIntExact(page.getTotal()));
     }
+
     @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"userId"})
     @Override
     public GenerateLogInfo queryTask(String logId, String userId, String username) {

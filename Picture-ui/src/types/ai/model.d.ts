@@ -130,6 +130,8 @@ export interface UserGenerateLogInfoVo {
 
   /** 日志状态 */
   logStatus: string
+
+  pointsUsed: number
 }
 
 export interface ModerInfo {

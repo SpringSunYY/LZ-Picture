@@ -77,7 +77,7 @@
                 </a-tooltip>
               </div>
               <div class="px-1 heard-right-svg">
-                <a-tooltip title="重新生成需要10积分">
+                <a-tooltip :title="`重新生成需要${generate.pointsUsed}积分`">
                   <svg-icon name="reload" size="1em" />
                 </a-tooltip>
               </div>
@@ -116,7 +116,11 @@
               />
             </a-space>
             <div class="overlay-bottom">
-              <AiBatchButton />
+              <AiBatchButton
+                @handle-refer-to="handleReferTo(generate)"
+                @handle-release="() => console.log('释放')"
+                @handle-reload="() => console.log('重新生成')"
+              />
             </div>
           </div>
         </div>
@@ -155,6 +159,12 @@ import AiLoading from '@/components/AiLoading.vue'
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 const activeTab = ref('1')
+
+//region 操作
+const handleReferTo = (generate: UserGenerateLogInfoVo) => {
+  console.log('handleReferTo', generate)
+}
+//endregion
 
 //region 列表
 const generateList = ref<UserGenerateLogInfoVo[]>([])

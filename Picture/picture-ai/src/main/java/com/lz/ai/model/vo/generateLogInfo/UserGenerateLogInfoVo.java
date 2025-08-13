@@ -73,6 +73,11 @@ public class UserGenerateLogInfoVo implements Serializable {
      */
     private String logStatus;
 
+    /**
+     * 使用积分
+     */
+    private Long pointsUsed;
+
 
     /**
      * 对象转封装类
