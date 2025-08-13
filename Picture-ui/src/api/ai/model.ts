@@ -34,7 +34,7 @@ export function generate(
     url: '/ai/generateLogInfo/generate',
     method: 'post',
     data,
-    timeout: 30000,
+    timeout: 60000,
   })
 }
 
@@ -60,5 +60,6 @@ export function queryTask(logId: string): Promise<API.ResponseInfo<UserGenerateL
   return request({
     url: '/ai/generateLogInfo/query/' + logId,
     method: 'get',
+    timeout: 30000,
   })
 }

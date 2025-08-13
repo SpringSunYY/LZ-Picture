@@ -77,7 +77,7 @@ import { message } from 'ant-design-vue'
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
   modelValue: { type: String, default: null }, // 支持父组件传入图片URL
-  limitSize: { type: Number, default: 5 },    // MB
+  limitSize: { type: Number, default: 5 }, // MB
   fileTypes: {
     type: Array as () => string[],
     default: () => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
@@ -93,7 +93,7 @@ watch(
   () => props.modelValue,
   (newVal) => {
     uploadedImage.value = newVal
-  }
+  },
 )
 
 // 点击缩略图
@@ -114,7 +114,9 @@ const handleImageUpload = (event: Event) => {
   // 文件大小校验
   const maxSize = props.limitSize * 1024 * 1024
   if (file.size > maxSize) {
-    message.warn(`图片大小不能超过${props.limitSize}MB，当前文件大小为${(file.size / 1024 / 1024).toFixed(2)}MB`)
+    message.warn(
+      `图片大小不能超过${props.limitSize}MB，当前文件大小为${(file.size / 1024 / 1024).toFixed(2)}MB`,
+    )
     if (fileInputRef.value) fileInputRef.value.value = ''
     return
   }

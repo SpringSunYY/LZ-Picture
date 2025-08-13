@@ -348,10 +348,20 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="generateLogInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户编号" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户编号"/>
+          <el-input readonly v-model="form.userId" placeholder="请输入用户编号"/>
         </el-form-item>
         <el-form-item label="模型KEY" prop="modelKey">
-          <el-input v-model="form.modelKey" placeholder="请输入模型KEY"/>
+          <el-input readonly v-model="form.modelKey" placeholder="请输入模型KEY"/>
+        </el-form-item>
+        <el-form-item label="状态" prop="logStatus">
+          <el-radio-group v-model="form.logStatus">
+            <el-radio
+                v-for="dict in ai_log_status"
+                :key="dict.value"
+                :value="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="是否统计" prop="hasStatistics">
           <el-radio-group v-model="form.hasStatistics">

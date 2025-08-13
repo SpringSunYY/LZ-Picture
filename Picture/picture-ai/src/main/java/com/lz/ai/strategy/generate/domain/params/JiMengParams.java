@@ -48,6 +48,10 @@ public class JiMengParams extends Params<JiMengParams> {
 
     private String req_json;
 
+    private String[] image_urls;
+
+    private String[] binary_data_base64;
+
     @Data
     public static class ReqJson {
         private boolean return_url;

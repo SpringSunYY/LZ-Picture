@@ -85,7 +85,7 @@ public class ModelParamsInfoServiceImpl extends ServiceImpl<ModelParamsInfoMappe
         ThrowUtils.throwIf(StringUtils.isNotNull(modelParamsInfoByModelKey), "模型KEY已存在");
         modelParamsInfo.setModelId(IdUtils.snowflakeId().toString());
         modelParamsInfo.setCreateTime(DateUtils.getNowDate());
-        modelParamsInfo.setPointsNeed(0L);
+        modelParamsInfo.setPointsEarned(0L);
         modelParamsInfo.setUsageCount(0L);
         return modelParamsInfoMapper.insertModelParamsInfo(modelParamsInfo);
     }

@@ -1,7 +1,13 @@
 <template>
   <div class="ai-generate flex flex-col md:flex-row w-full min-h-screen">
     <div class="left w-full md:w-1/3 p-4">
-      <a-tabs v-model:activeKey="activeTab" class="tab-container" size="large" centered>
+      <a-tabs
+        v-model:activeKey="activeTab"
+        @change="clickActiveTab(activeTab)"
+        class="tab-container"
+        size="large"
+        centered
+      >
         <a-tab-pane key="1" tab="文生图"></a-tab-pane>
         <a-tab-pane key="2" tab="图生图">
           <AiPictureUpload v-model="fileInfo" style="width: 100%; height: 300px" />
@@ -257,6 +263,10 @@ const handleReload = (generate: UserGenerateLogInfoVo) => {
 const handlePrompt = (generate: UserGenerateLogInfoVo) => {
   prompt.value = generate.prompt
 }
+const clickActiveTab = (key: string) => {
+  modelInfo.value.modelType = key
+  console.log('clickActiveTab', key)
+}
 const submitGenerate = async () => {
   console.log('提交生成')
   console.log(modelInfo.value)
@@ -294,6 +304,7 @@ const submitGenerate = async () => {
       width: modelInfo.value?.width,
       height: modelInfo.value?.height,
       numbers: modelInfo.value?.numbers || 1,
+      inputFile: fileInfo.value || null,
     })
     if (res.code === 200) {
       message.success(res.msg)
@@ -303,6 +314,8 @@ const submitGenerate = async () => {
       isLoadingMore.value = false
       await getGenerateList()
     }
+  } catch {
+    message.error('生成失败,请刷新页面')
   } finally {
     isGenerating.value = false
   }

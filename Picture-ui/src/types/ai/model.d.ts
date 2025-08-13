@@ -43,7 +43,7 @@ export interface GenerateLogInfoRequest {
   modelType: string
 
   /** 输入文件 */
-  inputFile?: string
+  inputFile?: string |null
 
   /** 提示词 */
   prompt: string
@@ -106,6 +106,8 @@ export interface UserGenerateLogInfoVo {
 
   /** 模型类型 */
   modelType: string
+
+  modelKey: string
 
   /** 提示词 */
   prompt: string

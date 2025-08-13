@@ -218,8 +218,6 @@ interface ImageRatioOption {
   height?: number
 }
 
-import { watchEffect } from 'vue'
-
 // 添加props接收modelValue
 const props = defineProps<{
   modelValue?: ModerInfo
@@ -230,11 +228,6 @@ const modelList = ref<ModelParamsInfo[]>()
 const modelQuery = ref<ModelParamsInfoRequest>({
   modelType: null,
 })
-const getModelList = async () => {
-  const res = await listModel(modelQuery.value)
-  modelList.value = res.data
-}
-getModelList()
 
 const isMobile = ref(false)
 
@@ -349,7 +342,12 @@ const handleClickOutside = (event: MouseEvent) => {
     }
   }
 }
-
+const getModelList = async () => {
+  selectedModelOptions.value = []
+  const res = await listModel(modelQuery.value)
+  modelList.value = res.data
+}
+getModelList()
 onMounted(() => {
   checkIsMobile()
   window.addEventListener('resize', checkIsMobile)

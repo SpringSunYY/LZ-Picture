@@ -1,6 +1,5 @@
 package com.lz.ai.strategy.generate.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.lz.ai.manage.AiAsyncManager;
 import com.lz.ai.manage.factory.AiFileLogAsyncFactory;
@@ -8,6 +7,7 @@ import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.domain.ModelParamsInfo;
 import com.lz.ai.model.enums.AiLogStatusEnum;
+import com.lz.ai.model.enums.AiModelParamsTypeEnum;
 import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
 import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.domain.dto.JiMengResponse;
@@ -93,47 +93,46 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         //拼接参数
         String json = JSONObject.toJSONString(params);
         ArrayList<GenerateLogInfo> generateLogInfos = new ArrayList<>();
-        try {
-            List<Future<GenerateLogInfo>> futures = new ArrayList<>();
-            for (int i = 0; i < info.getNumbers(); i++) {
-                Future<GenerateLogInfo> future = threadPoolTaskExecutor.submit(() -> {
-                    long startTime = System.currentTimeMillis();
-                    JiMengResponse jiMengResponse = null;
-                    info.setWidth(params.getWidth());
-                    info.setHeight(params.getHeight());
-                    try {
-                        jiMengResponse = doRequest(params.getMethod(), new HashMap<>(), json.getBytes(UTF_8), new Date(),
-                                params.getAction(), params.getVersion(), params.getRegion(), params.getService(),
-                                params.getPath(), info.getApiKey(), info.getSecretKey(), params.getHost(), params.getSchema());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                    long totalTime = System.currentTimeMillis() - startTime;
-                    GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, json, totalTime);
-                    generateLogInfoMapper.insert(generateLogInfo);
-                    return generateLogInfo;
-                });
-                futures.add(future);
-            }
-            futures.forEach(future -> {
-                try {
-                    GenerateLogInfo generateLogInfo = future.get();
-                    System.out.println("generateLogInfo = " + generateLogInfo);
-                    generateLogInfos.add(generateLogInfo);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        List<Future<GenerateLogInfo>> futures = new ArrayList<>();
+        for (int i = 0; i < info.getNumbers(); i++) {
+            Future<GenerateLogInfo> future = threadPoolTaskExecutor.submit(() -> {
+                return getGenerateLogInfo(info, params, json);
             });
-            //处理结果
-        } catch (Exception e) {
-            log.error("生成失败：{}", e.getMessage());
-            return generateLogInfos;
+            futures.add(future);
         }
+        futures.forEach(future -> {
+            try {
+                GenerateLogInfo generateLogInfo = future.get();
+                System.out.println("generateLogInfo = " + generateLogInfo);
+                generateLogInfos.add(generateLogInfo);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        //处理结果
         return generateLogInfos;
     }
 
-    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
-        GenerateLogInfo generateLogInfo = GenerateLogInfo(jiMengResponse, info, json, totalTime);
+    private GenerateLogInfo getGenerateLogInfo(GenerateLogInfoDto info, JiMengParams params, String json) {
+        long startTime = System.currentTimeMillis();
+        JiMengResponse jiMengResponse = null;
+        info.setWidth(params.getWidth());
+        info.setHeight(params.getHeight());
+        try {
+            jiMengResponse = doRequest(params.getMethod(), new HashMap<>(), json.getBytes(UTF_8), new Date(),
+                    params.getAction(), params.getVersion(), params.getRegion(), params.getService(),
+                    params.getPath(), info.getApiKey(), info.getSecretKey(), params.getHost(), params.getSchema());
+            long totalTime = System.currentTimeMillis() - startTime;
+            GenerateLogInfo generateLogInfo = processResult(jiMengResponse, info, params, totalTime);
+            generateLogInfoMapper.insert(generateLogInfo);
+            return generateLogInfo;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private GenerateLogInfo processResult(JiMengResponse jiMengResponse, GenerateLogInfoDto logInfoDto, JiMengParams params, long totalTime) {
+        GenerateLogInfo generateLogInfo = GenerateLogInfo(jiMengResponse, logInfoDto, params, totalTime);
 
         if (jiMengResponse.getCode() == 10000) {
             generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
@@ -143,9 +142,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             }
             //如果是直接返回URL，则直接保存图片
             if (StringUtils.isNotNull(data.getImage_urls())) {
-                saveGenerateLogInfoByImg(info, data, generateLogInfo);
+                saveGenerateLogInfoByImg(logInfoDto, data, generateLogInfo);
             } else if (StringUtils.isNotEmpty(data.getTask_id())) {
-                saveGenerateLogInfoByTask(info, data, generateLogInfo);
+                saveGenerateLogInfoByTask(logInfoDto, data, generateLogInfo);
             }
 
         } else {
@@ -221,20 +220,26 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
      *
      * @param jiMengResponse 响应
      * @param info           请求
-     * @param json           请求参数
+     * @param params         请求参数
      * @param totalTime      总耗时
      * @return GenerateLogInfo
      * @author: YY
      * @method: GenerateLogInfo 获取日志
      * @date: 2025/8/11 16:16
      **/
-    private GenerateLogInfo GenerateLogInfo(JiMengResponse jiMengResponse, GenerateLogInfoDto info, String json, long totalTime) {
+    private GenerateLogInfo GenerateLogInfo(JiMengResponse jiMengResponse, GenerateLogInfoDto info, JiMengParams params, long totalTime) {
         GenerateLogInfo generateLogInfo = new GenerateLogInfo();
         generateLogInfo.setLogId(IdUtils.fastSimpleUUID());
         generateLogInfo.setUserId(info.getUserId());
         generateLogInfo.setModelKey(info.getModelKey());
         generateLogInfo.setModelType(info.getModelType());
-        generateLogInfo.setInputFile(info.getInputFile());
+        if (StringUtils.isNotEmpty(info.getInputFile()) && info.getInputFile().contains("http")) {
+            generateLogInfo.setInputFile(info.getInputFile());
+        } else {
+            //如果是图片，不保存图片信息
+            params.setBinary_data_base64(null);
+            generateLogInfo.setInputParams(JSONObject.toJSONString(params));
+        }
         generateLogInfo.setPrompt(info.getPrompt());
         generateLogInfo.setNegativePrompt(info.getNegativePrompt());
         generateLogInfo.setSeed(info.getSeed());
@@ -244,16 +249,16 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setBrowser(info.getBrowser());
         generateLogInfo.setOs(info.getOs());
         generateLogInfo.setPlatform(info.getPlatform());
-        generateLogInfo.setInputParams(json);
         if (StringUtils.isNotNull(jiMengResponse.getData()) && StringUtils.isNotEmpty(jiMengResponse.getData().getTask_id())) {
             generateLogInfo.setTaskId(jiMengResponse.getData().getTask_id());
         } else if (StringUtils.isNotNull(jiMengResponse.getRequest_id())) {
             generateLogInfo.setTaskId(jiMengResponse.getRequest_id());
         }
-        generateLogInfo.setOutputResult(JSON.toJSONString(jiMengResponse));
+        generateLogInfo.setOutputResult(JSONObject.toJSONString(jiMengResponse));
         generateLogInfo.setWidth(info.getWidth());
         generateLogInfo.setHeight(info.getHeight());
-        generateLogInfo.setRequestTime(new Date());
+        Date requestTime = new Date();
+        generateLogInfo.setRequestTime(requestTime);
         generateLogInfo.setRequestDuration(totalTime);
         generateLogInfo.setPriceUsed(info.getPriceUse().multiply(BigDecimal.valueOf(info.getNumbers())));
         generateLogInfo.setPointsUsed(info.getPointsNeed() * info.getNumbers());
@@ -262,8 +267,8 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setAiStatusCode(String.valueOf(jiMengResponse.getCode()));
         generateLogInfo.setFailReason(jiMengResponse.getMessage());
         generateLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
-        generateLogInfo.setCreateTime(new Date());
-        generateLogInfo.setUpdateTime(new Date());
+        generateLogInfo.setCreateTime(requestTime);
+        generateLogInfo.setUpdateTime(requestTime);
         generateLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         return generateLogInfo;
     }
@@ -287,6 +292,27 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         }
         if (StringUtils.isNotNull(info.getSeed())) {
             jiMengParams.setSeed(info.getSeed().intValue());
+        }
+        //如果是图生图
+        if (info.getModelType().equals(AiModelParamsTypeEnum.MODEL_PARAMS_TYPE_2.getValue())) {
+            //如果输入文件为空
+            if (StringUtils.isEmpty(info.getInputFile())) {
+                return jiMengParams;
+            }
+            //判断文件是url还是base64
+            if (info.getInputFile().startsWith("http")) {
+                jiMengParams.setImage_urls(new String[]{info.getInputFile()});
+            } else if (info.getInputFile().startsWith("data:image")) {
+                //base64 - 移除前缀，只保留base64编码部分
+                //base64 - 移除前缀，只保留base64编码部分
+                String base64Data = info.getInputFile().substring(info.getInputFile().indexOf(",") + 1);
+                // 清理base64数据，移除可能的换行符和空格
+                base64Data = base64Data.replaceAll("\\s+", "");
+                jiMengParams.setBinary_data_base64(new String[]{base64Data});
+                System.out.println("base64Data = " + base64Data.substring(0, 100));
+            } else {
+                return jiMengParams;
+            }
         }
         return jiMengParams;
     }
@@ -467,16 +493,17 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 BeanUtils.copyProperties(generateLogInfo, info);
                 if (StringUtils.isNotNull(data.getImage_urls())) {
                     saveGenerateLogInfoByImg(info, data, generateLogInfo);
+                    generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
                 } else if (StringUtils.isNotEmpty(data.getTask_id())) {
                     saveGenerateLogInfoByTask(info, data, generateLogInfo);
                 }
-                generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_1.getValue());
                 //重新计算花费时间
                 String timeElapsed = jiMengResponse.getTime_elapsed();
                 if (StringUtils.isNotEmpty(timeElapsed)) {
                     String time = timeElapsed.split("\\.")[0];
                     generateLogInfo.setRequestDuration(Long.parseLong(time));
                 }
+                generateLogInfo.setOutputResult(JSONObject.toJSONString(jiMengResponse));
             } else {
                 generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
             }
