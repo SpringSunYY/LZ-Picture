@@ -1,37 +1,62 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.ai.mapper.PromptInfoMapper">
-    
+
     <resultMap type="PromptInfo" id="PromptInfoResult">
-        <result property="infoId"    column="info_id"    />
-        <result property="name"    column="name"    />
-        <result property="content"    column="content"    />
-        <result property="orderNum"    column="order_num"    />
-        <result property="createBy"    column="create_by"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="remark"    column="remark"    />
+        <result property="infoId" column="info_id"/>
+        <result property="name" column="name"/>
+        <result property="content" column="content"/>
+        <result property="promptStatus" column="prompt_status"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <sql id="selectPromptInfoVo">
-        select info_id, name, content, order_num, create_by, create_time, update_by, update_time, remark from ai_prompt_info
+        select info_id,
+               name,
+               content,
+               prompt_status,
+               order_num,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               remark
+        from ai_prompt_info
     </sql>
 
     <select id="selectPromptInfoList" parameterType="PromptInfo" resultMap="PromptInfoResult">
         <include refid="selectPromptInfoVo"/>
-        <where>  
-            <if test="infoId != null  and infoId != ''"> and info_id = #{infoId}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="createBy != null  and createBy != ''"> and create_by like concat('%', #{createBy}, '%')</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
-            <if test="updateBy != null  and updateBy != ''"> and update_by like concat('%', #{updateBy}, '%')</if>
-            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+        <where>
+            <if test="infoId != null  and infoId != ''">and info_id = #{infoId}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="content != null  and content != ''">and content like concat('%', #{content}, '%')</if>
+            <if test="promptStatus != null  and promptStatus != ''">and prompt_status = #{promptStatus}</if>
+            <if test="createBy != null  and createBy != ''">and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <if test="updateBy != null  and updateBy != ''">and update_by like concat('%', #{updateBy}, '%')</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''">
+                and DATE_FORMAT(update_time, '%Y-%m-%d') between #{params.beginUpdateTime} and #{params.endUpdateTime}
+            </if>
         </where>
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by order_num asc ,update_time desc
+            </otherwise>
+        </choose>
     </select>
-    
+
     <select id="selectPromptInfoByInfoId" parameterType="String" resultMap="PromptInfoResult">
         <include refid="selectPromptInfoVo"/>
         where info_id = #{infoId}
@@ -43,24 +68,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="infoId != null">info_id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="content != null and content != ''">content,</if>
+            <if test="promptStatus != null and promptStatus != ''">prompt_status,</if>
             <if test="orderNum != null">order_num,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="infoId != null">#{infoId},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="content != null and content != ''">#{content},</if>
+            <if test="promptStatus != null and promptStatus != ''">#{promptStatus},</if>
             <if test="orderNum != null">#{orderNum},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePromptInfo" parameterType="PromptInfo">
@@ -68,6 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="content != null and content != ''">content = #{content},</if>
+            <if test="promptStatus != null and promptStatus != ''">prompt_status = #{promptStatus},</if>
             <if test="orderNum != null">order_num = #{orderNum},</if>
             <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
@@ -79,11 +107,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePromptInfoByInfoId" parameterType="String">
-        delete from ai_prompt_info where info_id = #{infoId}
+        delete
+        from ai_prompt_info
+        where info_id = #{infoId}
     </delete>
 
     <delete id="deletePromptInfoByInfoIds" parameterType="String">
-        delete from ai_prompt_info where info_id in 
+        delete from ai_prompt_info where info_id in
         <foreach item="infoId" collection="array" open="(" separator="," close=")">
             #{infoId}
         </foreach>

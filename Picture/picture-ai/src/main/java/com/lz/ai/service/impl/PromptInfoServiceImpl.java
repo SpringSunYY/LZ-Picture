@@ -1,35 +1,36 @@
 package com.lz.ai.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import com.lz.common.utils.StringUtils;
-import com.lz.common.utils.DateUtils;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.ai.mapper.PromptInfoMapper;
 import com.lz.ai.model.domain.PromptInfo;
-import com.lz.ai.service.IPromptInfoService;
 import com.lz.ai.model.dto.promptInfo.PromptInfoQuery;
 import com.lz.ai.model.vo.promptInfo.PromptInfoVo;
+import com.lz.ai.service.IPromptInfoService;
+import com.lz.common.annotation.CustomSort;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.uuid.IdUtils;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 提示词信息Service业务层处理
  *
  * @author YY
- * @date 2025-08-08
+ * @date 2025-08-14
  */
 @Service
-public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptInfo> implements IPromptInfoService
-{
+public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptInfo> implements IPromptInfoService {
     @Resource
     private PromptInfoMapper promptInfoMapper;
 
     //region mybatis代码
+
     /**
      * 查询提示词信息
      *
@@ -37,8 +38,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @return 提示词信息
      */
     @Override
-    public PromptInfo selectPromptInfoByInfoId(String infoId)
-    {
+    public PromptInfo selectPromptInfoByInfoId(String infoId) {
         return promptInfoMapper.selectPromptInfoByInfoId(infoId);
     }
 
@@ -48,9 +48,10 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @param promptInfo 提示词信息
      * @return 提示词信息
      */
+    @CustomSort(sortFields = {"orderNum","name","createTime","updateTime"},
+    sortMappingFields = {"order_num","name","create_time","update_time"})
     @Override
-    public List<PromptInfo> selectPromptInfoList(PromptInfo promptInfo)
-    {
+    public List<PromptInfo> selectPromptInfoList(PromptInfo promptInfo) {
         return promptInfoMapper.selectPromptInfoList(promptInfo);
     }
 
@@ -61,8 +62,9 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @return 结果
      */
     @Override
-    public int insertPromptInfo(PromptInfo promptInfo)
-    {
+    public int insertPromptInfo(PromptInfo promptInfo) {
+        promptInfo.setInfoId(IdUtils.fastSimpleUUID());
+        promptInfo.setCreateBy(SecurityUtils.getUsername());
         promptInfo.setCreateTime(DateUtils.getNowDate());
         return promptInfoMapper.insertPromptInfo(promptInfo);
     }
@@ -74,9 +76,9 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @return 结果
      */
     @Override
-    public int updatePromptInfo(PromptInfo promptInfo)
-    {
-      promptInfo.setUpdateTime(DateUtils.getNowDate());
+    public int updatePromptInfo(PromptInfo promptInfo) {
+        promptInfo.setUpdateBy(SecurityUtils.getUsername());
+        promptInfo.setUpdateTime(DateUtils.getNowDate());
         return promptInfoMapper.updatePromptInfo(promptInfo);
     }
 
@@ -87,8 +89,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @return 结果
      */
     @Override
-    public int deletePromptInfoByInfoIds(String[] infoIds)
-    {
+    public int deletePromptInfoByInfoIds(String[] infoIds) {
         return promptInfoMapper.deletePromptInfoByInfoIds(infoIds);
     }
 
@@ -99,36 +100,42 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @return 结果
      */
     @Override
-    public int deletePromptInfoByInfoId(String infoId)
-    {
+    public int deletePromptInfoByInfoId(String infoId) {
         return promptInfoMapper.deletePromptInfoByInfoId(infoId);
     }
+
     //endregion
     @Override
-    public QueryWrapper<PromptInfo> getQueryWrapper(PromptInfoQuery promptInfoQuery){
+    public QueryWrapper<PromptInfo> getQueryWrapper(PromptInfoQuery promptInfoQuery) {
         QueryWrapper<PromptInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = promptInfoQuery.getParams();
         if (StringUtils.isNull(params)) {
             params = new HashMap<>();
         }
-    String infoId = promptInfoQuery.getInfoId();
-        queryWrapper.eq(StringUtils.isNotEmpty(infoId) ,"info_id",infoId);
+        String infoId = promptInfoQuery.getInfoId();
+        queryWrapper.eq(StringUtils.isNotEmpty(infoId), "info_id", infoId);
 
-    String name = promptInfoQuery.getName();
-        queryWrapper.like(StringUtils.isNotEmpty(name) ,"name",name);
+        String name = promptInfoQuery.getName();
+        queryWrapper.like(StringUtils.isNotEmpty(name), "name", name);
 
-    String createBy = promptInfoQuery.getCreateBy();
-        queryWrapper.like(StringUtils.isNotEmpty(createBy) ,"create_by",createBy);
+        String content = promptInfoQuery.getContent();
+        queryWrapper.like(StringUtils.isNotEmpty(content), "content", content);
 
-    Date createTime = promptInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        String promptStatus = promptInfoQuery.getPromptStatus();
+        queryWrapper.eq(StringUtils.isNotEmpty(promptStatus), "prompt_status", promptStatus);
 
-    String updateBy = promptInfoQuery.getUpdateBy();
-        queryWrapper.like(StringUtils.isNotEmpty(updateBy) ,"update_by",updateBy);
+        String createBy = promptInfoQuery.getCreateBy();
+        queryWrapper.like(StringUtils.isNotEmpty(createBy), "create_by", createBy);
 
-    Date updateTime = promptInfoQuery.getUpdateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime"))&&StringUtils.isNotNull(params.get("endUpdateTime")),"update_time",params.get("beginUpdateTime"),params.get("endUpdateTime"));
+        Date createTime = promptInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
+
+        String updateBy = promptInfoQuery.getUpdateBy();
+        queryWrapper.like(StringUtils.isNotEmpty(updateBy), "update_by", updateBy);
+
+        Date updateTime = promptInfoQuery.getUpdateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginUpdateTime")) && StringUtils.isNotNull(params.get("endUpdateTime")), "update_time", params.get("beginUpdateTime"), params.get("endUpdateTime"));
 
         return queryWrapper;
     }

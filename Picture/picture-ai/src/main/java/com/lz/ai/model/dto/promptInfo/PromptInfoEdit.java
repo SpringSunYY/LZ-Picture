@@ -1,33 +1,51 @@
 package com.lz.ai.model.dto.promptInfo;
 
-import java.io.Serializable;
+import com.lz.ai.model.domain.PromptInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.ai.model.domain.PromptInfo;
+
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * 提示词信息Vo对象 ai_prompt_info
  *
  * @author YY
- * @date 2025-08-08
+ * @date 2025-08-14
  */
 @Data
-public class PromptInfoEdit implements Serializable
-{
+public class PromptInfoEdit implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /** 编号 */
+    /**
+     * 编号
+     */
     private String infoId;
 
-    /** 名称 */
+    /**
+     * 名称
+     */
     private String name;
 
-    /** 提示内容 */
+    /**
+     * 提示内容
+     */
     private String content;
 
-    /** 排序 */
+    /**
+     * 状态
+     */
+    private String promptStatus;
+
+    /**
+     * 排序
+     */
     private Long orderNum;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
     /**

@@ -2122,17 +2122,20 @@ CREATE TABLE ai_model_params_info (
 
 #### 提示词信息表：ai_prompt_info
 
-| 字段        | 类型     | 长度 | 键类型 | null | 默认值   | 描述     |
-| :---------- | -------- | ---- | ------ | ---- | -------- | -------- |
-| info_id     | varchar  | 128  | 主键   | 否   |          | 编号     |
-| name        | varchar  | 128  |        | 否   |          | 名称     |
-| content     | text     |      |        | 否   |          | 提示内容 |
-| order_num   | int      |      |        | 否   | 默认10   | 排序     |
-| create_by   | varchar  | 64   |        | 否   |          | 创建人   |
-| create_time | datetime |      |        | 否   | 当前时间 | 创建时间 |
-| update_by   | varchar  | 64   |        | 是   |          | 更新人   |
-| update_time | datetime |      |        | 是   |          | 更新时间 |
-| remark      | varchar  | 512  |        | 是   |          | 备注     |
+| 字段          | 类型     | 长度 | 键类型 | null | 默认值   | 描述     |
+| :------------ | -------- | ---- | ------ | ---- | -------- | -------- |
+| info_id       | varchar  | 128  | 主键   | 否   |          | 编号     |
+| name          | varchar  | 128  |        | 否   |          | 名称     |
+| content       | text     |      |        | 否   |          | 提示内容 |
+| prompt_status | char     | 1    |        | 否   |          | 状态     |
+| order_num     | int      |      |        | 否   | 默认10   | 排序     |
+| create_by     | varchar  | 64   |        | 否   |          | 创建人   |
+| create_time   | datetime |      |        | 否   | 当前时间 | 创建时间 |
+| update_by     | varchar  | 64   |        | 是   |          | 更新人   |
+| update_time   | datetime |      |        | 是   |          | 更新时间 |
+| remark        | varchar  | 512  |        | 是   |          | 备注     |
+
+状态：0开启 1关闭
 
 ```sql
 -- 如果已存在则先删除
@@ -2143,6 +2146,7 @@ CREATE TABLE ai_prompt_info (
   info_id      VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '编号',
   name         VARCHAR(128) NOT NULL COMMENT '名称',
   content      TEXT         NOT NULL COMMENT '提示内容',
+  prompt_status CHAR(1)     NOT NULL COMMENT '状态',  
   order_num    INT          NOT NULL DEFAULT 10 COMMENT '排序',
   create_by    VARCHAR(64)  NOT NULL COMMENT '创建人',
   create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

@@ -610,8 +610,8 @@ function resetQuery() {
   daterangeUpdateTime.value = [];
   orderByColumn.value = null
   isAsc.value = null;
-  proxy.resetForm("queryRef");
   proxy.$refs.tableRef.clearSort();
+  proxy.resetForm("queryRef");
   handleQuery();
 }
 
