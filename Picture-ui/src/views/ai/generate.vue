@@ -18,14 +18,14 @@
         <a-textarea
           placeholder="请输入内容"
           :border="false"
-          :auto-size="{ minRows: 5, maxRows: 10 }"
+          :auto-size="{ minRows: 5, maxRows: 8 }"
           :maxlength="800"
           :allowClear="true"
           show-count
           class="text-area mt-1"
           v-model:value="prompt"
         />
-        <div class="tag-container mt-4">
+        <div class="tag-container mt-6">
           <AiRecommend v-model="prompt"/>
         </div>
       </div>
