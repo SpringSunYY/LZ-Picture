@@ -6,7 +6,7 @@ import type {
   GenerateResponse,
   ModelParamsInfo,
   ModelParamsInfoRequest,
-  UserGenerateLogInfoVo,
+  GenerateLogInfoVo,
 } from '@/types/ai/model'
 
 /**
@@ -44,7 +44,7 @@ export function generate(
  */
 export function listGenerateLogInfo(
   params: GenerateLogInfoQuery,
-): Promise<API.ResponseInfo<UserGenerateLogInfoVo>> {
+): Promise<API.ResponseInfo<GenerateLogInfoVo>> {
   return request({
     url: '/ai/generateLogInfo/list',
     method: 'get',
@@ -56,7 +56,7 @@ export function listGenerateLogInfo(
  * 查询任务
  * @param logId
  */
-export function queryTask(logId: string): Promise<API.ResponseInfo<UserGenerateLogInfoVo>> {
+export function queryTask(logId: string): Promise<API.ResponseInfo<GenerateLogInfoVo>> {
   return request({
     url: '/ai/generateLogInfo/query/' + logId,
     method: 'get',

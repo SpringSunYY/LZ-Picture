@@ -3,22 +3,20 @@
     <div class="main-content-area">
       <main class="gallery-scroll-area" @scroll="handleScroll" ref="scrollContainer">
         <div class="main-content-wrapper">
-          <div v-if="galleryItems.length === 0" class="empty-state">
+          <div v-if="galleryGroups.length === 0" class="empty-state">
             <p>暂无图片，快去创作吧！</p>
           </div>
           <div v-else>
-            <div v-for="group in galleryItems" :key="group.date" class="image-group">
+            <div v-for="group in galleryGroups" :key="group.date" class="image-group">
               <h2 class="group-date">{{ group.date }}</h2>
               <div class="image-grid">
-                <template v-for="(item, itemIndex) in group.items" :key="itemIndex">
+                <template v-for="item in group.items" :key="item.logId">
                   <div
-                    v-for="(image, imgIndex) in item.images"
-                    :key="imgIndex"
                     class="image-card"
-                    :class="{ selected: isImageSelected(item, imgIndex) }"
-                    @click="handleImageSelect(item, imgIndex)"
+                    :class="{ selected: isImageSelected(item, item.logId) }"
+                    @click="handleImageSelect(item, item.logId)"
                   >
-                    <img :src="image" :alt="item.prompt" class="generated-image" />
+                    <img :src="item.fileUrls" :alt="item.prompt" class="generated-image" />
                     <div class="image-card-overlay">
                       <div class="overlay-text">{{ item.prompt }}</div>
                       <div class="overlay-actions">
@@ -104,152 +102,65 @@ import DownloadButton from '@/components/button/DownloadButton.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiInput from '@/components/AiInput.vue'
 import AiPictureView from '@/components/AiPictureView.vue'
-
-const USER_IMAGE_URL =
-  'https://p3-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/873f7f47d5c44c24a83425b3aa59541a~tplv-tb4s082cfz-aigc_resize:360:360.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=FaH7lXW6wgGqMAIXOFvdQDSpYNc%3D'
-
-interface GalleryItem {
-  id: number
-  prompt: string
-  version: string
-  date: Date
-  images: string[]
-}
+import {
+  AiLogStatusEnum,
+  type GenerateLogInfoQuery,
+  type GenerateLogInfoVo,
+} from '@/types/ai/model'
+import { listGenerateLogInfo } from '@/api/ai/model.ts'
+import { formatDateTime } from '@/utils/common.ts'
 
 interface GalleryGroup {
   date: string
-  items: GalleryItem[]
+  items: GenerateLogInfoVo[]
 }
 
-const initialData: GalleryItem[] = [
-  {
-    id: 1,
-    prompt: '带画画风格细腻,笔触细腻,保暖混装帽子的美丽女子...',
-    version: '3.1',
-    date: new Date('2025-08-04T10:00:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 2,
-    prompt: '胶片摄影,多重对焦模糊,窗门,宝丽来,对焦...',
-    version: '3.0',
-    date: new Date('2025-08-03T18:30:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 3,
-    prompt: '梦幻森林,精灵,唯美...',
-    version: '3.0',
-    date: new Date('2025-07-28T14:15:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 4,
-    prompt: '赛博朋克城市夜景...',
-    version: '2.5',
-    date: new Date('2025-07-10T11:20:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 5,
-    prompt: '复肖像,光影...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 6,
-    prompt: '复古黑白肖像,光影...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 7,
-    prompt: '复古黑白肖像,光影...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [
-      'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D',
-      USER_IMAGE_URL,
-    ],
-  },
-  {
-    id: 8,
-    prompt: '复古黑白肖像8,光影...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 9,
-    prompt: '复古黑白肖像9,光影...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 10,
-    prompt: '复古黑白肖像10,光影...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 11,
-    prompt: '复古黑白肖像,光影11...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 12,
-    prompt: '复古黑白肖像,光影12...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-  {
-    id: 13,
-    prompt: '复古黑白肖像,光影13...',
-    version: '2.0',
-    date: new Date('2025-05-15T09:45:00'),
-    images: [USER_IMAGE_URL, USER_IMAGE_URL],
-  },
-]
-
-const galleryData = ref<GalleryItem[]>(initialData)
+//region 图片列表
+const galleryGroups = ref<GalleryGroup[]>([])
+const generateQuery = ref<GenerateLogInfoQuery>({
+  pageNum: 1,
+  pageSize: 30,
+})
 const isLoadingMore = ref(false)
-const scrollContainer = ref<HTMLElement | null>(null)
-
+const noMore = ref(false)
+const getGenerateList = async () => {
+  if (isLoadingMore.value || noMore.value) return
+  isLoadingMore.value = true
+  await listGenerateLogInfo(generateQuery.value).then((res) => {
+    if (!galleryGroups.value) {
+      galleryGroups.value = []
+    }
+    if (res.rows && res.rows.length > 0) {
+      res.rows.forEach((item) => {
+        const date = formatDateTime(item.createTime)
+        //只要年月日
+        const group = galleryGroups.value.find((group) => group.date === date)
+        if (group) {
+          group.items.push(item)
+        } else {
+          galleryGroups.value.push({
+            date,
+            items: [item],
+          })
+        }
+      })
+    } else {
+      noMore.value = true
+    }
+  })
+  console.log('galleryGroups.value', galleryGroups.value)
+  isLoadingMore.value = false
+}
 const loadMoreData = () => {
   if (isLoadingMore.value) return
   isLoadingMore.value = true
-
-  setTimeout(() => {
-    const lastItem =
-      galleryData.value.length > 0 ? galleryData.value[galleryData.value.length - 1] : null
-    const lastId = lastItem ? lastItem.id : 0
-    const newDate = lastItem
-      ? new Date(lastItem.date.getTime() - 10 * 24 * 60 * 60 * 1000)
-      : new Date()
-
-    const newItems = Array.from({ length: 8 }, (_, i) => {
-      const newItemId = lastId + i + 1
-      const newItemDate = new Date(newDate.getTime() - i * 24 * 60 * 60 * 1000)
-      return {
-        id: newItemId,
-        prompt: `这是加载的第 ${newItemId} 条数据...`,
-        version: '2.0',
-        date: newItemDate,
-        images: [USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL, USER_IMAGE_URL],
-      }
-    })
-
-    galleryData.value = [...galleryData.value, ...newItems]
-    isLoadingMore.value = false
-  }, 1000)
+  generateQuery.value.pageNum++
+  getGenerateList()
 }
+getGenerateList()
+//endregion
+// const isLoadingMore = ref(false)
+const scrollContainer = ref<HTMLElement | null>(null)
 
 const handleScroll = () => {
   const container = scrollContainer.value
@@ -275,62 +186,26 @@ onUnmounted(() => {
   }
 })
 
-const galleryItems = computed<GalleryGroup[]>(() => {
-  let sortedData = [...galleryData.value]
+const selectedImage = ref<GenerateLogInfoVo | null>(null)
+const selectedImageIndex = ref<string | null>(null)
 
-  sortedData.sort((a, b) => b.date.getTime() - a.date.getTime())
+const selectedImageSrc = ref<string>('')
 
-  const groupedData: { [key: string]: GalleryItem[] } = {}
-  sortedData.forEach((item) => {
-    const dateStr = formatDate(item.date)
-    if (!groupedData[dateStr]) {
-      groupedData[dateStr] = []
-    }
-    groupedData[dateStr].push(item)
-  })
-
-  return Object.keys(groupedData).map((date) => ({
-    date,
-    items: groupedData[date],
-  }))
-})
-
-const formatDate = (date: Date): string => {
-  const now = new Date()
-  const diff = now.getDate() - date.getDate()
-  if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) {
-    if (diff === 0) return '今天'
-    if (diff === 1) return '昨天'
-  }
-  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
-}
-
-const selectedImage = ref<GalleryItem | null>(null)
-const selectedImageIndex = ref<number | null>(null)
-
-const selectedImageSrc = computed(() => {
-  if (selectedImage.value && selectedImageIndex.value !== null) {
-    return selectedImage.value.images[selectedImageIndex.value]
-  }
-  return ''
-})
-
-const handleImageSelect = (item: GalleryItem, index: number) => {
+const handleImageSelect = (item: GenerateLogInfoVo, index: string) => {
   if (isImageSelected(item, index)) {
     clearSelection()
   } else {
     selectedImage.value = item
     selectedImageIndex.value = index
+    selectedImageSrc.value = item.fileUrls
   }
 }
-
+const isImageSelected = (item: GenerateLogInfoVo, index: string) => {
+  return selectedImage.value?.logId === item.logId && selectedImageIndex.value === index
+}
 const clearSelection = () => {
   selectedImage.value = null
   selectedImageIndex.value = null
-}
-
-const isImageSelected = (item: GalleryItem, index: number) => {
-  return selectedImage.value?.id === item.id && selectedImageIndex.value === index
 }
 </script>
 

@@ -150,7 +150,7 @@ import {
   AiLogStatusEnum,
   type GenerateLogInfoQuery,
   type ModerInfo,
-  type UserGenerateLogInfoVo,
+  type GenerateLogInfoVo,
 } from '@/types/ai/model.d.ts'
 import { generate, listGenerateLogInfo, queryTask } from '@/api/ai/model.ts'
 import { message } from 'ant-design-vue'
@@ -165,7 +165,7 @@ const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 const activeTab = ref('1')
 
 //region 列表
-const generateList = ref<UserGenerateLogInfoVo[]>([])
+const generateList = ref<GenerateLogInfoVo[]>([])
 const generateQuery = ref<GenerateLogInfoQuery>({
   pageNum: 1,
   pageSize: 10,
@@ -239,12 +239,12 @@ const modelInfo = ref<ModerInfo>({
 })
 const prompt = ref('')
 const fileInfo = ref<string>()
-const handleReferTo = (generate: UserGenerateLogInfoVo) => {
+const handleReferTo = (generate: GenerateLogInfoVo) => {
   activeTab.value = '2'
   console.log('handleReferTo', generate)
   fileInfo.value = generate.fileUrls
 }
-const handleReload = (generate: UserGenerateLogInfoVo) => {
+const handleReload = (generate: GenerateLogInfoVo) => {
   activeTab.value = '2'
   console.log('handleReload', generate)
   fileInfo.value = generate.fileUrls
@@ -258,7 +258,7 @@ const handleReload = (generate: UserGenerateLogInfoVo) => {
     pointsNeed: generate.pointsUsed,
   }
 }
-const handlePrompt = (generate: UserGenerateLogInfoVo) => {
+const handlePrompt = (generate: GenerateLogInfoVo) => {
   prompt.value = generate.prompt
 }
 const clickActiveTab = (key: string) => {

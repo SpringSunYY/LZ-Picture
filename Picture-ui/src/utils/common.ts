@@ -93,3 +93,20 @@ export const formatTime = (seconds: number) => {
   const secs = seconds % 60
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
+
+/**
+ * 转换时间为日期字符串
+ * @param dateStr
+ */
+export const formatDateTime = (dateStr: string) => {
+  //把时间转换为时间戳
+  const date = new Date(dateStr)
+  //当前时间
+  const now = new Date()
+  const diff = now.getDate() - date.getDate()
+  if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) {
+    if (diff === 0) return '今天'
+    if (diff === 1) return '昨天'
+  }
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+}

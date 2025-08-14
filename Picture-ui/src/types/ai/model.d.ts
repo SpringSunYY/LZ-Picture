@@ -96,7 +96,7 @@ export interface GenerateResponse {
 /**
  * 用户生成记录 Vo 对象
  */
-export interface UserGenerateLogInfoVo {
+export interface GenerateLogInfoVo {
   /** 记录编号 */
   logId: string
 
