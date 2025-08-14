@@ -35,6 +35,10 @@
             </svg>
             <p>加载中...</p>
           </div>
+          <NoMoreData
+            v-else-if="noMore && galleryGroups.length > 0"
+            text="没有更多数据了哦，快去生成吧！！！"
+          />
         </div>
       </main>
     </div>
@@ -91,7 +95,7 @@
         </transition>
       </div>
     </aside>
-    <!--    <AiInput />-->
+    <AiInput v-show="openAiInput" />
   </div>
 </template>
 
@@ -109,6 +113,7 @@ import {
 } from '@/types/ai/model'
 import { listGenerateLogInfo } from '@/api/ai/model.ts'
 import { formatDateTime } from '@/utils/common.ts'
+import NoMoreData from '@/components/NoMoreData.vue'
 
 interface GalleryGroup {
   date: string
@@ -155,8 +160,7 @@ const loadMoreData = () => {
   generateQuery.value.pageNum++
   getGenerateList()
 }
-getGenerateList()
-//endregion
+
 // const isLoadingMore = ref(false)
 const scrollContainer = ref<HTMLElement | null>(null)
 
@@ -176,6 +180,7 @@ onMounted(() => {
       scrollContainer.value.addEventListener('scroll', handleScroll)
     }
   })
+  getGenerateList()
 })
 
 onUnmounted(() => {
@@ -183,7 +188,7 @@ onUnmounted(() => {
     scrollContainer.value.removeEventListener('scroll', handleScroll)
   }
 })
-
+//endregion
 const selectedImage = ref<GenerateLogInfoVo | null>(null)
 const selectedImageIndex = ref<string | null>(null)
 
@@ -192,10 +197,12 @@ const selectedImageSrc = ref<string>('')
 const handleImageSelect = (item: GenerateLogInfoVo, index: string) => {
   if (isImageSelected(item, index)) {
     clearSelection()
+    openAiInput.value = false
   } else {
     selectedImage.value = item
     selectedImageIndex.value = index
     selectedImageSrc.value = item.fileUrls
+    openAiInput.value = true
   }
 }
 const isImageSelected = (item: GenerateLogInfoVo, index: string) => {
@@ -205,6 +212,8 @@ const clearSelection = () => {
   selectedImage.value = null
   selectedImageIndex.value = null
 }
+
+const openAiInput = ref(false)
 </script>
 
 <style scoped lang="scss">

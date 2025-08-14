@@ -168,7 +168,7 @@ const activeTab = ref('1')
 const generateList = ref<GenerateLogInfoVo[]>([])
 const generateQuery = ref<GenerateLogInfoQuery>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
 })
 const isLoadingMore = ref(false)
 const noMore = ref(false)
