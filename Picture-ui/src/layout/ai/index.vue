@@ -17,7 +17,7 @@
               <div class="user-avatar">
                 <a-avatar
                   :size="40"
-                  :src="avatar != '' ? formatDnsUrl(avatar) : '../assets/images/avatar.jpg'"
+                  :src="initCover(avatar)"
                 />
               </div>
               <template #overlay>
@@ -62,7 +62,7 @@ import { storeToRefs } from 'pinia'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import { generateMenu, toMenu } from '@/router/permisson.ts'
-import { formatDnsUrl } from '@/utils/common.ts'
+import { formatDnsUrl, initCover } from '@/utils/common.ts'
 import { LogoutOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 
