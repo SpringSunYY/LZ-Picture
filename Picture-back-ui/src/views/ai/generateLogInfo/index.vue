@@ -17,13 +17,23 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="模型KEY" prop="modelKey">
+      <el-form-item label="KEY" prop="modelKey">
         <el-input
             v-model="queryParams.modelKey"
             placeholder="请输入模型KEY"
             clearable
             @keyup.enter="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="模型类型" prop="modelType">
+        <el-select v-model="queryParams.modelType" style="width: 200px" placeholder="请选择模型类型" clearable>
+          <el-option
+              v-for="dict in ai_model_params_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="随机种子" prop="seed">
         <el-input
@@ -234,6 +244,7 @@
     <el-table ref="tableRef" v-loading="loading" :data="generateLogInfoList" @selection-change="handleSelectionChange"
               @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="记录编号" align="center" prop="logId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[1].visible"
@@ -241,9 +252,17 @@
       <el-table-column label="模型KEY" align="center" prop="modelKey" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="模型类型" align="center" prop="modelType" v-if="columns[3].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          <dict-tag :options="ai_model_params_type" :value="scope.row.modelType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="输入文件" align="center" prop="inputFile" v-if="columns[4].visible"
-                       :show-overflow-tooltip="true"/>
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          <image-preview :src="scope.row.inputFile" width="50" height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="提示词" align="center" prop="prompt" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="负向提示词" align="center" prop="negativePrompt" v-if="columns[6].visible"
@@ -268,7 +287,7 @@
                        sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="高度" align="center" prop="height" v-if="columns[14].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
-      <el-table-column label="请求时间" align="center" prop="requestTime" width="180" v-if="columns[15].visible"
+      <el-table-column label="请求时间" align="center" prop="requestTime" width="160" v-if="columns[15].visible"
                        sortable="custom" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.requestTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -278,7 +297,7 @@
                        sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="价格" align="center" prop="priceUsed" v-if="columns[17].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
-      <el-table-column label="消耗的积分" align="center" prop="pointsUsed" v-if="columns[18].visible"
+      <el-table-column label="消耗积分" align="center" prop="pointsUsed" v-if="columns[18].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="参考对象" align="center" prop="targetId" v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
@@ -306,13 +325,13 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="平台" align="center" prop="platform" v-if="columns[28].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[29].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160" v-if="columns[29].visible"
                        sortable="custom" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" v-if="columns[30].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="160" v-if="columns[30].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -402,13 +421,15 @@ import {
   addGenerateLogInfo,
   updateGenerateLogInfo
 } from "@/api/ai/generateLogInfo";
+import ImagePreview from "@/components/ImagePreview/index.vue";
 
 const {proxy} = getCurrentInstance();
 const {
   ai_log_status,
   common_has_statistics,
-  common_delete
-} = proxy.useDict('ai_log_status', 'common_has_statistics', 'common_delete');
+  common_delete,
+  ai_model_params_type
+} = proxy.useDict('ai_log_status', 'common_has_statistics', 'common_delete', 'ai_model_params_type');
 
 const generateLogInfoList = ref([]);
 const open = ref(false);
@@ -500,16 +521,16 @@ const data = reactive({
     {key: 4, label: '输入文件', visible: true},
     {key: 5, label: '提示词', visible: true},
     {key: 6, label: '负向提示词', visible: false},
-    {key: 7, label: '随机种子', visible: true},
-    {key: 8, label: '数量', visible: true},
+    {key: 7, label: '随机种子', visible: false},
+    {key: 8, label: '数量', visible: false},
     {key: 9, label: '输入参数', visible: false},
-    {key: 10, label: '任务编号', visible: true},
+    {key: 10, label: '任务编号', visible: false},
     {key: 11, label: '返回结果', visible: false},
     {key: 12, label: '文件地址', visible: true},
     {key: 13, label: '宽度', visible: true},
     {key: 14, label: '高度', visible: true},
     {key: 15, label: '请求时间', visible: true},
-    {key: 16, label: '请求时长', visible: true},
+    {key: 16, label: '请求时长', visible: false},
     {key: 17, label: '价格', visible: false},
     {key: 18, label: '消耗的积分', visible: true},
     {key: 19, label: '参考对象', visible: false},

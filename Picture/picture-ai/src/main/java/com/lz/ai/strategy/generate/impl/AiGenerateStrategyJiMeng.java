@@ -283,7 +283,8 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setRequestTime(requestTime);
         generateLogInfo.setRequestDuration(totalTime);
         generateLogInfo.setPriceUsed(info.getPriceUse().multiply(BigDecimal.valueOf(info.getNumbers())));
-        generateLogInfo.setPointsUsed(info.getPointsNeed() * info.getNumbers());
+        //此处数量是要生成多少次，不是图片数量
+        generateLogInfo.setPointsUsed(info.getPointsNeed());
         generateLogInfo.setTargetId(info.getTargetId());
         generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
         generateLogInfo.setAiStatusCode(String.valueOf(jiMengResponse.getCode()));
@@ -498,8 +499,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         String jsonString = JSONObject.toJSONString(jiMengParams);
         System.out.println("jsonString = " + jsonString);
         try {
-
-            JiMengResponse jiMengResponse = doRequest(jiMengParams.getMethod(), new HashMap<>(), jsonString.getBytes(UTF_8), new Date(),
+            Date nowDate = new Date();
+            generateLogInfo.setRequestTime(nowDate);
+            JiMengResponse jiMengResponse = doRequest(jiMengParams.getMethod(), new HashMap<>(), jsonString.getBytes(UTF_8), nowDate,
                     jiMengParams.getAction(), jiMengParams.getVersion(), jiMengParams.getRegion(), jiMengParams.getService(), jiMengParams.getPath(),
                     modelParamsInfo.getApiKey(), modelParamsInfo.getSecretKey(), jiMengParams.getHost(), jiMengParams.getSchema());
             System.out.println("jiMengResponse = " + jiMengResponse);
