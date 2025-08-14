@@ -32,4 +32,10 @@ public class AiRedisConstants {
      * 生成任务查询缓存
      */
     public static final String AI_GENERATE_QUERY_TASK = "ai:generate:query:task";
+
+    /**
+     * 提示词缓存
+     */
+    public static final String AI_PROMPT_LIST = "ai:prompt:list";
+    public static final int AI_PROMPT_LIST_EXPIRE_TIME = 10 * 60;
 }

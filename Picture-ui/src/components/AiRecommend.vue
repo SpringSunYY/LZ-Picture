@@ -1,74 +1,54 @@
 <template>
   <div class="ai-recommend">
     <a-space wrap>
-      <h1 class="text-gray-200">推荐</h1>
-      <a
-        v-for="item in recommendList"
-        :key="item.id"
-        @click="handleClickItem(item)"
-        class="content"
-        >{{ item.name }}</a
-      >
-      <refresh-button style="margin-left: 10px" :loading="loading" @click="handleClick" />
+      <h1 class="text-blue-600 text-base">推荐</h1>
+      <a v-for="item in promptList" :key="item.promptId" @click="handleClickItem(item)" class="content">{{
+        item.name
+      }}</a>
+      <refresh-button style="margin-left: 10px" tip="换一批" :loading="loading" @click="handleClick" />
     </a-space>
   </div>
 </template>
 <script lang="ts" setup>
 import RefreshButton from '@/components/button/RefreshButton.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import type { PromptInfoRequest, PromptInfoVo } from '@/types/ai/prompt'
+import { listPrompt } from '@/api/ai/prompt.ts'
 
-interface recommend {
-  id: number
-  name: string
-  prompt: string
+const promptList = ref<PromptInfoVo[]>([])
+const query = ref<PromptInfoRequest>({
+  pageNum: 1,
+  pageSize: 5,
+})
+
+const getPromptList = async () => {
+  try {
+    loading.value = true
+    const res = await listPrompt(query.value)
+    if (res.code === 200) {
+      promptList.value = res?.rows || []
+      if (res?.rows?.length < query.value.pageSize) {
+        query.value.pageNum = 0
+      }
+    }
+  } finally {
+    loading.value = false
+  }
 }
 
-const recommendList = ref<recommend[]>([
-  {
-    id: 1,
-    name: '个人头像',
-    prompt:
-      '一个named的named头像，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是',
-  },
-  {
-    id: 1,
-    name: '个人头像',
-    prompt:
-      '一个named的named头像，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是',
-  },
-  {
-    id: 1,
-    name: '个人头像',
-    prompt:
-      '一个named的named头像，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是',
-  },
-  {
-    id: 1,
-    name: '个人头像',
-    prompt:
-      '一个named的named头像，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是',
-  },
-  {
-    id: 1,
-    name: '个人头像',
-    prompt:
-      '一个named的named头像，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是中文名，named是',
-  },
-])
-
 const emit = defineEmits(['update:modelValue'])
-const handleClickItem = (item: recommend) => {
-  console.log(item)
-  emit('update:modelValue', item.prompt)
+const handleClickItem = (item: PromptInfoVo) => {
+  emit('update:modelValue', item.content)
 }
 
 const loading = ref(false)
 const handleClick = () => {
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-  }, 2000)
+  query.value.pageNum++
+  getPromptList()
 }
+onMounted(() => {
+  getPromptList()
+})
 </script>
 <style lang="scss" scoped>
 .ai-recommend {

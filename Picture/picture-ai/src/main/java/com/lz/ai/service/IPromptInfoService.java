@@ -2,11 +2,14 @@ package com.lz.ai.service;
 
 import java.util.List;
 import com.lz.ai.model.domain.PromptInfo;
+import com.lz.ai.model.dto.promptInfo.PromptInfoRequest;
 import com.lz.ai.model.vo.promptInfo.PromptInfoVo;
 import com.lz.ai.model.dto.promptInfo.PromptInfoQuery;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lz.common.core.page.TableDataInfo;
+
 /**
  * 提示词信息Service接口
  *
@@ -79,4 +82,11 @@ public interface IPromptInfoService extends IService<PromptInfo>
      * @return PromptInfoVO集合
      */
     List<PromptInfoVo> convertVoList(List<PromptInfo> promptInfoList);
+
+    /**
+     * 用户查询提示词信息列表
+     * @param request
+     * @return
+     */
+    TableDataInfo userSelectPromptInfoList(PromptInfoRequest request);
 }

@@ -1,13 +1,21 @@
 package com.lz.ai.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.ai.mapper.PromptInfoMapper;
 import com.lz.ai.model.domain.PromptInfo;
 import com.lz.ai.model.dto.promptInfo.PromptInfoQuery;
+import com.lz.ai.model.dto.promptInfo.PromptInfoRequest;
+import com.lz.ai.model.enums.AIPromptStatusEnum;
 import com.lz.ai.model.vo.promptInfo.PromptInfoVo;
+import com.lz.ai.model.vo.promptInfo.UserPromptInfoVo;
 import com.lz.ai.service.IPromptInfoService;
+import com.lz.common.annotation.CustomCacheEvict;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
+import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
@@ -17,6 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.lz.common.constant.redis.AiRedisConstants.AI_GENERATE_LIST_EXPIRE_TIME;
+import static com.lz.common.constant.redis.AiRedisConstants.AI_PROMPT_LIST;
 
 /**
  * 提示词信息Service业务层处理
@@ -48,8 +59,8 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @param promptInfo 提示词信息
      * @return 提示词信息
      */
-    @CustomSort(sortFields = {"orderNum","name","createTime","updateTime"},
-    sortMappingFields = {"order_num","name","create_time","update_time"})
+    @CustomSort(sortFields = {"orderNum", "name", "createTime", "updateTime"},
+            sortMappingFields = {"order_num", "name", "create_time", "update_time"})
     @Override
     public List<PromptInfo> selectPromptInfoList(PromptInfo promptInfo) {
         return promptInfoMapper.selectPromptInfoList(promptInfo);
@@ -61,6 +72,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @param promptInfo 提示词信息
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = {AI_PROMPT_LIST})
     @Override
     public int insertPromptInfo(PromptInfo promptInfo) {
         promptInfo.setInfoId(IdUtils.fastSimpleUUID());
@@ -75,6 +87,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @param promptInfo 提示词信息
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = {AI_PROMPT_LIST})
     @Override
     public int updatePromptInfo(PromptInfo promptInfo) {
         promptInfo.setUpdateBy(SecurityUtils.getUsername());
@@ -88,6 +101,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @param infoIds 需要删除的提示词信息主键
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = {AI_PROMPT_LIST})
     @Override
     public int deletePromptInfoByInfoIds(String[] infoIds) {
         return promptInfoMapper.deletePromptInfoByInfoIds(infoIds);
@@ -99,6 +113,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
      * @param infoId 提示词信息主键
      * @return 结果
      */
+    @CustomCacheEvict(keyPrefixes = {AI_PROMPT_LIST})
     @Override
     public int deletePromptInfoByInfoId(String infoId) {
         return promptInfoMapper.deletePromptInfoByInfoId(infoId);
@@ -146,6 +161,20 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
             return Collections.emptyList();
         }
         return promptInfoList.stream().map(PromptInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @CustomCacheable(keyPrefix = AI_PROMPT_LIST, expireTime = AI_GENERATE_LIST_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    @Override
+    public TableDataInfo userSelectPromptInfoList(PromptInfoRequest request) {
+        Page<PromptInfo> page = new Page<>(request.getPageNum(), request.getPageSize());
+        LambdaQueryWrapper<PromptInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .select(PromptInfo::getInfoId, PromptInfo::getName, PromptInfo::getContent)
+                .eq(PromptInfo::getPromptStatus, AIPromptStatusEnum.PROMPT_STATUS_0.getValue())
+                .orderByAsc(PromptInfo::getOrderNum).orderByDesc(PromptInfo::getUpdateTime);
+        Page<PromptInfo> pageResult = this.page(page, queryWrapper);
+        return new TableDataInfo(UserPromptInfoVo.objToVo(pageResult.getRecords()), Math.toIntExact(pageResult.getTotal()));
     }
 
 }
