@@ -131,7 +131,7 @@ const getGenerateList = async () => {
       galleryGroups.value = []
     }
     if (res.rows && res.rows.length > 0) {
-      res.rows.forEach((item) => {
+      res.rows.forEach((item: GenerateLogInfoVo) => {
         const date = formatDateTime(item.createTime)
         //只要年月日
         const group = galleryGroups.value.find((group) => group.date === date)
