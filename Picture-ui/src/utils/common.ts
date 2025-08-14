@@ -93,3 +93,14 @@ export const formatTime = (seconds: number) => {
   const secs = seconds % 60
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
+
+/**
+ * 初始化封面
+ */
+export const initCover = (cover: string) => {
+  if (!cover) {
+    console.log('cover', cover)
+    return '/avatar.jpg'
+  }
+  return cover
+}
