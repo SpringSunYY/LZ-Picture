@@ -168,7 +168,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
     border-radius: 12px;
     // 为旋转、缩放、位移添加平滑过渡
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.5s ease-in-out;
     cursor: zoom-in; // 默认显示放大光标
 
     // 当图片被放大时，鼠标光标变为缩小样式
