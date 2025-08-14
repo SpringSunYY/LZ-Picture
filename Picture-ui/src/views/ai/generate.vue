@@ -26,14 +26,7 @@
           v-model:value="prompt"
         />
         <div class="tag-container mt-4">
-          <a-space wrap>
-            <h1 class="text-xl font-600">推荐</h1>
-            <a-tag color="success">success</a-tag>
-            <a-tag color="processing">processing</a-tag>
-            <a-tag color="error">error</a-tag>
-            <a-tag color="warning">warning</a-tag>
-            <a-tag color="default">default</a-tag>
-          </a-space>
+          <AiRecommend v-model="prompt"/>
         </div>
       </div>
       <div class="model mt-4">
@@ -165,6 +158,7 @@ import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
 import AiLoading from '@/components/AiLoading.vue'
 import { usePasswordVerify } from '@/utils/auth.ts'
+import AiRecommend from '@/components/AiRecommend.vue'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
