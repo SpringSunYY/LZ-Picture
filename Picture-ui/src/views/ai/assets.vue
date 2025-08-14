@@ -91,7 +91,7 @@
         </transition>
       </div>
     </aside>
-    <AiInput />
+    <!--    <AiInput />-->
   </div>
 </template>
 
@@ -119,7 +119,7 @@ interface GalleryGroup {
 const galleryGroups = ref<GalleryGroup[]>([])
 const generateQuery = ref<GenerateLogInfoQuery>({
   pageNum: 1,
-  pageSize: 30,
+  pageSize: 15,
 })
 const isLoadingMore = ref(false)
 const noMore = ref(false)
@@ -144,16 +144,14 @@ const getGenerateList = async () => {
           })
         }
       })
-    } else {
+    }
+    if (!res.rows || res.rows.length < generateQuery.value.pageSize) {
       noMore.value = true
     }
   })
-  console.log('galleryGroups.value', galleryGroups.value)
   isLoadingMore.value = false
 }
 const loadMoreData = () => {
-  if (isLoadingMore.value) return
-  isLoadingMore.value = true
   generateQuery.value.pageNum++
   getGenerateList()
 }
