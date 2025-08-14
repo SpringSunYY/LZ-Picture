@@ -47,6 +47,13 @@ public class GenerateLogInfo implements Serializable {
     private String modelKey;
 
     /**
+     * 模型名称
+     */
+    @TableField(exist = false)
+    @Excel(name = "模型名称")
+    private String modelLabel;
+
+    /**
      * 模型类型
      */
     @Excel(name = "模型类型")

@@ -133,7 +133,12 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             generateLogInfoMapper.insert(generateLogInfo);
             return generateLogInfo;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("生成失败:{}", e.getMessage());
+            GenerateLogInfo generateLogInfo = new GenerateLogInfo();
+            generateLogInfo.setModelLabel(info.getModelLabel());
+            generateLogInfo.setModelType(info.getModelType());
+            generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
+            return generateLogInfo;
         }
     }
 
@@ -254,6 +259,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setLogId(IdUtils.fastSimpleUUID());
         generateLogInfo.setUserId(info.getUserId());
         generateLogInfo.setModelKey(info.getModelKey());
+        generateLogInfo.setModelLabel(info.getModelLabel());
         generateLogInfo.setModelType(info.getModelType());
         if (StringUtils.isNotEmpty(info.getInputFile()) && info.getInputFile().contains("http")) {
             generateLogInfo.setInputFile(info.getInputFile());

@@ -26,7 +26,7 @@
           v-model:value="prompt"
         />
         <div class="tag-container mt-6">
-          <AiRecommend v-model="prompt"/>
+          <AiRecommend v-model="prompt" />
         </div>
       </div>
       <div class="model mt-4">
@@ -308,8 +308,17 @@ const submitGenerate = async () => {
       numbers: modelInfo.value?.numbers || 1,
       inputFile: fileInfo.value || null,
     })
-    if (res.code === 200) {
-      message.success(res.msg)
+    if (res.code === 200 && res.data) {
+      res.data.forEach((item) => {
+        //根据modelKey判断是哪个模型
+        if (item.logStatus === AiLogStatusEnum.FAILED) {
+          message.error('模型：' + item.modelLabel + '生成失败', 3)
+        } else if (item.logStatus === AiLogStatusEnum.SUCCESS) {
+          message.success('模型：' + item.modelLabel + '生成成功', 3)
+        } else {
+          message.loading('模型：' + item.modelLabel + '生成中...', 3)
+        }
+      })
       generateQuery.value.pageNum = 1
       generateList.value = []
       noMore.value = false

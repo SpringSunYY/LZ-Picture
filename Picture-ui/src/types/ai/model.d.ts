@@ -82,16 +82,15 @@ export interface GenerateResponse {
    * 记录编号
    */
   logId: string
-
-  /**
-   * 任务编号
-   */
-  taskId: string
-
   /**
    * 状态
    */
-  logStatus: string
+  logStatus: string,
+
+  /**
+   * 模型Key
+   */
+  modelLabel: string
 }
 
 /**

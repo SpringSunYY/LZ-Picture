@@ -24,17 +24,12 @@ public class GenerateResponse implements Serializable {
      * 记录编号
      */
     private String logId;
-
-    /**
-     * 任务编号
-     */
-    private String taskId;
-
     /**
      * 状态
      */
     private String logStatus;
 
+    private String modelLabel;
 
     /**
      * 对象转封装类
