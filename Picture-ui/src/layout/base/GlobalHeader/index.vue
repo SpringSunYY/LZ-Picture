@@ -59,7 +59,7 @@
               <div class="user-avatar" @click="showDrawer">
                 <a-avatar
                   :size="36"
-                  :src="avatar != '' ? formatDnsUrl(avatar) : '../assets/images/avatar.jpg'"
+                  :src="initCover(avatar)"
                 />
               </div>
               <template #overlay>
@@ -88,7 +88,7 @@
           <a-dropdown>
             <a-space align="center">
               <a-avatar
-                :src="avatar != '' ? formatDnsUrl(avatar) : '../assets/images/avatar.jpg'"
+                :src="initCover(avatar)"
                 size="large"
               />
               <div>
@@ -122,7 +122,7 @@ import { storeToRefs } from 'pinia'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/base/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
-import { formatDnsUrl } from '@/utils/common.ts'
+import { formatDnsUrl, initCover } from '@/utils/common.ts'
 import { generateMenu, toMenu } from '@/router/permisson.ts'
 
 const userStore = useUserStore()

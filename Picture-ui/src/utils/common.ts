@@ -110,3 +110,14 @@ export const formatDateTime = (dateStr: string) => {
   }
   return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
 }
+
+/**
+ * 初始化封面
+ */
+export const initCover = (cover: string) => {
+  if (!cover) {
+    console.log('cover', cover)
+    return '/avatar.jpg'
+  }
+  return cover
+}
