@@ -9,7 +9,12 @@
       @dragleave="handleDragLeave"
     >
       <!-- 显示上传的图片或父组件传入的URL -->
-      <img v-if="uploadedImage" :src="uploadedImage" alt="已上传图片" class="thumbnail-image" />
+      <AiPictureView
+        v-if="uploadedImage"
+        :image-url="uploadedImage"
+        alt="已上传图片"
+        class="thumbnail-image"
+      />
 
       <!-- 上传占位符 -->
       <div v-else class="upload-placeholder">
@@ -61,25 +66,13 @@
         </svg>
       </button>
     </div>
-
-    <!-- 图片预览模态框 -->
-    <teleport to="body">
-      <div
-        v-if="showImagePreviewModal"
-        class="image-preview-modal"
-        @click.stop="closeImagePreviewModal"
-      >
-        <div class="modal-content" @click.stop>
-          <img :src="uploadedImage" alt="图片预览" style="max-height: calc(100vh)" />
-        </div>
-      </div>
-    </teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
+import AiPictureView from '@/components/AiPictureView.vue'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
@@ -172,11 +165,6 @@ const clearImage = () => {
   emit('update:modelValue', null)
   if (fileInputRef.value) fileInputRef.value.value = ''
 }
-
-// 关闭预览
-const closeImagePreviewModal = () => {
-  showImagePreviewModal.value = false
-}
 </script>
 
 <style scoped lang="scss">
@@ -192,7 +180,9 @@ const closeImagePreviewModal = () => {
   justify-content: center;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 
   &.drag-over {
     border-color: #409eff;
@@ -255,37 +245,6 @@ const closeImagePreviewModal = () => {
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.8);
-    }
-  }
-}
-
-.image-preview-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-
-  .modal-content {
-    position: relative;
-    max-width: 90vw;
-    max-height: 90vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
-
-    img {
-      max-width: 90vw;
-      max-height: 80vh;
-      object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }
   }
 }
