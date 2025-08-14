@@ -114,10 +114,13 @@ export const formatDateTime = (dateStr: string) => {
 /**
  * 初始化封面
  */
-export const initCover = (cover: string) => {
-  if (!cover) {
-    console.log('cover', cover)
+export const initCover = (url: string) => {
+  if (!url) {
+    // console.log('cover', url)
     return '/avatar.jpg'
   }
-  return cover
+  if (url.startsWith('http')) {
+    return url
+  }
+  return dnsUrl + url
 }
