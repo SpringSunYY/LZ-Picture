@@ -529,7 +529,7 @@ const data = reactive({
     {key: 12, label: '文件地址', visible: true},
     {key: 13, label: '宽度', visible: true},
     {key: 14, label: '高度', visible: true},
-    {key: 15, label: '请求时间', visible: true},
+    {key: 15, label: '请求时间', visible: false},
     {key: 16, label: '请求时长', visible: false},
     {key: 17, label: '价格', visible: false},
     {key: 18, label: '消耗的积分', visible: true},
