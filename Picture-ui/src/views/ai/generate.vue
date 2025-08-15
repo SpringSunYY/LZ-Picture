@@ -149,8 +149,9 @@ import AiBatchButton from '@/components/button/AiBatchButton.vue'
 import {
   AiLogStatusEnum,
   type GenerateLogInfoQuery,
-  type ModerInfo,
+  type ModelInfo,
   type GenerateLogInfoVo,
+  defaultModelInfo,
 } from '@/types/ai/model.d.ts'
 import { generate, listGenerateLogInfo, queryTask } from '@/api/ai/model.ts'
 import { message } from 'ant-design-vue'
@@ -181,7 +182,7 @@ const getGenerateList = async () => {
     }
     if (res.rows && res.rows.length > 0) {
       generateList.value = [...generateList.value, ...res.rows]
-      if (res.rows.length < generateQuery.value.pageSize) {
+      if (res.rows.length < (generateQuery.value.pageSize ?? 15)) {
         noMore.value = true
       }
       //如果还有未完成的
@@ -199,7 +200,7 @@ const getGenerateList = async () => {
   isLoadingMore.value = false
 }
 const loadMoreData = () => {
-  generateQuery.value.pageNum = 1 + generateQuery.value.pageNum
+  generateQuery.value.pageNum = 1 + (generateQuery.value.pageNum || 0)
   getGenerateList()
 }
 getGenerateList()
@@ -230,13 +231,7 @@ onUnmounted(() => {
 //endregion
 //region 生成操作
 const isGenerating = ref(false)
-const modelInfo = ref<ModerInfo>({
-  width: 682,
-  height: 1024,
-  modelType: '',
-  modelKeys: [],
-  numbers: 1,
-})
+const modelInfo = ref<ModelInfo>(defaultModelInfo)
 const prompt = ref('')
 const fileInfo = ref<string>()
 const handleReferTo = (generate: GenerateLogInfoVo) => {

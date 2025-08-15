@@ -205,7 +205,7 @@
 </template>
 <script lang="ts" setup name="AiCheckModel">
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
-import type { ModelParamsInfo, ModelParamsInfoRequest, ModerInfo } from '@/types/ai/model'
+import type { ModelParamsInfo, ModelParamsInfoRequest, ModelInfo } from '@/types/ai/model'
 import { listModel } from '@/api/ai/model.ts'
 import type { Dict } from '@/types/common'
 
@@ -220,7 +220,7 @@ interface ImageRatioOption {
 
 // 添加props接收modelValue
 const props = defineProps<{
-  modelValue?: ModerInfo
+  modelValue?: ModelInfo
 }>()
 const numbers = ref(1)
 //region 模型信息
@@ -420,7 +420,7 @@ watch(
 )
 
 const emit = defineEmits(['update:modelValue'])
-const modelInfo = ref<ModerInfo>({
+const modelInfo = ref<ModelInfo>({
   modelType: selectedImageOption.value.dictValue,
   modelKeys: selectedModelOptions.value.map((model) => model.modelKey),
   width: selectedRatioOption.value.width,

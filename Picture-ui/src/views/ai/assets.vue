@@ -20,7 +20,12 @@
                     <div class="image-card-overlay">
                       <div class="overlay-text">{{ item.prompt }}</div>
                       <div class="overlay-actions">
-                        <button class="overlay-button">再次生成</button>
+                        <button
+                          @click.stop="handleReGenerate(item, item.logId)"
+                          class="overlay-button"
+                        >
+                          再次生成
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -67,8 +72,14 @@
               <TextView :max-lines="3" :text="selectedImage.prompt" class="prompt-text" />
             </div>
             <div class="detail-actions">
-              <GenerateButton class="action-button" />
-              <ReferToButton class="action-button" />
+              <GenerateButton
+                @click="handleReGenerate(selectedImage, selectedImage.logId)"
+                class="action-button"
+              />
+              <ReferToButton
+                @click="handleReferTo(selectedImage, selectedImage.logId)"
+                class="action-button"
+              />
               <DownloadButton class="action-button" />
             </div>
           </div>
@@ -95,22 +106,23 @@
         </transition>
       </div>
     </aside>
-    <AiInput v-show="openAiInput" />
+    <AiInput v-show="openAiInput" :file-info="fileInfo" :model-info="modelInfo" :prompt="prompt" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiInput from '@/components/AiInput.vue'
 import AiPictureView from '@/components/AiPictureView.vue'
 import {
-  AiLogStatusEnum,
+  defaultModelInfo,
   type GenerateLogInfoQuery,
   type GenerateLogInfoVo,
-} from '@/types/ai/model'
+  type ModelInfo,
+} from '@/types/ai/model.d.ts'
 import { listGenerateLogInfo } from '@/api/ai/model.ts'
 import { formatDateTime } from '@/utils/common.ts'
 import NoMoreData from '@/components/NoMoreData.vue'
@@ -151,14 +163,14 @@ const getGenerateList = async () => {
         }
       })
     }
-    if (!res.rows || res.rows.length < generateQuery.value.pageSize) {
+    if (!res.rows || res.rows.length < (generateQuery.value.pageSize || 15)) {
       noMore.value = true
     }
   })
   isLoadingMore.value = false
 }
 const loadMoreData = () => {
-  generateQuery.value.pageNum++
+  generateQuery.value.pageNum = 1 + (generateQuery.value.pageNum || 0)
   getGenerateList()
 }
 
@@ -190,11 +202,11 @@ onUnmounted(() => {
   }
 })
 //endregion
+//region 图片详情
 const selectedImage = ref<GenerateLogInfoVo | null>(null)
 const selectedImageIndex = ref<string | null>(null)
 
 const selectedImageSrc = ref<string>('')
-
 const handleImageSelect = (item: GenerateLogInfoVo, index: string) => {
   if (isImageSelected(item, index)) {
     clearSelection()
@@ -203,7 +215,6 @@ const handleImageSelect = (item: GenerateLogInfoVo, index: string) => {
     selectedImage.value = item
     selectedImageIndex.value = index
     selectedImageSrc.value = item.fileUrls
-    openAiInput.value = true
   }
 }
 const isImageSelected = (item: GenerateLogInfoVo, index: string) => {
@@ -215,6 +226,30 @@ const clearSelection = () => {
 }
 
 const openAiInput = ref(false)
+//endregion
+//region 创建图片
+const modelInfo = ref<ModelInfo>(defaultModelInfo)
+const prompt = ref('')
+const fileInfo = ref('')
+const handleReGenerate = (item: GenerateLogInfoVo, index: string) => {
+  selectedImageIndex.value = index
+  fileInfo.value = item.fileUrls
+  prompt.value = item.prompt
+  openAiInput.value = true
+  modelInfo.value = {
+    modelType: item.modelType,
+    modelKeys: [item.modelKey],
+    numbers: 1,
+    width: item.width,
+    height: item.height,
+    pointsNeed: item.pointsUsed,
+  }
+}
+const handleReferTo = (item: GenerateLogInfoVo, index: string) => {
+  selectedImageIndex.value = index
+  fileInfo.value = item.fileUrls
+}
+//endregion
 </script>
 
 <style scoped lang="scss">

@@ -43,7 +43,7 @@ export interface GenerateLogInfoRequest {
   modelType: string
 
   /** 输入文件 */
-  inputFile?: string |null
+  inputFile?: string | null
 
   /** 提示词 */
   prompt: string
@@ -85,7 +85,7 @@ export interface GenerateResponse {
   /**
    * 状态
    */
-  logStatus: string,
+  logStatus: string
 
   /**
    * 模型Key
@@ -135,13 +135,21 @@ export interface GenerateLogInfoVo {
   pointsUsed: number
 }
 
-export interface ModerInfo {
+export interface ModelInfo {
   width?: number
   height?: number
   modelType?: string
   modelKeys?: string[]
   numbers?: number
   pointsNeed?: number
+}
+
+export const defaultModelInfo: ModelInfo = {
+  width: 682,
+  height: 1024,
+  modelType: '',
+  modelKeys: [],
+  numbers: 1,
 }
 
 /**

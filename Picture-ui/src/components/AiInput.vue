@@ -25,10 +25,10 @@
 
     <div v-show="isExpanded || !isMobile" class="content-wrapper">
       <div class="input-wrapper" @click="expandInput">
-        <AiPictureUpload class="input-image" />
+        <AiPictureUpload v-model="file" class="input-image" />
         <textarea
           ref="textareaRef"
-          v-model="inputText"
+          v-model="promptInfo"
           :placeholder="isExpanded ? '请描述你想要的图片...' : '和我一起使用AI制造我们喜欢的图片'"
           @focus="expandInput"
           @input="handleTextInput"
@@ -41,7 +41,7 @@
         </div>
         <button
           class="send-button"
-          :class="{ active: inputText.length > 0 || uploadedImage !== null }"
+          :class="{ active: promptInfo.length > 0 || file !== null }"
           @click.stop="sendMessage"
         >
           <svg
@@ -62,7 +62,7 @@
         </button>
       </div>
       <div v-show="isExpanded">
-        <AiCheckModel />
+        <AiCheckModel v-model="model" />
       </div>
     </div>
   </div>
@@ -72,63 +72,69 @@
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
 import AiCheckModel from '@/components/AiCheckModel.vue'
 import AiPictureUpload from '@/components/AiPictureUpload.vue'
+import { defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
 
-interface ImageRatioOption {
-  label: string
-  width?: number
-  height?: number
+const props = defineProps({
+  maxChars: {
+    type: Number,
+    default: 800,
+  },
+  //模型信息
+  modelInfo: {
+    type: Object as () => ModelInfo,
+    default: () => defaultModelInfo,
+  },
+  //图片信息
+  fileInfo: {
+    type: String,
+    default: null,
+  },
+  //提示词
+  prompt: {
+    type: String,
+    default: '',
+  },
+})
+
+//region 参数信息
+const model = ref<ModelInfo>(props.modelInfo)
+const promptInfo = ref(props.prompt)
+const file = ref<string>(props.fileInfo)
+
+const sendMessage = () => {
+  if (promptInfo.value.trim() === '' && !file.value) return
+  if (charCount.value > maxChars.value) {
+    alert(`消息不能超过${maxChars.value}个字符`)
+    return
+  }
+  console.log('modelInfo', model.value)
+  console.log('上传的图片:', file.value)
+  console.log('prompt', promptInfo.value)
+  if (fileInputRef.value) fileInputRef.value.value = ''
+  isExpanded.value = false
 }
+watch([() => props.modelInfo, () => props.prompt, () => props.fileInfo], () => {
+  model.value = props.modelInfo
+  promptInfo.value = props.prompt
+  file.value = props.fileInfo
+  adjustTextareaHeight()
+})
+//endregion
 
+//region 样式
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const inputContainerRef = ref<HTMLElement | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const maxChars = ref(props.maxChars)
+const charCount = computed(() => promptInfo.value.length)
+const textareaHeight = ref(60)
+const isExpanded = ref(false)
 const isMobile = ref(false)
 
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth < 768
 }
-
-const isExpanded = ref(false)
-const inputText = ref('')
-const uploadedImage = ref<string | null>(null)
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const inputContainerRef = ref<HTMLElement | null>(null)
-const fileInputRef = ref<HTMLInputElement | null>(null)
-
-const maxChars = ref(1000)
-const charCount = computed(() => inputText.value.length)
-const textareaHeight = ref(60)
-
-const selectedImageOption = ref('图片生成')
-const selectedModelOptions = ref<string[]>([])
-const selectedRatioOption = ref<ImageRatioOption>({
-  label: '9:16 标清 1K',
-  width: 1024,
-  height: 1792,
-})
-
-const customWidth = ref(1024)
-const customHeight = ref(1792)
-
-const sendMessage = () => {
-  if (inputText.value.trim() === '' && !uploadedImage.value) return
-  if (charCount.value > maxChars.value) {
-    alert(`消息不能超过${maxChars.value}个字符`)
-    return
-  }
-  console.log('发送消息:', {
-    text: inputText.value,
-    image: uploadedImage.value,
-    imageOption: selectedImageOption.value,
-    models: selectedModelOptions.value,
-    ratio:
-      selectedRatioOption.value.label === '自定义'
-        ? { width: customWidth.value, height: customHeight.value }
-        : { width: selectedRatioOption.value.width, height: selectedRatioOption.value.height },
-  })
-  inputText.value = ''
-  uploadedImage.value = null
-  if (fileInputRef.value) fileInputRef.value.value = ''
-  isExpanded.value = false
-}
-
 const expandInput = () => {
   if (!isExpanded.value) {
     isExpanded.value = true
@@ -141,8 +147,6 @@ const expandInput = () => {
   }
 }
 
-
-
 const handleTextInput = (event: Event) => {
   const target = event.target as HTMLTextAreaElement
   let value = target.value
@@ -150,25 +154,19 @@ const handleTextInput = (event: Event) => {
     value = value.substring(0, maxChars.value)
     target.value = value
   }
-  inputText.value = value
+  promptInfo.value = value
   adjustTextareaHeight()
 }
-
-
-
-
 
 const adjustTextareaHeight = () => {
   if (!textareaRef.value) return
   textareaRef.value.style.height = 'auto'
   const contentHeight = textareaRef.value.scrollHeight
-  const minHeight = 60
+  const minHeight = 30
   const maxHeight = 200
   const newHeight = Math.max(Math.min(contentHeight, maxHeight), minHeight)
   textareaHeight.value = newHeight
 }
-
-
 
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node
@@ -182,7 +180,7 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-watch(inputText, (newVal) => {
+watch(promptInfo, (newVal) => {
   if (newVal.length > 0 && !isExpanded.value) {
     expandInput()
   }
@@ -199,6 +197,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkIsMobile)
   document.removeEventListener('click', handleClickOutside)
 })
+//endregion
 </script>
 
 <style lang="scss">
@@ -315,6 +314,7 @@ onUnmounted(() => {
       background-color: rgba(255, 255, 255, 0.1);
       padding: 2px 6px;
       border-radius: 10px;
+      font-size: 16px;
       font-family: monospace;
     }
 
