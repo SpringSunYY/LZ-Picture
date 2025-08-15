@@ -46,90 +46,96 @@
       @scroll="handleScroll"
       ref="scrollContainer"
     >
-      <div class="content" v-for="generate in generateList" :key="generate.logId">
-        <div class="content-heard">
-          <div class="heard-left">
-            <a-space align="center" direction="horizontal" :wrap="true">
-              <div class="px-1">
-                <SvgIcon name="space" size="1.3em" />
-              </div>
-              <h1 class="text-xl font-bold text-white px-0.5">
-                {{
-                  ai_model_params_type.find((item) => item.dictValue === generate.modelType)
-                    .dictLabel
-                }}
-              </h1>
-              <div>
-                <SvgIcon name="dividingLine" size="1em"></SvgIcon>
-              </div>
-              <div class="text-white">
-                {{ generate.modelName }}
-              </div>
-              <div class="text-white">{{ generate.width }}x{{ generate.height }}</div>
-            </a-space>
+      <div v-if="generateList.length > 0">
+        <div class="content" v-for="generate in generateList" :key="generate.logId">
+          <div class="content-heard">
+            <div class="heard-left">
+              <a-space align="center" direction="horizontal" :wrap="true">
+                <div class="px-1">
+                  <SvgIcon name="space" size="1.3em" />
+                </div>
+                <h1 class="text-xl font-bold text-white px-0.5">
+                  {{
+                    ai_model_params_type.find((item) => item.dictValue === generate.modelType)
+                      .dictLabel
+                  }}
+                </h1>
+                <div>
+                  <SvgIcon name="dividingLine" size="1em"></SvgIcon>
+                </div>
+                <div class="text-white">
+                  {{ generate.modelName }}
+                </div>
+                <div class="text-white">{{ generate.width }}x{{ generate.height }}</div>
+              </a-space>
+            </div>
+            <div class="heard-right">
+              <a-space>
+                <div class="px-1 heard-right-svg">
+                  <a-tooltip title="使用本次创意生成">
+                    <svg-icon name="edit" size="1em" @click="handlePrompt(generate)" />
+                  </a-tooltip>
+                </div>
+                <div class="px-1 heard-right-svg">
+                  <a-tooltip :title="`重新生成需要${generate.pointsUsed}积分`">
+                    <svg-icon name="reload" size="1em" @click="handleReload(generate)" />
+                  </a-tooltip>
+                </div>
+              </a-space>
+            </div>
           </div>
-          <div class="heard-right">
-            <a-space>
-              <div class="px-1 heard-right-svg">
-                <a-tooltip title="使用本次创意生成">
-                  <svg-icon name="edit" size="1em" @click="handlePrompt(generate)" />
-                </a-tooltip>
-              </div>
-              <div class="px-1 heard-right-svg">
-                <a-tooltip :title="`重新生成需要${generate.pointsUsed}积分`">
-                  <svg-icon name="reload" size="1em" @click="handleReload(generate)" />
-                </a-tooltip>
-              </div>
-            </a-space>
+          <div class="content-text text-white mt-1">
+            <TextView :text="generate.prompt" :max-lines="3" />
           </div>
-        </div>
-        <div class="content-text text-white mt-1">
-          <TextView :text="generate.prompt" :max-lines="3" />
-        </div>
-        <div class="content-picture mt-5">
-          <AiPictureView
-            v-if="generate.logStatus === AiLogStatusEnum.SUCCESS"
-            class="picture"
-            :image-url="generate.fileUrls"
-          />
-          <AiLoading
-            class="picture"
-            v-else-if="generate.logStatus === AiLogStatusEnum.REQUESTING"
-          />
-          <div class="picture-overlay">
-            <a-space class="overlay-right-top">
-              <DownloadSvgButton
-                class="action-button"
-                @click.stop="
-                  () => {
-                    console.log('删除')
-                  }
-                "
-              />
-              <DeleteButton
-                @click.stop="
-                  () => {
-                    console.log('删除')
-                  }
-                "
-              />
-            </a-space>
-            <div class="overlay-bottom">
-              <AiBatchButton
-                @handle-refer-to="handleReferTo(generate)"
-                @handle-release="() => console.log('释放')"
-                @handle-reload="handleReload(generate)"
-              />
+          <div class="content-picture mt-5">
+            <AiPictureView
+              v-if="generate.logStatus === AiLogStatusEnum.SUCCESS"
+              class="picture"
+              :image-url="generate.fileUrls"
+            />
+            <AiLoading
+              class="picture"
+              v-else-if="generate.logStatus === AiLogStatusEnum.REQUESTING"
+            />
+            <div class="picture-overlay">
+              <a-space class="overlay-right-top">
+                <DownloadSvgButton
+                  class="action-button"
+                  @click.stop="
+                    () => {
+                      console.log('删除')
+                    }
+                  "
+                />
+                <DeleteButton
+                  @click.stop="
+                    () => {
+                      console.log('删除')
+                    }
+                  "
+                />
+              </a-space>
+              <div class="overlay-bottom">
+                <AiBatchButton
+                  @handle-refer-to="handleReferTo(generate)"
+                  @handle-release="() => console.log('释放')"
+                  @handle-reload="handleReload(generate)"
+                />
+              </div>
             </div>
           </div>
         </div>
+        <div ref="loadMoreTrigger" class="load-more-trigger">
+          <LoadingData v-if="isLoadingMore" />
+          <NoMoreData
+            v-else-if="noMore && generateList.length > 0"
+            text="没有更多数据了哦，快去生成吧！！！"
+          />
+        </div>
       </div>
-      <div ref="loadMoreTrigger" class="load-more-trigger">
-        <LoadingData v-if="isLoadingMore" />
-        <NoMoreData
-          v-else-if="noMore && generateList.length > 0"
-          text="没有更多数据了哦，快去生成吧！！！"
-        />
+      <div v-else class="no-data">
+        <p class="mt text-white text-3xl">开始创作</p>
+        <p class="mt-5 text-gray-400 text-2xl">创造你的下一张图片</p>
       </div>
     </div>
   </div>
@@ -282,6 +288,7 @@ const submitGenerate = async () => {
   }
   if (!modelInfo.value?.numbers || modelInfo.value?.numbers <= 0) {
     message.warn('请填写数量')
+    return
   }
   if (!prompt.value || prompt.value.length <= 0) {
     message.warn('请填写提示词')
@@ -537,6 +544,12 @@ $text-color: #ffffff;
         pointer-events: auto; /* 只有子元素可以点 */
       }
     }
+  }
+
+  .no-data{
+    padding: 20px;
+    text-align: center;
+    margin-top: 30vh;
   }
 }
 </style>

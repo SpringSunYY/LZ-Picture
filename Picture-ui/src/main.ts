@@ -12,12 +12,12 @@ import { useDict } from '@/utils/dict.ts'
 import '@/assets/tailwind.css'
 import './output.css'
 import dragScroll from '@/directives/dragScroll'
-
+import './assets/global.css'
 // 局部注册指令
 message.config({
   maxCount: 5, // 最大显示数量
   duration: 1.5, // 默认持续时间（秒）
-  top: "100px",
+  top: '100px',
 })
 const app = createApp(App)
 app.config.globalProperties.useDict = useDict

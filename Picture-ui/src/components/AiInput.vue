@@ -39,27 +39,30 @@
             {{ charCount }}/{{ maxChars }}
           </span>
         </div>
-        <button
-          class="send-button"
-          :class="{ active: promptInfo.length > 0 || file !== null }"
-          @click.stop="sendMessage"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-arrow-up"
+        <a-tooltip :title="`需要消耗${model.pointsNeed}积分`">
+          <button
+            class="send-button"
+            :class="{ active: promptInfo.length > 0 || file !== null, 'is-loading': isLoading }"
+            @click.stop="sendMessage"
+            :disabled="isLoading"
           >
-            <path d="m5 12 7-7 7 7" />
-            <path d="M12 19V5" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucude-arrow-up"
+            >
+              <path d="m5 12 7-7 7 7" />
+              <path d="M12 19V5" />
+            </svg>
+          </button>
+        </a-tooltip>
       </div>
       <div v-show="isExpanded">
         <AiCheckModel v-model="model" />
@@ -72,46 +75,101 @@
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
 import AiCheckModel from '@/components/AiCheckModel.vue'
 import AiPictureUpload from '@/components/AiPictureUpload.vue'
-import { defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
+import { AiLogStatusEnum, defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
+import { message } from 'ant-design-vue'
+import { usePasswordVerify } from '@/utils/auth.ts'
+import { generate } from '@/api/ai/model.ts'
 
 const props = defineProps({
   maxChars: {
     type: Number,
     default: 800,
   },
-  //模型信息
   modelInfo: {
     type: Object as () => ModelInfo,
     default: () => defaultModelInfo,
   },
-  //图片信息
   fileInfo: {
     type: String,
-    default: null,
+    default: '',
   },
-  //提示词
   prompt: {
     type: String,
     default: '',
   },
 })
-
+const emit = defineEmits(['success'])
 //region 参数信息
 const model = ref<ModelInfo>(props.modelInfo)
 const promptInfo = ref(props.prompt)
-const file = ref<string>(props.fileInfo)
+const file = ref<string | null>(props.fileInfo)
+const isLoading = ref(false)
 
-const sendMessage = () => {
+const { verify } = usePasswordVerify()
+const sendMessage = async () => {
   if (promptInfo.value.trim() === '' && !file.value) return
   if (charCount.value > maxChars.value) {
     alert(`消息不能超过${maxChars.value}个字符`)
     return
   }
+  //校验参数是否填写
+  if (
+    !model.value?.width ||
+    model.value?.width < 256 ||
+    !model.value?.height ||
+    model.value?.height < 0
+  ) {
+    message.warn('请填写图片尺寸,宽高不可小于256')
+    return
+  }
+  if (!model.value?.modelKeys || model.value?.modelKeys.length <= 0) {
+    message.warn('请选择模型')
+    return
+  }
+  if (!model.value?.numbers || model.value?.numbers <= 0) {
+    message.warn('请填写数量')
+    return
+  }
+  if (!promptInfo.value || promptInfo.value.length <= 0) {
+    message.warn('请填写提示词')
+    return
+  }
   console.log('modelInfo', model.value)
   console.log('上传的图片:', file.value)
   console.log('prompt', promptInfo.value)
-  if (fileInputRef.value) fileInputRef.value.value = ''
-  isExpanded.value = false
+  message.success('开始校验密码', 1)
+  const verified = await verify('生成图片')
+  if (!verified) return
+  isLoading.value = true
+  message.success('正在生成图片，请不要刷新界面...', 5)
+  try {
+    const res = await generate({
+      prompt: promptInfo.value,
+      modelKeys: model.value?.modelKeys,
+      modelType: model.value?.modelType || '',
+      width: model.value?.width,
+      height: model.value?.height,
+      numbers: model.value?.numbers || 1,
+      inputFile: file.value || null,
+    })
+    if (res.code === 200 && res.data) {
+      res.data.forEach((item) => {
+        //根据modelKey判断是哪个模型
+        if (item.logStatus === AiLogStatusEnum.FAILED) {
+          message.error('模型：' + item.modelLabel + '生成失败', 3)
+        } else if (item.logStatus === AiLogStatusEnum.SUCCESS) {
+          message.success('模型：' + item.modelLabel + '生成成功', 3)
+        } else {
+          message.loading('模型：' + item.modelLabel + '生成中...', 3)
+        }
+      })
+      emit('success', res.data)
+    }
+  } catch {
+    message.error('生成失败,请刷新页面')
+  } finally {
+    isLoading.value = false
+  }
 }
 watch([() => props.modelInfo, () => props.prompt, () => props.fileInfo], () => {
   model.value = props.modelInfo
@@ -124,7 +182,6 @@ watch([() => props.modelInfo, () => props.prompt, () => props.fileInfo], () => {
 //region 样式
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const inputContainerRef = ref<HTMLElement | null>(null)
-const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const maxChars = ref(props.maxChars)
 const charCount = computed(() => promptInfo.value.length)
@@ -162,7 +219,7 @@ const adjustTextareaHeight = () => {
   if (!textareaRef.value) return
   textareaRef.value.style.height = 'auto'
   const contentHeight = textareaRef.value.scrollHeight
-  const minHeight = 30
+  const minHeight = 20
   const maxHeight = 200
   const newHeight = Math.max(Math.min(contentHeight, maxHeight), minHeight)
   textareaHeight.value = newHeight
@@ -171,10 +228,8 @@ const adjustTextareaHeight = () => {
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node
 
-  // 检查点击事件是否发生在 inputContainerRef 内部
   const isClickInsideContainer = inputContainerRef.value && inputContainerRef.value.contains(target)
 
-  // 如果点击发生在外部，并且目前是展开状态，则收起输入框并关闭所有下拉菜单
   if (!isClickInsideContainer) {
     isExpanded.value = false
   }
@@ -197,7 +252,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkIsMobile)
   document.removeEventListener('click', handleClickOutside)
 })
-//endregion
 </script>
 
 <style lang="scss">
@@ -337,11 +391,14 @@ onUnmounted(() => {
     cursor: pointer;
     transition: background-color 0.2s ease;
     z-index: 1;
+    position: relative;
+    overflow: hidden;
 
     svg {
       color: rgba(255, 255, 255, 0.6);
       width: 24px;
       height: 24px;
+      transition: opacity 0.3s ease;
     }
 
     &.active {
@@ -355,6 +412,39 @@ onUnmounted(() => {
     &:hover {
       background-color: rgba(255, 255, 255, 0.2);
     }
+
+    &.is-loading {
+      cursor: not-allowed;
+
+      // 在加载状态下，SVG保持原样，也可以稍微调整颜色
+      svg {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: -3px; // 调整位置
+        left: -3px; // 调整位置
+        width: 66px; // 增加宽度
+        height: 66px; // 增加高度
+        border-radius: 50%;
+        box-sizing: border-box;
+        border: 5px solid rgba(255, 255, 255, 0.3); // 基础透明边框
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -410,7 +500,6 @@ onUnmounted(() => {
       width: calc(100% - 24px);
       padding: 16px;
       border-radius: 20px;
-      //background: linear-gradient(90deg, #4a90e2, #8b5cf6);
       background: linear-gradient(90deg, #4b5055, rgba(49, 40, 69, 0.99));
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }

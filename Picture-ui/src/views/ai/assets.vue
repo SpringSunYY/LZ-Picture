@@ -3,15 +3,35 @@
     <div class="main-content-area">
       <main class="gallery-scroll-area" @scroll="handleScroll" ref="scrollContainer">
         <div class="main-content-wrapper">
-          <div v-if="galleryGroups.length === 0" class="empty-state">
-            <p>暂无图片，快去创作吧！</p>
+          <div v-if="generateGroups.length === 0" class="empty-state">
+            <div :key="'create'" class="create-content" @click="openAiInput = !openAiInput">
+              <h3 class="create-title">开始创作</h3>
+              <div class="create-options" style="width: 40vh">
+                <button class="create-option-card">
+                  <span class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M12 20V4M4 12H20"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <span class="card-text">从零开始</span>
+                </button>
+              </div>
+              <p class="create-prompt-text">创作你的下一张图片。</p>
+            </div>
           </div>
           <div v-else>
-            <div v-for="group in galleryGroups" :key="group.date" class="image-group">
+            <div v-for="group in generateGroups" :key="group.date" class="image-group">
               <h2 class="group-date">{{ group.date }}</h2>
               <div class="image-grid">
                 <template v-for="item in group.items" :key="item.logId">
                   <div
+                    v-if="item.logStatus && item.logStatus === AiLogStatusEnum.SUCCESS"
                     class="image-card"
                     :class="{ selected: isImageSelected(item, item.logId) }"
                     @click="handleImageSelect(item, item.logId)"
@@ -29,6 +49,9 @@
                       </div>
                     </div>
                   </div>
+                  <div v-else>
+                    <AiLoading class="generated-loading" />
+                  </div>
                 </template>
               </div>
             </div>
@@ -41,7 +64,7 @@
             <p>加载中...</p>
           </div>
           <NoMoreData
-            v-else-if="noMore && galleryGroups.length > 0"
+            v-else-if="noMore && generateGroups.length > 0"
             text="没有更多数据了哦，快去生成吧！！！"
           />
         </div>
@@ -51,7 +74,7 @@
     <aside class="sidebar">
       <div class="sidebar-panel">
         <transition name="fade-and-slide" mode="out-in">
-          <div v-if="selectedImage" :key="'detail'" class="image-detail-content">
+          <div v-if="generateInfo" :key="'detail'" class="image-detail-content">
             <div class="detail-header">
               <h3 class="detail-title">图片详情</h3>
               <button @click="clearSelection" class="close-button">
@@ -66,24 +89,36 @@
                 </svg>
               </button>
             </div>
-            <AiPictureView style="height: 50vh" :image-url="selectedImageSrc" />
+            <AiPictureView style="height: 50vh" :image-url="generateInfoSrc" />
+            <a-space align="center" direction="horizontal" :wrap="true">
+              <h1 class="text-xl font-bold text-white px-0.5">
+                {{
+                  ai_model_params_type.find((item) => item.dictValue === generateInfo.modelType)
+                    .dictLabel
+                }}
+              </h1>
+              <div class="text-white">
+                {{ generateInfo.modelName }}
+              </div>
+              <div class="text-white">{{ generateInfo.width }}x{{ generateInfo.height }}</div>
+            </a-space>
             <div class="detail-info">
-              <h4 class="info-title">提示词</h4>
-              <TextView :max-lines="3" :text="selectedImage.prompt" class="prompt-text" />
+              <h4 class="info-title mt">提示词</h4>
+              <TextView :max-lines="3" :text="generateInfo.prompt" class="prompt-text" />
             </div>
             <div class="detail-actions">
               <GenerateButton
-                @click="handleReGenerate(selectedImage, selectedImage.logId)"
+                @click="handleReGenerate(generateInfo, generateInfo.logId)"
                 class="action-button"
               />
               <ReferToButton
-                @click="handleReferTo(selectedImage, selectedImage.logId)"
+                @click="handleReferTo(generateInfo, generateInfo.logId)"
                 class="action-button"
               />
               <DownloadButton class="action-button" />
             </div>
           </div>
-          <div v-else :key="'create'" class="create-content">
+          <div v-else :key="'create'" class="create-content" @click="openAiInput = !openAiInput">
             <h3 class="create-title">开始创作</h3>
             <div class="create-options">
               <button class="create-option-card">
@@ -106,27 +141,38 @@
         </transition>
       </div>
     </aside>
-    <AiInput v-show="openAiInput" :file-info="fileInfo" :model-info="modelInfo" :prompt="prompt" />
+    <AiInput
+      @success="generateSuccess"
+      v-show="openAiInput"
+      :file-info="fileInfo"
+      :model-info="modelInfo"
+      :prompt="prompt"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiInput from '@/components/AiInput.vue'
 import AiPictureView from '@/components/AiPictureView.vue'
 import {
+  AiLogStatusEnum,
   defaultModelInfo,
   type GenerateLogInfoQuery,
   type GenerateLogInfoVo,
   type ModelInfo,
 } from '@/types/ai/model.d.ts'
-import { listGenerateLogInfo } from '@/api/ai/model.ts'
+import { listGenerateLogInfo, queryTask } from '@/api/ai/model.ts'
 import { formatDateTime } from '@/utils/common.ts'
 import NoMoreData from '@/components/NoMoreData.vue'
 import TextView from '@/components/TextView.vue'
+import AiLoading from '@/components/AiLoading.vue'
+
+const { proxy } = getCurrentInstance()!
+const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 
 interface GalleryGroup {
   date: string
@@ -134,7 +180,7 @@ interface GalleryGroup {
 }
 
 //region 图片列表
-const galleryGroups = ref<GalleryGroup[]>([])
+const generateGroups = ref<GalleryGroup[]>([])
 const generateQuery = ref<GenerateLogInfoQuery>({
   pageNum: 1,
   pageSize: 15,
@@ -145,21 +191,26 @@ const getGenerateList = async () => {
   if (isLoadingMore.value || noMore.value) return
   isLoadingMore.value = true
   await listGenerateLogInfo(generateQuery.value).then((res) => {
-    if (!galleryGroups.value) {
-      galleryGroups.value = []
+    if (!generateGroups.value) {
+      generateGroups.value = []
     }
     if (res.rows && res.rows.length > 0) {
       res.rows.forEach((item: GenerateLogInfoVo) => {
         const date = formatDateTime(item.createTime)
         //只要年月日
-        const group = galleryGroups.value.find((group) => group.date === date)
+        const group = generateGroups.value.find((group) => group.date === date)
         if (group) {
           group.items.push(item)
         } else {
-          galleryGroups.value.push({
+          generateGroups.value.push({
             date,
             items: [item],
           })
+        }
+        if (item.logStatus === AiLogStatusEnum.REQUESTING) {
+          setTimeout(async () => {
+            await pollGenerateTask(item.logId)
+          }, 5000)
         }
       })
     }
@@ -172,6 +223,53 @@ const getGenerateList = async () => {
 const loadMoreData = () => {
   generateQuery.value.pageNum = 1 + (generateQuery.value.pageNum || 0)
   getGenerateList()
+}
+
+// 定义一个定时器引用,每个任务都需要
+const pollingMap = new Map<string, NodeJS.Timeout>()
+//轮训获取生成结果
+const pollGenerateTask = async (logId: string) => {
+  try {
+    const res = await queryTask(logId)
+    if (res.code === 200 && res.data) {
+      //如果成功
+      if (res.data.logStatus === AiLogStatusEnum.SUCCESS) {
+        stopPolling(logId)
+        //如果成功，从generateList拿到对应的数据，修改他的数据
+        const date = formatDateTime(res.data.createTime)
+        const group = generateGroups.value.find((g) => g.date === date)
+        if (group) {
+          group.items = group.items.map((item) => {
+            if (item.logId === logId) {
+              return {
+                ...item,
+                fileUrls: res.data?.fileUrls,
+                logStatus: res.data?.logStatus,
+              }
+            }
+            return item
+          })
+        }
+      } else if (res.data.logStatus === AiLogStatusEnum.REQUESTING) {
+        // 5秒后继续轮询
+        const timer = setTimeout(() => pollGenerateTask(logId), 5000)
+        pollingMap.set(logId, timer)
+      } else {
+        stopPolling(logId)
+      }
+    }
+  } catch (e) {
+    stopPolling(logId)
+  }
+}
+
+// 停止轮询
+const stopPolling = (logId: string) => {
+  const timer = pollingMap.get(logId)
+  if (timer) {
+    clearTimeout(timer)
+    pollingMap.delete(logId)
+  }
 }
 
 // const isLoadingMore = ref(false)
@@ -203,26 +301,26 @@ onUnmounted(() => {
 })
 //endregion
 //region 图片详情
-const selectedImage = ref<GenerateLogInfoVo | null>(null)
-const selectedImageIndex = ref<string | null>(null)
+const generateInfo = ref<GenerateLogInfoVo | null>(null)
+const generateInfoIndex = ref<string | null>(null)
 
-const selectedImageSrc = ref<string>('')
+const generateInfoSrc = ref<string>('')
 const handleImageSelect = (item: GenerateLogInfoVo, index: string) => {
   if (isImageSelected(item, index)) {
     clearSelection()
     openAiInput.value = false
   } else {
-    selectedImage.value = item
-    selectedImageIndex.value = index
-    selectedImageSrc.value = item.fileUrls
+    generateInfo.value = item
+    generateInfoIndex.value = index
+    generateInfoSrc.value = item.fileUrls
   }
 }
 const isImageSelected = (item: GenerateLogInfoVo, index: string) => {
-  return selectedImage.value?.logId === item.logId && selectedImageIndex.value === index
+  return generateInfo.value?.logId === item.logId && generateInfoIndex.value === index
 }
 const clearSelection = () => {
-  selectedImage.value = null
-  selectedImageIndex.value = null
+  generateInfo.value = null
+  generateInfoIndex.value = null
 }
 
 const openAiInput = ref(false)
@@ -232,7 +330,7 @@ const modelInfo = ref<ModelInfo>(defaultModelInfo)
 const prompt = ref('')
 const fileInfo = ref('')
 const handleReGenerate = (item: GenerateLogInfoVo, index: string) => {
-  selectedImageIndex.value = index
+  generateInfoIndex.value = index
   fileInfo.value = item.fileUrls
   prompt.value = item.prompt
   openAiInput.value = true
@@ -246,8 +344,16 @@ const handleReGenerate = (item: GenerateLogInfoVo, index: string) => {
   }
 }
 const handleReferTo = (item: GenerateLogInfoVo, index: string) => {
-  selectedImageIndex.value = index
+  generateInfoIndex.value = index
   fileInfo.value = item.fileUrls
+  openAiInput.value = true
+}
+const generateSuccess = () => {
+  generateGroups.value = []
+  isLoadingMore.value = false
+  noMore.value = false
+  generateQuery.value.pageNum = 1
+  getGenerateList()
 }
 //endregion
 </script>
@@ -309,8 +415,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;
-  text-align: center;
+  height: 20vh;
   color: $color-text-secondary;
 }
 
@@ -337,6 +442,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
   border-radius: 12px;
+  height: 400px;
   cursor: pointer;
   @include dark-card-shadow;
   border: 2px solid transparent;
@@ -353,6 +459,15 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     border-color: $color-accent;
     @include dark-card-hover;
   }
+}
+
+.generated-loading {
+  //高度宽度居中
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .generated-image {

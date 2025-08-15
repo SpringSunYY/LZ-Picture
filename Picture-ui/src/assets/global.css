@@ -1,0 +1,104 @@
+/*
+  强制隐藏滚动条轨道和按钮 - 针对 Chrome 浏览器
+*/
+
+/* 使用最高优先级的 !important 和多个选择器 */
+::-webkit-scrollbar,
+*::-webkit-scrollbar,
+*:not(svg):not(object):not(embed)::-webkit-scrollbar {
+    width: 12px !important;
+    height: 12px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* 强制隐藏轨道 */
+::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track,
+*:not(svg):not(object):not(embed)::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece,
+*::-webkit-scrollbar-track-piece {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    display: none !important;
+}
+
+/* 强制隐藏按钮（上下箭头） */
+::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button,
+*:not(svg):not(object):not(embed)::-webkit-scrollbar-button,
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment,
+::-webkit-scrollbar-button:vertical:start:decrement,
+::-webkit-scrollbar-button:vertical:end:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* 设置滑块样式 */
+::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb,
+*:not(svg):not(object):not(embed)::-webkit-scrollbar-thumb {
+    background-color: #8e8e8e !important;
+    background-clip: content-box !important;
+    border: 3px solid transparent !important;
+    border-radius: 9px !important;
+    min-height: 20px !important;
+}
+
+/* 隐藏角落 */
+::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+    background: transparent !important;
+    background-color: transparent !important;
+    display: none !important;
+}
+
+/* Firefox 兼容 */
+* {
+    scrollbar-width: thin !important;
+    scrollbar-color: #8e8e8e transparent !important;
+}
+
+/* 特别针对常见元素 */
+body::-webkit-scrollbar,
+html::-webkit-scrollbar,
+div::-webkit-scrollbar,
+section::-webkit-scrollbar,
+main::-webkit-scrollbar {
+    width: 12px !important;
+    height: 12px !important;
+}
+
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+div::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+body::-webkit-scrollbar-button,
+html::-webkit-scrollbar-button,
+div::-webkit-scrollbar-button {
+    display: none !important;
+}
+
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+div::-webkit-scrollbar-thumb {
+    background-color: #8e8e8e !important;
+    border: 3px solid transparent !important;
+    border-radius: 9px !important;
+    background-clip: content-box !important;
+}
