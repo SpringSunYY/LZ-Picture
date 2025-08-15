@@ -64,7 +64,7 @@
             <AiPictureView style="height: 50vh" :image-url="selectedImageSrc" />
             <div class="detail-info">
               <h4 class="info-title">提示词</h4>
-              <p class="prompt-text">{{ selectedImage.prompt }}</p>
+              <TextView :max-lines="3" :text="selectedImage.prompt" class="prompt-text" />
             </div>
             <div class="detail-actions">
               <GenerateButton class="action-button" />
@@ -114,6 +114,7 @@ import {
 import { listGenerateLogInfo } from '@/api/ai/model.ts'
 import { formatDateTime } from '@/utils/common.ts'
 import NoMoreData from '@/components/NoMoreData.vue'
+import TextView from '@/components/TextView.vue'
 
 interface GalleryGroup {
   date: string
@@ -293,7 +294,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
 }
 
@@ -321,7 +322,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 
 .generated-image {
   width: 100%;
-  height: 300px;
+  height: 400px;
   object-fit: cover;
   display: block;
 }
