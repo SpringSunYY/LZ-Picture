@@ -261,7 +261,7 @@ public class SpaceMemberInfoServiceImpl extends ServiceImpl<SpaceMemberInfoMappe
             UserSpaceMemberInfoVo userSpaceMemberInfoVo = UserSpaceMemberInfoVo.objToVo(spaceMemberInfo);
             userSpaceMemberInfoVo.setSpaceName(spaceInfo.getSpaceName());
             userSpaceMemberInfoVo.setUserName(userInfoMap.get(spaceMemberInfo.getUserId()).getUserName());
-            userSpaceMemberInfoVo.setAvatarUrl(OssConfig.builderUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            userSpaceMemberInfoVo.setAvatarUrl(OssConfig.builderPictureUrl(userInfoMap.get(spaceMemberInfo.getUserId()).getAvatarUrl(), PICTURE_COVER_P_VALUE));
             userSpaceMemberInfoVo.setInviterUserName(inviterUserInfoMap.get(spaceMemberInfo.getInviterUserId()).getUserName());
             userSpaceMemberInfoVos.add(userSpaceMemberInfoVo);
         });

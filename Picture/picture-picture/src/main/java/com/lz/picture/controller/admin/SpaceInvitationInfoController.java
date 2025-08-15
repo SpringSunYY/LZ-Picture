@@ -53,7 +53,7 @@ public class SpaceInvitationInfoController extends BaseController {
         TableDataInfo table = getDataTable(list);
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         listVo.forEach(vo -> {
-            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setSpaceAvatar(OssConfig.builderPictureUrl(vo.getSpaceAvatar(), inCache));
         });
         table.setRows(listVo);
         return table;

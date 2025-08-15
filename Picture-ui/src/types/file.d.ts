@@ -9,11 +9,6 @@ export interface PictureFileResponse {
   url: string
 
   /**
-   * 图片域名
-   */
-  dnsUrl: string
-
-  /**
    * 图片名称
    */
   name: string

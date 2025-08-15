@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_SPACE_AVATAR_P_VALUE;
 
 
 /**
@@ -53,7 +52,7 @@ public class SpaceInfoController extends BaseController {
         List<SpaceInfoVo> listVo = new ArrayList<>();
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         list.forEach(vo -> {
-            vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setSpaceAvatar(OssConfig.builderPictureUrl(vo.getSpaceAvatar(), inCache));
             SpaceInfoVo spaceInfoVo = SpaceInfoVo.objToVo(vo);
             listVo.add(spaceInfoVo);
         });

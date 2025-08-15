@@ -39,11 +39,6 @@ public class UserSpaceInfoQuery extends PageDomain implements Serializable {
     private String spaceName;
 
     /**
-     * 存储类型（0官方 阿里云）
-     */
-    private String ossType;
-
-    /**
      * 所属用户
      */
     private String userId;

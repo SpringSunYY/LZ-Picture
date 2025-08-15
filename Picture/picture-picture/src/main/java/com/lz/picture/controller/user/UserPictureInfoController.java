@@ -10,7 +10,6 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
@@ -53,7 +52,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     private PictureUploadManager pictureUploadManager;
 
 
-
     /**
      * 新增图片
      */
@@ -80,12 +78,10 @@ public class UserPictureInfoController extends BaseUserInfoController {
 //        System.err.println("picture = " + pictureFileResponse);
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(fileResponse,
                 userId,
-                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
         ));
         PictureInfo pictureInfo = new PictureInfo();
         pictureInfo.setPictureUrl(fileResponse.getUrl());
-//        pictureInfo.setDnsUrl();
         pictureInfo.setName(pictureUrlUpload.getName());
         pictureInfo.setIntroduction(pictureUrlUpload.getIntroduction());
         pictureInfo.setCategoryId(pictureUrlUpload.getCategoryId());
@@ -268,7 +264,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         //压缩图片
         for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
+            vo.setThumbnailUrl(OssConfig.builderPictureUrl(vo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
         }
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }

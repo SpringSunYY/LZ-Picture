@@ -31,19 +31,18 @@ public class PictureFileLogAsyncFactory {
      *
      * @param fileResponse 返回图片信息
      * @param userId       用户编号
-     * @param ossType      存储类型
      * @param logType      日志类型
      * @return TimerTask
      * @author: YY
      * @date: 2025/5/10 22:51
      **/
-    public static TimerTask recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType) {
+    public static TimerTask recordFileLog(FileResponse fileResponse, String userId, String logType) {
         DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
         return new TimerTask() {
             @Override
             public void run() {
                 //插入文件日志
-                SpringUtils.getBean(IFileLogInfoService.class).recordFileLog(fileResponse, userId, ossType, logType, deviceInfo);
+                SpringUtils.getBean(IFileLogInfoService.class).recordFileLog(fileResponse, userId, logType, deviceInfo);
             }
         };
     }

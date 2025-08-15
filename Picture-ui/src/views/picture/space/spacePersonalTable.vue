@@ -46,23 +46,6 @@
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-select
-            v-model:value="queryParams.ossType"
-            placeholder="存储类型"
-            allow-clear
-            @change="handleSearch"
-            style="width: 180px"
-          >
-            <a-select-option
-              v-for="item in p_space_oss_type"
-              :key="item.dictValue"
-              :value="item.dictValue"
-            >
-              {{ item.dictLabel }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
           <a-range-picker
             v-model:value="dateRange"
             @change="handleSearch"
@@ -94,9 +77,6 @@
           </template>
           <template v-if="column.dataIndex === 'totalSize'">
             <span>{{ formatSize(text) }}</span>
-          </template>
-          <template v-if="column.dataIndex === 'ossType'">
-            <dict-tag :options="p_space_oss_type" :value="text" />
           </template>
           <template v-if="column.dataIndex === 'spaceAvatar'">
             <a-image :src="text" width="60" />
@@ -241,10 +221,9 @@ import dayjs from 'dayjs'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { p_space_status, p_space_type, p_space_oss_type, p_space_dilatation_type } = proxy?.useDict(
+const { p_space_status, p_space_type, p_space_dilatation_type } = proxy?.useDict(
   'p_space_status',
   'p_space_type',
-  'p_space_oss_type',
   'p_space_dilatation_type',
 )
 // region表格查询
@@ -278,7 +257,6 @@ const columns = [
   { title: '已用容量', dataIndex: 'totalSize', width: 100, sorter: true },
   { title: '文件总数', dataIndex: 'maxCount', width: 100 },
   { title: '文件数', dataIndex: 'totalCount', width: 90, sorter: true },
-  { title: 'OSS类型', dataIndex: 'ossType', width: 80 },
   { title: '创建时间', dataIndex: 'createTime', width: 140, sorter: true },
   { title: '更新时间', dataIndex: 'updateTime', width: 140 },
   { title: '最后上传时间', dataIndex: 'lastUpdateTime', width: 140, sorter: true },

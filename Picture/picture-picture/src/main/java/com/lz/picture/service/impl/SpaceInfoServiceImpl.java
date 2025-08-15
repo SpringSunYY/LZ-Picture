@@ -24,7 +24,6 @@ import com.lz.picture.model.dto.spaceInfo.SpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.UserSpaceInfoQuery;
 import com.lz.picture.model.dto.spaceInfo.UserTeamSpaceInfoQuery;
 import com.lz.picture.model.enums.PSpaceJoinTypeEnum;
-import com.lz.picture.model.enums.PSpaceOssTypeEnum;
 import com.lz.picture.model.enums.PSpaceRoleEnum;
 import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.spaceInfo.SpaceInfoVo;
@@ -155,9 +154,6 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         String spaceName = spaceInfoQuery.getSpaceName();
         queryWrapper.like(StringUtils.isNotEmpty(spaceName), "space_name", spaceName);
 
-        String ossType = spaceInfoQuery.getOssType();
-        queryWrapper.eq(StringUtils.isNotEmpty(ossType), "oss_type", ossType);
-
         String userId = spaceInfoQuery.getUserId();
         queryWrapper.eq(StringUtils.isNotEmpty(userId), "user_id", userId);
 
@@ -235,7 +231,6 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         spaceInfo.setMaxCount(PICTURE_SPACE_MAX_COUNT_VALUE);
         spaceInfo.setMaxSize(PICTURE_SPACE_MAX_SIZE_VALUE * 1024 * 1024 * 1024);
         spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
-        spaceInfo.setOssType(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue());
 
         boolean save = this.save(spaceInfo);
         //如果该空间是团队空间
@@ -299,7 +294,6 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
                 .eq(StringUtils.isNotEmpty(query.getUserId()), SpaceInfo::getUserId, query.getUserId())
                 .like(StringUtils.isNotEmpty(query.getSpaceName()), SpaceInfo::getSpaceName, query.getSpaceName())
                 .eq(StringUtils.isNotEmpty(query.getSpaceId()), SpaceInfo::getSpaceId, query.getSpaceId())
-                .eq(StringUtils.isNotEmpty(query.getOssType()), SpaceInfo::getOssType, query.getOssType())
                 .eq(StringUtils.isNotEmpty(query.getSpaceStatus()), SpaceInfo::getSpaceStatus, query.getSpaceStatus())
                 .eq(StringUtils.isNotEmpty(query.getSpaceType()), SpaceInfo::getSpaceType, query.getSpaceType())
                 .apply(
@@ -341,7 +335,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         //转换为vo并且转换地址
         List<UserPersonalSpaceInfoVo> personalSpaceInfoVos = page.getRecords().stream()
                 .map(spaceInfo -> {
-                    spaceInfo.setSpaceAvatar(OssConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+                    spaceInfo.setSpaceAvatar(OssConfig.builderPictureUrl(spaceInfo.getSpaceAvatar(), PICTURE_COVER_P_VALUE));
                     return UserPersonalSpaceInfoVo.objToVo(spaceInfo);
                 }).toList();
         //存入缓存信息并返回
@@ -432,7 +426,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         Map<String, SpaceInfo> spaceInfoMap = spaceInfos.stream().collect(Collectors.toMap(SpaceInfo::getSpaceId, spaceInfo -> spaceInfo));
         vos = spaceMemberInfos.stream().map(memberInfo -> {
             SpaceInfo spaceInfo = spaceInfoMap.get(memberInfo.getSpaceId());
-            spaceInfo.setSpaceAvatar(OssConfig.builderUrl(spaceInfo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_COVER_P_VALUE);
+            spaceInfo.setSpaceAvatar(OssConfig.builderPictureUrl(spaceInfo.getSpaceAvatar(), PICTURE_COVER_P_VALUE));
             UserTeamSpaceInfoVo userTeamSpaceInfoVo = new UserTeamSpaceInfoVo(memberInfo, spaceInfo);
             userTeamSpaceInfoVo.setUserId(spaceInfo.getUserId());
             userTeamSpaceInfoVo.setCurrentMembers(spaceMemberInfoService.getSpaceMemberNumberCount(memberInfo.getSpaceId()));
@@ -482,7 +476,7 @@ public class SpaceInfoServiceImpl extends ServiceImpl<SpaceInfoMapper, SpaceInfo
         listVo.stream()
                 .filter(vo -> StringUtils.isNotEmpty(vo.getSpaceAvatar()))
                 .forEach(vo -> {
-                    vo.setSpaceAvatar(OssConfig.builderUrl(vo.getSpaceAvatar()) + "?x-oss-process=image/resize,p_" + PICTURE_SPACE_AVATAR_P_VALUE);
+                    vo.setSpaceAvatar(OssConfig.builderPictureUrl(vo.getSpaceAvatar(), PICTURE_SPACE_AVATAR_P_VALUE));
                 });
 
         return new TableDataInfo(listVo, listVo.size());

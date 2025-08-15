@@ -247,5 +247,4 @@ public class UserBehaviorInfoServiceImpl extends ServiceImpl<UserBehaviorInfoMap
                                 UserBehaviorInfo::getCreateTime)
         );
     }
-
 }

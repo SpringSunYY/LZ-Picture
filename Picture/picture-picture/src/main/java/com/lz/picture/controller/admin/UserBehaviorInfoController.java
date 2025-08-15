@@ -51,7 +51,7 @@ public class UserBehaviorInfoController extends BaseController {
         List<UserBehaviorInfoVo> listVo = list.stream().map(UserBehaviorInfoVo::objToVo).collect(Collectors.toList());
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (UserBehaviorInfoVo vo : listVo) {
-            vo.setTargetCover(OssConfig.builderUrl(vo.getTargetCover()) + "?x-oss-process=image/resize,p_" + inCache);
+            vo.setTargetCover(OssConfig.builderPictureUrl(vo.getTargetCover(), inCache));
         }
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

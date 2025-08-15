@@ -2347,8 +2347,6 @@ CREATE TABLE ai_conversation_log_info
 | space_id         | varchar  | 128  | 主键                      | 否   |            | 空间编号                      |
 | space_name       | varchar  | 32   | 唯一                      | 否   |            | 空间名称                      |
 | space_avatar     | varchar  | 512  |                           | 是   |            | 空间封面                      |
-| oss_type         | char     | 1    |                           | 否   | 1          | 存储类型                      |
-| oss_config       | varcahr  | 1024 |                           | 是   |            | 存储配置                      |
 | max_size         | bigint   | 20   |                           | 是   | 1073741824 | 最大容量                      |
 | max_count        | bigint   | 20   |                           | 是   | 1000       | 最大文件数                    |
 | total_size       | bigint   | 20   |                           | 是   | 0          | 已用容量                      |
@@ -2397,8 +2395,6 @@ CREATE TABLE p_space_info
     space_id         VARCHAR(128) NOT NULL COMMENT '空间编号',
     space_name       VARCHAR(32)  NOT NULL COMMENT '空间名称',
     space_avatar     VARCHAR(512) COMMENT '空间封面URL',
-    oss_type         CHAR(1)      NOT NULL DEFAULT '1' COMMENT '存储类型（0官方 阿里云）',
-    oss_config       VARCHAR(1024) COMMENT '存储配置',
     max_size         BIGINT                DEFAULT 1073741824 COMMENT '最大容量（字节）',
     max_count        BIGINT                DEFAULT 1000 COMMENT '最大文件数',
     total_size       BIGINT                DEFAULT 0 COMMENT '已用容量（字节）',
@@ -2708,7 +2704,6 @@ CREATE TABLE p_picture_tag_info (
 | -------------- | -------- | ---- | --------------------------------- | ---- | -------------- | ------------------- |
 | picture_id     | varchar  | 128  | 主键                              | 否   | auto_increment | 图片编号            |
 | picture_url    | varchar  | 512  |                                   | 否   |                | 图片 url            |
-| dns_url        | varchar  | 512  |                                   | 是   |                | 域名URL             |
 | name           | varchar  | 32   |                                   | 否   |                | 图片名称            |
 | introduction   | varchar  | 512  |                                   | 是   |                | 简介                |
 | category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 否   |                | 分类                |
@@ -2748,7 +2743,6 @@ CREATE TABLE p_picture_info
 (
     picture_id     varchar(128) COMMENT '图片编号',
     picture_url    VARCHAR(512) NOT NULL COMMENT '图片URL',
-    dns_url        VARCHAR(512) NULL COMMENT '域名URL',
     name           VARCHAR(32)  NOT NULL COMMENT '图片名称',
     introduction   VARCHAR(512) COMMENT '简介',
     category_id    VARCHAR(128) NOT NULL COMMENT '分类编号',

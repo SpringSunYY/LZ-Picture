@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
+
 /**
  * Project: Picture
  * Package: com.lz.common.config
@@ -74,6 +76,67 @@ public class OssConfig {
             return url;
         } else {
             return getDnsUrl() + url;
+        }
+    }
+
+    /**
+     * 创建多个URL
+     */
+    public static String builderBatchUrl(String urls) {
+        if (StringUtils.isEmpty(urls)) {
+            return "";
+        }
+        String[] split = urls.split(COMMON_SEPARATOR);
+        StringBuilder buffer = new StringBuilder();
+        for (String str : split) {
+            buffer.append(builderUrl(str)).append(COMMON_SEPARATOR);
+        }
+        //删除尾部逗号
+        buffer.deleteCharAt(buffer.length() - 1);
+        return buffer.toString();
+    }
+
+    /**
+     * 批量构建图片URL
+     *
+     * @param urls 图片地址
+     * @param p    缩略图比例
+     * @return
+     */
+    public static String builderBatchPictureUrl(String urls, Object p) {
+        if (StringUtils.isEmpty(urls)) {
+            return "";
+        }
+        String[] split = urls.split(COMMON_SEPARATOR);
+        StringBuilder buffer = new StringBuilder();
+        boolean isP = StringUtils.isNotNull(p);
+        for (String str : split) {
+            if (isP) {
+                buffer.append(builderUrl(str)).append("?x-oss-process=image/resize,p_").append(p).append(COMMON_SEPARATOR);
+            } else {
+                buffer.append(builderUrl(str)).append(COMMON_SEPARATOR);
+            }
+        }
+        //删除尾部逗号
+        buffer.deleteCharAt(buffer.length() - 1);
+        return buffer.toString();
+    }
+
+    /**
+     * 构建图片URL
+     *
+     * @param url 图片地址
+     * @param p   缩略图比例
+     * @return
+     */
+    public static String builderPictureUrl(String url, Object p) {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
+        if (StringUtils.isNotNull(p)) {
+            return builderUrl(url) + "?x-oss-process=image/resize,p_" + p;
+        } else {
+            return builderUrl(url);
         }
     }
 }

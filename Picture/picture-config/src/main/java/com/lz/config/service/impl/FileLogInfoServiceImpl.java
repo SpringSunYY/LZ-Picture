@@ -18,7 +18,6 @@ import com.lz.config.model.domain.FileLogInfo;
 import com.lz.config.model.dto.fileLogInfo.FileLogInfoQuery;
 import com.lz.config.model.dto.fileLogInfo.FileLogUpdate;
 import com.lz.config.model.enmus.CFileLogIsCompressEnum;
-import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogStatusEnum;
 import com.lz.config.model.vo.fileLogInfo.FileLogInfoVo;
 import com.lz.config.service.IFileLogInfoService;
@@ -68,11 +67,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     public List<FileLogInfo> selectFileLogInfoList(FileLogInfo fileLogInfo) {
         List<FileLogInfo> fileLogInfos = fileLogInfoMapper.selectFileLogInfoList(fileLogInfo);
         for (FileLogInfo info : fileLogInfos) {
-            if (StringUtils.isNotEmpty(info.getDnsUrl())) {
-                info.setFileUrl(OssConfig.getDnsUrl() + info.getFileUrl());
-            } else {
-                info.setFileUrl(OssConfig.getDnsUrl() + info.getFileUrl());
-            }
+                info.setFileUrl(OssConfig.builderUrl(info.getFileUrl()));
         }
         return fileLogInfos;
     }
@@ -177,16 +172,11 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
 
 
     @Override
-    public void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo) {
+    public void recordFileLog(FileResponse fileResponse, String userId, String logType, DeviceInfo deviceInfo) {
         FileLogInfo fileLogInfo = new FileLogInfo();
         BeanUtils.copyProperties(deviceInfo, fileLogInfo);
         //设置对应值
         fileLogInfo.setUserId(userId);
-        fileLogInfo.setDnsUrl(fileResponse.getDnsUrl());
-        //如果是官方
-        if (!CFileLogOssTypeEnum.OSS_TYPE_0.getValue().equals(ossType)) {
-            fileLogInfo.setOssType(ossType);
-        }
         fileLogInfo.setLogType(logType);
         fileLogInfo.setCreateTime(DateUtils.getNowDate());
         fileLogInfo.setFileType(fileResponse.getPicFormat());

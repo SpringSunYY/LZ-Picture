@@ -46,12 +46,6 @@ public class UserTeamSpaceInfoVo implements Serializable {
     private String spaceAvatar;
 
     /**
-     * 存储类型（0官方 阿里云） 字典类型：p_space_oss_type
-     */
-    private String ossType;
-
-
-    /**
      * 最大容量（字节）
      */
     private Long maxSize;
@@ -142,7 +136,6 @@ public class UserTeamSpaceInfoVo implements Serializable {
         this.spaceId = spaceInfo.getSpaceId();
         this.spaceName = spaceInfo.getSpaceName();
         this.spaceAvatar = spaceInfo.getSpaceAvatar();
-        this.ossType = spaceInfo.getOssType();
         this.maxCount = spaceInfo.getMaxCount();
         this.maxSize = spaceInfo.getMaxSize();
         this.totalCount = spaceInfo.getTotalCount();

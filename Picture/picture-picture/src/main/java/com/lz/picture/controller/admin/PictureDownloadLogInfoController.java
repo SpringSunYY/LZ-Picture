@@ -52,7 +52,7 @@ public class PictureDownloadLogInfoController extends BaseController {
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         for (PictureDownloadLogInfo info : list) {
             PictureDownloadLogInfoVo obj = PictureDownloadLogInfoVo.objToVo(info);
-            obj.setThumbnailUrl(OssConfig.builderUrl(obj.getThumbnailUrl()) + "?x-oss-process=image/resize,p_" + inCache);
+            obj.setThumbnailUrl(OssConfig.builderPictureUrl(obj.getThumbnailUrl(), inCache));
             listVo.add(obj);
         }
         TableDataInfo table = getDataTable(list);

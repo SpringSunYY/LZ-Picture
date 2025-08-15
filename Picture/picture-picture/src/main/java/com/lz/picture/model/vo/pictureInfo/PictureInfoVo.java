@@ -34,12 +34,6 @@ public class PictureInfoVo implements Serializable {
     private String pictureUrl;
 
     /**
-     * 域名URL
-     */
-    @Excel(name = "域名URL")
-    private String dnsUrl;
-
-    /**
      * 图片名称
      */
     @Excel(name = "图片名称")

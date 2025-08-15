@@ -1,19 +1,17 @@
 package com.lz.picture.model.vo.pictureInfo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 图片信息Vo对象 p_picture_info
  * 统计信息
  * 要加油呀
+ *
  * @author YY
  * @date 2025-04-09
  */
@@ -27,11 +25,6 @@ public class PictureInfoStatisticsVo implements Serializable {
      */
     private String pictureId;
 
-
-    /**
-     * 域名URL
-     */
-    private String dnsUrl;
 
     /**
      * 图片名称

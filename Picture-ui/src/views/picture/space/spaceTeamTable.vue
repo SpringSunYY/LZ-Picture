@@ -60,9 +60,6 @@
           <template v-if="column.dataIndex === 'spaceStatus'">
             <dict-tag :options="p_space_status" :value="text" />
           </template>
-          <template v-if="column.dataIndex === 'ossType'">
-            <dict-tag :options="p_space_oss_type" :value="text" />
-          </template>
           <template v-if="column.dataIndex === 'spaceAvatar'">
             <a-image :src="text" width="60" />
           </template>
@@ -177,10 +174,9 @@ import { spacePerm } from '@/stores/modules/space.ts'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
-const { p_space_status, p_space_role, p_space_oss_type } = proxy?.useDict(
+const { p_space_status, p_space_role } = proxy?.useDict(
   'p_space_status',
   'p_space_role',
-  'p_space_oss_type',
 )
 onMounted(async () => {
   await spacePerm.loadSpacePerms()
@@ -208,7 +204,6 @@ const pagination = ref({
 const columns = [
   { title: '空间名称', dataIndex: 'spaceName', width: 120 },
   { title: '空间封面', dataIndex: 'spaceAvatar', width: 100 },
-  { title: '存储类型', dataIndex: 'ossType', width: 80 },
   { title: '容量限制', dataIndex: 'maxSize', width: 80 },
   { title: '文件限制', dataIndex: 'maxCount', width: 80 },
   { title: '已用容量', dataIndex: 'totalSize', width: 80 },

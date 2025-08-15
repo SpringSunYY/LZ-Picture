@@ -91,14 +91,13 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      *
      * @param fileResponse 图片信息
      * @param userId              用户编号
-     * @param ossType             存储类型
      * @param logType             日志类型
      * @param deviceInfo          设备信息
      * @return void
      * @author: YY
      * @date: 2025/5/10 22:56
      **/
-    void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
+    void recordFileLog(FileResponse fileResponse, String userId, String logType, DeviceInfo deviceInfo);
 
     /**
      * 更新文件日志

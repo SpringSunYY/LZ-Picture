@@ -9,7 +9,6 @@ import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.file.FileUtils;
-import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
@@ -71,7 +70,6 @@ public class UserFileController extends BaseUserInfoController {
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
                 getLoginUser().getUserId(),
-                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
         ));
         return success(picture);
@@ -102,7 +100,6 @@ public class UserFileController extends BaseUserInfoController {
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(target,
                 getLoginUser().getUserId(),
-                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 type
         ));
         fileResponse.setUrl(null);
@@ -131,7 +128,6 @@ public class UserFileController extends BaseUserInfoController {
         //异步执行存入文件日志
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(target,
                 getLoginUser().getUserId(),
-                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_3.getValue()
         ));
         return success(fileResponse);
@@ -152,7 +148,6 @@ public class UserFileController extends BaseUserInfoController {
         PictureAsyncManager.me().execute(
                 PictureFileLogAsyncFactory.recordFileLog(fileResponse,
                         getLoginUser().getUserId(),
-                        CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                         CFileLogTypeEnum.LOG_TYPE_0.getValue()
                 ));
         return success(fileResponse);

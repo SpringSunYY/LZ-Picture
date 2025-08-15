@@ -39,12 +39,6 @@ public class UserSpaceInfoVo implements Serializable {
     private String spaceAvatar;
 
     /**
-     * 存储类型（0官方 阿里云）
-     */
-    private String ossType;
-
-
-    /**
      * 最大容量（字节）
      */
     private Long maxSize;

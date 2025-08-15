@@ -35,16 +35,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="存储类型" prop="ossType">
-        <el-select v-model="queryParams.ossType" style="width: 200px" placeholder="请选择存储类型" clearable>
-          <el-option
-              v-for="dict in c_file_log_oss_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="日志类型" prop="logType">
         <el-select v-model="queryParams.logType" style="width: 200px" placeholder="请选择日志类型" clearable>
           <el-option
@@ -197,60 +187,53 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="目标内容" align="center" prop="targetContent" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="域名URL" align="center" prop="dnsUrl" v-if="columns[4].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="文件路径" align="center" prop="fileUrl" width="100" v-if="columns[5].visible">
+      <el-table-column label="文件路径" align="center" prop="fileUrl" width="100" v-if="columns[4].visible">
         <template #default="scope">
           <image-preview :src="scope.row.fileUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="文件类型" align="center" prop="fileType" v-if="columns[6].visible"
+      <el-table-column label="文件类型" align="center" prop="fileType" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[7].visible">
+      <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[6].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_status" :value="scope.row.logStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="存储类型" align="center" prop="ossType" v-if="columns[8].visible">
-        <template #default="scope">
-          <dict-tag :options="c_file_log_oss_type" :value="scope.row.ossType"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="日志类型" align="center" prop="logType" v-if="columns[9].visible">
+      <el-table-column label="日志类型" align="center" prop="logType" v-if="columns[7].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_type" :value="scope.row.logType"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否压缩" align="center" prop="isCompress" v-if="columns[10].visible">
+      <el-table-column label="是否压缩" align="center" prop="isCompress" v-if="columns[8].visible">
         <template #default="scope">
           <dict-tag :options="c_file_log_is_compress" :value="scope.row.isCompress"/>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
-                       v-if="columns[11].visible"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="删除时间" align="center" prop="deleteTime" width="180" sortable="custom"
-                       v-if="columns[12].visible"
+                       v-if="columns[10].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deleteTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[13].visible"
+      <el-table-column label="IP地址" align="center" prop="ipAddr" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[14].visible"
+      <el-table-column label="设备唯一标识" align="center" prop="deviceId" v-if="columns[12].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[15].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[13].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[16].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[17].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[18].visible"
+      <el-table-column label="IP属地" align="center" prop="ipAddress" v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -284,9 +267,6 @@
         <el-form-item label="目标内容">
           <editor v-model="form.targetContent" :min-height="192"/>
         </el-form-item>
-        <el-form-item label="域名URL" prop="dnsUrl">
-          <el-input v-model="form.dnsUrl" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
         <el-form-item label="文件路径" prop="fileUrl">
           <file-upload v-model="form.fileUrl"/>
         </el-form-item>
@@ -302,16 +282,6 @@
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="存储类型" prop="ossType">
-          <el-select v-model="form.ossType" placeholder="请选择存储类型">
-            <el-option
-                v-for="dict in c_file_log_oss_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
         </el-form-item>
         <el-form-item label="日志类型" prop="logType">
           <el-select v-model="form.logType" placeholder="请选择日志类型">
@@ -346,10 +316,10 @@
 
 <script setup name="FileLogInfo">
 import {
-  listFileLogInfo,
-  getFileLogInfo,
-  delFileLogInfo,
   addFileLogInfo,
+  delFileLogInfo,
+  getFileLogInfo,
+  listFileLogInfo,
   updateFileLogInfo
 } from "@/api/config/fileLogInfo";
 import FileUpload from "@/components/FileUpload/index.vue";
@@ -358,9 +328,8 @@ const {proxy} = getCurrentInstance();
 const {
   c_file_log_is_compress,
   c_file_log_status,
-  c_file_log_type,
-  c_file_log_oss_type
-} = proxy.useDict('c_file_log_is_compress', 'c_file_log_status', 'c_file_log_type', 'c_file_log_oss_type');
+  c_file_log_type
+} = proxy.useDict('c_file_log_is_compress', 'c_file_log_status', 'c_file_log_type');
 
 const fileLogInfoList = ref([]);
 const open = ref(false);
@@ -385,10 +354,8 @@ const data = reactive({
     userId: null,
     targetId: null,
     targetContent: null,
-    dnsUrl: null,
     fileType: null,
     logStatus: null,
-    ossType: null,
     logType: null,
     isCompress: null,
     createTime: null,
@@ -407,9 +374,6 @@ const data = reactive({
     targetId: [
       {required: true, message: "目标对象不能为空", trigger: "blur"}
     ],
-    dnsUrl: [
-      {required: true, message: "域名URL不能为空", trigger: "blur"}
-    ],
     fileUrl: [
       {required: true, message: "文件路径不能为空", trigger: "blur"}
     ],
@@ -418,9 +382,6 @@ const data = reactive({
     ],
     logStatus: [
       {required: true, message: "状态不能为空", trigger: "change"}
-    ],
-    ossType: [
-      {required: true, message: "存储类型不能为空", trigger: "change"}
     ],
     logType: [
       {required: true, message: "日志类型不能为空", trigger: "change"}
@@ -441,21 +402,19 @@ const data = reactive({
     {key: 1, label: '用户编号', visible: true},
     {key: 2, label: '目标对象', visible: false},
     {key: 3, label: '目标内容', visible: true},
-    {key: 4, label: '域名URL', visible: false},
-    {key: 5, label: '文件路径', visible: true},
-    {key: 6, label: '文件类型', visible: true},
-    {key: 7, label: '状态', visible: true},
-    {key: 8, label: '存储类型', visible: true},
-    {key: 9, label: '日志类型', visible: true},
-    {key: 10, label: '是否压缩', visible: true},
-    {key: 11, label: '创建时间', visible: true},
-    {key: 12, label: '删除时间', visible: true},
-    {key: 13, label: 'IP地址', visible: false},
-    {key: 14, label: '设备唯一标识', visible: false},
-    {key: 15, label: '浏览器类型', visible: false},
-    {key: 16, label: '操作系统', visible: false},
-    {key: 17, label: '平台', visible: false},
-    {key: 18, label: 'IP属地', visible: false},
+    {key: 4, label: '文件路径', visible: true},
+    {key: 5, label: '文件类型', visible: true},
+    {key: 6, label: '状态', visible: true},
+    {key: 7, label: '日志类型', visible: true},
+    {key: 8, label: '是否压缩', visible: true},
+    {key: 9, label: '创建时间', visible: true},
+    {key: 10, label: '删除时间', visible: true},
+    {key: 11, label: 'IP地址', visible: false},
+    {key: 12, label: '设备唯一标识', visible: false},
+    {key: 13, label: '浏览器类型', visible: false},
+    {key: 14, label: '操作系统', visible: false},
+    {key: 15, label: '平台', visible: false},
+    {key: 16, label: 'IP属地', visible: false},
   ],
 });
 
@@ -511,11 +470,9 @@ function reset() {
     userId: null,
     targetId: null,
     targetContent: null,
-    dnsUrl: null,
     fileUrl: null,
     fileType: null,
     logStatus: null,
-    ossType: null,
     logType: null,
     isCompress: null,
     createTime: null,

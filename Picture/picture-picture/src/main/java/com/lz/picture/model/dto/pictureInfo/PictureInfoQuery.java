@@ -1,19 +1,16 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import java.util.Map;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.picture.model.domain.PictureInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.beans.BeanUtils;
-import com.baomidou.mybatisplus.annotation.TableField;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.picture.model.domain.PictureInfo;
+import java.util.Map;
 
 /**
  * 图片信息Query对象 p_picture_info
@@ -23,6 +20,7 @@ import com.lz.picture.model.domain.PictureInfo;
  */
 @Data
 public class PictureInfoQuery implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -39,11 +37,6 @@ public class PictureInfoQuery implements Serializable {
      * 分类编号
      */
     private String categoryId;
-
-    /**
-     * 域名URL
-     */
-    private String dnsUrl;
 
     /**
      * 图片体积

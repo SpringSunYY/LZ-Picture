@@ -24,7 +24,10 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
-import com.lz.picture.model.enums.*;
+import com.lz.picture.model.enums.PPictureApplyStatusEnum;
+import com.lz.picture.model.enums.PPictureApplyTypeEnum;
+import com.lz.picture.model.enums.PPictureStatusEnum;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
 import com.lz.picture.service.IPictureApplyInfoService;
 import com.lz.picture.service.IPictureInfoService;
@@ -95,11 +98,11 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
         if (StringUtils.isNotNull(pictureApplyInfo)) {
             String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
             Integer p = Integer.valueOf(inCache);
-            String url = builderPictureUrl(pictureApplyInfo.getApplyImage(), p);
+            String url = OssConfig.builderBatchPictureUrl(pictureApplyInfo.getApplyImage(), p);
             pictureApplyInfo.setApplyImage(url);
-            String pictureUrl = builderPictureUrl(pictureApplyInfo.getThumbnailUrl(), p);
+            String pictureUrl = OssConfig.builderBatchPictureUrl(pictureApplyInfo.getThumbnailUrl(), p);
             pictureApplyInfo.setThumbnailUrl(pictureUrl);
-            String fileUrl = builderFileUrl(pictureApplyInfo.getApplyFile());
+            String fileUrl = OssConfig.builderBatchUrl(pictureApplyInfo.getApplyFile());
             pictureApplyInfo.setApplyFile(fileUrl);
         }
         return pictureApplyInfo;
@@ -111,7 +114,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      * @param pictureApplyInfo 图片申请信息
      * @return 图片申请信息
      */
-    @CustomSort(sortFields = {"createTime","reviewTime","updateTime"},sortMappingFields = {"create_time","review_time","update_time"})
+    @CustomSort(sortFields = {"createTime", "reviewTime", "updateTime"}, sortMappingFields = {"create_time", "review_time", "update_time"})
     @Override
     public List<PictureApplyInfo> selectPictureApplyInfoList(PictureApplyInfo pictureApplyInfo) {
         List<PictureApplyInfo> pictureApplyInfos = pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);
@@ -125,58 +128,16 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     private void builderUrl(PictureApplyInfo info, Integer p) {
         //构建url
         if (StringUtils.isNotEmpty(info.getApplyImage())) {
-            String url = builderPictureUrl(info.getApplyImage(), p);
+            String url = OssConfig.builderBatchPictureUrl(info.getApplyImage(), p);
             info.setApplyImage(url);
         }
         if (StringUtils.isNotEmpty(info.getApplyFile())) {
-            String url = builderUrl(info.getApplyFile());
+            String url = OssConfig.builderUrl(info.getApplyFile());
             info.setApplyFile(url);
         }
         if (StringUtils.isNotEmpty(info.getThumbnailUrl())) {
-            info.setThumbnailUrl(builderUrl(info.getThumbnailUrl()));
+            info.setThumbnailUrl(OssConfig.builderPictureUrl(info.getThumbnailUrl(), p));
         }
-    }
-
-    private String builderPictureUrl(String urls, Integer p) {
-        if (StringUtils.isEmpty(urls)) {
-            return "";
-        }
-        String[] split = urls.split(COMMON_SEPARATOR);
-        StringBuilder buffer = new StringBuilder();
-        for (String str : split) {
-            buffer.append(OssConfig.builderUrl(str)).append("?x-oss-process=image/resize,p_").append(p).append(COMMON_SEPARATOR);
-        }
-        //删除尾部逗号
-        buffer.deleteCharAt(buffer.length() - 1);
-        return buffer.toString();
-    }
-
-    private String builderUrl(String urls) {
-        if (StringUtils.isEmpty(urls)) {
-            return "";
-        }
-        String[] split = urls.split(COMMON_SEPARATOR);
-        StringBuilder buffer = new StringBuilder();
-        for (String str : split) {
-            buffer.append(OssConfig.builderUrl(str)).append(COMMON_SEPARATOR);
-        }
-        //删除尾部逗号
-        buffer.deleteCharAt(buffer.length() - 1);
-        return buffer.toString();
-    }
-
-    private String builderFileUrl(String fileUrl) {
-        if (StringUtils.isEmpty(fileUrl)) {
-            return "";
-        }
-        String[] split = fileUrl.split(COMMON_SEPARATOR);
-        StringBuilder buffer = new StringBuilder();
-        for (String str : split) {
-            String downloadUrl = pictureDownloadManager.generateDownloadUrl(str, 60L);
-            buffer.append(downloadUrl).append(COMMON_SEPARATOR);
-        }
-        buffer.deleteCharAt(buffer.length() - 1);
-        return buffer.toString();
     }
 
     /**

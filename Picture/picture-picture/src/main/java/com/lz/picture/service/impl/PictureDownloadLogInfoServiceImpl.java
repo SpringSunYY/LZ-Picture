@@ -32,7 +32,6 @@ public class PictureDownloadLogInfoServiceImpl extends ServiceImpl<PictureDownlo
     private PictureDownloadLogInfoMapper pictureDownloadLogInfoMapper;
 
     //region mybatis代码
-
     /**
      * 查询图片下载记录
      *

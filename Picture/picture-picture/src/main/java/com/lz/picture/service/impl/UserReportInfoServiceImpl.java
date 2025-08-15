@@ -220,12 +220,6 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
                                 || pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_1.getValue()),
                         "图片不存在");
                 targetId = pictureInfo.getPictureId();
-                //是否有域名，如果没有域名则是官方域名，无需添加域名头
-                if (StringUtils.isEmpty(pictureInfo.getDnsUrl())) {
-                    targetCover = pictureInfo.getThumbnailUrl();
-                } else {
-                    targetCover = pictureInfo.getDnsUrl() + pictureInfo.getThumbnailUrl();
-                }
                 targetContent = pictureInfo.getName();
                 break;
             case P_REPORT_TARGET_TYPE_1:

@@ -8,8 +8,6 @@
         <result property="spaceId" column="space_id"/>
         <result property="spaceName" column="space_name"/>
         <result property="spaceAvatar" column="space_avatar"/>
-        <result property="ossType" column="oss_type"/>
-        <result property="ossConfig" column="oss_config"/>
         <result property="maxSize" column="max_size"/>
         <result property="maxCount" column="max_count"/>
         <result property="totalSize" column="total_size"/>
@@ -34,8 +32,6 @@
         select space_id,
                space_name,
                space_avatar,
-               oss_type,
-               oss_config,
                max_size,
                max_count,
                total_size,
@@ -62,7 +58,6 @@
         <where>
             <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
             <if test="spaceName != null  and spaceName != ''">and space_name like concat('%', #{spaceName}, '%')</if>
-            <if test="ossType != null  and ossType != ''">and oss_type = #{ossType}</if>
             <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
             <if test="spaceStatus != null  and spaceStatus != ''">and space_status = #{spaceStatus}</if>
             <if test="spaceType != null  and spaceType != ''">and space_type = #{spaceType}</if>
@@ -103,8 +98,6 @@
             <if test="spaceId != null">space_id,</if>
             <if test="spaceName != null and spaceName != ''">space_name,</if>
             <if test="spaceAvatar != null">space_avatar,</if>
-            <if test="ossType != null and ossType != ''">oss_type,</if>
-            <if test="ossConfig != null">oss_config,</if>
             <if test="maxSize != null">max_size,</if>
             <if test="maxCount != null">max_count,</if>
             <if test="totalSize != null">total_size,</if>
@@ -128,8 +121,6 @@
             <if test="spaceId != null">#{spaceId},</if>
             <if test="spaceName != null and spaceName != ''">#{spaceName},</if>
             <if test="spaceAvatar != null">#{spaceAvatar},</if>
-            <if test="ossType != null and ossType != ''">#{ossType},</if>
-            <if test="ossConfig != null">#{ossConfig},</if>
             <if test="maxSize != null">#{maxSize},</if>
             <if test="maxCount != null">#{maxCount},</if>
             <if test="totalSize != null">#{totalSize},</if>
@@ -156,8 +147,6 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="spaceName != null and spaceName != ''">space_name = #{spaceName},</if>
             <if test="spaceAvatar != null">space_avatar = #{spaceAvatar},</if>
-            <if test="ossType != null and ossType != ''">oss_type = #{ossType},</if>
-            <if test="ossConfig != null">oss_config = #{ossConfig},</if>
             <if test="maxSize != null">max_size = #{maxSize},</if>
             <if test="maxCount != null">max_count = #{maxCount},</if>
             <if test="totalSize != null">total_size = #{totalSize},</if>

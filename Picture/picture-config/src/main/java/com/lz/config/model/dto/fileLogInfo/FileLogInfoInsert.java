@@ -39,11 +39,6 @@ public class FileLogInfoInsert implements Serializable {
     private String targetContent;
 
     /**
-     * 域名URL
-     */
-    private String dnsUrl;
-
-    /**
      * 文件路径
      */
     private String fileUrl;
@@ -58,10 +53,6 @@ public class FileLogInfoInsert implements Serializable {
      */
     private String logStatus;
 
-    /**
-     * 存储类型（0官方 1阿里云）
-     */
-    private String ossType;
 
     /**
      * 日志类型（0图片 1空间封面 2头像）

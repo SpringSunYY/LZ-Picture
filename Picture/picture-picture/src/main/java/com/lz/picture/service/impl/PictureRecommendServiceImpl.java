@@ -63,9 +63,6 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
     @Resource
     private IPictureRecommendInfoService pictureRecommendInfoService;
 
-    @Resource
-    private OssConfig ossConfig;
-
     //region 图片推荐核心实现
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
@@ -336,7 +333,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                     if (pic.getTags() == null) {
                         injectTags(Collections.singletonList(pic));
                     }
-                    pic.setThumbnailUrl(ossConfig.builderUrl(pic.getThumbnailUrl(), pic.getDnsUrl()) + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE);
+                    pic.setThumbnailUrl(OssConfig.builderPictureUrl(pic.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
                     return UserRecommendPictureInfoVo.objToVo(pic);
                 }).toList();
         //判断是否有缓存如果有先删除

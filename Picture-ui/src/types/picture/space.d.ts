@@ -10,8 +10,6 @@ export type Space = {
   /** 空间封面URL */
   spaceAvatar?: string
 
-  /** 存储类型（0官方 阿里云） */
-  ossType?: string
 
   /** 最大容量（字节） */
   maxSize?: number
@@ -82,9 +80,6 @@ export type SpaceQuery = {
   /** 空间名称 */
   spaceName?: string
 
-  /** 存储类型（0官方 阿里云） */
-  ossType?: string
-
   /** 所属用户 */
   userId?: string
 
@@ -120,9 +115,6 @@ export interface PersonalSpaceInfoVo {
 
   /** 空间封面URL */
   spaceAvatar: string
-
-  /** 存储类型（0官方 阿里云） 字典类型：p_space_oss_type */
-  ossType: string
 
   /** 最大容量（字节） */
   maxSize: number
@@ -166,8 +158,6 @@ export interface SpaceInfoQuery {
   /** 空间名称 */
   spaceName?: string
 
-  /** 存储类型（0官方 阿里云） */
-  ossType?: string
 
   /** 空间状态 */
   spaceStatus?: string
@@ -196,7 +186,6 @@ export interface UserTeamSpaceInfoVo {
   memberId: string;
   spaceName: string;
   spaceAvatar: string;
-  ossType: string;
   maxSize: number;
   maxCount: number;
   totalSize: number;
@@ -288,23 +277,4 @@ export const PSpaceRoleLabels = {
  */
 export function getPSpaceRoleLabel(value: string): string {
   return PSpaceRoleLabels[value as PSpaceRole] || '未知角色'
-}
-
-export enum PSpaceOssType {
-  SPACE_OSS_TYPE_0 = '0',
-  SPACE_OSS_TYPE_1 = '1',
-}
-
-export const PSpaceOssTypeLabels = {
-  [PSpaceOssType.SPACE_OSS_TYPE_0]: '官方',
-  [PSpaceOssType.SPACE_OSS_TYPE_1]: '阿里云',
-}
-
-/**
- * 根据值获取对应的标签
- * @param value 枚举的值
- * @returns 对应的标签
- */
-export function getPSpaceOssTypeLabel(value: string): string {
-  return PSpaceOssTypeLabels[value as PSpaceOssType] || '未知类型'
 }

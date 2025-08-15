@@ -48,18 +48,6 @@ public class SpaceInfo implements Serializable {
     private String spaceAvatar;
 
     /**
-     * 存储类型（0官方 阿里云）
-     */
-    @Excel(name = "存储类型", readConverterExp = "0=官方,阿=里云")
-    private String ossType;
-
-    /**
-     * 存储配置
-     */
-    @Excel(name = "存储配置")
-    private String ossConfig;
-
-    /**
      * 最大容量（字节）
      */
     @Excel(name = "最大容量")

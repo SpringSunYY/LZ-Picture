@@ -57,10 +57,7 @@
 
             <a-dropdown>
               <div class="user-avatar" @click="showDrawer">
-                <a-avatar
-                  :size="36"
-                  :src="initCover(avatar)"
-                />
+                <a-avatar :size="36" :src="initCover(avatar)" />
               </div>
               <template #overlay>
                 <a-menu>
@@ -87,10 +84,7 @@
         <template #title>
           <a-dropdown>
             <a-space align="center">
-              <a-avatar
-                :src="initCover(avatar)"
-                size="large"
-              />
+              <a-avatar :src="initCover(avatar)" size="large" />
               <div>
                 <div class="nickname" style="font-size: 14px">{{ userName }}</div>
                 <div class="nickname" style="font-size: 12px; color: #616161">{{ nickName }}</div>
@@ -122,7 +116,7 @@ import { storeToRefs } from 'pinia'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import SideRight from '@/layout/SideRight.vue'
 import { getUnReadInformCount } from '@/api/user/inform.ts'
-import { formatDnsUrl, initCover } from '@/utils/common.ts'
+import { initCover } from '@/utils/common.ts'
 import { generateMenu, toMenu } from '@/router/permisson.ts'
 
 const userStore = useUserStore()

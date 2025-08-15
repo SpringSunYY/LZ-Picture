@@ -35,7 +35,7 @@ import type { PictureFileResponse } from '@/types/file'
 
 interface Props {
   picture?: PictureInfo
-  spaceId?: string,
+  spaceId?: string
   loading?: boolean
 }
 
@@ -119,10 +119,10 @@ const clearPolling = () => {
     taskId.value = null
   }
 }
-
+const dnsUrl = import.meta.env.VITE_DNS_URL
 const createUrl = () => {
   if (!props.picture?.pictureUrl?.startsWith('http')) {
-    return (props.picture?.dnsUrl ?? '') + (props.picture?.pictureUrl ?? '')
+    return dnsUrl + props.picture?.pictureUrl ?? ''
   } else {
     return props.picture?.pictureUrl ?? ''
   }
