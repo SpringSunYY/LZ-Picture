@@ -271,27 +271,25 @@ public @interface CustomSort {
           //异步执行存入文件日志
           PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
                   getLoginUser().getUserId(),
-                  CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                   CFileLogTypeEnum.LOG_TYPE_0.getValue()
           ));
   ```
-
-  ```java
+  
+```java
      /**
        * 记录文件日志
        *
        * @param fileResponse 图片信息
        * @param userId              用户编号
-       * @param ossType             存储类型
        * @param logType             日志类型
        * @param deviceInfo          设备信息
        * @return void
        * @author: YY
        * @date: 2025/5/10 22:56
        **/
-      void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
+      void recordFileLog(FileResponse fileResponse, String userId, String logType, DeviceInfo deviceInfo);
   ```
-
+  
   其中逻辑：如果传入原图和压缩图，就执行保存对应的信息
 
 - 更新逻辑，需要自己实现，当前的直接去看项目注释，例如：
@@ -1046,11 +1044,9 @@ CREATE TABLE c_notice_info (
 | user_id        | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号                   |
 | target_id      | varchar  | 128  |                            | 是   |          | 目标对象                   |
 | target_content | varchar  | 256  |                            | 是   |          | 目标内容                   |
-| dns_url        | varchar  | 512  |                            | 是   |          | 域名URL                    |
 | file_url       | varchar  | 512  |                            | 否   |          | 文件路径                   |
 | file_type      | varchar  | 16   |                            | 否   |          | 文件类型                   |
 | log_status     | char     | 1    |                            | 否   |          | 状态;(0冗余,1正常,1已删除) |
-| oss_type       | char     | 1    |                            | 否   | 1        | 存储类型                   |
 | log_type       | char     | 1    |                            | 否   | 1        | 日志类型                   |
 | is_compress    | char     | 1    |                            | 否   | 1        | 是否压缩                   |
 | create_time    | datetime |      |                            | 否   | 当前时间 | 创建时间                   |
@@ -1078,11 +1074,9 @@ CREATE TABLE `c_file_log_info`
     `user_id`     VARCHAR(128) NOT NULL COMMENT '用户编号',
   	`target_id` VARCHAR(128)  NULL COMMENT '目标对象',
   	`target_content` VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
-    `dns_url`     VARCHAR(512) NOT NULL COMMENT '域名URL',
     `file_url`    VARCHAR(512) NOT NULL COMMENT '文件路径',
     `file_type`   VARCHAR(16)  NOT NULL COMMENT '文件类型',
     `log_status`  CHAR(1)      NOT NULL COMMENT '状态',
-    `oss_type`    CHAR(1)      NOT NULL DEFAULT '0' COMMENT '存储类型（0官方 1阿里云）',
     `log_type`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '日志类型（0图片 1空间封面 2头像）',
     `is_compress`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '是否压缩（0是 1否）',
     `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -2365,10 +2359,6 @@ CREATE TABLE ai_conversation_log_info
 | space_type       | char     | 1    |                           | 否   | 0          | 空间类型（0个人 1团队 2官方） |
 | member_limit     | int      |      |                           | 是   | 10         | 人数上限                      |
 | current_members  | int      |      |                           | 是   | 0          | 当前人数                      |
-
-存储类型：0官方 1阿里云 。。。。其他的用户自定义
-
-存储配置：存储后转为json，比如说一些阿里的oss配置，腾讯云的配置
 
 最大容量：用户自定义，字节
 
