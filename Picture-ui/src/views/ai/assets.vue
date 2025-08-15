@@ -115,7 +115,7 @@
                 @click="handleReferTo(generateInfo, generateInfo.logId)"
                 class="action-button"
               />
-              <DownloadButton class="action-button" />
+              <DownloadButton @click="openByUrl(generateInfo.fileUrls)" class="action-button" />
             </div>
           </div>
           <div v-else :key="'create'" class="create-content" @click="openAiInput = !openAiInput">
@@ -170,6 +170,7 @@ import { formatDateTime } from '@/utils/common.ts'
 import NoMoreData from '@/components/NoMoreData.vue'
 import TextView from '@/components/TextView.vue'
 import AiLoading from '@/components/AiLoading.vue'
+import { downloadByUrl, openByUrl } from '@/utils/file.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -329,6 +330,7 @@ const openAiInput = ref(false)
 const modelInfo = ref<ModelInfo>(defaultModelInfo)
 const prompt = ref('')
 const fileInfo = ref('')
+//生成图片
 const handleReGenerate = (item: GenerateLogInfoVo, index: string) => {
   generateInfoIndex.value = index
   fileInfo.value = item.fileUrls
@@ -343,11 +345,13 @@ const handleReGenerate = (item: GenerateLogInfoVo, index: string) => {
     pointsNeed: item.pointsUsed,
   }
 }
+//引用图片
 const handleReferTo = (item: GenerateLogInfoVo, index: string) => {
   generateInfoIndex.value = index
   fileInfo.value = item.fileUrls
   openAiInput.value = true
 }
+//图片生成成功后，重新加载图片列表
 const generateSuccess = () => {
   generateGroups.value = []
   isLoadingMore.value = false

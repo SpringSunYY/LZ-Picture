@@ -133,3 +133,23 @@ export async function downloadImageByLog(downloadId: string, pictureName: string
     throw new Error('文件下载失败，请重试') // 建议添加错误抛出供上层处理
   }
 }
+
+/**
+ * 通过 URL 在纯前端直接触发下载，并在一个新页面中打开链接。
+ * @param {string} url - 文件的 URL。
+ * @param {string} [fileName] - 可选的下载文件名。
+ */
+/**
+ * 通过 URL 在纯前端触发一个新页面跳转，让浏览器自己处理下载或显示。
+ * @param {string} url - 文件的 URL。
+ */
+export function openByUrl(url: string) {
+  const a = document.createElement('a')
+  a.href = url
+  a.setAttribute('target', '_blank') // 强制在新页面打开
+  a.style.display = 'none'
+
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+}

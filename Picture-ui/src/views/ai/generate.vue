@@ -101,11 +101,7 @@
               <a-space class="overlay-right-top">
                 <DownloadSvgButton
                   class="action-button"
-                  @click.stop="
-                    () => {
-                      console.log('删除')
-                    }
-                  "
+                  @click.stop="openByUrl(generate.fileUrls)"
                 />
                 <DeleteButton
                   @click.stop="
@@ -166,6 +162,7 @@ import LoadingData from '@/components/LoadingData.vue'
 import AiLoading from '@/components/AiLoading.vue'
 import { usePasswordVerify } from '@/utils/auth.ts'
 import AiRecommend from '@/components/AiRecommend.vue'
+import { openByUrl } from '@/utils/file.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
