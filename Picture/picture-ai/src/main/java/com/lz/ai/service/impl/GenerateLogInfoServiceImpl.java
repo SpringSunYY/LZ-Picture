@@ -277,7 +277,8 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
     @Override
     public GenerateLogInfo queryTask(String logId, String userId, String username) {
         GenerateLogInfo generateLogInfo = this.getById(logId);
-        ThrowUtils.throwIf(!generateLogInfo.getUserId().equals(userId),
+        ThrowUtils.throwIf(StringUtils.isNull(generateLogInfo)
+                        ||!generateLogInfo.getUserId().equals(userId),
                 HttpStatus.NO_CONTENT, "用户未查询到该任务");
         ThrowUtils.throwIf(generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
                 "任务已完成，无需继续查询");

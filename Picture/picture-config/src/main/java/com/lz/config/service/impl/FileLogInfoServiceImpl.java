@@ -67,7 +67,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     public List<FileLogInfo> selectFileLogInfoList(FileLogInfo fileLogInfo) {
         List<FileLogInfo> fileLogInfos = fileLogInfoMapper.selectFileLogInfoList(fileLogInfo);
         for (FileLogInfo info : fileLogInfos) {
-                info.setFileUrl(OssConfig.builderUrl(info.getFileUrl()));
+            info.setFileUrl(OssConfig.builderUrl(info.getFileUrl()));
         }
         return fileLogInfos;
     }
@@ -174,31 +174,7 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     @Override
     public void recordFileLog(FileResponse fileResponse, String userId, String logType, DeviceInfo deviceInfo) {
         FileLogInfo fileLogInfo = new FileLogInfo();
-        BeanUtils.copyProperties(deviceInfo, fileLogInfo);
-        //设置对应值
-        fileLogInfo.setUserId(userId);
-        fileLogInfo.setLogType(logType);
-        fileLogInfo.setCreateTime(DateUtils.getNowDate());
-        fileLogInfo.setFileType(fileResponse.getPicFormat());
-        fileLogInfo.setLogStatus(CFileLogStatusEnum.LOG_STATUS_0.getValue());
-        if (StringUtils.isNotEmpty(fileResponse.getUrl())) {
-            fileLogInfo.setFileUrl(fileResponse.getUrl());
-            //默认冗余
-            //先插入原图
-            fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_1.getValue());
-            fileLogInfo.setLogId(IdUtils.fastUUID());
-            fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
-        }
-        if (StringUtils.isNotEmpty(fileResponse.getThumbnailUrl())) {
-            //其次压缩
-            //压缩图片全部webp
-            fileLogInfo.setFileType("webp");
-            fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
-            fileLogInfo.setFileUrl(fileResponse.getThumbnailUrl());
-            fileLogInfo.setLogId(IdUtils.fastUUID());
-            fileLogInfoMapper.insertFileLogInfo(fileLogInfo);
-        }
-        insertFileLog(fileLogInfo, fileResponse, userId, logType, ossType, CFileLogStatusEnum.LOG_STATUS_0.getValue(), deviceInfo);
+        insertFileLog(fileLogInfo, fileResponse, userId, logType, CFileLogStatusEnum.LOG_STATUS_0.getValue(), deviceInfo);
     }
 
     @Override
@@ -283,15 +259,16 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
     }
 
     @Override
-    public int recordNormalFileLog(FileResponse fileResponse, String userId,String targetContent, String targetId, String logType, String ossType, DeviceInfo deviceInfo) {
+    public int recordNormalFileLog(FileResponse fileResponse, String userId, String targetContent, String targetId, String logType, DeviceInfo deviceInfo) {
         FileLogInfo fileLogInfo = new FileLogInfo();
         fileLogInfo.setTargetId(targetId);
         fileLogInfo.setTargetContent(targetContent);
-        insertFileLog(fileLogInfo, fileResponse, userId, logType, ossType, CFileLogStatusEnum.LOG_STATUS_1.getValue(), deviceInfo);
+        insertFileLog(fileLogInfo, fileResponse, userId, logType, CFileLogStatusEnum.LOG_STATUS_1.getValue(), deviceInfo);
         return 1;
     }
 
-    private void insertFileLog(FileLogInfo fileLogInfo, FileResponse fileResponse, String userId, String logType, String ossType, String logStatus, DeviceInfo deviceInfo) {
+
+    private void insertFileLog(FileLogInfo fileLogInfo, FileResponse fileResponse, String userId, String logType, String logStatus, DeviceInfo deviceInfo) {
 
         BeanUtils.copyProperties(deviceInfo, fileLogInfo);
         //设置对应值

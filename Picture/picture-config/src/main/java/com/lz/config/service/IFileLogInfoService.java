@@ -89,9 +89,9 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * 记录文件日志
      *
      * @param fileResponse 图片信息
-     * @param userId              用户编号
-     * @param logType             日志类型
-     * @param deviceInfo          设备信息
+     * @param userId       用户编号
+     * @param logType      日志类型
+     * @param deviceInfo   设备信息
      * @return void
      * @author: YY
      * @date: 2025/5/10 22:56
@@ -112,6 +112,7 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
     /**
      * 自动删除冗余文件
      * 比如说1000条，前第几天
+     *
      * @param size 长度
      * @param days 天数
      * @return int
@@ -127,7 +128,6 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * @param fileResponse  文件信息
      * @param userId        用户编号
      * @param logType       日志类型
-     * @param ossType       存储类型
      * @param deviceInfo    设备信息
      * @param targetId      目标编号
      * @param targetContent 目标内容
@@ -136,5 +136,5 @@ public interface IFileLogInfoService extends IService<FileLogInfo> {
      * @method: recordNormalFileLog
      * @date: 2025/8/12 17:30
      **/
-    int recordNormalFileLog(FileResponse fileResponse, String userId, String targetId, String targetContent, String logType, String ossType, DeviceInfo deviceInfo);
+    int recordNormalFileLog(FileResponse fileResponse, String userId, String targetId, String targetContent, String logType, DeviceInfo deviceInfo);
 }
