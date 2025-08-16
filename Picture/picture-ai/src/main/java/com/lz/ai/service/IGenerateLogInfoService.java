@@ -117,4 +117,11 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
      * @return
      */
     GenerateLogInfo queryTask(String logId, String userId, String username);
+
+    /**
+     * 查询未删除的生成记录
+     * @param logId
+     * @return
+     */
+    GenerateLogInfo selectNormalGenerateLogInfoByLogId(String logId);
 }

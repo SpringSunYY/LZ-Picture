@@ -25,7 +25,12 @@ public enum PPictureApplyTypeEnum {
     /**
      * 无版权资源
      */
-    PICTURE_APPLY_TYPE_2("2", "无版权资源");
+    PICTURE_APPLY_TYPE_2("2", "无版权资源"),
+
+    /**
+     * AI生成
+     */
+    PICTURE_APPLY_TYPE_3("3", "AI生成");
 
     private final String value;
     private final String label;

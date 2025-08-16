@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureDownloadLogInfo.PictureDownloadLogInfoRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
-import com.lz.picture.model.dto.pictureInfo.PictureQueryRequest;
-import com.lz.picture.model.dto.pictureInfo.UserPictureInfoQuery;
+import com.lz.picture.model.dto.pictureInfo.*;
 import com.lz.picture.model.vo.pictureInfo.*;
 
 import java.util.List;
@@ -305,4 +302,12 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * 获取未删除图片
      */
     PictureInfo selectPictureInfoNormalByPictureId(String pictureId);
+
+    /**
+     * 发布图片，根据AI
+     *
+     * @param pictureAiUpload
+     * @return
+     */
+    int userInsertPictureInfoByAi(PictureAiUpload pictureAiUpload);
 }

@@ -321,7 +321,7 @@
         </a-row>
         <div class="form-footer">
           <a-button @click="openPublic = false">取消</a-button>
-          <a-button type="primary" html-type="submit" :loading="openPublic">提交</a-button>
+          <a-button type="primary" html-type="submit" :loading="pictureLoading">提交</a-button>
         </div>
       </a-form>
     </a-modal>
@@ -349,7 +349,7 @@ import TextView from '@/components/TextView.vue'
 import AiLoading from '@/components/AiLoading.vue'
 import { openByUrl } from '@/utils/file.ts'
 import { message } from 'ant-design-vue'
-import type { PictureInfo } from '@/types/picture/picture'
+import type { PictureAiUpload, PictureInfo } from '@/types/picture/picture'
 import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import type { PictureTagInfoQuery, PictureTagInfoVo } from '@/types/picture/pictureTag'
 import { mySpaceInfo } from '@/api/picture/space.ts'
@@ -367,6 +367,7 @@ import type {
   PictureCategoryInfoQuery,
   PictureCategoryInfoVo,
 } from '@/types/picture/pictureCategory'
+import { addPictureInfoByAi } from '@/api/picture/picture.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type, p_picture_status } = proxy?.useDict(
@@ -573,14 +574,15 @@ const generateSuccess = () => {
 //endregion
 //region 发布作品
 const openPublic = ref(false)
-const pictureInfo = ref<PictureInfo>({
-  pictureUrl: '',
+const pictureInfo = ref<PictureAiUpload>({
   name: '',
   introduction: '',
   categoryId: '',
   spaceId: '',
   folderId: '',
   tags: [],
+  pictureStatus: '0',
+  logId: '',
 })
 const rules = {
   pictureUrl: [
@@ -700,18 +702,45 @@ const getPictureCategoryList = async () => {
 const handlePublic = (item: GenerateLogInfoVo) => {
   console.log('发布作品', item)
   pictureInfo.value = {
-    pictureUrl: item.fileUrls,
     introduction: item.prompt,
     tags: [item.modelName],
     pictureStatus: '0',
+    logId: item.logId,
+    pointsNeed: 0,
+    spaceId: '',
+    folderId: '',
+    categoryId: '',
+    name: '',
   }
   openPublic.value = true
   getMySpaceList()
   getTagList()
   getPictureCategoryList()
 }
+const pictureLoading = ref(false)
 const handleSubmitPicture = () => {
+  pictureLoading.value = true
   console.log('提交图片', pictureInfo.value)
+  let categoryId = null
+  if (pictureInfo.value.categoryId && Array.isArray(pictureInfo.value.categoryId)) {
+    categoryId = pictureInfo.value.categoryId[pictureInfo.value.categoryId.length - 1]
+  }
+  let folderId = null
+  if (pictureInfo.value.folderId && Array.isArray(pictureInfo.value.folderId)) {
+    folderId = pictureInfo.value.folderId[pictureInfo.value.folderId.length - 1]
+  }
+  pictureInfo.value = {
+    ...pictureInfo.value,
+    categoryId,
+    folderId,
+  }
+  addPictureInfoByAi(pictureInfo.value).then((res) => {
+    if (res.code === 200) {
+      message.success('发布成功')
+      openPublic.value = false
+      pictureLoading.value = false
+    }
+  })
 }
 //endregion
 </script>

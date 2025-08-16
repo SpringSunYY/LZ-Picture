@@ -2,20 +2,21 @@ import type { API } from '@/types/common'
 import { http as request } from '@/utils'
 import type {
   MyPictureInfoVo,
+  PictureAiUpload,
   PictureDetailInfoVo,
   PictureInfo,
+  PictureInfoHotRequest,
   PictureInfoQuery,
   PictureInfoRecommendRequest,
   PictureInfoSearchRecommendVo,
   PictureInfoSearchSuggestionVo,
+  PictureInfoTableVo,
   PictureInfoUpdate,
+  PictureInfoUpdateName,
   PictureInfoVo,
   PictureRecommendRequest,
-  UserRecommendPictureInfoVo,
   PictureUrlUpload,
-  PictureInfoTableVo,
-  PictureInfoUpdateName,
-  PictureInfoHotRequest,
+  UserRecommendPictureInfoVo
 } from '@/types/picture/picture'
 
 /**
@@ -37,6 +38,17 @@ export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<numb
 export function addPictureInfoUrl(data: PictureUrlUpload): Promise<API.ResponseInfo<number>> {
   return request({
     url: '/picture/pictureInfo/upload/url',
+    method: 'post',
+    data: data,
+  })
+}
+
+/**
+ * 新增图片根据AI
+ */
+export function addPictureInfoByAi(data: PictureAiUpload): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/picture/pictureInfo/upload/ai',
     method: 'post',
     data: data,
   })

@@ -303,4 +303,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         return generateLogInfo;
     }
 
+    @Override
+    public GenerateLogInfo selectNormalGenerateLogInfoByLogId(String logId) {
+        return this.getOne(new LambdaQueryWrapper<GenerateLogInfo>().eq(GenerateLogInfo::getLogId, logId).eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
+    }
+
 }

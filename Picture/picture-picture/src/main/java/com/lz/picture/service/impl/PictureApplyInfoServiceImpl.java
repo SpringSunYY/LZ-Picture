@@ -75,9 +75,6 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
     private ISpaceInfoService spaceInfoService;
 
     @Resource
-    private PictureDownloadManager pictureDownloadManager;
-
-    @Resource
     private ISysConfigService sysConfigService;
 
 

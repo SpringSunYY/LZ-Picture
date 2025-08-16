@@ -5,6 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.ai.model.domain.GenerateLogInfo;
+import com.lz.ai.model.enums.AiGenerateHasPublicEnum;
+import com.lz.ai.model.enums.AiLogStatusEnum;
+import com.lz.ai.service.IGenerateLogInfoService;
 import com.lz.common.annotation.CustomCacheEvict;
 import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
@@ -65,6 +69,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
@@ -137,6 +142,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @Resource
     private IStatisticsInfoService statisticsInfoService;
+
+    @Resource
+    private IGenerateLogInfoService generateLogInfoService;
+
+    @Resource
+    @Lazy
+    private IPictureApplyInfoService pictureApplyInfoService;
 
     //region mybatis代码
 
@@ -321,6 +333,95 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public PictureInfo selectPictureInfoNormalByPictureId(String pictureId) {
         return this.getOne(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getPictureId, pictureId).eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
+    }
+
+    @Override
+    public int userInsertPictureInfoByAi(PictureAiUpload pictureAiUpload) {
+        //1、查询记录是否存在，拿到记录信息
+        GenerateLogInfo generateLogInfo = generateLogInfoService.selectNormalGenerateLogInfoByLogId(pictureAiUpload.getLogId());
+        ThrowUtils.throwIf(StringUtils.isNull(generateLogInfo)
+                        || !generateLogInfo.getUserId().equals(pictureAiUpload.getUserId())
+                        || !generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
+                HttpStatus.NO_CONTENT, "记录不存在或已删除");
+        ThrowUtils.throwIf(generateLogInfo.getHasPublic().equals(AiGenerateHasPublicEnum.HAS_PUBLIC_0.getValue()), "改记录已发布！！！");
+        //2、拿到记录信息的图片地址
+        String fileUrls = generateLogInfo.getFileUrls();
+        ThrowUtils.throwIf(StringUtils.isEmpty(fileUrls), HttpStatus.NO_CONTENT, "图片不存在或已删除");
+        String[] split = fileUrls.split(COMMON_SEPARATOR);
+        String pictureUrl = split[0];
+        String thumbnailUrl = split[1];
+        //3、校验
+        Date nowDate = new Date();
+        PictureInfo pictureInfo = new PictureInfo();
+        pictureInfo.setThumbnailUrl(thumbnailUrl);
+        pictureInfo.setPictureUrl(pictureUrl);
+        pictureInfo.setCreateTime(nowDate);
+        BeanUtils.copyBeanProp(pictureInfo, pictureAiUpload);
+        SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
+        //查询分类是否存在
+        PictureCategoryInfo categoryInfo = new PictureCategoryInfo();
+        if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {
+            //查询分类是否存在
+            categoryInfo = pictureCategoryInfoService.selectPictureCategoryInfoByCategoryId(pictureInfo.getCategoryId());
+            ThrowUtils.throwIf(StringUtils.isNull(categoryInfo)
+                            || !categoryInfo.getCategoryStatus().equals(PCategoryStatusEnum.CATEGORY_STATUS_0.getValue())
+                            || !categoryInfo.getCategoryType().equals(PCategoryTypeEnum.CATEGORY_TYPE_1.getValue()),
+                    HttpStatus.NO_CONTENT, "分类不存在或不可选,或不是AI类型分类");
+            categoryInfo.setUsageCount(categoryInfo.getUsageCount() + 1);
+        }
+        //4、更新空间信息
+        spaceInfo.setTotalCount(spaceInfo.getTotalCount() + 1);
+        spaceInfo.setTotalSize(spaceInfo.getTotalSize() + pictureInfo.getPicSize());
+        spaceInfo.setLastUpdateTime(nowDate);
+        //判断当前空间是否到达最大值 官方空间没有限制
+        if (spaceInfo.getTotalCount() > spaceInfo.getMaxCount() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())
+                || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
+            throw new ServiceException("空间已满，无法上传图片", HttpStatus.NO_CONTENT);
+        }
+        //5、图片操作
+        // 计算宽高比例
+        double picScale = (double) pictureInfo.getPicWidth() / (double) pictureInfo.getPicHeight();
+        //保留小数点后1位
+        picScale = Double.parseDouble(String.format("%.1f", picScale));
+        pictureInfo.setPicScale(picScale);
+        pictureInfo.setPictureId(IdUtils.snowflakeId().toString());
+        int i = 0;
+        if (pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_0.getValue())) {
+            //创建申请
+            PictureApplyInfo pictureApplyInfo = new PictureApplyInfo();
+            pictureApplyInfo.setApplyId(IdUtils.fastSimpleUUID());
+            pictureApplyInfo.setPictureId(pictureInfo.getPictureId());
+            pictureApplyInfo.setPictureName(pictureInfo.getName());
+            pictureApplyInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl());
+            pictureApplyInfo.setApplyType(PPictureApplyTypeEnum.PICTURE_APPLY_TYPE_3.getValue());
+            pictureApplyInfo.setApplyReason(pictureInfo.getIntroduction());
+            pictureApplyInfo.setApplyImage(pictureInfo.getPictureUrl());
+            pictureApplyInfo.setContact("AI生成");
+            pictureApplyInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
+            //如果传过来的积分不为空，判断是否为10的倍数或者0
+            ThrowUtils.throwIf(StringUtils.isNotNull(pictureApplyInfo.getPointsNeed())
+                    && pictureApplyInfo.getPointsNeed() % 10 != 0
+                    || pictureApplyInfo.getPointsNeed() < 0, "积分必须是10的倍数或者0");
+            pictureApplyInfo.setPriceNeed(null);
+            pictureApplyInfo.setUserId(pictureAiUpload.getUserId());
+            pictureApplyInfo.setCreateTime(nowDate);
+            pictureApplyInfo.setReviewStatus(PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_0.getValue());
+            Integer execute = transactionTemplate.execute(task -> {
+                pictureInfoMapper.insertPictureInfo(pictureInfo);
+                pictureApplyInfoService.save(pictureApplyInfo);
+                return 1;
+            });
+            i = StringUtils.isNotNull(execute) ? 1 : 0;
+        } else {
+            i = pictureInfoMapper.insertPictureInfo(pictureInfo);
+        }
+
+        //异步更新图片空间、标签、标签关联、分类
+        PictureCategoryInfo finalCategoryInfo = categoryInfo;
+        executorService.execute(() -> {
+            implementPictureAdd(pictureInfo, spaceInfo, finalCategoryInfo);
+        });
+        return i;
     }
 
     @Override

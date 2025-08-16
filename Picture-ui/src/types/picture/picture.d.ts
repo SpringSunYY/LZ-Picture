@@ -331,6 +331,71 @@ export interface PictureDownloadVo {
 }
 
 /**
+ * 图片URL上传请求参数
+ *
+ * @Project: Picture
+ * @Author: YY
+ * @CreateTime: 2025-06-13  11:17
+ * @Version: 1.0
+ */
+export interface PictureAiUpload {
+  /**
+   * 图片名称
+   * 不能为空
+   */
+  name: string
+
+  /**
+   * 简介
+   */
+  introduction?: string
+
+  /**
+   * 分类编号
+   * 不能为空，且必须是AI下分类
+   */
+  categoryId: string
+
+  /**
+   * 所属空间编号
+   * 不能为空
+   */
+  spaceId: string
+
+  /**
+   * 所属文件夹编号
+   */
+  folderId?: string
+
+  /**
+   * 图片标签
+   */
+  tags?: string[]
+
+  /**
+   * 图片状态
+   * 不能为空
+   */
+  pictureStatus: string
+
+  /**
+   * 消耗积分
+   */
+  pointsNeed?: number
+
+  /**
+   * 用户编号
+   */
+  userId?: string
+
+  /**
+   * 生成记录编号
+   * 不能为空
+   */
+  logId: string
+}
+
+/**
  * 用户推荐的图片信息 VO（前端对应类）
  * 对应后端的 UserRecommendPictureInfoVo
  */

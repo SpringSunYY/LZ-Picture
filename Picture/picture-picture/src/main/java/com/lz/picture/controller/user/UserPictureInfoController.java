@@ -71,7 +71,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     @PreAuthorize("@uss.hasPermi('picture:pictureSearchUpload')")
     @PostMapping("/upload/url")
     public AjaxResult uploadUrl(@RequestBody @Validated PictureUrlUpload pictureUrlUpload) {
-        System.err.println(pictureUrlUpload);
+//        System.err.println(pictureUrlUpload);
         // 执行业务上传
         FileResponse fileResponse = pictureUploadManager.uploadUrl(pictureUrlUpload.getUrl(), "picture", getUsername());
 
@@ -104,6 +104,15 @@ public class UserPictureInfoController extends BaseUserInfoController {
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
+    /**
+     * 发布图片：根据ai
+     */
+    @PreAuthorize("@uss.hasPermi('picture:upload')")
+    @PostMapping("/upload/ai")
+    public AjaxResult uploadAi(@RequestBody @Validated PictureAiUpload pictureAiUpload) {
+        pictureAiUpload.setUserId(getUserId());
+        return success(pictureInfoService.userInsertPictureInfoByAi(pictureAiUpload));
+    }
     /**
      * 修改图片
      */
