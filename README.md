@@ -288,8 +288,8 @@ public @interface CustomSort {
        * @date: 2025/5/10 22:56
        **/
       void recordFileLog(FileResponse fileResponse, String userId, String logType, DeviceInfo deviceInfo);
-  ```
-  
+```
+
   其中逻辑：如果传入原图和压缩图，就执行保存对应的信息
 
 - 更新逻辑，需要自己实现，当前的直接去看项目注释，例如：
@@ -2713,6 +2713,7 @@ CREATE TABLE p_picture_tag_info (
 | like_count     | bigint   |      | 索引                              | 否   | 0              | 点赞次数            |
 | share_count    | bigint   |      | 索引                              | 否   | 0              | 分享次数            |
 | download_count | bigint   |      | 索引                              | 否   | 0              | 下载次数            |
+| upload_type    | char     | 1    |                                   | 否   |                | 上传类型            |
 | more_info      | text     |      |                                   | 是   |                | 更多信息            |
 | space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间编号            |
 | folder_id      | varchar  | 128  |                                   | 是   |                | 文件夹              |
@@ -2751,7 +2752,8 @@ CREATE TABLE p_picture_info
     collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
     like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
     share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
-    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',    
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
+    upload_type    CHAR(1)      NOT NULL COMMENT '上传类型',
     more_info      TEXT         COMMENT '更多信息',
     space_id       VARCHAR(128) COMMENT '所属空间编号',
     folder_id      VARCHAR(128) COMMENT '所属文件夹编号',

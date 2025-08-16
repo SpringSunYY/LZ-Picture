@@ -167,6 +167,12 @@ public class PictureInfoVo implements Serializable {
     private String folderId;
 
     /**
+     * 上传类型
+     */
+    @Excel(name = "上传类型")
+    private String uploadType;
+
+    /**
      * 更多信息
      */
     @Excel(name = "更多信息")

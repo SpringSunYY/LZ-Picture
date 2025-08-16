@@ -297,6 +297,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         String folderId = pictureInfo.getFolderId();
         queryWrapper.eq(StringUtils.isNotEmpty(folderId), "folder_id", folderId);
 
+        String uploadType = pictureInfo.getUploadType();
+        queryWrapper.eq(StringUtils.isNotEmpty(uploadType), "upload_type", uploadType);
+
         String isDelete = pictureInfo.getIsDelete();
         queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
 

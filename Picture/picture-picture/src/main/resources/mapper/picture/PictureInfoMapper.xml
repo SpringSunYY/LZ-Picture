@@ -28,6 +28,7 @@
         <result property="downloadCount" column="download_count"/>
         <result property="spaceId" column="space_id"/>
         <result property="folderId" column="folder_id"/>
+        <result property="uploadType" column="upload_type"/>
         <result property="moreInfo" column="more_info"/>
         <result property="isDelete" column="is_delete"/>
         <result property="deletedTime" column="deleted_time"/>
@@ -66,6 +67,7 @@
                download_count,
                space_id,
                folder_id,
+               upload_type,
                more_info,
                is_delete,
                deleted_time
@@ -95,6 +97,7 @@
             <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
             <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
             <if test="folderId != null  and folderId != ''">and folder_id = #{folderId}</if>
+            <if test="uploadType != null  and uploadType != ''">and upload_type = #{uploadType}</if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
             <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''">
                 and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and
@@ -142,6 +145,7 @@
             <if test="downloadCount != null">download_count,</if>
             <if test="spaceId != null">space_id,</if>
             <if test="folderId != null">folder_id,</if>
+            <if test="uploadType != null and uploadType != ''">upload_type,</if>
             <if test="moreInfo != null">more_info,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
             <if test="deletedTime != null">deleted_time,</if>
@@ -170,6 +174,7 @@
             <if test="downloadCount != null">#{downloadCount},</if>
             <if test="spaceId != null">#{spaceId},</if>
             <if test="folderId != null">#{folderId},</if>
+            <if test="uploadType != null and uploadType != ''">#{uploadType},</if>
             <if test="moreInfo != null">#{moreInfo},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
             <if test="deletedTime != null">#{deletedTime},</if>
@@ -201,6 +206,7 @@
             <if test="downloadCount != null">download_count = #{downloadCount},</if>
             <if test="spaceId != null">space_id = #{spaceId},</if>
             <if test="folderId != null">folder_id = #{folderId},</if>
+            <if test="uploadType != null and uploadType != ''">upload_type = #{uploadType},</if>
             <if test="moreInfo != null">more_info = #{moreInfo},</if>
             <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
             <if test="deletedTime != null">deleted_time = #{deletedTime},</if>

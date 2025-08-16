@@ -102,6 +102,11 @@ public class PictureInfoQuery implements Serializable {
     private String folderId;
 
     /**
+     * 上传类型
+     */
+    private String uploadType;
+
+    /**
      * 删除（0否 1是）
      */
     private String isDelete;

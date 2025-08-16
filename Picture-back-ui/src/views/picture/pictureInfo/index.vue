@@ -132,6 +132,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="上传类型" prop="uploadType">
+        <el-select v-model="queryParams.uploadType" style="width: 200px" placeholder="请选择上传类型" clearable>
+          <el-option
+              v-for="dict in p_picture_upload_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="删除" prop="isDelete">
         <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
           <el-option
@@ -299,16 +309,21 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[23].visible"
+      <el-table-column label="上传类型" align="center" prop="uploadType" v-if="columns[23].visible">
+        <template #default="scope">
+          <dict-tag :options="p_picture_upload_type" :value="scope.row.uploadType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[24].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[24].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[25].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
       <el-table-column label="删除时间" align="center" prop="deletedTime" sortable="custom" column-key="deleted_time"
                        width="180"
-                       v-if="columns[25].visible"
+                       v-if="columns[26].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -402,17 +417,16 @@
         <el-form-item label="下载次数" prop="downloadCount">
           <el-input-number :min="0" v-model="form.downloadCount" placeholder="请输入下载次数"/>
         </el-form-item>
-        <!--        <el-form-item label="审核人" prop="reviewUserId">-->
-        <!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人"/>-->
-        <!--        </el-form-item>-->
-        <!--        <el-form-item label="审核时间" prop="reviewTime">-->
-        <!--          <el-date-picker clearable-->
-        <!--                          v-model="form.reviewTime"-->
-        <!--                          type="date"-->
-        <!--                          value-format="YYYY-MM-DD"-->
-        <!--                          placeholder="请选择审核时间">-->
-        <!--          </el-date-picker>-->
-        <!--        </el-form-item>-->
+        <el-form-item label="上传类型" prop="uploadType">
+          <el-select v-model="form.uploadType" placeholder="请选择上传类型">
+            <el-option
+                v-for="dict in p_picture_upload_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <!--        <el-form-item label="缩略图" prop="thumbnailUrl">-->
         <!--          <image-upload v-model="form.thumbnailUrl"/>-->
         <!--        </el-form-item>-->
@@ -458,8 +472,9 @@ import {useRoute} from "vue-router";
 const {proxy} = getCurrentInstance();
 const {
   common_delete,
-  p_picture_status
-} = proxy.useDict('common_delete', 'p_picture_status');
+  p_picture_status,
+  p_picture_upload_type
+} = proxy.useDict('common_delete', 'p_picture_status', 'p_picture_upload_type');
 
 const pictureInfoList = ref([]);
 const open = ref(false);
@@ -499,6 +514,7 @@ const data = reactive({
     updateTime: null,
     spaceId: null,
     folderId: null,
+    uploadType: null,
     isDelete: null,
     deletedTime: null,
     pictureStatus: ruoteQuery,
@@ -531,14 +547,14 @@ const data = reactive({
     {key: 0, label: '图片', visible: false},
     {key: 1, label: '原图', visible: false},
     {key: 2, label: '缩略图', visible: true},
-    {key: 3, label: '图片名称', visible: true},
+    {key: 3, label: '图片名称', visible: false},
     {key: 4, label: '简介', visible: false},
-    {key: 5, label: '分类', visible: true},
+    {key: 5, label: '分类', visible: false},
     {key: 6, label: '图片体积', visible: true},
     {key: 7, label: '图片宽度', visible: false},
     {key: 8, label: '图片高度', visible: false},
     {key: 9, label: '宽高比例', visible: false},
-    {key: 10, label: '图片格式', visible: true},
+    {key: 10, label: '图片格式', visible: false},
     {key: 11, label: '上传用户', visible: false},
     {key: 12, label: '创建时间', visible: true},
     {key: 13, label: '发布时间', visible: false},
@@ -551,9 +567,10 @@ const data = reactive({
     {key: 20, label: '下载次数', visible: true},
     {key: 21, label: '所属空间', visible: false},
     {key: 22, label: '文件夹', visible: false},
-    {key: 23, label: '更多信息', visible: false},
-    {key: 24, label: '删除', visible: false},
-    {key: 25, label: '删除时间', visible: false},
+    {key: 23, label: '上传类型', visible: true},
+    {key: 24, label: '更多信息', visible: false},
+    {key: 25, label: '删除', visible: false},
+    {key: 26, label: '删除时间', visible: false},
   ],
 });
 
@@ -647,6 +664,7 @@ function reset() {
     downloadCount: null,
     spaceId: null,
     folderId: null,
+    uploadType: null,
     moreInfo: null,
     isDelete: null,
     deletedTime: null

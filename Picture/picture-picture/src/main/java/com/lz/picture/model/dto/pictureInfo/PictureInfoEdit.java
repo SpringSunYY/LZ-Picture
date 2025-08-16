@@ -1,14 +1,12 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.annotation.Excel;
+import com.lz.picture.model.domain.PictureInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.PictureInfo;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * 图片信息Vo对象 p_picture_info
@@ -92,6 +90,12 @@ public class PictureInfoEdit implements Serializable {
      * 下载次数
      */
     private Long downloadCount;
+
+    /**
+     * 上传类型
+     */
+    private String uploadType;
+
 
     /**
      * 更多信息
