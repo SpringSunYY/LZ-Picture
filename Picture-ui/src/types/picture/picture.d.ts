@@ -561,6 +561,12 @@ export interface PictureInfoAiVo {
 
   /** 下载次数 */
   downloadCount: number
+
+  /** 宽度 */
+  width: number
+
+  /** 高度 */
+  height: number
 }
 
 /**

@@ -42,6 +42,15 @@ public class PictureInfoAiVo implements Serializable {
      */
     private String introduction;
 
+    /**
+     * 图片宽度
+     */
+    private Integer picWidth;
+
+    /**
+     * 图片高度
+     */
+    private Integer picHeight;
 
     /**
      * 创建时间
@@ -81,11 +90,6 @@ public class PictureInfoAiVo implements Serializable {
      */
     private Long shareCount;
 
-
-    /**
-     * 下载次数
-     */
-    private Long downloadCount;
 
     /**
      * 对象转封装类

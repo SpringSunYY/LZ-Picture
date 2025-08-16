@@ -336,7 +336,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return this.getOne(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getPictureId, pictureId).eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
     }
 
-    @CustomCacheEvict(keyPrefixes= {PICTURE_AI}, keyFields = {"pictureAiUpload.userId"})
+    @CustomCacheEvict(keyPrefixes = {PICTURE_AI}, keyFields = {"pictureAiUpload.userId"})
     @Override
     public int userInsertPictureInfoByAi(PictureAiUpload pictureAiUpload) {
         //1、查询记录是否存在，拿到记录信息
@@ -1650,9 +1650,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfoPage.setSize(query.getPageSize());
         //构造查询条件
         LambdaQueryWrapper<PictureInfo> lambdaQueryWrapper = new LambdaQueryWrapper<PictureInfo>()
-                .select(PictureInfo::getPictureId, PictureInfo::getName, PictureInfo::getCreateTime,
+                .select(PictureInfo::getPictureId, PictureInfo::getName, PictureInfo::getCreateTime, PictureInfo::getPicWidth, PictureInfo::getPicHeight,
                         PictureInfo::getLookCount, PictureInfo::getLikeCount, PictureInfo::getCollectCount, PictureInfo::getShareCount,
-                        PictureInfo::getDownloadCount, PictureInfo::getIntroduction, PictureInfo::getPictureUrl)
+                        PictureInfo::getIntroduction, PictureInfo::getPictureUrl)
                 .eq(StringUtils.isNotEmpty(query.getUserId()), PictureInfo::getUserId, query.getUserId())
                 .eq(StringUtils.isNotEmpty(query.getPictureStatus()), PictureInfo::getPictureStatus, query.getPictureStatus())
                 .eq(PictureInfo::getUploadType, PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue())

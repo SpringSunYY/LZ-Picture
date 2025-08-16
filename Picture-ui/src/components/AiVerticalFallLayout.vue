@@ -9,7 +9,29 @@
         @click="handleToPicture(item)"
       >
         <MasonryImage :src="item.pictureUrl" :alt="item.name">
-          {{ item.name }}
+          <div class="masonry-item-content">
+            <div class="masonry-item-title">
+              {{ item.name }}
+            </div>
+            <div class="masonry-item-meta">
+              <div class="meta-item">
+                <SvgIcon name="aiView" />
+                <span class="meta-content">{{ item.lookCount }}</span>
+              </div>
+              <div class="meta-item">
+                <SvgIcon name="like" />
+                <span class="meta-content">{{ item.likeCount }}</span>
+              </div>
+              <div class="meta-item">
+                <SvgIcon name="share" />
+                <span class="meta-content">{{ item.shareCount }}</span>
+              </div>
+              <div class="meta-item">
+                <SvgIcon name="collect" />
+                <span class="meta-content">{{ item.collectCount }}</span>
+              </div>
+            </div>
+          </div>
         </MasonryImage>
       </div>
     </div>
@@ -29,6 +51,7 @@ import type { PictureInfoAiVo, PictureInfoVo } from '@/types/picture/picture'
 import { useRouter } from 'vue-router'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const props = defineProps({
   pictureList: {
@@ -73,13 +96,13 @@ function calculateRowSpan(width: number, height: number): number {
   const aspectRatio = height / width
 
   // 横图处理 (宽大于高)
-  if (aspectRatio <= 0.75) {
+  if (aspectRatio <= 0.9) {
     // 非常宽的图片，减少高度
     return Math.max(8, Math.round(20 * aspectRatio))
   }
 
   // 竖图处理 (高大于宽)
-  if (aspectRatio >= 1.5) {
+  if (aspectRatio >= 1.8) {
     // 非常高的图片，增加高度
     return Math.min(40, Math.round(12 * aspectRatio))
   }
@@ -157,6 +180,40 @@ onBeforeUnmount(() => {
   .masonry-item {
     width: 100%;
     transition: all 0.3s ease-in-out;
+
+    .masonry-item-content {
+      width: 100%;
+      height: 100%;
+      //内容左右布局
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+
+      .masonry-item-title {
+        font-size: 18px;
+        margin-bottom: 0;
+      }
+
+      .masonry-item-meta {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        flex-direction: column;
+        justify-content: center;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 20px;
+
+          .meta-content {
+            padding-left: 10px;
+          }
+        }
+      }
+    }
   }
 
   .load-more-trigger {

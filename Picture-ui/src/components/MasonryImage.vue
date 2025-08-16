@@ -64,6 +64,7 @@ defineEmits(['click'])
 
 /* 放在蒙版里的文字 */
 .hover-content {
+  width: 100%;
   color: #fff;
   font-size: 14px;
   pointer-events: none;
