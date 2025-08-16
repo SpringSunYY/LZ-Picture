@@ -17,16 +17,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="存储类型" prop="ossType">
-        <el-select v-model="queryParams.ossType" style="width: 200px" placeholder="请选择存储类型" clearable>
-          <el-option
-              v-for="dict in p_space_oss_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="所属用户" prop="userId">
         <el-input
             v-model="queryParams.userId"
@@ -169,90 +159,83 @@
           <image-preview :src="scope.row.spaceAvatar" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="存储类型" align="center" prop="ossType" v-if="columns[3].visible">
-        <template #default="scope">
-          <dict-tag :options="p_space_oss_type" :value="scope.row.ossType"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="存储配置" align="center" prop="ossConfig" v-if="columns[4].visible"
-                       :show-overflow-tooltip="true"/>
       <el-table-column label="最大容量" align="center" prop="maxSize" sortable="custom" column-key="max_size"
-                       v-if="columns[5].visible"
+                       v-if="columns[3].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.maxSize) }}
         </template>
       </el-table-column>
       <el-table-column label="最大文件数" align="center" prop="maxCount" sortable="custom" column-key="max_count"
-                       v-if="columns[6].visible"
+                       v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="已用容量" align="center" prop="totalSize" sortable="custom" column-key="total_size"
-                       v-if="columns[7].visible"
+                       v-if="columns[5].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.totalSize) }}
         </template>
       </el-table-column>
       <el-table-column label="文件总数" align="center" prop="totalCount" sortable="custom" column-key="total_count"
-                       v-if="columns[8].visible"
+                       v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
-                       v-if="columns[9].visible"
+                       v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="收藏次数" align="center" prop="collectCount" sortable="custom" column-key="collect_count"
-                       v-if="columns[10].visible"
+                       v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom"
-                       column-key="download_count" v-if="columns[11].visible"
+                       column-key="download_count" v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="所属用户" align="center" prop="userId" v-if="columns[12].visible"
+      <el-table-column label="所属用户" align="center" prop="userId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间描述" align="center" prop="spaceDesc" v-if="columns[13].visible"
+      <el-table-column label="空间描述" align="center" prop="spaceDesc" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="空间状态" align="center" prop="spaceStatus" v-if="columns[14].visible">
+      <el-table-column label="空间状态" align="center" prop="spaceStatus" v-if="columns[12].visible">
         <template #default="scope">
           <dict-tag :options="p_space_status" :value="scope.row.spaceStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="空间类型" align="center" prop="spaceType" v-if="columns[15].visible">
+      <el-table-column label="空间类型" align="center" prop="spaceType" v-if="columns[13].visible">
         <template #default="scope">
           <dict-tag :options="p_space_type" :value="scope.row.spaceType"/>
         </template>
       </el-table-column>
       <el-table-column label="成员上限" align="center" prop="memberLimit" sortable="custom" column-key="member_limit"
-                       v-if="columns[16].visible"
+                       v-if="columns[14].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="当前成员数" align="center" prop="currentMembers" sortable="custom"
-                       column-key="current_members" v-if="columns[17].visible"
+                       column-key="current_members" v-if="columns[15].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable="custom"
-                       column-key="create_time" v-if="columns[18].visible"
+                       column-key="create_time" v-if="columns[16].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="最后上传时间" align="center" prop="lastUpdateTime" sortable="custom"
-                       column-key="last_update_time" width="180" v-if="columns[19].visible"
+                       column-key="last_update_time" width="180" v-if="columns[17].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.lastUpdateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" sortable="custom"
-                       column-key="update_time" v-if="columns[20].visible"
+                       column-key="update_time" v-if="columns[18].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[21].visible">
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[19].visible">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
         </template>
       </el-table-column>
       <el-table-column label="删除时间" align="center" prop="deletedTime" width="180" sortable="custom"
-                       column-key="deleted_time" v-if="columns[22].visible"
+                       column-key="deleted_time" v-if="columns[20].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.deletedTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -287,19 +270,6 @@
         <!--        <el-form-item label="空间封面" prop="spaceAvatar">-->
         <!--          <image-upload v-model="form.spaceAvatar"/>-->
         <!--        </el-form-item>-->
-        <el-form-item label="存储类型" prop="ossType">
-          <el-select v-model="form.ossType" placeholder="请选择存储类型">
-            <el-option
-                v-for="dict in p_space_oss_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="存储配置" prop="ossConfig">
-          <el-input v-model="form.ossConfig" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
         <!--        <el-form-item label="最大容量" prop="maxSize">-->
         <!--          <el-input v-model="form.maxSize" placeholder="请输入最大容量"/>-->
         <!--        </el-form-item>-->
@@ -380,8 +350,7 @@ const {
   common_delete,
   p_space_status,
   p_space_type,
-  p_space_oss_type
-} = proxy.useDict('common_delete', 'p_space_status', 'p_space_type', 'p_space_oss_type');
+} = proxy.useDict('common_delete', 'p_space_status', 'p_space_type');
 
 const spaceInfoList = ref([]);
 const open = ref(false);
@@ -405,7 +374,6 @@ const data = reactive({
     pageSize: 10,
     spaceId: null,
     spaceName: null,
-    ossType: null,
     userId: null,
     spaceStatus: null,
     spaceType: null,
@@ -418,9 +386,6 @@ const data = reactive({
   rules: {
     spaceName: [
       {required: true, message: "空间名称不能为空", trigger: "blur"}
-    ],
-    ossType: [
-      {required: true, message: "存储类型不能为空", trigger: "change"}
     ],
     userId: [
       {required: true, message: "所属用户不能为空", trigger: "blur"}
@@ -443,26 +408,24 @@ const data = reactive({
     {key: 0, label: '空间编号', visible: false},
     {key: 1, label: '空间名称', visible: true},
     {key: 2, label: '空间封面', visible: true},
-    {key: 3, label: '存储类型', visible: true},
-    {key: 4, label: '存储配置', visible: false},
-    {key: 5, label: '最大容量', visible: false},
-    {key: 6, label: '最大文件数', visible: false},
-    {key: 7, label: '已用容量', visible: true},
-    {key: 8, label: '文件总数', visible: true},
-    {key: 9, label: '查看次数', visible: true},
-    {key: 10, label: '收藏次数', visible: false},
-    {key: 11, label: '下载次数', visible: true},
-    {key: 12, label: '所属用户', visible: true},
-    {key: 13, label: '空间描述', visible: false},
-    {key: 14, label: '空间状态', visible: true},
-    {key: 15, label: '空间类型', visible: true},
-    {key: 16, label: '成员上限', visible: false},
-    {key: 17, label: '当前成员数', visible: false},
-    {key: 18, label: '创建时间', visible: true},
-    {key: 19, label: '最后上传时间', visible: false},
-    {key: 20, label: '最后更新时间', visible: false},
-    {key: 21, label: '删除', visible: false},
-    {key: 22, label: '删除时间', visible: false},
+    {key: 3, label: '最大容量', visible: false},
+    {key: 4, label: '最大文件数', visible: false},
+    {key: 5, label: '已用容量', visible: true},
+    {key: 6, label: '文件总数', visible: true},
+    {key: 7, label: '查看次数', visible: true},
+    {key: 8, label: '收藏次数', visible: false},
+    {key: 9, label: '下载次数', visible: true},
+    {key: 10, label: '所属用户', visible: true},
+    {key: 11, label: '空间描述', visible: false},
+    {key: 12, label: '空间状态', visible: true},
+    {key: 13, label: '空间类型', visible: true},
+    {key: 14, label: '成员上限', visible: false},
+    {key: 15, label: '当前成员数', visible: false},
+    {key: 16, label: '创建时间', visible: true},
+    {key: 17, label: '最后上传时间', visible: false},
+    {key: 18, label: '最后更新时间', visible: false},
+    {key: 19, label: '删除', visible: false},
+    {key: 20, label: '删除时间', visible: false},
   ],
 });
 
@@ -528,8 +491,6 @@ function reset() {
     spaceId: null,
     spaceName: null,
     spaceAvatar: null,
-    ossType: null,
-    ossConfig: null,
     maxSize: null,
     maxCount: null,
     totalSize: null,

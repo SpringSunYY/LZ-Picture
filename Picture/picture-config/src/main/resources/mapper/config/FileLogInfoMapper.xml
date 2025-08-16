@@ -9,11 +9,9 @@
         <result property="userId" column="user_id"/>
         <result property="targetId" column="target_id"/>
         <result property="targetContent" column="target_content"/>
-        <result property="dnsUrl" column="dns_url"/>
         <result property="fileUrl" column="file_url"/>
         <result property="fileType" column="file_type"/>
         <result property="logStatus" column="log_status"/>
-        <result property="ossType" column="oss_type"/>
         <result property="logType" column="log_type"/>
         <result property="isCompress" column="is_compress"/>
         <result property="createTime" column="create_time"/>
@@ -31,11 +29,9 @@
                user_id,
                target_id,
                target_content,
-               dns_url,
                file_url,
                file_type,
                log_status,
-               oss_type,
                log_type,
                is_compress,
                create_time,
@@ -58,10 +54,8 @@
             <if test="targetContent != null  and targetContent != ''">and target_content like concat('%',
                 #{targetContent}, '%')
             </if>
-            <if test="dnsUrl != null  and dnsUrl != ''">and dns_url like concat('%', #{dnsUrl}, '%')</if>
             <if test="fileType != null  and fileType != ''">and file_type = #{fileType}</if>
             <if test="logStatus != null  and logStatus != ''">and log_status = #{logStatus}</if>
-            <if test="ossType != null  and ossType != ''">and oss_type = #{ossType}</if>
             <if test="logType != null  and logType != ''">and log_type = #{logType}</if>
             <if test="isCompress != null  and isCompress != ''">and is_compress = #{isCompress}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
@@ -99,11 +93,9 @@
             <if test="userId != null and userId != ''">user_id,</if>
             <if test="targetId != null and targetId != ''">target_id,</if>
             <if test="targetContent != null">target_content,</if>
-            <if test="dnsUrl != null and dnsUrl != ''">dns_url,</if>
             <if test="fileUrl != null and fileUrl != ''">file_url,</if>
             <if test="fileType != null and fileType != ''">file_type,</if>
             <if test="logStatus != null and logStatus != ''">log_status,</if>
-            <if test="ossType != null and ossType != ''">oss_type,</if>
             <if test="logType != null and logType != ''">log_type,</if>
             <if test="isCompress != null and isCompress != ''">is_compress,</if>
             <if test="createTime != null">create_time,</if>
@@ -120,11 +112,9 @@
             <if test="userId != null and userId != ''">#{userId},</if>
             <if test="targetId != null and targetId != ''">#{targetId},</if>
             <if test="targetContent != null">#{targetContent},</if>
-            <if test="dnsUrl != null and dnsUrl != ''">#{dnsUrl},</if>
             <if test="fileUrl != null and fileUrl != ''">#{fileUrl},</if>
             <if test="fileType != null and fileType != ''">#{fileType},</if>
             <if test="logStatus != null and logStatus != ''">#{logStatus},</if>
-            <if test="ossType != null and ossType != ''">#{ossType},</if>
             <if test="logType != null and logType != ''">#{logType},</if>
             <if test="isCompress != null and isCompress != ''">#{isCompress},</if>
             <if test="createTime != null">#{createTime},</if>
@@ -144,11 +134,9 @@
             <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="targetId != null and targetId != ''">target_id = #{targetId},</if>
             <if test="targetContent != null">target_content = #{targetContent},</if>
-            <if test="dnsUrl != null and dnsUrl != ''">dns_url = #{dnsUrl},</if>
             <if test="fileUrl != null and fileUrl != ''">file_url = #{fileUrl},</if>
             <if test="fileType != null and fileType != ''">file_type = #{fileType},</if>
             <if test="logStatus != null and logStatus != ''">log_status = #{logStatus},</if>
-            <if test="ossType != null and ossType != ''">oss_type = #{ossType},</if>
             <if test="logType != null and logType != ''">log_type = #{logType},</if>
             <if test="isCompress != null and isCompress != ''">is_compress = #{isCompress},</if>
             <if test="createTime != null">create_time = #{createTime},</if>

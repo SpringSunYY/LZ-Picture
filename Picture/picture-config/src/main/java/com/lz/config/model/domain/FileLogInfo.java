@@ -52,12 +52,6 @@ public class FileLogInfo implements Serializable {
     private String targetContent;
 
     /**
-     * 域名URL
-     */
-    @Excel(name = "域名URL")
-    private String dnsUrl;
-
-    /**
      * 文件路径
      */
     @Excel(name = "文件路径")
@@ -74,12 +68,6 @@ public class FileLogInfo implements Serializable {
      */
     @Excel(name = "状态", readConverterExp = "0=冗余,1=正常,2=删除")
     private String logStatus;
-
-    /**
-     * 存储类型（0官方 1阿里云）
-     */
-    @Excel(name = "存储类型", readConverterExp = "0=官方,1=阿里云")
-    private String ossType;
 
     /**
      * 日志类型（0图片 1空间封面 2头像）

@@ -7,7 +7,6 @@
     <resultMap type="PictureInfo" id="PictureInfoResult">
         <result property="pictureId" column="picture_id"/>
         <result property="pictureUrl" column="picture_url"/>
-        <result property="dnsUrl" column="dns_url"/>
         <result property="name" column="name"/>
         <result property="introduction" column="introduction"/>
         <result property="categoryId" column="category_id"/>
@@ -29,6 +28,7 @@
         <result property="downloadCount" column="download_count"/>
         <result property="spaceId" column="space_id"/>
         <result property="folderId" column="folder_id"/>
+        <result property="uploadType" column="upload_type"/>
         <result property="moreInfo" column="more_info"/>
         <result property="isDelete" column="is_delete"/>
         <result property="deletedTime" column="deleted_time"/>
@@ -36,7 +36,6 @@
 
     <resultMap type="PictureInfo" id="PictureInfoResultVo">
         <result property="pictureId" column="picture_id" jdbcType="VARCHAR"/>
-        <result property="dnsUrl" column="dns_url" jdbcType="CHAR"/>
         <result property="name" column="name" jdbcType="CHAR"/>
         <result property="picWidth" column="pic_width" jdbcType="INTEGER"/>
         <result property="picHeight" column="pic_height" jdbcType="INTEGER"/>
@@ -47,7 +46,6 @@
     <sql id="selectPictureInfoVo">
         select picture_id,
                picture_url,
-               dns_url,
                name,
                introduction,
                category_id,
@@ -69,6 +67,7 @@
                download_count,
                space_id,
                folder_id,
+               upload_type,
                more_info,
                is_delete,
                deleted_time
@@ -79,7 +78,6 @@
         <include refid="selectPictureInfoVo"/>
         <where>
             <if test="pictureId != null  and pictureId != ''">and picture_id = #{pictureId}</if>
-            <if test="dnsUrl != null  and dnsUrl != ''">and dns_url like concat('%', #{dnsUrl}, '%')</if>
             <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
             <if test="categoryId != null and categoryId != '' and categoryIds == null  ">
                 and category_id = #{categoryId}
@@ -99,6 +97,7 @@
             <if test="pictureStatus != null  and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
             <if test="spaceId != null  and spaceId != ''">and space_id = #{spaceId}</if>
             <if test="folderId != null  and folderId != ''">and folder_id = #{folderId}</if>
+            <if test="uploadType != null  and uploadType != ''">and upload_type = #{uploadType}</if>
             <if test="isDelete != null  and isDelete != ''">and is_delete = #{isDelete}</if>
             <if test="params.beginDeletedTime != null and params.beginDeletedTime != '' and params.endDeletedTime != null and params.endDeletedTime != ''">
                 and DATE_FORMAT(deleted_time, '%Y-%m-%d') between #{params.beginDeletedTime} and
@@ -125,7 +124,6 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">picture_id,</if>
             <if test="pictureUrl != null and pictureUrl != ''">picture_url,</if>
-            <if test="dnsUrl != null and dnsUrl != ''">dns_url,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="introduction != null">introduction,</if>
             <if test="categoryId != null and categoryId != ''">category_id,</if>
@@ -147,6 +145,7 @@
             <if test="downloadCount != null">download_count,</if>
             <if test="spaceId != null">space_id,</if>
             <if test="folderId != null">folder_id,</if>
+            <if test="uploadType != null and uploadType != ''">upload_type,</if>
             <if test="moreInfo != null">more_info,</if>
             <if test="isDelete != null and isDelete != ''">is_delete,</if>
             <if test="deletedTime != null">deleted_time,</if>
@@ -154,7 +153,6 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="pictureId != null">#{pictureId},</if>
             <if test="pictureUrl != null and pictureUrl != ''">#{pictureUrl},</if>
-            <if test="dnsUrl != null and dnsUrl != ''">#{dnsUrl},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="introduction != null">#{introduction},</if>
             <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
@@ -176,6 +174,7 @@
             <if test="downloadCount != null">#{downloadCount},</if>
             <if test="spaceId != null">#{spaceId},</if>
             <if test="folderId != null">#{folderId},</if>
+            <if test="uploadType != null and uploadType != ''">#{uploadType},</if>
             <if test="moreInfo != null">#{moreInfo},</if>
             <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
             <if test="deletedTime != null">#{deletedTime},</if>
@@ -186,7 +185,6 @@
         update p_picture_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="pictureUrl != null and pictureUrl != ''">picture_url = #{pictureUrl},</if>
-            <if test="dnsUrl != null and dnsUrl != ''">dns_url = #{dnsUrl},</if>
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="introduction != null">introduction = #{introduction},</if>
             <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
@@ -208,6 +206,7 @@
             <if test="downloadCount != null">download_count = #{downloadCount},</if>
             <if test="spaceId != null">space_id = #{spaceId},</if>
             <if test="folderId != null">folder_id = #{folderId},</if>
+            <if test="uploadType != null and uploadType != ''">upload_type = #{uploadType},</if>
             <if test="moreInfo != null">more_info = #{moreInfo},</if>
             <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
             <if test="deletedTime != null">deleted_time = #{deletedTime},</if>

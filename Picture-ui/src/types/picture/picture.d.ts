@@ -9,8 +9,6 @@ export interface PictureInfo {
   pictureId?: string
   /** 图片URL */
   pictureUrl: string
-  /** 域名URL */
-  dnsUrl?: string
 
   /** 图片名称 */
   name: string

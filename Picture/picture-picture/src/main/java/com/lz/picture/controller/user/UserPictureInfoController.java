@@ -10,7 +10,6 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
-import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
@@ -19,6 +18,7 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.*;
 import com.lz.picture.model.enums.PPictureStatusEnum;
+import com.lz.picture.model.enums.PPictureUploadTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
@@ -61,6 +61,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult add(@RequestBody @Validated UserPictureInfoAdd userPictureInfoAdd) {
         PictureInfo pictureInfo = UserPictureInfoAdd.addToObj(userPictureInfoAdd);
         pictureInfo.setUserId(getUserId());
+        pictureInfo.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_1.getValue());
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
@@ -79,12 +80,10 @@ public class UserPictureInfoController extends BaseUserInfoController {
 //        System.err.println("picture = " + pictureFileResponse);
         PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(fileResponse,
                 userId,
-                CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                 CFileLogTypeEnum.LOG_TYPE_0.getValue()
         ));
         PictureInfo pictureInfo = new PictureInfo();
         pictureInfo.setPictureUrl(fileResponse.getUrl());
-//        pictureInfo.setDnsUrl();
         pictureInfo.setName(pictureUrlUpload.getName());
         pictureInfo.setIntroduction(pictureUrlUpload.getIntroduction());
         pictureInfo.setCategoryId(pictureUrlUpload.getCategoryId());
@@ -101,7 +100,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureMoreInfo.setOriginUrl(pictureUrlUpload.getUrl());
         pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
         pictureInfo.setTags(pictureUrlUpload.getTags());
-
+        pictureInfo.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_3.getValue());
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 

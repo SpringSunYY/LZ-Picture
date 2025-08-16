@@ -150,9 +150,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public PictureInfo selectPictureInfoByPictureId(String pictureId) {
         PictureInfo pictureInfo = pictureInfoMapper.selectPictureInfoByPictureId(pictureId);
         if (StringUtils.isNotNull(pictureInfo)) {
-            String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+            String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl());
             pictureInfo.setPictureUrl(pictureUrl);
-            String thumbnailUrl = OssConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+            String thumbnailUrl = OssConfig.builderUrl(pictureInfo.getThumbnailUrl());
             pictureInfo.setThumbnailUrl(thumbnailUrl);
         }
         return pictureInfo;
@@ -185,9 +185,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                         .in(PictureCategoryInfo::getCategoryId, categoryIds))
                 .stream().collect(Collectors.toMap(PictureCategoryInfo::getCategoryId, PictureCategoryInfo::getName));
         for (PictureInfo info : pictureInfos) {
-            String pictureUrl = OssConfig.builderPictureUrl(info.getPictureUrl(),null);
+            String pictureUrl = OssConfig.builderUrl(info.getPictureUrl());
             info.setPictureUrl(pictureUrl);
-            String thumbnailUrl = OssConfig.builderPictureUrl(info.getThumbnailUrl(), null);
+            String thumbnailUrl = OssConfig.builderUrl(info.getThumbnailUrl());
             info.setThumbnailUrl(thumbnailUrl);
             info.setCategoryName(categoryIdNameMap.get(info.getCategoryId()));
         }
@@ -296,6 +296,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
         String folderId = pictureInfo.getFolderId();
         queryWrapper.eq(StringUtils.isNotEmpty(folderId), "folder_id", folderId);
+
+        String uploadType = pictureInfo.getUploadType();
+        queryWrapper.eq(StringUtils.isNotEmpty(uploadType), "upload_type", uploadType);
 
         String isDelete = pictureInfo.getIsDelete();
         queryWrapper.eq(StringUtils.isNotEmpty(isDelete), "is_delete", isDelete);
@@ -418,12 +421,6 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             ThrowUtils.throwIf(StringUtils.isNotEmpty(pictureInfo.getFolderId()), HttpStatus.NO_CONTENT, "官方空间图片不可添加文件夹！！！");
         } else {
             throw new ServiceException("空间类型错误");
-        }
-        if (spaceInfo.getOssType().equals(PSpaceOssTypeEnum.SPACE_OSS_TYPE_0.getValue())) {
-            //是公共空间，使用官方域名,官方不指定域名，根据配置文件获取域名
-            pictureInfo.setDnsUrl(null);
-        } else {
-            pictureInfo.setDnsUrl(pictureInfo.getDnsUrl());
         }
         return spaceInfo;
     }
@@ -591,9 +588,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             userPictureDetailInfoVo.setCategoryName(categoryInfo.getName());
         }
         //构建图片url
-        String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl(), pictureInfo.getDnsUrl());
+        String pictureUrl = OssConfig.builderUrl(pictureInfo.getPictureUrl());
         userPictureDetailInfoVo.setPictureUrl(pictureUrl);
-        String thumbnailUrl = OssConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl());
+        String thumbnailUrl = OssConfig.builderUrl(pictureInfo.getThumbnailUrl());
         userPictureDetailInfoVo.setThumbnailUrl(thumbnailUrl);
         //查询空间
         SpaceInfo spaceInfo = spaceInfoService.selectSpaceInfoBySpaceId(pictureInfo.getSpaceId());
@@ -916,7 +913,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
         List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(request);
         list.forEach(pictureInfo -> {
-            pictureInfo.setThumbnailUrl(OssConfig.builderUrl(pictureInfo.getThumbnailUrl(), pictureInfo.getDnsUrl()));
+            pictureInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
         });
         return UserPictureInfoVo.objToVo(list);
     }
@@ -1376,11 +1373,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureDownloadLogInfo.setTags(pictureTagRelInfoService.getPictureTagNamesStr(pictureId));
         pictureDownloadLogInfo.setSpaceId(pictureInfo.getSpaceId());
         pictureDownloadLogInfo.setPictureName(pictureInfo.getName() + "." + pictureInfo.getPicFormat());
-        if (StringUtils.isEmpty(pictureInfo.getDnsUrl())) {
-            pictureDownloadLogInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl());
-        } else {
-            pictureDownloadLogInfo.setThumbnailUrl(pictureInfo.getDnsUrl() + pictureInfo.getThumbnailUrl());
-        }
+        pictureDownloadLogInfo.setThumbnailUrl(pictureInfo.getThumbnailUrl());
         pictureDownloadLogInfo.setPointsCost(totalPoints);
         pictureDownloadLogInfo.setCreateTime(DateUtils.getNowDate());
         pictureDownloadLogInfo.setDownloadStatus(PDownloadStatusEnum.DOWNLOAD_STATUS_0.getValue());

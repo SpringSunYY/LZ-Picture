@@ -36,11 +36,6 @@ public class UserPictureInfoAdd implements Serializable {
     private String name;
 
     /**
-     * 域名URL
-     */
-    private String dnsUrl;
-
-    /**
      * 简介
      */
     @Size(max = 512, message = "简介不能超过512个字符")

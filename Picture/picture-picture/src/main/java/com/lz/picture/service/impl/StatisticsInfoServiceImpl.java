@@ -196,7 +196,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                 //转换为List
                 List<PictureInfoStatisticsVo> statisticsVoList = JSONObject.parseArray(statisticsInfo.getContent(), PictureInfoStatisticsVo.class);
                 for (PictureInfoStatisticsVo vo : statisticsVoList) {
-                    vo.setThumbnailUrl(OssConfig.builderPictureUrl(vo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
+                    vo.setThumbnailUrl(OssConfig.builderUrl(vo.getThumbnailUrl() + "?x-oss-process=image/resize,p_" + PICTURE_INDEX_P_VALUE));
                 }
                 //缓存key，返回值
                 redisCache.deleteObject(statisticKey);

@@ -17,14 +17,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="域名" prop="description">
-        <el-input
-            v-model="queryParams.dnsUrl"
-            placeholder="请输入域名URL"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="分类" prop="categoryId">
         <el-tree-select
             style="width: 200px;"
@@ -140,6 +132,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="上传类型" prop="uploadType">
+        <el-select v-model="queryParams.uploadType" style="width: 200px" placeholder="请选择上传类型" clearable>
+          <el-option
+              v-for="dict in p_picture_upload_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="删除" prop="isDelete">
         <el-select v-model="queryParams.isDelete" style="width: 200px" placeholder="请选择删除" clearable>
           <el-option
@@ -230,35 +232,33 @@
       </el-table-column>
       <el-table-column label="图片名称" align="center" prop="name" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="域名URL" align="center" prop="dnsUrl" v-if="columns[4].visible"
+      <el-table-column label="简介" align="center" prop="introduction" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="简介" align="center" prop="introduction" v-if="columns[5].visible"
-                       :show-overflow-tooltip="true"/>
-      <el-table-column label="分类" align="center" prop="categoryName" v-if="columns[6].visible"
+      <el-table-column label="分类" align="center" prop="categoryName" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片体积" align="center" sortable="custom" prop="picSize" column-key="pic_size"
-                       v-if="columns[7].visible"
+                       v-if="columns[6].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           {{ formatSize(scope.row.picSize) }}
         </template>
       </el-table-column>
       <el-table-column label="图片宽度" align="center" prop="picWidth" sortable="custom" column-key="pic_width"
-                       v-if="columns[8].visible"
+                       v-if="columns[7].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="图片高度" align="center" prop="picHeight" sortable="custom" column-key="pic_height"
-                       v-if="columns[9].visible"
+                       v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="宽高比例" align="center" prop="picScale" sortable="custom" column-key="pic_scale"
-                       v-if="columns[10].visible"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="图片格式" align="center" prop="picFormat" v-if="columns[11].visible"
+      <el-table-column label="图片格式" align="center" prop="picFormat" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="上传用户" align="center" prop="userId" v-if="columns[12].visible"
+      <el-table-column label="上传用户" align="center" prop="userId" v-if="columns[11].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" column-key="create_time"
                        width="180"
-                       v-if="columns[13].visible"
+                       v-if="columns[12].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -266,7 +266,7 @@
       </el-table-column>
       <el-table-column label="发布时间" align="center" prop="publishTime" width="180" sortable="custom"
                        column-key="publish_time"
-                       v-if="columns[14].visible"
+                       v-if="columns[13].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -274,41 +274,46 @@
       </el-table-column>
       <el-table-column label="更新时间" align="center" prop="updateTime" width="180" sortable="custom"
                        column-key="update_time"
-                       v-if="columns[15].visible"
+                       v-if="columns[14].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="图片状态" align="center" prop="pictureStatus" v-if="columns[16].visible">
+      <el-table-column label="图片状态" align="center" prop="pictureStatus" v-if="columns[15].visible">
         <template #default="scope">
           <dict-tag :options="p_picture_status" :value="scope.row.pictureStatus"/>
         </template>
       </el-table-column>
       <el-table-column label="查看次数" align="center" prop="lookCount" sortable="custom" column-key="look_count"
-                       v-if="columns[17].visible"
+                       v-if="columns[16].visible"
                        :show-overflow-tooltip="true"/>
 
       <el-table-column label="收藏次数" align="center" prop="collectCount" sortable="custom" column-key="collect_count"
-                       v-if="columns[18].visible"
+                       v-if="columns[17].visible"
                        :show-overflow-tooltip="true"/>
 
       <el-table-column label="点赞次数" align="center" prop="likeCount" sortable="custom" column-key="like_count"
-                       v-if="columns[19].visible"
+                       v-if="columns[18].visible"
                        :show-overflow-tooltip="true"/>
 
       <el-table-column label="分享次数" align="center" prop="shareCount" sortable="custom" column-key="share_count"
-                       v-if="columns[20].visible"
+                       v-if="columns[19].visible"
                        :show-overflow-tooltip="true"/>
 
       <el-table-column label="下载次数" align="center" prop="downloadCount" sortable="custom"
-                       column-key="download_count" v-if="columns[21].visible"
+                       column-key="download_count" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
 
-      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[22].visible"
+      <el-table-column label="所属空间" align="center" prop="spaceId" v-if="columns[21].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[23].visible"
+      <el-table-column label="文件夹" align="center" prop="folderId" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
+      <el-table-column label="上传类型" align="center" prop="uploadType" v-if="columns[23].visible">
+        <template #default="scope">
+          <dict-tag :options="p_picture_upload_type" :value="scope.row.uploadType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="更多信息" align="center" prop="moreInfo" v-if="columns[24].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[25].visible">
@@ -352,9 +357,6 @@
         </el-form-item>
         <el-form-item label="图片名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入图片名称"/>
-        </el-form-item>
-        <el-form-item label="域名URL" prop="dnsUrl">
-          <el-input v-model="form.dnsUrl" readonly type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="简介" prop="introduction">
           <el-input v-model="form.introduction" type="textarea" placeholder="请输入内容"/>
@@ -415,17 +417,16 @@
         <el-form-item label="下载次数" prop="downloadCount">
           <el-input-number :min="0" v-model="form.downloadCount" placeholder="请输入下载次数"/>
         </el-form-item>
-        <!--        <el-form-item label="审核人" prop="reviewUserId">-->
-        <!--          <el-input v-model="form.reviewUserId" placeholder="请输入审核人"/>-->
-        <!--        </el-form-item>-->
-        <!--        <el-form-item label="审核时间" prop="reviewTime">-->
-        <!--          <el-date-picker clearable-->
-        <!--                          v-model="form.reviewTime"-->
-        <!--                          type="date"-->
-        <!--                          value-format="YYYY-MM-DD"-->
-        <!--                          placeholder="请选择审核时间">-->
-        <!--          </el-date-picker>-->
-        <!--        </el-form-item>-->
+        <el-form-item label="上传类型" prop="uploadType">
+          <el-select v-model="form.uploadType" placeholder="请选择上传类型">
+            <el-option
+                v-for="dict in p_picture_upload_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <!--        <el-form-item label="缩略图" prop="thumbnailUrl">-->
         <!--          <image-upload v-model="form.thumbnailUrl"/>-->
         <!--        </el-form-item>-->
@@ -471,8 +472,9 @@ import {useRoute} from "vue-router";
 const {proxy} = getCurrentInstance();
 const {
   common_delete,
-  p_picture_status
-} = proxy.useDict('common_delete', 'p_picture_status');
+  p_picture_status,
+  p_picture_upload_type
+} = proxy.useDict('common_delete', 'p_picture_status', 'p_picture_upload_type');
 
 const pictureInfoList = ref([]);
 const open = ref(false);
@@ -500,7 +502,6 @@ const data = reactive({
     pageSize: 10,
     pictureId: null,
     name: null,
-    dnsUrl: null,
     categoryId: null,
     picSize: null,
     picWidth: null,
@@ -513,6 +514,7 @@ const data = reactive({
     updateTime: null,
     spaceId: null,
     folderId: null,
+    uploadType: null,
     isDelete: null,
     deletedTime: null,
     pictureStatus: ruoteQuery,
@@ -545,27 +547,27 @@ const data = reactive({
     {key: 0, label: '图片', visible: false},
     {key: 1, label: '原图', visible: false},
     {key: 2, label: '缩略图', visible: true},
-    {key: 3, label: '图片名称', visible: true},
-    {key: 4, label: '域名URL', visible: false},
-    {key: 5, label: '简介', visible: false},
-    {key: 6, label: '分类', visible: true},
-    {key: 7, label: '图片体积', visible: true},
-    {key: 8, label: '图片宽度', visible: false},
-    {key: 9, label: '图片高度', visible: false},
-    {key: 10, label: '宽高比例', visible: false},
-    {key: 11, label: '图片格式', visible: true},
-    {key: 12, label: '上传用户', visible: false},
-    {key: 13, label: '创建时间', visible: true},
-    {key: 14, label: '发布时间', visible: false},
-    {key: 15, label: '更新时间', visible: false},
-    {key: 16, label: '图片状态', visible: true},
-    {key: 17, label: '查看次数', visible: false},
-    {key: 18, label: '收藏次数', visible: true},
-    {key: 19, label: '点赞次数', visible: true},
-    {key: 20, label: '分享次数', visible: true},
-    {key: 21, label: '下载次数', visible: true},
-    {key: 22, label: '所属空间', visible: false},
-    {key: 23, label: '文件夹', visible: false},
+    {key: 3, label: '图片名称', visible: false},
+    {key: 4, label: '简介', visible: false},
+    {key: 5, label: '分类', visible: false},
+    {key: 6, label: '图片体积', visible: true},
+    {key: 7, label: '图片宽度', visible: false},
+    {key: 8, label: '图片高度', visible: false},
+    {key: 9, label: '宽高比例', visible: false},
+    {key: 10, label: '图片格式', visible: false},
+    {key: 11, label: '上传用户', visible: false},
+    {key: 12, label: '创建时间', visible: true},
+    {key: 13, label: '发布时间', visible: false},
+    {key: 14, label: '更新时间', visible: false},
+    {key: 15, label: '图片状态', visible: true},
+    {key: 16, label: '查看次数', visible: false},
+    {key: 17, label: '收藏次数', visible: true},
+    {key: 18, label: '点赞次数', visible: true},
+    {key: 19, label: '分享次数', visible: true},
+    {key: 20, label: '下载次数', visible: true},
+    {key: 21, label: '所属空间', visible: false},
+    {key: 22, label: '文件夹', visible: false},
+    {key: 23, label: '上传类型', visible: true},
     {key: 24, label: '更多信息', visible: false},
     {key: 25, label: '删除', visible: false},
     {key: 26, label: '删除时间', visible: false},
@@ -641,7 +643,6 @@ function reset() {
   form.value = {
     pictureId: null,
     pictureUrl: null,
-    dnsUrl: null,
     name: null,
     introduction: null,
     categoryId: null,
@@ -663,6 +664,7 @@ function reset() {
     downloadCount: null,
     spaceId: null,
     folderId: null,
+    uploadType: null,
     moreInfo: null,
     isDelete: null,
     deletedTime: null

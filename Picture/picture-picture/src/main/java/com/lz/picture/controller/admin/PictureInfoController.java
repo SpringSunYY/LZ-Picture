@@ -64,7 +64,7 @@ public class PictureInfoController extends BaseController {
         String inCache = sysConfigService.selectConfigByKey(PICTURE_P);
         listVo.forEach(item -> {
             item.setPictureUrl(OssConfig.builderPictureUrl(item.getPictureUrl(), inCache));
-            item.setThumbnailUrl(OssConfig.builderPictureUrl(item.getThumbnailUrl(),inCache));
+            item.setThumbnailUrl(OssConfig.builderPictureUrl(item.getThumbnailUrl(), inCache));
         });
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);

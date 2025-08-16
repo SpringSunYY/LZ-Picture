@@ -19,11 +19,6 @@ public class FileResponse {
     private String url;
 
     /**
-     * 图片域名
-     */
-    private String dnsUrl;
-
-    /**
      * 图片名称
      */
     private String name;

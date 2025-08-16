@@ -1,15 +1,13 @@
 package com.lz.config.model.vo.fileLogInfo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.common.annotation.Excel;
+import com.lz.config.model.domain.FileLogInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
-import org.springframework.beans.BeanUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.config.model.domain.FileLogInfo;
 
 /**
  * 文件日志Vo对象 c_file_log_info
@@ -46,12 +44,6 @@ public class FileLogInfoVo implements Serializable {
     private String targetContent;
 
     /**
-     * 域名URL
-     */
-    @Excel(name = "域名URL")
-    private String dnsUrl;
-
-    /**
      * 文件路径
      */
     @Excel(name = "文件路径")
@@ -68,12 +60,6 @@ public class FileLogInfoVo implements Serializable {
      */
     @Excel(name = "状态")
     private String logStatus;
-
-    /**
-     * 存储类型（0官方 1阿里云）
-     */
-    @Excel(name = "存储类型", readConverterExp = "0=官方,1=阿里云")
-    private String ossType;
 
     /**
      * 日志类型（0图片 1空间封面 2头像）

@@ -1,13 +1,10 @@
 package com.lz.picture.model.dto.pictureInfo;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.annotation.Excel;
+import com.lz.picture.model.domain.PictureInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.picture.model.domain.PictureInfo;
+
+import java.io.Serializable;
 
 /**
  * 图片信息Vo对象 p_picture_info
@@ -28,11 +25,6 @@ public class PictureInfoInsert implements Serializable {
      * 图片URL
      */
     private String pictureUrl;
-
-    /**
-     * 域名URL
-     */
-    private String dnsUrl;
 
     /**
      * 图片名称
@@ -98,6 +90,12 @@ public class PictureInfoInsert implements Serializable {
      * 所属文件夹编号
      */
     private String folderId;
+
+    /**
+     * 上传类型
+     */
+    private String uploadType;
+
 
     /**
      * 更多信息

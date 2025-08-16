@@ -261,7 +261,6 @@ const handleUpload = async ({ file, onSuccess, onError }) => {
         url: response?.data?.url, // 确保取 `pictureUrl`
         thumbnailUrl: response?.data?.thumbnailUrl,
         pictureUrl: response?.data?.url,
-        dnsUrl: response?.data?.dnsUrl,
         meta: {
           width: response?.data?.picWidth,
           height: response?.data?.picHeight,

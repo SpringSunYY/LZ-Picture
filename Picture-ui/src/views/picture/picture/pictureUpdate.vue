@@ -220,7 +220,6 @@ const rules = {
 const submitting = ref(false)
 const formState = reactive<PictureInfo>({
   pictureUrl: '',
-  dnsUrl: '',
   name: '',
   introduction: '',
   categoryId: '',
@@ -240,7 +239,6 @@ const handleSuccess = (modelValue: any) => {
   formState.name = modelValue.name
   formState.thumbnailUrl = modelValue.thumbnailUrl
   formState.pictureUrl = modelValue.pictureUrl
-  formState.dnsUrl = modelValue.dnsUrl
   formState.picWidth = modelValue.meta.width
   formState.picHeight = modelValue.meta.height
   formState.picScale = modelValue.meta.ratio
@@ -271,7 +269,6 @@ const handleSubmit = async () => {
         Object.assign(formState, {
           thumbnailUrl: '',
           pictureUrl: '',
-          dnsUrl: '',
           name: '',
           introduction: '',
           categoryId: '',

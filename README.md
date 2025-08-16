@@ -271,26 +271,24 @@ public @interface CustomSort {
           //异步执行存入文件日志
           PictureAsyncManager.me().execute(PictureFileLogAsyncFactory.recordFileLog(picture,
                   getLoginUser().getUserId(),
-                  CFileLogOssTypeEnum.OSS_TYPE_0.getValue(),
                   CFileLogTypeEnum.LOG_TYPE_0.getValue()
           ));
   ```
-
-  ```java
+  
+```java
      /**
        * 记录文件日志
        *
        * @param fileResponse 图片信息
        * @param userId              用户编号
-       * @param ossType             存储类型
        * @param logType             日志类型
        * @param deviceInfo          设备信息
        * @return void
        * @author: YY
        * @date: 2025/5/10 22:56
        **/
-      void recordFileLog(FileResponse fileResponse, String userId, String ossType, String logType, DeviceInfo deviceInfo);
-  ```
+      void recordFileLog(FileResponse fileResponse, String userId, String logType, DeviceInfo deviceInfo);
+```
 
   其中逻辑：如果传入原图和压缩图，就执行保存对应的信息
 
@@ -1046,11 +1044,9 @@ CREATE TABLE c_notice_info (
 | user_id        | varchar  | 128  | 外键 (u_user_info:user_id) | 否   |          | 用户编号                   |
 | target_id      | varchar  | 128  |                            | 是   |          | 目标对象                   |
 | target_content | varchar  | 256  |                            | 是   |          | 目标内容                   |
-| dns_url        | varchar  | 512  |                            | 是   |          | 域名URL                    |
 | file_url       | varchar  | 512  |                            | 否   |          | 文件路径                   |
 | file_type      | varchar  | 16   |                            | 否   |          | 文件类型                   |
 | log_status     | char     | 1    |                            | 否   |          | 状态;(0冗余,1正常,1已删除) |
-| oss_type       | char     | 1    |                            | 否   | 1        | 存储类型                   |
 | log_type       | char     | 1    |                            | 否   | 1        | 日志类型                   |
 | is_compress    | char     | 1    |                            | 否   | 1        | 是否压缩                   |
 | create_time    | datetime |      |                            | 否   | 当前时间 | 创建时间                   |
@@ -1078,11 +1074,9 @@ CREATE TABLE `c_file_log_info`
     `user_id`     VARCHAR(128) NOT NULL COMMENT '用户编号',
   	`target_id` VARCHAR(128)  NULL COMMENT '目标对象',
   	`target_content` VARCHAR(256) DEFAULT NULL COMMENT '目标内容',
-    `dns_url`     VARCHAR(512) NOT NULL COMMENT '域名URL',
     `file_url`    VARCHAR(512) NOT NULL COMMENT '文件路径',
     `file_type`   VARCHAR(16)  NOT NULL COMMENT '文件类型',
     `log_status`  CHAR(1)      NOT NULL COMMENT '状态',
-    `oss_type`    CHAR(1)      NOT NULL DEFAULT '0' COMMENT '存储类型（0官方 1阿里云）',
     `log_type`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '日志类型（0图片 1空间封面 2头像）',
     `is_compress`    CHAR(1)      NOT NULL DEFAULT '1' COMMENT '是否压缩（0是 1否）',
     `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -2347,8 +2341,6 @@ CREATE TABLE ai_conversation_log_info
 | space_id         | varchar  | 128  | 主键                      | 否   |            | 空间编号                      |
 | space_name       | varchar  | 32   | 唯一                      | 否   |            | 空间名称                      |
 | space_avatar     | varchar  | 512  |                           | 是   |            | 空间封面                      |
-| oss_type         | char     | 1    |                           | 否   | 1          | 存储类型                      |
-| oss_config       | varcahr  | 1024 |                           | 是   |            | 存储配置                      |
 | max_size         | bigint   | 20   |                           | 是   | 1073741824 | 最大容量                      |
 | max_count        | bigint   | 20   |                           | 是   | 1000       | 最大文件数                    |
 | total_size       | bigint   | 20   |                           | 是   | 0          | 已用容量                      |
@@ -2367,10 +2359,6 @@ CREATE TABLE ai_conversation_log_info
 | space_type       | char     | 1    |                           | 否   | 0          | 空间类型（0个人 1团队 2官方） |
 | member_limit     | int      |      |                           | 是   | 10         | 人数上限                      |
 | current_members  | int      |      |                           | 是   | 0          | 当前人数                      |
-
-存储类型：0官方 1阿里云 。。。。其他的用户自定义
-
-存储配置：存储后转为json，比如说一些阿里的oss配置，腾讯云的配置
 
 最大容量：用户自定义，字节
 
@@ -2397,8 +2385,6 @@ CREATE TABLE p_space_info
     space_id         VARCHAR(128) NOT NULL COMMENT '空间编号',
     space_name       VARCHAR(32)  NOT NULL COMMENT '空间名称',
     space_avatar     VARCHAR(512) COMMENT '空间封面URL',
-    oss_type         CHAR(1)      NOT NULL DEFAULT '1' COMMENT '存储类型（0官方 阿里云）',
-    oss_config       VARCHAR(1024) COMMENT '存储配置',
     max_size         BIGINT                DEFAULT 1073741824 COMMENT '最大容量（字节）',
     max_count        BIGINT                DEFAULT 1000 COMMENT '最大文件数',
     total_size       BIGINT                DEFAULT 0 COMMENT '已用容量（字节）',
@@ -2708,7 +2694,6 @@ CREATE TABLE p_picture_tag_info (
 | -------------- | -------- | ---- | --------------------------------- | ---- | -------------- | ------------------- |
 | picture_id     | varchar  | 128  | 主键                              | 否   | auto_increment | 图片编号            |
 | picture_url    | varchar  | 512  |                                   | 否   |                | 图片 url            |
-| dns_url        | varchar  | 512  |                                   | 是   |                | 域名URL             |
 | name           | varchar  | 32   |                                   | 否   |                | 图片名称            |
 | introduction   | varchar  | 512  |                                   | 是   |                | 简介                |
 | category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 否   |                | 分类                |
@@ -2728,6 +2713,7 @@ CREATE TABLE p_picture_tag_info (
 | like_count     | bigint   |      | 索引                              | 否   | 0              | 点赞次数            |
 | share_count    | bigint   |      | 索引                              | 否   | 0              | 分享次数            |
 | download_count | bigint   |      | 索引                              | 否   | 0              | 下载次数            |
+| upload_type    | char     | 1    |                                   | 否   |                | 上传类型            |
 | more_info      | text     |      |                                   | 是   |                | 更多信息            |
 | space_id       | varchar  | 128  | 外键（p_spece_info:space_id）     | 是   |                | 空间编号            |
 | folder_id      | varchar  | 128  |                                   | 是   |                | 文件夹              |
@@ -2748,7 +2734,6 @@ CREATE TABLE p_picture_info
 (
     picture_id     varchar(128) COMMENT '图片编号',
     picture_url    VARCHAR(512) NOT NULL COMMENT '图片URL',
-    dns_url        VARCHAR(512) NULL COMMENT '域名URL',
     name           VARCHAR(32)  NOT NULL COMMENT '图片名称',
     introduction   VARCHAR(512) COMMENT '简介',
     category_id    VARCHAR(128) NOT NULL COMMENT '分类编号',
@@ -2767,7 +2752,8 @@ CREATE TABLE p_picture_info
     collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
     like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
     share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
-    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',    
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
+    upload_type    CHAR(1)      NOT NULL COMMENT '上传类型',
     more_info      TEXT         COMMENT '更多信息',
     space_id       VARCHAR(128) COMMENT '所属空间编号',
     folder_id      VARCHAR(128) COMMENT '所属文件夹编号',

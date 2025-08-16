@@ -94,11 +94,6 @@ public class MyPictureInfoVo implements Serializable {
     private String thumbnailUrl;
 
     /**
-     * DNS
-     */
-    private String dnsUrl;
-
-    /**
      * 对象转封装类
      *
      * @param pictureInfo PictureInfo实体对象

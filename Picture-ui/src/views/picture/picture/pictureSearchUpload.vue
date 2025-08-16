@@ -569,7 +569,6 @@ const clearSelection = (): void => {
 
 const formState = reactive<PictureInfo>({
   pictureUrl: '',
-  dnsUrl: '',
   name: '',
   introduction: '',
   categoryId: '',

@@ -24,7 +24,10 @@ import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.dto.pictureApplyInfo.PictureApplyInfoQuery;
 import com.lz.picture.model.dto.pictureInfo.PictureMoreInfo;
-import com.lz.picture.model.enums.*;
+import com.lz.picture.model.enums.PPictureApplyStatusEnum;
+import com.lz.picture.model.enums.PPictureApplyTypeEnum;
+import com.lz.picture.model.enums.PPictureStatusEnum;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.vo.pictureApplyInfo.PictureApplyInfoVo;
 import com.lz.picture.service.IPictureApplyInfoService;
 import com.lz.picture.service.IPictureInfoService;
@@ -42,7 +45,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.ConfigConstants.PICTURE_P;
-import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.PICTURE_APPLY_REVIEW;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_APPLY_DETAIL;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_APPLY_DETAIL_EXPIRE_TIME;
@@ -99,7 +101,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             pictureApplyInfo.setApplyImage(url);
             String pictureUrl = OssConfig.builderBatchPictureUrl(pictureApplyInfo.getThumbnailUrl(), p);
             pictureApplyInfo.setThumbnailUrl(pictureUrl);
-            String fileUrl = builderFileUrl(pictureApplyInfo.getApplyFile());
+            String fileUrl = OssConfig.builderBatchUrl(pictureApplyInfo.getApplyFile());
             pictureApplyInfo.setApplyFile(fileUrl);
         }
         return pictureApplyInfo;
@@ -111,7 +113,7 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
      * @param pictureApplyInfo 图片申请信息
      * @return 图片申请信息
      */
-    @CustomSort(sortFields = {"createTime","reviewTime","updateTime"},sortMappingFields = {"create_time","review_time","update_time"})
+    @CustomSort(sortFields = {"createTime", "reviewTime", "updateTime"}, sortMappingFields = {"create_time", "review_time", "update_time"})
     @Override
     public List<PictureApplyInfo> selectPictureApplyInfoList(PictureApplyInfo pictureApplyInfo) {
         List<PictureApplyInfo> pictureApplyInfos = pictureApplyInfoMapper.selectPictureApplyInfoList(pictureApplyInfo);
@@ -133,24 +135,8 @@ public class PictureApplyInfoServiceImpl extends ServiceImpl<PictureApplyInfoMap
             info.setApplyFile(url);
         }
         if (StringUtils.isNotEmpty(info.getThumbnailUrl())) {
-            info.setThumbnailUrl(OssConfig.builderBatchUrl(info.getThumbnailUrl()));
+            info.setThumbnailUrl(OssConfig.builderPictureUrl(info.getThumbnailUrl(), p));
         }
-    }
-
-
-
-    private String builderFileUrl(String fileUrl) {
-        if (StringUtils.isEmpty(fileUrl)) {
-            return "";
-        }
-        String[] split = fileUrl.split(COMMON_SEPARATOR);
-        StringBuilder buffer = new StringBuilder();
-        for (String str : split) {
-            String downloadUrl = pictureDownloadManager.generateDownloadUrl(str, 60L);
-            buffer.append(downloadUrl).append(COMMON_SEPARATOR);
-        }
-        buffer.deleteCharAt(buffer.length() - 1);
-        return buffer.toString();
     }
 
     /**

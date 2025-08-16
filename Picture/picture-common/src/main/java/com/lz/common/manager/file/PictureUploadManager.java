@@ -204,7 +204,6 @@ public class PictureUploadManager {
         if (StringUtils.isNotEmpty(fileInfo.getCompressedFilePath())) {
             fileResponse.setThumbnailUrl("/" + fileInfo.getCompressedFilePath());
         }
-        fileResponse.setDnsUrl(endpoint);
         return fileResponse;
     }
 
