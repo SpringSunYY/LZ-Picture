@@ -264,13 +264,14 @@
           <CoverUpload
             v-model:value="formApply.applyImage"
             :maxCount="9"
+            :max-size="10"
             type="4"
             fileDir="apply"
           />
         </a-form-item>
 
         <a-form-item label="证明文件" name="applyFile">
-          <FileUpload v-model:value="formApply.applyFile" placeholder="请输入文件链接或上传路径" />
+          <FileUpload v-model:value="formApply.applyFile" file-dir="apply" placeholder="请输入文件链接或上传路径" />
         </a-form-item>
 
         <a-form-item name="contact">

@@ -18,6 +18,7 @@ import com.lz.picture.manager.factory.PictureFileLogAsyncFactory;
 import com.lz.picture.model.domain.PictureInfo;
 import com.lz.picture.model.dto.pictureInfo.*;
 import com.lz.picture.model.enums.PPictureStatusEnum;
+import com.lz.picture.model.enums.PPictureUploadTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
@@ -60,6 +61,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult add(@RequestBody @Validated UserPictureInfoAdd userPictureInfoAdd) {
         PictureInfo pictureInfo = UserPictureInfoAdd.addToObj(userPictureInfoAdd);
         pictureInfo.setUserId(getUserId());
+        pictureInfo.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_1.getValue());
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 
@@ -98,7 +100,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureMoreInfo.setOriginUrl(pictureUrlUpload.getUrl());
         pictureInfo.setMoreInfo(JSON.toJSONString(pictureMoreInfo));
         pictureInfo.setTags(pictureUrlUpload.getTags());
-
+        pictureInfo.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_3.getValue());
         return success(pictureInfoService.userInsertPictureInfo(pictureInfo));
     }
 

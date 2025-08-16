@@ -20,7 +20,7 @@ import { ref, watch } from 'vue'
 import type { UploadProps, UploadRequestOption } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { uploadFile } from '@/api/common/file'
-import { getFileName } from '@/utils/common.ts'
+import { formatDnsUrl, getFileName } from '@/utils/common.ts'
 
 const props = defineProps({
   value: { type: String, default: '' }, // 分号拼接的 url
@@ -62,7 +62,11 @@ const beforeUpload = (file: File) => {
 }
 
 const handlePreviewFile = (file: File | Blob): Promise<string> => {
-  return Promise.resolve(undefined as any)
+  if (file.url) {
+    const url = formatDnsUrl(file.url)
+    // 在新窗口中打开文件
+    window.open(url, '_blank')
+  }
 }
 
 const handleCustomUpload = async ({ file, onSuccess, onError }: UploadRequestOption) => {
