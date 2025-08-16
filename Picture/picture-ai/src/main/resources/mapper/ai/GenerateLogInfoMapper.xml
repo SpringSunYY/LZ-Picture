@@ -28,6 +28,7 @@
         <result property="logStatus" column="log_status"/>
         <result property="aiStatusCode" column="ai_status_code"/>
         <result property="failReason" column="fail_reason"/>
+        <result property="hasPublic" column="has_public"/>
         <result property="hasStatistics" column="has_statistics"/>
         <result property="ipAddr" column="ip_addr"/>
         <result property="deviceId" column="device_id"/>
@@ -63,6 +64,7 @@
                log_status,
                ai_status_code,
                fail_reason,
+               has_public,
                has_statistics,
                ip_addr,
                device_id,
@@ -93,6 +95,7 @@
             <if test="targetId != null  and targetId != ''">and target_id = #{targetId}</if>
             <if test="logStatus != null  and logStatus != ''">and log_status = #{logStatus}</if>
             <if test="aiStatusCode != null  and aiStatusCode != ''">and ai_status_code = #{aiStatusCode}</if>
+            <if test="hasPublic != null and hasPublic != ''">and has_public = #{hasPublic}</if>
             <if test="hasStatistics != null and hasStatistics != ''">and has_statistics = #{hasStatistics}</if>
             <if test="ipAddr != null  and ipAddr != ''">and ip_addr = #{ipAddr}</if>
             <if test="deviceId != null  and deviceId != ''">and device_id = #{deviceId}</if>
@@ -148,6 +151,7 @@
             <if test="logStatus != null and logStatus != ''">log_status,</if>
             <if test="aiStatusCode != null">ai_status_code,</if>
             <if test="failReason != null">fail_reason,</if>
+            <if test="hasPublic != null">has_public,</if>
             <if test="hasStatistics != null">has_statistics,</if>
             <if test="ipAddr != null and ipAddr != ''">ip_addr,</if>
             <if test="deviceId != null">device_id,</if>
@@ -182,6 +186,7 @@
             <if test="logStatus != null and logStatus != ''">#{logStatus},</if>
             <if test="aiStatusCode != null">#{aiStatusCode},</if>
             <if test="failReason != null">#{failReason},</if>
+            <if test="hasPublic != null">#{hasPublic},</if>
             <if test="hasStatistics != null">#{hasStatistics},</if>
             <if test="ipAddr != null and ipAddr != ''">#{ipAddr},</if>
             <if test="deviceId != null">#{deviceId},</if>
@@ -219,6 +224,7 @@
             <if test="logStatus != null and logStatus != ''">log_status = #{logStatus},</if>
             <if test="aiStatusCode != null">ai_status_code = #{aiStatusCode},</if>
             <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="hasPublic != null">has_public = #{hasPublic},</if>
             <if test="hasStatistics != null">has_statistics = #{hasStatistics},</if>
             <if test="ipAddr != null and ipAddr != ''">ip_addr = #{ipAddr},</if>
             <if test="deviceId != null">device_id = #{deviceId},</if>

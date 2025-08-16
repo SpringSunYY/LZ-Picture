@@ -194,6 +194,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         String aiStatusCode = generateLogInfoQuery.getAiStatusCode();
         queryWrapper.eq(StringUtils.isNotEmpty(aiStatusCode), "ai_status_code", aiStatusCode);
 
+        String hasPublic = generateLogInfoQuery.getHasPublic();
+        queryWrapper.eq(StringUtils.isNotEmpty(hasPublic), "has_public", hasPublic);
+
         String hasStatistics = generateLogInfoQuery.getHasStatistics();
         queryWrapper.eq(StringUtils.isNotEmpty(hasStatistics), "has_statistics", hasStatistics);
 
@@ -252,7 +255,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
         LambdaQueryWrapper<GenerateLogInfo> query = new LambdaQueryWrapper<GenerateLogInfo>()
                 .select(GenerateLogInfo::getLogId, GenerateLogInfo::getModelKey, GenerateLogInfo::getPrompt, GenerateLogInfo::getModelType, GenerateLogInfo::getModelKey,
                         GenerateLogInfo::getNegativePrompt, GenerateLogInfo::getSeed, GenerateLogInfo::getFileUrls, GenerateLogInfo::getPointsUsed,
-                        GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime, GenerateLogInfo::getLogStatus)
+                        GenerateLogInfo::getWidth, GenerateLogInfo::getHeight, GenerateLogInfo::getCreateTime, GenerateLogInfo::getLogStatus, GenerateLogInfo::getHasPublic)
                 .eq(GenerateLogInfo::getUserId, request.getUserId())
                 .eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .and(wrapper ->

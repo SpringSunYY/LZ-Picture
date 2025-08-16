@@ -6,6 +6,7 @@ import com.lz.ai.manage.factory.AiFileLogAsyncFactory;
 import com.lz.ai.mapper.GenerateLogInfoMapper;
 import com.lz.ai.model.domain.GenerateLogInfo;
 import com.lz.ai.model.domain.ModelParamsInfo;
+import com.lz.ai.model.enums.AiGenerateHasPublicEnum;
 import com.lz.ai.model.enums.AiLogStatusEnum;
 import com.lz.ai.model.enums.AiModelParamsTypeEnum;
 import com.lz.ai.strategy.generate.AiGenerateStrategyConfig;
@@ -261,6 +262,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setDeviceId(info.getDeviceId());
         generateLogInfo.setBrowser(info.getBrowser());
         generateLogInfo.setOs(info.getOs());
+        generateLogInfo.setHasPublic(AiGenerateHasPublicEnum.HAS_PUBLIC_0.getValue());
         generateLogInfo.setPlatform(info.getPlatform());
         if (StringUtils.isNotNull(jiMengResponse.getData()) && StringUtils.isNotEmpty(jiMengResponse.getData().getTask_id())) {
             generateLogInfo.setTaskId(jiMengResponse.getData().getTask_id());

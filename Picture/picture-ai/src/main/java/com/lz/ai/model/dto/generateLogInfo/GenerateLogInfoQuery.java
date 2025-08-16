@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.ai.model.domain.GenerateLogInfo;
-import com.lz.common.annotation.Excel;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -96,6 +95,11 @@ public class GenerateLogInfoQuery implements Serializable {
      * 模型返回码
      */
     private String aiStatusCode;
+
+    /**
+     * 是否发布
+     */
+    private String hasPublic;
 
     /**
      * 是否统计

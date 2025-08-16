@@ -2,7 +2,6 @@ package com.lz.ai.model.vo.generateLogInfo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.ai.model.domain.GenerateLogInfo;
-import com.lz.common.annotation.Excel;
 import com.lz.common.config.OssConfig;
 import com.lz.common.utils.StringUtils;
 import lombok.Data;
@@ -10,7 +9,6 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
@@ -79,6 +77,11 @@ public class UserGenerateLogInfoVo implements Serializable {
      * 使用积分
      */
     private Long pointsUsed;
+
+    /**
+     * 是否发布
+     */
+    private String hasPublic;
 
 
     /**

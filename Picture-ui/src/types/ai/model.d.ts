@@ -133,6 +133,8 @@ export interface GenerateLogInfoVo {
   logStatus: string
 
   pointsUsed: number
+
+  hasPublic: string
 }
 
 export interface ModelInfo {

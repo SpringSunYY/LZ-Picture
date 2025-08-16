@@ -162,6 +162,12 @@ public class GenerateLogInfoVo implements Serializable {
     private String failReason;
 
     /**
+     * 是否发布
+     */
+    @Excel(name = "是否发布")
+    private String hasPublic;
+
+    /**
      * 是否统计
      */
     @Excel(name = "是否统计")
