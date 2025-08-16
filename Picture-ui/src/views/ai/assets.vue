@@ -40,9 +40,14 @@
                     <div class="image-card-overlay">
                       <div class="overlay-text">{{ item.prompt }}</div>
                       <div class="overlay-actions">
-                        <button @click.stop="handlePublic(item)" class="overlay-button">
+                        <button
+                          @click.stop="handlePublic(item)"
+                          v-if="item.hasPublic === AiGenerateHasPublicEnum.HAS_PUBLIC_1"
+                          class="overlay-button"
+                        >
                           发布作品
                         </button>
+                        <button v-else>查看详情</button>
                       </div>
                     </div>
                   </div>
@@ -336,6 +341,7 @@ import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiInput from '@/components/AiInput.vue'
 import AiPictureView from '@/components/AiPictureView.vue'
 import {
+  AiGenerateHasPublicEnum,
   AiLogStatusEnum,
   defaultModelInfo,
   type GenerateLogInfoQuery,
@@ -454,7 +460,7 @@ const pollGenerateTask = async (item: GenerateLogInfoVo) => {
         }
       } else if (res.data.logStatus === AiLogStatusEnum.REQUESTING) {
         // 5秒后继续轮询
-        const timer = setTimeout(() => pollGenerateTask(logId), 5000)
+        const timer = setTimeout(() => pollGenerateTask(item), 5000)
         pollingMap.set(logId, timer)
       } else {
         message.error(
@@ -718,8 +724,7 @@ const handlePublic = (item: GenerateLogInfoVo) => {
   getPictureCategoryList()
 }
 const pictureLoading = ref(false)
-const handleSubmitPicture = () => {
-  pictureLoading.value = true
+const handleSubmitPicture = async () => {
   console.log('提交图片', pictureInfo.value)
   let categoryId = null
   if (pictureInfo.value.categoryId && Array.isArray(pictureInfo.value.categoryId)) {
@@ -734,13 +739,18 @@ const handleSubmitPicture = () => {
     categoryId,
     folderId,
   }
-  addPictureInfoByAi(pictureInfo.value).then((res) => {
+  pictureLoading.value = true
+  try {
+    const res = await addPictureInfoByAi(pictureInfo.value)
     if (res.code === 200) {
-      message.success('发布成功')
+      message.success('发布成功，如果是公开请等待审核')
       openPublic.value = false
-      pictureLoading.value = false
+      generateQuery.value.pageNum = 1
+      await getGenerateList()
     }
-  })
+  } finally {
+    pictureLoading.value = false
+  }
 }
 //endregion
 </script>
@@ -783,7 +793,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   min-width: 0; // 确保在小屏幕上能够正确收缩
-  padding-left: 3em;
+  padding-left: 1.5em;
 }
 
 .gallery-scroll-area {
@@ -808,7 +818,8 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 
 .image-group {
   margin-bottom: 32px;
-  padding-right: 16px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 .group-date {

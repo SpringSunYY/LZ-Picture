@@ -210,7 +210,7 @@
           <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-popconfirm
               width="220"
@@ -241,7 +241,7 @@
           </el-popconfirm>
 
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                     v-hasPermi="['picture:pictureApplyInfo:edit']">修改/审核
+                     v-hasPermi="['picture:pictureApplyInfo:edit']">修改
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['picture:pictureApplyInfo:remove']">删除

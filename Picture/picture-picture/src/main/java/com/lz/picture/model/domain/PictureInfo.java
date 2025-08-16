@@ -72,13 +72,13 @@ public class PictureInfo implements Serializable {
      * 图片宽度
      */
     @Excel(name = "图片宽度")
-    private Long picWidth;
+    private Integer picWidth;
 
     /**
      * 图片高度
      */
     @Excel(name = "图片高度")
-    private Long picHeight;
+    private Integer picHeight;
 
     /**
      * 宽高比例

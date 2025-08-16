@@ -2171,6 +2171,7 @@ CREATE TABLE ai_prompt_info (
 | file_urls        | text     |          |                                        | 是   |          | 文件地址         |
 | width            | int      |          |                                        | 是   |          | 宽度             |
 | height           | int      |          |                                        | 是   |          | 高度             |
+| file_size        | bigint   |          |                                        | 是   |          | 文件大小         |
 | request_time     | datetime |          |                                        | 否   |          | 请求时间         |
 | request_duration | bigint   |          |                                        | 是   |          | 请求时长         |
 | price_used       | decimal  | 5,2      |                                        | 否   | 0        | 价格             |
@@ -2216,6 +2217,7 @@ CREATE TABLE ai_generate_log_info (
   file_urls        TEXT                   COMMENT '文件地址',
   width            INT                    COMMENT '宽度',
   height           INT                    COMMENT '高度',
+  file_size       BIGINT COMMENT '文件',
   request_time     DATETIME    NOT NULL COMMENT '请求时间',
   request_duration BIGINT                  COMMENT '请求时长',
   price_used       DECIMAL(5,2) NOT NULL DEFAULT 0 COMMENT '价格',
@@ -2831,8 +2833,8 @@ CREATE TABLE p_picture_tag_info (
 | picture_id     | varchar  | 128  | 主键                              | 否   | auto_increment | 图片编号            |
 | picture_url    | varchar  | 512  |                                   | 否   |                | 图片 url            |
 | name           | varchar  | 32   |                                   | 否   |                | 图片名称            |
-| introduction   | varchar  | 512  |                                   | 是   |                | 简介                |
-| category_id    | varchar  | 128  | 外键(p_category_info:category_id) | 否   |                | 分类                |
+| introduction   | text     |      |                                   | 是   |                | 简介                |
+| category_id    | te       | 128  | 外键(p_category_info:category_id) | 否   |                | 分类                |
 | pic_size       | bigint   |      |                                   | 是   |                | 图片体积            |
 | pic_width      | int      |      |                                   | 是   | 0              | 图片宽度            |
 | pic_height     | int      |      |                                   | 是   | 0              | 图片高度            |
@@ -2871,7 +2873,7 @@ CREATE TABLE p_picture_info
     picture_id     varchar(128) COMMENT '图片编号',
     picture_url    VARCHAR(512) NOT NULL COMMENT '图片URL',
     name           VARCHAR(32)  NOT NULL COMMENT '图片名称',
-    introduction   VARCHAR(512) COMMENT '简介',
+    introduction   TEXT COMMENT '简介',
     category_id    VARCHAR(128) NOT NULL COMMENT '分类编号',
     pic_size       BIGINT COMMENT '图片体积（字节）',
     pic_width      INT                   DEFAULT 0 COMMENT '图片宽度',

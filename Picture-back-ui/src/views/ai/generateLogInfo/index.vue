@@ -297,62 +297,68 @@
                        sortable="custom" :show-overflow-tooltip="true"/>
       <el-table-column label="高度" align="center" prop="height" v-if="columns[14].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
-      <el-table-column label="请求时间" align="center" prop="requestTime" width="160" v-if="columns[15].visible"
+      <el-table-column label="文件大小" align="center" prop="fileSize" v-if="columns[15].visible"
+                       sortable="custom" :show-overflow-tooltip="true">
+        <template #default="scope">
+          {{ formatSize(scope.row.fileSize) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="请求时间" align="center" prop="requestTime" width="160" v-if="columns[16].visible"
                        sortable="custom" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.requestTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="请求时长" align="center" prop="requestDuration" v-if="columns[16].visible"
+      <el-table-column label="请求时长" align="center" prop="requestDuration" v-if="columns[17].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
-      <el-table-column label="价格" align="center" prop="priceUsed" v-if="columns[17].visible"
+      <el-table-column label="价格" align="center" prop="priceUsed" v-if="columns[18].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
-      <el-table-column label="消耗积分" align="center" prop="pointsUsed" v-if="columns[18].visible"
+      <el-table-column label="消耗积分" align="center" prop="pointsUsed" v-if="columns[19].visible"
                        sortable="custom" :show-overflow-tooltip="true"/>
-      <el-table-column label="参考对象" align="center" prop="targetId" v-if="columns[19].visible"
+      <el-table-column label="参考对象" align="center" prop="targetId" v-if="columns[20].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[20].visible">
+      <el-table-column label="状态" align="center" prop="logStatus" v-if="columns[21].visible">
         <template #default="scope">
           <dict-tag :options="ai_log_status" :value="scope.row.logStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="模型返回码" align="center" prop="aiStatusCode" v-if="columns[21].visible"
+      <el-table-column label="模型返回码" align="center" prop="aiStatusCode" v-if="columns[22].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[22].visible"
+      <el-table-column label="失败原因" align="center" prop="failReason" v-if="columns[23].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="是否发布" align="center" prop="hasPublic" v-if="columns[23].visible">
+      <el-table-column label="是否发布" align="center" prop="hasPublic" v-if="columns[24].visible">
         <template #default="scope">
           <dict-tag :options="ai_generate_has_public" :value="scope.row.hasPublic"/>
         </template>
       </el-table-column>
-      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[24].visible">
+      <el-table-column label="是否统计" align="center" prop="hasStatistics" v-if="columns[25].visible">
         <template #default="scope">
           <dict-tag :options="common_has_statistics" :value="scope.row.hasStatistics"/>
         </template>
       </el-table-column>
-      <el-table-column label="用户IP地址" align="center" prop="ipAddr" v-if="columns[25].visible"
+      <el-table-column label="用户IP地址" align="center" prop="ipAddr" v-if="columns[26].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="用户设备唯一标识" align="center" prop="deviceId" v-if="columns[26].visible"
+      <el-table-column label="用户设备唯一标识" align="center" prop="deviceId" v-if="columns[27].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[27].visible"
+      <el-table-column label="浏览器类型" align="center" prop="browser" v-if="columns[28].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[28].visible"
+      <el-table-column label="操作系统" align="center" prop="os" v-if="columns[29].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="平台" align="center" prop="platform" v-if="columns[29].visible"
+      <el-table-column label="平台" align="center" prop="platform" v-if="columns[30].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="160" v-if="columns[30].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160" v-if="columns[31].visible"
                        sortable="custom" :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="160" v-if="columns[31].visible"
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="160" v-if="columns[32].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[32].visible"
+      <el-table-column label="删除" align="center" prop="isDelete" v-if="columns[33].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <dict-tag :options="common_delete" :value="scope.row.isDelete"/>
@@ -437,6 +443,7 @@ import {
   updateGenerateLogInfo
 } from "@/api/ai/generateLogInfo";
 import ImagePreview from "@/components/ImagePreview/index.vue";
+import {formatSize} from "../../../utils/ruoyi.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -445,7 +452,7 @@ const {
   common_delete,
   ai_model_params_type,
   ai_generate_has_public
-} = proxy.useDict('ai_log_status', 'common_has_statistics', 'common_delete', 'ai_model_params_type','ai_generate_has_public');
+} = proxy.useDict('ai_log_status', 'common_has_statistics', 'common_delete', 'ai_model_params_type', 'ai_generate_has_public');
 
 const generateLogInfoList = ref([]);
 const open = ref(false);
@@ -546,24 +553,25 @@ const data = reactive({
     {key: 12, label: '文件地址', visible: true},
     {key: 13, label: '宽度', visible: true},
     {key: 14, label: '高度', visible: true},
-    {key: 15, label: '请求时间', visible: false},
-    {key: 16, label: '请求时长', visible: false},
-    {key: 17, label: '价格', visible: false},
-    {key: 18, label: '消耗的积分', visible: true},
-    {key: 19, label: '参考对象', visible: false},
-    {key: 20, label: '状态', visible: true},
-    {key: 21, label: '模型返回码', visible: false},
-    {key: 22, label: '失败原因', visible: false},
-    {key: 23, label: '是否发布', visible: false},
-    {key: 24, label: '是否统计', visible: false},
-    {key: 25, label: '用户IP地址', visible: false},
-    {key: 26, label: '用户设备唯一标识', visible: false},
-    {key: 27, label: '浏览器类型', visible: false},
-    {key: 28, label: '操作系统', visible: false},
-    {key: 29, label: '平台', visible: false},
-    {key: 30, label: '创建时间', visible: true},
-    {key: 31, label: '更新时间', visible: false},
-    {key: 32, label: '删除', visible: false},
+    {key: 15, label: '文件大小', visible: true},
+    {key: 16, label: '请求时间', visible: false},
+    {key: 17, label: '请求时长', visible: false},
+    {key: 18, label: '价格', visible: false},
+    {key: 19, label: '消耗的积分', visible: true},
+    {key: 20, label: '参考对象', visible: false},
+    {key: 21, label: '状态', visible: true},
+    {key: 22, label: '模型返回码', visible: false},
+    {key: 23, label: '失败原因', visible: false},
+    {key: 24, label: '是否发布', visible: false},
+    {key: 25, label: '是否统计', visible: false},
+    {key: 26, label: '用户IP地址', visible: false},
+    {key: 27, label: '用户设备唯一标识', visible: false},
+    {key: 28, label: '浏览器类型', visible: false},
+    {key: 29, label: '操作系统', visible: false},
+    {key: 30, label: '平台', visible: false},
+    {key: 31, label: '创建时间', visible: true},
+    {key: 32, label: '更新时间', visible: false},
+    {key: 33, label: '删除', visible: false},
   ],
 });
 

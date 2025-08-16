@@ -212,6 +212,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 FileResponse fileResponse = pictureUploadManager.uploadUrlByAiGenerate(imageUrl, "generate", infoDto.getUsername());
                 generateLogInfo.setWidth(Math.toIntExact(fileResponse.getPicWidth()));
                 generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
+                generateLogInfo.setFileSize(fileResponse.getPicSize());
                 generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
                 System.out.println("fileResponse = " + fileResponse);
                 //添加文件日志
@@ -262,7 +263,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         generateLogInfo.setDeviceId(info.getDeviceId());
         generateLogInfo.setBrowser(info.getBrowser());
         generateLogInfo.setOs(info.getOs());
-        generateLogInfo.setHasPublic(AiGenerateHasPublicEnum.HAS_PUBLIC_0.getValue());
+        generateLogInfo.setHasPublic(AiGenerateHasPublicEnum.HAS_PUBLIC_1.getValue());
         generateLogInfo.setPlatform(info.getPlatform());
         if (StringUtils.isNotNull(jiMengResponse.getData()) && StringUtils.isNotEmpty(jiMengResponse.getData().getTask_id())) {
             generateLogInfo.setTaskId(jiMengResponse.getData().getTask_id());

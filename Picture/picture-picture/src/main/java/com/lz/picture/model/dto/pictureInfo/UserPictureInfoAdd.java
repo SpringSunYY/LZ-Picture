@@ -56,7 +56,7 @@ public class UserPictureInfoAdd implements Serializable {
      * 图片宽度
      */
     @NotNull(message = "图片宽度不能为空")
-    private Long picWidth;
+    private Integer picWidth;
 
     /**
      * 宽高比例
@@ -67,7 +67,7 @@ public class UserPictureInfoAdd implements Serializable {
      * 图片高度
      */
     @NotNull(message = "图片高度不能为空")
-    private Long picHeight;
+    private Integer picHeight;
 
 
     /**

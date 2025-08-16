@@ -83,8 +83,8 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
      * @param generateLogInfo 用户生成记录
      * @return 用户生成记录
      */
-    @CustomSort(sortMappingFields = {"numbers", "width", "request_duration", "price_used", "points_used", "create_time"},
-            sortFields = {"numbers", "width", "requestDuration", "priceUsed", "pointsUsed", "createTime"})
+    @CustomSort(sortMappingFields = {"numbers", "width", "request_duration", "price_used", "points_used", "create_time","file_size"},
+            sortFields = {"numbers", "width", "requestDuration", "priceUsed", "pointsUsed", "createTime", "fileSize"})
     @Override
     public List<GenerateLogInfo> selectGenerateLogInfoList(GenerateLogInfo generateLogInfo) {
         List<GenerateLogInfo> generateLogInfos = generateLogInfoMapper.selectGenerateLogInfoList(generateLogInfo);

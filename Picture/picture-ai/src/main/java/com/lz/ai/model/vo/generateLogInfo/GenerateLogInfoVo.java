@@ -113,6 +113,12 @@ public class GenerateLogInfoVo implements Serializable {
     private Integer height;
 
     /**
+     * 文件大小
+     */
+    @Excel(name = "文件大小")
+    private Long fileSize;
+
+    /**
      * 请求时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

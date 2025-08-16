@@ -145,8 +145,8 @@ public class PictureUploadManager {
             // 发送HTTP请求获取图片信息
             String imageInfo = HttpUtils.sendGet(signedUrl.toString());
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
-            long picWidth = Long.parseLong(exif.getImageWidth().getValue());
-            long picHeight = Long.parseLong(exif.getImageHeight().getValue());
+            int picWidth = Integer.parseInt(exif.getImageWidth().getValue());
+            int picHeight = Integer.parseInt(exif.getImageHeight().getValue());
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
             String process = getWatermark(username, picWidth, picHeight);
@@ -185,7 +185,7 @@ public class PictureUploadManager {
      * @method buildPictureResponse
      * @date 2025/4/24 20:20
      **/
-    private static FileResponse buildPictureResponse(String endpoint, FileInfo fileInfo, Long picSize, long picWidth, long picHeight) {
+    private static FileResponse buildPictureResponse(String endpoint, FileInfo fileInfo, Long picSize, Integer picWidth, Integer picHeight) {
         //设置图片信息
         FileResponse fileResponse = new FileResponse();
         if (StringUtils.isNotEmpty(fileInfo.getFilePath())) {
@@ -426,8 +426,8 @@ public class PictureUploadManager {
             // 发送HTTP请求获取图片信息
             String imageInfo = HttpUtils.sendGet(signedUrl.toString());
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
-            long picWidth = Long.parseLong(exif.getImageWidth().getValue());
-            long picHeight = Long.parseLong(exif.getImageHeight().getValue());
+            int picWidth = Integer.parseInt(exif.getImageWidth().getValue());
+            int picHeight = Integer.parseInt(exif.getImageHeight().getValue());
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
             String process = getWatermark(username, picWidth, picHeight);
@@ -723,8 +723,8 @@ public class PictureUploadManager {
             // 发送HTTP请求获取图片信息
             String imageInfo = HttpUtils.sendGet(signedUrl.toString());
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
-            long picWidth = Long.parseLong(exif.getImageWidth().getValue());
-            long picHeight = Long.parseLong(exif.getImageHeight().getValue());
+            int picWidth = Integer.parseInt(exif.getImageWidth().getValue());
+            int picHeight = Integer.parseInt(exif.getImageHeight().getValue());
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
             String process = getAiWatermark(username, picWidth, picHeight);

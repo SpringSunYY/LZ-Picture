@@ -20,6 +20,7 @@
         <result property="fileUrls" column="file_urls"/>
         <result property="width" column="width"/>
         <result property="height" column="height"/>
+        <result property="fileSize" column="file_size"/>
         <result property="requestTime" column="request_time"/>
         <result property="requestDuration" column="request_duration"/>
         <result property="priceUsed" column="price_used"/>
@@ -56,6 +57,7 @@
                file_urls,
                width,
                height,
+               file_size,
                request_time,
                request_duration,
                price_used,
@@ -91,6 +93,7 @@
             <if test="taskId != null  and taskId != ''">and task_id = #{taskId}</if>
             <if test="width != null ">and width = #{width}</if>
             <if test="height != null ">and height = #{height}</if>
+            <if test="fileSize != null ">and file_size = #{fileSize}</if>
             <if test="requestDuration != null ">and request_duration = #{requestDuration}</if>
             <if test="targetId != null  and targetId != ''">and target_id = #{targetId}</if>
             <if test="logStatus != null  and logStatus != ''">and log_status = #{logStatus}</if>
@@ -143,6 +146,7 @@
             <if test="fileUrls != null">file_urls,</if>
             <if test="width != null">width,</if>
             <if test="height != null">height,</if>
+            <if test="fileSize != null">file_size,</if>
             <if test="requestTime != null">request_time,</if>
             <if test="requestDuration != null">request_duration,</if>
             <if test="priceUsed != null">price_used,</if>
@@ -178,6 +182,7 @@
             <if test="fileUrls != null">#{fileUrls},</if>
             <if test="width != null">#{width},</if>
             <if test="height != null">#{height},</if>
+            <if test="fileSize != null">#{fileSize},</if>
             <if test="requestTime != null">#{requestTime},</if>
             <if test="requestDuration != null">#{requestDuration},</if>
             <if test="priceUsed != null">#{priceUsed},</if>
@@ -216,6 +221,7 @@
             <if test="fileUrls != null">file_urls = #{fileUrls},</if>
             <if test="width != null">width = #{width},</if>
             <if test="height != null">height = #{height},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
             <if test="requestTime != null">request_time = #{requestTime},</if>
             <if test="requestDuration != null">request_duration = #{requestDuration},</if>
             <if test="priceUsed != null">price_used = #{priceUsed},</if>

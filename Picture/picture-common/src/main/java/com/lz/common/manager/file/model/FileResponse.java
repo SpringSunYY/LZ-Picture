@@ -31,12 +31,12 @@ public class FileResponse {
     /**
      * 图片宽度
      */
-    private Long picWidth;
+    private Integer picWidth;
 
     /**
      * 图片高度
      */
-    private Long picHeight;
+    private Integer picHeight;
 
     /**
      * 宽高比例

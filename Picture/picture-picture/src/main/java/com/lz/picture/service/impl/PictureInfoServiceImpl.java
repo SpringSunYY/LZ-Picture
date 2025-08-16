@@ -276,10 +276,10 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         Long picSize = pictureInfo.getPicSize();
         queryWrapper.eq(StringUtils.isNotNull(picSize), "pic_size", picSize);
 
-        Long picWidth = pictureInfo.getPicWidth();
+        Integer picWidth = pictureInfo.getPicWidth();
         queryWrapper.eq(StringUtils.isNotNull(picWidth), "pic_width", picWidth);
 
-        Long picHeight = pictureInfo.getPicHeight();
+        Integer picHeight = pictureInfo.getPicHeight();
         queryWrapper.eq(StringUtils.isNotNull(picHeight), "pic_height", picHeight);
 
         Double picScale = pictureInfo.getPicScale();
@@ -343,10 +343,11 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                         || !generateLogInfo.getUserId().equals(pictureAiUpload.getUserId())
                         || !generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
                 HttpStatus.NO_CONTENT, "记录不存在或已删除");
-        ThrowUtils.throwIf(generateLogInfo.getHasPublic().equals(AiGenerateHasPublicEnum.HAS_PUBLIC_0.getValue()), "改记录已发布！！！");
+        ThrowUtils.throwIf(generateLogInfo.getHasPublic().equals(AiGenerateHasPublicEnum.HAS_PUBLIC_0.getValue()), "该记录已发布！！！");
         //2、拿到记录信息的图片地址
         String fileUrls = generateLogInfo.getFileUrls();
         ThrowUtils.throwIf(StringUtils.isEmpty(fileUrls), HttpStatus.NO_CONTENT, "图片不存在或已删除");
+        generateLogInfo.setHasPublic(AiGenerateHasPublicEnum.HAS_PUBLIC_0.getValue());
         String[] split = fileUrls.split(COMMON_SEPARATOR);
         String pictureUrl = split[0];
         String thumbnailUrl = split[1];
@@ -355,6 +356,9 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         PictureInfo pictureInfo = new PictureInfo();
         pictureInfo.setThumbnailUrl(thumbnailUrl);
         pictureInfo.setPictureUrl(pictureUrl);
+        pictureInfo.setPicSize(generateLogInfo.getFileSize());
+        pictureInfo.setPicWidth(generateLogInfo.getWidth());
+        pictureInfo.setPicHeight(generateLogInfo.getHeight());
         pictureInfo.setCreateTime(nowDate);
         BeanUtils.copyBeanProp(pictureInfo, pictureAiUpload);
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
@@ -397,7 +401,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureApplyInfo.setApplyReason(pictureInfo.getIntroduction());
             pictureApplyInfo.setApplyImage(pictureInfo.getPictureUrl());
             pictureApplyInfo.setContact("AI生成");
-            pictureApplyInfo.setPointsNeed(pictureApplyInfo.getPointsNeed());
+            pictureApplyInfo.setPointsNeed(pictureAiUpload.getPointsNeed());
             //如果传过来的积分不为空，判断是否为10的倍数或者0
             ThrowUtils.throwIf(StringUtils.isNotNull(pictureApplyInfo.getPointsNeed())
                     && pictureApplyInfo.getPointsNeed() % 10 != 0
@@ -406,14 +410,23 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             pictureApplyInfo.setUserId(pictureAiUpload.getUserId());
             pictureApplyInfo.setCreateTime(nowDate);
             pictureApplyInfo.setReviewStatus(PPictureApplyStatusEnum.PICTURE_APPLY_STATUS_0.getValue());
+            //必须为私有
+            pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
             Integer execute = transactionTemplate.execute(task -> {
                 pictureInfoMapper.insertPictureInfo(pictureInfo);
                 pictureApplyInfoService.save(pictureApplyInfo);
+                generateLogInfoService.updateGenerateLogInfo(generateLogInfo);
                 return 1;
             });
             i = StringUtils.isNotNull(execute) ? 1 : 0;
         } else {
-            i = pictureInfoMapper.insertPictureInfo(pictureInfo);
+            pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
+            Integer execute = transactionTemplate.execute(task -> {
+                pictureInfoMapper.insertPictureInfo(pictureInfo);
+                generateLogInfoService.updateGenerateLogInfo(generateLogInfo);
+                return 1;
+            });
+            i = StringUtils.isNotNull(execute) ? 1 : 0;
         }
 
         //异步更新图片空间、标签、标签关联、分类

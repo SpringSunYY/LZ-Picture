@@ -355,7 +355,7 @@ const pollGenerateTask = async (item: GenerateLogInfoVo) => {
         })
       } else if (res.data.logStatus === AiLogStatusEnum.REQUESTING) {
         // 5秒后继续轮询
-        const timer = setTimeout(() => pollGenerateTask(logId), 5000)
+        const timer = setTimeout(() => pollGenerateTask(item), 5000)
         pollingMap.set(logId, timer)
       } else {
         message.error(

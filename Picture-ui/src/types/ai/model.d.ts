@@ -202,3 +202,26 @@ export function getAiLogStatusByValue(value: string): keyof typeof AiLogStatusEn
   const entry = Object.entries(AiLogStatusEnum).find(([_, v]) => v === value)
   return entry ? (entry[0] as keyof typeof AiLogStatusEnum) : undefined
 }
+
+/**
+ * AI生成是否发布
+ */
+export enum AiGenerateHasPublicEnum {
+  HAS_PUBLIC_0 = '0', // 已发布
+  HAS_PUBLIC_1 = '1', // 未发布
+}
+
+/**
+ * 枚举对应的标签
+ */
+export const AiGenerateHasPublicEnumLabels: Record<AiGenerateHasPublicEnum, string> = {
+  [AiGenerateHasPublicEnum.HAS_PUBLIC_0]: '已发布',
+  [AiGenerateHasPublicEnum.HAS_PUBLIC_1]: '未发布',
+}
+
+/**
+ * 根据值获取对应的 label
+ */
+export function getAiGenerateHasPublicLabel(value: string): string {
+  return AiGenerateHasPublicEnumLabels[value as AiGenerateHasPublicEnum] ?? ''
+}
