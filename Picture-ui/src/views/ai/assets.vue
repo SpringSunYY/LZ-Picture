@@ -170,7 +170,8 @@ import { formatDateTime } from '@/utils/common.ts'
 import NoMoreData from '@/components/NoMoreData.vue'
 import TextView from '@/components/TextView.vue'
 import AiLoading from '@/components/AiLoading.vue'
-import { downloadByUrl, openByUrl } from '@/utils/file.ts'
+import { openByUrl } from '@/utils/file.ts'
+import { message } from 'ant-design-vue'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -210,7 +211,7 @@ const getGenerateList = async () => {
         }
         if (item.logStatus === AiLogStatusEnum.REQUESTING) {
           setTimeout(async () => {
-            await pollGenerateTask(item.logId)
+            await pollGenerateTask(item)
           }, 5000)
         }
       })
@@ -229,16 +230,17 @@ const loadMoreData = () => {
 // 定义一个定时器引用,每个任务都需要
 const pollingMap = new Map<string, NodeJS.Timeout>()
 //轮训获取生成结果
-const pollGenerateTask = async (logId: string) => {
+const pollGenerateTask = async (item: GenerateLogInfoVo) => {
+  const logId = item.logId
+  //如果成功，从generateList拿到对应的数据，修改他的数据
+  const date = formatDateTime(item.createTime)
+  const group = generateGroups.value.find((g) => g.date === date)
   try {
     const res = await queryTask(logId)
     if (res.code === 200 && res.data) {
       //如果成功
       if (res.data.logStatus === AiLogStatusEnum.SUCCESS) {
         stopPolling(logId)
-        //如果成功，从generateList拿到对应的数据，修改他的数据
-        const date = formatDateTime(res.data.createTime)
-        const group = generateGroups.value.find((g) => g.date === date)
         if (group) {
           group.items = group.items.map((item) => {
             if (item.logId === logId) {
@@ -256,6 +258,17 @@ const pollGenerateTask = async (logId: string) => {
         const timer = setTimeout(() => pollGenerateTask(logId), 5000)
         pollingMap.set(logId, timer)
       } else {
+        message.error(
+          item.modelName + '生成失败，请检查生成内容是否可能侵犯版权，使用的积分已经返回您的账户',
+          5,
+        )
+        //删除对应的数据
+        if (group) {
+          group.items = group.items.filter((item) => {
+            return item.logId !== logId
+          })
+        }
+
         stopPolling(logId)
       }
     }

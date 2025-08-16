@@ -5,7 +5,6 @@ import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.spring.SpringUtils;
-import com.lz.config.model.enmus.CFileLogOssTypeEnum;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.config.service.IFileLogInfoService;
 
@@ -43,7 +42,7 @@ public class AiFileLogAsyncFactory {
                 //插入文件日志
                 SpringUtils.getBean(IFileLogInfoService.class).recordNormalFileLog(
                         fileResponse, userId, targetId, targetContent,
-                        CFileLogOssTypeEnum.OSS_TYPE_0.getValue(), CFileLogTypeEnum.LOG_TYPE_5.getValue(),
+                        CFileLogTypeEnum.LOG_TYPE_5.getValue(),
                         finalDeviceInfo);
             }
         };

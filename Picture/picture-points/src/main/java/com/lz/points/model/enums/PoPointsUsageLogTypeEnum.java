@@ -30,7 +30,12 @@ public enum PoPointsUsageLogTypeEnum {
     /**
      * 提现
      */
-    POINTS_USAGE_LOG_TYPE_3("3", "提现");
+    POINTS_USAGE_LOG_TYPE_3("3", "提现"),
+
+    /**
+     * 退回
+     */
+    POINTS_USAGE_LOG_TYPE_4("4", "退回");
 
     private static final Map<String, PoPointsUsageLogTypeEnum> VALUE_TO_ENUM = new HashMap<>();
 
@@ -60,4 +65,4 @@ public enum PoPointsUsageLogTypeEnum {
         }
         return Optional.ofNullable(VALUE_TO_ENUM.get(value));
     }
-}
+    }

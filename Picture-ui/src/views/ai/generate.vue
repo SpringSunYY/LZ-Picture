@@ -192,7 +192,7 @@ const getGenerateList = async () => {
       res.rows.forEach(async (item) => {
         if (item.logStatus === AiLogStatusEnum.REQUESTING) {
           setTimeout(async () => {
-            await pollGenerateTask(item.logId)
+            await pollGenerateTask(item)
           }, 5000)
         }
       })
@@ -334,7 +334,8 @@ const submitGenerate = async () => {
 // 定义一个定时器引用,每个任务都需要
 const pollingMap = new Map<string, NodeJS.Timeout>()
 //轮训获取生成结果
-const pollGenerateTask = async (logId: string) => {
+const pollGenerateTask = async (item: GenerateLogInfoVo) => {
+  const logId = item.logId
   try {
     const res = await queryTask(logId)
     if (res.code === 200 && res.data) {
@@ -357,6 +358,12 @@ const pollGenerateTask = async (logId: string) => {
         const timer = setTimeout(() => pollGenerateTask(logId), 5000)
         pollingMap.set(logId, timer)
       } else {
+        message.error(
+          item.modelName + '生成失败，请检查生成内容是否可能侵犯版权，使用的积分已经返回您的账户',
+          5,
+        )
+        //删除对应的数据
+        generateList.value = generateList.value.filter((item) => item.logId !== logId)
         stopPolling(logId)
       }
     }
@@ -543,7 +550,7 @@ $text-color: #ffffff;
     }
   }
 
-  .no-data{
+  .no-data {
     padding: 20px;
     text-align: center;
     margin-top: 30vh;

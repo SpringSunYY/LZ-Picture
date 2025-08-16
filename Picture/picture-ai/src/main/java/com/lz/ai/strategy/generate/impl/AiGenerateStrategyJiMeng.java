@@ -22,7 +22,6 @@ import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
-import com.lz.points.model.enums.PoPointsUsageTypeEnum;
 import com.lz.points.service.IPointsUsageLogInfoService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -158,21 +157,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 saveGenerateLogInfoByTask(infoDto, data, generateLogInfo);
             }
             //执行成功直接扣除
-            //添加文件日志
-            DeviceInfo deviceInfo = new DeviceInfo();
-            deviceInfo.setDeviceId(infoDto.getDeviceId());
-            deviceInfo.setIpAddr(infoDto.getIpAddr());
-            deviceInfo.setBrowser(infoDto.getBrowser());
-            deviceInfo.setOs(infoDto.getOs());
-            deviceInfo.setPlatform(infoDto.getPlatform());
-            //扣除积分
-            pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(infoDto.getUserId(),
-                    null,
-                    PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue(),
-                    PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_2.getValue(),
-                    generateLogInfo.getLogId(),
-                    -generateLogInfo.getPointsUsed(),
-                    deviceInfo);
+            executePoints(generateLogInfo, -generateLogInfo.getPointsUsed(), PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue());
 
         } else {
             generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
@@ -514,6 +499,11 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             if (jiMengResponse.getCode() == 10000) {
                 JiMengResponse.DataContent data = jiMengResponse.getData();
                 if (StringUtils.isNull(data)) {
+                    //生成失败，返回积分
+                    //必须是请求中状态才会返回
+                    if (generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_0.getValue())) {
+                        executePoints(generateLogInfo, generateLogInfo.getPointsUsed(), PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_4.getValue());
+                    }
                     generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
                 }
                 //如果是直接返回URL，则直接保存图片
@@ -535,12 +525,16 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 }
                 generateLogInfo.setOutputResult(JSONObject.toJSONString(jiMengResponse));
             } else {
+                //生成失败，返回积分
+                //必须是请求中状态才会返回
+                if (generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_0.getValue())) {
+                    executePoints(generateLogInfo, generateLogInfo.getPointsUsed(), PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_4.getValue());
+                }
                 generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         return generateLogInfo;
     }
 

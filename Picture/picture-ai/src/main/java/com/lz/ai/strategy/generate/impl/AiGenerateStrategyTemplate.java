@@ -6,6 +6,10 @@ import com.lz.ai.strategy.generate.AiGenerateStrategyService;
 import com.lz.ai.strategy.generate.domain.dto.GenerateLogInfoDto;
 import com.lz.ai.strategy.generate.domain.params.Params;
 import com.lz.ai.strategy.generate.domain.verify.Verify;
+import com.lz.common.core.domain.DeviceInfo;
+import com.lz.points.model.enums.PoPointsUsageTypeEnum;
+import com.lz.points.service.IPointsUsageLogInfoService;
+import jakarta.annotation.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,8 @@ import java.util.List;
  * @Version: 1.0
  */
 public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
+    @Resource
+    private IPointsUsageLogInfoService pointsUsageLogInfoService;
     /**
      * 用户生成
      *
@@ -77,5 +83,28 @@ public class AiGenerateStrategyTemplate implements AiGenerateStrategyService {
         } else {
             jiMengParams.setPrompt(info.getPrompt());
         }
+    }
+
+    /**
+     * 执行积分操作
+     * @param generateLogInfo
+     * @param pointsUsed
+     * @param logType
+     */
+    public void executePoints(GenerateLogInfo generateLogInfo,Long pointsUsed,String logType) {
+        //添加文件日志
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setDeviceId(generateLogInfo.getDeviceId());
+        deviceInfo.setIpAddr(generateLogInfo.getIpAddr());
+        deviceInfo.setBrowser(generateLogInfo.getBrowser());
+        deviceInfo.setOs(generateLogInfo.getOs());
+        deviceInfo.setPlatform(generateLogInfo.getPlatform());
+        pointsUsageLogInfoService.updateAccountByPointsRechargeInfo(generateLogInfo.getUserId(),
+                null,
+                logType,
+                PoPointsUsageTypeEnum.POINTS_USAGE_TYPE_2.getValue(),
+                generateLogInfo.getLogId(),
+                pointsUsed,
+                deviceInfo);
     }
 }

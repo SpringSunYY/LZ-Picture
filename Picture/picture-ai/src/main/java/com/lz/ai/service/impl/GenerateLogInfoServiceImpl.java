@@ -278,9 +278,9 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
     public GenerateLogInfo queryTask(String logId, String userId, String username) {
         GenerateLogInfo generateLogInfo = this.getById(logId);
         ThrowUtils.throwIf(StringUtils.isNull(generateLogInfo)
-                        ||!generateLogInfo.getUserId().equals(userId),
+                        || !generateLogInfo.getUserId().equals(userId),
                 HttpStatus.NO_CONTENT, "用户未查询到该任务");
-        ThrowUtils.throwIf(generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_1.getValue()),
+        ThrowUtils.throwIf(!generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_0.getValue()),
                 "任务已完成，无需继续查询");
         //使用redis锁住任务，避免重复查询
         String lockKey = AI_GENERATE_QUERY_TASK + COMMON_SEPARATOR_CACHE + logId;
