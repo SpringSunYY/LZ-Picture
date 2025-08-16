@@ -375,30 +375,15 @@ onMounted(() => {
 .picture-update {
   width: 90%;
   margin: 0 auto;
+}
 
-  .custom-modal-title {
-    font-size: 16px;
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #616161;
+}
 
-    .title-tip-icon {
-      margin-left: 8px;
-      color: rgba(57, 57, 57, 0.45);
-      cursor: help;
-      transition: color 0.3s;
-
-      &:hover {
-        color: #1890ff;
-      }
-    }
-  }
-
-  .ant-upload-select-picture-card i {
-    font-size: 32px;
-    color: #616161;
-  }
-
-  .ant-upload-select-picture-card .ant-upload-text {
-    margin-top: 8px;
-    color: #666;
-  }
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
 }
 </style>

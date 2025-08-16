@@ -251,33 +251,6 @@ getMySpaceList()
 </script>
 
 <style lang="scss" scoped>
-.form-footer {
-  text-align: right;
-  padding: 16px 0 0;
-  margin-top: 24px;
-  border-top: 1px solid #f0f0f0;
-
-  .ant-btn {
-    margin-left: 10px;
-  }
-}
-
-.custom-modal-title {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-
-  .title-tip-icon {
-    margin-left: 8px;
-    color: rgba(57, 57, 57, 0.45);
-    cursor: help;
-    transition: color 0.3s;
-
-    &:hover {
-      color: #1890ff;
-    }
-  }
-}
 
 .picture-space {
   padding: 24px;

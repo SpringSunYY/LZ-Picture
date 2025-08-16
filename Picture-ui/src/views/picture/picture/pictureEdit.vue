@@ -419,23 +419,6 @@ getTagList()
   width: 90%;
   margin: 0 auto;
 
-  .custom-modal-title {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-
-    .title-tip-icon {
-      margin-left: 8px;
-      color: rgba(57, 57, 57, 0.45);
-      cursor: help;
-      transition: color 0.3s;
-
-      &:hover {
-        color: #1890ff;
-      }
-    }
-  }
-
   .ant-upload-select-picture-card i {
     font-size: 32px;
     color: #616161;

@@ -512,6 +512,7 @@ async function handleUpdate(row) {
   }
   getPictureCategoryInfo(row.categoryId).then(response => {
     form.value = response.data;
+    form.value.orderNum = Number(response.data.orderNum);
     open.value = true;
     title.value = "修改图片分类信息";
   });

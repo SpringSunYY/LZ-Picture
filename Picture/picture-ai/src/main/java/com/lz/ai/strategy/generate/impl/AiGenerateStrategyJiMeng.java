@@ -495,6 +495,9 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             JiMengResponse jiMengResponse = doRequest(jiMengParams.getMethod(), new HashMap<>(), jsonString.getBytes(UTF_8), nowDate,
                     jiMengParams.getAction(), jiMengParams.getVersion(), jiMengParams.getRegion(), jiMengParams.getService(), jiMengParams.getPath(),
                     modelParamsInfo.getApiKey(), modelParamsInfo.getSecretKey(), jiMengParams.getHost(), jiMengParams.getSchema());
+            generateLogInfo.setFailReason(jiMengResponse.getMessage());
+            generateLogInfo.setAiStatusCode(String.valueOf(jiMengResponse.getCode()));
+            generateLogInfo.setOutputResult(JSONObject.toJSONString(jiMengResponse));
             System.out.println("jiMengResponse = " + jiMengResponse);
             if (jiMengResponse.getCode() == 10000) {
                 JiMengResponse.DataContent data = jiMengResponse.getData();
@@ -530,6 +533,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 if (generateLogInfo.getLogStatus().equals(AiLogStatusEnum.LOG_STATUS_0.getValue())) {
                     executePoints(generateLogInfo, generateLogInfo.getPointsUsed(), PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_4.getValue());
                 }
+                generateLogInfo.setPointsUsed(0L);
                 generateLogInfo.setLogStatus(AiLogStatusEnum.LOG_STATUS_2.getValue());
             }
         } catch (Exception e) {

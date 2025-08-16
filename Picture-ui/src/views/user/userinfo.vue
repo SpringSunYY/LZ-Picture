@@ -828,33 +828,6 @@ $blue-color: #2196f3;
 $red-color: #f44336;
 $purple-color: #9c27b0;
 
-.custom-modal-title {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-
-  .title-tip-icon {
-    margin-left: 8px;
-    color: rgba(57, 57, 57, 0.45);
-    cursor: help;
-    transition: color 0.3s;
-
-    &:hover {
-      color: #1890ff;
-    }
-  }
-}
-
-.form-footer {
-  text-align: right;
-  padding: 16px 0 0;
-  margin-top: 24px;
-  border-top: 1px solid #f0f0f0;
-
-  .ant-btn {
-    margin-left: 10px;
-  }
-}
 
 .user-profile {
   max-width: 1440px;

@@ -348,6 +348,12 @@ public class ConfigInfoUtils {
     public static final String PICTURE_STATISTICS_HOT_TOTAL_RANK_KEY = "picture:statistics:hot:total:rank";
     public static Integer PICTURE_STATISTICS_HOT_TOTAL_RANK_VALUE = 10000;
 
+    /**
+     * 图片分类AI ID
+     */
+    public static final String PICTURE_CATEGORY_AI_ID_KEY = "picture:category:ai:id";
+    public static String PICTURE_CATEGORY_AI_ID_VALUE = "C_AI";
+
 
     private static final long lastCacheRefreshTime = 0;
     private static final long CACHE_REFRESH_INTERVAL = 3600 * 1000; // 1小时刷新一次
@@ -415,6 +421,7 @@ public class ConfigInfoUtils {
         PICTURE_STATISTICS_HOT_MONTH_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_MONTH_RANK_KEY);
         PICTURE_STATISTICS_HOT_YEAR_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_YEAR_RANK_KEY);
         PICTURE_STATISTICS_HOT_TOTAL_RANK_VALUE = getInt(PICTURE_STATISTICS_HOT_TOTAL_RANK_KEY);
+        PICTURE_CATEGORY_AI_ID_VALUE = getString(PICTURE_CATEGORY_AI_ID_KEY);
     }
 
 
