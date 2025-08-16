@@ -746,6 +746,7 @@ const handleSubmitPicture = async () => {
       message.success('发布成功，如果是公开请等待审核')
       openPublic.value = false
       generateQuery.value.pageNum = 1
+      generateGroups.value = []
       await getGenerateList()
     }
   } finally {
