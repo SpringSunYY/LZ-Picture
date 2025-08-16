@@ -4,7 +4,7 @@ import type {
   MyPictureInfoVo,
   PictureAiUpload,
   PictureDetailInfoVo,
-  PictureInfo,
+  PictureInfo, PictureInfoAiQuery, PictureInfoAiVo,
   PictureInfoHotRequest,
   PictureInfoQuery,
   PictureInfoRecommendRequest,
@@ -103,6 +103,18 @@ export function listMyPictureInfo(
 ): Promise<API.ResponseInfo<MyPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/list/my',
+    params: params,
+  })
+}
+
+/**
+ * 查询我的AI图片详情
+ */
+export function listMyAiPictureInfo(
+  params: PictureInfoAiQuery,
+): Promise<API.ResponseInfo<PictureInfoAiVo>> {
+  return request({
+    url: '/picture/pictureInfo/list/ai/my',
     params: params,
   })
 }

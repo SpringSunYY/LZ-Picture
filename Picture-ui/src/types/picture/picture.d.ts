@@ -522,6 +522,73 @@ export interface PictureInfoHotRequest {
   isAsc?: string
 }
 
+/**
+ * 图片信息Vo对象 p_picture_info
+ */
+export interface PictureInfoAiVo {
+  /** 图片编号 */
+  pictureId: string
+
+  /** 图片URL */
+  pictureUrl: string
+
+  /** 图片名称 */
+  name: string
+
+  /** 简介 */
+  introduction: string
+
+  /** 创建时间 */
+  createTime: string // yyyy-MM-dd HH:mm:ss
+
+  /** 发布时间 */
+  publishTime: string // yyyy-MM-dd HH:mm:ss
+
+  /** 缩略图URL */
+  thumbnailUrl: string
+
+  /** 查看次数 */
+  lookCount: number
+
+  /** 收藏次数 */
+  collectCount: number
+
+  /** 点赞次数 */
+  likeCount: number
+
+  /** 分享次数 */
+  shareCount: number
+
+  /** 下载次数 */
+  downloadCount: number
+}
+
+/**
+ * 用户图片信息查询对象
+ */
+export interface PictureInfoAiQuery {
+  /** 图片编号 */
+  pictureId: string
+
+  /** 图片名称 */
+  name: string
+
+  /** 上传用户编号 */
+  userId: string
+
+  /** 创建时间 */
+  createTime: string // yyyy-MM-dd
+
+  /** 图片状态 */
+  pictureStatus: string
+
+  /** 当前页码（分页） */
+  pageNum?: number
+
+  /** 每页记录数（分页） */
+  pageSize?: number
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

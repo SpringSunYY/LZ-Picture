@@ -209,4 +209,13 @@ public class PictureRedisConstants {
      */
     public static final int PICTURE_STATISTICS_STAGES_EXPIRE_TIME = 60 * 5;
 
+    /**
+     * 图片ai缓存
+     */
+    public static final String PICTURE_AI = "picture:ai";
+    /**
+     * 图片ai缓存时间
+     */
+    public static final int PICTURE_AI_EXPIRE_TIME = 60 * 5;
+
 }

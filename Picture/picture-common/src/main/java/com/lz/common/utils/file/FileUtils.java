@@ -397,8 +397,30 @@ public class FileUtils {
         }
     }
 
+    /**
+     * 获取文件后缀名
+     *
+     * @param fileName 文件名
+     * @return
+     */
+    public static String getSuffixName(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex == -1) {
+            return "";
+        }
+        fileName = fileName.substring(lastDotIndex + 1);
+        //判断是否有?
+        if (fileName.contains("?")) {
+            fileName = fileName.substring(0, fileName.indexOf("?"));
+        }
+        return fileName;
+    }
+
+
     public static void main(String[] args) {
-        String s = readFileContent("E:\\Project\\Picture\\alipay_public_key.txt");
-        System.out.println(s);
+        String filePath = "E:\\Project\\Picture\\alipay_public_key.txt?";
+//        String s = readFileContent(filePath);
+//        System.out.println(s);
+        System.out.println("getSuffixName(s) = " + getSuffixName(filePath));
     }
 }

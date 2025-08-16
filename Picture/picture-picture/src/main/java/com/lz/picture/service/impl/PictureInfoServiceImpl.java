@@ -27,6 +27,7 @@ import com.lz.common.utils.ParamUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
+import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.ip.IpUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.enmus.CTemplateTypeEnum;
@@ -335,6 +336,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return this.getOne(new LambdaQueryWrapper<PictureInfo>().eq(PictureInfo::getPictureId, pictureId).eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
     }
 
+    @CustomCacheEvict(keyPrefixes= {PICTURE_AI}, keyFields = {"pictureAiUpload.userId"})
     @Override
     public int userInsertPictureInfoByAi(PictureAiUpload pictureAiUpload) {
         //1、查询记录是否存在，拿到记录信息
@@ -360,6 +362,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setPicWidth(generateLogInfo.getWidth());
         pictureInfo.setPicHeight(generateLogInfo.getHeight());
         pictureInfo.setCreateTime(nowDate);
+        pictureInfo.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue());
+        pictureInfo.setPicFormat(FileUtils.getSuffixName(pictureUrl));
         BeanUtils.copyBeanProp(pictureInfo, pictureAiUpload);
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
         //查询分类是否存在
@@ -1631,4 +1635,39 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return pictureInfoDto;
     }
     //endregion
+
+
+    //region ai模块的查询
+    @CustomCacheable(
+            keyPrefix = PICTURE_AI, expireTime = PictureRedisConstants.PICTURE_AI_EXPIRE_TIME,
+            keyField = "query.userId", useQueryParamsAsKey = true
+    )
+    public TableDataInfo listAiMy(UserPictureInfoAiQuery query) {
+        //构造查询条件
+        Page<PictureInfo> pictureInfoPage = new Page<>();
+
+        pictureInfoPage.setCurrent(query.getPageNum());
+        pictureInfoPage.setSize(query.getPageSize());
+        //构造查询条件
+        LambdaQueryWrapper<PictureInfo> lambdaQueryWrapper = new LambdaQueryWrapper<PictureInfo>()
+                .select(PictureInfo::getPictureId, PictureInfo::getName, PictureInfo::getCreateTime,
+                        PictureInfo::getLookCount, PictureInfo::getLikeCount, PictureInfo::getCollectCount, PictureInfo::getShareCount,
+                        PictureInfo::getDownloadCount, PictureInfo::getIntroduction, PictureInfo::getPictureUrl)
+                .eq(StringUtils.isNotEmpty(query.getUserId()), PictureInfo::getUserId, query.getUserId())
+                .eq(StringUtils.isNotEmpty(query.getPictureStatus()), PictureInfo::getPictureStatus, query.getPictureStatus())
+                .eq(PictureInfo::getUploadType, PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue())
+                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .orderBy(true, false, PictureInfo::getCreateTime);
+        Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
+        List<PictureInfoAiVo> userPictureInfoVos = PictureInfoAiVo.objToVo(page.getRecords());
+        //压缩图片
+        for (PictureInfoAiVo vo : userPictureInfoVos) {
+            vo.setPictureUrl(OssConfig.builderPictureUrl(vo.getPictureUrl(), PICTURE_INDEX_P_VALUE));
+        }
+        TableDataInfo tableDataInfo = new TableDataInfo();
+        tableDataInfo.setRows(userPictureInfoVos);
+        tableDataInfo.setTotal(page.getTotal());
+        return tableDataInfo;
+    }
+    //region
 }

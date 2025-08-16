@@ -113,6 +113,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
         pictureAiUpload.setUserId(getUserId());
         return success(pictureInfoService.userInsertPictureInfoByAi(pictureAiUpload));
     }
+
     /**
      * 修改图片
      */
@@ -246,6 +247,22 @@ public class UserPictureInfoController extends BaseUserInfoController {
             userPictureInfoQuery.setPageSize(50);
         }
         return pictureInfoService.listMy(userPictureInfoQuery);
+    }
+
+    /**
+     * list ai 我的
+     */
+    @PreAuthorize("@uss.hasPermi('picture:list')")
+    @GetMapping("/list/ai/my")
+    public TableDataInfo listAiMy(UserPictureInfoAiQuery query) {
+        if (StringUtils.isNull(query.getPageSize())) {
+            query.setPageSize(50);
+        }
+        if (query.getPageSize() > 50) {
+            query.setPageSize(50);
+        }
+        query.setUserId(getUserId());
+        return pictureInfoService.listAiMy(query);
     }
 
     /**

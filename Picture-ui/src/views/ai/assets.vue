@@ -47,7 +47,6 @@
                         >
                           发布作品
                         </button>
-                        <button v-else>查看详情</button>
                       </div>
                     </div>
                   </div>
@@ -355,7 +354,7 @@ import TextView from '@/components/TextView.vue'
 import AiLoading from '@/components/AiLoading.vue'
 import { openByUrl } from '@/utils/file.ts'
 import { message } from 'ant-design-vue'
-import type { PictureAiUpload, PictureInfo } from '@/types/picture/picture'
+import type { PictureAiUpload } from '@/types/picture/picture'
 import { InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue'
 import type { PictureTagInfoQuery, PictureTagInfoVo } from '@/types/picture/pictureTag'
 import { mySpaceInfo } from '@/api/picture/space.ts'
@@ -365,15 +364,10 @@ import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/sp
 import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 import { handleTree } from '@/utils/lz.ts'
 import { debounce } from 'lodash-es'
-import {
-  listPictureCategoryInfo,
-  listPictureCategoryInfoByAi,
-} from '@/api/picture/pictureCategory.ts'
-import type {
-  PictureCategoryInfoQuery,
-  PictureCategoryInfoVo,
-} from '@/types/picture/pictureCategory'
+import { listPictureCategoryInfoByAi } from '@/api/picture/pictureCategory.ts'
+import type { PictureCategoryInfoVo } from '@/types/picture/pictureCategory'
 import { addPictureInfoByAi } from '@/api/picture/picture.ts'
+import { useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type, p_picture_status } = proxy?.useDict(

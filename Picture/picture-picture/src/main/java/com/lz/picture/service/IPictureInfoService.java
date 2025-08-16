@@ -310,4 +310,12 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * @return
      */
     int userInsertPictureInfoByAi(PictureAiUpload pictureAiUpload);
+
+    /**
+     * 查询我的AI图片
+     *
+     * @param query
+     * @return
+     */
+    TableDataInfo listAiMy(UserPictureInfoAiQuery query);
 }

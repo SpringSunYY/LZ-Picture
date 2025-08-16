@@ -68,22 +68,32 @@
         <a href="#" class="tab-item">AI图片</a>
       </nav>
 
-      <div class="waterfall-grid" ref="waterfallGridRef">
-        <div class="waterfall-item" v-for="image in images" :key="image.id">
-          <img :src="image.url" alt="work" @load="isMobile ? null : layoutWaterfall()" />
-        </div>
-        <div v-if="isLoading" class="loading">加载中...</div>
-        <BackToUp />
-      </div>
+      <AiVerticalFallLayout
+        ref="aiVerticalFallLayoutRef"
+        :loading="loading"
+        @load-more="loadMore"
+        :no-more="noMore"
+        :picture-list="pictureList"
+      />
+      <BackToUp />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
 import BackToUp from '@/components/BackToUp.vue'
+import AiVerticalFallLayout from '@/components/AiVerticalFallLayout.vue'
+import type {
+  PictureInfoAiQuery,
+  PictureInfoAiVo,
+  PictureInfoQuery,
+  PictureInfoVo,
+} from '@/types/picture/picture'
+import { message } from 'ant-design-vue'
+import { listMyAiPictureInfo } from '@/api/picture/picture.ts'
 
 interface ImageItem {
   id: number
@@ -191,7 +201,47 @@ const handleResize = () => {
     }
   })
 }
+//region 图片列表
+const pictureQuery = ref<PictureInfoAiQuery>({
+  pageNum: 1,
+  pageSize: 35,
+  name: '',
+  pictureStatus: '',
+})
+const aiVerticalFallLayoutRef = ref()
+const resetPictureQuery = () => {
+  pictureQuery.value = {
+    pageNum: 1,
+    pageSize: 35,
+    categoryId: '',
+    orderByColumn: '',
+    name: '',
+  }
+  loading.value = false
+  noMore.value = false
+  aiVerticalFallLayoutRef.value.clearData()
+}
 
+const loading = ref(false)
+const noMore = ref(false)
+const pictureList = ref<PictureInfoAiVo[]>([])
+
+async function loadMore() {
+  if (loading.value || noMore.value) return
+  message.loading('正在为您获取图片推荐...', 1)
+  const res = await listMyAiPictureInfo(pictureQuery.value)
+  pictureList.value = res?.rows || []
+  if (pictureList.value.length >= pictureQuery.value.pageSize) {
+    pictureQuery.value.pageNum++
+    message.success(`已为您推荐${pictureList.value.length}张图片`)
+  } else {
+    message.success('已为您获取全部图片推荐')
+    noMore.value = true
+  }
+  loading.value = false
+}
+
+//endregion
 onMounted(() => {
   window.addEventListener('resize', handleResize)
   fetchMoreImages(20)
