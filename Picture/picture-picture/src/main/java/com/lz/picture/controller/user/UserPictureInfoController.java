@@ -264,10 +264,6 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public TableDataInfo getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
         pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
-        //压缩图片
-        for (UserPictureInfoVo vo : userPictureInfoVos) {
-            vo.setThumbnailUrl(OssConfig.builderPictureUrl(vo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
-        }
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
     }
 
