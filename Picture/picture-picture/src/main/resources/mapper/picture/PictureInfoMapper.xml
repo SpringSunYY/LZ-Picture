@@ -237,7 +237,6 @@
                                        p.name,
                                        p.thumbnail_url,
                                        p.download_count,
-                                       p.dns_url,
                                        p.pic_width,
                                        p.pic_height,
                                        p.pic_scale,
@@ -263,7 +262,6 @@
         GROUP BY p.picture_id
             )
         SELECT picture_id,
-               dns_url,
                name,
                pic_width,
                pic_height,
