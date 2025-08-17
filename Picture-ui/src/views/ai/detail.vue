@@ -91,7 +91,8 @@
           </a-tooltip>
           <a-tooltip :title="'预计消耗积分' + (picture?.moreInfo?.pointsNeed || 0)">
             <DownloadButton
-              @click="openByUrl(picture?.thumbnailUrl || '')"
+              :loading="downloadPictureLoading"
+              @click="downloadPicture"
               class="download-button"
             />
           </a-tooltip>
@@ -209,7 +210,7 @@ import { useRoute } from 'vue-router'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import AiPictureView from '@/components/AiPictureView.vue'
-import { formatDnsUrl, initCover } from '@/utils/common.ts'
+import { initCover } from '@/utils/common.ts'
 import {
   InfoCircleOutlined,
   LikeOutlined,
@@ -227,7 +228,8 @@ import { message } from 'ant-design-vue'
 import { useConfig } from '@/utils/config.ts'
 import AiInput from '@/components/AiInput.vue'
 import { defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
-import { openByUrl } from '@/utils/file.ts'
+import { downloadImage } from '@/utils/file.ts'
+import { usePasswordVerify } from '@/utils/auth.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type, p_report_type } = proxy?.useDict(
@@ -428,6 +430,25 @@ const openShare = ref(false)
 const shareLink = ref('')
 const handleShare = () => {
   openShare.value = true
+}
+
+const downloadPictureLoading = ref(false)
+const { verify } = usePasswordVerify()
+const downloadPicture = async () => {
+  console.log('downloadPicture')
+  try {
+    message.success('开始校验密码', 1)
+    const verified = await verify('查看原图')
+    if (!verified) return
+    downloadPictureLoading.value = true
+    await downloadImage(
+      picture.value.pictureId,
+      picture.value?.name + '.' + picture.value?.picFormat,
+    )
+    message.success('下载图片获取成功，之后可以在下载记录中获取原图', 3)
+  } finally {
+    downloadPictureLoading.value = false
+  }
 }
 //endregion
 </script>
@@ -659,6 +680,7 @@ $content-padding: 20px; // 详情内容边距
   border-top: 1px solid $border-color;
 
   .main-button,
+  .download-button,
   .secondary-button {
     display: flex;
     align-items: center;
@@ -671,6 +693,7 @@ $content-padding: 20px; // 详情内容边距
     cursor: pointer;
     transition: background-color 0.2s;
     border: none;
+    min-width: 150px;
   }
 
   .download-button {
