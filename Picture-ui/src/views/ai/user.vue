@@ -29,7 +29,10 @@
         </div>
       </div>
       <p class="bio">
-        <TextView :text="userInfo?.introduction || '这个用户很懒，还没有介绍自己哦'" :max-lines="8" />
+        <TextView
+          :text="userInfo?.introduction || '这个用户很懒，还没有介绍自己哦'"
+          :max-lines="8"
+        />
       </p>
       <div class="actions">
         <FollowButton class="follow-btn" />
@@ -39,17 +42,31 @@
 
     <main class="main-content" ref="mainContentRef">
       <nav class="tabs" v-if="isSelf">
-        <a href="#" class="tab-item active">已发布</a>
-        <a href="#" class="tab-item">灵感</a>
-        <a href="#" class="tab-item">AI图片</a>
+        <a
+          v-for="dict in p_picture_status"
+          :key="dict.dictValue"
+          href="#"
+          @click.prevent="handleTabClick(dict.dictValue)"
+          :class="['tab-item', { active: dict.dictValue === pictureQuery.pictureStatus }]"
+          >{{ dict.dictLabel }}</a
+        >
       </nav>
 
       <AiVerticalFallLayout
-        ref="aiVerticalFallLayoutRef"
-        :loading="loading"
+        v-show="pictureQuery.pictureStatus === '0'"
+        ref="aiVerticalFallLayoutRef0"
+        :loading="tabData['0'].loading"
         @load-more="loadMore"
-        :no-more="noMore"
-        :picture-list="pictureList"
+        :no-more="tabData['0'].noMore"
+        :picture-list="tabData['0'].pictureList"
+      />
+      <AiVerticalFallLayout
+        v-show="pictureQuery.pictureStatus === '1'"
+        ref="aiVerticalFallLayoutRef1"
+        :loading="tabData['1'].loading"
+        @load-more="loadMore"
+        :no-more="tabData['1'].noMore"
+        :picture-list="tabData['1'].pictureList"
       />
       <BackToUp />
     </main>
@@ -57,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
 import BackToUp from '@/components/BackToUp.vue'
@@ -73,7 +90,10 @@ import type { MyUserInfo } from '@/types/user/user'
 import { initCover } from '@/utils/common.ts'
 import TextView from '@/components/TextView.vue'
 
-// 用户信息相关逻辑
+const { proxy } = getCurrentInstance()!
+const { p_picture_status } = proxy?.useDict('p_picture_status')
+
+//region 用户信息相关逻辑
 const route = useRoute()
 const toUserName = ref((route.query.toUserName as string) || '')
 const userStore = useUserStore()
@@ -98,36 +118,123 @@ const getUserInfo = async () => {
   }
 }
 getUserInfo()
-
-// 图片列表相关逻辑
+//endregion
+// region图片列表相关逻辑
 const pictureQuery = ref<PictureInfoAiQuery>({
   pageNum: 1,
   pageSize: 35,
   name: '',
-  pictureStatus: '',
+  pictureStatus: '0',
 })
 
-const aiVerticalFallLayoutRef = ref()
-const loading = ref(false)
-const noMore = ref(false)
-const pictureList = ref<PictureInfoAiVo[]>([])
+// 为每个状态维护独立的数据
+const tabData = ref({
+  '0': {
+    pictureList: [] as PictureInfoAiVo[],
+    loading: false,
+    noMore: false,
+    pictureQuery: {
+      pageNum: 1,
+      pageSize: 35,
+      name: '',
+      pictureStatus: '0',
+    },
+  },
+  '1': {
+    pictureList: [] as PictureInfoAiVo[],
+    loading: false,
+    noMore: false,
+    pictureQuery: {
+      pageNum: 1,
+      pageSize: 35,
+      name: '',
+      pictureStatus: '1',
+    },
+  },
+})
+
+const aiVerticalFallLayoutRef0 = ref()
+const aiVerticalFallLayoutRef1 = ref()
+
+const handleTabClick = (status: string) => {
+  // 如果点击的是当前已选中的状态，不执行任何操作
+  if (pictureQuery.value.pictureStatus === status) {
+    return
+  }
+
+  // 更新当前选中的状态
+  pictureQuery.value.pictureStatus = status
+
+  // 初始化该tab的数据（如果需要）
+  initTabData(status)
+}
+
+/**
+ * 初始化指定tab的数据
+ */
+async function initTabData(status: string) {
+  const targetTab = tabData.value[status]
+
+  // 如果该tab已经有数据、正在加载或已经没有更多数据，则不执行任何操作
+  if (targetTab.pictureList.length > 0 || targetTab.loading || targetTab.noMore) {
+    return
+  }
+
+  // 设置为加载状态
+  targetTab.loading = true
+  message.loading('正在为您获取图片推荐...', 1)
+
+  try {
+    // 重置查询参数
+    targetTab.pictureQuery.pageNum = 1
+    targetTab.pictureQuery.pictureStatus = status
+
+    const res = await listMyAiPictureInfo(targetTab.pictureQuery)
+    if (res?.rows) {
+      targetTab.pictureList = res.rows
+
+      if (res.rows.length < targetTab.pictureQuery.pageSize) {
+        targetTab.noMore = true
+      } else {
+        targetTab.pictureQuery.pageNum++
+      }
+
+      message.success(`已为您推荐${res.rows.length}张图片`)
+    }
+  } catch (error) {
+    message.error('获取图片失败，请重试')
+    console.error('Failed to load pictures:', error)
+  } finally {
+    targetTab.loading = false
+  }
+}
 
 /**
  * 加载更多图片，用于瀑布流组件的触底加载
  */
 async function loadMore() {
-  if (loading.value || noMore.value) return
-  loading.value = true
-  message.loading('正在为您获取图片推荐...', 1)
+  const currentStatus = pictureQuery.value.pictureStatus
+  const currentTab = tabData.value[currentStatus]
+
+  if (currentTab.loading || currentTab.noMore) return
+
+  currentTab.loading = true
+
   try {
-    const res = await listMyAiPictureInfo(pictureQuery.value)
+    const res = await listMyAiPictureInfo(currentTab.pictureQuery)
     if (res?.rows) {
-      pictureList.value = [...pictureList.value, ...res.rows]
-      if (res.rows.length < pictureQuery.value.pageSize) {
-        message.success('已为您获取全部图片推荐')
-        noMore.value = true
+      // 确保第一页时替换数据，后续页时追加数据
+      if (currentTab.pictureQuery.pageNum === 1) {
+        currentTab.pictureList = res.rows
       } else {
-        pictureQuery.value.pageNum++
+        currentTab.pictureList = [...currentTab.pictureList, ...res.rows]
+      }
+
+      if (res.rows.length < currentTab.pictureQuery.pageSize) {
+        message.success('已为您获取全部图片推荐')
+        currentTab.noMore = true
+      } else {
+        currentTab.pictureQuery.pageNum++
         message.success(`已为您推荐${res.rows.length}张图片`)
       }
     }
@@ -135,10 +242,11 @@ async function loadMore() {
     message.error('获取图片失败，请重试')
     console.error('Failed to load pictures:', error)
   } finally {
-    loading.value = false
+    currentTab.loading = false
   }
 }
 
+//endregion
 // 移动端检测逻辑（不再用于显示/隐藏元素，仅用于样式判断）
 const isMobile = ref(window.innerWidth <= 768)
 
@@ -151,8 +259,8 @@ const handleResize = () => {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
-  // 页面加载时立即加载第一批图片
-  loadMore()
+  // 页面加载时初始化默认tab的数据
+  initTabData('0')
 })
 
 onUnmounted(() => {
