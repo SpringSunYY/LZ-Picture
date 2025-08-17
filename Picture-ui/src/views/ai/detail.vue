@@ -2,42 +2,62 @@
   <div class="image-detail-page">
     <main class="main-content">
       <div class="image">
-        <AiPictureView :image-url="picture.thumbnailUrl" class="image-content"/>
+        <AiPictureView :image-url="picture.thumbnailUrl" class="image-content" />
         <!--        <img :src="picture.thumbnailUrl" alt="Main Image" class="main-image" @contextmenu.prevent />-->
       </div>
 
       <div class="details-section">
         <div class="header-controls">
           <div class="user-profile">
-            <a-avatar :src="picture.userInfoVo?.avatarUrl" alt="User Avatar" class="user-avatar" />
+            <a-avatar
+              :src="formatDnsUrl(picture.userInfoVo?.avatarUrl || '')"
+              alt="User Avatar"
+              class="user-avatar"
+            />
             <div class="user-info">
               <div class="user-name">{{ picture.userInfoVo?.nickName }}</div>
               <div class="user-ip">IP属地: {{ picture.userInfoVo?.ipAddress }}</div>
             </div>
           </div>
           <div class="action-buttons">
-            <a-tooltip :title="picture.isLike ? '取消点赞' : '点赞'">
-              <button class="icon-button favorite">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  :fill="picture.isLike ? '#ff0000' : 'none'"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-heart"
-                >
-                  <path
-                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+            <a-space direction="horizontal" align="center" style="padding: 0" :wrap="true">
+              <a-tooltip title="Like">
+                <a-button class="icon-button" @click="addUserBehavior('0')">
+                  <LikeOutlined
+                    :style="{
+                      color: picture.isLike ? '#ff4d4f' : '#999',
+                      verticalAlign: 'middle',
+                      fontSize: '18px',
+                    }"
                   />
-                </svg>
-                <span>{{ picture.likeCount }}</span>
-              </button>
-            </a-tooltip>
-            <button class="follow-button">+ 关注</button>
+                  {{ picture?.likeCount || 0 }}
+                </a-button>
+              </a-tooltip>
+              <a-tooltip title="Star" @click="addUserBehavior('1')">
+                <a-button class="icon-button">
+                  <StarOutlined
+                    :style="{
+                      color: picture.isCollect ? '#00ff95' : '#999',
+                      verticalAlign: 'middle',
+                      fontSize: '18px',
+                    }"
+                  />
+                  {{ picture?.collectCount || 0 }}
+                </a-button>
+              </a-tooltip>
+              <a-tooltip title="Share" @click="addUserBehavior('2')">
+                <a-button class="icon-button">
+                  <ShareAltOutlined />
+                  {{ picture?.shareCount || 0 }}
+                </a-button>
+              </a-tooltip>
+              <a-tooltip title="举报">
+                <a-button class="icon-button" @click="handleReport">
+                  <SvgIcon name="report" />
+                </a-button>
+              </a-tooltip>
+              <button class="follow-button">+ 关注</button>
+            </a-space>
           </div>
         </div>
 
@@ -69,6 +89,97 @@
         </div>
       </div>
     </main>
+    <a-modal v-model:open="openShare" title="分享图片" @ok="openShare = !openShare">
+      <QRCode :value="shareLink" />
+      <QuickCopy :content="shareLink" />
+    </a-modal>
+    <!--举报图片-->
+    <a-modal v-model:open="openReport" :footer="null" centered destroyOnClose>
+      <!-- 自定义标题插槽 -->
+      <template #title>
+        <div class="custom-modal-title">
+          <span style="color: #1890ff; margin-right: 8px">🚀</span>
+          {{ title }}
+          <a-tooltip :title="titleDesc">
+            <question-circle-outlined class="title-tip-icon" />
+          </a-tooltip>
+        </div>
+      </template>
+      <a-form
+        :model="formReport"
+        :rules="rulesReport"
+        @finish="handleSubmitReport"
+        ref="formRef"
+        labelAlign="left"
+        :label-col="{ span: 5 }"
+        :wrapper-col="{ span: 18 }"
+      >
+        <a-form-item label="举报类型" name="reportType">
+          <a-radio-group v-model:value="formReport.reportType" name="radioGroup">
+            <a-radio v-for="dict in p_report_type" :value="dict.dictValue" :key="dict.dictValue">
+              {{ dict.dictLabel }}
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item name="reason">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              举报原因
+              <a-tooltip
+                title="请描述您详细的举报原因，对您造成的影响，例：图片侵权，请列举您的版权信息"
+              >
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+              </a-tooltip>
+            </span>
+          </template>
+          <a-textarea
+            :showCount="true"
+            placeholder="请输入内容"
+            :auto-size="{ minRows: 5 }"
+            v-model:value="formReport.reason"
+          />
+        </a-form-item>
+        <a-form-item name="contact">
+          <template #label>
+            <span style="display: inline-flex; align-items: center">
+              联系方式
+              <a-tooltip
+                title="请输入您的联系方式，手机号码、微信（推荐）等信息，例：微信：123456789，便于我们联系您处理举报信息。"
+              >
+                <InfoCircleOutlined
+                  style="
+                    margin-left: 4px;
+                    color: #999;
+                    font-size: 14px;
+                    position: relative;
+                    top: 1px;
+                  "
+                />
+              </a-tooltip>
+            </span>
+          </template>
+          <a-textarea
+            placeholder="请输入联系方式"
+            :auto-size="{ minRows: 2 }"
+            :showCount="true"
+            :max-length="512"
+            v-model:value="formReport.contact"
+          />
+        </a-form-item>
+        <div class="form-footer">
+          <a-button @click="openReport = false">取消</a-button>
+          <a-button type="primary" html-type="submit" :loading="submittingReport">提交</a-button>
+        </div>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -81,33 +192,28 @@ import { useRoute } from 'vue-router'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import AiPictureView from '@/components/AiPictureView.vue'
+import { formatDnsUrl } from '@/utils/common.ts'
+import {
+  InfoCircleOutlined,
+  LikeOutlined,
+  QuestionCircleOutlined,
+  ShareAltOutlined,
+  StarOutlined,
+} from '@ant-design/icons-vue'
+import SvgIcon from '@/components/SvgIcon.vue'
+import QuickCopy from '@/components/QuickCopy.vue'
+import QRCode from '@/components/QRCode.vue'
+import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
+import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
+import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
+import { message } from 'ant-design-vue'
+import { useConfig } from '@/utils/config.ts'
 
 const { proxy } = getCurrentInstance()!
-const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
-const staticData = {
-  mainImage:
-    'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D',
-  user: {
-    avatar:
-      'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/0b1c0b3d6f1a4e1e8b2c5c93c1d4a5b6~tplv-tb4s082cfz-aigc_resize:200:200.webp',
-    name: 'AIGC_创作助手',
-  },
-  creationDate: '2025-07-20 创作',
-  likes: 58,
-  description: '傍晚，海边，微风，夕阳，远处的城市灯光亮起，唯美，治愈。',
-  ratio: '3:4',
-}
-
-const isModalVisible = ref(false)
-const isMoreMenuVisible = ref(false)
-
-const openModal = () => {
-  isModalVisible.value = true
-}
-
-const closeModal = () => {
-  isModalVisible.value = false
-}
+const { ai_model_params_type, p_report_type } = proxy?.useDict(
+  'ai_model_params_type',
+  'p_report_type',
+)
 //region详情
 const picture = ref<PictureDetailInfoVo>({
   pictureId: '',
@@ -142,12 +248,146 @@ const getPictureInfo = () => {
 }
 getPictureInfo()
 //endregion
+
+//region 举报图片
+const openReport = ref(false)
+const title = ref('举报图片')
+const titleDesc = ref('请选择举报图片类型')
+const formReport = ref<UserReportInfoAdd>({
+  targetType: '0',
+  targetId: picture.value.pictureId,
+  reportType: '0',
+  reason: '',
+  contact: '',
+})
+const rulesReport = ref({
+  reason: [
+    {
+      required: true,
+      message: '请输入举报内容',
+      trigger: 'blur',
+    },
+    //长度最短为32
+    {
+      min: 16,
+      message: '请输入16个字符以上的内容',
+      trigger: 'blur',
+    },
+  ],
+  reportType: [
+    {
+      required: true,
+      message: '请选择举报类型',
+      trigger: 'change',
+    },
+  ],
+  contact: [
+    {
+      required: true,
+      message: '请输入联系方式',
+      trigger: 'blur',
+    },
+    //长度最短为32
+    {
+      min: 16,
+      message: '请输入16个字符以上的内容',
+      trigger: 'blur',
+    },
+  ],
+})
+const submittingReport = ref(false)
+const handleReport = async () => {
+  titleDesc.value = await useConfig('picture:report:content')
+  openReport.value = true
+  title.value = '举报图片'
+  formReport.value = {
+    targetType: '0',
+    targetId: picture.value.pictureId,
+    reportType: '0',
+    reason: '',
+  }
+}
+const handleSubmitReport = () => {
+  submittingReport.value = true
+  addUserReportInfo(formReport.value).then((res) => {
+    if (res.code === 200) {
+      message.success('举报成功')
+      openReport.value = false
+      submittingReport.value = false
+    } else {
+      message.error('举报失败')
+    }
+  })
+}
+// endregion
+//region 用户行为
+const addUserBehavior = (behaviorType: string) => {
+  const targetType = '0'
+  let msg = '点赞成功'
+  //如果是分享
+  if (behaviorType === '2') {
+    shareLink.value = window.location.href
+    console.log('shareLink', shareLink.value)
+  }
+
+  addUserBehaviorInfo({
+    behaviorType: behaviorType,
+    targetType: targetType,
+    targetId: pictureId.value,
+    shareLink: shareLink.value,
+  }).then((res) => {
+    if (res.code === 200 && res.data != undefined && res.data) {
+      switch (behaviorType) {
+        case '0':
+          msg = '点赞成功'
+          picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
+          picture.value.isLike = !picture.value.isLike
+          break
+        case '1':
+          msg = '收藏成功'
+          picture.value.collectCount = Number(picture.value?.collectCount || 0) + 1
+          picture.value.isCollect = !picture.value.isCollect
+          break
+        case '2':
+          msg = '分享成功'
+          picture.value.shareCount = Number(picture.value?.shareCount || 0) + 1
+          handleShare()
+          break
+      }
+    } else {
+      switch (behaviorType) {
+        case '0':
+          msg = '取消点赞成功'
+          picture.value.likeCount = Number(picture.value?.likeCount || 0) - 1
+          picture.value.isLike = !picture.value.isLike
+          break
+        case '1':
+          msg = '取消收藏成功'
+          picture.value.collectCount = Number(picture.value?.collectCount || 0) - 1
+          picture.value.isCollect = !picture.value.isCollect
+          break
+        case '2':
+          msg = '分享成功'
+          handleShare()
+          break
+      }
+    }
+    message.success(msg)
+  })
+}
+const openShare = ref(false)
+const shareLink = ref('')
+const handleShare = () => {
+  openShare.value = true
+}
+//endregion
 </script>
 
 <style lang="scss" scoped>
+
 $bg-color: #18181b; // 页面背景
 $panel-bg-color: #1e1e1e; // 详情面板背景
-$image-bg-color: #333; //图片背景颜色
+$image-bg-color: #333; // 图片背景颜色
 $prompt-bg-color: #2c2c2c; // 提示词背景
 $text-color: #f0f0f0; // 主要文本颜色
 $secondary-text-color: #a9a9a9; // 次要文本颜色
@@ -159,15 +399,16 @@ $white: #fff;
 $radius: 4px;
 $padding: 24px;
 $mobile-breakpoint: 768px;
-$content-padding: 20px; //详情内容边距
+$content-padding: 20px; // 详情内容边距
 
 .image-detail-page {
   background-color: $bg-color;
   min-height: 100vh;
   width: 100%;
   color: $text-color;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
-  sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -188,7 +429,8 @@ $content-padding: 20px; //详情内容边距
   background-color: $image-bg-color;
   box-sizing: border-box;
   padding: 0;
-  .image-content{
+
+  .image-content {
     width: 100%;
     height: 100vh;
   }
@@ -209,7 +451,7 @@ $content-padding: 20px; //详情内容边距
   justify-content: space-between;
   align-items: center;
   margin-bottom: $padding;
-  padding-bottom: $padding / 2;
+  padding-bottom:12px;
   border-bottom: 1px solid $border-color;
 }
 
@@ -284,7 +526,7 @@ $content-padding: 20px; //详情内容边距
     transition: all 0.2s;
 
     &:hover {
-      background-color: darken($accent-color, 10%);
+      background-color: color.adjust($accent-color, $lightness: -10%);
     }
   }
 
@@ -392,7 +634,7 @@ $content-padding: 20px; //详情内容边距
     color: $white;
 
     &:hover {
-      background-color: darken($accent-color, 10%);
+      background-color: color.adjust($accent-color, $lightness: -10%);
     }
   }
 
@@ -403,7 +645,7 @@ $content-padding: 20px; //详情内容边距
     gap: 6px;
 
     &:hover {
-      background-color: darken($prompt-bg-color, 5%);
+      background-color: color.adjust($prompt-bg-color, $lightness: -5%);
     }
 
     svg {
@@ -411,7 +653,6 @@ $content-padding: 20px; //详情内容边距
     }
   }
 }
-
 
 // 移动端适配
 @media (max-width: $mobile-breakpoint) {
@@ -422,7 +663,8 @@ $content-padding: 20px; //详情内容边距
   }
   .image {
     order: 1;
-    .image-content{
+
+    .image-content {
       height: 60vh;
     }
   }
@@ -454,5 +696,4 @@ $content-padding: 20px; //详情内容边距
     }
   }
 }
-
 </style>
