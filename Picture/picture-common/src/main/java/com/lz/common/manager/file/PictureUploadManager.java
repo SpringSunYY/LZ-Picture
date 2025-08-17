@@ -67,6 +67,12 @@ public class PictureUploadManager {
     public static Long DEFAULT_PICTURE_SIZE = 1024L * 1024L * 50;
     public static Long URL_PICTURE_SIZE = 1024L * 1024L * 30;
     /**
+     * 默认压缩尺寸 2M
+     */
+    public static Long DEFAULT_FILE_COMPRESS_SIZE = 1024L * 1024L * 2;
+
+    public static final List<String> DEFAULT_PICTURE_ALLOWED_EXTENSION = Arrays.asList("bmp", "gif", "jpg", "jpeg", "png", "webp");
+    /**
      * 默认文件大小
      */
     public static final Long DEFAULT_FILE_SIZE = 1024L * 1024L * 50;
@@ -75,7 +81,6 @@ public class PictureUploadManager {
      */
     public static final Long DEFAULT_FILE_NAME_LENGTH = 100L;
 
-    public static final List<String> DEFAULT_PICTURE_ALLOWED_EXTENSION = Arrays.asList("bmp", "gif", "jpg", "jpeg", "png", "webp");
     public static final List<String> DEFAULT_FILE_ALLOWED_EXTENSION = Arrays.asList("pdf", "doc", "docx", "ppt", "pptx", "txt", "rar", "zip", "gz");
 
     /**
@@ -105,7 +110,7 @@ public class PictureUploadManager {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir, "-compressed.webp");
+        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir, "-compressed");
 
         try {
             file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
@@ -147,9 +152,10 @@ public class PictureUploadManager {
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
             int picWidth = Integer.parseInt(exif.getImageWidth().getValue());
             int picHeight = Integer.parseInt(exif.getImageHeight().getValue());
+            long picSize = Long.parseLong(exif.getFileSize().getValue());
 
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
-            String process = getWatermark(username, picWidth, picHeight);
+            String process = getWatermark(username, picWidth, picHeight, picSize);
             req.setExpiration(expiration);
             req.setProcess(process);
             URL compressedUrl = ossClient.generatePresignedUrl(req);
@@ -161,7 +167,7 @@ public class PictureUploadManager {
             ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
 
             // 返回文件访问路径或URL
-            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, picSize, picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
@@ -233,7 +239,7 @@ public class PictureUploadManager {
         String parseDateToStr = DateUtils.parseDateToStr(DateUtils.yyyy_mm_dd, new Date());
         String filePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + newFileName;
         //压缩文件信息
-        String compressedFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + compressedSuffix;
+        String compressedFileName = nameNotSuffix + "-" + IdUtils.snowflakeId() + compressedSuffix + "." + fileSuffix;
         String compressedFilePath = dir + "/" + fileDir + "/" + parseDateToStr + "/" + compressedFileName;
         FileInfo fileInfo = new FileInfo();
         fileInfo.setFileNameNotSuffix(nameNotSuffix);
@@ -255,7 +261,7 @@ public class PictureUploadManager {
      * @param picHeight 图片高度
      * @return
      */
-    public String getWatermark(String username, long picWidth, long picHeight) {
+    public String getWatermark(String username, long picWidth, long picHeight, long picSize) {
         long fontSize = picWidth / 30;
         long userFontSize = picHeight / 30;
 
@@ -299,9 +305,15 @@ public class PictureUploadManager {
         if (StringUtils.isNotEmpty(uAlphaStr)) {
             uAlpha = uAlphaStr;
         }
-
-
-        return "image/format,webp/watermark,text_" + encodeToString
+        String format = "image/";
+        //如果图片默认压缩，不压缩
+        if (DEFAULT_FILE_COMPRESS_SIZE <= picSize) {
+            format = format + "format,webp/watermark";
+        } else {
+            format = format + "watermark";
+        }
+        return format
+                + ",text_" + encodeToString
                 + ",size_" + fontSize
                 + ",t_" + pAlpha
                 + ",color_FFFFFF,y_10,type_ZHJvaWRzYW5zZmFsbGJhY2s,g_south"
@@ -327,7 +339,7 @@ public class PictureUploadManager {
         //创建临时文件
         File file = null;
         // 生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir, "-compressed.webp");
+        FileInfo fileInfo = getPictureFileInfo(multipartFile.getOriginalFilename(), fileDir, "-compressed");
         try {
             file = File.createTempFile(fileInfo.getNewFileName(), fileInfo.getFileSuffix());
             multipartFile.transferTo(file);
@@ -394,7 +406,7 @@ public class PictureUploadManager {
         //获取文件名
         String fileName = getValidFilename(url);
         //生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir, "-compressed.webp");
+        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir, "-compressed");
         //获取文件
         File file = null;
         InputStream inputStream = null;
@@ -428,9 +440,9 @@ public class PictureUploadManager {
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
             int picWidth = Integer.parseInt(exif.getImageWidth().getValue());
             int picHeight = Integer.parseInt(exif.getImageHeight().getValue());
-
+            long picSize = Long.parseLong(exif.getFileSize().getValue());
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
-            String process = getWatermark(username, picWidth, picHeight);
+            String process = getWatermark(username, picWidth, picHeight, picSize);
             // 创建获取压缩后图片的预签名URL
             req.setExpiration(expiration);
             req.setProcess(process);
@@ -442,7 +454,7 @@ public class PictureUploadManager {
             // 将压缩图上传到OSS
             ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
             // 返回文件访问路径或URL
-            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, picSize, picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
 //            System.err.println("上传失败：" + e.getMessage());
@@ -691,7 +703,7 @@ public class PictureUploadManager {
         String fileSuffix = FileUtil.getSuffix(fileName);
         fileName = nameNotSuffix + "-ai." + fileSuffix;
         //生成唯一文件名
-        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir, "-compressed.webp");
+        FileInfo fileInfo = getPictureFileInfo(fileName, fileDir, "-compressed");
         //获取文件
         File file = null;
         InputStream inputStream = null;
@@ -725,9 +737,9 @@ public class PictureUploadManager {
             Exif exif = JSONObject.parseObject(imageInfo, Exif.class);
             int picWidth = Integer.parseInt(exif.getImageWidth().getValue());
             int picHeight = Integer.parseInt(exif.getImageHeight().getValue());
-
+            long picSize = Long.parseLong(exif.getFileSize().getValue());
             // 设置图片处理参数（转换为 WebP 格式）并携带水印
-            String process = getAiWatermark(username, picWidth, picHeight);
+            String process = getAiWatermark(username, picWidth, picHeight, picSize);
             // 创建获取压缩后图片的预签名URL
             req.setExpiration(expiration);
             req.setProcess(process);
@@ -739,7 +751,7 @@ public class PictureUploadManager {
             // 将压缩图上传到OSS
             ossClient.putObject(ossConfig.getBucket(), fileInfo.getCompressedFilePath(), inputStream);
             // 返回文件访问路径或URL
-            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, Long.parseLong(exif.getFileSize().getValue()), picWidth, picHeight);
+            return buildPictureResponse(ossConfig.getEndpoint(), fileInfo, picSize, picWidth, picHeight);
         } catch (Exception e) {
             // 记录详细日志
             System.err.println("上传失败：" + e.getMessage());
@@ -760,8 +772,8 @@ public class PictureUploadManager {
      * @method: getAiWatermark
      * @date: 2025/8/10 23:57
      **/
-    private String getAiWatermark(String username, long picWidth, long picHeight) {
-        String watermark = getWatermark(username, picWidth, picHeight);
+    private String getAiWatermark(String username, long picWidth, long picHeight, long picSize) {
+        String watermark = getWatermark(username, picWidth, picHeight, picSize);
         //重新加上ai水印
         long fontSize = picHeight / 30;
 

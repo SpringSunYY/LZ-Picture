@@ -287,8 +287,6 @@ public class FileLogInfoServiceImpl extends ServiceImpl<FileLogInfoMapper, FileL
         }
         if (StringUtils.isNotEmpty(fileResponse.getThumbnailUrl())) {
             //其次压缩
-            //压缩图片全部webp
-            fileLogInfo.setFileType("webp");
             fileLogInfo.setIsCompress(CFileLogIsCompressEnum.LOG_IS_COMPRESS_0.getValue());
             fileLogInfo.setFileUrl(fileResponse.getThumbnailUrl());
             fileLogInfo.setLogId(IdUtils.fastUUID());
