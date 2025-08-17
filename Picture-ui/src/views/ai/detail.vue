@@ -83,12 +83,29 @@
         </div>
 
         <div class="action-buttons-bottom">
-          <GenerateButton class="main-button" />
-          <ReferToButton class="secondary-button" />
-          <DownloadButton class="download-button" />
+          <a-tooltip title="开始生成，图片后台将使用无水印原图">
+            <GenerateButton @click="handleReGenerate" class="main-button" />
+          </a-tooltip>
+          <a-tooltip title="用作参考图，后台将会使用无水印原图作为参考图">
+            <ReferToButton @click="handleReferTo" class="secondary-button" />
+          </a-tooltip>
+          <a-tooltip :title="'预计消耗积分' + (picture?.moreInfo?.pointsNeed || 0)">
+            <DownloadButton
+              @click="openByUrl(picture?.thumbnailUrl || '')"
+              class="download-button"
+            />
+          </a-tooltip>
         </div>
       </div>
     </main>
+
+    <AiInput
+      @success="generateSuccess"
+      v-show="openAiInput"
+      :file-info="fileInfo"
+      :model-info="modelInfo"
+      :prompt="prompt"
+    />
     <a-modal v-model:open="openShare" title="分享图片" @ok="openShare = !openShare">
       <QRCode :value="shareLink" />
       <QuickCopy :content="shareLink" />
@@ -208,12 +225,44 @@ import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
 import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { useConfig } from '@/utils/config.ts'
+import AiInput from '@/components/AiInput.vue'
+import { defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
+import { openByUrl } from '@/utils/file.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type, p_report_type } = proxy?.useDict(
   'ai_model_params_type',
   'p_report_type',
 )
+//region生成图片
+const openAiInput = ref(false)
+const modelInfo = ref<ModelInfo>(defaultModelInfo)
+const prompt = ref('')
+const fileInfo = ref('')
+//生成图片
+const handleReGenerate = () => {
+  fileInfo.value = picture.value?.thumbnailUrl || ''
+  prompt.value = picture.value?.introduction || ''
+  openAiInput.value = true
+  modelInfo.value = {
+    modelType: picture.value?.moreInfo?.modelType || '',
+    modelKeys: [picture.value?.moreInfo?.modelKey || ''],
+    numbers: 1,
+    width: picture.value?.picWidth,
+    height: picture.value?.picHeight,
+    pointsNeed: picture.value?.moreInfo?.pointsUsed || '',
+  }
+}
+//引用图片
+const handleReferTo = () => {
+  fileInfo.value = picture.value?.thumbnailUrl || ''
+  openAiInput.value = true
+}
+//图片生成成功后，重新加载图片列表
+const generateSuccess = () => {
+  message.success('生成成功,请前往我的资产查看')
+}
+//endregion
 //region详情
 const picture = ref<PictureDetailInfoVo>({
   pictureId: '',
@@ -384,7 +433,6 @@ const handleShare = () => {
 </script>
 
 <style lang="scss" scoped>
-
 $bg-color: #18181b; // 页面背景
 $panel-bg-color: #1e1e1e; // 详情面板背景
 $image-bg-color: #333; // 图片背景颜色
@@ -451,7 +499,7 @@ $content-padding: 20px; // 详情内容边距
   justify-content: space-between;
   align-items: center;
   margin-bottom: $padding;
-  padding-bottom:12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid $border-color;
 }
 
