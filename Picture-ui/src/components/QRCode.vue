@@ -22,7 +22,7 @@ const props = defineProps({
     type: Number,
   },
   errorLevel: {
-    default: 'H',
+    default: 'Q',
     type: String,
   },
   color: {
@@ -34,7 +34,7 @@ const props = defineProps({
     type: Number,
   },
   iconPath: {
-    default: '../assets/logo.svg',
+    default: '/logo.svg',
     type: String,
   },
 })
