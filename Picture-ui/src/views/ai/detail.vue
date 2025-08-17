@@ -1,39 +1,42 @@
 <template>
   <div class="image-detail-page">
     <main class="main-content">
-      <div class="image-section" @click="openModal">
-        <img :src="staticData.mainImage" alt="Main Image" class="main-image" @contextmenu.prevent />
+      <div class="image">
+        <AiPictureView :image-url="picture.thumbnailUrl" class="image-content"/>
+        <!--        <img :src="picture.thumbnailUrl" alt="Main Image" class="main-image" @contextmenu.prevent />-->
       </div>
 
       <div class="details-section">
         <div class="header-controls">
           <div class="user-profile">
-            <img :src="staticData.user.avatar" alt="User Avatar" class="user-avatar" />
+            <a-avatar :src="picture.userInfoVo?.avatarUrl" alt="User Avatar" class="user-avatar" />
             <div class="user-info">
-              <div class="user-name">{{ staticData.user.name }}</div>
-              <div class="creation-date">{{ staticData.creationDate }}</div>
+              <div class="user-name">{{ picture.userInfoVo?.nickName }}</div>
+              <div class="user-ip">IP属地: {{ picture.userInfoVo?.ipAddress }}</div>
             </div>
           </div>
           <div class="action-buttons">
-            <button class="icon-button favorite">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-heart"
-              >
-                <path
-                  d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
-                />
-              </svg>
-              <span>{{ staticData.likes }}</span>
-            </button>
+            <a-tooltip :title="picture.isLike ? '取消点赞' : '点赞'">
+              <button class="icon-button favorite">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  :fill="picture.isLike ? '#ff0000' : 'none'"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-heart"
+                >
+                  <path
+                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                  />
+                </svg>
+                <span>{{ picture.likeCount }}</span>
+              </button>
+            </a-tooltip>
             <button class="follow-button">+ 关注</button>
           </div>
         </div>
@@ -41,49 +44,21 @@
         <div class="image-description-container">
           <h2 class="section-title">图片提示词</h2>
           <div class="description-content">
-            {{ staticData.description }}
+            {{ picture.introduction }}
           </div>
           <div class="info-meta">
-            <span>图片比例：{{ staticData.ratio }} 1024 * 1024</span>
-            <div class="meta-links">
-              <button class="text-button">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-copy"
-                >
-                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                </svg>
-                复制
-              </button>
-              <button class="text-button">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-square-arrow-out-up-right"
-                >
-                  <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
-                  <path d="M21 3L13 11" />
-                  <path d="M21 8V3h-5" />
-                </svg>
-                词语详解
-              </button>
-            </div>
+            <a-space align="center" direction="horizontal" :wrap="true">
+              <h1 class="text-xl font-bold text-white px-0.5">
+                {{
+                  ai_model_params_type.find((item) => item.dictValue === picture.modelType)
+                    ?.dictLabel || '文生图'
+                }}
+              </h1>
+              <div class="text-white">
+                {{ picture.modelName || '即梦AI 图生图3.0' }}
+              </div>
+              <div class="text-white">{{ picture.picWidth }}x{{ picture.picHeight }}</div>
+            </a-space>
           </div>
         </div>
 
@@ -94,45 +69,21 @@
         </div>
       </div>
     </main>
-
-    <Transition name="fade">
-      <div v-if="isModalVisible" class="modal-overlay">
-        <div class="modal-image-section">
-          <button class="modal-close-button" @click="closeModal">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-x"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-          <img
-            :src="staticData.mainImage"
-            alt="Enlarged Image"
-            class="enlarged-image"
-            @contextmenu.prevent
-          />
-        </div>
-      </div>
-    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { getCurrentInstance, ref } from 'vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
+import { useRoute } from 'vue-router'
+import { getPictureDetailInfo } from '@/api/picture/picture.ts'
+import type { PictureDetailInfoVo } from '@/types/picture/picture'
+import AiPictureView from '@/components/AiPictureView.vue'
 
+const { proxy } = getCurrentInstance()!
+const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 const staticData = {
   mainImage:
     'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D',
@@ -157,6 +108,40 @@ const openModal = () => {
 const closeModal = () => {
   isModalVisible.value = false
 }
+//region详情
+const picture = ref<PictureDetailInfoVo>({
+  pictureId: '',
+  thumbnailUrl: '',
+  name: '',
+  introduction: '',
+  categoryName: '',
+  picSize: 0,
+  picWidth: 0,
+  picHeight: 0,
+  picScale: 0.0,
+  picFormat: '',
+  moreInfo: {},
+  publishTime: '2025-04-10 10:30:00',
+  userName: '荔枝',
+  userInfoVo: {
+    userId: '-1',
+    userName: '荔枝',
+    avatarUrl: '',
+  },
+})
+const route = useRoute()
+const pictureId = ref<string>(route.query.pictureId as string)
+const getPictureInfo = () => {
+  // console.log('pictureId', route.query)
+  // console.log('pictureId', pictureId.value)
+  getPictureDetailInfo(pictureId.value).then((res) => {
+    if (res.code === 200) {
+      picture.value = res?.data || {}
+    }
+  })
+}
+getPictureInfo()
+//endregion
 </script>
 
 <style lang="scss" scoped>
@@ -174,16 +159,15 @@ $white: #fff;
 $radius: 4px;
 $padding: 24px;
 $mobile-breakpoint: 768px;
-$content-padding: 5px; //详情内容边距
+$content-padding: 20px; //详情内容边距
 
 .image-detail-page {
   background-color: $bg-color;
   min-height: 100vh;
   width: 100%;
   color: $text-color;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+  sans-serif;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -196,7 +180,7 @@ $content-padding: 5px; //详情内容边距
   min-height: 100vh;
 }
 
-.image-section {
+.image {
   flex: 2;
   display: flex;
   justify-content: center;
@@ -204,12 +188,9 @@ $content-padding: 5px; //详情内容边距
   background-color: $image-bg-color;
   box-sizing: border-box;
   padding: 0;
-
-  .main-image {
+  .image-content{
     width: 100%;
     height: 100vh;
-    object-fit: contain;
-    cursor: zoom-in;
   }
 }
 
@@ -254,7 +235,7 @@ $content-padding: 5px; //详情内容边距
       margin-bottom: 2px;
     }
 
-    .creation-date {
+    .user-ip {
       font-size: 0.8rem;
       color: $secondary-text-color;
     }
@@ -377,30 +358,6 @@ $content-padding: 5px; //详情内容边距
     align-items: center;
     font-size: 1rem;
     color: $secondary-text-color;
-
-    .meta-links {
-      display: flex;
-      gap: 10px;
-    }
-
-    .text-button {
-      background: none;
-      border: none;
-      color: $secondary-text-color;
-      font-size: 0.75rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      &:hover {
-        color: $text-color;
-      }
-
-      svg {
-        stroke: $secondary-text-color;
-      }
-    }
   }
 }
 
@@ -455,82 +412,6 @@ $content-padding: 5px; //详情内容边距
   }
 }
 
-// 放大模式
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  z-index: 1000;
-  background-color: #161718; // 深色背景，还原图片
-}
-
-.modal-image-section {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-
-  .enlarged-image {
-    max-width: 100%;
-    max-height: 100vh;
-    object-fit: contain;
-    @media (max-width: $mobile-breakpoint) {
-      max-height: 60vh;
-    }
-  }
-}
-
-.modal-close-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 1001;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  svg {
-    stroke: $white;
-  }
-}
-
-// 模态框过渡效果
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.fade-in-up-enter-active,
-.fade-in-up-leave-active {
-  transition:
-    opacity 0.2s,
-    transform 0.2s;
-}
-
-.fade-in-up-enter-from,
-.fade-in-up-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
 
 // 移动端适配
 @media (max-width: $mobile-breakpoint) {
@@ -539,12 +420,10 @@ $content-padding: 5px; //详情内容边距
     min-height: auto;
     gap: 0;
   }
-  .image-section {
+  .image {
     order: 1;
-
-    .main-image {
-      height: auto;
-      max-height: 60vh;
+    .image-content{
+      height: 60vh;
     }
   }
   .details-section {
@@ -574,16 +453,6 @@ $content-padding: 5px; //详情内容边距
       flex-basis: 100%;
     }
   }
-  .modal-overlay {
-    flex-direction: column;
-
-    .modal-image-section {
-      order: 1;
-
-      .enlarged-image {
-        max-height: 60vh;
-      }
-    }
-  }
 }
+
 </style>

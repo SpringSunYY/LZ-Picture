@@ -131,14 +131,12 @@ function setupObserver() {
 }
 
 const router = useRouter()
-const handleToPicture = (item: PictureInfoVo) => {
-  const routeData = router.resolve({
-    path: '/pictureDetail',
+const handleToPicture = (item: PictureInfoVo) => {router.push({
+    name: 'aiDetail',
     query: {
       pictureId: item.pictureId,
     },
   })
-  window.open(routeData.href, '_blank')
 }
 
 function clearData() {

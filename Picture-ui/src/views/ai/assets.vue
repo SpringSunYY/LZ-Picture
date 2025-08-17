@@ -699,6 +699,7 @@ const getPictureCategoryList = async () => {
     // console.log('pictureCategoryList', pictureCategoryList.value)
   })
 }
+const publicCreateTime = ref('')
 const handlePublic = (item: GenerateLogInfoVo) => {
   console.log('发布作品', item)
   pictureInfo.value = {
@@ -712,6 +713,7 @@ const handlePublic = (item: GenerateLogInfoVo) => {
     categoryId: '',
     name: '',
   }
+  publicCreateTime.value = item.createTime
   openPublic.value = true
   getMySpaceList()
   getTagList()
@@ -739,9 +741,23 @@ const handleSubmitPicture = async () => {
     if (res.code === 200) {
       message.success('发布成功，如果是公开请等待审核')
       openPublic.value = false
-      generateQuery.value.pageNum = 1
-      generateGroups.value = []
-      await getGenerateList()
+      // generateQuery.value.pageNum = 1
+      // generateGroups.value = []
+      // await getGenerateList()
+      //更新对应的内容为已发布
+      const date = formatDateTime(publicCreateTime.value)
+      const group = generateGroups.value.find((g) => g.date === date)
+      if (group) {
+        group.items = group.items.map((item) => {
+          if (item.logId === pictureInfo.value.logId) {
+            return {
+              ...item,
+              hasPublic: AiGenerateHasPublicEnum.HAS_PUBLIC_0,
+            }
+          }
+          return item
+        })
+      }
     }
   } finally {
     pictureLoading.value = false
