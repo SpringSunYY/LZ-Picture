@@ -10,7 +10,7 @@
         <div class="header-controls">
           <div class="user-profile">
             <a-avatar
-              :src="formatDnsUrl(picture.userInfoVo?.avatarUrl || '')"
+              :src="initCover(picture.userInfoVo?.avatarUrl || '')"
               alt="User Avatar"
               class="user-avatar"
             />
@@ -209,7 +209,7 @@ import { useRoute } from 'vue-router'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import AiPictureView from '@/components/AiPictureView.vue'
-import { formatDnsUrl } from '@/utils/common.ts'
+import { formatDnsUrl, initCover } from '@/utils/common.ts'
 import {
   InfoCircleOutlined,
   LikeOutlined,

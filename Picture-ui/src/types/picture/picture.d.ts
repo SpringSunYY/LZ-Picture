@@ -579,19 +579,19 @@ export interface PictureInfoAiVo {
  */
 export interface PictureInfoAiQuery {
   /** 图片编号 */
-  pictureId: string
+  pictureId?: string
 
   /** 图片名称 */
-  name: string
+  name?: string
 
   /** 上传用户编号 */
-  userId: string
+  userId?: string
 
   /** 创建时间 */
-  createTime: string // yyyy-MM-dd
+  createTime?: string // yyyy-MM-dd
 
   /** 图片状态 */
-  pictureStatus: string
+  pictureStatus?: string
 
   /** 当前页码（分页） */
   pageNum?: number

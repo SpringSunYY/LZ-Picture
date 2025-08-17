@@ -3,26 +3,31 @@
     <aside class="sidebar" v-if="!isMobile">
       <div class="user-info-container">
         <div class="avatar">
-          <img :src="user.avatarUrl" alt="avatar" />
+          <img :src="initCover(userInfo?.avatarUrl || '')" alt="avatar" />
         </div>
         <div class="user-details">
-          <h2 class="username">{{ user.username }}</h2>
+          <h2 class="username">{{ userInfo?.nickName || '' }}</h2>
+          <h2 class="username text-gray-400 text-xl">{{ userInfo?.userName || '' }}</h2>
           <div class="stats">
             <div class="stat-item">
-              <span class="count">{{ user.worksCount }}</span>
+              <span class="count">{{ userInfo?.workCount || 0 }}</span>
               <span class="label">作品</span>
             </div>
             <div class="stat-item">
-              <span class="count">{{ user.likesCount }}</span>
+              <span class="count">{{ userInfo?.likeCount || 0 }}</span>
               <span class="label">喜欢</span>
             </div>
             <div class="stat-item">
-              <span class="count">{{ user.collectionsCount }}</span>
+              <span class="count">{{ userInfo?.collectCount || 0 }}</span>
               <span class="label">收藏</span>
+            </div>
+            <div class="stat-item">
+              <span class="count">{{ userInfo?.shareCount || 0 }}</span>
+              <span class="label">分享</span>
             </div>
           </div>
           <p class="bio">
-            {{ user.bio }}
+            <TextView :text="userInfo?.introduction || '这个用户很懒，还没有介绍自己'" :max-lines="8"/>
           </p>
         </div>
       </div>
@@ -81,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
 import BackToUp from '@/components/BackToUp.vue'
@@ -90,10 +95,17 @@ import type {
   PictureInfoAiQuery,
   PictureInfoAiVo,
   PictureInfoQuery,
-  PictureInfoVo,
+  PictureInfoVo
 } from '@/types/picture/picture'
 import { message } from 'ant-design-vue'
 import { listMyAiPictureInfo } from '@/api/picture/picture.ts'
+import useUserStore from '@/stores/modules/user.ts'
+import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
+import { getMyUserInfoByUserName } from '@/api/user/user.ts'
+import type { MyUserInfo } from '@/types/user/user'
+import { initCover } from '@/utils/common.ts'
+import TextView from '@/components/TextView.vue'
 
 interface ImageItem {
   id: number
@@ -122,7 +134,7 @@ const user: User = {
   worksCount: 930,
   likesCount: '1.8万',
   collectionsCount: 9824,
-  bio: '承接个人简介',
+  bio: '承接个人简介'
 }
 
 const fetchMoreImages = async (count: number) => {
@@ -134,7 +146,7 @@ const fetchMoreImages = async (count: number) => {
   const startId = images.value.length
   const newImages = Array.from({ length: count }, (_, i) => ({
     id: startId + i,
-    url: 'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D',
+    url: 'https://p26-dreamina-sign.byteimg.com/tos-cn-i-tb4s082cfz/258a0578277b462d84a7e0de7125aede~tplv-tb4s082cfz-aigc_resize:2400:2400.webp?lk3s=4fa96020&x-expires=1756080000&x-signature=X4kD74tLQr9pRblwGoJUb0fnAIU%3D'
   }))
   images.value = [...images.value, ...newImages]
   isLoading.value = false
@@ -201,12 +213,38 @@ const handleResize = () => {
     }
   })
 }
+//region用户信息
+const route = useRoute()
+const toUserName = ref((route.query.toUserName as string) || '')
+const userStore = useUserStore()
+const { userName: loginUserName, avatar: loginUserAvatar } = storeToRefs(userStore)
+//判断用户是否是自己或者传过来的用户是否为空，如果为空或者用户名不是自己，则表示别的用户
+const isSelf = computed(() => {
+  return loginUserName.value === toUserName.value || !toUserName.value
+})
+const userInfo = ref<MyUserInfo>()
+const username = ref('')
+const getUserInfo = async () => {
+  if (isSelf.value) {
+    username.value = loginUserName.value
+  } else {
+    username.value = toUserName.value
+  }
+  user.username = loginUserName.value
+  user.avatarUrl = loginUserAvatar.value
+  const res = await getMyUserInfoByUserName(username.value)
+  if (res.code === 200) {
+    userInfo.value = res.data
+  }
+}
+
+getUserInfo()
 //region 图片列表
 const pictureQuery = ref<PictureInfoAiQuery>({
   pageNum: 1,
   pageSize: 35,
   name: '',
-  pictureStatus: '',
+  pictureStatus: ''
 })
 const aiVerticalFallLayoutRef = ref()
 const resetPictureQuery = () => {
@@ -215,7 +253,7 @@ const resetPictureQuery = () => {
     pageSize: 35,
     categoryId: '',
     orderByColumn: '',
-    name: '',
+    name: ''
   }
   loading.value = false
   noMore.value = false
@@ -257,9 +295,8 @@ onUnmounted(() => {
   display: flex;
   background-color: #1a1a1a;
   color: #f0f0f0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+  sans-serif;
   height: 100vh;
   overflow: hidden;
 
@@ -322,8 +359,8 @@ onUnmounted(() => {
     text-align: center; // 确保内部所有文本都居中
 
     .avatar {
-      width: 120px;
-      height: 120px;
+      width: 200px;
+      height: 200px;
       border-radius: 50%;
       overflow: hidden;
       margin: 0 auto 16px auto;

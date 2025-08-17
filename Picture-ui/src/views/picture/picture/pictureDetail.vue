@@ -30,7 +30,7 @@
             <!-- 作者信息 -->
             <a-card :bordered="false" class="card author-card animate-fade-in-left">
               <a-space align="center" :wrap="true">
-                <a-avatar :src="formatDnsUrl(picture?.userInfoVo?.avatarUrl)" size="large" />
+                <a-avatar :src="initCover(picture.userInfoVo?.avatarUrl || '')" size="large" />
                 <div>
                   <div class="nickname">{{ picture.userInfoVo?.nickName }}</div>
                   <div class="ip-region">IP属地：{{ picture.userInfoVo?.ipAddress || '未知' }}</div>
@@ -319,7 +319,7 @@ import type {
   PictureInfoRecommendRequest,
   PictureInfoVo,
 } from '@/types/picture/picture'
-import { formatDnsUrl, formatSize } from '@/utils/common.ts'
+import { formatDnsUrl, formatSize, initCover } from '@/utils/common.ts'
 import {
   FireOutlined,
   InfoCircleOutlined,
@@ -595,10 +595,6 @@ getPictureInfo()
 </script>
 
 <style scoped lang="scss">
-
-
-
-
 .picture-detail {
   padding: 20px 32px;
   background-color: #f9f9f9;
@@ -632,9 +628,10 @@ getPictureInfo()
 
     .action-card {
       min-height: 90px;
-        display: flex;
-        align-items: center;
-        justify-content: start;
+      display: flex;
+      align-items: center;
+      justify-content: start;
+
       .icon-button {
         display: flex;
         align-items: center;
