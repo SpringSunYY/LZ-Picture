@@ -366,6 +366,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         pictureInfo.setPicFormat(FileUtils.getSuffixName(pictureUrl));
         BeanUtils.copyBeanProp(pictureInfo, pictureAiUpload);
         SpaceInfo spaceInfo = checkPictureAndSpace(pictureInfo);
+        //模型信息
+        PictureMoreInfo moreInfo = new PictureMoreInfo();
+        moreInfo.setModelType(generateLogInfo.getModelType());
+        moreInfo.setModelName(generateLogInfo.getModelLabel());
+        moreInfo.setModelKey(generateLogInfo.getModelKey());
+        moreInfo.setModelPoints(generateLogInfo.getPointsUsed());
+        pictureInfo.setMoreInfo(JSON.toJSONString(moreInfo));
         //查询分类是否存在
         PictureCategoryInfo categoryInfo = new PictureCategoryInfo();
         if (StringUtils.isNotEmpty(pictureInfo.getCategoryId())) {

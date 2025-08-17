@@ -33,4 +33,24 @@ public class PictureMoreInfo {
      * 申请类型
      */
     private String applyType;
+
+    /**
+     * 模型信息
+     */
+    private String modelType;
+
+    /**
+     * 模型名
+     */
+    private String modelName;
+
+    /**
+     * 模型KEY
+     */
+    private String modelKey;
+
+    /**
+     * 模型消耗积分
+     */
+    private Long modelPoints;
 }
