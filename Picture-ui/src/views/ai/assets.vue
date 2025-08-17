@@ -347,7 +347,7 @@ import {
   type GenerateLogInfoVo,
   type ModelInfo,
 } from '@/types/ai/model.d.ts'
-import { listGenerateLogInfo, queryTask } from '@/api/ai/model.ts'
+import { listGenerateLogInfo } from '@/api/ai/model.ts'
 import { formatDateTime } from '@/utils/common.ts'
 import NoMoreData from '@/components/NoMoreData.vue'
 import TextView from '@/components/TextView.vue'
@@ -366,7 +366,7 @@ import { handleTree } from '@/utils/lz.ts'
 import { debounce } from 'lodash-es'
 import { listPictureCategoryInfoByAi } from '@/api/picture/pictureCategory.ts'
 import type { PictureCategoryInfoVo } from '@/types/picture/pictureCategory'
-import { addPictureInfoByAi } from '@/api/picture/picture.ts'
+import { addPictureInfoByAi, queryTask } from '@/api/picture/picture.ts'
 import { useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()!

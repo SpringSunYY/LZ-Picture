@@ -1,13 +1,6 @@
 import { http as request } from '@/utils'
 import type { API } from '@/types/common'
-import type {
-  GenerateLogInfoQuery,
-  GenerateLogInfoRequest,
-  GenerateResponse,
-  ModelParamsInfo,
-  ModelParamsInfoRequest,
-  GenerateLogInfoVo,
-} from '@/types/ai/model'
+import type { GenerateLogInfoQuery, GenerateLogInfoVo, ModelParamsInfo, ModelParamsInfoRequest } from '@/types/ai/model'
 
 /**
  * 模型列表
@@ -23,20 +16,6 @@ export function listModel(
   })
 }
 
-/**
- * 生成
- * @param data
- */
-export function generate(
-  data: GenerateLogInfoRequest,
-): Promise<API.ResponseInfo<GenerateResponse[]>> {
-  return request({
-    url: '/ai/generateLogInfo/generate',
-    method: 'post',
-    data,
-    timeout: 60000,
-  })
-}
 
 /**
  * 获取生成记录
@@ -52,14 +31,3 @@ export function listGenerateLogInfo(
   })
 }
 
-/**
- * 查询任务
- * @param logId
- */
-export function queryTask(logId: string): Promise<API.ResponseInfo<GenerateLogInfoVo>> {
-  return request({
-    url: '/ai/generateLogInfo/query/' + logId,
-    method: 'get',
-    timeout: 30000,
-  })
-}

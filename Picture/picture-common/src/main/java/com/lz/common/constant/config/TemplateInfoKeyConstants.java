@@ -48,6 +48,11 @@ public class TemplateInfoKeyConstants {
     public static final String DOWNLOAD_PICTURE_AUTHOR_PROPORTION = "download_picture_author_proportion";
 
     /**
+     * ai生图作为参考图提醒
+     */
+    public static final String AI_GENERATE_REFERENCE_IMAGE_REMIND = "ai_generate_reference_image_remind";
+
+    /**
      * 用户图片举报成功
      */
     public static final String PICTURE_REPORT_SUCCESS = "picture_report_success";

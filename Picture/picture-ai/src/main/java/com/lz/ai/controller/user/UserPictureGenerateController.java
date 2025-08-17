@@ -29,22 +29,6 @@ public class UserPictureGenerateController extends BaseUserInfoController {
     @Resource
     private IGenerateLogInfoService generateLogInfoService;
 
-    @PostMapping("/generate")
-    @PreAuthorize("@uss.hasLogin()")
-    public AjaxResult add(@Validated @RequestBody AiGenerateRequest request) {
-        request.setUserId(getUserId());
-        request.setUsername(getUsername());
-        DeviceInfo deviceInfo = IpUtils.getDeviceInfo();
-        BeanUtils.copyProperties(deviceInfo, request);
-        return success(generateLogInfoService.userGenerate(request));
-    }
-
-    @GetMapping("/query/{logId}")
-    @PreAuthorize("@uss.hasLogin()")
-    public AjaxResult getInfo(@PathVariable("logId") String logId) {
-        return success(UserGenerateLogInfoVo.objToVo(generateLogInfoService.queryTask(logId, getUserId(), getUsername())));
-    }
-
     @GetMapping("/list")
     @PreAuthorize("@uss.hasLogin()")
     public TableDataInfo list(UserGenerateLogInfoRequest request) {

@@ -4,7 +4,9 @@ import type {
   MyPictureInfoVo,
   PictureAiUpload,
   PictureDetailInfoVo,
-  PictureInfo, PictureInfoAiQuery, PictureInfoAiVo,
+  PictureInfo,
+  PictureInfoAiQuery,
+  PictureInfoAiVo,
   PictureInfoHotRequest,
   PictureInfoQuery,
   PictureInfoRecommendRequest,
@@ -18,6 +20,7 @@ import type {
   PictureUrlUpload,
   UserRecommendPictureInfoVo
 } from '@/types/picture/picture'
+import type { GenerateLogInfoRequest, GenerateLogInfoVo, GenerateResponse } from '@/types/ai/model'
 
 /**
  * 新增图片信息
@@ -239,5 +242,32 @@ export function getHotPictureInfoList(
     url: '/picture/pictureInfo/hot',
     method: 'get',
     params: params,
+  })
+}
+
+/**
+ * 查询任务
+ * @param logId
+ */
+export function queryTask(logId: string): Promise<API.ResponseInfo<GenerateLogInfoVo>> {
+  return request({
+    url: '/picture/ai/query/' + logId,
+    method: 'get',
+    timeout: 30000,
+  })
+}
+
+/**
+ * 生成
+ * @param data
+ */
+export function generate(
+  data: GenerateLogInfoRequest,
+): Promise<API.ResponseInfo<GenerateResponse[]>> {
+  return request({
+    url: '/picture/ai/generate',
+    method: 'post',
+    data,
+    timeout: 60000,
   })
 }

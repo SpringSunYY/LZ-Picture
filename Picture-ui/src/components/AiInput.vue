@@ -78,7 +78,7 @@ import AiPictureUpload from '@/components/AiPictureUpload.vue'
 import { AiLogStatusEnum, defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
 import { message } from 'ant-design-vue'
 import { usePasswordVerify } from '@/utils/auth.ts'
-import { generate } from '@/api/ai/model.ts'
+import { generate } from '@/api/picture/picture.ts'
 
 const props = defineProps({
   maxChars: {
@@ -94,6 +94,10 @@ const props = defineProps({
     default: '',
   },
   prompt: {
+    type: String,
+    default: '',
+  },
+  targetId: {
     type: String,
     default: '',
   },
@@ -151,6 +155,7 @@ const sendMessage = async () => {
       height: model.value?.height,
       numbers: model.value?.numbers || 1,
       inputFile: file.value || null,
+      targetId: props.targetId,
     })
     if (res.code === 200 && res.data) {
       res.data.forEach((item) => {

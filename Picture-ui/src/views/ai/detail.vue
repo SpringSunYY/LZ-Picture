@@ -106,6 +106,7 @@
       :file-info="fileInfo"
       :model-info="modelInfo"
       :prompt="prompt"
+      :target-id="pictureId"
     />
     <a-modal v-model:open="openShare" title="分享图片" @ok="openShare = !openShare">
       <QRCode :value="shareLink" />
