@@ -29,7 +29,7 @@
         </div>
       </div>
       <p class="bio">
-        <TextView :text="userInfo?.introduction || '这个用户很懒，还没有介绍自己'" :max-lines="8" />
+        <TextView :text="userInfo?.introduction || '这个用户很懒，还没有介绍自己哦'" :max-lines="8" />
       </p>
       <div class="actions">
         <FollowButton class="follow-btn" />
@@ -179,7 +179,7 @@ onUnmounted(() => {
 // 统一的用户信息部分
 .user-info-section {
   flex: 0 0 320px;
-  padding: 20vh 20px;
+  padding: 15vh 20px;
   box-sizing: border-box;
   height: 100vh;
   overflow-y: auto;

@@ -1,12 +1,12 @@
 <template>
-  <div class="relative">
+  <div class="relative flex flex-col">
     <div ref="textContainer" class="whitespace-normal" :style="containerDynamicStyle">
       {{ displayContent }}
     </div>
     <button
       v-if="needsButton"
       @click="toggleExpand"
-      class="mt-2 text-sm text-blue-600 hover:underline flex items-center gap-1"
+      class="mt-2 text-sm text-blue-600 hover:underline self-end flex items-center gap-1"
     >
       {{ isExpanded ? '收起' : '展开' }}
       <component :is="isExpanded ? ChevronUp : ChevronDown" class="w-4 h-4" />
