@@ -70,12 +70,12 @@
             <a-space align="center" direction="horizontal" :wrap="true">
               <h1 class="text-xl font-bold text-white px-0.5">
                 {{
-                  ai_model_params_type.find((item) => item.dictValue === picture.modelType)
+                  ai_model_params_type.find((item) => item.dictValue === picture.moreInfo.modelType)
                     ?.dictLabel || '文生图'
                 }}
               </h1>
               <div class="text-white">
-                {{ picture.modelName || '即梦AI 图生图3.0' }}
+                {{ picture.moreInfo?.modelName || '即梦AI 图生图3.0' }}
               </div>
               <div class="text-white">{{ picture.picWidth }}x{{ picture.picHeight }}</div>
             </a-space>
@@ -250,7 +250,7 @@ const handleReGenerate = () => {
     numbers: 1,
     width: picture.value?.picWidth,
     height: picture.value?.picHeight,
-    pointsNeed: picture.value?.moreInfo?.pointsUsed || '',
+    pointsNeed: picture.value?.moreInfo?.modelPoints || 0,
   }
 }
 //引用图片

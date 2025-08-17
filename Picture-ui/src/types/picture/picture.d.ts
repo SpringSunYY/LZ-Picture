@@ -223,6 +223,11 @@ export interface MoreInfo {
   priceNeed?: number
   /** 申请类型 */
   applyType?: string
+  /** 模型信息*/
+  modelType?: ModelType
+  modelName?: string
+  modelKey?: string
+  modelPoints?: number
 }
 
 /**
