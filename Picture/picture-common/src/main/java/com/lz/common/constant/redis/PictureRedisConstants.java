@@ -217,5 +217,13 @@ public class PictureRedisConstants {
      * 图片ai缓存时间
      */
     public static final int PICTURE_AI_EXPIRE_TIME = 60 * 5;
+    /**
+     * 图片用户信息缓存
+     */
+    public static final String PICTURE_USER_INFO = "picture:user:info";
+    /**
+     * 图片用户信息缓存时间
+     */
+    public static final int PICTURE_USER_INFO_EXPIRE_TIME = 60 * 10;
 
 }

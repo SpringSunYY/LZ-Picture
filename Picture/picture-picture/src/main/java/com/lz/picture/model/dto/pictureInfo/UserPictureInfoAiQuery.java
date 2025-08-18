@@ -40,6 +40,11 @@ public class UserPictureInfoAiQuery implements Serializable {
     private String userId;
 
     /**
+     * 用户名
+     */
+    private String username;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd")

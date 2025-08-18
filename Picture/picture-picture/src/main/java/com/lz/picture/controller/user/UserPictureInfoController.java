@@ -1,7 +1,6 @@
 package com.lz.picture.controller.user;
 
 import com.alibaba.fastjson.JSON;
-import com.lz.common.config.OssConfig;
 import com.lz.common.constant.HttpStatus;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
@@ -10,6 +9,7 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
@@ -21,6 +21,8 @@ import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.enums.PPictureUploadTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.*;
 import com.lz.picture.service.IPictureInfoService;
+import com.lz.user.model.domain.UserInfo;
+import com.lz.user.service.IUserInfoService;
 import com.lz.userauth.controller.BaseUserInfoController;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_HOT_TOTAL;
-import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
 
 
 /**
@@ -51,6 +52,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
 
     @Resource
     private PictureUploadManager pictureUploadManager;
+
+    @Resource
+    private IUserInfoService userInfoService;
 
 
     /**
@@ -253,7 +257,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
      * list ai 我的
      */
     @PreAuthorize("@uss.hasPermi('picture:list')")
-    @GetMapping("/list/ai/my")
+    @GetMapping("/list/ai")
     public TableDataInfo listAiMy(UserPictureInfoAiQuery query) {
         if (StringUtils.isNull(query.getPageSize())) {
             query.setPageSize(50);
@@ -261,7 +265,16 @@ public class UserPictureInfoController extends BaseUserInfoController {
         if (query.getPageSize() > 50) {
             query.setPageSize(50);
         }
-        query.setUserId(getUserId());
+        //如果传过来的用户名为空则是自己,或者就是自己
+        if (StringUtils.isEmpty(query.getUsername()) || query.getUsername().equals(getUsername())) {
+            query.setUserId(getUserId());
+        } else {
+            //如果不是自己，则只能查看公开图
+            UserInfo userInfo = userInfoService.selectUserByUserName(query.getUsername());
+            ThrowUtils.throwIf(StringUtils.isNull(userInfo), "用户不存在");
+            query.setUserId(userInfo.getUserId());
+            query.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        }
         return pictureInfoService.listAiMy(query);
     }
 

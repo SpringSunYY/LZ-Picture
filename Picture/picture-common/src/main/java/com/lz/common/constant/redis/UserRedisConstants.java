@@ -39,7 +39,21 @@ public class UserRedisConstants {
     /**
      * 用户自己的信息缓存保存信息
      */
-    public static final String USER_INFO = "user:info:";
+    public static final String USER_MY_INFO = "user:my:info";
+
+    /**
+     * 用户信息缓存时间
+     */
+    public static final int USER_MY_INFO_EXPIRE_TIME = 60 * 60 ;
+
+    /**
+     * 用户信息缓存
+     */
+    public static final String USER_INFO = "user:info";
+    /**
+     * 用户信息缓存时间
+     */
+    public static final int USER_INFO_EXPIRE_TIME = 60 * 60 ;
 
     /**
      * 用户未读信息数量

@@ -593,6 +593,9 @@ export interface PictureInfoAiQuery {
   /** 图片状态 */
   pictureStatus?: string
 
+  /** 用户名*/
+  username?: string
+
   /** 当前页码（分页） */
   pageNum?: number
 

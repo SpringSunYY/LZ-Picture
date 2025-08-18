@@ -113,11 +113,11 @@ export function listMyPictureInfo(
 /**
  * 查询我的AI图片详情
  */
-export function listMyAiPictureInfo(
+export function listAiPictureInfo(
   params: PictureInfoAiQuery,
 ): Promise<API.ResponseInfo<PictureInfoAiVo>> {
   return request({
-    url: '/picture/pictureInfo/list/ai/my',
+    url: '/picture/pictureInfo/list/ai',
     params: params,
   })
 }

@@ -3,6 +3,7 @@ package com.lz.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
@@ -27,11 +28,10 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
-import static com.lz.common.constant.redis.UserRedisConstants.USER_INFO;
+import static com.lz.common.constant.redis.UserRedisConstants.*;
 
 /**
  * 用户信息Service业务层处理
@@ -97,6 +97,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public int updateUserInfo(UserInfo userInfo) {
         userInfo.setUpdateTime(DateUtils.getNowDate());
+        //删除缓存
+        redisCache.deleteObject(USER_MY_INFO + COMMON_SEPARATOR_CACHE + userInfo.getUserName());
+        redisCache.deleteObject(USER_INFO + COMMON_SEPARATOR_CACHE + userInfo.getUserName());
         return userInfoMapper.updateUserInfo(userInfo);
     }
 
@@ -203,32 +206,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         return new LinkedList<>();
     }
 
+    @CustomCacheable(keyPrefix = USER_MY_INFO, keyField = "username", expireTime = USER_MY_INFO_EXPIRE_TIME)
     @Override
-    public MyUserInfoVo getMyUserInfoByUserName(String userName) {
-        //首先查询缓存是否存在
-        String key = USER_INFO + COMMON_SEPARATOR_CACHE + userName;
-        MyUserInfoVo cache = redisCache.getCacheObject(key);
-        if (StringUtils.isNotNull(cache)) {
-            return cache;
-        }
+    public MyUserInfoVo getMyUserInfoByUserName(String username) {
         UserInfo userInfo = this.getOne(new LambdaQueryWrapper<UserInfo>()
-                .eq(UserInfo::getUserName, userName));
-        if (StringUtils.isNull(userInfo)) {
-            userInfo = new UserInfo();
-            redisCache.setCacheObject(key, userInfo, 60 * 5, TimeUnit.SECONDS);
-            return MyUserInfoVo.objToVo(userInfo);
-        }
-        MyUserInfoVo myUserInfoVo = MyUserInfoVo.objToVo(userInfo);
-//        //查询登录日志,最近十条
-//        List<LoginLogInfo> loginLogInfoList = loginLogInfoService.list(new LambdaQueryWrapper<LoginLogInfo>()
-//                .eq(LoginLogInfo::getUserId, userInfo.getUserId())
-//                .eq(LoginLogInfo::getStatus, ULoginStatus.LOGIN_STATUS_0.getValue())
-//                .orderByDesc(LoginLogInfo::getLoginTime)
-//                .last("limit 5"));
-//        List<MyLoginLogInfoVo> myLoginLogInfoVos = MyLoginLogInfoVo.objToVo(loginLogInfoList);
-//        myUserInfoVo.setLoginLogInfoVos(myLoginLogInfoVos);
-        redisCache.setCacheObject(key, myUserInfoVo, 60 * 5, TimeUnit.SECONDS);
-        return myUserInfoVo;
+                .eq(UserInfo::getUserName, username));
+        return MyUserInfoVo.objToVo(userInfo);
     }
 
     @Override
@@ -242,6 +225,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfoMapper.updateById(userInfo);
         userInfo.setUserName(userInfoDb.getUserName());
         //删除缓存
+        redisCache.deleteObject(USER_MY_INFO + COMMON_SEPARATOR_CACHE + userInfoDb.getUserName());
         redisCache.deleteObject(USER_INFO + COMMON_SEPARATOR_CACHE + userInfoDb.getUserName());
         return userInfo;
     }
@@ -268,6 +252,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         return userInfoMapper.updateById(userInfo);
     }
 
+
     @Override
     public UserInfo userUpdateUserInfoAvatar(UserInfoUpdateAvatar userInfoUpdateAvatar) {
         //查询用户信息
@@ -281,12 +266,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfoDb.setAvatarUrl(userInfoUpdateAvatar.getAvatarUrl());
         userInfoMapper.updateById(userInfoDb);
         //删除缓存
+        redisCache.deleteObject(USER_MY_INFO + COMMON_SEPARATOR_CACHE + userInfoDb.getUserName());
         redisCache.deleteObject(USER_INFO + COMMON_SEPARATOR_CACHE + userInfoDb.getUserName());
         //更新文件日志 因为老的数据赋值给userInfoOld，新数据重新赋值头像给userInfoDb
         UserAsyncManager.me().execute(UserFileLogAsyncFactory.updateUserInfoAvatarFileLog(userInfoOld, userInfoDb));
         return userInfoDb;
     }
 
+    @CustomCacheable(keyPrefix = USER_INFO, keyField = "username", expireTime = USER_INFO_EXPIRE_TIME)
     @Override
     public UserInfo selectUserByUserName(String username) {
         return this.getOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getUserName, username).eq(UserInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));

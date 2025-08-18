@@ -10,7 +10,27 @@
           <h2 class="username text-gray-400 text-xl">{{ userInfo?.userName || '' }}</h2>
           <div class="stats">
             <div class="stat-item">
-              <span class="count">{{ userInfo?.workCount || 0 }}</span>
+              <span class="label">{{ userInfo?.ipAddress || '未知' }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">{{ userInfo?.occupation || '用户不愿透露哦' }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">{{ userInfo?.birthday || '2000-01-01' }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label"
+                >{{
+                  userInfo?.sex
+                    ? u_user_sex.find((item) => item.dictValue === userInfo?.sex).dictLabel
+                    : '未知'
+                }}
+              </span>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="count">{{ userInfo?.pictureCount || 0 }}</span>
               <span class="label">作品</span>
             </div>
             <div class="stat-item">
@@ -30,7 +50,7 @@
       </div>
       <p class="bio">
         <TextView
-          :text="userInfo?.introduction || '这个用户很懒，还没有介绍自己哦'"
+          :text="userInfo?.introductory || '这个用户很懒，还没有介绍自己哦'"
           :max-lines="8"
         />
       </p>
@@ -81,21 +101,21 @@ import BackToUp from '@/components/BackToUp.vue'
 import AiVerticalFallLayout from '@/components/AiVerticalFallLayout.vue'
 import type { PictureInfoAiQuery, PictureInfoAiVo } from '@/types/picture/picture'
 import { message } from 'ant-design-vue'
-import { listMyAiPictureInfo } from '@/api/picture/picture.ts'
+import { listAiPictureInfo } from '@/api/picture/picture.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import { getMyUserInfoByUserName } from '@/api/user/user.ts'
-import type { MyUserInfo } from '@/types/user/user'
 import { initCover } from '@/utils/common.ts'
 import TextView from '@/components/TextView.vue'
+import { getPictureUserInfoByUsername } from '@/api/picture/userinfo.ts'
+import type { UserInfoVo } from '@/types/picture/userinfo'
 
 const { proxy } = getCurrentInstance()!
-const { p_picture_status } = proxy?.useDict('p_picture_status')
+const { p_picture_status, u_user_sex } = proxy?.useDict('p_picture_status', 'u_user_sex')
 
 //region 用户信息相关逻辑
 const route = useRoute()
-const toUserName = ref((route.query.toUserName as string) || '')
+const toUserName = ref((route.query.username as string) || '')
 const userStore = useUserStore()
 const { userName: loginUserName } = storeToRefs(userStore)
 
@@ -104,7 +124,7 @@ const isSelf = computed(() => {
   return loginUserName.value === toUserName.value || !toUserName.value
 })
 
-const userInfo = ref<MyUserInfo>()
+const userInfo = ref<UserInfoVo>()
 const username = ref('')
 
 /**
@@ -112,7 +132,7 @@ const username = ref('')
  */
 const getUserInfo = async () => {
   username.value = isSelf.value ? loginUserName.value : toUserName.value
-  const res = await getMyUserInfoByUserName(username.value)
+  const res = await getPictureUserInfoByUsername(username.value)
   if (res.code === 200) {
     userInfo.value = res.data
   }
@@ -138,6 +158,7 @@ const tabData = ref({
       pageSize: 35,
       name: '',
       pictureStatus: '0',
+      username: username.value,
     },
   },
   '1': {
@@ -149,6 +170,7 @@ const tabData = ref({
       pageSize: 35,
       name: '',
       pictureStatus: '1',
+      username: username.value,
     },
   },
 })
@@ -189,7 +211,7 @@ async function initTabData(status: string) {
     targetTab.pictureQuery.pageNum = 1
     targetTab.pictureQuery.pictureStatus = status
 
-    const res = await listMyAiPictureInfo(targetTab.pictureQuery)
+    const res = await listAiPictureInfo(targetTab.pictureQuery)
     if (res?.rows) {
       targetTab.pictureList = res.rows
 
@@ -221,7 +243,7 @@ async function loadMore() {
   currentTab.loading = true
 
   try {
-    const res = await listMyAiPictureInfo(currentTab.pictureQuery)
+    const res = await listAiPictureInfo(currentTab.pictureQuery)
     if (res?.rows) {
       // 确保第一页时替换数据，后续页时追加数据
       if (currentTab.pictureQuery.pageNum === 1) {
