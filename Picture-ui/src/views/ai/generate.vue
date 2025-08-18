@@ -103,13 +103,7 @@
                   class="action-button"
                   @click.stop="openByUrl(generate.fileUrls)"
                 />
-                <DeleteButton
-                  @click.stop="
-                    () => {
-                      console.log('删除')
-                    }
-                  "
-                />
+                <DeleteButton @click.stop="handleDelete(generate)" />
               </a-space>
               <div class="overlay-bottom">
                 <AiBatchButton
@@ -138,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { createVNode, getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import AiCheckModel from '@/components/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiPictureUpload from '@/components/AiPictureUpload.vue'
@@ -155,8 +149,8 @@ import {
   type GenerateLogInfoVo,
   type ModelInfo,
 } from '@/types/ai/model.d.ts'
-import { listGenerateLogInfo } from '@/api/ai/model.ts'
-import { message } from 'ant-design-vue'
+import { deleteGenerateLogInfo, listGenerateLogInfo } from '@/api/ai/model.ts'
+import { message, Modal } from 'ant-design-vue'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
 import AiLoading from '@/components/AiLoading.vue'
@@ -164,6 +158,7 @@ import { usePasswordVerify } from '@/utils/auth.ts'
 import AiRecommend from '@/components/AiRecommend.vue'
 import { openByUrl } from '@/utils/file.ts'
 import { generate, queryTask } from '@/api/picture/picture.ts'
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -380,6 +375,27 @@ const stopPolling = (logId: string) => {
     clearTimeout(timer)
     pollingMap.delete(logId)
   }
+}
+
+//删除
+const handleDelete = async (item: GenerateLogInfoVo) => {
+  const logId = item.logId
+  Modal.confirm({
+    title: '删除生成记录',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: '您确定删除此次生成记录吗？删除之后不可恢复哦',
+    okText: '确认',
+    cancelText: '取消',
+    async onOk() {
+      const res = await deleteGenerateLogInfo(logId)
+      if (res.code === 200) {
+        message.success('删除成功')
+        generateList.value = generateList.value.filter((item) => item.logId !== logId)
+      } else {
+        message.error('删除失败')
+      }
+    },
+  })
 }
 //endregion
 // 组件卸载时清理所有轮询

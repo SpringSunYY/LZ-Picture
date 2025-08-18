@@ -83,7 +83,7 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
      * @param generateLogInfo 用户生成记录
      * @return 用户生成记录
      */
-    @CustomSort(sortMappingFields = {"numbers", "width", "request_duration", "price_used", "points_used", "create_time","file_size"},
+    @CustomSort(sortMappingFields = {"numbers", "width", "request_duration", "price_used", "points_used", "create_time", "file_size"},
             sortFields = {"numbers", "width", "requestDuration", "priceUsed", "pointsUsed", "createTime", "fileSize"})
     @Override
     public List<GenerateLogInfo> selectGenerateLogInfoList(GenerateLogInfo generateLogInfo) {
@@ -306,6 +306,17 @@ public class GenerateLogInfoServiceImpl extends ServiceImpl<GenerateLogInfoMappe
     @Override
     public GenerateLogInfo selectNormalGenerateLogInfoByLogId(String logId) {
         return this.getOne(new LambdaQueryWrapper<GenerateLogInfo>().eq(GenerateLogInfo::getLogId, logId).eq(GenerateLogInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
+    }
+
+    @CustomCacheEvict(keyPrefixes = {AI_GENERATE_LIST}, keyFields = {"userId"})
+    @Override
+    public int userDeleteGenerateLogInfoByLogId(String logId, String userId) {
+        GenerateLogInfo generateLogInfo = selectNormalGenerateLogInfoByLogId(logId);
+        ThrowUtils.throwIf(StringUtils.isNull(generateLogInfo)
+                        || !generateLogInfo.getUserId().equals(userId),
+                HttpStatus.NO_CONTENT, "用户未查询到该任务");
+        generateLogInfo.setIsDelete(CommonDeleteEnum.DELETED.getValue());
+        return this.updateById(generateLogInfo) ? 1 : 0;
     }
 
 }

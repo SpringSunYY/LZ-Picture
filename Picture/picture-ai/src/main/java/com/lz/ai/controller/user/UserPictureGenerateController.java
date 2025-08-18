@@ -35,4 +35,10 @@ public class UserPictureGenerateController extends BaseUserInfoController {
         request.setUserId(getUserId());
         return generateLogInfoService.userSelectGenerateLogInfoList(request);
     }
+
+    @DeleteMapping("/{logId}")
+    @PreAuthorize("@uss.hasLogin()")
+    public AjaxResult remove(@PathVariable String logId) {
+        return success(generateLogInfoService.userDeleteGenerateLogInfoByLogId(logId, getUserId()));
+    }
 }

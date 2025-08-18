@@ -31,3 +31,10 @@ export function listGenerateLogInfo(
   })
 }
 
+
+export function deleteGenerateLogInfo(logId: string): Promise<API.ResponseInfo<number>> {
+  return request({
+    url: '/ai/generateLogInfo/' + logId,
+    method: 'delete',
+  })
+}

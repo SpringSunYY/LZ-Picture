@@ -124,4 +124,13 @@ public interface IGenerateLogInfoService extends IService<GenerateLogInfo> {
      * @return
      */
     GenerateLogInfo selectNormalGenerateLogInfoByLogId(String logId);
+
+    /**
+     * 用户删除生成记录
+     *
+     * @param logId
+     * @param userId
+     * @return
+     */
+    int userDeleteGenerateLogInfoByLogId(String logId, String userId);
 }
