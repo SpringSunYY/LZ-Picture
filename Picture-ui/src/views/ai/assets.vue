@@ -364,10 +364,14 @@ import type { SpaceFolderInfoQuery, SpaceFolderInfoVo } from '@/types/picture/sp
 import { listSpaceFolderInfo } from '@/api/picture/spaceFolder.ts'
 import { handleTree } from '@/utils/lz.ts'
 import { debounce } from 'lodash-es'
-import { listPictureCategoryInfoByAi } from '@/api/picture/pictureCategory.ts'
-import type { PictureCategoryInfoVo } from '@/types/picture/pictureCategory'
+import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
+import {
+  PCategoryStatusEnum,
+  PCategoryTypeEnum,
+  type PictureCategoryInfoQuery,
+  type PictureCategoryInfoVo,
+} from '@/types/picture/pictureCategory.d.ts'
 import { addPictureInfoByAi, queryTask } from '@/api/picture/picture.ts'
-import { useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type, p_picture_status } = proxy?.useDict(
@@ -685,11 +689,14 @@ const handleSearchTag = debounce((value: string) => {
   tagQuery.value.name = value
   getTagList()
 }, 300)
-
+const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({
+  categoryStatus: PCategoryStatusEnum.P_CATEGORY_STATUS_0,
+  categoryType: PCategoryTypeEnum.CATEGORY_TYPE_1,
+})
 //分类
 const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
 const getPictureCategoryList = async () => {
-  listPictureCategoryInfoByAi().then((res) => {
+  listPictureCategoryInfo(pictureCategoryQuery.value).then((res) => {
     pictureCategoryList.value = handleTree(
       JSON.parse(JSON.stringify(res?.rows || [])),
       'categoryId',

@@ -97,6 +97,9 @@ export interface PictureInfoQuery extends PageDomain {
 
   /** 额外查询参数 */
   params?: Record<string, any>
+
+  /** 上传类型*/
+  uploadType?: string
 }
 
 /**

@@ -209,6 +209,7 @@ public class PictureCategoryInfoServiceImpl extends ServiceImpl<PictureCategoryI
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getParentId()), PictureCategoryInfo::getParentId, pictureCategoryInfo.getParentId())
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getQueryStatus()), PictureCategoryInfo::getQueryStatus, pictureCategoryInfo.getQueryStatus())
                 .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getCategoryStatus()), PictureCategoryInfo::getCategoryStatus, pictureCategoryInfo.getCategoryStatus())
+                .eq(StringUtils.isNotEmpty(pictureCategoryInfo.getCategoryType()), PictureCategoryInfo::getCategoryType, pictureCategoryInfo.getCategoryType())
                 .eq(PictureCategoryInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .orderByAsc(PictureCategoryInfo::getOrderNum)
                 .orderBy(true, false, PictureCategoryInfo::getUsageCount)

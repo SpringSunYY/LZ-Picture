@@ -98,6 +98,19 @@ export function queryPictureInfo(
 }
 
 /**
+ * 查询图片-ai
+ * @param params
+ */
+export function queryAiPictureInfo(
+  params: PictureInfoQuery
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/query/ai',
+    params: params
+  })
+}
+
+/**
  * 查询我的图片信息列表
  * @param params
  */

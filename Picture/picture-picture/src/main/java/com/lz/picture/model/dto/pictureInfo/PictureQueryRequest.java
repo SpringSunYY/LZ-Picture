@@ -53,6 +53,11 @@ public class PictureQueryRequest implements Serializable {
      */
     private String orderByColumn;
 
+    /**
+     * 上传类型
+     */
+    private String uploadType;
+
 
     /**
      * 对象转封装类

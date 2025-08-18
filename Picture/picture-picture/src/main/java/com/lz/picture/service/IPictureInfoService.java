@@ -314,8 +314,10 @@ public interface IPictureInfoService extends IService<PictureInfo> {
     /**
      * 查询我的AI图片
      *
-     * @param query
+     * @param query 查询条件
      * @return
      */
-    TableDataInfo listAiMy(UserPictureInfoAiQuery query);
+    TableDataInfo listAi(UserPictureInfoAiQuery query);
+
+    List<PictureInfoAiVo> queryPictureInfoListAi(PictureQueryRequest request);
 }

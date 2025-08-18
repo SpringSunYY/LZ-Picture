@@ -16,9 +16,3 @@ export function listPictureCategoryInfo(
   })
 }
 
-export function listPictureCategoryInfoByAi(): Promise<API.ResponseInfo<PictureCategoryInfoVo>> {
-  return request({
-    url: '/picture/pictureCategoryInfo/list/ai',
-    method: 'get',
-  })
-}

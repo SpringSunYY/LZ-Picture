@@ -88,7 +88,6 @@
         :no-more="tabData['1'].noMore"
         :picture-list="tabData['1'].pictureList"
       />
-      <BackToUp />
     </main>
   </div>
 </template>

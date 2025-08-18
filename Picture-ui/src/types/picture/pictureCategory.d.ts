@@ -103,3 +103,28 @@ export function getPCategoryStatusByValue(value: string): PCategoryStatusEnum | 
   }
   return undefined
 }
+
+/**
+ * 分类类型
+ */
+export enum PCategoryTypeEnum {
+  CATEGORY_TYPE_0 = '0', // 图片
+  CATEGORY_TYPE_1 = '1', // AI生成
+}
+
+/**
+ * 枚举值对应的标签
+ */
+export const PCategoryTypeLabels: Record<PCategoryTypeEnum, string> = {
+  [PCategoryTypeEnum.CATEGORY_TYPE_0]: '图片',
+  [PCategoryTypeEnum.CATEGORY_TYPE_1]: 'AI生成',
+}
+
+/**
+ * 根据值获取对应的 label
+ * @param value 枚举值
+ * @returns 标签，如果找不到返回空字符串
+ */
+export function getPCategoryTypeLabel(value: string): string {
+  return PCategoryTypeLabels[value as PCategoryTypeEnum] ?? ''
+}

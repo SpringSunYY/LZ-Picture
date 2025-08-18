@@ -39,12 +39,4 @@ public class UserPictureCategoryInfoController extends BaseUserInfoController {
         List<UserPictureCategoryInfoVo> listVo = list.stream().map(UserPictureCategoryInfoVo::objToVo).collect(Collectors.toList());
         return getDataTable(listVo, list.size());
     }
-
-    @PreAuthorize("@uss.hasPermi('picture:pictureCategoryInfo')")
-    @GetMapping("/list/ai")
-    public TableDataInfo listAIChildren() {
-        List<PictureCategoryInfo> list = pictureCategoryInfoService.findCategoryChildren(PICTURE_CATEGORY_AI_ID_VALUE);
-        List<UserPictureCategoryInfoVo> listVo = list.stream().map(UserPictureCategoryInfoVo::objToVo).collect(Collectors.toList());
-        return getDataTable(listVo, listVo.size());
-    }
 }

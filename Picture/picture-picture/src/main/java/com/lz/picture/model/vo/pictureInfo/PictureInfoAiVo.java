@@ -65,12 +65,6 @@ public class PictureInfoAiVo implements Serializable {
     private Date publishTime;
 
     /**
-     * 缩略图URL
-     */
-    private String thumbnailUrl;
-
-
-    /**
      * 查看次数
      */
     private Long lookCount;

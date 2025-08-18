@@ -135,7 +135,7 @@
         <div class="decoration-circle circle-3"></div>
       </div>
     </div>
-    <VerticalFallLayout
+    <AiVerticalFallLayout
       ref="verticalFallLayoutRef"
       style="margin: 0 1em"
       :loading="loading"
@@ -153,20 +153,22 @@ import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'
 import { handleTree } from '@/utils/lz.ts'
 import {
   PCategoryStatusEnum,
+  PCategoryTypeEnum,
   type PictureCategoryInfoQuery,
   type PictureCategoryInfoVo,
 } from '@/types/picture/pictureCategory.d.ts'
 import SvgIcon from '@/components/SvgIcon.vue'
 import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
-import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { message } from 'ant-design-vue'
-import { queryPictureInfo } from '@/api/picture/picture.ts'
+import { queryAiPictureInfo } from '@/api/picture/picture.ts'
+import AiVerticalFallLayout from '@/components/AiVerticalFallLayout.vue'
 
 const verticalFallLayoutRef = ref()
 //region 分类
 const pictureCategoryList = ref<PictureCategoryInfoVo[]>([])
 const pictureCategoryQuery = ref<PictureCategoryInfoQuery>({
   categoryStatus: PCategoryStatusEnum.P_CATEGORY_STATUS_0,
+  categoryType: PCategoryTypeEnum.CATEGORY_TYPE_1,
 })
 const pictureCategoryChildrenList = ref<PictureCategoryInfoVo[]>([])
 const getPictureCategoryList = async () => {
@@ -263,7 +265,7 @@ const pictureList = ref<PictureInfoVo[]>([])
 async function loadMore() {
   if (loading.value || noMore.value) return
   message.loading('正在为您获取图片推荐...', 1)
-  const res = await queryPictureInfo(pictureQuery.value)
+  const res = await queryAiPictureInfo(pictureQuery.value)
   pictureList.value = res?.rows || []
   if (pictureList.value.length >= pictureQuery.value.pageSize) {
     pictureQuery.value.pageNum++

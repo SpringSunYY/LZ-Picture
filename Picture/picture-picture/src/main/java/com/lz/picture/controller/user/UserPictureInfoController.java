@@ -239,6 +239,23 @@ public class UserPictureInfoController extends BaseUserInfoController {
     }
 
     /**
+     * 获取图片AI列表
+     */
+    @SearchLog(searchType = "0", referSource = "0")
+    @GetMapping("/query/ai")
+    public TableDataInfo queryAi(PictureQueryRequest request) {
+        if (StringUtils.isNull(request.getPageSize())) {
+            request.setPageSize(50);
+        }
+        if (request.getPageSize() > 50) {
+            request.setPageSize(50);
+        }
+        request.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue());
+        List<PictureInfoAiVo> pictureInfoAiVos = pictureInfoService.queryPictureInfoListAi(request);
+        return getDataTable(pictureInfoAiVos, pictureInfoAiVos.size());
+    }
+
+    /**
      * list我的
      */
     @PreAuthorize("@uss.hasPermi('picture:list')")
@@ -275,7 +292,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
             query.setUserId(userInfo.getUserId());
             query.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
         }
-        return pictureInfoService.listAiMy(query);
+        return pictureInfoService.listAi(query);
     }
 
     /**

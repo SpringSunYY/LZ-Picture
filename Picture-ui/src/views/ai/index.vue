@@ -64,7 +64,6 @@
     <Picture ref="pictureRef" />
     <NoticeWindows />
     <AiInput />
-    <BackToUp />
   </div>
 </template>
 <script setup lang="ts" name="HomeView">

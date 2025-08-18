@@ -15,10 +15,7 @@
           <div class="user-info" v-if="userName" @click="clickUser">
             <a-dropdown>
               <div class="user-avatar">
-                <a-avatar
-                  :size="40"
-                  :src="initCover(avatar)"
-                />
+                <a-avatar :size="40" :src="initCover(avatar)" />
               </div>
               <template #overlay>
                 <a-menu>
@@ -50,6 +47,7 @@
             </keep-alive>
             <component v-else :is="Component" :key="route.name" />
           </router-view>
+          <BackToUp />
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -65,6 +63,7 @@ import { generateMenu, toMenu } from '@/router/permisson.ts'
 import { formatDnsUrl, initCover } from '@/utils/common.ts'
 import { LogoutOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
+import BackToUp from '@/components/BackToUp.vue'
 
 const userStore = useUserStore()
 const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态

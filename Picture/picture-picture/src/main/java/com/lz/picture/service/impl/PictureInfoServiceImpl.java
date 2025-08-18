@@ -1053,6 +1053,26 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     @Override
     public List<UserRecommendPictureInfoVo> queryPictureInfoList(PictureQueryRequest request) {
         //如果分类ID不为空，需要查询他自己的分类下的图片
+        List<PictureInfo> pictureInfos = queryPictureList(request);
+        //构造url
+        pictureInfos.forEach(pictureInfo -> {
+            pictureInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
+        });
+        List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfos);
+        //防止空指针异常
+        if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
+            userRecommendPictureInfoVos = new ArrayList<>();
+        }
+        return userRecommendPictureInfoVos;
+    }
+
+    /**
+     * 查询图片列表
+     *
+     * @param request
+     * @return
+     */
+    private List<PictureInfo> queryPictureList(PictureQueryRequest request) {
         ArrayList<String> categoryIds = new ArrayList<>();
         if (StringUtils.isNotEmpty(request.getCategoryId())) {
             PictureCategoryInfo pictureCategoryInfo = new PictureCategoryInfo();
@@ -1073,6 +1093,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 .eq(StringUtils.isNotEmpty(request.getSpaceId()), PictureInfo::getSpaceId, request.getSpaceId())
+                .eq(StringUtils.isNotEmpty(request.getUploadType()), PictureInfo::getUploadType, request.getUploadType())
                 .in(StringUtils.isNotEmpty(categoryIds), PictureInfo::getCategoryId, categoryIds)
                 .like(StringUtils.isNotEmpty(request.getName()), PictureInfo::getName, request.getName());
         //构造排序
@@ -1088,17 +1109,8 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         } else {
             query.orderByDesc(PictureInfo::getDownloadCount, PictureInfo::getShareCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getLookCount);
         }
-        Page<PictureInfo> pictureInfoList = this.page(pictureInfoPage, query);
-        //构造url
-        pictureInfoList.getRecords().forEach(pictureInfo -> {
-            pictureInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
-        });
-        List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfoList.getRecords());
-        //防止空指针异常
-        if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
-            userRecommendPictureInfoVos = new ArrayList<>();
-        }
-        return userRecommendPictureInfoVos;
+        Page<PictureInfo> page = this.page(pictureInfoPage, query);
+        return page.getRecords();
     }
 
     @Override
@@ -1649,7 +1661,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
             keyPrefix = PICTURE_AI, expireTime = PictureRedisConstants.PICTURE_AI_EXPIRE_TIME,
             keyField = "query.userId", useQueryParamsAsKey = true
     )
-    public TableDataInfo listAiMy(UserPictureInfoAiQuery query) {
+    public TableDataInfo listAi(UserPictureInfoAiQuery query) {
         //构造查询条件
         Page<PictureInfo> pictureInfoPage = new Page<>();
 
@@ -1666,15 +1678,38 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .orderBy(true, false, PictureInfo::getCreateTime);
         Page<PictureInfo> page = this.page(pictureInfoPage, lambdaQueryWrapper);
-        List<PictureInfoAiVo> userPictureInfoVos = PictureInfoAiVo.objToVo(page.getRecords());
+        List<PictureInfoAiVo> pictureInfoAiVos = new ArrayList<>();
         //压缩图片
-        for (PictureInfoAiVo vo : userPictureInfoVos) {
-            vo.setPictureUrl(OssConfig.builderPictureUrl(vo.getPictureUrl(), PICTURE_INDEX_P_VALUE));
+        for (PictureInfo pictureInfo : page.getRecords()) {
+            PictureInfoAiVo pictureInfoAiVo = PictureInfoAiVo.objToVo(pictureInfo);
+            pictureInfoAiVo.setPictureUrl(OssConfig.builderPictureUrl(pictureInfo.getPictureUrl(), PICTURE_INDEX_P_VALUE));
+            pictureInfoAiVos.add(pictureInfoAiVo);
         }
         TableDataInfo tableDataInfo = new TableDataInfo();
-        tableDataInfo.setRows(userPictureInfoVos);
+        tableDataInfo.setRows(pictureInfoAiVos);
         tableDataInfo.setTotal(page.getTotal());
         return tableDataInfo;
     }
+
+    @CustomCacheable(
+            keyPrefix = PICTURE_QUERY_LIST,
+            expireTime = PICTURE_QUERY_LIST_EXPIRE_TIME,
+            paginate = true,
+            useQueryParamsAsKey = true,
+            pageNumberField = "request.pageNum",
+            pageSizeField = "request.pageSize")
+    @Override
+    public List<PictureInfoAiVo> queryPictureInfoListAi(PictureQueryRequest request) {
+        List<PictureInfo> pictureInfos = queryPictureList(request);
+        ArrayList<PictureInfoAiVo> pictureInfoAiVos = new ArrayList<>();
+        for (PictureInfo pictureInfo : pictureInfos) {
+            PictureInfoAiVo pictureInfoAiVo = PictureInfoAiVo.objToVo(pictureInfo);
+            pictureInfoAiVo.setPictureUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
+            pictureInfoAiVos.add(pictureInfoAiVo);
+        }
+        return pictureInfoAiVos;
+    }
+
+
     //region
 }
