@@ -2,8 +2,12 @@
   <div class="image-detail-page">
     <main class="main-content">
       <div class="image">
+        <a-tooltip title="返回" position="top">
+          <div class="back" @click="handleBack">
+            <SvgIcon name="back" />
+          </div>
+        </a-tooltip>
         <AiPictureView :image-url="picture.thumbnailUrl" class="image-content" />
-        <!--        <img :src="picture.thumbnailUrl" alt="Main Image" class="main-image" @contextmenu.prevent />-->
       </div>
 
       <div class="details-section">
@@ -99,6 +103,11 @@
               class="download-button"
             />
           </a-tooltip>
+        </div>
+      </div>
+      <div class="image-recommend">
+        <div v-for="i in 10" :key="i" class="recommend-content">
+          <img class="recommend-image" :src="picture.thumbnailUrl" />
         </div>
       </div>
     </main>
@@ -247,7 +256,7 @@ const downloadPicture = async () => {
   }
 }
 //endregion
-//region 查看作者
+//region 路由
 const router = useRouter()
 const handleUserInfo = (username: string) => {
   console.log('handleUserInfo', username)
@@ -262,6 +271,9 @@ const handleUserInfo = (username: string) => {
     },
   })
 }
+const handleBack = () => {
+  router.back()
+}
 //endregion
 </script>
 
@@ -269,6 +281,7 @@ const handleUserInfo = (username: string) => {
 $bg-color: #18181b; // 页面背景
 $panel-bg-color: #1e1e1e; // 详情面板背景
 $image-bg-color: #333; // 图片背景颜色
+$back-bg-color: rgba(255, 255, 255, 0.11); // 返回
 $prompt-bg-color: #2c2c2c; // 提示词背景
 $text-color: #f0f0f0; // 主要文本颜色
 $secondary-text-color: #a9a9a9; // 次要文本颜色
@@ -310,10 +323,50 @@ $content-padding: 20px; // 详情内容边距
   background-color: $image-bg-color;
   box-sizing: border-box;
   padding: 0;
+  position: relative;
+
+  .back {
+    // 返回按钮 左上角
+    position: absolute;
+    left: 8vh;
+    top: 8vh;
+    width: 3em;
+    height: 3em;
+    background-color: $back-bg-color;
+    border-radius: 50%;
+    // 关键改变：使用 Flexbox 实现子元素居中
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-in-out;
+
+    &:hover {
+      width: 3.5em;
+      height: 3.5em;
+    }
+  }
 
   .image-content {
     width: 100%;
     height: 100vh;
+  }
+}
+
+.image-recommend {
+  right: 0;
+  top: 10%;
+  z-index: 1;
+  padding: 10px; /* 增加内边距 */
+  height: 100vh;
+  background-color: $panel-bg-color;
+  overflow-y: auto; /* 添加这个属性，实现滚动效果 */
+  .recommend-content {
+    width: 10vh;
+    padding-bottom: 2vh;
+
+    .recommend-image {
+      border-radius: 0.5vh;
+    }
   }
 }
 
@@ -550,11 +603,60 @@ $content-padding: 20px; // 详情内容边距
     .image-content {
       height: 60vh;
     }
+
+    .back {
+      // 返回按钮 左上角
+      position: absolute;
+      left: 3vh;
+      top: 3vh;
+      width: 3em;
+      height: 3em;
+      background-color: $back-bg-color;
+      border-radius: 50%;
+      // 关键改变：使用 Flexbox 实现子元素居中
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.1s ease-in-out;
+
+      &:hover {
+        width: 3.5em;
+        height: 3.5em;
+      }
+    }
   }
   .details-section {
     order: 2;
     padding: 12px;
     border-left: none;
+  }
+
+  // 移动端：推荐图片列表，自适应高度并垂直堆叠
+  .image-recommend {
+    order: 3; // 确保在文档流中排在第三位
+    width: 100%; // 占据整个宽度
+    position: static; // 移除绝对定位，让它在文档流中正常显示
+    padding: 10px;
+    background-color: $panel-bg-color; // 设置背景色以确保可见
+    // 关键改变：
+    overflow-y: auto; // 当内容溢出时自动出现垂直滚动条
+    height: auto; // 移除固定高度，让它根据内容自适应
+
+    // 内部布局：
+    display: flex;
+    flex-direction: column; // 让子元素垂直堆叠
+    align-items: center; // 水平居中
+
+    .recommend-content {
+      width: 95%; // 给图片一个相对宽度
+      padding-bottom: 2vh;
+
+      .recommend-image {
+        width: 100%;
+        height: auto;
+        border-radius: 0.5vh;
+      }
+    }
   }
   .header-controls {
     flex-direction: row;

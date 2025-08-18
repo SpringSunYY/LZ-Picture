@@ -5,19 +5,19 @@
         LZ-Picture，和我一起用AI打造属于我们的图片生态
       </h1>
     </div>
-<!--    <SearchInput-->
-<!--      class="container mx-auto p-4"-->
-<!--      @search="searchSearch"-->
-<!--      @clear-search="clearSearch"-->
-<!--      @input="searchInput"-->
-<!--      @search-by-recommend="searchByRecommend"-->
-<!--      @search-by-suggestion="searchBySuggestion"-->
-<!--      @search-by-history="searchByHistory"-->
-<!--      :recommendationList="recommendationList"-->
-<!--      :suggestionList="suggestionList"-->
-<!--      :searchHistoryName="searchHistoryName"-->
-<!--    ></SearchInput>-->
-    <!-- Grid with proper spacing and responsive design -->
+    <SearchInput
+      class="container mx-auto p-4"
+      @search="searchSearch"
+      @clear-search="clearSearch"
+      @input="searchInput"
+      @search-by-recommend="searchByRecommend"
+      @search-by-suggestion="searchBySuggestion"
+      @search-by-history="searchByHistory"
+      :recommendationList="recommendationList"
+      :suggestionList="suggestionList"
+      :searchHistoryName="searchHistoryName"
+    ></SearchInput>
+     Grid with proper spacing and responsive design
     <div style="margin-top: 20px"></div>
     <div class="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 xl:gap-12">
       <!-- Basic usage -->

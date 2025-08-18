@@ -1,6 +1,7 @@
 <template>
   <div class="aiLayout">
-    <a-layout has-sider>
+    <router-view v-if="$route.meta.fullPage" />
+    <a-layout v-else has-sider>
       <a-layout-sider :collapsed="true" class="navigate">
         <img class="logo" src="../../assets/logo.svg" alt="logo" />
         <div class="menu">
@@ -60,13 +61,13 @@ import { storeToRefs } from 'pinia'
 import { type RouteRecordRaw, useRouter } from 'vue-router'
 import usePermissionStore from '@/stores/modules/permission.ts'
 import { generateMenu, toMenu } from '@/router/permisson.ts'
-import { formatDnsUrl, initCover } from '@/utils/common.ts'
+import { initCover } from '@/utils/common.ts'
 import { LogoutOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import BackToUp from '@/components/BackToUp.vue'
 
 const userStore = useUserStore()
-const { userName: userName, avatar: avatar, nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
+const { userName: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 const router = useRouter()
 
 //region 菜单

@@ -11,11 +11,7 @@
 
     <teleport to="body">
       <div v-if="fullscreenImage" class="fullscreen-modal" @click="closeFullscreen">
-        <div
-          class="modal-content"
-          @click.stop
-          @contextmenu.prevent="handleRightClick"
-        >
+        <div class="modal-content" @click.stop @contextmenu.prevent="handleRightClick">
           <button class="modal-close-button" @click="closeFullscreen">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -40,7 +36,10 @@
             :src="fullscreenImage"
             class="fullscreen-image"
             alt="加载中"
-            :style="{ transform: `rotate(${fullscreenRotation}deg) scale(${imageScale})`, transformOrigin: `${transformOriginX}% ${transformOriginY}%` }"
+            :style="{
+              transform: `rotate(${fullscreenRotation}deg) scale(${imageScale})`,
+              transformOrigin: `${transformOriginX}% ${transformOriginY}%`,
+            }"
             @dblclick="toggleImageScale"
           />
         </div>
@@ -92,24 +91,24 @@ const rotateCounterClockwise = () => {
 const toggleImageScale = (event: MouseEvent) => {
   if (imageScale.value === 1) {
     // 获取图片元素及其尺寸
-    const img = event.target as HTMLImageElement;
-    const rect = img.getBoundingClientRect();
+    const img = event.target as HTMLImageElement
+    const rect = img.getBoundingClientRect()
 
     // 计算鼠标点击位置相对于图片的百分比坐标
-    const x = (event.clientX - rect.left) / rect.width * 100;
-    const y = (event.clientY - rect.top) / rect.height * 100;
+    const x = ((event.clientX - rect.left) / rect.width) * 100
+    const y = ((event.clientY - rect.top) / rect.height) * 100
 
     // 设置缩放中心点为鼠标点击的位置
-    transformOriginX.value = x;
-    transformOriginY.value = y;
+    transformOriginX.value = x
+    transformOriginY.value = y
 
     // 放大图片
-    imageScale.value = 2; // 放大2倍
+    imageScale.value = 2 // 放大2倍
   } else {
     // 恢复到正常大小，并重置缩放中心
-    imageScale.value = 1;
-    transformOriginX.value = 50;
-    transformOriginY.value = 50;
+    imageScale.value = 1
+    transformOriginX.value = 50
+    transformOriginY.value = 50
   }
 }
 
@@ -192,6 +191,7 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     cursor: pointer;
     color: $color-text-secondary;
     transition: background-color 0.2s, color 0.2s;
+    z-index: 10;
 
     &:hover {
       background-color: $color-bg-tertiary;

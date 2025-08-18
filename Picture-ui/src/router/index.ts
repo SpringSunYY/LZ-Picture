@@ -321,10 +321,11 @@ export const aiRouteConstants: RouteRecordRaw[] = [
       isCache: false,
       icon: 'detail',
       menuAddress: '4',
-    }
+      fullPage: true,
+    },
   },
   {
-    path:'/ai/user',
+    path: '/ai/user',
     name: 'aiUser',
     component: () => import('@/views/ai/user.vue'),
     meta: {
@@ -334,8 +335,8 @@ export const aiRouteConstants: RouteRecordRaw[] = [
       isCache: true,
       icon: 'user',
       menuAddress: '4',
-    }
-  }
+    },
+  },
 ]
 // 最后添加的路由
 export const lastRouteConstants: RouteRecordRaw[] = [
