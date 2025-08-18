@@ -134,32 +134,20 @@ import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import AiPictureView from '@/components/ai/AiPictureView.vue'
 import { initCover } from '@/utils/common.ts'
-import {
-  InfoCircleOutlined,
-  LikeOutlined,
-  QuestionCircleOutlined,
-  ShareAltOutlined,
-  StarOutlined,
-} from '@ant-design/icons-vue'
+import { LikeOutlined, ShareAltOutlined, StarOutlined } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import QuickCopy from '@/components/QuickCopy.vue'
 import QRCode from '@/components/QRCode.vue'
-import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
-import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
-import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
-import { useConfig } from '@/utils/config.ts'
 import AiInput from '@/components/ai/AiInput.vue'
 import { defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
 import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
 import PictureReportModel from '@/components/picture/PictureReportModel.vue'
+import { useUserBehavior } from '@/utils/useUserBehavior.ts'
 
 const { proxy } = getCurrentInstance()!
-const { ai_model_params_type, p_report_type } = proxy?.useDict(
-  'ai_model_params_type',
-  'p_report_type',
-)
+const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
 //region生成图片
 const openAiInput = ref(false)
 const modelInfo = ref<ModelInfo>(defaultModelInfo)
@@ -237,65 +225,8 @@ const handleReportSuccess = () => {
 }
 // endregion
 //region 用户行为
-const addUserBehavior = (behaviorType: string) => {
-  const targetType = '0'
-  let msg = '点赞成功'
-  //如果是分享
-  if (behaviorType === '2') {
-    shareLink.value = window.location.href
-    console.log('shareLink', shareLink.value)
-  }
-
-  addUserBehaviorInfo({
-    behaviorType: behaviorType,
-    targetType: targetType,
-    targetId: pictureId.value,
-    shareLink: shareLink.value,
-  }).then((res) => {
-    if (res.code === 200 && res.data != undefined && res.data) {
-      switch (behaviorType) {
-        case '0':
-          msg = '点赞成功'
-          picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
-          picture.value.isLike = !picture.value.isLike
-          break
-        case '1':
-          msg = '收藏成功'
-          picture.value.collectCount = Number(picture.value?.collectCount || 0) + 1
-          picture.value.isCollect = !picture.value.isCollect
-          break
-        case '2':
-          msg = '分享成功'
-          picture.value.shareCount = Number(picture.value?.shareCount || 0) + 1
-          handleShare()
-          break
-      }
-    } else {
-      switch (behaviorType) {
-        case '0':
-          msg = '取消点赞成功'
-          picture.value.likeCount = Number(picture.value?.likeCount || 0) - 1
-          picture.value.isLike = !picture.value.isLike
-          break
-        case '1':
-          msg = '取消收藏成功'
-          picture.value.collectCount = Number(picture.value?.collectCount || 0) - 1
-          picture.value.isCollect = !picture.value.isCollect
-          break
-        case '2':
-          msg = '分享成功'
-          handleShare()
-          break
-      }
-    }
-    message.success(msg)
-  })
-}
-const openShare = ref(false)
-const shareLink = ref('')
-const handleShare = () => {
-  openShare.value = true
-}
+// 使用组合式函数
+const { openShare, shareLink, addUserBehavior, handleShare } = useUserBehavior(picture)
 
 const downloadPictureLoading = ref(false)
 const { verify } = usePasswordVerify()

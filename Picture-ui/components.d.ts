@@ -30,7 +30,7 @@ declare module 'vue' {
     NoMoreData: typeof import('./src/components/NoMoreData.vue')['default']
     NoticeWindows: typeof import('./src/components/NoticeWindows.vue')['default']
     PictureBatchUpload: typeof import('./src/components/picture/PictureBatchUpload.vue')['default']
-    PictureDownloadLogInfoTable: typeof import('./src/components/picture/PictureDownloadLogInfoTable.vue')['default']
+    PictureDownloadLogInfoTable: typeof import('./src/components/table/PictureDownloadLogInfoTable.vue')['default']
     PictureInfoList: typeof import('./src/components/picture/PictureInfoList.vue')['default']
     PictureOutPainting: typeof import('./src/components/picture/PictureOutPainting.vue')['default']
     PictureSearch: typeof import('./src/components/picture/PictureSearch.vue')['default']

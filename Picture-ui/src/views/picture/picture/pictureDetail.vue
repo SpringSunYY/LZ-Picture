@@ -228,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { getCurrentInstance, ref } from 'vue'
+import { ref } from 'vue'
 import ImageView from '@/components/ImageView.vue'
 import Tags from '@/components/Tags.vue'
 import { getPictureDetailInfo, getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
@@ -238,32 +238,25 @@ import type {
   PictureInfoRecommendRequest,
   PictureInfoVo,
 } from '@/types/picture/picture'
-import { formatDnsUrl, formatSize, initCover } from '@/utils/common.ts'
+import { formatSize, initCover } from '@/utils/common.ts'
 import {
   FireOutlined,
-  InfoCircleOutlined,
   LikeOutlined,
   QuestionCircleOutlined,
   ShareAltOutlined,
   StarOutlined,
 } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon.vue'
-import { addUserBehaviorInfo } from '@/api/picture/userBehaviorInfo.ts'
 import { message } from 'ant-design-vue'
 import { usePasswordVerify } from '@/utils/auth.ts'
-import { addUserReportInfo } from '@/api/picture/userReportInfo.ts'
-import type { UserReportInfoAdd } from '@/types/picture/userReportInfo'
-import { useConfig } from '@/utils/config.ts'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { getPictureOriginalLogInfo } from '@/api/common/file.ts'
 import QRCode from '@/components/QRCode.vue'
 import QuickCopy from '@/components/QuickCopy.vue'
 import TextView from '@/components/TextView.vue'
 import PictureReportModel from '@/components/picture/PictureReportModel.vue'
+import { useUserBehavior } from '@/utils/useUserBehavior.ts'
 
-const instance = getCurrentInstance()
-const proxy = instance?.proxy
-const { p_report_type } = proxy?.useDict('p_report_type')
 // 获取当前路由信息
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
@@ -298,65 +291,8 @@ const getPictureInfo = () => {
   })
 }
 //region 用户行为
-const addUserBehavior = (behaviorType: string) => {
-  const targetType = '0'
-  let msg = '点赞成功'
-  //如果是分享
-  if (behaviorType === '2') {
-    shareLink.value = window.location.href
-    console.log('shareLink', shareLink.value)
-  }
-
-  addUserBehaviorInfo({
-    behaviorType: behaviorType,
-    targetType: targetType,
-    targetId: pictureId.value,
-    shareLink: shareLink.value,
-  }).then((res) => {
-    if (res.code === 200 && res.data != undefined && res.data) {
-      switch (behaviorType) {
-        case '0':
-          msg = '点赞成功'
-          picture.value.likeCount = Number(picture.value?.likeCount || 0) + 1
-          picture.value.isLike = !picture.value.isLike
-          break
-        case '1':
-          msg = '收藏成功'
-          picture.value.collectCount = Number(picture.value?.collectCount || 0) + 1
-          picture.value.isCollect = !picture.value.isCollect
-          break
-        case '2':
-          msg = '分享成功'
-          picture.value.shareCount = Number(picture.value?.shareCount || 0) + 1
-          handleShare()
-          break
-      }
-    } else {
-      switch (behaviorType) {
-        case '0':
-          msg = '取消点赞成功'
-          picture.value.likeCount = Number(picture.value?.likeCount || 0) - 1
-          picture.value.isLike = !picture.value.isLike
-          break
-        case '1':
-          msg = '取消收藏成功'
-          picture.value.collectCount = Number(picture.value?.collectCount || 0) - 1
-          picture.value.isCollect = !picture.value.isCollect
-          break
-        case '2':
-          msg = '分享成功'
-          handleShare()
-          break
-      }
-    }
-    message.success(msg)
-  })
-}
-const openShare = ref(false)
-const shareLink = ref('')
-const handleShare = () => {
-  openShare.value = true
-}
+// 使用组合式函数
+const { openShare, shareLink, addUserBehavior, handleShare } = useUserBehavior(picture)
 //endregion
 //region 购买图片
 const buyPictureLoading = ref(false)
