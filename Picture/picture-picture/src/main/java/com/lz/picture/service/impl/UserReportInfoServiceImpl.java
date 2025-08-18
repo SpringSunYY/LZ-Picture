@@ -220,6 +220,7 @@ public class UserReportInfoServiceImpl extends ServiceImpl<UserReportInfoMapper,
                                 || pictureInfo.getPictureStatus().equals(PPictureStatusEnum.PICTURE_STATUS_1.getValue()),
                         "图片不存在");
                 targetId = pictureInfo.getPictureId();
+                targetCover = pictureInfo.getThumbnailUrl();
                 targetContent = pictureInfo.getName();
                 break;
             case P_REPORT_TARGET_TYPE_1:
