@@ -4,6 +4,7 @@
       <div class="no-more-data__divider">
         <div class="no-more-data__line no-more-data__line--left"></div>
         <div
+          v-if="showIcon"
           class="no-more-data__icon-wrapper"
           @click="scrollToTop"
           :title="'点击回到顶部'"
@@ -19,6 +20,7 @@
 
 <script setup lang="ts">
 import { ChevronUp } from 'lucide-vue-next'
+import { ref, onMounted } from 'vue'
 
 interface Props {
   text?: string
@@ -31,14 +33,49 @@ const props = withDefaults(defineProps<Props>(), {
   text: '糟糕，让您发现了所有内容！！！',
   showIcon: true,
   variant: 'default',
-  scrollBehavior: 'smooth'
+  scrollBehavior: 'smooth',
+})
+
+// 使用 ref 来存储找到的可滚动容器
+const scrollContainer = ref<HTMLElement | null>(null)
+
+// 在组件挂载后执行查找逻辑
+onMounted(() => {
+  // 从当前组件的根元素向上查找最近的可滚动父级
+  const rootElement = document.querySelector('.no-more-data') as HTMLElement
+  let element: HTMLElement | null = null
+  let currentElement = rootElement.parentElement
+
+  // 向上遍历父级 DOM
+  while (currentElement) {
+    const style = getComputedStyle(currentElement)
+    // 检查 overflow-y 样式是否为可滚动
+    if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+      element = currentElement
+      break
+    }
+    // 向上移动到父元素
+    currentElement = currentElement.parentElement
+  }
+
+  // 将找到的容器赋值给 ref
+  scrollContainer.value = element
 })
 
 const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: props.scrollBehavior
-  })
+  if (scrollContainer.value) {
+    // 情况 1: 找到了可滚动的父容器，对该容器进行滚动
+    scrollContainer.value.scrollTo({
+      top: 0,
+      behavior: props.scrollBehavior,
+    })
+  } else {
+    // 情况 2: 没有找到，说明是页面撑开 body 的情况，对全局 window 滚动
+    window.scrollTo({
+      top: 0,
+      behavior: props.scrollBehavior,
+    })
+  }
 }
 </script>
 
@@ -271,7 +308,8 @@ const scrollToTop = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -300,7 +338,9 @@ const scrollToTop = () => {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.3);
     transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+    transition:
+      width 0.6s,
+      height 0.6s;
   }
 
   &:active::after {
