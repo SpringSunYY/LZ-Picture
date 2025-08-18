@@ -9,11 +9,14 @@
       <div class="details-section">
         <div class="header-controls">
           <div class="user-profile">
-            <a-avatar
-              :src="initCover(picture.userInfoVo?.avatarUrl || '')"
-              alt="User Avatar"
-              class="user-avatar"
-            />
+            <a-tooltip title="查看作者更多创作">
+              <a-avatar
+                @click="handleUserInfo(picture?.userInfoVo?.userName || '')"
+                :src="initCover(picture.userInfoVo?.avatarUrl || '')"
+                alt="User Avatar"
+                class="user-avatar"
+              />
+            </a-tooltip>
             <div class="user-info">
               <div class="user-name">{{ picture.userInfoVo?.nickName }}</div>
               <div class="user-ip">IP属地: {{ picture.userInfoVo?.ipAddress }}</div>
@@ -207,7 +210,7 @@ import { getCurrentInstance, ref } from 'vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getPictureDetailInfo } from '@/api/picture/picture.ts'
 import type { PictureDetailInfoVo } from '@/types/picture/picture'
 import AiPictureView from '@/components/ai/AiPictureView.vue'
@@ -450,6 +453,22 @@ const downloadPicture = async () => {
   } finally {
     downloadPictureLoading.value = false
   }
+}
+//endregion
+//region 查看作者
+const router = useRouter()
+const handleUserInfo = (username: string) => {
+  console.log('handleUserInfo', username)
+  if (!username || username.trim() === '') {
+    message.warn('用户不存在')
+    return
+  }
+  router.push({
+    name: 'aiUser',
+    query: {
+      username: username,
+    },
+  })
 }
 //endregion
 </script>
