@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref } from 'vue'
-import { listPictureDownloadLogInfo } from '@/api/picture/pictureDownloadLogInfo'
+import { listPictureDownloadLogInfo } from '@/api/picture/pictureDownloadLogInfo.ts'
 import DictTag from '@/components/DictTag.vue'
 import Tags from '@/components/Tags.vue'
 import dayjs from 'dayjs'

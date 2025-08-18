@@ -141,7 +141,7 @@ import { message } from 'ant-design-vue'
 import { formatSize } from '@/utils/common.ts'
 import { checkPermiSingle, checkUser } from '@/utils/permission.ts'
 import CoverUpload from '@/components/CoverUpload.vue'
-import PictureInfoList from '@/components/PictureInfoList.vue'
+import PictureInfoList from '@/components/picture/PictureInfoList.vue'
 import DictTag from '@/components/DictTag.vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 

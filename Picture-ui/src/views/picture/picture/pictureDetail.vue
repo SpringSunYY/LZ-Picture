@@ -196,92 +196,11 @@
     />
 
     <!--举报图片-->
-    <a-modal v-model:open="openReport" :footer="null" centered destroyOnClose>
-      <!-- 自定义标题插槽 -->
-      <template #title>
-        <div class="custom-modal-title">
-          <span style="color: #1890ff; margin-right: 8px">🚀</span>
-          {{ title }}
-          <a-tooltip :title="titleDesc">
-            <question-circle-outlined class="title-tip-icon" />
-          </a-tooltip>
-        </div>
-      </template>
-      <a-form
-        :model="formReport"
-        :rules="rulesReport"
-        @finish="handleSubmitReport"
-        ref="formRef"
-        labelAlign="left"
-        :label-col="{ span: 5 }"
-        :wrapper-col="{ span: 18 }"
-      >
-        <a-form-item label="举报类型" name="reportType">
-          <a-radio-group v-model:value="formReport.reportType" name="radioGroup">
-            <a-radio v-for="dict in p_report_type" :value="dict.dictValue" :key="dict.dictValue">
-              {{ dict.dictLabel }}
-            </a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item name="reason">
-          <template #label>
-            <span style="display: inline-flex; align-items: center">
-              举报原因
-              <a-tooltip
-                title="请描述您详细的举报原因，对您造成的影响，例：图片侵权，请列举您的版权信息"
-              >
-                <InfoCircleOutlined
-                  style="
-                    margin-left: 4px;
-                    color: #999;
-                    font-size: 14px;
-                    position: relative;
-                    top: 1px;
-                  "
-                />
-              </a-tooltip>
-            </span>
-          </template>
-          <a-textarea
-            :showCount="true"
-            placeholder="请输入内容"
-            :auto-size="{ minRows: 5 }"
-            v-model:value="formReport.reason"
-          />
-        </a-form-item>
-        <a-form-item name="contact">
-          <template #label>
-            <span style="display: inline-flex; align-items: center">
-              联系方式
-              <a-tooltip
-                title="请输入您的联系方式，手机号码、微信（推荐）等信息，例：微信：123456789，便于我们联系您处理举报信息。"
-              >
-                <InfoCircleOutlined
-                  style="
-                    margin-left: 4px;
-                    color: #999;
-                    font-size: 14px;
-                    position: relative;
-                    top: 1px;
-                  "
-                />
-              </a-tooltip>
-            </span>
-          </template>
-          <a-textarea
-            placeholder="请输入联系方式"
-            :auto-size="{ minRows: 2 }"
-            :showCount="true"
-            :max-length="512"
-            v-model:value="formReport.contact"
-          />
-        </a-form-item>
-        <div class="form-footer">
-          <a-button @click="openReport = false">取消</a-button>
-          <a-button type="primary" html-type="submit" :loading="submittingReport">提交</a-button>
-        </div>
-      </a-form>
-    </a-modal>
+    <PictureReportModel
+      ref="reportModalRef"
+      :targetId="picture.pictureId"
+      @success="handleReportSuccess"
+    />
 
     <a-modal v-model:open="openOriginal" :footer="null" centered destroyOnClose :width="600">
       <!-- 自定义标题插槽 -->
@@ -340,6 +259,7 @@ import { getPictureOriginalLogInfo } from '@/api/common/file.ts'
 import QRCode from '@/components/QRCode.vue'
 import QuickCopy from '@/components/QuickCopy.vue'
 import TextView from '@/components/TextView.vue'
+import PictureReportModel from '@/components/picture/PictureReportModel.vue'
 
 const instance = getCurrentInstance()
 const proxy = instance?.proxy
@@ -493,74 +413,15 @@ const clickLook = () => {
   message.success('点我干嘛呀😒😒😒😒😒', 1)
 }
 //region 举报图片
-const openReport = ref(false)
-const title = ref('举报图片')
-const titleDesc = ref('请选择举报图片类型')
-const formReport = ref<UserReportInfoAdd>({
-  targetType: '0',
-  targetId: picture.value.pictureId,
-  reportType: '0',
-  reason: '',
-  contact: '',
-})
-const rulesReport = ref({
-  reason: [
-    {
-      required: true,
-      message: '请输入举报内容',
-      trigger: 'blur',
-    },
-    //长度最短为32
-    {
-      min: 16,
-      message: '请输入16个字符以上的内容',
-      trigger: 'blur',
-    },
-  ],
-  reportType: [
-    {
-      required: true,
-      message: '请选择举报类型',
-      trigger: 'change',
-    },
-  ],
-  contact: [
-    {
-      required: true,
-      message: '请输入联系方式',
-      trigger: 'blur',
-    },
-    //长度最短为32
-    {
-      min: 16,
-      message: '请输入16个字符以上的内容',
-      trigger: 'blur',
-    },
-  ],
-})
-const submittingReport = ref(false)
-const handleReport = async () => {
-  titleDesc.value = await useConfig('picture:report:content')
-  openReport.value = true
-  title.value = '举报图片'
-  formReport.value = {
-    targetType: '0',
-    targetId: picture.value.pictureId,
-    reportType: '0',
-    reason: '',
-  }
+const reportModalRef = ref<any>(null)
+
+const handleReport = () => {
+  reportModalRef.value.handleOpen()
 }
-const handleSubmitReport = () => {
-  submittingReport.value = true
-  addUserReportInfo(formReport.value).then((res) => {
-    if (res.code === 200) {
-      message.success('举报成功')
-      openReport.value = false
-      submittingReport.value = false
-    } else {
-      message.error('举报失败')
-    }
-  })
+
+const handleReportSuccess = () => {
+  // 举报成功后的处理，比如显示一个提示
+  console.log('举报成功，可以在这里进行一些后续操作')
 }
 // endregion
 

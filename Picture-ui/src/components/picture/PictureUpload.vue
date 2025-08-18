@@ -75,7 +75,7 @@
 import { computed, ref, watch } from 'vue'
 import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { pictureUpload } from '@/api/common/file.js'
+import { pictureUpload } from '@/api/common/file.ts'
 
 const isUploading = ref(false) // 用来追踪上传状态
 const uploading = ref(false)

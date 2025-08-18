@@ -73,7 +73,7 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import dayjs from 'dayjs'
 import DictTag from '@/components/DictTag.vue'
-import { listRechargeInfo } from '@/api/points/pointsRechargeInfo'
+import { listRechargeInfo } from '@/api/points/pointsRechargeInfo.ts'
 import type {
   UserPointsRechargeInfoQuery,
   UserPointsRechargeInfoVo,

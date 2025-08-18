@@ -146,7 +146,7 @@
 <script setup lang="ts" name="PictureUpdate">
 import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import PictureUpload from '@/components/PictureUpload.vue'
+import PictureUpload from '@/components/picture/PictureUpload.vue'
 import {
   PCategoryStatusEnum,
   type PictureCategoryInfoQuery,

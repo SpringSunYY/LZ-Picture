@@ -73,7 +73,7 @@
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import DictTag from '@/components/DictTag.vue'
 import dayjs from 'dayjs'
-import { listPointsUsageLogInfo } from '@/api/points/pointsUsageLogInfo'
+import { listPointsUsageLogInfo } from '@/api/points/pointsUsageLogInfo.ts'
 import type {
   UserPointsUsageLogInfoVo,
   UserPointsUsageLogQuery,
