@@ -79,7 +79,7 @@ import type {
   PictureInfoSearchSuggestionVo,
 } from '@/types/picture/picture'
 import NoticeWindows from '@/components/NoticeWindows.vue'
-import AiInput from '@/components/AiInput.vue'
+import AiInput from '@/components/ai/AiInput.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
 import BackToUp from '@/components/BackToUp.vue'
 

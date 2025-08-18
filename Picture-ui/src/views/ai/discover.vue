@@ -161,7 +161,7 @@ import SvgIcon from '@/components/SvgIcon.vue'
 import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import { message } from 'ant-design-vue'
 import { queryAiPictureInfo } from '@/api/picture/picture.ts'
-import AiVerticalFallLayout from '@/components/AiVerticalFallLayout.vue'
+import AiVerticalFallLayout from '@/components/ai/AiVerticalFallLayout.vue'
 
 const verticalFallLayoutRef = ref()
 //region 分类

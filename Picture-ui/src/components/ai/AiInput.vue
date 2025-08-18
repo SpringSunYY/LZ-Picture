@@ -73,8 +73,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
-import AiCheckModel from '@/components/AiCheckModel.vue'
-import AiPictureUpload from '@/components/AiPictureUpload.vue'
+import AiCheckModel from '@/components/ai/AiCheckModel.vue'
+import AiPictureUpload from '@/components/ai/AiPictureUpload.vue'
 import { AiLogStatusEnum, defaultModelInfo, type ModelInfo } from '@/types/ai/model.d.ts'
 import { message } from 'ant-design-vue'
 import { usePasswordVerify } from '@/utils/auth.ts'

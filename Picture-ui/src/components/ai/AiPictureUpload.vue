@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import AiPictureView from '@/components/AiPictureView.vue'
+import AiPictureView from '@/components/ai/AiPictureView.vue'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({

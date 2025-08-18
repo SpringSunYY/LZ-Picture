@@ -108,7 +108,7 @@
               <div class="overlay-bottom">
                 <AiBatchButton
                   @handle-refer-to="handleReferTo(generate)"
-                  @handle-release="() => console.log('释放')"
+                  @handle-release="handlePublic(generate)"
                   @handle-reload="handleReload(generate)"
                 />
               </div>
@@ -128,21 +128,28 @@
         <p class="mt-5 text-gray-400 text-2xl">创造你的下一张图片</p>
       </div>
     </div>
+
+    <AiPublishPicture
+      ref="publishModalRef"
+      :initial-item="selectedItem"
+      @success="handlePublicSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { createVNode, getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import AiCheckModel from '@/components/AiCheckModel.vue'
+import AiCheckModel from '@/components/ai/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
-import AiPictureUpload from '@/components/AiPictureUpload.vue'
+import AiPictureUpload from '@/components/ai/AiPictureUpload.vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import TextView from '@/components/TextView.vue'
-import AiPictureView from '@/components/AiPictureView.vue'
+import AiPictureView from '@/components/ai/AiPictureView.vue'
 import DeleteButton from '@/components/button/DeleteButton.vue'
 import DownloadSvgButton from '@/components/button/DownloadSvgButton.vue'
 import AiBatchButton from '@/components/button/AiBatchButton.vue'
 import {
+  AiGenerateHasPublicEnum,
   AiLogStatusEnum,
   defaultModelInfo,
   type GenerateLogInfoQuery,
@@ -153,12 +160,13 @@ import { deleteGenerateLogInfo, listGenerateLogInfo } from '@/api/ai/model.ts'
 import { message, Modal } from 'ant-design-vue'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
-import AiLoading from '@/components/AiLoading.vue'
+import AiLoading from '@/components/ai/AiLoading.vue'
 import { usePasswordVerify } from '@/utils/auth.ts'
-import AiRecommend from '@/components/AiRecommend.vue'
+import AiRecommend from '@/components/ai/AiRecommend.vue'
 import { openByUrl } from '@/utils/file.ts'
 import { generate, queryTask } from '@/api/picture/picture.ts'
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
+import AiPublishPicture from '@/components/ai/AiPublishPicture.vue'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -397,6 +405,25 @@ const handleDelete = async (item: GenerateLogInfoVo) => {
     },
   })
 }
+//endregion
+
+//region 发布作品
+const publishModalRef = ref<any>(null)
+const selectedItem = ref<any>(null)
+const handlePublic = (item: GenerateLogInfoVo) => {
+  //如果是已经发布的
+  if (item.hasPublic === AiGenerateHasPublicEnum.HAS_PUBLIC_0) {
+    message.warn('该作品已发布，请勿重复发布')
+    return
+  }
+  selectedItem.value = item
+  publishModalRef.value.openModal()
+}
+const handlePublicSuccess = () => {
+  const logId = selectedItem.value.logId
+  selectedItem.value = null
+}
+
 //endregion
 // 组件卸载时清理所有轮询
 onUnmounted(() => {
