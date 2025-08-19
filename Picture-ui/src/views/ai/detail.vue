@@ -481,7 +481,6 @@ $content-padding: 20px; // 详情内容边距
   box-sizing: border-box;
   padding: 0;
   position: relative;
-
   .back {
     // 返回按钮 左上角
     position: absolute;

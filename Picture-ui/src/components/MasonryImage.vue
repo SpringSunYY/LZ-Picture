@@ -31,7 +31,7 @@ defineEmits(['click'])
   cursor: pointer;
 
   &:hover .image {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
 
   &:hover .hover-mask {

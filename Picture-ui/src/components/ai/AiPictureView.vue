@@ -134,14 +134,22 @@ $color-shadow: rgba(0, 0, 0, 0.4);
 .image-preview {
   display: flex;
   justify-content: center;
+  align-items: center;
   cursor: pointer;
+  max-height: 100%;
   height: 100%;
+  overflow: hidden;
 
   .preview-image {
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 2%;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 }
 
@@ -165,13 +173,12 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     height: auto;
     object-fit: contain;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
-    border-radius: 12px;
     // 为旋转、缩放、位移添加平滑过渡
     transition: transform 0.5s ease-in-out;
     cursor: zoom-in; // 默认显示放大光标
 
     // 当图片被放大时，鼠标光标变为缩小样式
-    &[style*="scale(2)"] {
+    &[style*='scale(2)'] {
       cursor: zoom-out;
     }
   }
@@ -190,7 +197,9 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     align-items: center;
     cursor: pointer;
     color: $color-text-secondary;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
     z-index: 10;
 
     &:hover {
@@ -217,7 +226,9 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     align-items: center;
     cursor: pointer;
     color: $color-text-secondary;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
     z-index: 101;
 
     &:hover {
