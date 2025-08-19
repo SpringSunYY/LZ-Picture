@@ -376,8 +376,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
             resultList.addAll(batchResult);
         }
-
-        redisCache.setCacheListRightPushAll(key, resultList, PICTURE_RECOMMEND_CATEGORY_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+        if (StringUtils.isNotEmpty(resultList)) {
+            redisCache.setCacheListRightPushAll(key, resultList, PICTURE_RECOMMEND_CATEGORY_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+        }
         return resultList;
     }
 
@@ -419,7 +420,9 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
                         .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                         .eq(StringUtils.isNotEmpty(uploadType), PictureInfo::getUploadType, uploadType)
         );
-        redisCache.setCacheListRightPushAll(key, resultList, PICTURE_RECOMMEND_TAG_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+        if (StringUtils.isNotEmpty(resultList)) {
+            redisCache.setCacheListRightPushAll(key, resultList, PICTURE_RECOMMEND_TAG_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
+        }
         return resultList;
     }
 

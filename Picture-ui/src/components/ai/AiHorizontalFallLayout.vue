@@ -50,6 +50,7 @@ const props = defineProps({
 
 //定义事件
 const emit = defineEmits(['loadMore'])
+
 //  数据部分
 const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据（不会做 display 样式处理）
 const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
@@ -87,7 +88,7 @@ const formatPictureListByRow = () => {
   if (!container) return
 
   const containerWidth = container.clientWidth
-  const baseHeight =  450
+  const baseHeight =  500
   const spacing = 12
   const minWidth = 150
 

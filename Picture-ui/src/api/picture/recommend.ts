@@ -11,3 +11,13 @@ export function getPictureInfoRecommend(
     params: params,
   })
 }
+
+export function getPictureInfoRecommendByAi(
+  params: PictureRecommendRequest,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/recommend/ai',
+    method: 'get',
+    params: params,
+  })
+}
