@@ -3,6 +3,8 @@ package com.lz.picture.controller.user;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.utils.StringUtils;
 import com.lz.picture.model.dto.pictureRecommend.PictureRecommendRequest;
+import com.lz.picture.model.enums.PCategoryTypeEnum;
+import com.lz.picture.model.enums.PPictureUploadTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.UserRecommendPictureInfoVo;
 import com.lz.picture.service.IPictureRecommendService;
 import com.lz.userauth.controller.BaseUserInfoController;
@@ -42,6 +44,25 @@ public class UserPictureInfoRecommendController extends BaseUserInfoController {
             request.setUserId(null);
         }
 
+        List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(request);
+        return getDataTable(pictureInfoRecommend, 0);
+    }
+
+    @RequestMapping("/recommend/ai")
+    public TableDataInfo getPictureInfoRecommendByAi(@Validated PictureRecommendRequest request) {
+        if (StringUtils.isNull(request.getPageSize())) {
+            request.setPageSize(50);
+        }
+        if (request.getPageSize() > 50) {
+            request.setPageSize(50);
+        }
+        try {
+            request.setUserId(getUserId());
+        } catch (Exception e) {
+            request.setUserId(null);
+        }
+        request.setCategoryType(PCategoryTypeEnum.CATEGORY_TYPE_1.getValue());
+        request.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue());
         List<UserRecommendPictureInfoVo> pictureInfoRecommend = pictureRecommendService.getPictureInfoRecommend(request);
         return getDataTable(pictureInfoRecommend, 0);
     }

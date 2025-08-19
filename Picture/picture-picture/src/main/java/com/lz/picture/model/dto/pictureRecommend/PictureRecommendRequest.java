@@ -58,4 +58,14 @@ public class PictureRecommendRequest implements Serializable {
      * 是否删除
      */
     private String isDelete;
+
+    /**
+     * 图片上传类型
+     */
+    private String uploadType;
+
+    /**
+     * 图片分类类型
+     */
+    private String categoryType;
 }
