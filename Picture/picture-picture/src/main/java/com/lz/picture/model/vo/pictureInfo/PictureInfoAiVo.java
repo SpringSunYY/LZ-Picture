@@ -30,7 +30,7 @@ public class PictureInfoAiVo implements Serializable {
     /**
      * 图片URL
      */
-    private String pictureUrl;
+    private String thumbnailUrl;
 
     /**
      * 图片名称

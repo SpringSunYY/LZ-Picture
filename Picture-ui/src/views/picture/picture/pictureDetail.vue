@@ -193,6 +193,7 @@
       @load-more="loadMore"
       :no-more="noMore"
       :picture-list="pictureList"
+      @handle-picture="handlePicture"
     />
 
     <!--举报图片-->
@@ -232,7 +233,7 @@ import { ref } from 'vue'
 import ImageView from '@/components/ImageView.vue'
 import Tags from '@/components/Tags.vue'
 import { getPictureDetailInfo, getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import type {
   PictureDetailInfoVo,
   PictureInfoRecommendRequest,
@@ -388,6 +389,17 @@ async function loadMore() {
 }
 
 //endregion
+const router = useRouter()
+const handlePicture = (item: PictureInfoVo) => {
+  // console.log('点击图片:', item)
+  const routeData = router.resolve({
+    path: '/pictureDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+  window.open(routeData.href, '_blank')
+}
 getPictureInfo()
 </script>
 

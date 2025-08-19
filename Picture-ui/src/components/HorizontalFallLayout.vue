@@ -8,9 +8,32 @@
           :key="`${item.id}-${rowIndex}`"
           class="masonry-item"
           :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
+          @click="handlePicture(item)"
         >
-          <MasonryImage :src="item.thumbnailUrl" :alt="item.name" @click="handleToPicture(item)">
-            {{ item.name }}
+          <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
+            <div class="masonry-item-content">
+              <div class="masonry-item-title">
+                {{ item.name }}
+              </div>
+              <div class="masonry-item-meta">
+                <div class="meta-item">
+                  <SvgIcon name="aiView" />
+                  <span class="meta-content">{{ item.lookCount||0 }}</span>
+                </div>
+                <div class="meta-item">
+                  <SvgIcon name="like" />
+                  <span class="meta-content">{{ item.likeCount||0 }}</span>
+                </div>
+                <div class="meta-item">
+                  <SvgIcon name="share" />
+                  <span class="meta-content">{{ item.shareCount ||0}}</span>
+                </div>
+                <div class="meta-item">
+                  <SvgIcon name="collect" />
+                  <span class="meta-content">{{ item.collectCount || 0 }}</span>
+                </div>
+              </div>
+            </div>
           </MasonryImage>
         </div>
       </div>
@@ -28,10 +51,9 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo } from '@/types/picture/picture'
-import { useConfig } from '@/utils/config.ts'
-import { useRouter } from 'vue-router'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const props = defineProps({
   pictureList: {
@@ -46,10 +68,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  width: {
+    type: Number,
+    default: 450,
+  },
 })
 
 //定义事件
-const emit = defineEmits(['loadMore'])
+const emit = defineEmits(['loadMore', 'clickPicture'])
 //  数据部分
 const rawPictureList = ref<PictureInfoVo[]>([]) // 原始数据（不会做 display 样式处理）
 const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
@@ -57,15 +83,8 @@ const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
 const loadMoreTrigger = ref(null)
 let observer: IntersectionObserver | null = null
 
-const router = useRouter()
-const handleToPicture = (item: PictureInfoVo) => {
-  const routeData = router.resolve({
-    path: '/pictureDetail',
-    query: {
-      pictureId: item.pictureId,
-    },
-  })
-  window.open(routeData.href, '_blank')
+const handlePicture = (item: PictureInfoVo) => {
+  emit('clickPicture', item)
 }
 
 // 加载数据
@@ -87,7 +106,7 @@ const formatPictureListByRow = () => {
   if (!container) return
 
   const containerWidth = container.clientWidth
-  const baseHeight =  450
+  const baseHeight = props.width
   const spacing = 12
   const minWidth = 150
 
@@ -222,6 +241,40 @@ onBeforeUnmount(() => {
     overflow: hidden;
     background: #f5f5f5;
     transition: all 0.3s;
+
+    .masonry-item-content {
+      width: 100%;
+      height: 100%;
+      //内容左右布局
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+
+      .masonry-item-title {
+        font-size: 18px;
+        margin-bottom: 0;
+      }
+
+      .masonry-item-meta {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        flex-direction: column;
+        justify-content: center;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 20px;
+
+          .meta-content {
+            padding-left: 10px;
+          }
+        }
+      }
+    }
   }
 
   .load-more-trigger {

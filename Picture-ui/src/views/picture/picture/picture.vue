@@ -6,6 +6,7 @@
       :loading="loading"
       :noMore="noMore"
       :pictureList="pictureList"
+      @click-picture="handleToPicture"
     ></HorizontalFallLayout>
     <!--    <VerticalFallLayout-->
     <!--      style="margin: 0 1em"-->
@@ -29,8 +30,9 @@ import { getPictureInfoRecommend } from '@/api/picture/recommend.ts'
 import HorizontalFallLayout from '@/components/HorizontalFallLayout.vue'
 import { message } from 'ant-design-vue'
 import { useDebounce } from '@/utils/debounce'
+import { useRouter } from 'vue-router'
 
-//  数据部分
+//  region数据部分
 const pictureList = ref<PictureInfoVo[]>([]) // 原始数据
 
 const pictureQuery = ref<PictureRecommendRequest>({
@@ -139,6 +141,18 @@ async function resetData() {
   await getRecommendPictureList()
 }
 
+//endregion
+const router = useRouter()
+const handleToPicture = (item: PictureInfoVo) => {
+  // console.log('handleToPicture', item)
+  const routeData = router.resolve({
+    path: '/pictureDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+  window.open(routeData.href, '_blank')
+}
 // loadMore()
 defineExpose({
   resetData,

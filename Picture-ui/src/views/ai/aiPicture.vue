@@ -1,12 +1,14 @@
 <template>
   <div class="picture">
-    <AiHorizontalFallLayout
+    <HorizontalFallLayout
       ref="horizontalFallLayoutRef"
       @load-more="getRecommendPictureList"
       :loading="loading"
       :noMore="noMore"
       :pictureList="pictureList"
-    ></AiHorizontalFallLayout>
+      @click-picture="handleToPicture"
+      :width="450"
+    ></HorizontalFallLayout>
     <!--    <VerticalFallLayout-->
     <!--      style="margin: 0 1em"-->
     <!--      :loading="loading"-->
@@ -28,7 +30,8 @@ import {
 import { getPictureInfoRecommendByAi } from '@/api/picture/recommend.ts'
 import { message } from 'ant-design-vue'
 import { useDebounce } from '@/utils/debounce'
-import AiHorizontalFallLayout from '@/components/ai/AiHorizontalFallLayout.vue'
+import HorizontalFallLayout from '@/components/HorizontalFallLayout.vue'
+import { useRouter } from 'vue-router'
 
 //  数据部分
 const pictureList = ref<PictureInfoVo[]>([]) // 原始数据
@@ -116,7 +119,7 @@ const getRecommendPictureByPictureId = async (pictureId: string) => {
 const getRecommendPictureByName = async (name: string) => {
   await resetPagination()
   pictureQuery.value.name = name
-  getRecommendPictureList()
+  await getRecommendPictureList()
 }
 
 const horizontalFallLayoutRef = ref()
@@ -137,6 +140,17 @@ const resetPagination = async () => {
 async function resetData() {
   await resetPagination()
   await getRecommendPictureList()
+}
+
+const router = useRouter()
+const handleToPicture = (item: PictureInfoVo) => {
+  console.log('handleToPicture', item.pictureId)
+   router.push({
+    name: 'aiDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
 }
 
 // loadMore()

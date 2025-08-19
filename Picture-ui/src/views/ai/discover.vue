@@ -135,13 +135,14 @@
         <div class="decoration-circle circle-3"></div>
       </div>
     </div>
-    <AiVerticalFallLayout
+    <VerticalFallLayout
       ref="verticalFallLayoutRef"
       style="margin: 0 1em"
       :loading="loading"
       @load-more="loadMore"
       :no-more="noMore"
       :picture-list="pictureList"
+      @handle-picture="handlePicture"
     />
   </div>
 </template>
@@ -161,7 +162,8 @@ import SvgIcon from '@/components/SvgIcon.vue'
 import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import { message } from 'ant-design-vue'
 import { queryAiPictureInfo } from '@/api/picture/picture.ts'
-import AiVerticalFallLayout from '@/components/ai/AiVerticalFallLayout.vue'
+import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
+import { useRouter } from 'vue-router'
 
 const verticalFallLayoutRef = ref()
 //region 分类
@@ -275,6 +277,17 @@ async function loadMore() {
     noMore.value = true
   }
   loading.value = false
+}
+
+const router = useRouter()
+const handlePicture = (item: PictureInfoVo) => {
+  console.log('handleToPicture', item.pictureId)
+  router.push({
+    name: 'aiDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
 }
 </script>
 

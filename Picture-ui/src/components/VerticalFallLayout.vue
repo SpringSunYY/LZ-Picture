@@ -6,10 +6,32 @@
         :key="item.pictureId"
         class="masonry-item"
         :style="{ gridRowEnd: `span ${item.rowSpan}` }"
-        @click="handleToPicture(item)"
+        @click="handlePicture(item)"
       >
         <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
-          {{ item.name }}
+          <div class="masonry-item-content">
+            <div class="masonry-item-title">
+              {{ item.name }}
+            </div>
+            <div class="masonry-item-meta">
+              <div class="meta-item">
+                <SvgIcon name="aiView" />
+                <span class="meta-content">{{ item.lookCount||0 }}</span>
+              </div>
+              <div class="meta-item">
+                <SvgIcon name="like" />
+                <span class="meta-content">{{ item.likeCount ||0}}</span>
+              </div>
+              <div class="meta-item">
+                <SvgIcon name="share" />
+                <span class="meta-content">{{ item.shareCount ||0}}</span>
+              </div>
+              <div class="meta-item">
+                <SvgIcon name="collect" />
+                <span class="meta-content">{{ item.collectCount || 0 }}</span>
+              </div>
+            </div>
+          </div>
         </MasonryImage>
       </div>
     </div>
@@ -29,6 +51,7 @@ import type { PictureInfoVo } from '@/types/picture/picture'
 import { useRouter } from 'vue-router'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const props = defineProps({
   pictureList: {
@@ -49,7 +72,7 @@ const pictrures = ref<(PictureInfoVo & { rowSpan: number })[]>([])
 const loadMoreTrigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
 
-const emits = defineEmits(['loadMore'])
+const emits = defineEmits(['loadMore', 'handlePicture'])
 
 // 加载更多
 async function loadMore() {
@@ -107,15 +130,8 @@ function setupObserver() {
   }
 }
 
-const router = useRouter()
-const handleToPicture = (item: PictureInfoVo) => {
-  const routeData = router.resolve({
-    path: '/pictureDetail',
-    query: {
-      pictureId: item.pictureId,
-    },
-  })
-  window.open(routeData.href, '_blank')
+const handlePicture = (item: PictureInfoVo) => {
+  emits('handlePicture', item)
 }
 
 function clearData() {
@@ -157,6 +173,40 @@ onBeforeUnmount(() => {
   .masonry-item {
     width: 100%;
     transition: all 0.3s ease-in-out;
+
+    .masonry-item-content {
+      width: 100%;
+      height: 100%;
+      //内容左右布局
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+
+      .masonry-item-title {
+        font-size: 18px;
+        margin-bottom: 0;
+      }
+
+      .masonry-item-meta {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        flex-direction: column;
+        justify-content: center;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 20px;
+
+          .meta-content {
+            padding-left: 10px;
+          }
+        }
+      }
+    }
   }
 
   .load-more-trigger {

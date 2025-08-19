@@ -48,6 +48,7 @@
       @load-more="loadMore"
       :no-more="noMore"
       :picture-list="pictureList"
+      @handle-picture="handlePicture"
     />
   </div>
 </template>
@@ -59,6 +60,7 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { getHotPictureInfoList } from '@/api/picture/picture.ts'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
+
 const router = useRouter()
 const type = ref(router.currentRoute.value.query.type)
 
@@ -86,7 +88,7 @@ const typeText = computed(() => {
     week: '本周热门',
     month: '本月热门',
     year: '本年热门',
-    new: '最新图片'
+    new: '最新图片',
   }
   return typeMap[type.value as string] || '全站'
 })
@@ -138,6 +140,16 @@ const reloadData = async () => {
   if (verticalFallLayout.value && typeof verticalFallLayout.value.clearData === 'function') {
     await verticalFallLayout.value.clearData()
   }
+}
+const handlePicture = (item: PictureInfoVo) => {
+  // console.log('点击图片:', item)
+  const routeData = router.resolve({
+    path: '/pictureDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+  window.open(routeData.href, '_blank')
 }
 watch(
   () => router.currentRoute.value.query.type,

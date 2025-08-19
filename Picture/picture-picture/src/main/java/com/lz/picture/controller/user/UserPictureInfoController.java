@@ -265,7 +265,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
             request.setPageSize(50);
         }
         request.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue());
-        List<PictureInfoAiVo> pictureInfoAiVos = pictureInfoService.queryPictureInfoListAi(request);
+        List<UserRecommendPictureInfoVo> pictureInfoAiVos = pictureInfoService.queryPictureInfoList(request);
         return getDataTable(pictureInfoAiVos, pictureInfoAiVos.size());
     }
 
@@ -289,7 +289,7 @@ public class UserPictureInfoController extends BaseUserInfoController {
      */
     @PreAuthorize("@uss.hasPermi('picture:list')")
     @GetMapping("/list/ai")
-    public TableDataInfo listAiMy(UserPictureInfoAiQuery query) {
+    public TableDataInfo listAi(UserPictureInfoAiQuery query) {
         if (StringUtils.isNull(query.getPageSize())) {
             query.setPageSize(50);
         }

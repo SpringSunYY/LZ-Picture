@@ -142,6 +142,7 @@
       @load-more="loadMore"
       :no-more="noMore"
       :picture-list="pictureList"
+      @handle-picture="handlePicture"
     />
   </div>
 </template>
@@ -161,6 +162,7 @@ import type { PictureInfoQuery, PictureInfoVo } from '@/types/picture/picture'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 import { message } from 'ant-design-vue'
 import { queryPictureInfo } from '@/api/picture/picture.ts'
+import { useRouter } from 'vue-router'
 
 const verticalFallLayoutRef = ref()
 //region 分类
@@ -273,6 +275,18 @@ async function loadMore() {
     noMore.value = true
   }
   loading.value = false
+}
+
+const router = useRouter()
+const handlePicture = (item: PictureInfoVo) => {
+  // console.log('点击图片:', item)
+  const routeData = router.resolve({
+    path: '/pictureDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+  window.open(routeData.href, '_blank')
 }
 </script>
 

@@ -1037,10 +1037,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 //        PageHelper.clearPage();
         //        System.out.println("pictureInfoRecommendRequest = " + pictureInfoRecommendRequest);
         List<PictureInfo> list = pictureInfoMapper.getPictureInfoDetailRecommend(request);
+        ArrayList<UserPictureInfoVo> userPictureInfoVos = new ArrayList<>();
         list.forEach(pictureInfo -> {
             pictureInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
+            UserPictureInfoVo obj = UserPictureInfoVo.objToVo(pictureInfo);
+            userPictureInfoVos.add(obj);
         });
-        return UserPictureInfoVo.objToVo(list);
+        return userPictureInfoVos;
     }
 
     @CustomCacheable(
@@ -1054,15 +1057,14 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     public List<UserRecommendPictureInfoVo> queryPictureInfoList(PictureQueryRequest request) {
         //如果分类ID不为空，需要查询他自己的分类下的图片
         List<PictureInfo> pictureInfos = queryPictureList(request);
+        List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = new ArrayList<>();
         //构造url
         pictureInfos.forEach(pictureInfo -> {
             pictureInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
+            UserRecommendPictureInfoVo vo = UserRecommendPictureInfoVo.objToVo(pictureInfo);
+            userRecommendPictureInfoVos.add(vo);
         });
-        List<UserRecommendPictureInfoVo> userRecommendPictureInfoVos = UserRecommendPictureInfoVo.objToVo(pictureInfos);
-        //防止空指针异常
-        if (StringUtils.isEmpty(userRecommendPictureInfoVos)) {
-            userRecommendPictureInfoVos = new ArrayList<>();
-        }
+
         return userRecommendPictureInfoVos;
     }
 
@@ -1671,7 +1673,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         LambdaQueryWrapper<PictureInfo> lambdaQueryWrapper = new LambdaQueryWrapper<PictureInfo>()
                 .select(PictureInfo::getPictureId, PictureInfo::getName, PictureInfo::getCreateTime, PictureInfo::getPicWidth, PictureInfo::getPicHeight,
                         PictureInfo::getLookCount, PictureInfo::getLikeCount, PictureInfo::getCollectCount, PictureInfo::getShareCount,
-                        PictureInfo::getIntroduction, PictureInfo::getPictureUrl)
+                        PictureInfo::getIntroduction, PictureInfo::getThumbnailUrl)
                 .eq(StringUtils.isNotEmpty(query.getUserId()), PictureInfo::getUserId, query.getUserId())
                 .eq(StringUtils.isNotEmpty(query.getPictureStatus()), PictureInfo::getPictureStatus, query.getPictureStatus())
                 .eq(PictureInfo::getUploadType, PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue())
@@ -1682,32 +1684,13 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         //压缩图片
         for (PictureInfo pictureInfo : page.getRecords()) {
             PictureInfoAiVo pictureInfoAiVo = PictureInfoAiVo.objToVo(pictureInfo);
-            pictureInfoAiVo.setPictureUrl(OssConfig.builderPictureUrl(pictureInfo.getPictureUrl(), PICTURE_INDEX_P_VALUE));
+            pictureInfoAiVo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
             pictureInfoAiVos.add(pictureInfoAiVo);
         }
         TableDataInfo tableDataInfo = new TableDataInfo();
         tableDataInfo.setRows(pictureInfoAiVos);
         tableDataInfo.setTotal(page.getTotal());
         return tableDataInfo;
-    }
-
-    @CustomCacheable(
-            keyPrefix = PICTURE_QUERY_LIST,
-            expireTime = PICTURE_QUERY_LIST_EXPIRE_TIME,
-            paginate = true,
-            useQueryParamsAsKey = true,
-            pageNumberField = "request.pageNum",
-            pageSizeField = "request.pageSize")
-    @Override
-    public List<PictureInfoAiVo> queryPictureInfoListAi(PictureQueryRequest request) {
-        List<PictureInfo> pictureInfos = queryPictureList(request);
-        ArrayList<PictureInfoAiVo> pictureInfoAiVos = new ArrayList<>();
-        for (PictureInfo pictureInfo : pictureInfos) {
-            PictureInfoAiVo pictureInfoAiVo = PictureInfoAiVo.objToVo(pictureInfo);
-            pictureInfoAiVo.setPictureUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
-            pictureInfoAiVos.add(pictureInfoAiVo);
-        }
-        return pictureInfoAiVos;
     }
 
     @CustomCacheable(keyPrefix = PICTURE_RECOMMEND_DETAIL_AI,

@@ -72,21 +72,23 @@
         >
       </nav>
 
-      <AiVerticalFallLayout
+      <VerticalFallLayout
         v-show="pictureQuery.pictureStatus === '0'"
         ref="aiVerticalFallLayoutRef0"
         :loading="tabData['0'].loading"
         @load-more="loadMore"
         :no-more="tabData['0'].noMore"
         :picture-list="tabData['0'].pictureList"
+        @handle-picture="handlePicture"
       />
-      <AiVerticalFallLayout
+      <VerticalFallLayout
         v-show="pictureQuery.pictureStatus === '1'"
         ref="aiVerticalFallLayoutRef1"
         :loading="tabData['1'].loading"
         @load-more="loadMore"
         :no-more="tabData['1'].noMore"
         :picture-list="tabData['1'].pictureList"
+        @handle-picture="handlePicture"
       />
     </main>
   </div>
@@ -97,16 +99,17 @@ import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
 import AiVerticalFallLayout from '@/components/ai/AiVerticalFallLayout.vue'
-import type { PictureInfoAiQuery, PictureInfoAiVo } from '@/types/picture/picture'
+import type { PictureInfoAiQuery, PictureInfoAiVo, PictureInfoVo } from '@/types/picture/picture'
 import { message } from 'ant-design-vue'
 import { listAiPictureInfo } from '@/api/picture/picture.ts'
 import useUserStore from '@/stores/modules/user.ts'
 import { storeToRefs } from 'pinia'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { initCover } from '@/utils/common.ts'
 import TextView from '@/components/TextView.vue'
 import { getPictureUserInfoByUsername } from '@/api/picture/userinfo.ts'
 import type { UserInfoVo } from '@/types/picture/userinfo'
+import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status, u_user_sex } = proxy?.useDict('p_picture_status', 'u_user_sex')
@@ -267,6 +270,16 @@ async function loadMore() {
 }
 
 //endregion
+const router = useRouter()
+const handlePicture = (item: PictureInfoVo) => {
+  console.log('handleToPicture', item.pictureId)
+  router.push({
+    name: 'aiDetail',
+    query: {
+      pictureId: item.pictureId,
+    },
+  })
+}
 // 移动端检测逻辑（不再用于显示/隐藏元素，仅用于样式判断）
 const isMobile = ref(window.innerWidth <= 768)
 

@@ -54,6 +54,26 @@ public class PictureInfoStatisticsVo implements Serializable {
     private String thumbnailUrl;
 
     /**
+     * 查看次数
+     */
+    private Long lookCount;
+
+    /**
+     * 收藏次数
+     */
+    private Long collectCount;
+
+    /**
+     * 点赞次数
+     */
+    private Long likeCount;
+
+    /**
+     * 分享次数
+     */
+    private Long shareCount;
+
+    /**
      * 对象转封装类
      *
      * @param pictureInfo PictureInfo实体对象

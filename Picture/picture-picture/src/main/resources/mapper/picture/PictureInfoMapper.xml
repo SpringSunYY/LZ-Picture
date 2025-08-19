@@ -244,7 +244,8 @@
         AND (ot.tag_name IS NULL OR rel.tag_name LIKE CONCAT('%', ot.tag_name, '%'))
         GROUP BY p.picture_id
         )
-        SELECT picture_id, name, pic_width, pic_height, pic_scale, thumbnail_url,
+        SELECT picture_id, name, pic_width, pic_height, pic_scale, thumbnail_url,share_count, collect_count, like_count,
+        look_count, download_count,
         (exact_match_count * 2 + partial_match_count) AS match_score
         FROM matched_images
         ORDER BY exact_match_count DESC, partial_match_count DESC, download_count DESC,

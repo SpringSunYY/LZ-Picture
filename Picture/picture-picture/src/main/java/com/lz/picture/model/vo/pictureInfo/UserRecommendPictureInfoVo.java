@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * 图片信息Vo对象 p_picture_info
  * 用户推荐
+ *
  * @author YY
  * @date 2025-04-09
  */
@@ -55,6 +56,26 @@ public class UserRecommendPictureInfoVo implements Serializable {
      */
     private String thumbnailUrl;
 
+
+    /**
+     * 查看次数
+     */
+    private Long lookCount;
+
+    /**
+     * 收藏次数
+     */
+    private Long collectCount;
+
+    /**
+     * 点赞次数
+     */
+    private Long likeCount;
+
+    /**
+     * 分享次数
+     */
+    private Long shareCount;
 
 
     /**

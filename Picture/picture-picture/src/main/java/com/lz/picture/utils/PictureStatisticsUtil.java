@@ -474,7 +474,7 @@ public class PictureStatisticsUtil {
             if (StringUtils.isNull(pictureInfo)) {
                 statisticsVo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_1.getValue());
                 sortedMap.put(pictureId, statisticsVo);
-            }else {
+            } else {
                 PictureInfoStatisticsVo value = PictureInfoStatisticsVo.objToVo(pictureInfo);
                 //拿到分数
                 value.setScore(allMap.get(pictureInfo.getPictureId()).getScore());
@@ -497,7 +497,8 @@ public class PictureStatisticsUtil {
 
     private List<PictureInfo> queryPictureInfoList(List<String> pictureIds) {
         return pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
-                .select(PictureInfo::getPictureId,  PictureInfo::getName, PictureInfo::getPicScale, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getPictureStatus)
+                .select(PictureInfo::getPictureId, PictureInfo::getName, PictureInfo::getPicScale, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getPictureStatus,
+                        PictureInfo::getLookCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getShareCount)
                 .in(PictureInfo::getPictureId, pictureIds)
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));

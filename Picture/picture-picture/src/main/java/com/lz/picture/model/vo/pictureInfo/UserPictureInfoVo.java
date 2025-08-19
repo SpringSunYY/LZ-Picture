@@ -30,11 +30,6 @@ public class UserPictureInfoVo implements Serializable {
     private String name;
 
 
-    /**
-     * 分类编号
-     */
-    private String categoryId;
-
 
     /**
      * 图片宽度
@@ -63,16 +58,24 @@ public class UserPictureInfoVo implements Serializable {
     private String thumbnailUrl;
 
     /**
-     * 所属空间编号
+     * 查看次数
      */
-    private String spaceId;
+    private Long lookCount;
 
     /**
-     * 所属文件夹编号
+     * 收藏次数
      */
-    private String folderId;
+    private Long collectCount;
 
+    /**
+     * 点赞次数
+     */
+    private Long likeCount;
 
+    /**
+     * 分享次数
+     */
+    private Long shareCount;
     /**
      * 对象转封装类
      *

@@ -135,6 +135,18 @@ export interface PictureInfoVo {
 
   /** 所属文件夹编号 */
   folderId?: string
+
+  /** 查看次数 */
+  lookCount: number
+
+  /** 收藏次数 */
+  collectCount: number
+
+  /** 点赞次数 */
+  likeCount: number
+
+  /** 分享次数 */
+  shareCount: number
 }
 
 /**

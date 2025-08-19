@@ -363,16 +363,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
 
         for (int i = 0; i < categories.size(); i += batchSize) {
             if (resultList.size() >= limit) break;
-            List<String> batchCats = categories.subList(i, Math.min(i + batchSize, categories.size()));
-            List<PictureInfo> batchResult = pictureInfoService.list(
-                    new LambdaQueryWrapper<PictureInfo>()
-                            .select(PictureInfo::getPictureId, PictureInfo::getCategoryId, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getName)
-                            .in(PictureInfo::getCategoryId, batchCats)
-                            .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                            .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
-                            .eq(StringUtils.isNotEmpty(uploadType), PictureInfo::getUploadType, uploadType)
-                            .last("LIMIT " + (limit - resultList.size()))
-            );
+            List<String> batchCategoryIds = categories.subList(i, Math.min(i + batchSize, categories.size()));
+            List<PictureInfo> batchResult = getPictureInfos(uploadType, batchCategoryIds, null, limit, resultList);
 
             resultList.addAll(batchResult);
         }
@@ -380,6 +372,20 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
             redisCache.setCacheListRightPushAll(key, resultList, PICTURE_RECOMMEND_CATEGORY_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
         }
         return resultList;
+    }
+
+    private List<PictureInfo> getPictureInfos(String uploadType, List<String> batchCategoryIds, List<String> batchPictureIds, int limit, List<PictureInfo> resultList) {
+        return pictureInfoService.list(
+                new LambdaQueryWrapper<PictureInfo>()
+                        .select(PictureInfo::getPictureId, PictureInfo::getCategoryId, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getName,
+                                PictureInfo::getLookCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getShareCount)
+                        .in(StringUtils.isNotEmpty(batchPictureIds), PictureInfo::getPictureId, batchPictureIds)
+                        .in(StringUtils.isNotEmpty(batchCategoryIds), PictureInfo::getCategoryId, batchCategoryIds)
+                        .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
+                        .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                        .eq(StringUtils.isNotEmpty(uploadType), PictureInfo::getUploadType, uploadType)
+                        .last("LIMIT " + (limit - resultList.size()))
+        );
     }
 
 
@@ -410,16 +416,8 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         if (CollectionUtils.isEmpty(tagPictureIds)) {
             return Collections.emptyList();
         }
-
-        // 根据图片ID批量查询图片信息
-        List<PictureInfo> resultList = pictureInfoService.list(
-                new LambdaQueryWrapper<PictureInfo>()
-                        .select(PictureInfo::getPictureId, PictureInfo::getCategoryId, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getName)
-                        .in(PictureInfo::getPictureId, tagPictureIds)
-                        .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                        .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
-                        .eq(StringUtils.isNotEmpty(uploadType), PictureInfo::getUploadType, uploadType)
-        );
+        // 根据图片ID查询图片信息
+        List<PictureInfo> resultList = getPictureInfos(uploadType, null, tagPictureIds, PICTURE_RECOMMEND_TAG_MAX_VALUE, new ArrayList<>());
         if (StringUtils.isNotEmpty(resultList)) {
             redisCache.setCacheListRightPushAll(key, resultList, PICTURE_RECOMMEND_TAG_PICTURE_EXPIRE_TIME, TimeUnit.SECONDS);
         }
