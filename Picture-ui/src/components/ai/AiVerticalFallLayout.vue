@@ -131,7 +131,8 @@ function setupObserver() {
 }
 
 const router = useRouter()
-const handleToPicture = (item: PictureInfoVo) => {router.push({
+const handleToPicture = (item: PictureInfoVo) => {
+  router.push({
     name: 'aiDetail',
     query: {
       pictureId: item.pictureId,

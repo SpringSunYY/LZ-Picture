@@ -105,10 +105,24 @@
           </a-tooltip>
         </div>
       </div>
-      <div class="image-recommend">
-        <div v-for="i in 10" :key="i" class="recommend-content">
-          <img class="recommend-image" :src="picture.thumbnailUrl" />
+      <div class="image-recommend" ref="recommendContainer">
+        <div
+          v-for="item in recommendedPictures"
+          :key="item.pictureId"
+          class="recommend-content"
+          @click="handleCheckPicture(item)"
+        >
+          <img
+            :class="[
+              'recommend-image',
+              currentPictureId === item.pictureId ? 'current-picture' : '',
+            ]"
+            alt="推荐图片"
+            loading="lazy"
+            :src="item.thumbnailUrl"
+          />
         </div>
+        <div v-if="loadingMore" class="loading-more">加载中...</div>
       </div>
     </main>
 
@@ -124,7 +138,6 @@
       <QRCode :value="shareLink" />
       <QuickCopy :content="shareLink" />
     </a-modal>
-    <!--举报图片-->
     <PictureReportModel
       ref="reportModalRef"
       :targetId="picture.pictureId"
@@ -134,13 +147,17 @@
 </template>
 
 <script setup lang="ts">
-import { getCurrentInstance, ref } from 'vue'
+import { getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getPictureDetailInfo } from '@/api/picture/picture.ts'
-import type { PictureDetailInfoVo } from '@/types/picture/picture'
+import { getPictureDetailInfo, getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
+import type {
+  PictureDetailInfoVo,
+  PictureInfoRecommendRequest,
+  PictureInfoVo,
+} from '@/types/picture/picture'
 import AiPictureView from '@/components/ai/AiPictureView.vue'
 import { initCover } from '@/utils/common.ts'
 import { LikeOutlined, ShareAltOutlined, StarOutlined } from '@ant-design/icons-vue'
@@ -157,6 +174,7 @@ import { useUserBehavior } from '@/utils/useUserBehavior.ts'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
+
 //region生成图片
 const openAiInput = ref(false)
 const modelInfo = ref<ModelInfo>(defaultModelInfo)
@@ -209,38 +227,132 @@ const picture = ref<PictureDetailInfoVo>({
 })
 const route = useRoute()
 const pictureId = ref<string>(route.query.pictureId as string)
-const getPictureInfo = () => {
-  // console.log('pictureId', route.query)
-  // console.log('pictureId', pictureId.value)
-  getPictureDetailInfo(pictureId.value).then((res) => {
-    if (res.code === 200) {
-      picture.value = res?.data || {}
-    }
-  })
+const currentPictureId = ref('')
+const getPictureInfo = async (pictureId: string) => {
+  currentPictureId.value = pictureId
+  const res = await getPictureDetailInfo(pictureId)
+  if (res.code === 200 && res?.data) {
+    picture.value = res.data
+  }
 }
-getPictureInfo()
 //endregion
 
 //region 举报图片
 const reportModalRef = ref<any>(null)
-
 const handleReport = () => {
   reportModalRef.value.handleOpen()
 }
-
 const handleReportSuccess = () => {
-  // 举报成功后的处理，比如显示一个提示
   console.log('举报成功，可以在这里进行一些后续操作')
 }
 // endregion
-//region 用户行为
-// 使用组合式函数
-const { openShare, shareLink, addUserBehavior, handleShare } = useUserBehavior(picture)
+//region 选择图片
+const handleCheckPicture = (item: PictureInfoVo) => {
+  if (!item.pictureId || item.pictureId.trim() === '') {
+    return
+  }
+  if (window.innerWidth < 768) {
+    //打开新的一页
+    const routeData = router.resolve({
+      name: 'aiDetail',
+      query: {
+        pictureId: item.pictureId,
+      },
+    })
+    window.open(routeData.href, '_blank')
+  } else {
+    getPictureInfo(item.pictureId)
+  }
+}
+//endregion
+//region 推荐图片加载
+const recommendedPictures = ref<PictureInfoVo[]>([])
+const pictureQuery = ref<PictureInfoRecommendRequest>({
+  currentPage: 0,
+  pageSize: 20,
+  pictureId: pictureId.value,
+})
+const loadingMore = ref(false)
+const noMoreData = ref(false)
 
+const fetchRecommendedPictures = async () => {
+  if (loadingMore.value || noMoreData.value) {
+    return
+  }
+  loadingMore.value = true
+  try {
+    const res = await getPictureInfoDetailRecommend(pictureQuery.value)
+    if (res.code === 200 && res.rows && res?.rows.length > 0) {
+      recommendedPictures.value.push(...res?.rows)
+      if (res.rows.length < pictureQuery.value.pageSize) {
+        noMoreData.value = true
+      }
+    } else {
+      noMoreData.value = true
+    }
+  } catch (error) {
+    console.error('获取推荐图片失败:', error)
+    noMoreData.value = true
+  } finally {
+    loadingMore.value = false
+  }
+}
+const initRecommendedPictures = async () => {
+  recommendedPictures.value = []
+  recommendedPictures.value.push({
+    pictureId: picture.value.pictureId,
+    thumbnailUrl: picture.value.thumbnailUrl,
+  })
+}
+const handleResizeAndScroll = () => {
+  if (window.innerWidth < 768) {
+    // 移动端：监听页面滚动
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop
+    const totalHeight = document.documentElement.scrollHeight
+    const windowHeight = window.innerHeight
+    const isAtBottom = scrollPosition + windowHeight >= totalHeight - 10
+
+    if (isAtBottom && !loadingMore.value && !noMoreData.value) {
+      pictureQuery.value.currentPage++
+      fetchRecommendedPictures()
+    }
+  } else {
+    // 电脑端：监听侧边栏容器滚动
+    const container = document.querySelector('.image-recommend')
+    if (!container) return
+
+    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 10
+
+    if (isAtBottom && !loadingMore.value && !noMoreData.value) {
+      pictureQuery.value.currentPage++
+      fetchRecommendedPictures()
+    }
+  }
+}
+
+// 确保在页面加载时绑定正确的事件
+const setupScrollListener = () => {
+  window.removeEventListener('scroll', handleResizeAndScroll)
+  const container = document.querySelector('.image-recommend')
+  if (container) {
+    container.removeEventListener('scroll', handleResizeAndScroll)
+  }
+
+  if (window.innerWidth < 768) {
+    window.addEventListener('scroll', handleResizeAndScroll)
+  } else {
+    if (container) {
+      container.addEventListener('scroll', handleResizeAndScroll)
+    }
+  }
+}
+//endregion
+
+//region 用户行为
+const { openShare, shareLink, addUserBehavior, handleShare } = useUserBehavior(picture)
 const downloadPictureLoading = ref(false)
 const { verify } = usePasswordVerify()
 const downloadPicture = async () => {
-  console.log('downloadPicture')
   try {
     message.success('开始校验密码', 1)
     const verified = await verify('查看原图')
@@ -256,10 +368,10 @@ const downloadPicture = async () => {
   }
 }
 //endregion
+
 //region 路由
 const router = useRouter()
 const handleUserInfo = (username: string) => {
-  console.log('handleUserInfo', username)
   if (!username || username.trim() === '') {
     message.warn('用户不存在')
     return
@@ -275,6 +387,30 @@ const handleBack = () => {
   router.back()
 }
 //endregion
+
+// 生命周期钩子
+onMounted(async () => {
+  await getPictureInfo(pictureId.value)
+  //把第一次查询到的图片添加到用户行为列表中
+  if (window.innerWidth >= 768) {
+    await initRecommendedPictures()
+  }
+  // 初始加载推荐图片
+  await fetchRecommendedPictures()
+  // 监听窗口大小变化和滚动事件
+  window.addEventListener('resize', setupScrollListener)
+  setupScrollListener()
+})
+
+onUnmounted(() => {
+  // 移除所有监听器
+  window.removeEventListener('resize', setupScrollListener)
+  window.removeEventListener('scroll', handleResizeAndScroll)
+  const container = document.querySelector('.image-recommend')
+  if (container) {
+    container.removeEventListener('scroll', handleResizeAndScroll)
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -357,16 +493,36 @@ $content-padding: 20px; // 详情内容边距
   top: 10%;
   z-index: 1;
   padding: 10px; /* 增加内边距 */
+  // 电脑端样式，因为媒体查询只会在小于 768px 时覆盖
   height: 100vh;
   background-color: $panel-bg-color;
   overflow-y: auto; /* 添加这个属性，实现滚动效果 */
+
   .recommend-content {
     width: 10vh;
     padding-bottom: 2vh;
 
     .recommend-image {
       border-radius: 0.5vh;
+      transition: transform 0.2s ease-in-out;
+
+      &:hover {
+        transform: scale(0.95);
+        cursor: pointer;
+      }
     }
+
+    .current-picture {
+      border: 2px solid #1976d2;
+      transform: scale(0.95);
+    }
+  }
+
+  .loading-more,
+  .no-more-data {
+    text-align: center;
+    padding: 10px 0;
+    color: $secondary-text-color;
   }
 }
 
@@ -605,24 +761,8 @@ $content-padding: 20px; // 详情内容边距
     }
 
     .back {
-      // 返回按钮 左上角
-      position: absolute;
       left: 3vh;
       top: 3vh;
-      width: 3em;
-      height: 3em;
-      background-color: $back-bg-color;
-      border-radius: 50%;
-      // 关键改变：使用 Flexbox 实现子元素居中
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.1s ease-in-out;
-
-      &:hover {
-        width: 3.5em;
-        height: 3.5em;
-      }
     }
   }
   .details-section {
@@ -631,37 +771,39 @@ $content-padding: 20px; // 详情内容边距
     border-left: none;
   }
 
-  // 移动端：推荐图片列表，自适应高度并垂直堆叠
   .image-recommend {
-    order: 3; // 确保在文档流中排在第三位
-    width: 100%; // 占据整个宽度
-    position: static; // 移除绝对定位，让它在文档流中正常显示
+    order: 3;
+    width: 100%;
+    position: static;
     padding: 10px;
-    background-color: $panel-bg-color; // 设置背景色以确保可见
-    // 关键改变：
-    overflow-y: auto; // 当内容溢出时自动出现垂直滚动条
-    height: auto; // 移除固定高度，让它根据内容自适应
-
-    // 内部布局：
+    background-color: $panel-bg-color;
+    overflow-y: initial;
+    height: auto;
     display: flex;
-    flex-direction: column; // 让子元素垂直堆叠
-    align-items: center; // 水平居中
+    flex-direction: column;
+    align-items: center;
 
     .recommend-content {
-      width: 95%; // 给图片一个相对宽度
+      width: 95%;
       padding-bottom: 2vh;
 
       .recommend-image {
         width: 100%;
         height: auto;
         border-radius: 0.5vh;
+        transition: transform 0.2s ease-in-out;
+
+        &:hover {
+          transform: scale(0.95);
+          cursor: pointer;
+        }
       }
     }
   }
   .header-controls {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    // 允许子元素换行
+    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 12px;
 
     .user-profile {
