@@ -152,7 +152,7 @@ import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getPictureDetailInfo, getPictureInfoDetailRecommend } from '@/api/picture/picture.ts'
+import { getPictureDetailInfo, getPictureInfoDetailRecommendByAi } from '@/api/picture/picture.ts'
 import type {
   PictureDetailInfoVo,
   PictureInfoRecommendRequest,
@@ -281,7 +281,7 @@ const fetchRecommendedPictures = async () => {
   }
   loadingMore.value = true
   try {
-    const res = await getPictureInfoDetailRecommend(pictureQuery.value)
+    const res = await getPictureInfoDetailRecommendByAi(pictureQuery.value)
     if (res.code === 200 && res.rows && res?.rows.length > 0) {
       recommendedPictures.value.push(...res?.rows)
       if (res.rows.length < pictureQuery.value.pageSize) {

@@ -1710,6 +1710,25 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         return pictureInfoAiVos;
     }
 
+    @CustomCacheable(keyPrefix = PICTURE_RECOMMEND_DETAIL_AI,
+            keyField = "request.pictureId",
+            paginate = true,
+            pageNumberField = "request.currentPage",
+            pageSizeField = "request.pageSize",
+            expireTime = PICTURE_RECOMMEND_DETAIL_AI_EXPIRE_TIME)
+    @Override
+    public List<PictureInfoAiDetailRecommendVo> getPictureInfoDetailRecommendByAi(PictureInfoDetailRecommendRequest request) {
+        request.setOffset(request.getPageSize() * request.getCurrentPage());
+        List<PictureInfo> pictureInfoDetailRecommend = pictureInfoMapper.getPictureInfoDetailRecommend(request);
+        ArrayList<PictureInfoAiDetailRecommendVo> vos = new ArrayList<>();
+        for (PictureInfo pictureInfo : pictureInfoDetailRecommend) {
+            PictureInfoAiDetailRecommendVo vo = PictureInfoAiDetailRecommendVo.objToVo(pictureInfo);
+            vo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), 10));
+            vos.add(vo);
+        }
+        return vos;
+    }
+
 
     //region
 }

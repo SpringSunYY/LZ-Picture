@@ -314,13 +314,24 @@ public class UserPictureInfoController extends BaseUserInfoController {
     }
 
     /**
-     * 图片详情推荐
+     * 图片详情推荐-ai
      */
     @GetMapping("/detail/recommend")
     public TableDataInfo getPictureInfoDetailRecommend(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
         pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
         List<UserPictureInfoVo> userPictureInfoVos = pictureInfoService.getPictureInfoDetailRecommend(pictureInfoDetailRecommendRequest);
         return getDataTable(userPictureInfoVos, userPictureInfoVos.size());
+    }
+
+    /**
+     * 图片详情推荐
+     */
+    @GetMapping("/detail/recommend/ai")
+    public TableDataInfo getPictureInfoDetailRecommendByAi(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest) {
+        pictureInfoDetailRecommendRequest.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
+        pictureInfoDetailRecommendRequest.setUploadType(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue());
+        List<PictureInfoAiDetailRecommendVo> vos = pictureInfoService.getPictureInfoDetailRecommendByAi(pictureInfoDetailRecommendRequest);
+        return getDataTable(vos, vos.size());
     }
 
     /**

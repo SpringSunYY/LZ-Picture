@@ -319,5 +319,20 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      */
     TableDataInfo listAi(UserPictureInfoAiQuery query);
 
+    /**
+     * ai图片列表
+     * @author: YY
+     * @method: queryPictureInfoListAi
+     * @date: 2025/8/19 16:11
+     * @param request 查询条件
+     * @return List<PictureInfoAiVo>
+     **/
     List<PictureInfoAiVo> queryPictureInfoListAi(PictureQueryRequest request);
+
+    /**
+     * ai图片详情推荐
+     * @param pictureInfoDetailRecommendRequest 查询条件
+     * @return
+     */
+    List<PictureInfoAiDetailRecommendVo> getPictureInfoDetailRecommendByAi(PictureInfoDetailRecommendRequest pictureInfoDetailRecommendRequest);
 }

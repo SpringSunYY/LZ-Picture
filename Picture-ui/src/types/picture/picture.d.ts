@@ -606,6 +606,22 @@ export interface PictureInfoAiQuery {
   pageSize?: number
 }
 
+/**
+ * 图片信息Vo对象 p_picture_info
+ * ai图片详情推荐
+ */
+export interface PictureInfoAiDetailRecommendVo {
+  /**
+   * 图片编号
+   */
+  pictureId: string
+
+  /**
+   * 缩略图URL
+   */
+  thumbnailUrl: string
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

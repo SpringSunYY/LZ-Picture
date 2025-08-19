@@ -5,6 +5,7 @@ import type {
   PictureAiUpload,
   PictureDetailInfoVo,
   PictureInfo,
+  PictureInfoAiDetailRecommendVo,
   PictureInfoAiQuery,
   PictureInfoAiVo,
   PictureInfoHotRequest,
@@ -18,7 +19,7 @@ import type {
   PictureInfoVo,
   PictureRecommendRequest,
   PictureUrlUpload,
-  UserRecommendPictureInfoVo
+  UserRecommendPictureInfoVo,
 } from '@/types/picture/picture'
 import type { GenerateLogInfoRequest, GenerateLogInfoVo, GenerateResponse } from '@/types/ai/model'
 
@@ -102,11 +103,11 @@ export function queryPictureInfo(
  * @param params
  */
 export function queryAiPictureInfo(
-  params: PictureInfoQuery
+  params: PictureInfoQuery,
 ): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/query/ai',
-    params: params
+    params: params,
   })
 }
 
@@ -205,6 +206,17 @@ export function getPictureInfoDetailRecommend(
 ): Promise<API.ResponseInfo<PictureInfoVo>> {
   return request({
     url: '/picture/pictureInfo/detail/recommend',
+    method: 'get',
+    params: params,
+  })
+}
+
+//图片详情的推荐-ai
+export function getPictureInfoDetailRecommendByAi(
+  params: PictureInfoRecommendRequest,
+): Promise<API.ResponseInfo<PictureInfoAiDetailRecommendVo>> {
+  return request({
+    url: '/picture/pictureInfo/detail/recommend/ai',
     method: 'get',
     params: params,
   })

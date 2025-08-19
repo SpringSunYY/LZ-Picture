@@ -108,6 +108,15 @@ public class PictureRedisConstants {
      * 图片详情推荐缓存时间
      */
     public static final int PICTURE_RECOMMEND_DETAIL_EXPIRE_TIME = 10 * 60;
+    /**
+     * 图片详情推荐缓存-ai
+     */
+    public static final String PICTURE_RECOMMEND_DETAIL_AI = "picture:recommend:detail:ai";
+
+    /**
+     * 图片详情推荐缓存时间-ai
+     */
+    public static final int PICTURE_RECOMMEND_DETAIL_AI_EXPIRE_TIME = 10 * 60;
 
     /**
      * 图片热门推荐缓存

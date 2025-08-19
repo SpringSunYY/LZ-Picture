@@ -48,4 +48,9 @@ public class PictureInfoDetailRecommendRequest implements Serializable {
      * 图片状态（0公共 1私有）
      */
     private String pictureStatus;
+
+    /**
+     * 上传类型
+     */
+    private String uploadType;
 }

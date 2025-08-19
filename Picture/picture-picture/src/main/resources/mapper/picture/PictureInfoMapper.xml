@@ -220,63 +220,43 @@
         where picture_id = #{pictureId}
     </delete>
 
+    <select id="getPictureInfoDetailRecommend"
+            parameterType="com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest"
+            resultMap="PictureInfoResultVo">
+        WITH origin_tags AS (
+        SELECT DISTINCT tag_name FROM p_picture_tag_rel_info WHERE picture_id = #{pictureId}
+        ),
+        matched_images AS (
+        SELECT p.picture_id, p.name, p.thumbnail_url, p.download_count, p.pic_width, p.pic_height, p.pic_scale,
+        p.share_count, p.collect_count, p.like_count, p.look_count,
+        COUNT(DISTINCT IF(ot.tag_name IS NOT NULL, rel.tag_name, NULL)) AS exact_match_count,
+        COUNT(DISTINCT IF(rel.tag_name LIKE CONCAT('%', ot.tag_name, '%'), rel.tag_name, NULL)) AS partial_match_count
+        FROM p_picture_info p
+        JOIN p_picture_tag_rel_info rel ON p.picture_id = rel.picture_id
+        LEFT JOIN origin_tags ot ON 1 = 1
+        WHERE p.picture_id != #{pictureId}
+        <if test="pictureStatus != null and pictureStatus != ''">
+            AND p.picture_status = #{pictureStatus}
+        </if>
+        <if test="uploadType != null and uploadType != ''">
+            AND p.upload_type = #{uploadType}
+        </if>
+        AND (ot.tag_name IS NULL OR rel.tag_name LIKE CONCAT('%', ot.tag_name, '%'))
+        GROUP BY p.picture_id
+        )
+        SELECT picture_id, name, pic_width, pic_height, pic_scale, thumbnail_url,
+        (exact_match_count * 2 + partial_match_count) AS match_score
+        FROM matched_images
+        ORDER BY exact_match_count DESC, partial_match_count DESC, download_count DESC,
+        share_count DESC, collect_count DESC, like_count DESC, look_count DESC
+        LIMIT #{pageSize}
+        OFFSET #{offset};
+    </select>
+
     <delete id="deletePictureInfoByPictureIds" parameterType="String">
         delete from p_picture_info where picture_id in
         <foreach item="pictureId" collection="array" open="(" separator="," close=")">
             #{pictureId}
         </foreach>
     </delete>
-
-    <select id="getPictureInfoDetailRecommend"
-            parameterType="com.lz.picture.model.dto.pictureInfo.PictureInfoDetailRecommendRequest"
-            resultMap="PictureInfoResultVo">
-        WITH origin_tags AS (SELECT DISTINCT tag_name
-                             FROM p_picture_tag_rel_info
-                             WHERE picture_id = #{pictureId}),
-             matched_images AS (SELECT p.picture_id,
-                                       p.name,
-                                       p.thumbnail_url,
-                                       p.download_count,
-                                       p.pic_width,
-                                       p.pic_height,
-                                       p.pic_scale,
-                                       p.share_count,
-                                       p.collect_count,
-                                       p.like_count,
-                                       p.look_count,
-                                       COUNT(DISTINCT CASE
-                                                          WHEN ot.tag_name IS NOT NULL THEN rel.tag_name
-                                                          ELSE NULL
-                                           END) AS exact_match_count,
-                                       COUNT(DISTINCT CASE
-                                                          WHEN rel.tag_name LIKE CONCAT('%', ot.tag_name, '%')
-                                                              THEN rel.tag_name
-                                                          ELSE NULL
-                                           END) AS partial_match_count
-                                FROM p_picture_info p
-                                         JOIN p_picture_tag_rel_info rel ON p.picture_id = rel.picture_id
-                                         LEFT JOIN origin_tags ot ON 1 = 1
-                                WHERE p.picture_id != #{pictureId}
-            AND p.picture_status = #{pictureStatus}
-            AND (ot.tag_name IS NULL OR rel.tag_name LIKE CONCAT('%', ot.tag_name, '%'))
-        GROUP BY p.picture_id
-            )
-        SELECT picture_id,
-               name,
-               pic_width,
-               pic_height,
-               pic_scale,
-               thumbnail_url,
-               (exact_match_count * 2 + partial_match_count) AS match_score
-        FROM matched_images
-        ORDER BY exact_match_count DESC,
-                 partial_match_count DESC,
-                 download_count DESC,
-                 share_count DESC,
-                 collect_count DESC,
-                 like_count DESC,
-                 look_count DESC
-            LIMIT #{pageSize}
-        OFFSET #{offset};
-    </select>
 </mapper>
