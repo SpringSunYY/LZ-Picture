@@ -6,6 +6,7 @@ import com.lz.user.model.domain.UserInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,12 +18,8 @@ import java.util.Date;
  */
 @Data
 public class UserVo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 用户ID
-     */
-    private String userId;
 
     /**
      * 用户名
@@ -38,32 +35,15 @@ public class UserVo implements Serializable {
      * 头像地址
      */
     private String avatarUrl;
-
     /**
      * 性别（0=未知 1=男 2=女）
      */
     private String sex;
-
-    /**
-     * 生日
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date birthday;
-
     /**
      * 职业
      */
     private String occupation;
 
-    /**
-     * 偏好语言
-     */
-    private String preferredLanguageLocale;
-
-    /**
-     * 个人简介
-     */
-    private String introductory;
 
     /**
      * IP属地

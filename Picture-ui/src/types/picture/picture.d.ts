@@ -622,6 +622,104 @@ export interface PictureInfoAiDetailRecommendVo {
   thumbnailUrl: string
 }
 
+/**
+ * 图片信息Vo对象 p_picture_info
+ * 用户ai详情
+ */
+export interface PictureDetailInfoAiVo {
+  /**
+   * 图片编号
+   */
+  pictureId: string
+
+  /**
+   * 图片名称
+   */
+  name: string
+
+  /**
+   * 简介
+   */
+  introduction: string
+
+  /**
+   * 分类编号
+   */
+  categoryId?: string
+  categoryName?: string
+
+  /**
+   * 图片宽度
+   */
+  picWidth?: number
+
+  /**
+   * 图片高度
+   */
+  picHeight?: number
+
+  /**
+   * 用户信息
+   */
+  userInfoVo?: UserVo
+
+  /**
+   * 缩略图URL
+   */
+  thumbnailUrl?: string
+
+  /**
+   * 所属空间编号
+   */
+  spaceId?: string
+  spaceName?: string
+
+  /**
+   * 创建时间
+   */
+  publishTime?: string // Date 在 TS 一般用 string 接收后再转
+
+  /**
+   * 更多信息
+   */
+  moreInfo?: MoreInfo
+
+  /**
+   * 图片标签
+   */
+  pictureTags?: string[]
+
+  /**
+   * 查看次数
+   */
+  lookCount?: number
+
+  /**
+   * 点赞数
+   */
+  likeCount?: number
+
+  /**
+   * 是否点赞
+   */
+  isLike?: boolean
+
+  /**
+   * 收藏数
+   */
+  collectCount?: number
+
+  /**
+   * 是否收藏
+   */
+  isCollect?: boolean
+
+  /**
+   * 分享数
+   */
+  shareCount?: number
+}
+
 // 图片状态 枚举
 export enum PPictureStatus {
   PICTURE_STATUS_0 = '0', // 公共

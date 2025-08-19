@@ -1723,7 +1723,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         ArrayList<PictureInfoAiDetailRecommendVo> vos = new ArrayList<>();
         for (PictureInfo pictureInfo : pictureInfoDetailRecommend) {
             PictureInfoAiDetailRecommendVo vo = PictureInfoAiDetailRecommendVo.objToVo(pictureInfo);
-            vo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), 10));
+            vo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), 20));
             vos.add(vo);
         }
         return vos;

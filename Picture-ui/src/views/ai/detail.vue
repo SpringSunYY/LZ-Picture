@@ -71,7 +71,7 @@
         <div class="image-description-container">
           <h2 class="section-title">图片提示词</h2>
           <div class="description-content">
-            {{ picture.introduction }}
+           <TextView :text="picture.introduction" :max-lines="8" />
           </div>
           <div class="info-meta">
             <a-space align="center" direction="horizontal" :wrap="true">
@@ -86,6 +86,27 @@
               </div>
               <div class="text-white">{{ picture.picWidth }}x{{ picture.picHeight }}</div>
             </a-space>
+          </div>
+          <div class="info-meta">
+            <a-descriptions
+            :column="{ xs: 1, sm:2, md: 3 }"
+              :contentStyle="{
+                color: '#a9a9a9',
+                fontSize: '12px',
+              }"
+              :labelStyle="{
+                color: '#a9a9a9',
+                fontSize: '12px',
+              }"
+            >
+              <a-descriptions-item label="空间"
+                >{{ picture.spaceName || '未知' }}
+              </a-descriptions-item>
+              <a-descriptions-item label="分类"
+                >{{ picture.categoryName || '未知' }}
+              </a-descriptions-item>
+              <a-descriptions-item label="发布时间">{{ picture.publishTime }}</a-descriptions-item>
+            </a-descriptions>
           </div>
         </div>
 
@@ -152,9 +173,12 @@ import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getPictureDetailInfo, getPictureInfoDetailRecommendByAi } from '@/api/picture/picture.ts'
+import {
+  getPictureDetailInfoByAi,
+  getPictureInfoDetailRecommendByAi,
+} from '@/api/picture/picture.ts'
 import type {
-  PictureDetailInfoVo,
+  PictureDetailInfoAiVo,
   PictureInfoRecommendRequest,
   PictureInfoVo,
 } from '@/types/picture/picture'
@@ -171,6 +195,7 @@ import { downloadImage } from '@/utils/file.ts'
 import { usePasswordVerify } from '@/utils/auth.ts'
 import PictureReportModel from '@/components/picture/PictureReportModel.vue'
 import { useUserBehavior } from '@/utils/useUserBehavior.ts'
+import TextView from '@/components/TextView.vue'
 
 const { proxy } = getCurrentInstance()!
 const { ai_model_params_type } = proxy?.useDict('ai_model_params_type')
@@ -205,20 +230,16 @@ const generateSuccess = () => {
 }
 //endregion
 //region详情
-const picture = ref<PictureDetailInfoVo>({
+const picture = ref<PictureDetailInfoAiVo>({
   pictureId: '',
   thumbnailUrl: '',
   name: '',
   introduction: '',
   categoryName: '',
-  picSize: 0,
   picWidth: 0,
   picHeight: 0,
-  picScale: 0.0,
-  picFormat: '',
   moreInfo: {},
   publishTime: '2025-04-10 10:30:00',
-  userName: '荔枝',
   userInfoVo: {
     userId: '-1',
     userName: '荔枝',
@@ -230,7 +251,7 @@ const pictureId = ref<string>(route.query.pictureId as string)
 const currentPictureId = ref('')
 const getPictureInfo = async (pictureId: string) => {
   currentPictureId.value = pictureId
-  const res = await getPictureDetailInfo(pictureId)
+  const res = await getPictureDetailInfoByAi(pictureId)
   if (res.code === 200 && res?.data) {
     picture.value = res.data
   }
@@ -690,6 +711,10 @@ $content-padding: 20px; // 详情内容边距
     align-items: center;
     font-size: 1rem;
     color: $secondary-text-color;
+
+    .text-white {
+      color: $white;
+    }
   }
 }
 

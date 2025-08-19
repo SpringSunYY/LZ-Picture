@@ -10,6 +10,7 @@ import com.lz.common.manager.file.PictureUploadManager;
 import com.lz.common.manager.file.model.FileResponse;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
+import com.lz.common.utils.bean.BeanUtils;
 import com.lz.config.model.enmus.CFileLogTypeEnum;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.annotation.UserViewLog;
@@ -150,6 +151,19 @@ public class UserPictureInfoController extends BaseUserInfoController {
     public AjaxResult getInfo(@PathVariable("pictureId") String pictureId) {
         UserPictureDetailInfoVo userPictureDetailInfoVo = pictureInfoService.userSelectPictureInfoByPictureId(pictureId, getUserId());
         return success(userPictureDetailInfoVo);
+    }
+
+    @UserViewLog(targetType = "0")
+    @PreAuthorize("@uss.hasPermi('picture:upload:detail')")
+    @GetMapping("/ai/{pictureId}")
+    public AjaxResult getInfoByAi(@PathVariable("pictureId") String pictureId) {
+        UserPictureDetailInfoVo userPictureDetailInfoVo = pictureInfoService.userSelectPictureInfoByPictureId(pictureId, getUserId());
+        //如果图片上传类型不是ai
+        ThrowUtils.throwIf(!userPictureDetailInfoVo.getUploadType().equals(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2.getValue()),
+                "图片类型错误");
+        PictureDetailInfoAiVo target = new PictureDetailInfoAiVo();
+        BeanUtils.copyProperties(userPictureDetailInfoVo, target);
+        return success(target);
     }
 
     /**
