@@ -66,7 +66,7 @@
     <AiInput />
   </div>
 </template>
-<script setup lang="ts" name="HomeView">
+<script setup lang="ts" name="ai">
 import SearchInput, {
   type SearchRecommend,
   type SearchSuggestion,

@@ -1,8 +1,7 @@
 <template>
   <div class="aiLayout">
-    <router-view v-if="$route.meta.fullPage" />
-    <a-layout v-else has-sider>
-      <a-layout-sider :collapsed="true" class="navigate">
+    <a-layout has-sider>
+      <a-layout-sider :collapsed="true" class="navigate" v-show="!$route.meta.fullPage">
         <img class="logo" src="../../assets/logo.svg" alt="logo" />
         <div class="menu">
           <a-menu
@@ -28,25 +27,18 @@
               </template>
             </a-dropdown>
             <div style="margin-top: 10px"></div>
-            <!--            <div @click="clickInform">-->
-            <!--              <SvgIcon name="inform" size="1.5em" />-->
-            <!--            </div>-->
-            <!--            <div @click="clickPoints">-->
-            <!--              <SvgIcon name="pointsBlue" size="1.2em" />-->
-            <!--            </div>-->
           </div>
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
           </div>
         </div>
       </a-layout-sider>
-      <a-layout :style="{ marginLeft: '70px' }">
+      <a-layout :style="{ marginLeft: $route.meta.fullPage ? '0' : '70px' }">
         <a-layout-content :style="{ overflow: 'initial' }">
           <router-view v-slot="{ Component, route }">
-            <keep-alive v-if="route?.meta?.isCache === true">
-              <component :is="Component" :key="route.name" />
+            <keep-alive>
+              <component :is="Component" :key="route.meta.isCache ? route.name : undefined" />
             </keep-alive>
-            <component v-else :is="Component" :key="route.name" />
           </router-view>
           <BackToUp />
         </a-layout-content>
@@ -67,11 +59,9 @@ import { message, Modal } from 'ant-design-vue'
 import BackToUp from '@/components/BackToUp.vue'
 
 const userStore = useUserStore()
-const { userName: userName, avatar: avatar } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
+const { userName: userName, avatar: avatar } = storeToRefs(userStore)
 const router = useRouter()
 
-//region 菜单
-// 当前选中菜单
 const current = ref<string[]>([])
 
 const doMenuClick = (route: RouteRecordRaw) => {
@@ -91,42 +81,37 @@ onMounted(() => {
   }
   current.value = [router.currentRoute.value.name as string]
 })
-// 监听路由变化，更新当前选中菜单
+
 router.afterEach((to) => {
   current.value = [to.name as string]
 })
-// 动态生成菜单项
+
 const items = computed(() => {
-  // 生成有效路由结构
   return [...(generateMenu(permissionStore?.getRoutes(), '4') || [])]
 })
 
 const permissionStore = usePermissionStore()
-
 const isMobile = ref(false)
 const menuVisible = ref(false)
-//endregion
 
-//region 用户
-// 消息
 const clickInform = () => {
   router.push({
     name: 'inform',
   })
 }
-//积分
+
 const clickPoints = () => {
   router.push({
     name: 'Points',
   })
 }
-//用户
+
 const clickUser = () => {
   router.push({
     name: 'aiUser',
   })
 }
-// 用户注销
+
 const doLogout = async () => {
   Modal.confirm({
     title: '确认退出登录',
@@ -143,10 +128,8 @@ const doLogout = async () => {
     },
   })
 }
-//endregion
 </script>
 <style scoped lang="scss">
-// 深色主题颜色常量
 $dark-bg-color: #0b0b0b;
 $dark-bg-secondary: #27272a;
 $dark-text-primary: rgba(255, 255, 255, 0.85);
@@ -169,7 +152,6 @@ $dark-menu-active-color: #003fb8;
   justify-content: space-between;
   overflow: hidden;
   border-right: 1px solid $dark-border-color;
-
   .logo {
     width: 100%;
     height: 100px;
@@ -178,7 +160,6 @@ $dark-menu-active-color: #003fb8;
     justify-content: center;
     padding: 12px 0;
   }
-
   .menu {
     position: absolute;
     top: 40%;
@@ -186,10 +167,9 @@ $dark-menu-active-color: #003fb8;
     transform: translateY(-50%);
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify: center;
     pointer-events: auto;
   }
-
   .user {
     position: absolute;
     bottom: 12px;
@@ -197,57 +177,45 @@ $dark-menu-active-color: #003fb8;
     width: 100%;
     display: flex;
     justify-content: center;
-
     .user-info {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
     }
-
     .user-avatar {
       cursor: pointer;
     }
   }
 }
-
-/* 深色主题下的菜单样式 */
 :deep(.ant-menu) {
   background: $dark-bg-color;
   color: $dark-text-primary;
 }
-
 :deep(.ant-menu-item) {
   color: $dark-text-secondary;
 }
-
 :deep(.ant-menu-item:hover) {
   color: $dark-menu-active-color;
   background-color: $dark-menu-hover-bg;
 }
-
 :deep(.ant-menu-item-selected) {
   color: $dark-menu-active-color;
   background-color: $dark-menu-selected-bg;
 }
-
 :deep(.ant-menu-item-selected:hover) {
   background-color: $dark-menu-selected-bg;
 }
-
 :deep(.ant-dropdown-menu) {
   background-color: $dark-bg-color;
 }
-
 :deep(.ant-dropdown-menu-item) {
   color: $dark-text-secondary;
 }
-
 :deep(.ant-dropdown-menu-item:hover) {
   background-color: $dark-menu-hover-bg;
   color: $dark-text-primary;
 }
-
 :deep(.svg-icon) {
   color: $dark-text-secondary;
   width: 1.2em;

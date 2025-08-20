@@ -19,7 +19,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="Picture">
+<script setup lang="ts" name="aiPicture">
 import { ref } from 'vue'
 import type { PictureInfoVo, PictureRecommendRequest } from '@/types/picture/picture'
 import {

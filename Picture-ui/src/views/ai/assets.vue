@@ -157,7 +157,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="aiAssets">
 import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'

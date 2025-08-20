@@ -167,7 +167,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="aiDetail">
 import { getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'

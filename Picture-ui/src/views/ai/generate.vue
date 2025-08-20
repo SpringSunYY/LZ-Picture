@@ -137,7 +137,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="aiGenerate">
 import { createVNode, getCurrentInstance, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import AiCheckModel from '@/components/ai/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'

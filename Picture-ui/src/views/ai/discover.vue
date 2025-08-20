@@ -148,7 +148,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="aiDiscover">
 import { ref } from 'vue'
 import { SearchIcon, XIcon } from 'lucide-vue-next'
 import { listPictureCategoryInfo } from '@/api/picture/pictureCategory.ts'

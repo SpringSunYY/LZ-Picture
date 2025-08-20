@@ -101,7 +101,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="aiUser">
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
