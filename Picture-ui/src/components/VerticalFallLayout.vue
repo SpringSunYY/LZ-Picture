@@ -65,7 +65,15 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  minWidth: {
+    type: Number,
+    default: 280,
+  },
 })
+const minWidthValue = ref(props.minWidth + 'px')
+const vRate = ref(props.minWidth / 15)
+const cRate = ref(props.minWidth / 20)
+const hRate = ref(props.minWidth / 20)
 //所有的图片数据
 const pictrures = ref<(PictureInfoVo & { rowSpan: number })[]>([])
 const loadMoreTrigger = ref<HTMLElement | null>(null)
@@ -93,21 +101,20 @@ function calculateRowSpan(width: number, height: number): number {
   if (!width || !height) return 12 // 默认值
 
   const aspectRatio = height / width
-
   // 横图处理 (宽大于高)
   if (aspectRatio <= 0.75) {
     // 非常宽的图片，减少高度
-    return Math.max(8, Math.round(20 * aspectRatio))
+    return Math.max(8, Math.round(vRate.value * aspectRatio))
   }
 
   // 竖图处理 (高大于宽)
   if (aspectRatio >= 1.5) {
     // 非常高的图片，增加高度
-    return Math.min(40, Math.round(12 * aspectRatio))
+    return Math.min(40, Math.round(hRate.value * aspectRatio))
   }
 
   // 正常比例的图片
-  return Math.round(15 * aspectRatio)
+  return Math.round(cRate.value * aspectRatio)
 }
 
 // 设置 observer
@@ -164,7 +171,7 @@ onBeforeUnmount(() => {
 
   .masonry {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(v-bind(minWidthValue), 1fr));
     grid-auto-rows: 10px;
     gap: 10px;
   }

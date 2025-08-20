@@ -80,6 +80,7 @@
         :no-more="tabData['0'].noMore"
         :picture-list="tabData['0'].pictureList"
         @handle-picture="handlePicture"
+        :min-width="300"
       />
       <VerticalFallLayout
         v-show="pictureQuery.pictureStatus === '1'"
@@ -89,6 +90,7 @@
         :no-more="tabData['1'].noMore"
         :picture-list="tabData['1'].pictureList"
         @handle-picture="handlePicture"
+        :min-width="300"
       />
     </main>
   </div>

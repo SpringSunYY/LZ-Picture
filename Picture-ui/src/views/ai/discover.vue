@@ -143,6 +143,7 @@
       :no-more="noMore"
       :picture-list="pictureList"
       @handle-picture="handlePicture"
+      :min-width="300"
     />
   </div>
 </template>
