@@ -97,7 +97,7 @@ public class PictureRedisConstants {
     /**
      * 图片搜索推荐缓存时间
      */
-    public static final int PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME = 5 * 60;
+    public static final int PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME = 10 * 60;
 
     /**
      * 图片详情推荐缓存

@@ -178,12 +178,14 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * 获取图片搜索建议
      *
      * @param
+     * @param name       图片名称
+     * @param uploadType 上传类型
      * @return List<PictureInfoSearchSuggestionVo>
      * @author: YY
      * @method: getSearchSuggestion
      * @date: 2025/6/3 23:04
      **/
-    List<PictureInfoSearchRecommendVo> getSearchRecommend();
+    List<PictureInfoSearchRecommendVo> getSearchRecommend(String uploadType);
 
     /**
      * 获取建议
@@ -323,6 +325,7 @@ public interface IPictureInfoService extends IService<PictureInfo> {
 
     /**
      * ai图片详情推荐
+     *
      * @param pictureInfoDetailRecommendRequest 查询条件
      * @return
      */

@@ -30,11 +30,6 @@ public class PictureInfoSearchRecommendVo implements Serializable {
     private String name;
 
     /**
-     * 简介
-     */
-    private String introduction;
-
-    /**
      * 缩略图URL
      */
     private String thumbnailUrl;
@@ -60,5 +55,24 @@ public class PictureInfoSearchRecommendVo implements Serializable {
      */
     public static List<PictureInfoSearchRecommendVo> objToVo(List<PictureInfo> pictureInfoList) {
         return pictureInfoList.stream().map(PictureInfoSearchRecommendVo::objToVo).toList();
+    }
+
+    /**
+     * 统计对象转封装类
+     */
+    public static PictureInfoSearchRecommendVo statisticsObjToVo(PictureInfoStatisticsVo statisticsVo) {
+        if (statisticsVo == null) {
+            return null;
+        }
+        PictureInfoSearchRecommendVo pictureInfoVo = new PictureInfoSearchRecommendVo();
+        BeanUtils.copyProperties(statisticsVo, pictureInfoVo);
+        return pictureInfoVo;
+    }
+
+    /**
+     * 统计对象转封装类列表
+     */
+    public static List<PictureInfoSearchRecommendVo> statisticsObjToVo(List<PictureInfoStatisticsVo> statisticsVoList) {
+        return statisticsVoList.stream().map(PictureInfoSearchRecommendVo::statisticsObjToVo).toList();
     }
 }

@@ -1,6 +1,5 @@
 <template>
   <div class="search-input w-full max-w-2xl mx-auto">
-    <!-- 搜索框 -->
     <div class="relative">
       <div class="relative">
         <input
@@ -17,7 +16,6 @@
           placeholder="搜索你想要的内容..."
         />
 
-        <!-- 搜索图标 -->
         <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -29,7 +27,6 @@
           </svg>
         </div>
 
-        <!-- 清除按钮 -->
         <button
           v-if="searchQuery"
           @click="clearSearch"
@@ -46,12 +43,10 @@
         </button>
       </div>
 
-      <!-- 下拉建议框 -->
       <div
         v-if="showDropdown"
         class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto"
       >
-        <!-- 联想词 -->
         <div v-if="suggestions.length > 0" class="p-2">
           <div class="text-xs text-gray-500 px-3 py-2 font-medium">搜索建议</div>
           <div
@@ -79,7 +74,6 @@
           </div>
         </div>
 
-        <!-- 历史记录 -->
         <div v-if="searchHistory.length > 0 && !searchQuery" class="p-2 border-t border-gray-100">
           <div class="flex items-center justify-between px-3 py-2">
             <span class="text-xs text-gray-500 font-medium">搜索历史</span>
@@ -112,7 +106,6 @@
           </div>
         </div>
 
-        <!-- 推荐内容 -->
         <div v-if="!searchQuery" class="p-2 border-t border-gray-100">
           <div class="text-xs text-gray-500 px-3 py-2 font-medium">热门推荐</div>
           <div class="grid grid-cols-2 gap-2 px-2">
@@ -120,25 +113,36 @@
               v-for="(recommendation, index) in recommendationList"
               :key="'rec-' + index"
               @click="selectRecommend(recommendation)"
-              class="recommend-item flex flex-col p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors border border-gray-100"
+              class="recommend-item group relative flex flex-col justify-end p-3 h-36 overflow-hidden cursor-pointer rounded-lg transition-all duration-300"
             >
-              <div class="relative mb-2">
-                <img
-                  :src="recommendation.image"
-                  :alt="recommendation.title"
-                  loading="lazy"
-                  class="w-full h-20 object-cover rounded-md"
-                />
-                <div class="absolute top-1 right-1">
-                  <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+              <div
+                class="absolute inset-0 bg-cover bg-center transition-transform duration-300 transform group-hover:scale-105"
+                :style="{ backgroundImage: `url(${recommendation.image})` }"
+              ></div>
+
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300 opacity-100 group-hover:opacity-100"
+              ></div>
+
+              <div class="relative z-10 text-white">
+                <div class="flex justify-between items-center mb-1">
+                  <div class="text-sm font-medium line-clamp-1">
+                    {{ recommendation.title }}
+                  </div>
+                  <svg
+                    class="w-3 h-3 text-red-400 opacity-80"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
                     ></path>
                   </svg>
                 </div>
+                <div class="text-xs font-light opacity-80 line-clamp-2">
+                  {{ recommendation.description }}
+                </div>
               </div>
-              <div class="text-sm font-medium text-gray-800 mb-1">{{ recommendation.title }}</div>
-              <div class="text-xs text-gray-500 line-clamp-2">{{ recommendation.description }}</div>
             </div>
           </div>
         </div>
@@ -215,42 +219,33 @@ const handleInput = () => {
 }
 
 const handleSearch = () => {
-  // if (!searchQuery.value.trim()) return
-  // 添加到历史记录
   addToHistory(searchQuery.value)
-
-  // 发出搜索事件给父组件
   emit('search', searchQuery.value)
   showDropdown.value = false
 }
 
-const selectRecommend = (suggestion: SearchRecommend) => {
-  // console.log(suggestion)
-  searchQuery.value = suggestion.title
+const selectRecommend = (recommendation: SearchRecommend) => {
+  searchQuery.value = recommendation.title
   showDropdown.value = false
-  // 发出搜索事件给父组件
-  emit('searchByRecommend', suggestion)
+  emit('searchByRecommend', recommendation)
   showDropdown.value = false
 }
-const selectHistory = (suggestion: string) => {
-  searchQuery.value = suggestion
+
+const selectHistory = (history: string) => {
+  searchQuery.value = history
   showDropdown.value = false
-  // 发出搜索事件给父组件
-  emit('searchByHistory', suggestion)
-  // console.log(suggestion)
+  emit('searchByHistory', history)
   showDropdown.value = false
 }
 
 const selectSuggestion = (suggestion: SearchSuggestion) => {
   searchQuery.value = suggestion.name
   showDropdown.value = false
-  // 发出搜索事件给父组件
   emit('searchBySuggestion', searchQuery)
-  // console.log(suggestion)
   showDropdown.value = false
 }
 
-const navigateSuggestions = (direction) => {
+const navigateSuggestions = (direction: number) => {
   if (!showDropdown.value) return
 
   const maxIndex = suggestions.value.length - 1
@@ -278,14 +273,10 @@ const hideDropdown = () => {
   selectedIndex.value = -1
 }
 
-const addToHistory = (term) => {
-  //如果传过来参数没有值
+const addToHistory = (term: string) => {
   if (!term) return
-  // 移除重复项
   const filtered = searchHistory.value.filter((item) => item !== term)
-  // 添加到开头
   searchHistory.value = [term, ...filtered].slice(0, 10)
-  // 保存到本地存储
   localStorage.setItem(props.searchHistoryName, JSON.stringify(searchHistory.value))
 }
 
@@ -294,7 +285,7 @@ const clearHistory = () => {
   localStorage.removeItem(props.searchHistoryName)
 }
 
-const highlightMatch = (text) => {
+const highlightMatch = (text: string) => {
   if (!searchQuery.value) return text
 
   const regex = new RegExp(`(${searchQuery.value})`, 'gi')
@@ -302,8 +293,9 @@ const highlightMatch = (text) => {
 }
 
 // 点击外部关闭下拉框
-const handleClickOutside = (event) => {
-  const searchContainer = event.target.closest('.relative')
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  const searchContainer = target.closest('.search-input')
   if (!searchContainer) {
     showDropdown.value = false
   }
@@ -311,12 +303,10 @@ const handleClickOutside = (event) => {
 
 // 生命周期
 onMounted(() => {
-  // 从本地存储加载历史记录
   const saved = localStorage.getItem(props.searchHistoryName)
   if (saved) {
     searchHistory.value = JSON.parse(saved)
   }
-
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -327,21 +317,24 @@ onUnmounted(() => {
 // 暴露方法给父组件
 defineExpose({
   clearSearch,
-  focus: () => {
-    // 可以通过ref调用focus方法
-  },
+  focus: () => {},
 })
 </script>
 
 <style scoped lang="scss">
 .search-input {
   mark {
-    margin: 10px;
     background-color: #fef08a;
     padding: 0;
   }
 
-  /* 文本截断 */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -349,7 +342,6 @@ defineExpose({
     overflow: hidden;
   }
 
-  /* 自定义滚动条 */
   .overflow-y-auto::-webkit-scrollbar {
     width: 6px;
   }
@@ -369,15 +361,18 @@ defineExpose({
   }
 
   .history-item:hover {
-    background-color: rgba(0, 255, 61, 0.62); /* 使用半透明色更柔和 */
-    transform: scale(1.02); /* 轻微放大效果 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 添加阴影增强立体感 */
+    background-color: rgba(0, 255, 61, 0.62);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
-  .recommend-item:hover {
-    background-color: rgba(186, 186, 186, 0.82); /* 使用半透明色更柔和 */
-    transform: scale(1.02); /* 轻微放大效果 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 添加阴影增强立体感 */
+  .recommend-item {
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
+    border: none; /* 移除原来的边框 */
+    &:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* 悬停时增强阴影 */
+    }
   }
 }
 </style>

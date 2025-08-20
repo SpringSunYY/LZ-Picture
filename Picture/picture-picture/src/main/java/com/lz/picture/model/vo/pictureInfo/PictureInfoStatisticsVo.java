@@ -74,6 +74,11 @@ public class PictureInfoStatisticsVo implements Serializable {
     private Long shareCount;
 
     /**
+     * 上传类型
+     */
+    private String uploadType;
+
+    /**
      * 对象转封装类
      *
      * @param pictureInfo PictureInfo实体对象

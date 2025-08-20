@@ -191,10 +191,15 @@ export function getMyPictureDetailInfo(
 /**
  * 获取图片信息搜索建议
  */
-export function getSearchRecommend(): Promise<API.ResponseInfo<PictureInfoSearchRecommendVo>> {
+export function getSearchRecommend(
+  uploadType: string,
+): Promise<API.ResponseInfo<PictureInfoSearchRecommendVo>> {
   return request({
     url: '/picture/pictureInfo/search/recommend',
     method: 'get',
+    params: {
+      uploadType: uploadType,
+    },
   })
 }
 

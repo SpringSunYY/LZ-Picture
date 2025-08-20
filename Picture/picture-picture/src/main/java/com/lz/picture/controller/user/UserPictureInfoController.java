@@ -313,8 +313,9 @@ public class UserPictureInfoController extends BaseUserInfoController {
      * 图片搜索推荐
      */
     @GetMapping("/search/recommend")
-    public TableDataInfo getSearchRecommend() {
-        List<PictureInfoSearchRecommendVo> list = pictureInfoService.getSearchRecommend();
+    public TableDataInfo getSearchRecommend(
+            @RequestParam(required = false) String uploadType) {
+        List<PictureInfoSearchRecommendVo> list = pictureInfoService.getSearchRecommend(uploadType);
         return getDataTable(list, list.size());
     }
 
@@ -322,8 +323,8 @@ public class UserPictureInfoController extends BaseUserInfoController {
      * 图片搜索建议
      */
     @GetMapping("/search/suggestion")
-    public TableDataInfo getSearchRecommend(@RequestParam(required = false) String name,
-                                            @RequestParam(required = false) String uploadType) {
+    public TableDataInfo getSearchSuggestion(@RequestParam(required = false) String name,
+                                             @RequestParam(required = false) String uploadType) {
         List<PictureInfoSearchSuggestionVo> list = pictureInfoService.getSearchSuggestion(name, uploadType);
         return getDataTable(list, list.size());
     }

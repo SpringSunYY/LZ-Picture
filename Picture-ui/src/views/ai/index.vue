@@ -145,7 +145,7 @@ const getSearchSuggestList = (value: string) => {
 const recommendationList = ref<SearchRecommend[]>([])
 //获取推荐列表
 const getRecommendationList = () => {
-  getSearchRecommend().then((res) => {
+  getSearchRecommend(PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2).then((res) => {
     //遍历rows，添加到recommendationList中
     recommendationList.value =
       res?.rows?.map((item: PictureInfoSearchRecommendVo) => {

@@ -980,27 +980,68 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
 
     @CustomCacheable(
             keyPrefix = PICTURE_SEARCH_RECOMMEND,
-            expireTime = PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME
+            expireTime = PICTURE_SEARCH_RECOMMEND_EXPIRE_TIME,
+            useQueryParamsAsKey = true
     )
     @Override
-    public List<PictureInfoSearchRecommendVo> getSearchRecommend() {
-        Page<PictureInfo> page = new Page<>(1, 30);
-        LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper
-                .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
-                .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
-                .orderByDesc(PictureInfo::getDownloadCount)
-                .orderByDesc(PictureInfo::getShareCount)
-                .orderByDesc(PictureInfo::getLikeCount)
-                .orderByDesc(PictureInfo::getCollectCount)
-                .orderByDesc(PictureInfo::getLookCount);
-
-        List<PictureInfo> pictureInfos = this.page(page, queryWrapper).getRecords();
-        for (PictureInfo pictureInfo : pictureInfos) {
-            pictureInfo.setThumbnailUrl(OssConfig.builderPictureUrl(pictureInfo.getThumbnailUrl(), PICTURE_INDEX_P_VALUE));
+    public List<PictureInfoSearchRecommendVo> getSearchRecommend(String uploadType) {
+        //首先查询到今日热门的图片
+        //如果是今天五点之前，获取上一期缓存，保证有数量可以拿
+        Date date = DateUtils.getNowDate();
+        String key = "";
+        if (DateUtils.isAfterToday(date, 60 * 60 * 5)) {
+            key = pictureStatisticsUtil.getCurrentStatisticsDayKey(PICTURE_STATISTICS_PICTURE_HOT, date);
+        } else {
+            key = pictureStatisticsUtil.getLastStatisticsDayKey(PICTURE_STATISTICS_PICTURE_HOT, date);
         }
-        //转换为vo
-        return PictureInfoSearchRecommendVo.objToVo(pictureInfos);
+        //初始条件
+        int currentPageNum = 1;
+        int currentPageSize = 30;
+        int total = 30;
+        PictureInfoHotRequest request = new PictureInfoHotRequest();
+        request.setPageNum(currentPageNum);
+        request.setPageSize(currentPageSize);
+        request.setType(PICTURE_HOT_TOTAL);
+        //查询到热门图片，今日热门
+        TableDataInfo statisticsPictureInfo = statisticsInfoService.getStatisticsPictureInfo(key, request);
+        @SuppressWarnings("unchecked")
+        List<PictureInfoStatisticsVo> statisticsPictureInfoRows = (List<PictureInfoStatisticsVo>) statisticsPictureInfo.getRows();
+        if (StringUtils.isEmpty(statisticsPictureInfoRows)) {
+            return new ArrayList<>();
+        }
+        //如果没有传入，则全部即可
+        if (StringUtils.isEmpty(uploadType)) {
+            return PictureInfoSearchRecommendVo.statisticsObjToVo(statisticsPictureInfoRows);
+        } else {
+            //如果传入上传类型，比如AI，则只返回AI图片
+            List<PictureInfoSearchRecommendVo> list = PictureInfoSearchRecommendVo
+                    .statisticsObjToVo(statisticsPictureInfoRows.stream().
+                            filter(vo -> StringUtils.isNotNull(vo) && StringUtils.isNotEmpty(vo.getUploadType()) && vo.getUploadType().equals(uploadType))
+                            .toList());
+            if (StringUtils.isEmpty(list) || list.size() >= total) {
+                return list;
+            }
+            //判断是否需要继续查询
+            while (list.size() < total) {
+                //加一页
+                currentPageNum++;
+                request.setPageNum(currentPageNum);
+                TableDataInfo currentStatisticsPictureInfo = statisticsInfoService.getStatisticsPictureInfo(key, request);
+                @SuppressWarnings("unchecked")
+                List<PictureInfoStatisticsVo> currentRows = (List<PictureInfoStatisticsVo>) currentStatisticsPictureInfo.getRows();
+                if (StringUtils.isEmpty(currentRows)) {
+                    return list;
+                } else {
+                    List<PictureInfoSearchRecommendVo> voList = PictureInfoSearchRecommendVo.statisticsObjToVo(currentRows.stream().
+                            filter(vo -> StringUtils.isNotNull(vo) && StringUtils.isNotEmpty(vo.getUploadType()) && vo.getUploadType().equals(uploadType))
+                            .toList());
+                    if (StringUtils.isNotEmpty(voList)) {
+                        list.addAll(voList);
+                    }
+                }
+            }
+            return list;
+        }
     }
 
     @CustomCacheable(keyPrefix = PICTURE_SEARCH_SUGGESTION,

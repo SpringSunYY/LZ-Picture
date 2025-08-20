@@ -498,7 +498,7 @@ public class PictureStatisticsUtil {
     private List<PictureInfo> queryPictureInfoList(List<String> pictureIds) {
         return pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
                 .select(PictureInfo::getPictureId, PictureInfo::getName, PictureInfo::getPicScale, PictureInfo::getPicHeight, PictureInfo::getPicWidth, PictureInfo::getThumbnailUrl, PictureInfo::getPictureStatus,
-                        PictureInfo::getLookCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getShareCount)
+                        PictureInfo::getLookCount, PictureInfo::getCollectCount, PictureInfo::getLikeCount, PictureInfo::getShareCount, PictureInfo::getUploadType)
                 .in(PictureInfo::getPictureId, pictureIds)
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue()));
