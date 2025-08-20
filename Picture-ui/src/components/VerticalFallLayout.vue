@@ -16,15 +16,15 @@
             <div class="masonry-item-meta">
               <div class="meta-item">
                 <SvgIcon name="aiView" />
-                <span class="meta-content">{{ item.lookCount||0 }}</span>
+                <span class="meta-content">{{ item.lookCount || 0 }}</span>
               </div>
               <div class="meta-item">
                 <SvgIcon name="like" />
-                <span class="meta-content">{{ item.likeCount ||0}}</span>
+                <span class="meta-content">{{ item.likeCount || 0 }}</span>
               </div>
               <div class="meta-item">
                 <SvgIcon name="share" />
-                <span class="meta-content">{{ item.shareCount ||0}}</span>
+                <span class="meta-content">{{ item.shareCount || 0 }}</span>
               </div>
               <div class="meta-item">
                 <SvgIcon name="collect" />
@@ -48,7 +48,6 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import type { PictureInfoVo } from '@/types/picture/picture'
-import { useRouter } from 'vue-router'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
 import SvgIcon from '@/components/SvgIcon.vue'

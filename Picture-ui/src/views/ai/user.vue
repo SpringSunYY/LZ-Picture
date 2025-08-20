@@ -98,7 +98,6 @@
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
-import AiVerticalFallLayout from '@/components/ai/AiVerticalFallLayout.vue'
 import type { PictureInfoAiQuery, PictureInfoAiVo, PictureInfoVo } from '@/types/picture/picture'
 import { message } from 'ant-design-vue'
 import { listAiPictureInfo } from '@/api/picture/picture.ts'

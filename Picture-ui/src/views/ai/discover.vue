@@ -382,7 +382,7 @@ const handlePicture = (item: PictureInfoVo) => {
   border-radius: 12px;
   border: none;
   box-shadow: 0 4px 12px var(--color-shadow-subtle);
-  scrollbar-width: none;
+  scrollbar-width: none !important;
   background-color: rgba(255, 255, 255, 0.1); // 半透明白色背景
   gap: 0.8rem; // 按钮之间的间距
   transition: all 0.3s ease;

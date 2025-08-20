@@ -105,7 +105,7 @@
               <a-descriptions-item label="分类"
                 >{{ picture.categoryName || '未知' }}
               </a-descriptions-item>
-              <a-descriptions-item label="发布时间">{{ picture.publishTime }}</a-descriptions-item>
+              <a-descriptions-item label="发布时间">{{ formatDateTime(picture.publishTime || '') }}</a-descriptions-item>
             </a-descriptions>
           </div>
         </div>
@@ -183,7 +183,7 @@ import type {
   PictureInfoVo,
 } from '@/types/picture/picture'
 import AiPictureView from '@/components/ai/AiPictureView.vue'
-import { initCover } from '@/utils/common.ts'
+import { formatDateTime, initCover } from '@/utils/common.ts'
 import { LikeOutlined, ShareAltOutlined, StarOutlined } from '@ant-design/icons-vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import QuickCopy from '@/components/QuickCopy.vue'

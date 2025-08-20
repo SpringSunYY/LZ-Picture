@@ -99,6 +99,9 @@ export const formatTime = (seconds: number) => {
  * @param dateStr
  */
 export const formatDateTime = (dateStr: string) => {
+  if (!dateStr || dateStr === '') {
+    return ''
+  }
   //把时间转换为时间戳
   const date = new Date(dateStr)
   //当前时间
