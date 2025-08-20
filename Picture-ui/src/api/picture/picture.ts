@@ -2,7 +2,8 @@ import type { API } from '@/types/common'
 import { http as request } from '@/utils'
 import type {
   MyPictureInfoVo,
-  PictureAiUpload, PictureDetailInfoAiVo,
+  PictureAiUpload,
+  PictureDetailInfoAiVo,
   PictureDetailInfoVo,
   PictureInfo,
   PictureInfoAiDetailRecommendVo,
@@ -19,7 +20,7 @@ import type {
   PictureInfoVo,
   PictureRecommendRequest,
   PictureUrlUpload,
-  UserRecommendPictureInfoVo
+  UserRecommendPictureInfoVo,
 } from '@/types/picture/picture'
 import type { GenerateLogInfoRequest, GenerateLogInfoVo, GenerateResponse } from '@/types/ai/model'
 
@@ -166,11 +167,11 @@ export function getPictureDetailInfo(
  * @param pictureId
  */
 export function getPictureDetailInfoByAi(
-  pictureId: string
+  pictureId: string,
 ): Promise<API.ResponseInfo<PictureDetailInfoAiVo>> {
   return request({
     url: '/picture/pictureInfo/ai/' + pictureId,
-    method: 'get'
+    method: 'get',
   })
 }
 
@@ -199,16 +200,19 @@ export function getSearchRecommend(): Promise<API.ResponseInfo<PictureInfoSearch
 
 /**
  *  获取图片信息搜索建议
- * @param name
+ * @param name 名字
+ * @param uploadType 上传类型
  */
 export function getSearchSuggest(
   name: string,
+  uploadType: string,
 ): Promise<API.ResponseInfo<PictureInfoSearchSuggestionVo>> {
   return request({
     url: '/picture/pictureInfo/search/suggestion',
     method: 'get',
     params: {
       name: name,
+      uploadType: uploadType,
     },
   })
 }

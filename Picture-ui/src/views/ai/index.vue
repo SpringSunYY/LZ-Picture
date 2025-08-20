@@ -73,10 +73,11 @@ import SearchInput, {
 } from '@/components/SearchInput.vue'
 import { ref } from 'vue'
 import { getSearchRecommend, getSearchSuggest } from '@/api/picture/picture.ts'
-import type {
-  PictureInfoSearchRecommendVo,
-  PictureInfoSearchSuggestionVo,
-} from '@/types/picture/picture'
+import {
+  type PictureInfoSearchRecommendVo,
+  type PictureInfoSearchSuggestionVo,
+  PPictureUploadTypeEnum,
+} from '@/types/picture/picture.d.ts'
 import NoticeWindows from '@/components/NoticeWindows.vue'
 import AiInput from '@/components/ai/AiInput.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
@@ -128,7 +129,7 @@ const searchInput = (value: string) => {
 const suggestionList = ref<SearchSuggestion[]>([])
 const getSearchSuggestList = (value: string) => {
   // console.log('searchInput', value)
-  getSearchSuggest(value).then((res) => {
+  getSearchSuggest(value, PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2).then((res) => {
     //遍历rows，添加到suggestionList中
     suggestionList.value =
       res?.rows?.map((item: PictureInfoSearchSuggestionVo) => {
@@ -165,6 +166,7 @@ $dark-bg-color: #000000;
 .ai {
   margin: 0 auto;
   background-color: $dark-bg-color;
+
   .text-center {
     padding-top: 50px;
   }

@@ -843,3 +843,30 @@ export interface PictureInfoUpdateName {
   /** 图片名称 */
   name: string
 }
+
+/**
+ * 图片上传类型
+ */
+export enum PPictureUploadTypeEnum {
+  PICTURE_UPLOAD_TYPE_1 = '1', // 手动上传
+  PICTURE_UPLOAD_TYPE_2 = '2', // AI生成
+  PICTURE_UPLOAD_TYPE_3 = '3', // API导入
+}
+
+/**
+ * 枚举值对应的标签
+ */
+export const PPictureUploadTypeLabels: Record<PPictureUploadTypeEnum, string> = {
+  [PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_1]: '手动上传',
+  [PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_2]: 'AI生成',
+  [PPictureUploadTypeEnum.PICTURE_UPLOAD_TYPE_3]: 'API导入',
+}
+
+/**
+ * 根据值获取对应的 label
+ * @param value 枚举值
+ * @returns 标签，如果找不到返回空字符串
+ */
+export function getPPictureUploadTypeLabel(value: string): string {
+  return PPictureUploadTypeLabels[value as PPictureUploadTypeEnum] ?? ''
+}

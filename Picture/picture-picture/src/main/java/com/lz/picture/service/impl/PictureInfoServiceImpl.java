@@ -1004,16 +1004,17 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
     }
 
     @CustomCacheable(keyPrefix = PICTURE_SEARCH_SUGGESTION,
-            keyField = "name",
+            useQueryParamsAsKey = true,
             expireTime = PICTURE_SEARCH_SUGGESTION_EXPIRE_TIME)
     @Override
-    public List<PictureInfoSearchSuggestionVo> getSearchSuggestion(String name) {
+    public List<PictureInfoSearchSuggestionVo> getSearchSuggestion(String name, String uploadType) {
         Page<PictureInfo> page = new Page<>(1, 15);
         LambdaQueryWrapper<PictureInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
                 .eq(PictureInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
                 .eq(PictureInfo::getPictureStatus, PPictureStatusEnum.PICTURE_STATUS_0.getValue())
                 .like(StringUtils.isNotEmpty(name), PictureInfo::getName, name)
+                .eq(StringUtils.isNotEmpty(uploadType), PictureInfo::getUploadType, uploadType)
                 .orderByDesc(PictureInfo::getDownloadCount)
                 .orderByDesc(PictureInfo::getShareCount)
                 .orderByDesc(PictureInfo::getLikeCount)
