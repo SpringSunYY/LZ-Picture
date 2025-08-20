@@ -56,7 +56,7 @@
       </p>
       <div class="actions">
         <FollowButton class="follow-btn" />
-        <ShareButton class="share-btn" />
+        <ShareButton @click="handleShareUser('3')" class="share-btn" />
       </div>
     </aside>
 
@@ -93,6 +93,11 @@
         :min-width="300"
       />
     </main>
+
+    <a-modal v-model:open="openShare" title="分享主页" @ok="openShare = !openShare">
+      <QRCode :value="shareLink" />
+      <QuickCopy :content="shareLink" />
+    </a-modal>
   </div>
 </template>
 
@@ -111,6 +116,9 @@ import TextView from '@/components/TextView.vue'
 import { getPictureUserInfoByUsername } from '@/api/picture/userinfo.ts'
 import type { UserInfoVo } from '@/types/picture/userinfo'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
+import { useUserBehavior } from '@/utils/useUserBehavior.ts'
+import QuickCopy from '@/components/QuickCopy.vue'
+import QRCode from '@/components/QRCode.vue'
 
 const { proxy } = getCurrentInstance()!
 const { p_picture_status, u_user_sex } = proxy?.useDict('p_picture_status', 'u_user_sex')
@@ -280,6 +288,13 @@ const handlePicture = (item: PictureInfoVo) => {
       pictureId: item.pictureId,
     },
   })
+}
+//分享主页
+const shareLink = ref('')
+const openShare = ref(false)
+const handleShareUser = () => {
+  shareLink.value = window.location.href
+  openShare.value = true
 }
 // 移动端检测逻辑（不再用于显示/隐藏元素，仅用于样式判断）
 const isMobile = ref(window.innerWidth <= 768)
