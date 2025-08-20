@@ -138,9 +138,9 @@ const sendMessage = async () => {
     message.warn('请填写提示词')
     return
   }
-  console.log('modelInfo', model.value)
-  console.log('上传的图片:', file.value)
-  console.log('prompt', promptInfo.value)
+  // console.log('modelInfo', model.value)
+  // console.log('上传的图片:', file.value)
+  // console.log('prompt', promptInfo.value)
   message.success('开始校验密码', 1)
   const verified = await verify('生成图片')
   if (!verified) return

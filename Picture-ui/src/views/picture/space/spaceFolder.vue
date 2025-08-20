@@ -395,9 +395,6 @@ getFolderList()
 </script>
 
 <style scoped lang="scss">
-
-
-
 .space-folder {
   max-width: 1440px;
   margin: 0 auto;

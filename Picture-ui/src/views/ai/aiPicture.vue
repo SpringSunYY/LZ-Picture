@@ -144,7 +144,7 @@ async function resetData() {
 
 const router = useRouter()
 const handleToPicture = (item: PictureInfoVo) => {
-  console.log('handleToPicture', item.pictureId)
+  // console.log('handleToPicture', item.pictureId)
    router.push({
     name: 'aiDetail',
     query: {

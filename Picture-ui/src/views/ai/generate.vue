@@ -243,12 +243,12 @@ const prompt = ref('')
 const fileInfo = ref<string>()
 const handleReferTo = (generate: GenerateLogInfoVo) => {
   activeTab.value = '2'
-  console.log('handleReferTo', generate)
+  // console.log('handleReferTo', generate)
   fileInfo.value = generate.fileUrls
 }
 const handleReload = (generate: GenerateLogInfoVo) => {
   activeTab.value = '2'
-  console.log('handleReload', generate)
+  // console.log('handleReload', generate)
   fileInfo.value = generate.fileUrls
   prompt.value = generate.prompt
   modelInfo.value = {
@@ -265,14 +265,14 @@ const handlePrompt = (generate: GenerateLogInfoVo) => {
 }
 const clickActiveTab = (key: string) => {
   modelInfo.value.modelType = key
-  console.log('clickActiveTab', key)
+  // console.log('clickActiveTab', key)
 }
 const { verify } = usePasswordVerify()
 const submitGenerate = async () => {
-  console.log('提交生成')
+  // console.log('提交生成')
   console.log(modelInfo.value)
   console.log(prompt.value)
-  console.log('file', fileInfo.value)
+  // console.log('file', fileInfo.value)
   //校验参数是否填写
   if (
     !modelInfo.value?.width ||

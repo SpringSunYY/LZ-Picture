@@ -71,7 +71,7 @@
         <div class="image-description-container">
           <h2 class="section-title">图片提示词</h2>
           <div class="description-content">
-           <TextView :text="picture.introduction" :max-lines="8" />
+            <TextView :text="picture.introduction" :max-lines="8" />
           </div>
           <div class="info-meta">
             <a-space align="center" direction="horizontal" :wrap="true">
@@ -89,7 +89,7 @@
           </div>
           <div class="info-meta">
             <a-descriptions
-            :column="{ xs: 1, sm:2, md: 3 }"
+              :column="{ xs: 1, sm: 2, md: 3 }"
               :contentStyle="{
                 color: '#a9a9a9',
                 fontSize: '12px',
@@ -105,7 +105,9 @@
               <a-descriptions-item label="分类"
                 >{{ picture.categoryName || '未知' }}
               </a-descriptions-item>
-              <a-descriptions-item label="发布时间">{{ formatDateTime(picture.publishTime || '') }}</a-descriptions-item>
+              <a-descriptions-item label="发布时间"
+                >{{ formatDateTime(picture.publishTime || '') }}
+              </a-descriptions-item>
             </a-descriptions>
           </div>
         </div>
@@ -168,7 +170,7 @@
 </template>
 
 <script setup lang="ts" name="aiDetail">
-import { getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
+import { getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import ReferToButton from '@/components/button/ReferToButton.vue'
 import DownloadButton from '@/components/button/DownloadButton.vue'
@@ -179,6 +181,7 @@ import {
 } from '@/api/picture/picture.ts'
 import type {
   PictureDetailInfoAiVo,
+  PictureInfoAiDetailRecommendVo,
   PictureInfoRecommendRequest,
   PictureInfoVo,
 } from '@/types/picture/picture'
@@ -264,7 +267,7 @@ const handleReport = () => {
   reportModalRef.value.handleOpen()
 }
 const handleReportSuccess = () => {
-  console.log('举报成功，可以在这里进行一些后续操作')
+  // console.log('举报成功，可以在这里进行一些后续操作')
 }
 // endregion
 //region 选择图片
@@ -287,7 +290,7 @@ const handleCheckPicture = (item: PictureInfoVo) => {
 }
 //endregion
 //region 推荐图片加载
-const recommendedPictures = ref<PictureInfoVo[]>([])
+const recommendedPictures = ref<PictureInfoAiDetailRecommendVo[]>([])
 const pictureQuery = ref<PictureInfoRecommendRequest>({
   currentPage: 0,
   pageSize: 20,
@@ -318,11 +321,34 @@ const fetchRecommendedPictures = async () => {
     loadingMore.value = false
   }
 }
+
+watch(
+  () => route.query.pictureId,
+  async (newPictureId, oldPictureId) => {
+    if (!newPictureId) {
+      return
+    }
+    if (newPictureId === oldPictureId) {
+      return
+    }
+    pictureId.value = newPictureId || ''
+    await getPictureInfo(pictureId.value)
+    await initRecommendedPictures()
+    noMoreData.value = false
+    loadingMore.value = false
+    pictureQuery.value = {
+      currentPage: 0,
+      pageSize: 20,
+      pictureId: pictureId.value,
+    }
+    await fetchRecommendedPictures()
+  },
+)
 const initRecommendedPictures = async () => {
   recommendedPictures.value = []
   recommendedPictures.value.push({
-    pictureId: picture.value.pictureId,
-    thumbnailUrl: picture.value.thumbnailUrl,
+    pictureId: picture.value.pictureId || '',
+    thumbnailUrl: picture.value.thumbnailUrl || '',
   })
 }
 const handleResizeAndScroll = () => {
@@ -481,6 +507,7 @@ $content-padding: 20px; // 详情内容边距
   box-sizing: border-box;
   padding: 0;
   position: relative;
+
   .back {
     // 返回按钮 左上角
     position: absolute;
@@ -495,6 +522,7 @@ $content-padding: 20px; // 详情内容边距
     justify-content: center;
     align-items: center;
     transition: all 0.1s ease-in-out;
+    z-index: 10;
 
     &:hover {
       width: 3.5em;

@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts" name="aiUser">
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import FollowButton from '@/components/button/FollowButton.vue'
 import ShareButton from '@/components/button/ShareButton.vue'
 import type { PictureInfoAiQuery, PictureInfoAiVo, PictureInfoVo } from '@/types/picture/picture'
@@ -116,7 +116,6 @@ import TextView from '@/components/TextView.vue'
 import { getPictureUserInfoByUsername } from '@/api/picture/userinfo.ts'
 import type { UserInfoVo } from '@/types/picture/userinfo'
 import VerticalFallLayout from '@/components/VerticalFallLayout.vue'
-import { useUserBehavior } from '@/utils/useUserBehavior.ts'
 import QuickCopy from '@/components/QuickCopy.vue'
 import QRCode from '@/components/QRCode.vue'
 
@@ -235,7 +234,7 @@ async function initTabData(status: string) {
     }
   } catch (error) {
     message.error('获取图片失败，请重试')
-    console.error('Failed to load pictures:', error)
+    // console.error('Failed to load pictures:', error)
   } finally {
     targetTab.loading = false
   }
@@ -272,7 +271,7 @@ async function loadMore() {
     }
   } catch (error) {
     message.error('获取图片失败，请重试')
-    console.error('Failed to load pictures:', error)
+    // console.error('Failed to load pictures:', error)
   } finally {
     currentTab.loading = false
   }
@@ -281,7 +280,7 @@ async function loadMore() {
 //endregion
 const router = useRouter()
 const handlePicture = (item: PictureInfoVo) => {
-  console.log('handleToPicture', item.pictureId)
+  // console.log('handleToPicture', item.pictureId)
   router.push({
     name: 'aiDetail',
     query: {
@@ -296,6 +295,61 @@ const handleShareUser = () => {
   shareLink.value = window.location.href
   openShare.value = true
 }
+
+// 监听路由变化
+watch(
+  () => route.query,
+  async (newQuery, oldQuery) => {
+    //拿到查询参数
+    const newName = newQuery.username as string
+    const oldName = oldQuery.username as string
+    if (oldName === newName) {
+      return
+    }
+    // console.log('username', newName)
+    if (newName) {
+      toUserName.value = newName
+      // console.log('new', newName)
+    } else {
+      toUserName.value = loginUserName.value
+      // console.log('log', loginUserName.value)
+    }
+    if (toUserName.value === username.value) {
+      // console.log('same')
+      return
+    }
+    await getUserInfo()
+    aiVerticalFallLayoutRef0.value.clearData()
+    aiVerticalFallLayoutRef1.value.clearData()
+    tabData.value = {
+      '0': {
+        pictureList: [] as PictureInfoAiVo[],
+        loading: false,
+        noMore: false,
+        pictureQuery: {
+          pageNum: 1,
+          pageSize: 35,
+          name: '',
+          pictureStatus: '0',
+          username: username.value,
+        },
+      },
+      '1': {
+        pictureList: [] as PictureInfoAiVo[],
+        loading: false,
+        noMore: false,
+        pictureQuery: {
+          pageNum: 1,
+          pageSize: 35,
+          name: '',
+          pictureStatus: '1',
+          username: username.value,
+        },
+      },
+    }
+    initTabData('0')
+  },
+)
 // 移动端检测逻辑（不再用于显示/隐藏元素，仅用于样式判断）
 const isMobile = ref(window.innerWidth <= 768)
 

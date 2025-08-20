@@ -444,7 +444,7 @@ const resetModel = () => {
   }
   //数据返回给父组件，使用v-model可以直接绑定
   emit('update:modelValue', modelInfo.value)
-  console.log('modelInfo:', modelInfo.value)
+  // console.log('modelInfo:', modelInfo.value)
 }
 
 // 添加以下方法来处理输入验证

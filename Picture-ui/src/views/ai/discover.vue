@@ -282,7 +282,7 @@ async function loadMore() {
 
 const router = useRouter()
 const handlePicture = (item: PictureInfoVo) => {
-  console.log('handleToPicture', item.pictureId)
+  // console.log('handleToPicture', item.pictureId)
   router.push({
     name: 'aiDetail',
     query: {

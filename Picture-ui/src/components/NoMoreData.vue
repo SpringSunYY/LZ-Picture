@@ -42,7 +42,18 @@ const scrollContainer = ref<HTMLElement | null>(null)
 // 在组件挂载后执行查找逻辑
 onMounted(() => {
   // 从当前组件的根元素向上查找最近的可滚动父级
+  findScrollContainer()
+})
+const findScrollContainer = () => {
   const rootElement = document.querySelector('.no-more-data') as HTMLElement
+
+  // 添加检查确保 rootElement 存在
+  if (!rootElement) {
+    // console.warn('NoMoreData component: Could not find .no-more-data element')
+    scrollContainer.value = null
+    return
+  }
+
   let element: HTMLElement | null = null
   let currentElement = rootElement.parentElement
 
@@ -60,8 +71,7 @@ onMounted(() => {
 
   // 将找到的容器赋值给 ref
   scrollContainer.value = element
-})
-
+}
 const scrollToTop = () => {
   if (scrollContainer.value) {
     // 情况 1: 找到了可滚动的父容器，对该容器进行滚动
