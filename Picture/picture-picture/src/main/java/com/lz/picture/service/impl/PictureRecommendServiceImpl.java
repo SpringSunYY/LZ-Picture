@@ -307,6 +307,7 @@ public class PictureRecommendServiceImpl implements IPictureRecommendService {
         PictureQueryRequest userPictureInfoQuery = new PictureQueryRequest();
         userPictureInfoQuery.setPageNum(req.getCurrentPage() + 1);
         userPictureInfoQuery.setPageSize(req.getPageSize());
+        userPictureInfoQuery.setUploadType(req.getUploadType());
         return pictureInfoService.queryPictureInfoList(userPictureInfoQuery);
     }
 

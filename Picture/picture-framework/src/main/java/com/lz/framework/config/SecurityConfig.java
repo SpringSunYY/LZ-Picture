@@ -127,18 +127,22 @@ public class SecurityConfig {
                     permitAllUrlProperties.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                     // 对于登录login 注册register 验证码captchaImage 允许匿名访问
                     requests.requestMatchers("/admin/login", "/admin/logout", "/admin/register", "/admin/captchaImage").permitAll()
-                            .requestMatchers("/user/login", "user/captchaImage", "user/getSmsLoginCode",
+                            .requestMatchers(
+                                    "user/system/dict/data/type/**",
+                                    "/user/login", "user/captchaImage", "user/getSmsLoginCode",
                                     "user/smsLogin", "user/register", "user/getRegisterCode",
                                     "/user/getForgetPasswordCode", "/user/forgetPassword",
                                     "/user/config/noticeInfo/exhibit",
                                     "/user/picture/pictureInfo/list",
                                     "/user/picture/pictureInfo/search/recommend",
                                     "/user/picture/pictureInfo/recommend",
+                                    "/user/picture/pictureInfo/recommend/ai",
                                     "/user/picture/pictureInfo/search/suggestion",
                                     "/user/picture/pictureInfo/hot",
                                     "/user/picture/pictureCategoryInfo/list",
                                     "/user/config/configInfo/key/**",
-                                    "/user/points/pay/alipay/callback").permitAll()
+                                    "/user/points/pay/alipay/callback",
+                                    "/user/ai/modelParamsInfo/list").permitAll()
                             // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/admin/swagger-ui.html", "/admin/v3/api-docs/**", "/admin/swagger-ui/**", "/admin/druid/**").permitAll()

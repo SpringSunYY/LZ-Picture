@@ -32,7 +32,6 @@ public class UserModelParamsInfoController extends BaseUserInfoController
     /**
      * 查询AI模型参数配置列表
      */
-    @PreAuthorize("@uss.hasLogin()")
     @GetMapping("/list")
     public AjaxResult list(ModelParamsInfoRequest request)
     {
