@@ -449,7 +449,7 @@ onUnmounted(() => {
   .stats {
     display: flex;
     justify-content: center;
-    gap: 24px;
+    gap: 16px;
     margin-bottom: 16px;
 
     .stat-item {

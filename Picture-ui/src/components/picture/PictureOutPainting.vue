@@ -122,9 +122,9 @@ const clearPolling = () => {
 const dnsUrl = import.meta.env.VITE_DNS_URL
 const createUrl = () => {
   if (!props.picture?.pictureUrl?.startsWith('http')) {
-    return dnsUrl + props.picture?.pictureUrl ?? ''
+    return dnsUrl + props.picture?.pictureUrl || ''
   } else {
-    return props.picture?.pictureUrl ?? ''
+    return props.picture?.pictureUrl || ''
   }
 }
 
