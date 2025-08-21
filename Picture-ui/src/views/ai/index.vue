@@ -3,7 +3,7 @@
     <div class="container mx-auto">
       <div class="text-center">
         <h1 class="font-bold text-white p-3">
-          LZ-Picture，和我一起用AI打造属于我们的图片生态
+          {{ nickName ? '你好, ' + nickName : 'LZ - Picture' }}，和我一起用AI打造属于我们的图片生态
         </h1>
       </div>
       <SearchInput
@@ -84,7 +84,11 @@ import AiInput from '@/components/ai/AiInput.vue'
 import DirectionAwareHover from '@/components/DirectionAwareHover.vue'
 import AiPicture from '@/views/ai/aiPicture.vue'
 import { useRouter } from 'vue-router'
+import useUserStore from '@/stores/modules/user.ts'
+import { storeToRefs } from 'pinia'
 
+const userStore = useUserStore()
+const { nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 const searchHistoryName = ref<string>('pictureHistory')
 
 const pictureRef = ref()

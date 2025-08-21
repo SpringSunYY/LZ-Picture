@@ -6,7 +6,7 @@
     >
       <div class="text-center">
         <h1 class="font-bold text-blue-500 p-10 fade-down-in">
-          LZ-Picture，和我一起用AI打造属于我们的图片生态
+          {{ nickName ? '你好, ' + nickName : 'LZ - Picture' }}，和我一起用AI打造属于我们的图片生态
         </h1>
       </div>
       <SearchInput
@@ -41,6 +41,11 @@ import type {
 import NoticeWindows from '@/components/NoticeWindows.vue'
 import { useConfig } from '@/utils/config.ts'
 import { formatDnsUrl } from '@/utils/common.ts'
+import { storeToRefs } from 'pinia'
+import useUserStore from '@/stores/modules/user.ts'
+
+const userStore = useUserStore()
+const { nickName: nickName } = storeToRefs(userStore) // 使用 storeToRefs 提取响应式状态
 
 const searchHistoryName = ref<string>('pictureHistory')
 
