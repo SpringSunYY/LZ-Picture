@@ -6,7 +6,7 @@
     <a-layout>
       <a-layout>
         <!-- 顶部栏（添加占位容器） -->
-        <div class="header-wrapper">
+        <div class="header-wrapper" :style="{ height: headerHeight }">
           <a-layout-header class="header" :class="{ hidden: isHeaderHidden }">
             <GlobalHeader />
           </a-layout-header>
@@ -39,13 +39,32 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import GlobalHeader from '@/layout/base/GlobalHeader/index.vue'
 import BackToUp from '@/components/BackToUp.vue'
 
 // 控制顶部和底部显隐
 const isHeaderHidden = ref(false)
 const isFooterHidden = ref(false)
+const headerHeight = ref('64px')
+
+const route = useRoute()
+
+// 根据路由设置不同的header高度
+const setHeaderHeight = (route: any) => {
+  // 你可以根据不同的路由设置不同的高度
+  if (route.path === '/') {
+    headerHeight.value = '0px'
+  } else {
+    headerHeight.value = '64px'
+  }
+}
+
+// 监听路由变化
+watch(() => route, (newRoute) => {
+  setHeaderHeight(newRoute)
+}, { immediate: true, deep: true })
 
 let lastScrollTop = window.scrollY
 let ticking = false
@@ -72,6 +91,12 @@ const updateVisibility = () => {
 
   lastScrollTop = Math.max(current, 0)
   ticking = false
+}
+
+// 如果是首页,默认不显示
+if (window.location.pathname === '/') {
+  isHeaderHidden.value = true
+  isFooterHidden.value = true
 }
 
 const onScroll = () => {

@@ -1,37 +1,41 @@
+
 <template>
   <div class="home-view">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-blue-500 p-3">LZ-Picture，打造属于我们的图片生态</h1>
+    <div class="home-title" :style="{ backgroundImage: bg ? 'url(' + bg + ')' : 'none' }">
+      <div class="text-center">
+        <h1 class="font-bold text-blue-500 p-10">LZ-Picture，和我一起用AI打造属于我们的图片生态</h1>
+      </div>
+      <SearchInput
+        class="container mx-auto p-4 "
+        @search="searchSearch"
+        @clear-search="clearSearch"
+        @input="searchInput"
+        @search-by-recommend="searchByRecommend"
+        @search-by-suggestion="searchBySuggestion"
+        @search-by-history="searchByHistory"
+        :recommendationList="recommendationList"
+        :suggestionList="suggestionList"
+        :searchHistoryName="searchHistoryName"
+      ></SearchInput>
     </div>
-    <SearchInput
-      class="container mx-auto p-4"
-      @search="searchSearch"
-      @clear-search="clearSearch"
-      @input="searchInput"
-      @search-by-recommend="searchByRecommend"
-      @search-by-suggestion="searchBySuggestion"
-      @search-by-history="searchByHistory"
-      :recommendationList="recommendationList"
-      :suggestionList="suggestionList"
-      :searchHistoryName="searchHistoryName"
-    ></SearchInput>
     <Picture ref="pictureRef" />
     <NoticeWindows />
   </div>
 </template>
-<script setup lang="ts" name="HomeView">
-import Picture from '@/views/picture/picture/picture.vue'
+<script setup lang="ts" name="HomeView">import Picture from '@/views/picture/picture/picture.vue'
 import SearchInput, {
   type SearchRecommend,
   type SearchSuggestion,
 } from '@/components/SearchInput.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { getSearchRecommend, getSearchSuggest } from '@/api/picture/picture.ts'
 import type {
   PictureInfoSearchRecommendVo,
   PictureInfoSearchSuggestionVo,
 } from '@/types/picture/picture'
 import NoticeWindows from '@/components/NoticeWindows.vue'
+import { useConfig } from '@/utils/config.ts'
+import { formatDnsUrl } from '@/utils/common.ts'
 
 const searchHistoryName = ref<string>('pictureHistory')
 
@@ -110,9 +114,44 @@ const getRecommendationList = () => {
   })
 }
 getRecommendationList()
+
+const bg = ref<string>('')
+onMounted(async () => {
+  bg.value = await useConfig('index:bg:image')
+  bg.value = formatDnsUrl(bg.value)
+  console.log('bg', bg.value)
+})
 </script>
-<style>
-.home-view {
+<style scoped>.home-view {
   margin: 0 auto;
+}
+
+.home-view .home-title {
+  background-color: #f5f5f5;
+  padding: 20px;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+}
+
+.home-view .home-title .text-center {
+  text-indent: 2em;
+  font-size: 6vh;
+  padding-top: 10vh;
+  text-align: center;
+  width: 60%;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .home-view .home-title {
+    height: 60vh;
+  }
+
+  .home-view .home-title .text-center {
+    padding-top: 4vh;
+    width: 100%;
+    font-size: 4vh;
+  }
 }
 </style>

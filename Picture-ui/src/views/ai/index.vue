@@ -16,6 +16,7 @@
       :recommendationList="recommendationList"
       :suggestionList="suggestionList"
       :searchHistoryName="searchHistoryName"
+      style="--bg-color: rgba(245, 245, 245, 0.99)"
     ></SearchInput>
     Grid with proper spacing and responsive design
     <div style="margin-top: 20px"></div>
@@ -168,7 +169,10 @@ $dark-bg-color: #000000;
   background-color: $dark-bg-color;
 
   .text-center {
-    padding-top: 50px;
+    padding-top: 80px;
+    text-align: center;
+    width: 60%;
+    margin: 0 auto;
   }
 }
 </style>

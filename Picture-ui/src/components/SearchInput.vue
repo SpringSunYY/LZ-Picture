@@ -14,6 +14,7 @@
           @keydown.escape="hideDropdown"
           class="w-full px-4 py-3 pl-12 pr-12 text-lg border-2 border-gray-200 rounded-full focus:border-blue-500 focus:outline-none transition-all duration-200 shadow-lg"
           placeholder="搜索你想要的内容..."
+          :style="{ backgroundColor: 'var(--bg-color, #fff)' }"
         />
 
         <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
@@ -45,7 +46,8 @@
 
       <div
         v-if="showDropdown"
-        class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto"
+        class="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto"
+        :style="{ backgroundColor: 'var(--bg-color, #fff)' }"
       >
         <div v-if="suggestions.length > 0" class="p-2">
           <div class="text-xs text-gray-500 px-3 py-2 font-medium">搜索建议</div>
@@ -86,7 +88,7 @@
               v-for="(history, index) in searchHistory.slice(0, 10)"
               :key="'history-' + index"
               @click="selectHistory(history)"
-              class="history-item flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer rounded-md transition-colors"
+              class="history-item flex text-gray-600 items-center px-3 py-2 hover:bg-gray-50 cursor-pointer rounded-md transition-colors"
             >
               <svg
                 class="w-4 h-4 mr-3 text-gray-400"
@@ -154,7 +156,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-//推荐对象
+// 推荐对象
 export interface SearchRecommend {
   id: number
   title: string
@@ -162,13 +164,13 @@ export interface SearchRecommend {
   image: string
 }
 
-//建议对象
+// 建议对象
 export interface SearchSuggestion {
   id: string
   name: string
 }
 
-//定义导入数据
+// 定义导入数据
 const props = defineProps({
   suggestionList: {
     type: Array<SearchSuggestion>,
@@ -323,8 +325,23 @@ defineExpose({
 
 <style scoped lang="scss">
 .search-input {
+  // 定义 CSS 变量，提供一个默认值，可以在父组件中重写
+  --bg-color: rgba(255, 255, 255, 0.5);
+  --dropdown-bg-color: rgba(255, 255, 255, 0.5);
+  --hover-bg-color: rgba(255, 255, 255, 0.5);
+
+  // 使用 CSS 变量来设置背景颜色
+  .bg-white {
+    background-color: var(--bg-color);
+  }
+
+  .hover\:bg-gray-50:hover {
+    background-color: var(--bg-color);
+  }
+
+  // 原有的其他样式
   mark {
-    background-color: #fef08a;
+    background-color: transparent;
     padding: 0;
   }
 
@@ -361,17 +378,18 @@ defineExpose({
   }
 
   .history-item:hover {
-    background-color: rgba(0, 255, 61, 0.62);
+    background-color: rgba(0, 255, 61, 0.32);
     transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .recommend-item {
     position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
-    border: none; /* 移除原来的边框 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: none;
+
     &:hover {
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* 悬停时增强阴影 */
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     }
   }
 }
