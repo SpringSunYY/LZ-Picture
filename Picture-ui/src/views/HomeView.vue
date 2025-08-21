@@ -124,7 +124,7 @@ const bg = ref<string>('')
 onMounted(async () => {
   bg.value = await useConfig('index:bg:image')
   bg.value = formatDnsUrl(bg.value)
-  console.log('bg', bg.value)
+  // console.log('bg', bg.value)
 })
 </script>
 <style scoped>

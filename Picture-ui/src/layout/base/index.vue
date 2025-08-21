@@ -24,14 +24,27 @@
         <BackToUp />
         <!-- 底部栏 -->
         <a-layout-footer class="footer" :class="{ hidden: isFooterHidden }">
-          <a href="https://github.com/SpringSunYY/LZ-Picture" target="_blank" style="color: #0048ff">
-            LZ-Picture by 广州市天河区荔枝软件开发工作室
-          </a>|
-          <a href="https://beian.miit.gov.cn/" target="_blank">备案号 粤ICP备2025445613号-1 </a>|
-          <span>© {{ new Date().getFullYear()}} springsun.online. All Rights Reserved.</span>|
-          <a style="color: #30b826" href="/about" target="_blank">
-            关于我们
-          </a>
+          <a
+            href="https://github.com/SpringSunYY/LZ-Picture"
+            target="_blank"
+            style="color: #0048ff"
+          >
+            LZ-Picture by 荔枝软件开发工作室 </a
+          >| <a href="https://beian.miit.gov.cn/" target="_blank">备案号 粤ICP备2025445613号-1</a>|
+          <!-- 公安备案 -->
+          <a
+            href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44010602013923"
+            target="_blank"
+            style="display: inline-flex; align-items: center; gap: 4px; color: #999"
+          >
+            <img
+              src="https://www.beian.gov.cn/img/new/gongan.png"
+              style="height: 12px"
+              alt="公安备案图标"
+            />
+            粤公网安备44010602013923号 </a
+          >| <span>© {{ new Date().getFullYear() }} springsun.online. All Rights Reserved.</span>|
+          <a style="color: #30b826" href="/about" target="_blank">关于我们</a>
         </a-layout-footer>
       </a-layout>
     </a-layout>
@@ -62,9 +75,13 @@ const setHeaderHeight = (route: any) => {
 }
 
 // 监听路由变化
-watch(() => route, (newRoute) => {
-  setHeaderHeight(newRoute)
-}, { immediate: true, deep: true })
+watch(
+  () => route,
+  (newRoute) => {
+    setHeaderHeight(newRoute)
+  },
+  { immediate: true, deep: true },
+)
 
 let lastScrollTop = window.scrollY
 let ticking = false

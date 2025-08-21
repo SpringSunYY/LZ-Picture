@@ -5,7 +5,7 @@
         关于我们
       </h1>
       <p class="mt-6 text-xl sm:text-2xl md:text-3xl max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
-        我们（荔枝软件开发工作室）致力于通过创新和卓越，为您的生活和工作带来积极的改变，致力于一览无余的无限进步。
+        我们（广州市天河区荔枝软件开发工作室）致力于通过创新和卓越，为您的生活和工作带来积极的改变，致力于一览无余的无限进步。
       </p>
     </div>
     <!-- 背景装饰元素 -->
