@@ -178,7 +178,6 @@ public interface IPictureInfoService extends IService<PictureInfo> {
      * 获取图片搜索建议
      *
      * @param
-     * @param name       图片名称
      * @param uploadType 上传类型
      * @return List<PictureInfoSearchSuggestionVo>
      * @author: YY
