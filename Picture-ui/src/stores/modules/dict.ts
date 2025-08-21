@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Dict } from '@/types/common'
 import { toRaw } from 'vue'
+import { formatDateByDate } from '@/utils/common.ts'
 
 interface DictItem {
   key: string
@@ -13,24 +14,33 @@ export const useDictStore = defineStore('dict', {
   }),
 
   actions: {
-    getDict(_key: string): Dict[] | null {
-      if (!_key) return null
-      const item = this.dict.find((item) => item.key === _key)
+    getDict(key: string): Dict[] | null {
+      if (!key) return null
+      const now = formatDateByDate(new Date())
+      // console.log('当前时间：', now)
+      key = now + ':' + key
+      const item = this.dict.find((item) => item.key === key)
       return item ? toRaw(item.value) : null
     },
 
-    setDict(_key: string, value: Dict[]): void {
-      if (!_key) return
-      const existingIndex = this.dict.findIndex((item) => item.key === _key)
+    setDict(key: string, value: Dict[]): void {
+      if (!key) return
+      const now = formatDateByDate(new Date())
+      // console.log('当前时间：', now)
+      key = now + ':' + key
+      const existingIndex = this.dict.findIndex((item) => item.key === key)
       if (existingIndex !== -1) {
         this.dict[existingIndex].value = value // 覆盖
       } else {
-        this.dict.push({ key: _key, value })
+        this.dict.push({ key: key, value })
       }
     },
 
-    removeDict(_key: string): boolean {
-      const index = this.dict.findIndex((item) => item.key === _key)
+    removeDict(key: string): boolean {
+      const now = formatDateByDate(new Date())
+      // console.log('当前时间：', now)
+      key = now + ':' + key
+      const index = this.dict.findIndex((item) => item.key === key)
       if (index !== -1) {
         this.dict.splice(index, 1)
         return true

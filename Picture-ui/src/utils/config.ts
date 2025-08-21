@@ -7,7 +7,7 @@ export async function useConfig(key: string): Promise<string> {
   if (cached !== undefined && cached !== null) {
     return cached
   }
-  console.log('useConfig', key)
+  // console.log('useConfig', key)
   const resp = await getConfig(key)
   if (resp?.data?.configValue) {
     configStore.setConfig(key, resp.data.configValue)
