@@ -295,12 +295,12 @@ const submitGenerate = async () => {
     message.warn('请填写提示词')
     return
   }
-  isGenerating.value = true
   message.success('开始校验密码', 1)
   const verified = await verify('生成图片')
   if (!verified) return
+  isGenerating.value = true
   message.success('正在生成图片，请不要刷新界面...', 5)
-  console.log('开始生成图片', modelInfo.value)
+  // console.log('开始生成图片', modelInfo.value)
   try {
     const res = await generate({
       prompt: prompt.value,
