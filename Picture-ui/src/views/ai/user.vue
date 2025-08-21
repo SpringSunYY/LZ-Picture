@@ -55,7 +55,7 @@
         />
       </p>
       <div class="actions">
-        <FollowButton class="follow-btn" />
+        <FollowButton @click="handleFollowUser" class="follow-btn" />
         <ShareButton @click="handleShareUser('3')" class="share-btn" />
       </div>
     </aside>
@@ -296,6 +296,10 @@ const handleShareUser = () => {
   openShare.value = true
 }
 
+//关注用户
+const handleFollowUser=()=>{
+  message.warn('暂未实现')
+}
 // 监听路由变化
 watch(
   () => route.query,

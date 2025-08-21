@@ -2,7 +2,7 @@
   <div class="ai">
     <div class="container mx-auto">
       <div class="text-center">
-        <h1 class="text-5xl font-bold text-white p-3">
+        <h1 class="font-bold text-white p-3">
           LZ-Picture，和我一起用AI打造属于我们的图片生态
         </h1>
       </div>
@@ -184,8 +184,18 @@ $dark-bg-color: #000000;
   .text-center {
     padding-top: 80px;
     text-align: center;
+    font-size: 6vh;
     width: 60%;
     margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .ai {
+    .text-center {
+      width: 90%;
+      font-size: 3vh;
+    }
   }
 }
 </style>

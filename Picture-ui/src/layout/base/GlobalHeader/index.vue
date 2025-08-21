@@ -4,7 +4,7 @@
       <a-col>
         <RouterLink to="/">
           <div class="title-bar">
-            <img class="logo" src="../../../assets/logo.svg" alt="logo" />
+            <img class="logo" src="/logo.svg" alt="logo" />
             <div class="title" v-if="!isMobile">LZ-Picture</div>
           </div>
         </RouterLink>

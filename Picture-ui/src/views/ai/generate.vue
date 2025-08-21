@@ -499,8 +499,6 @@ $text-color: #ffffff;
   background-color: $bg-right-color;
   height: 100vh;
   overflow-y: auto;
-  min-width: 50vh;
-
   .content {
     margin: 1em 2em;
 
@@ -556,6 +554,9 @@ $text-color: #ffffff;
       border-radius: 2vh;
       position: relative;
 
+      @media (max-width: 768px) {
+        height: auto;
+      }
       .picture {
         height: 100%;
       }

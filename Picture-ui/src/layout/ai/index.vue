@@ -2,7 +2,12 @@
   <div class="aiLayout">
     <a-layout has-sider>
       <a-layout-sider :collapsed="true" class="navigate" v-show="!$route.meta.fullPage">
-        <img class="logo" src="../../assets/logo.svg" alt="logo" />
+        <RouterLink to="/">
+          <div class="title-bar">
+            <img class="logo" src="/logo.svg" alt="logo" />
+            <div class="title" v-if="!isMobile">LZ-Picture</div>
+          </div>
+        </RouterLink>
         <div class="menu">
           <a-menu
             mode="inline"
@@ -152,6 +157,7 @@ $dark-menu-active-color: #003fb8;
   justify-content: space-between;
   overflow: hidden;
   border-right: 1px solid $dark-border-color;
+
   .logo {
     width: 100%;
     height: 100px;
@@ -160,6 +166,7 @@ $dark-menu-active-color: #003fb8;
     justify-content: center;
     padding: 12px 0;
   }
+
   .menu {
     position: absolute;
     top: 40%;
@@ -170,6 +177,7 @@ $dark-menu-active-color: #003fb8;
     justify: center;
     pointer-events: auto;
   }
+
   .user {
     position: absolute;
     bottom: 12px;
@@ -177,45 +185,56 @@ $dark-menu-active-color: #003fb8;
     width: 100%;
     display: flex;
     justify-content: center;
+
     .user-info {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
     }
+
     .user-avatar {
       cursor: pointer;
     }
   }
 }
+
 :deep(.ant-menu) {
   background: $dark-bg-color;
   color: $dark-text-primary;
 }
+
 :deep(.ant-menu-item) {
   color: $dark-text-secondary;
 }
+
 :deep(.ant-menu-item:hover) {
   color: $dark-menu-active-color;
   background-color: $dark-menu-hover-bg;
 }
+
 :deep(.ant-menu-item-selected) {
   color: $dark-menu-active-color;
   background-color: $dark-menu-selected-bg;
 }
+
 :deep(.ant-menu-item-selected:hover) {
   background-color: $dark-menu-selected-bg;
 }
+
 :deep(.ant-dropdown-menu) {
   background-color: $dark-bg-color;
 }
+
 :deep(.ant-dropdown-menu-item) {
   color: $dark-text-secondary;
 }
+
 :deep(.ant-dropdown-menu-item:hover) {
   background-color: $dark-menu-hover-bg;
   color: $dark-text-primary;
 }
+
 :deep(.svg-icon) {
   color: $dark-text-secondary;
   width: 1.2em;

@@ -381,7 +381,7 @@ watch(
       (item) => item.dictValue === newVal.modelType,
     )
     if (typeOption) selectedImageOption.value = typeOption
-    console.log(ai_model_params_type)
+    // console.log(ai_model_params_type)
     if (newVal.modelKeys?.length) {
       selectedModelOptions.value =
         modelList.value?.filter((m) => newVal.modelKeys.includes(m.modelKey)) || []
