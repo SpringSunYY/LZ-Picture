@@ -1,12 +1,16 @@
-
 <template>
   <div class="home-view">
-    <div class="home-title" :style="{ backgroundImage: bg ? 'url(' + bg + ')' : 'none' }">
+    <div
+      class="home-title background-fade-in"
+      :style="{ backgroundImage: bg ? 'url(' + bg + ')' : 'none' }"
+    >
       <div class="text-center">
-        <h1 class="font-bold text-blue-500 p-10">LZ-Picture，和我一起用AI打造属于我们的图片生态</h1>
+        <h1 class="font-bold text-blue-500 p-10 fade-down-in">
+          LZ-Picture，和我一起用AI打造属于我们的图片生态
+        </h1>
       </div>
       <SearchInput
-        class="container mx-auto p-4 "
+        class="container mx-auto p-4"
         @search="searchSearch"
         @clear-search="clearSearch"
         @input="searchInput"
@@ -22,7 +26,8 @@
     <NoticeWindows />
   </div>
 </template>
-<script setup lang="ts" name="HomeView">import Picture from '@/views/picture/picture/picture.vue'
+<script setup lang="ts" name="HomeView">
+import Picture from '@/views/picture/picture/picture.vue'
 import SearchInput, {
   type SearchRecommend,
   type SearchSuggestion,
@@ -83,7 +88,7 @@ const searchInput = (value: string) => {
 const suggestionList = ref<SearchSuggestion[]>([])
 const getSearchSuggestList = (value: string) => {
   // console.log('searchInput', value)
-  getSearchSuggest(value).then((res) => {
+  getSearchSuggest(value, '').then((res) => {
     //遍历rows，添加到suggestionList中
     suggestionList.value =
       res?.rows?.map((item: PictureInfoSearchSuggestionVo) => {
@@ -99,7 +104,7 @@ const getSearchSuggestList = (value: string) => {
 const recommendationList = ref<SearchRecommend[]>([])
 //获取推荐列表
 const getRecommendationList = () => {
-  getSearchRecommend().then((res) => {
+  getSearchRecommend('').then((res) => {
     //遍历rows，添加到recommendationList中
     recommendationList.value =
       res?.rows?.map((item: PictureInfoSearchRecommendVo) => {
@@ -122,7 +127,8 @@ onMounted(async () => {
   console.log('bg', bg.value)
 })
 </script>
-<style scoped>.home-view {
+<style scoped>
+.home-view {
   margin: 0 auto;
 }
 
@@ -143,6 +149,10 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
+.background-fade-in {
+  animation: background-fade-in 1.5s ease-in-out forwards;
+}
+
 @media (max-width: 768px) {
   .home-view .home-title {
     height: 60vh;
@@ -152,6 +162,54 @@ onMounted(async () => {
     padding-top: 4vh;
     width: 100%;
     font-size: 4vh;
+  }
+}
+
+/* 定义标题的渐入动画：从上方移动并渐渐显示 */
+@keyframes fade-down-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 定义搜索框的渐入动画：从下方移动并渐渐显示 */
+@keyframes fade-up-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 应用动画到对应的类上 */
+.fade-down-in {
+  /* 使用 fade-down-in 动画，持续1.5秒，缓出效果，并在动画结束后保持最终状态 */
+  animation: fade-down-in 1.5s ease-out forwards;
+}
+
+.fade-up-in {
+  will-change: transform, opacity;
+  /* 使用 fade-up-in 动画，持续1.5秒，缓出效果，并在动画结束时保持最终状态 */
+  animation: fade-up-in 1.5s ease-out forwards;
+  /* 延迟0.5秒执行此动画，让标题先出现，创造层次感 */
+  animation-delay: 0.5s;
+}
+
+/* 定义背景图片的渐入动画 */
+@keyframes background-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 </style>
