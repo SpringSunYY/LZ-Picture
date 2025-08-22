@@ -226,6 +226,8 @@
           <a-date-picker
             v-model:value="formState.birthday"
             placeholder="请选择生日"
+            type="date"
+            value-format="YYYY-MM-DD"
             style="width: 100%"
           />
         </a-form-item>
