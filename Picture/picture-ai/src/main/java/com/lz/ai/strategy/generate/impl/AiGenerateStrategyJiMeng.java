@@ -109,7 +109,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         futures.forEach(future -> {
             try {
                 GenerateLogInfo generateLogInfo = future.get();
-                System.out.println("generateLogInfo = " + generateLogInfo);
+//                System.out.println("generateLogInfo = " + generateLogInfo);
                 generateLogInfos.add(generateLogInfo);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -195,7 +195,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
     private void saveGenerateLogInfoByImg(GenerateLogInfoDto infoDto, JiMengResponse.DataContent data, GenerateLogInfo generateLogInfo) {
         List<String> imageUrls = data.getImage_urls();
         for (String imageUrl : imageUrls) {
-            System.out.println("imageUrl = " + imageUrl);
+//            System.out.println("imageUrl = " + imageUrl);
             try {
 //                    // 下载图片
 //                    URL urlImage = new URL(imageUrl);
@@ -214,7 +214,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 generateLogInfo.setHeight(Math.toIntExact(fileResponse.getPicHeight()));
                 generateLogInfo.setFileSize(fileResponse.getPicSize());
                 generateLogInfo.setFileUrls(fileResponse.getUrl() + COMMON_SEPARATOR + fileResponse.getThumbnailUrl());
-                System.out.println("fileResponse = " + fileResponse);
+//                System.out.println("fileResponse = " + fileResponse);
                 //添加文件日志
                 DeviceInfo deviceInfo = new DeviceInfo();
                 deviceInfo.setDeviceId(infoDto.getDeviceId());
@@ -224,7 +224,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 deviceInfo.setPlatform(infoDto.getPlatform());
                 AiAsyncManager.me().execute(AiFileLogAsyncFactory.recordFileLog(fileResponse, infoDto.getUserId(), generateLogInfo.getTaskId(), generateLogInfo.getLogId(), deviceInfo));
             } catch (Exception e) {
-                log.error("图片保存失败: " + e.getMessage());
+                log.error("图片保存失败: {}", e.getMessage());
             }
         }
     }
@@ -326,7 +326,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 // 清理base64数据，移除可能的换行符和空格
                 base64Data = base64Data.replaceAll("\\s+", "");
                 jiMengParams.setBinary_data_base64(new String[]{base64Data});
-                System.out.println("base64Data = " + base64Data.substring(0, 100));
+//                System.out.println("base64Data = " + base64Data.substring(0, 100));
             } else {
                 return jiMengParams;
             }
@@ -357,7 +357,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             querySB.append(signStringEncoder(key)).append("=").append(signStringEncoder(realQueryList.get(key))).append("&");
         }
         querySB.deleteCharAt(querySB.length() - 1);
-        System.out.println("querySB = " + querySB);
+//        System.out.println("querySB = " + querySB);
         String canonicalStringBuilder = method + "\n" + path + "\n" + querySB + "\n" +
                 "host:" + host + "\n" +
                 "x-date:" + xDate + "\n" +
@@ -367,7 +367,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
                 signHeader + "\n" +
                 xContentSha256;
 
-        System.out.println(canonicalStringBuilder);
+//        System.out.println(canonicalStringBuilder);
 
         String hashcanonicalString = hashSHA256(canonicalStringBuilder.getBytes());
         String credentialScope = shortXDate + "/" + region + "/" + service + "/request";
@@ -412,7 +412,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             buffer.write(imageData, 0, bytesRead);
         }
         String responseBody = buffer.toString(StandardCharsets.UTF_8);
-        System.out.println("responseBody = " + responseBody);
+//        System.out.println("responseBody = " + responseBody);
         is.close();
         return JSONObject.parseObject(responseBody, JiMengResponse.class);
     }
@@ -491,7 +491,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
         jiMengParams.setPrompt(null);
         jiMengParams.setUse_pre_llm(null);
         String jsonString = JSONObject.toJSONString(jiMengParams);
-        System.out.println("jsonString = " + jsonString);
+//        System.out.println("jsonString = " + jsonString);
         try {
             Date nowDate = new Date();
             generateLogInfo.setRequestTime(nowDate);
@@ -501,7 +501,7 @@ public class AiGenerateStrategyJiMeng extends AiGenerateStrategyTemplate {
             generateLogInfo.setFailReason(jiMengResponse.getMessage());
             generateLogInfo.setAiStatusCode(String.valueOf(jiMengResponse.getCode()));
             generateLogInfo.setOutputResult(JSONObject.toJSONString(jiMengResponse));
-            System.out.println("jiMengResponse = " + jiMengResponse);
+//            System.out.println("jiMengResponse = " + jiMengResponse);
             if (jiMengResponse.getCode() == 10000) {
                 JiMengResponse.DataContent data = jiMengResponse.getData();
                 if (StringUtils.isNull(data)) {

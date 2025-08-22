@@ -29,7 +29,9 @@
         <textarea
           ref="textareaRef"
           v-model="promptInfo"
-          :placeholder="isExpanded ? '请描述你想要的图片...' : '和我一起使用AI制造我们喜欢的图片'"
+          :placeholder="
+            isExpanded ? '请描述你想要创造的图片...' : '和我一起使用AI创造我们喜欢的图片'
+          "
           @focus="expandInput"
           @input="handleTextInput"
           :style="{ height: textareaHeight + 'px' }"
@@ -106,7 +108,7 @@ const emit = defineEmits(['success'])
 //region 参数信息
 const model = ref<ModelInfo>(props.modelInfo)
 const promptInfo = ref(props.prompt)
-const file = ref<string | null>(props.fileInfo)
+const file = ref<string>(props.fileInfo)
 const isLoading = ref(false)
 
 const { verify } = usePasswordVerify()

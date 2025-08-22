@@ -1,6 +1,5 @@
 package com.lz.quartz.task;
 
-import com.lz.common.utils.StringUtils;
 import com.lz.config.service.IFileLogInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -28,8 +27,8 @@ public class FileLogTask {
      * @method: autoDeleteFile
      * @date: 2025/5/11 18:02
      **/
-    public void autoDeleteFile(Integer size,Integer days) {
-        System.out.println("自动删除文件 = " + size+"，天数"+days);
-        fileLogInfoService.autoDeleteFile(size,days);
+    public void autoDeleteFile(Integer size, Integer days) {
+        System.out.println("自动删除文件 = " + size + "，天数" + days);
+        fileLogInfoService.autoDeleteFile(size, days);
     }
 }

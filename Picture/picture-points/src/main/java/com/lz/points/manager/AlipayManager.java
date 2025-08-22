@@ -69,7 +69,7 @@ public class AlipayManager {
         bizContent.put("timeout_express", alipayPcPaymentRequest.getTimeoutExpress());
         bizContent.put("product_code", alipayPcPaymentRequest.getProductCode());
         request.setBizContent(bizContent.toString());
-        System.out.println("bizContent = " + bizContent.toString());
+//        System.out.println("bizContent = " + bizContent.toString());
 
         AlipayTradePagePayResponse response = alipayClient.pageExecute(request, "POST");
         // 如果需要返回GET请求，请使用
@@ -78,19 +78,18 @@ public class AlipayManager {
 
         AlipayPcPaymentResponse result = new AlipayPcPaymentResponse();
         if (response.isSuccess()) {
-            System.out.println("调用成功");
-            StringBuffer sb = new StringBuffer();
-            sb.append("<!DOCTYPE html>\n" +
+//            System.out.println("调用成功");
+            String sb = "<!DOCTYPE html>\n" +
                     "<html lang=\"en\">\n" +
                     "<head>\n" +
                     "    <meta charset=\"UTF-8\">\n" +
                     "    <title>Title</title>\n" +
                     "</head>\n" +
-                    "<body>");
-            sb.append(pageRedirectionData);
-            sb.append("</body>\n" +
-                    "</html>");
-            result.setHtml(sb.toString());
+                    "<body>" +
+                    pageRedirectionData +
+                    "</body>\n" +
+                    "</html>";
+            result.setHtml(sb);
             result.setPageRedirectionData(pageRedirectionData);
         } else {
             log.error("支付请求失败:{}", JSONObject.toJSONString(response));

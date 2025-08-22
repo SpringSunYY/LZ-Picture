@@ -5,8 +5,11 @@
       :style="{ backgroundImage: bg ? 'url(' + bg + ')' : 'none' }"
     >
       <div class="text-center">
-        <h1 class="font-bold text-blue-500 p-10 fade-down-in">
-          {{ nickName ? '你好, ' + nickName : 'LZ - Picture' }}，和我一起用AI打造属于我们的图片生态
+        <h1 class="font-bold text-blue-500 p-10 fade-down-in" v-if="nickName">
+          你好, {{ nickName }}，和我一起用AI打造属于我们的图片生态
+        </h1>
+        <h1 class="font-bold text-blue-500 p-10 fade-down-in" v-else>
+          LZ - Picture，和我一起用AI打造属于我们的图片生态
         </h1>
       </div>
       <SearchInput
