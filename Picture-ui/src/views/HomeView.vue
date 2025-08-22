@@ -149,7 +149,6 @@ onMounted(async () => {
 }
 
 .home-view .home-title .text-center {
-  text-indent: 2em;
   font-size: 6vh;
   padding-top: 10vh;
   text-align: center;
