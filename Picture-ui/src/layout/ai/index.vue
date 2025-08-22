@@ -160,7 +160,7 @@ $dark-menu-active-color: #003fb8;
 
   .logo {
     width: 100%;
-    height: 100px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -174,7 +174,6 @@ $dark-menu-active-color: #003fb8;
     transform: translateY(-50%);
     width: 100%;
     display: flex;
-    justify: center;
     pointer-events: auto;
   }
 
