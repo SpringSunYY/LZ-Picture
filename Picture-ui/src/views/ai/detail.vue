@@ -63,7 +63,7 @@
                   <SvgIcon name="report" />
                 </a-button>
               </a-tooltip>
-              <button class="follow-button">+ 关注</button>
+              <button class="follow-button" @click="handleFollowUser">+ 关注</button>
             </a-space>
           </div>
         </div>
@@ -434,7 +434,10 @@ const handleBack = () => {
   router.back()
 }
 //endregion
-
+//关注用户
+const handleFollowUser=()=>{
+  message.warn('暂未实现')
+}
 // 生命周期钩子
 onMounted(async () => {
   await getPictureInfo(pictureId.value)
