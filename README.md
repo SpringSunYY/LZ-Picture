@@ -21,13 +21,42 @@ LZ-Picture是一个全栈应用程序，提供以下功能：
 
 https://springsun.online/
 
-### 系统架构
+### 系统架构/技术栈
 
-LZ-Picture遵循现代多层架构：
+- **后端**：
 
-系统基于**Spring Boot 3.x**构建，采用模块化方法，每个功能域都有其专属模块，职责清晰。
+  - Java 21
+  - Spring Boot 3.3.5
+  - MyBatis Plus3.5.12
+  - Redis (Redisson)
+  - MySQL 8
+  - JWT用于认证
+  - Lombok1.18.30
+  - 基于若依SpringBoot3（优化代码生成器，生成MP）
 
-来源：[pom.xml](https://zread.ai/SpringSunYY/LZ-Picture/Picture/pom.xml)
+- **前端**：
+
+  前端分为用户端和管理端（基于若依Vue3）
+
+  - Vue3
+  - Tailwind CSS（用户端）
+  - antdsign （用户端）
+  - SCSS（管理端）
+  - elementUiPlas（管理端）
+  - Vite构建系统
+  - pinia
+
+- **存储**：
+
+  - 阿里云OSS用于图像存储
+  - Redis用于缓存
+  - MySQL用于结构化数据
+
+- **外部服务**：
+
+  - 阿里云短信用于手机验证
+  - 支付宝用于支付处理
+  - 即梦AI（文生图/图生图，基于https实现）
 
 ### 关键组件
 
@@ -52,9 +81,28 @@ LZ-Picture遵循现代多层架构：
 - **Picture-ui**：基于Vue的用户界面，使用Tailwind CSS
 - **Picture-back-ui**：基于Vue的系统管理界面，若依VUE3
 
-两个前端都是现代单页应用（SPA），通过RESTful API与后端通信。
+两个前端都是现代单页应用（SPA），通过RESTful API与后端通信。用户端接口前缀user，管理端admin
 
+###  内置功能
 
+- 用户管理：用户是系统操作者，该功能主要完成系统用户配置。
+- 部门管理：配置系统组织机构（公司、部门、小组），树结构展现支持数据权限。
+- 岗位管理：配置系统用户所属担任职务。
+- 菜单管理：配置系统菜单，操作权限，按钮权限标识等。
+- 角色管理：角色菜单权限分配、设置角色按机构进行数据范围权限划分。
+- 字典管理：对系统中经常使用的一些较为固定的数据进行维护。
+- 参数管理：对系统动态配置常用参数。
+- 通知公告：系统通知公告信息发布维护。
+- 操作日志：系统正常操作日志记录和查询；系统异常信息日志记录和查询。
+- 登录日志：系统登录日志记录查询包含登录异常。
+- 在线用户：当前系统中活跃用户状态监控。
+- 定时任务：在线（添加、修改、删除)任务调度包含执行结果日志。
+- 代码生成：前后端代码的生成（java、html、xml、sql)支持CRUD下载 。
+- 系统接口：根据业务代码自动生成相关的api接口文档。
+- 服务监控：监视当前系统CPU、内存、磁盘、堆栈等相关信息。
+- 缓存监控：对系统的缓存信息查询，命令统计等。
+- 在线构建器：拖动表单元素生成相应的Vue代码。
+- 连接池监视：监视当期系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
 
 ## 开发规范
 
@@ -129,29 +177,31 @@ public @interface CustomCacheable {
 
 ```
 
-2. #### 删除缓存
+#### 2. 删除缓存
 
-   ```java
-   /**
-    * 自定义缓存删除注解
-    */
-   @Target(ElementType.METHOD)
-   @Retention(RetentionPolicy.RUNTIME)
-   @Documented
-   public @interface CustomCacheEvict {
-   
-       String[] keyPrefixes();
-   
-       String[] keyFields() default {}; // 支持嵌套，如 "request.userId"
-   
-       boolean useQueryParamsAsKey() default false; // 如果true，加上参数JSON串模糊删除
-   
-   }
-   ```
+```java
+/**
+ * 自定义缓存删除注解
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface CustomCacheEvict {
 
-   
+    String[] keyPrefixes();
+
+    String[] keyFields() default {}; // 支持嵌套，如 "request.userId"
+
+    boolean useQueryParamsAsKey() default false; // 如果true，加上参数JSON串模糊删除
+
+}
+```
+
+
 
 ### 2.自定义排序
+
+1. 注解
 
 ```java
 /**
@@ -172,7 +222,183 @@ public @interface CustomSort {
 }
 ```
 
+2. 查询mapper
 
+```sql
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
+```
+
+3. 使用
+
+```java
+    @CustomSort(
+            sortFields = {"usageCount", "lookCount", "downloadCount", "createTime", "updateTime", "orderNum"},
+            sortMappingFields = {
+                    "usage_count", "look_count", "download_count", "create_time", "update_time", "order_num"
+            })
+    @Override
+    public List<PictureCategoryInfo> selectPictureCategoryInfoList(PictureCategoryInfo pictureCategoryInfo) {
+        return pictureCategoryInfoMapper.selectPictureCategoryInfoList(pictureCategoryInfo);
+    }
+```
+
+4. 前端使用，此注解当前主要使用在管理端
+
+1. 在el-table加上@sort-change="customSort"自定义排序方法和ref
+
+```js
+    <el-table ref="tableRef" v-loading="loading" :data="accountInfoList" @selection-change="handleSelectionChange" @sort-change="customSort">
+```
+
+2. 在字段加上自定义排序标志
+
+```js
+      <el-table-column label="充值总金额" align="center" prop="rechargeAmount" sortable="custom"
+                       v-if="columns[6].visible" :show-overflow-tooltip="true"/>
+```
+
+5. 排序字段
+
+```js
+const isAsc = ref();
+const orderByColumn = ref('');
+```
+
+6. 新增方法
+
+```js
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
+}
+```
+
+7. 在getList添加
+
+```js
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
+```
+
+8. 在重置按钮更新ref
+
+```js
+/** 重置按钮操作 */
+function resetQuery() {
+  daterangeCreateTime.value = [];
+  daterangeUpdateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
+  proxy.resetForm("queryRef");
+  proxy.$refs.tableRef.clearSort();
+  handleQuery();
+}
+```
+
+
+
+### 3.MD编辑器
+
+​	后端MD编辑器，前端MD文件编辑器，管理端拥有编辑器和预览器，用户端只有预览器（前端基于md-editor-v3），这里只展示后端部分代码。
+
+```java
+/**
+ * 用于构建 Markdown 文档内容。
+ */
+public class MarkdownBuilder {
+
+    private final StringBuilder sb = new StringBuilder();
+
+    /**
+     * 添加标题（支持1~6级）
+     */
+    public MarkdownBuilder addHeading(String text, int level) {
+        level = Math.max(1, Math.min(6, level)); // 限制在1~6级
+        sb.append("#".repeat(level)).append(" ").append(text).append("\n\n");
+        return this;
+    }
+
+    /**
+     * 添加普通段落
+     */
+    public MarkdownBuilder addParagraph(String text) {
+        sb.append(text).append("\n\n");
+        return this;
+    }
+
+    /**
+     * 添加无序列表
+     */
+    public MarkdownBuilder addBulletList(List<String> items) {
+        for (String item : items) {
+            sb.append("- ").append(item).append("\n");
+        }
+        sb.append("\n");
+        return this;
+    }
+
+    /**
+     * 添加图片
+     * @param altText 图片的替代文本
+     * @param url 图片地址
+     */
+    public MarkdownBuilder addImage(String altText, String url) {
+        sb.append("![").append(altText).append("](").append(url).append(")").append("\n\n");
+        return this;
+    }
+
+    /**
+     * 添加表格
+     * @param headers 表头列表
+     * @param rows 行数据，每行是一个字符串列表
+     */
+    public MarkdownBuilder addTable(List<String> headers, List<List<String>> rows) {
+        // 表头
+        sb.append("| ").append(String.join(" | ", headers)).append(" |\n");
+        // 分隔线
+        sb.append("|").append(" --- |".repeat(headers.size())).append("\n");
+        // 行数据
+        for (List<String> row : rows) {
+            sb.append("| ").append(String.join(" | ", row)).append(" |\n");
+        }
+        sb.append("\n");
+        return this;
+    }
+
+    /**
+     * 导出 Markdown 内容为字符串
+     */
+    public String toMarkdown() {
+        return sb.toString();
+    }
+
+    /**
+     * 写入文件
+     */
+    public void writeToFile(String filePath) throws IOException {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write(toMarkdown());
+        }
+    }
+}
+```
 
 ## 配置模块
 

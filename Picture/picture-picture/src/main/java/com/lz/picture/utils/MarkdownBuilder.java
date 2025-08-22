@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * MarkdownBuilder 用于构建 Markdown 文档内容。
- * 基于 commonmark-java 实现，支持标题、段落、列表、图片和表格的添加。
+ * 用于构建 Markdown 文档内容。
  */
 public class MarkdownBuilder {
 
