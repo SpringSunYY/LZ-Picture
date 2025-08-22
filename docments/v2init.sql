@@ -2286,6 +2286,7 @@ INSERT INTO `sys_job` VALUES (104, '定时更新用户行为记录', 'PICTURE', 
 INSERT INTO `sys_job` VALUES (105, '定时统计图片热门-天', 'PICTURE', 'pictureTask.autoStatisticsPictureByDay', '0 0/5 * * * ?', '3', '1', '0', 'admin', '2025-07-19 02:08:55', 'admin', '2025-07-22 20:24:50', '');
 INSERT INTO `sys_job` VALUES (106, '定时更新充值套餐开始与过期', 'POINTS', 'pointsTask.autoUpdatePointsRechargePackageInfo', '0 1 0 * * ?', '3', '1', '1', 'admin', '2025-07-25 22:02:39', 'admin', '2025-08-05 21:39:18', '');
 INSERT INTO `sys_job` VALUES (107, '自动执行生成更新任务', 'AI', 'aiTask.autoExecuteUpdateTask', '0 0 0/6 * * ?', '3', '1', '0', 'admin', '2025-08-21 17:11:49', '', '2025-08-21 17:11:53', '');
+INSERT INTO  sys_job  VALUES (108, '自动执行生成统计使用量任务任务', 'AI', 'aiTask.autoStatisticsGenerateRecordUsage', '0 0 0/1 * * ?', '3', '1', '0', 'admin', '2025-08-22 15:14:06', '', '2025-08-22 15:14:08', '');
 
 -- ----------------------------
 -- Table structure for sys_job_log
