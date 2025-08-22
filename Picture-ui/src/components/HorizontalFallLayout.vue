@@ -18,15 +18,15 @@
               <div class="masonry-item-meta">
                 <div class="meta-item">
                   <SvgIcon name="aiView" />
-                  <span class="meta-content">{{ item.lookCount||0 }}</span>
+                  <span class="meta-content">{{ item.lookCount || 0 }}</span>
                 </div>
                 <div class="meta-item">
                   <SvgIcon name="like" />
-                  <span class="meta-content">{{ item.likeCount||0 }}</span>
+                  <span class="meta-content">{{ item.likeCount || 0 }}</span>
                 </div>
                 <div class="meta-item">
                   <SvgIcon name="share" />
-                  <span class="meta-content">{{ item.shareCount ||0}}</span>
+                  <span class="meta-content">{{ item.shareCount || 0 }}</span>
                 </div>
                 <div class="meta-item">
                   <SvgIcon name="collect" />
@@ -239,7 +239,6 @@ onBeforeUnmount(() => {
   .masonry-item {
     border-radius: 12px;
     overflow: hidden;
-    background: #f5f5f5;
     transition: all 0.3s;
 
     .masonry-item-content {
