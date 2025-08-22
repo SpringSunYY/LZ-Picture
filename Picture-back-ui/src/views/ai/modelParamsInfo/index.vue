@@ -499,7 +499,7 @@ const data = reactive({
   //表格展示列
   columns: [
     {key: 0, label: '模型编号', visible: false},
-    {key: 1, label: '模型KEY', visible: true},
+    {key: 1, label: '模型KEY', visible: false},
     {key: 2, label: '模型名称', visible: true},
     {key: 3, label: '模型类型', visible: true},
     {key: 4, label: '模型', visible: true},

@@ -24,4 +24,11 @@ public class AiTask {
     public void autoExecuteUpdateTask() {
         aiAutoTask.autoExecuteUpdateTask();
     }
+
+    /**
+     * 自动统计生成记录使用情况
+     */
+    public void autoStatisticsGenerateRecordUsage() {
+        aiAutoTask.autoStatisticsGenerateRecordUsage();
+    }
 }
