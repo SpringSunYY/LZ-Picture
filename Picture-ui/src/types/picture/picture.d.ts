@@ -661,6 +661,11 @@ export interface PictureDetailInfoAiVo {
   categoryName?: string
 
   /**
+   * 图片格式
+   */
+  picFormat?: string
+
+  /**
    * 图片宽度
    */
   picWidth?: number

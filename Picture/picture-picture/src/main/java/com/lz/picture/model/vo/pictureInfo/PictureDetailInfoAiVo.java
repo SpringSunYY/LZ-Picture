@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * 图片信息Vo对象 p_picture_info
  * 用户ai详情
+ *
  * @author YY
  * @date 2025-08-19
  */
@@ -44,6 +45,10 @@ public class PictureDetailInfoAiVo implements Serializable {
     private String categoryId;
     private String categoryName;
 
+    /**
+     * 图片格式
+     */
+    private String picFormat;
 
     /**
      * 图片宽度

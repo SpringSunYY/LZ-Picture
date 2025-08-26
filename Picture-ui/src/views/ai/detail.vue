@@ -407,7 +407,7 @@ const downloadPicture = async () => {
     downloadPictureLoading.value = true
     await downloadImage(
       picture.value.pictureId,
-      picture.value?.name + '.' + picture.value?.picFormat,
+      picture.value.name + '.' + picture.value?.picFormat || 'jpg',
     )
     message.success('下载图片获取成功，之后可以在下载记录中获取原图', 3)
   } finally {
@@ -435,7 +435,7 @@ const handleBack = () => {
 }
 //endregion
 //关注用户
-const handleFollowUser=()=>{
+const handleFollowUser = () => {
   message.warn('暂未实现')
 }
 // 生命周期钩子
