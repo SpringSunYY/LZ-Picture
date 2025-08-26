@@ -405,6 +405,8 @@ const downloadPicture = async () => {
     const verified = await verify('查看原图')
     if (!verified) return
     downloadPictureLoading.value = true
+    message.success('获取图片资源中...', 3)
+    message.info('请不要刷新页面', 3)
     await downloadImage(
       picture.value.pictureId,
       picture.value.name + '.' + picture.value?.picFormat || 'jpg',
