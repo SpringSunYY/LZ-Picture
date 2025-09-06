@@ -83,6 +83,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 import {checkPermi} from "@/utils/permission.js";
 import {dayjs, ElMessage} from "element-plus";
 import {getStatisticsInfoStages} from "@/api/picture/statisticsInfo.js";
+import {useRouter} from "vue-router";
 
 const {proxy} = getCurrentInstance();
 const {p_statistics_type} = proxy.useDict('p_statistics_type');
@@ -97,12 +98,12 @@ const operations = ref([
     icon: 'hot'
   },
   {
-    key: '',
-    permission: ['1'],
-    name: '数据可视化',
+    key: 'useStatistics',
+    permission: ['user:statistics'],
+    name: '用户数据可视化',
     shortDescription: '实时图表展示',
-    description: '实时数据图表展示，支持自定义图表类型和数据源，帮助用户快速洞察数据趋势。',
-    icon: 'bug'
+    description: '实时数据图表展示，展示用户统计数据',
+    icon: 'user'
   },
   {
     key: '',
@@ -189,12 +190,28 @@ function clickOperation(operation) {
       handleChangeDownloadPictureHotType()
       openDownloadPictureHot.value = true
       break;
+    case 'useStatistics':
+      handleToFullPage('useStatistics')
+      break;
     default:
       noOperation()
       break;
   }
 }
 
+//跳转到对应页面
+const router = useRouter()
+
+// 跳转-全屏
+function handleToFullPage(key) {
+  const routeUrl = router.resolve({
+    name: key,
+    params: {}
+  })
+  window.open(routeUrl.href, "_blank")
+}
+
+//region 下载热门图片操作
 //下载热门图片操作
 const openDownloadPictureHot = ref(false)
 const formDownloadPictureHot = ref({
@@ -296,6 +313,7 @@ function handleChangeDownloadPictureHotType() {
   })
 }
 
+//endregion
 function noOperation() {
   ElMessage.error('当前功能还没实现哦');
 }

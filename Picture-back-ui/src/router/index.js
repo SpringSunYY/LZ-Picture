@@ -172,6 +172,19 @@ export const dynamicRoutes = [
             }
         ]
     },
+    {
+        path: '/user/statistics',
+        hidden: true,
+        permissions: ['user:statistics'],
+        children: [
+            {
+                path: 'index',
+                component: () => import('@/views/user/statistics/index.vue'),
+                name: 'useStatistics',
+                meta: {title: '用户统计', activeMenu: '/user'}
+            }
+        ]
+    }
 ]
 
 const router = createRouter({
