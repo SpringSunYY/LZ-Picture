@@ -33,7 +33,7 @@ const props = defineProps({
   }
 })
 
-const chart = ref(null) // echarts 实例
+const chart = ref(null) // Echarts 实例
 const chartRef = ref(null) // DOM 引用
 
 // 初始化图表

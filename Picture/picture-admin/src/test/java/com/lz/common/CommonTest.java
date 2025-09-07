@@ -3,6 +3,7 @@ package com.lz.common;
 import com.alibaba.fastjson2.JSONObject;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.file.FileUtils;
 import com.lz.config.manager.sms.SmsManager;
 import com.lz.config.manager.sms.model.SmsBody;
 import com.lz.picture.model.enums.PStatisticsTypeEnum;
@@ -91,5 +92,11 @@ public class CommonTest {
     @Test
     public void testMarkdown() {
 
+    }
+
+    @Test
+    public void testGetGeoJson() {
+        String geoJson = FileUtils.getGeoJson("china", "中华人民共和国");
+        System.out.println(geoJson);
     }
 }

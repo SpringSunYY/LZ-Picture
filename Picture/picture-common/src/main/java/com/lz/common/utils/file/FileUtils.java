@@ -422,5 +422,20 @@ public class FileUtils {
 //        String s = readFileContent(filePath);
 //        System.out.println(s);
         System.out.println("getSuffixName(s) = " + getSuffixName(filePath));
+        System.out.println("getGeoJson(\"country\", \"中国\") = " + getGeoJson("china", "info"));
+    }
+
+    /**
+     * 获取GeoJson
+     *
+     * @param area 地区：比如中国，china
+     * @param name 地名：比如中华人民共和国，文件放置china/中华人民共和国
+     * @return
+     */
+    public static String getGeoJson(String area, String name) {
+        String geoJsonPath = RuoYiConfig.getGeoJsonPath();
+        String separator = File.separator;
+        StringUtils.format("/", separator);
+        return readFileContent(geoJsonPath + separator + area + separator + name + ".json");
     }
 }
