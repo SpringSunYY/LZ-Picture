@@ -61,7 +61,7 @@ const props = defineProps({
   // 容器的总高度，用于设置表格容器的固定高度
   height: {
     type: String,
-    default: '300px' // 默认高度
+    default: '100%' // 默认高度
   },
   width: {
     type: String,

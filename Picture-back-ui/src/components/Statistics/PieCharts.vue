@@ -18,7 +18,7 @@ const props = defineProps({
   },
   height: {
     type: String,
-    default: '300px'
+    default: '100%'
   },
   chartName: {
     type: String,

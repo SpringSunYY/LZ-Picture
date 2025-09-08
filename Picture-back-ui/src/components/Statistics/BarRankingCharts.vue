@@ -17,7 +17,7 @@ import 'echarts/theme/macarons' // 引入主题
 const props = defineProps({
   className: { type: String, default: 'chart' },
   width: { type: String, default: '100%' },
-  height: { type: String, default: '250px' },
+  height: { type: String, default: '100%' },
   chartName: { type: String, default: '排行榜' },
   chartData: {
     type: Object,

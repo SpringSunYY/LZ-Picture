@@ -10,7 +10,7 @@ import 'echarts/theme/macarons' // 引入主题
 const props = defineProps({
   className: {type: String, default: 'chart'},
   width: {type: String, default: '100%'},
-  height: {type: String, default: '350px'},
+  height: {type: String, default: '100%'},
   autoResize: {type: Boolean, default: true},
   chartData: {
     type: Object,
@@ -18,7 +18,7 @@ const props = defineProps({
       chartXData: ['2024-10-01', '2024-10-02', '2024-10-03', '2024-10-04', '2024-10-05', '2024-10-06', '2024-10-07', '2024-10-08', '2024-10-09', '2024-10-10', '2024-10-11', '2024-10-12', '2024-10-13', '2024-10-14', '2024-10-15', '2024-10-16', '2024-10-17', '2024-10-18', '2024-10-19', '2024-10-20', '2024-10-21', '2024-10-22', '2024-10-23', '2024-10-24', '2024-10-25', '2024-10-26', '2024-10-27', '2024-10-28', '2024-10-29', '2024-10-30', '2024-10-31'],
       chartYData: [
         {
-          value: [509, 917, 2455, 2610, 2719, 3033, 3044, 3085, 2708, 2809, 2117, 2000, 1455, 1210, 719, 733, 944, 2285, 2208, 3372, 3936, 3693, 2962, 2810, 3519, 2455, 2610, 2719, 2484, 2078,5000],
+          value: [509, 917, 2455, 2610, 2719, 3033, 3044, 3085, 2708, 2809, 2117, 2000, 1455, 1210, 719, 733, 944, 2285, 2208, 3372, 3936, 3693, 2962, 2810, 3519, 2455, 2610, 2719, 2484, 2078, 5000],
           name: '新车销量'
         }
       ]
@@ -62,36 +62,39 @@ const setOptions = () => {
   }))
 
   chart.setOption({
+    backgroundColor: 'transparent',
     title: {
       text: props.chartName,
-      left: '5%',
-      top: '5%',
+      left: '6%',
+      top: '6%',
       textStyle: {color: '#ffffff', fontSize: 16}
     },
     tooltip: {
       trigger: 'axis',
       axisPointer: {type: 'line', label: {color: '#fff'}}
     },
-    grid: {top: 110, bottom: 95, left: 50, right: 30},
+    grid: {top: 80, bottom: 100, left: 60, right: 30, backgroundColor: 'transparent'},
     legend: {top: '11%', left: 'center', textStyle: {color: '#90979c'}},
     xAxis: [{
       type: 'category',
-      axisLine: {lineStyle: {color: 'rgba(0,0,0,0.73)'}},
+      axisLine: {lineStyle: {color: 'rgba(255,255,255,0.73)'}},
       splitLine: {show: false},
       axisTick: {show: false},
-      data: xData
+      data: xData,
+      splitArea: {show: false},   // 取消交替底色
     }],
     yAxis: [{
       type: 'value',
       splitLine: {show: false},
-      axisLine: {lineStyle: {color: 'rgb(0,0,0)'}}
+      axisLine: {lineStyle: {color: 'rgb(255,255,255)'}},
+      splitArea: {show: false},   // 取消交替底色
     }],
     dataZoom: [
       {
         type: 'slider',
         show: true,
         xAxisIndex: [0],
-        bottom: 30,
+        bottom: 50,
         height: 30,
         start: 10,
         end: 80,

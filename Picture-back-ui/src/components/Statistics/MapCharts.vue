@@ -13,7 +13,7 @@ import { getGeoJson } from '@/api/file.js';
 const props = defineProps({
   className: { type: String, default: 'chart' },
   width: { type: String, default: '100%' },
-  height: { type: String, default: '600px' },
+  height: { type: String, default: '100%' },
   initCountry: { type: String, default: 'china' },
   initName: { type: String, default: '中华人民共和国' },
   chartName: { type: String, default: '用户分布' },

@@ -3,28 +3,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons'
 
 const props = defineProps({
-  className: { type: String, default: 'chart' },
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '400px' },
+  className: {type: String, default: 'chart'},
+  width: {type: String, default: '100%'},
+  height: {type: String, default: '100%'},
   chartData: {
     type: Object,
     default: () => ({
       maleData: [80, 150, 200, 120, 90, 60, 20],
       femaleData: [70, 140, 180, 130, 90, 60, 30],
-      legendData: ['年龄段总人数', '男性', '女性'],
+      legendData: ['总人数', '男性', '女性'],
       indicator: [
-        { text: '18以下' },
-        { text: '19-30' },
-        { text: '31-40' },
-        { text: '41-50' },
-        { text: '51-60' },
-        { text: '60以上' },
-        { text: '未知' }
+        {text: '18以下'},
+        {text: '19-30'},
+        {text: '31-40'},
+        {text: '41-50'},
+        {text: '51-60'},
+        {text: '60以上'},
+        {text: '未知'}
       ]
     })
   }
@@ -53,8 +53,7 @@ const buildSeries = (legendData, indicator, maleData, femaleData) => {
     max = Math.ceil(absoluteMax / 10) * 10; // Round to nearest 10
   } else if (absoluteMax < 500) {
     max = Math.ceil(absoluteMax / 50) * 50; // Round to nearest 50
-  }
-  else {
+  } else {
     max = Math.ceil(absoluteMax / 100) * 100; // Round to nearest 100
   }
 
@@ -77,9 +76,9 @@ const buildSeries = (legendData, indicator, maleData, femaleData) => {
       name: legendData[idx],
       type: 'radar',
       data: [arr],
-      lineStyle: { color: colorArr[idx] },
-      areaStyle: { color: colorArr[idx], opacity: idx === 0 ? 0.2 : 0.3 },
-      itemStyle: { color: colorArr[idx] },
+      lineStyle: {color: colorArr[idx]},
+      areaStyle: {color: colorArr[idx], opacity: idx === 0 ? 0.2 : 0.3},
+      itemStyle: {color: colorArr[idx]},
       symbolSize: 6,
       tooltip: {
         trigger: 'item'
@@ -94,10 +93,10 @@ const buildSeries = (legendData, indicator, maleData, femaleData) => {
         name: legendData[seriesIdx],
         type: 'radar',
         data: [arr.map((val, j) => j === i ? val : 0)],
-        lineStyle: { color: 'transparent' },
-        areaStyle: { color: 'transparent' },
+        lineStyle: {color: 'transparent'},
+        areaStyle: {color: 'transparent'},
         symbolSize: 10,
-        itemStyle: { color: colorArr[seriesIdx] },
+        itemStyle: {color: colorArr[seriesIdx]},
         tooltip: {
           show: true,
           trigger: 'item',
@@ -133,7 +132,7 @@ const initChart = () => {
   }
   chart.value = echarts.init(chartRef.value, 'macarons')
 
-  const { legendData, indicator, maleData, femaleData } = props.chartData
+  const {legendData, indicator, maleData, femaleData} = props.chartData
 
   const option = {
     color: ['#4A99FF', '#4BFFFC', '#FFB74A'],
@@ -145,19 +144,21 @@ const initChart = () => {
       orient: 'vertical',
       icon: 'circle',
       data: legendData,
-      bottom: 35,
-      right: 40,
+      bottom: 30,
+      right: 20,
       itemWidth: 14,
       itemHeight: 14,
       itemGap: 21,
-      textStyle: { fontSize: 14, color: '#00E4FF' }
+      textStyle: {fontSize: 14, color: '#00E4FF'}
     },
     radar: {
-      name: { textStyle: { color: '#000000', fontSize: 16 } },
+      name: {textStyle: {color: '#ffffff', fontSize: 16}},
       indicator: indicator,
-      splitArea: { show: true, areaStyle: { color: ['rgba(255,255,255,0)', 'rgba(255,255,255,0)'] } },
-      axisLine: { lineStyle: { color: '#153269' } },
-      splitLine: { lineStyle: { color: '#113865', width: 1 } }
+      splitArea: {show: true, areaStyle: {color: ['rgba(255,255,255,0)', 'rgba(255,255,255,0)']}},
+      axisLine: {lineStyle: {color: '#153269'}},
+      splitLine: {lineStyle: {color: '#113865', width: 1}},
+      center: ['40%', '50%'], // [横向位置, 纵向位置]，百分比或像素，默认是 ['50%', '50%']
+      radius: '70%'           // 雷达图半径，可以是百分比（相对容器）或者像素
     },
     series: buildSeries(legendData, indicator, maleData, femaleData)
   }
@@ -181,5 +182,5 @@ onBeforeUnmount(() => {
 })
 
 // 监听数据变化
-watch(() => props.chartData, () => initChart(), { deep: true })
+watch(() => props.chartData, () => initChart(), {deep: true})
 </script>

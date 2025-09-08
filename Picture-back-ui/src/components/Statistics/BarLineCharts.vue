@@ -11,7 +11,7 @@ import 'echarts/theme/macarons'; // 引入主题
 const props = defineProps({
   className: { type: String, default: 'chart' },
   width: { type: String, default: '100%' },
-  height: { type: String, default: '350px' },
+  height: { type: String, default: '100%' },
   autoResize: { type: Boolean, default: true },
   // 图表核心数据：原始月度合格率数据
   chartData: {
