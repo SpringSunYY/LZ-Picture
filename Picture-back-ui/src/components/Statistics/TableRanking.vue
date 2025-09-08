@@ -3,7 +3,7 @@
     <table class="ranking-table">
       <thead>
       <tr>
-        <th>排名</th>
+        <th>序号</th>
         <th v-for="(header, index) in headers" :key="index">{{ header }}</th>
       </tr>
       </thead>
@@ -70,7 +70,7 @@ const props = defineProps({
   // 表格内可见的行数，用于计算 tbody 的高度
   visibleRows: {
     type: Number,
-    default: 5 // 默认显示 5 条
+    default: 7 // 默认显示 5 条
   },
   // 轮播间隔时间（毫秒）
   scrollInterval: {
@@ -235,7 +235,7 @@ onUnmounted(() => {
 .ranking-table-container {
   overflow: hidden; /* 关键：容器只显示指定的高度 */
   //border: 1px solid #0a1f44;
-  background-color: #041022;
+  //background-color: #041022;
   border-radius: 8px;
   width: 100%;
   box-sizing: border-box; /* 确保 padding 和 border 包含在元素宽高内 */
@@ -250,7 +250,7 @@ onUnmounted(() => {
 }
 
 thead {
-  //background-color: #0a1f44;
+  background-color: #0a1f44;
   position: sticky; /* 表头固定，重要！ */
   top: 0;
   z-index: 10;

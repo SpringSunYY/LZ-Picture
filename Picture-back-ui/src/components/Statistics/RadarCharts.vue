@@ -135,6 +135,12 @@ const initChart = () => {
   const {legendData, indicator, maleData, femaleData} = props.chartData
 
   const option = {
+    title: {
+      text: '年龄段人数占比',
+      textStyle: {color: '#00E4FF', fontSize: 16},
+      top: '5%',
+      left: '2%'
+    },
     color: ['#4A99FF', '#4BFFFC', '#FFB74A'],
     tooltip: {
       trigger: 'item',

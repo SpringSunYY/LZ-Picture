@@ -1,9 +1,9 @@
 <template>
-  <div :class="className" :style="{ height, width }" ref="chartRef" />
+  <div :class="className" :style="{ height, width }" ref="chartRef"/>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // 引入主题
 
@@ -27,8 +27,8 @@ const props = defineProps({
   chartData: {
     type: Array,
     default: () => [
-      { name: 'YY', value: 100 },
-      { name: 'XC', value: 100 }
+      {name: 'YY', value: 100},
+      {name: 'XC', value: 100}
     ]
   }
 })
@@ -61,7 +61,8 @@ const initChart = (data) => {
     },
     legend: {
       left: 'center',
-      bottom: '10%'
+      bottom: '10%',
+      textStyle: {fontSize: 14, color: '#ffffff'}
     },
     series: [
       {
@@ -112,10 +113,10 @@ onBeforeUnmount(() => {
 
 // 监听数据变化
 watch(
-  () => props.chartData,
-  (newData) => {
-    initChart(newData)
-  },
-  { deep: true }
+    () => props.chartData,
+    (newData) => {
+      initChart(newData)
+    },
+    {deep: true}
 )
 </script>

@@ -1,24 +1,24 @@
 <template>
   <div
-    :class="className"
-    :style="{ height, width }"
-    ref="chartRef"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
-    @wheel="handleWheel"
+      :class="className"
+      :style="{ height, width }"
+      ref="chartRef"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+      @wheel="handleWheel"
   ></div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick, markRaw } from 'vue'
+import {ref, onMounted, onBeforeUnmount, watch, nextTick, markRaw} from 'vue'
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // 引入主题
 
 const props = defineProps({
-  className: { type: String, default: 'chart' },
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '100%' },
-  chartName: { type: String, default: '排行榜' },
+  className: {type: String, default: 'chart'},
+  width: {type: String, default: '100%'},
+  height: {type: String, default: '100%'},
+  chartName: {type: String, default: '排行榜'},
   chartData: {
     type: Object,
     default: () => ({
@@ -26,8 +26,8 @@ const props = defineProps({
       valueList: [120, 200, 150, 80, 70, 110, 130, 180]
     })
   },
-  chartCarousel: { type: Number, default: 500 }, // 轮播间隔时间 (ms)
-  chartItemTotal: { type: Number, default: 5 } // 每次显示的最多条目数
+  chartCarousel: {type: Number, default: 500}, // 轮播间隔时间 (ms)
+  chartItemTotal: {type: Number, default: 5} // 每次显示的最多条目数
 })
 
 const chart = ref(null) // ECharts 实例
@@ -42,7 +42,7 @@ const currentIndex = ref(0) // 当前轮播的起始下标
  * @returns {object} - 包含当前名称列表、数值列表以及所有数据的真实排序列表
  */
 const getCurrentData = (startIndex, visibleItems) => {
-  const { nameList = [], valueList = [] } = props.chartData
+  const {nameList = [], valueList = []} = props.chartData
 
   // 1. 创建一个包含所有数据及其原始信息的数组
   const allData = nameList.map((name, index) => ({
@@ -65,7 +65,7 @@ const getCurrentData = (startIndex, visibleItems) => {
     currentValueList.push(allData[idx].value)
   }
 
-  return { currentNameList, currentValueList, sortedAllData: allData }
+  return {currentNameList, currentValueList, sortedAllData: allData}
 }
 
 /**
@@ -75,24 +75,24 @@ const getCurrentData = (startIndex, visibleItems) => {
 const updateChart = (startIndex = 0) => {
   if (!chart.value) return
 
-  const { nameList = [] } = props.chartData
+  const {nameList = []} = props.chartData
   const totalItems = nameList.length
   // 确定本次图表需要显示的实际条目数，不能超过总条目数
   const visibleItems = Math.min(totalItems, props.chartItemTotal)
 
   // 获取当前显示的数据以及所有数据的排序列表
-  const { currentNameList, currentValueList, sortedAllData } = getCurrentData(startIndex, visibleItems)
+  const {currentNameList, currentValueList, sortedAllData} = getCurrentData(startIndex, visibleItems)
 
   const option = {
     title: {
       text: props.chartName,
-      textStyle: { color: '#000000', fontSize: 16 },
+      textStyle: {color: '#ffffff', fontSize: 16},
       left: 'center',
       top: '2%'
     },
     tooltip: {
       trigger: 'item',
-      axisPointer: { type: 'shadow' },
+      axisPointer: {type: 'shadow'},
       formatter: function (params) {
         // params.name 是当前 tooltip 触发项的名称
         // 在 sortedAllData 中找到该名称对应的项，获取其真实排名
@@ -108,30 +108,31 @@ const updateChart = (startIndex = 0) => {
         `
       }
     },
-    grid: { top: '13%', left: '20%', right: '0%', bottom: '3%' },
+    grid: {top: '13%', left: '15%', right: '3%', bottom: '3%'},
     yAxis: {
       type: 'category',
       inverse: true, // 反转Y轴，使数值最大的在最上方
-      axisLabel: { color: '#000000', fontSize: 14 },
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitArea: { show: false },
+      axisLabel: {color: '#ffffff', fontSize: 14},
+      axisLine: {show: false},
+      axisTick: {show: false},
+      splitArea: {show: false},
       data: currentNameList
     },
     xAxis: {
       type: 'value',
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { show: false },
-      axisLabel: { show: false } // 不显示X轴刻度标签
+      axisLine: {show: false},
+      axisTick: {show: false},
+      splitLine: {show: false},
+      axisLabel: {show: false}, // 不显示X轴刻度标签
+      splitArea: {show: false},   // 取消交替底色
     },
     series: [
       {
         type: 'bar',
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            { offset: 0, color: '#00BBFD' }, // 渐变色起点
-            { offset: 1, color: '#0085FA' }  // 渐变色终点
+            {offset: 0, color: '#00BBFD'}, // 渐变色起点
+            {offset: 1, color: '#0085FA'}  // 渐变色终点
           ]),
           borderRadius: [10, 10, 10, 10] // 圆角
         },
@@ -141,7 +142,7 @@ const updateChart = (startIndex = 0) => {
           verticalAlign: 'bottom',
           align: 'center',
           formatter: '{c}', // 显示数值
-          color: '#000000',
+          color: '#ffffff',
           fontSize: 14
         },
         barWidth: '10px', // 柱子宽度
@@ -159,7 +160,7 @@ const updateChart = (startIndex = 0) => {
  */
 const startCarousel = () => {
   stopCarousel() // 先停止当前可能存在的轮播
-  const { nameList = [] } = props.chartData
+  const {nameList = []} = props.chartData
   // 只有当总条目数大于显示条目数时才开启轮播
   if (nameList.length > props.chartItemTotal) {
     intervalId.value = setInterval(() => {
@@ -199,7 +200,7 @@ const handleMouseLeave = () => {
  * @param {Event} event - 鼠标滚轮事件对象
  */
 const handleWheel = (event) => {
-  const { nameList = [] } = props.chartData
+  const {nameList = []} = props.chartData
   if (!nameList.length) return // 如果没有数据，则不处理
 
   stopCarousel() // 手动操作时，停止自动轮播
@@ -262,9 +263,9 @@ onBeforeUnmount(() => {
 
 // 监听 chartData 变化，数据更新时重新初始化图表
 watch(
-  () => props.chartData,
-  () => initChart(),
-  { deep: true } // 深度监听，确保对象内部变化也能触发
+    () => props.chartData,
+    () => initChart(),
+    {deep: true} // 深度监听，确保对象内部变化也能触发
 )
 </script>
 

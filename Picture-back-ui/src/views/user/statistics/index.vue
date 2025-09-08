@@ -1,15 +1,15 @@
 <template>
   <div class="user-statistics">
-    <el-row :gutter="6">
+    <el-row :gutter="1">
       <el-col :span="6">
         <BorderBox4 :color="border4Color" class="default-border" title="每日登录">
           <!--每日注册-->
           <LineZoomCharts height="350px" chart-name="每日登录"/>
         </BorderBox4>
-        <BorderBox1 class="default-border">
+        <BorderBox6 class="default-border">
           <!--消息排行-->
           <BarRankingCharts chart-name="消息类型发送"/>
-        </BorderBox1>
+        </BorderBox6>
         <div class="default-border">
           <!--消息信息-->
           <TableRanking/>
@@ -33,10 +33,10 @@
           <!--年龄分布-->
           <RadarCharts/>
         </BorderBox4>
-        <BorderBox1 class="default-border">
+        <BorderBox8 class="default-border">
           <!--性别分布-->
-          <PieCharts/>
-        </BorderBox1>
+          <PieCharts chart-name="用户性别比例"/>
+        </BorderBox8>
         <!--登录-->
         <div class="default-border">
           <BarLineCharts/>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import {BorderBox1, BorderBox4, Decoration5} from '@kjgl77/datav-vue3'
+import {BorderBox6,BorderBox8, BorderBox4, Decoration5} from '@kjgl77/datav-vue3'
 import PieCharts from "@/components/Statistics/PieCharts";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
@@ -63,9 +63,11 @@ const border4Color = ['#545fac', '#545fac']
 <style scoped lang="scss">
 .user-statistics {
   background-image: url("/src/assets/images/user-statistics-bg.png");
-
+  min-height: 100vh;
+  max-width: 100%;
   .default-border {
-    height: 33vh;
+    margin-top: 0.5vh;
+    height: 32.5vh;
   }
 
   .map-border {

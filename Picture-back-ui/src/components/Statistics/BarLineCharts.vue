@@ -3,31 +3,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts/theme/macarons'; // 引入主题
 
 // 定义组件Props，适配合格率统计需求
 const props = defineProps({
-  className: { type: String, default: 'chart' },
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '100%' },
-  autoResize: { type: Boolean, default: true },
+  className: {type: String, default: 'chart'},
+  width: {type: String, default: '100%'},
+  height: {type: String, default: '100%'},
+  autoResize: {type: Boolean, default: true},
   // 图表核心数据：原始月度合格率数据
   chartData: {
     type: Array, // 明确类型为 Array
     default: () => [
-        { "name": "一月", "value": 800 },
-        { "name": "二月", "value": 870.8 },
-        { "name": "三月", "value": 71 },
-        { "name": "四月", "value": 80 },
-        { "name": "五月", "value": 66 },
-        { "name": "六月", "value": 80 },
-        { "name": "七月", "value": 80 }
-      ]
+      {"name": "一月", "value": 800},
+      {"name": "二月", "value": 870.8},
+      {"name": "三月", "value": 71},
+      {"name": "四月", "value": 80},
+      {"name": "五月", "value": 66},
+      {"name": "六月", "value": 80},
+      {"name": "七月", "value": 80}
+    ]
   },
-  chartName: { type: String, default: '用户每日登录' }, // 图表标题
-  chartTitle: { type: Array, default: ["数据", "趋势"] }
+  chartName: {type: String, default: '用户每日登录'}, // 图表标题
+  chartTitle: {type: Array, default: ["数据", "趋势"]}
 });
 
 const chartRef = ref(null);
@@ -74,7 +74,7 @@ const setOptions = () => {
 
   // ECharts配置项
   const option = {
-    backgroundColor: "#111c4e", // 图表背景色
+    // backgroundColor: "#111c4e", // 图表背景色
     title: {
       text: props.chartName,
       left: "center",
@@ -88,7 +88,7 @@ const setOptions = () => {
       trigger: "axis",
       axisPointer: {
         type: "line",
-        lineStyle: { opacity: 0 } // 隐藏坐标轴指示器线
+        lineStyle: {opacity: 0} // 隐藏坐标轴指示器线
       },
       // 自定义提示框：显示名称、值和增减量
       formatter: function (params) {
@@ -129,7 +129,7 @@ const setOptions = () => {
     grid: {
       left: "0%",
       right: "0%",
-      bottom: "5%",
+      bottom: "2%",
       top: "18%",
       height: "75%",
       containLabel: true,
@@ -138,8 +138,9 @@ const setOptions = () => {
     xAxis: [{
       type: "category",
       data: xData,
-      axisTick: { alignWithLabel: true }, // 刻度与标签对齐
-      axisLine: { lineStyle: { color: "#0c3b71" } }, // X轴线颜色
+      axisTick: {alignWithLabel: true}, // 刻度与标签对齐
+      axisLine: {lineStyle: {color: "#0c3b71"}}, // X轴线颜色
+      splitArea: {show: false},   // 取消交替底色
       axisLabel: {
         show: true,
         color: "rgb(170,170,170)",
@@ -150,9 +151,9 @@ const setOptions = () => {
       // 主Y轴：显示百分比
       {
         type: "value",
-        splitLine: { show: false }, // 隐藏网格线
-        axisTick: { show: false }, // 隐藏刻度线
-        axisLine: { lineStyle: { color: "#0c3b71" } }, // Y轴线颜色
+        splitLine: {show: false}, // 隐藏网格线
+        axisTick: {show: false}, // 隐藏刻度线
+        axisLine: {lineStyle: {color: "#0c3b71"}}, // Y轴线颜色
         axisLabel: {
           color: "rgb(170,170,170)",
           formatter: "{value}" // 显示百分比符号
@@ -162,10 +163,10 @@ const setOptions = () => {
       {
         type: "value",
         splitNumber: 12, // 分割段数
-        splitLine: { show: false },
-        axisLine: { show: false }, // 隐藏Y轴线
-        axisTick: { show: false }, // 隐藏刻度线
-        axisLabel: { show: false }, // 隐藏标签
+        splitLine: {show: false},
+        axisLine: {show: false}, // 隐藏Y轴线
+        axisTick: {show: false}, // 隐藏刻度线
+        axisLabel: {show: false}, // 隐藏标签
         // 交替背景色（增强视觉层次）
         splitArea: {
           show: true,
@@ -186,12 +187,12 @@ const setOptions = () => {
             barBorderRadius: [30, 30, 0, 0], // 只保留顶部圆角
             // 线性渐变颜色（从顶部到底部）
             color: new echarts.graphic.LinearGradient(
-              0, 0, 0, 1,
-              [
-                { offset: 0, color: "#00feff" },
-                { offset: 0.5, color: "#027eff" },
-                { offset: 1, color: "#0286ff" }
-              ]
+                0, 0, 0, 1,
+                [
+                  {offset: 0, color: "#00feff"},
+                  {offset: 0.5, color: "#027eff"},
+                  {offset: 1, color: "#0286ff"}
+                ]
             )
           }
         },
@@ -240,19 +241,19 @@ onBeforeUnmount(() => {
 
 // 监听Props数据变化：重新渲染图表
 watch(
-  () => props.chartData,
-  () => {
-    setOptions();
-  },
-  { deep: true } // 深度监听（对象内部属性变化）
+    () => props.chartData,
+    () => {
+      setOptions();
+    },
+    {deep: true} // 深度监听（对象内部属性变化）
 );
 
 // 监听图表容器尺寸变化（可选：处理动态宽高）
 watch(
-  [() => props.width, () => props.height],
-  () => {
-    nextTick(() => resizeChart());
-  }
+    [() => props.width, () => props.height],
+    () => {
+      nextTick(() => resizeChart());
+    }
 );
 </script>
 
