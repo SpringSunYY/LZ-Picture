@@ -4,8 +4,9 @@
     <BarRankingCharts/>
     <LineZoomCharts/>
     <AgeRadarCharts/>
-    <MapCharts />
+    <MapCharts/>
     <TableRanking/>
+    <BarLineCharts/>
   </div>
 </template>
 <script setup>
@@ -16,6 +17,7 @@ import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
 import AgeRadarCharts from "@/components/Statistics/AgeRadarCharts.vue";
 import MapCharts from "@/components/Statistics/MapCharts.vue";
 import TableRanking from "@/components/Statistics/TableRanking.vue";
+import BarLineCharts from "@/components/Statistics/BarLineCharts.vue";
 </script>
 <style scoped lang="scss">
 

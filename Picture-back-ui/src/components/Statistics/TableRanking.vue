@@ -38,7 +38,6 @@ const props = defineProps({
   // 表头配置，例如: ['设备名称', '状态', '运行时间']
   headers: {
     type: Array as () => string[],
-    required: true, // 强制要求传入表头
     default: () => ['设备名称', '状态', '运行时间'] // 示例表头
   },
   // 表格数据，例如: [{ deviceName: '设备A', status: '正常', uptime: '...' }]
