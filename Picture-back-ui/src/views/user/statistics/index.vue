@@ -1,6 +1,8 @@
 <template>
   <div>
-    <PieCharts/>
+    <BorderBox1>
+      <PieCharts/>
+    </BorderBox1>
     <BarRankingCharts/>
     <LineZoomCharts/>
     <AgeRadarCharts/>
@@ -10,7 +12,7 @@
   </div>
 </template>
 <script setup>
-
+import {BorderBox1} from '@kjgl77/datav-vue3'
 import PieCharts from "@/components/Statistics/PieCharts";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
