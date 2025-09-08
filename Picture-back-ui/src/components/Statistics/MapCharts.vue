@@ -1,22 +1,22 @@
 <template>
   <div class="chart-container">
-    <div :class="className" :style="{ height, width }" ref="chartRef" />
+    <div :class="className" :style="{ height, width }" ref="chartRef"/>
     <div class="back" @click="goBack" v-show="showBack">返回</div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
-import { getGeoJson } from '@/api/file.js';
+import {getGeoJson} from '@/api/file.js';
 
 const props = defineProps({
-  className: { type: String, default: 'chart' },
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '100%' },
-  initCountry: { type: String, default: 'china' },
-  initName: { type: String, default: '中华人民共和国' },
-  chartName: { type: String, default: '用户分布' },
+  className: {type: String, default: 'chart'},
+  width: {type: String, default: '100%'},
+  height: {type: String, default: '100%'},
+  initCountry: {type: String, default: 'china'},
+  initName: {type: String, default: '中华人民共和国'},
+  chartName: {type: String, default: '用户分布'},
 });
 
 const chart = ref(null);
@@ -41,9 +41,12 @@ const formateLevel = (currentLevel) => {
       return 'city'; // 下一级
     case 'city': // 城市
       return 'county'; // 下一级
-    case 1: return 'province';
-    case 2: return 'city';
-    case 3: return 'county';
+    case 1:
+      return 'province';
+    case 2:
+      return 'city';
+    case 3:
+      return 'county';
     default:
       console.warn('未知层级:', currentLevel);
       return ''; // 无法推断时返回空，避免后续错误
@@ -55,9 +58,9 @@ const formateLevel = (currentLevel) => {
  */
 const initializeParentInfo = () => {
   if (props.initName === '中华人民共和国') {
-    parentInfo.value = [{ name: '中华人民共和国', level: 'china' }];
+    parentInfo.value = [{name: '中华人民共和国', level: 'china'}];
   } else {
-    parentInfo.value = [{ name: props.initName, level: 'province' }];
+    parentInfo.value = [{name: props.initName, level: 'province'}];
   }
   console.log('初始化下钻历史:', parentInfo.value);
 };
@@ -67,14 +70,14 @@ const initializeParentInfo = () => {
  */
 function getMapData() {
   if (geoJsonFeatures.value.length === 0) {
-    return { mapData: [], pointData: [] }; // 无数据时返回空，避免渲染异常
+    return {mapData: [], pointData: []}; // 无数据时返回空，避免渲染异常
   }
 
   const tmp = geoJsonFeatures.value.map(feature => {
-    const { name, fullname, adcode, level, center } = feature.properties || {};
+    const {name, fullname, adcode, level, center} = feature.properties || {};
     const value = Math.round(Math.random() * 5000) + 200;
     const login = Math.round(value * (0.5 + Math.random() * 0.4));
-    return { name, fullname, cityCode: adcode, level, center, value, login };
+    return {name, fullname, cityCode: adcode, level, center, value, login};
   }).sort((a, b) => a.value - b.value); // 升序排序
 
   const mapData = tmp.map(item => ({
@@ -97,7 +100,7 @@ function getMapData() {
     fullname: item.fullname
   }));
 
-  return { mapData, pointData };
+  return {mapData, pointData};
 }
 
 /**
@@ -107,18 +110,20 @@ function renderMap() {
   if (!chart.value || isRendering.value) return;
 
   isRendering.value = true;
-  const currentLevelInfo = parentInfo.value[parentInfo.value.length - 1];
   const mapName = 'map';
 
   // 1. 先注册地图（确保 geo 组件能找到地图数据）
   if (geoJsonFeatures.value.length > 0) {
-    echarts.registerMap(mapName, { features: geoJsonFeatures.value });
+    echarts.registerMap(mapName, {features: geoJsonFeatures.value});
   }
 
-  const { mapData, pointData } = getMapData();
+  const {mapData, pointData} = getMapData();
   const values = mapData.map(d => d.value);
   const min = values.length ? Math.min(...values) : 0;
   const max = values.length ? Math.max(...values) : 10000;
+  //计算总数
+  const totalUsers = mapData.reduce((sum, d) => sum + (d.value || 0), 0);
+  const totalLogins = mapData.reduce((sum, d) => sum + (d.login || 0), 0);
 
   // 处理 visualMap 极值相同的情况
   let visualMapMin = min;
@@ -146,7 +151,7 @@ function renderMap() {
       left: 'center',
       top: 10,
       text: chartTitle.value,
-      textStyle: { color: 'rgb(179, 239, 255)', fontSize: 16 }
+      textStyle: {color: 'rgb(179, 239, 255)', fontSize: 16}
     }],
     tooltip: {
       trigger: 'item',
@@ -154,24 +159,61 @@ function renderMap() {
         if (!params?.data) return '';
         const d = params.data;
         return `<div style="text-align:left">
-                  ${d.fullname || d.name}<br/> 用户人数：${d.value || 0} 人<br/>
-                  登录人数：${d.login || 0} 人
-                </div>`;
+            ${d.fullname || d.name}<br/>
+            用户人数：${d.value || 0} 人<br/>
+            登录人数：${d.login || 0} 人<br/>
+            <hr style="border:0;border-top:1px solid #666;margin:4px 0"/>
+            总用户数：${totalUsers} 人<br/>
+            总登录数：${totalLogins} 人
+          </div>`;
       },
       backgroundColor: 'rgba(60, 60, 60, 0.7)',
       borderColor: '#333',
       borderWidth: 1,
-      textStyle: { color: '#fff' }
+      textStyle: {color: '#fff'}
     },
+    graphic: [
+      {
+        type: 'group',
+        right: 20,
+        bottom: 20,
+        children: [
+          {
+            type: 'rect',
+            shape: {width: 180, height: 60, r: 8},
+            style: {
+              fill: 'rgba(0,0,0,0.01)',  // 半透明背景
+              stroke: '#00cfff',        // 外边框颜色
+              lineWidth: 1,
+              shadowBlur: 8,
+              shadowColor: 'rgba(0,0,0,0.25)'
+            }
+          },
+          {
+            type: 'text',
+            style: {
+              text: `总用户数：${totalUsers} 人\n总登录数：${totalLogins} 人`,
+              x: 10, // 相对于 rect 的内边距
+              y: 10,
+              fill: '#fff',
+              font: '14px Microsoft YaHei',
+              lineHeight: 20
+            }
+          }
+        ]
+      }
+    ],
     // 关键修复：将 grid 放在 geo 之后，确保坐标系初始化顺序正确
     geo: {
       map: mapName,
-      zoom: 1.1,
+      // zoom: 1.1,
       roam: true,
-      center: currentLevelInfo.level === 'china' ? [116.00, 36.00] : null,
+      center: null,
+      layoutCenter: ['42%', '50%'], // 水平、垂直居中
+      layoutSize: '100%',           // 控制地图缩放比例
       label: {
-        normal: { show: true, color: 'rgb(249, 249, 249)' },
-        emphasis: { show: true, color: '#f75a00' }
+        normal: {show: true, color: 'rgb(249, 249, 249)'},
+        emphasis: {show: true, color: '#f75a00'}
       },
       itemStyle: {
         normal: {
@@ -180,18 +222,17 @@ function renderMap() {
           borderWidth: 1.3,
           shadowBlur: 15,
           shadowColor: 'rgb(58,115,192)',
-          shadowOffsetX: 7,
+          shadowOffsetX: 0,
           shadowOffsetY: 6
         },
-        emphasis: { areaColor: '#8dd7fc', borderWidth: 1.6, shadowBlur: 25 }
+        emphasis: {areaColor: '#8dd7fc', borderWidth: 1.6, shadowBlur: 25}
       }
     },
-    // 关键修复：只有在有柱状图数据时才添加 grid 和坐标轴
     ...(barSeriesData.length > 0 ? {
       grid: {
-        right: '2%',
-        top: '12%',
-        bottom: '8%',
+        right: '1%',
+        top: '10%',
+        bottom: '20%',
         width: '12%',
         containLabel: false,
         show: false,
@@ -201,17 +242,28 @@ function renderMap() {
       xAxis: {
         type: 'value',
         position: 'top',
-        axisLine: { lineStyle: { color: '#455B77' } },
-        axisTick: { show: false },
-        axisLabel: { textStyle: { color: '#c0e6f9' } },
-        splitLine: { show: false },
+        axisLine: {lineStyle: {color: '#455B77'}},
+        axisTick: {show: false},
+        axisLabel: {
+          interval: 'auto',      // 显示标签
+          rotate: 45,       // 倾斜 45 度
+          textStyle: {color: '#ffffff'},
+          fontSize: 10
+        },
+        splitNumber: 5, // 尝试显示最多 5 个刻度
+        minInterval: 'auto', // 最小间隔
+        splitLine: {show: false},
         show: true
       },
       yAxis: {
         type: 'category',
-        axisLine: { lineStyle: { color: '#455B77' } },
-        axisTick: { show: false },
-        axisLabel: { textStyle: { color: '#c0e6f9' } },
+        axisLine: {lineStyle: {color: '#ffffff'}},
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          textStyle: {color: '#c0e6f9'}
+        },
         data: yCategories,
         inverse: false,
         show: true
@@ -219,13 +271,14 @@ function renderMap() {
     } : {}),
     visualMap: {
       min: visualMapMin,
-      max: visualMapMax,
+      max:
+      visualMapMax,
       left: '3%',
       bottom: '5%',
       calculable: true,
       seriesIndex: [0], // 仅关联地图系列
-      inRange: { color: ['#24CFF4', '#2E98CA', '#1E62AC'] },
-      textStyle: { color: '#24CFF4' },
+      inRange: {color: ['#24CFF4', '#2E98CA', '#1E62AC']},
+      textStyle: {color: '#24CFF4'},
     },
     series: [
       // 地图系列
@@ -235,8 +288,8 @@ function renderMap() {
         geoIndex: 0, // 关联第 0 个 geo 组件
         map: mapName,
         roam: true,
-        zoom: 1.3,
-        label: { show: false },
+        zoom: 1.2,
+        label: {show: false},
         data: mapData,
         // 确保样式完整，避免tooltip错误
         itemStyle: {
@@ -252,7 +305,7 @@ function renderMap() {
         type: 'effectScatter',
         coordinateSystem: 'geo',
         geoIndex: 0, // 明确关联 geo 组件
-        rippleEffect: { brushType: 'fill' },
+        rippleEffect: {brushType: 'fill'},
         itemStyle: {
           color: '#F4E925',
           shadowBlur: 6,
@@ -269,7 +322,7 @@ function renderMap() {
         showEffectOn: 'render',
         data: pointData // 仅当有数据时渲染
       },
-      // 关键修复：只有在有数据时才添加柱状图系列
+      // 只有在有数据时才添加柱状图系列
       ...(barSeriesData.length > 0 ? [{
         name: '柱状',
         type: 'bar',
@@ -277,7 +330,7 @@ function renderMap() {
         data: barSeriesData,
         barGap: '-100%',
         barCategoryGap: '30%',
-        barWidth: 8,
+        barWidth: 6,
         itemStyle: {
           normal: {
             color: '#11AAFE',
@@ -288,7 +341,7 @@ function renderMap() {
         },
         // 确保有明确的z-index
         z: 3
-      }] : [])
+      }] : []),
     ]
   };
 
@@ -478,7 +531,7 @@ const bindResizeEvent = () => {
   // 先解绑之前的事件，避免重复绑定
   window.removeEventListener('resize', handleResize);
   // 重新绑定事件
-  window.addEventListener('resize', handleResize, { passive: true });
+  window.addEventListener('resize', handleResize, {passive: true});
 };
 
 // 生命周期钩子
