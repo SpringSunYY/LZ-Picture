@@ -234,8 +234,6 @@ onUnmounted(() => {
 <style scoped>
 .ranking-table-container {
   overflow: hidden; /* 关键：容器只显示指定的高度 */
-  //border: 1px solid #0a1f44;
-  //background-color: #041022;
   border-radius: 8px;
   width: 100%;
   box-sizing: border-box; /* 确保 padding 和 border 包含在元素宽高内 */
@@ -267,8 +265,7 @@ tbody {
   display: block;
   overflow-y: auto; /* 启用垂直滚动条 */
   /* 滚动条样式 */
-  scrollbar-width: thin; /* Firefox */
-  //scrollbar-color: #0a1f44 #041022; /* Firefox */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Chrome, Edge, Safari */

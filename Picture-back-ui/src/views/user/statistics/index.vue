@@ -28,9 +28,13 @@
         </div>
         <BorderBox7 class="dashboard-border">
           <!--用户信息-->
-          <el-row gutter="1" style="height: 100%">
-            <el-col :span="8">
+          <el-row >
+            <el-col :span="12" class="dashboard-border">
               <DashboardRotateProportionCharts/>
+            </el-col>
+
+            <el-col :span="12" class="dashboard-border">
+              <DashboardRotateTotalCharts/>
             </el-col>
           </el-row>
         </BorderBox7>
@@ -64,6 +68,7 @@ import MapCharts from "@/components/Statistics/MapCharts.vue";
 import TableRanking from "@/components/Statistics/TableRanking.vue";
 import BarLineCharts from "@/components/Statistics/BarLineCharts.vue";
 import DashboardRotateProportionCharts from "@/components/Statistics/DashboardRotateProportionCharts.vue";
+import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateTotalCharts.vue";
 
 const border4Color = ['#545fac', '#545fac']
 
@@ -81,17 +86,17 @@ const border4Color = ['#545fac', '#545fac']
   }
 
   .map-border {
-    height: 67vh;
+    height: 65vh;
   }
 
   .dashboard-border {
-    height: 25vh;
+    height: 28vh;
   }
 
   .title-wrapper {
     position: relative;
     width: 100%;
-    height: 8vh;
+    height: 7vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -111,7 +116,7 @@ const border4Color = ['#545fac', '#545fac']
     left: 0;
     top: 2vh;
     width: 100%;
-    height: 8vh;
+    height: 7vh;
     z-index: 1;
   }
 }

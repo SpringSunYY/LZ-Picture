@@ -154,6 +154,7 @@ const setOptions = () => {
         splitLine: {show: false}, // 隐藏网格线
         axisTick: {show: false}, // 隐藏刻度线
         axisLine: {lineStyle: {color: "#0c3b71"}}, // Y轴线颜色
+        splitArea: {show: false},   // 取消交替底色
         axisLabel: {
           color: "rgb(170,170,170)",
           formatter: "{value}" // 显示百分比符号
