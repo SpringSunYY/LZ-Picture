@@ -28,7 +28,7 @@
         </div>
         <BorderBox7 class="dashboard-border">
           <!--用户信息-->
-          <el-row >
+          <el-row>
             <el-col :span="12" class="dashboard-border">
               <DashboardRotateProportionCharts/>
             </el-col>
@@ -55,11 +55,17 @@
         </div>
       </el-col>
     </el-row>
+    <DateRangePicker
+        v-model="dateRange"
+        @change="onDateChange"
+        top="1vh"
+        right="45vh"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import {BorderBox6, BorderBox8, BorderBox4, Decoration5, BorderBox7} from '@kjgl77/datav-vue3'
+import {BorderBox4, BorderBox6, BorderBox7, BorderBox8, Decoration5} from '@kjgl77/datav-vue3'
 import PieCharts from "@/components/Statistics/PieCharts";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
@@ -69,9 +75,16 @@ import TableRanking from "@/components/Statistics/TableRanking.vue";
 import BarLineCharts from "@/components/Statistics/BarLineCharts.vue";
 import DashboardRotateProportionCharts from "@/components/Statistics/DashboardRotateProportionCharts.vue";
 import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateTotalCharts.vue";
+import DateRangePicker from "@/components/Statistics/DateRangePicker";
+import {ref} from "vue"
 
 const border4Color = ['#545fac', '#545fac']
 
+const dateRange = ref<[Date, Date] | null>(null)
+
+const onDateChange = (val: [Date, Date] | null) => {
+  console.log("父组件接收到选择的时间:", val)
+}
 </script>
 
 <style scoped lang="scss">
