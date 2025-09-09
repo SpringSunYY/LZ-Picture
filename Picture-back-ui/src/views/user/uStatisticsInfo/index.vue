@@ -12,7 +12,7 @@
       <el-form-item label="统计类型" prop="type">
         <el-select v-model="queryParams.type" style="width: 200px" placeholder="请选择统计类型" clearable>
           <el-option
-              v-for="dict in p_statistics_type"
+              v-for="dict in u_statistics_type"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -27,7 +27,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="公共KEY" prop="commonKey">
+      <el-form-item label="KEY" prop="commonKey">
         <el-input
             v-model="queryParams.commonKey"
             placeholder="请输入公共KEY"
@@ -68,16 +68,16 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <!--      <el-col :span="1.5">-->
-      <!--        <el-button-->
-      <!--            type="primary"-->
-      <!--            plain-->
-      <!--            icon="Plus"-->
-      <!--            @click="handleAdd"-->
-      <!--            v-hasPermi="['picture:statisticsInfo:add']"-->
-      <!--        >新增-->
-      <!--        </el-button>-->
-      <!--      </el-col>-->
+      <el-col :span="1.5">
+        <el-button
+            type="primary"
+            plain
+            icon="Plus"
+            @click="handleAdd"
+            v-hasPermi="['user:uStatisticsInfo:add']"
+        >新增
+        </el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button
             type="success"
@@ -85,7 +85,7 @@
             icon="Edit"
             :disabled="single"
             @click="handleUpdate"
-            v-hasPermi="['picture:statisticsInfo:edit']"
+            v-hasPermi="['user:uStatisticsInfo:edit']"
         >修改
         </el-button>
       </el-col>
@@ -96,7 +96,7 @@
             icon="Delete"
             :disabled="multiple"
             @click="handleDelete"
-            v-hasPermi="['picture:statisticsInfo:remove']"
+            v-hasPermi="['user:uStatisticsInfo:remove']"
         >删除
         </el-button>
       </el-col>
@@ -106,22 +106,21 @@
             plain
             icon="Download"
             @click="handleExport"
-            v-hasPermi="['picture:statisticsInfo:export']"
+            v-hasPermi="['user:uStatisticsInfo:export']"
         >导出
         </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table ref="tableRef" v-loading="loading" :data="statisticsInfoList" @selection-change="handleSelectionChange"
+    <el-table ref="tableRef" v-loading="loading" :data="uStatisticsInfoList" @selection-change="handleSelectionChange"
               @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="序号" type="index" width="50"/>
       <el-table-column label="统计编号" align="center" prop="statisticsId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="统计类型" align="center" prop="type" v-if="columns[1].visible">
         <template #default="scope">
-          <dict-tag :options="p_statistics_type" :value="scope.row.type"/>
+          <dict-tag :options="u_statistics_type" :value="scope.row.type"/>
         </template>
       </el-table-column>
       <el-table-column label="统计名称" align="center" prop="statisticsName" sortable="custom" v-if="columns[2].visible"
@@ -138,7 +137,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="描述" align="center" prop="remark" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180" v-if="columns[9].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -147,10 +147,10 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                     v-hasPermi="['picture:statisticsInfo:edit']">修改
+                     v-hasPermi="['user:uStatisticsInfo:edit']">修改
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                     v-hasPermi="['picture:statisticsInfo:remove']">删除
+                     v-hasPermi="['user:uStatisticsInfo:remove']">删除
           </el-button>
         </template>
       </el-table-column>
@@ -166,11 +166,11 @@
 
     <!-- 添加或修改统计信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="statisticsInfoRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="uStatisticsInfoRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="统计类型" prop="type">
-          <el-select v-model="form.type" disabled placeholder="请选择统计类型">
+          <el-select v-model="form.type" placeholder="请选择统计类型">
             <el-option
-                v-for="dict in p_statistics_type"
+                v-for="dict in u_statistics_type"
                 :key="dict.value"
                 :label="dict.label"
                 :value="dict.value"
@@ -181,19 +181,19 @@
           <el-input v-model="form.statisticsName" placeholder="请输入统计名称"/>
         </el-form-item>
         <el-form-item label="公共KEY" prop="commonKey">
-          <el-input readonly v-model="form.commonKey" placeholder="请输入公共KEY"/>
+          <el-input v-model="form.commonKey" placeholder="请输入公共KEY"/>
         </el-form-item>
         <el-form-item label="KEY" prop="statisticsKey">
-          <el-input readonly v-model="form.statisticsKey" placeholder="请输入KEY"/>
+          <el-input v-model="form.statisticsKey" placeholder="请输入KEY"/>
         </el-form-item>
         <el-form-item label="期数" prop="stages">
-          <el-input readonly v-model="form.stages" placeholder="请输入期数"/>
+          <el-input v-model="form.stages" placeholder="请输入期数"/>
         </el-form-item>
-        <el-form-item label="统计内容" prop="content">
-          <el-input readonly v-model="form.content" type="textarea" placeholder="请输入内容"/>
+        <el-form-item label="统计内容">
+          <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
-        <el-form-item label="统计内容" prop="extendContent">
-          <el-input readonly v-model="form.extendContent" type="textarea" placeholder="请输入内容"/>
+        <el-form-item label="统计内容">
+          <editor v-model="form.extendContent" :min-height="192"/>
         </el-form-item>
         <el-form-item label="描述" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
@@ -209,19 +209,19 @@
   </div>
 </template>
 
-<script setup name="StatisticsInfo">
+<script setup name="UStatisticsInfo">
 import {
-  listStatisticsInfo,
-  getStatisticsInfo,
-  delStatisticsInfo,
-  addStatisticsInfo,
-  updateStatisticsInfo
-} from "@/api/picture/statisticsInfo";
+  listUStatisticsInfo,
+  getUStatisticsInfo,
+  delUStatisticsInfo,
+  addUStatisticsInfo,
+  updateUStatisticsInfo
+} from "@/api/user/uStatisticsInfo";
 
 const {proxy} = getCurrentInstance();
-const {p_statistics_type} = proxy.useDict('p_statistics_type');
+const {u_statistics_type} = proxy.useDict('u_statistics_type');
 
-const statisticsInfoList = ref([]);
+const uStatisticsInfoList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -231,7 +231,6 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 const daterangeCreateTime = ref([]);
-
 const isAsc = ref();
 const orderByColumn = ref('');
 const data = reactive({
@@ -242,6 +241,7 @@ const data = reactive({
     statisticsId: null,
     type: null,
     statisticsName: null,
+    commonKey: null,
     statisticsKey: null,
     stages: null,
     createTime: null
@@ -280,20 +280,6 @@ const data = reactive({
 
 const {queryParams, form, rules, columns} = toRefs(data);
 
-//自定义排序
-function customSort({column, prop, order}) {
-  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
-    orderByColumn.value = prop;
-    isAsc.value = order === "ascending";
-  } else {
-    orderByColumn.value = null;
-    isAsc.value = null;
-  }
-  queryParams.value.pageNum = 1;
-  getList();
-}
-
-
 /** 查询统计信息列表 */
 function getList() {
   loading.value = true;
@@ -306,11 +292,24 @@ function getList() {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
   }
-  listStatisticsInfo(queryParams.value).then(response => {
-    statisticsInfoList.value = response.rows;
+  listUStatisticsInfo(queryParams.value).then(response => {
+    uStatisticsInfoList.value = response.rows;
     total.value = response.total;
     loading.value = false;
   });
+}
+
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
 }
 
 // 取消按钮
@@ -333,7 +332,7 @@ function reset() {
     remark: null,
     createTime: null
   };
-  proxy.resetForm("statisticsInfoRef");
+  proxy.resetForm("uStatisticsInfoRef");
 }
 
 /** 搜索按钮操作 */
@@ -347,8 +346,8 @@ function resetQuery() {
   daterangeCreateTime.value = [];
   orderByColumn.value = null
   isAsc.value = null;
-  proxy.resetForm("queryRef");
   proxy.$refs.tableRef.clearSort();
+  proxy.resetForm("queryRef");
   handleQuery();
 }
 
@@ -370,7 +369,7 @@ function handleAdd() {
 function handleUpdate(row) {
   reset();
   const _statisticsId = row.statisticsId || ids.value
-  getStatisticsInfo(_statisticsId).then(response => {
+  getUStatisticsInfo(_statisticsId).then(response => {
     form.value = response.data;
     open.value = true;
     title.value = "修改统计信息";
@@ -379,16 +378,16 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["statisticsInfoRef"].validate(valid => {
+  proxy.$refs["uStatisticsInfoRef"].validate(valid => {
     if (valid) {
       if (form.value.statisticsId != null) {
-        updateStatisticsInfo(form.value).then(response => {
+        updateUStatisticsInfo(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addStatisticsInfo(form.value).then(response => {
+        addUStatisticsInfo(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -402,7 +401,7 @@ function submitForm() {
 function handleDelete(row) {
   const _statisticsIds = row.statisticsId || ids.value;
   proxy.$modal.confirm('是否确认删除统计信息编号为"' + _statisticsIds + '"的数据项？').then(function () {
-    return delStatisticsInfo(_statisticsIds);
+    return delUStatisticsInfo(_statisticsIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -412,9 +411,9 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('picture/statisticsInfo/export', {
+  proxy.download('user/uStatisticsInfo/export', {
     ...queryParams.value
-  }, `statisticsInfo_${new Date().getTime()}.xlsx`)
+  }, `uStatisticsInfo_${new Date().getTime()}.xlsx`)
 }
 
 getList();
