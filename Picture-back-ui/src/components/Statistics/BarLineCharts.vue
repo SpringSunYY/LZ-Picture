@@ -121,7 +121,7 @@ const setOptions = () => {
     },
     legend: {
       data: props.chartTitle, // 图例数据
-      top: "10%",
+      top: "12%",
       textStyle: {
         color: "#fff"
       }
@@ -129,8 +129,8 @@ const setOptions = () => {
     grid: {
       left: "0%",
       right: "0%",
-      bottom: "2%",
-      top: "18%",
+      bottom: "1%",
+      top: "20%",
       height: "75%",
       containLabel: true,
       z: 22 // 层级（确保不被覆盖）

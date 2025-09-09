@@ -26,6 +26,14 @@
         <div class="map-border">
           <MapCharts height="100%"/>
         </div>
+        <BorderBox7 class="dashboard-border">
+          <!--用户信息-->
+          <el-row gutter="1" style="height: 100%">
+            <el-col :span="8">
+              <DashboardRotateProportionCharts/>
+            </el-col>
+          </el-row>
+        </BorderBox7>
       </el-col>
 
       <el-col :span="6">
@@ -47,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import {BorderBox6,BorderBox8, BorderBox4, Decoration5} from '@kjgl77/datav-vue3'
+import {BorderBox6, BorderBox8, BorderBox4, Decoration5, BorderBox7} from '@kjgl77/datav-vue3'
 import PieCharts from "@/components/Statistics/PieCharts";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
@@ -55,6 +63,7 @@ import RadarCharts from "@/components/Statistics/RadarCharts.vue";
 import MapCharts from "@/components/Statistics/MapCharts.vue";
 import TableRanking from "@/components/Statistics/TableRanking.vue";
 import BarLineCharts from "@/components/Statistics/BarLineCharts.vue";
+import DashboardRotateProportionCharts from "@/components/Statistics/DashboardRotateProportionCharts.vue";
 
 const border4Color = ['#545fac', '#545fac']
 
@@ -65,19 +74,24 @@ const border4Color = ['#545fac', '#545fac']
   background-image: url("/src/assets/images/user-statistics-bg.png");
   min-height: 100vh;
   max-width: 100%;
+
   .default-border {
     margin-top: 0.5vh;
     height: 32.5vh;
   }
 
   .map-border {
-    height: 70vh;
+    height: 67vh;
+  }
+
+  .dashboard-border {
+    height: 25vh;
   }
 
   .title-wrapper {
     position: relative;
     width: 100%;
-    height: 10vh;
+    height: 8vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,7 +111,7 @@ const border4Color = ['#545fac', '#545fac']
     left: 0;
     top: 2vh;
     width: 100%;
-    height: 10vh;
+    height: 8vh;
     z-index: 1;
   }
 }

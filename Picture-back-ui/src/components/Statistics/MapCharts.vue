@@ -176,7 +176,7 @@ function renderMap() {
       {
         type: 'group',
         right: 20,
-        bottom: 20,
+        bottom: 30,
         children: [
           {
             type: 'rect',
