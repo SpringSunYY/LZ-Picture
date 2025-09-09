@@ -58,7 +58,7 @@
     <DateRangePicker
         v-model="dateRange"
         @change="onDateChange"
-        top="1vh"
+        top="6vh"
         right="45vh"
     />
   </div>
