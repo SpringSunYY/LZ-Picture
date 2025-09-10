@@ -4,9 +4,11 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
+import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
@@ -24,8 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
-import static com.lz.common.constant.user.UserStatisticsConstants.USER_STATISTICS_REGISTER_DAY;
-import static com.lz.common.constant.user.UserStatisticsConstants.USER_STATISTICS_REGISTER_DAY_NAME;
+import static com.lz.common.constant.user.UserStatisticsConstants.*;
 
 /**
  * 统计信息Service业务层处理
@@ -151,11 +152,23 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     }
 
     //region 用户统计
+    @CustomCacheable(keyPrefix = USER_STATISTICS_REGISTER_DAY, expireTime = USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
-    public LineStatisticsVo userRegisterStatistics(UserStatisticsRequest userStatisticsRequest) {
+    public LineStatisticsVo userRegisterStatistics(UserStatisticsRequest request) {
         //拿到开始结束时间
-        String startDate = userStatisticsRequest.getStartDate();
-        String endDate = userStatisticsRequest.getEndDate();
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        //如果开始时间大于结束时间
+        Date startTime = DateUtils.parseDate(startDate);
+        Date endTime = DateUtils.parseDate(endDate);
+        if (startTime.getTime() > endTime.getTime()) {
+            throw new ServiceException("开始时间不能大于结束时间");
+        }
+        //如果结束时间大于当前时间
+        Date nowDate = DateUtils.getNowDate();
+        if (endTime.getTime() > nowDate.getTime()) {
+            throw new ServiceException("结束时间不能大于当前时间");
+        }
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
@@ -167,7 +180,6 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         ArrayList<String> names = new ArrayList<>();
         ArrayList<Long> totals = new ArrayList<>();
         //如果包含的日期有今天，则查询今天
-        Date nowDate = DateUtils.getNowDate();
         //是否包含今天
         boolean containsToday = dateRanges.contains(DateUtils.dateTime(nowDate));
         if (containsToday) {
@@ -186,7 +198,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 .eq(UStatisticsInfo::getCommonKey, USER_STATISTICS_REGISTER_DAY)
                 .apply("date_format(create_time,'%Y-%m-%d') between {0} and {1}", startDate, end)
         );
-        List<String> noStatisticsDate = new ArrayList<>();
+        List<String> noStatisticsDate = new ArrayList<>(dateRanges);
         if (StringUtils.isNotEmpty(uStatisticsInfoList)) {
             //添加所有统计到的数据
             for (UStatisticsInfo uStatisticsInfo : uStatisticsInfoList) {
@@ -195,14 +207,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 String statisticsStr = uStatisticsInfo.getContent();
                 StatisticsRo statisticsRo = JSONObject.parseObject(statisticsStr, StatisticsRo.class);
                 totals.add(statisticsRo.getTotal());
-                //去除统计key的公告前缀;
                 //如果没有统计，则添加
-                if (!dateRanges.contains(dateToStr)) {
-                    noStatisticsDate.add(dateToStr);
-                }
+                noStatisticsDate.remove(dateToStr);
             }
-        } else {
-            noStatisticsDate.addAll(dateRanges);
         }
         if (StringUtils.isNotEmpty(noStatisticsDate)) {
             ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();

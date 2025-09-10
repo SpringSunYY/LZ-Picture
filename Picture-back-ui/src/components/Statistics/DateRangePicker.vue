@@ -19,12 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch, computed} from "vue"
+import {ref, watch, computed, onMounted} from "vue"
 import dayjs from "dayjs"
 
 // Props
 const props = defineProps({
-  modelValue: {type: Array as () => [string, string] | null, default: null},
   format: {type: String, default: "YYYY-MM-DD"},
   // 定位属性
   top: {type: String, default: ""},
@@ -35,18 +34,14 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits<{
-  (e: "update:modelValue", value: [string, string] | null): void
   (e: "change", value: [string, string] | null): void
 }>()
 
 // 默认近 14 天
 const defaultStart = dayjs().subtract(14, "day").format(props.format)
 const defaultEnd = dayjs().format(props.format)
-const innerValue = ref<[string, string] | null>(props.modelValue ?? [defaultStart, defaultEnd])
+const innerValue = ref<[string, string] | null>([defaultStart, defaultEnd])
 
-watch(() => props.modelValue, val => {
-  innerValue.value = val ?? [defaultStart, defaultEnd]
-})
 
 // 快捷选项
 const shortcuts = [
@@ -60,7 +55,6 @@ const shortcuts = [
 
 // change 事件
 const handleChange = (val: [string, string] | null) => {
-  emit("update:modelValue", val)
   emit("change", val)
 }
 
@@ -79,7 +73,8 @@ const computedStyle = computed(() => {
 .date-time-range-picker {
   z-index: 10;
 }
-.el-range-input{
+
+.el-range-input {
   background: transparent;
   color: white !important;
 }

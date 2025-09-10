@@ -265,15 +265,15 @@ const data = reactive({
   },
   //表格展示列
   columns: [
-    {key: 0, label: '统计编号', visible: true},
+    {key: 0, label: '统计编号', visible: false},
     {key: 1, label: '统计类型', visible: true},
     {key: 2, label: '统计名称', visible: true},
-    {key: 3, label: '公共KEY', visible: true},
-    {key: 4, label: 'KEY', visible: true},
+    {key: 3, label: '公共KEY', visible: false},
+    {key: 4, label: 'KEY', visible: false},
     {key: 5, label: '期数', visible: true},
     {key: 6, label: '统计内容', visible: true},
-    {key: 7, label: '统计内容', visible: true},
-    {key: 8, label: '描述', visible: true},
+    {key: 7, label: '统计内容', visible: false},
+    {key: 8, label: '描述', visible: false},
     {key: 9, label: '创建时间', visible: true},
   ],
 });

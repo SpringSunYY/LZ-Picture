@@ -17,4 +17,9 @@ public class UserStatisticsConstants {
      * 用户注册
      */
     public static final String USER_STATISTICS_REGISTER_DAY_NAME = "用户注册-每日";
+
+    /**
+     * 用户注册缓存时间
+     */
+    public static final int USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME = 60 * 5;
 }

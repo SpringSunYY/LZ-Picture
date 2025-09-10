@@ -4,7 +4,8 @@
       <el-col :span="6">
         <BorderBox4 :color="border4Color" class="default-border" title="每日登录">
           <!--每日注册-->
-          <LineZoomCharts height="350px" chart-name="每日登录"/>
+          <LineZoomCharts height="100%" :chart-name="userRegisterStatisticsName"
+                          :chart-data="userRegisterStatisticsData"/>
         </BorderBox4>
         <BorderBox6 class="default-border">
           <!--消息排行-->
@@ -56,7 +57,6 @@
       </el-col>
     </el-row>
     <DateRangePicker
-        v-model="dateRange"
         @change="onDateChange"
         top="6vh"
         right="45vh"
@@ -77,14 +77,41 @@ import DashboardRotateProportionCharts from "@/components/Statistics/DashboardRo
 import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateTotalCharts.vue";
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
+import {
+  userRegisterStatistics
+} from "@/api/user/uStatisticsInfo";
+import dayjs from "dayjs";
 
 const border4Color = ['#545fac', '#545fac']
-
-const dateRange = ref<[Date, Date] | null>(null)
-
-const onDateChange = (val: [Date, Date] | null) => {
-  console.log("父组件接收到选择的时间:", val)
+const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
+const defaultEnd = dayjs().format("YYYY-MM-DD")
+const query = ref({
+  startDate: defaultStart,
+  endDate: defaultEnd
+})
+const dataRange = ref([])
+const userRegisterStatisticsData = ref({})
+const userRegisterStatisticsName = ref('用户注册统计')
+const onDateChange = (val: [string, string] | null) => {
+  query.value.startDate = val?.[0] || ''
+  query.value.endDate = val?.[1] || ''
+  getStatistics()
 }
+
+const getUserRegisterStatistics = () => {
+  console.log('query', query.value)
+  userRegisterStatistics(query.value).then(res => {
+    userRegisterStatisticsData.value.chartXData = res.data.names
+    userRegisterStatisticsData.value.chartYData = []
+    userRegisterStatisticsData.value.chartYData.push({value: res.data.totals, name: userRegisterStatisticsName.value})
+    console.log(userRegisterStatisticsData.value)
+  })
+}
+
+const getStatistics = () => {
+  getUserRegisterStatistics()
+}
+getStatistics()
 </script>
 
 <style scoped lang="scss">
