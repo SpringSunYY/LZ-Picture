@@ -98,7 +98,7 @@ const operations = ref([
     icon: 'hot'
   },
   {
-    key: 'useStatistics',
+    key: 'userStatistics',
     permission: ['user:statistics'],
     name: '用户数据可视化',
     shortDescription: '实时图表展示',
@@ -190,8 +190,8 @@ function clickOperation(operation) {
       handleChangeDownloadPictureHotType()
       openDownloadPictureHot.value = true
       break;
-    case 'useStatistics':
-      handleToFullPage('useStatistics')
+    case 'userStatistics':
+      handleToFullPage('userStatistics')
       break;
     default:
       noOperation()

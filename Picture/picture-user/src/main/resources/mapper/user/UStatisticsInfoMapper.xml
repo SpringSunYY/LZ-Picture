@@ -107,4 +107,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{statisticsId}
         </foreach>
     </delete>
+
+    <select id="userRegisterStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        WITH RECURSIVE date_range AS (SELECT DATE (#{startDate}) AS target_date
+        UNION ALL
+        SELECT DATE_ADD(target_date, INTERVAL 1 DAY)
+        FROM date_range
+        WHERE target_date &lt; DATE (#{endDate})
+        )
+        SELECT d.target_date as name,
+        COALESCE(COUNT(u.user_id), 0) AS total
+        FROM date_range d
+        LEFT JOIN u_user_info u
+        ON DATE (u.create_time) = d.target_date
+        <if test="isDelete != null and isDelete != ''">
+            AND u.is_delete = #{isDelete}
+        </if>
+        GROUP BY d.target_date
+        ORDER BY d.target_date;
+    </select>
+
 </mapper>

@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 时间工具类
@@ -294,7 +296,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         //加减年份
         localDate = localDate.plusYears(year);
         //根据年份获取指定日
-         day = Math.min(day, localDate.lengthOfYear());
+        day = Math.min(day, localDate.lengthOfYear());
         day = Math.max(day, 1);
         LocalDate temporalAccessor = localDate.withDayOfYear(day);
         return toDate(temporalAccessor);
@@ -327,12 +329,31 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static Date getDay(Date date, int day) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate days = localDate.minusDays(day);
+        LocalDate days = localDate.plusDays(day);
         return DateUtils.toDate(days);
     }
 
     public static String getDay(Date date, int day, String format) {
         return parseDateToStr(format, getDay(date, day));
+    }
+
+    /**
+     * 获取指定时间范围的所有日期
+     */
+    public static List<String> getDateRanges(String startDateStr, String endDateStr) {
+        Date startDate = parseDate(startDateStr);
+        Date endDate = parseDate(endDateStr);
+        // 判断时间范围
+        if (startDate != null && endDate != null) {
+            List<String> dateList = new ArrayList<>();
+            // 开始时间小于等于结束时间
+            while (startDate.getTime() <= endDate.getTime()) {
+                dateList.add(parseDateToStr(YYYY_MM_DD, startDate));
+                startDate = DateUtils.getDay(startDate, 1);
+            }
+            return dateList;
+        }
+        return null;
     }
 
     public static void main(String[] args) {
@@ -348,6 +369,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         Date yearDay = getYearDay(date, -1, 10);
         System.out.println("yearDay = " + yearDay);
         System.out.println(getWeekDayNumber(yearDay, yearDay));
+
+        List<String> dateRanges = getDateRanges("2023-01-01", "2023-01-31");
+        for (String dateRange : dateRanges) {
+            System.out.println(dateRange);
+        }
     }
 
 }

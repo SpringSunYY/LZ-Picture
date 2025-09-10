@@ -180,7 +180,7 @@ export const dynamicRoutes = [
             {
                 path: 'index',
                 component: () => import('@/views/user/statistics/index.vue'),
-                name: 'useStatistics',
+                name: 'userStatistics',
                 meta: {title: '用户统计', activeMenu: '/user'}
             }
         ]

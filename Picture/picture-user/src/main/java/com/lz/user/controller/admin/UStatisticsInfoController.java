@@ -1,30 +1,26 @@
 package com.lz.user.controller.admin;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.access.prepost.PreAuthorize;
-import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.lz.common.annotation.Log;
 import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
-import com.lz.common.enums.BusinessType;
-import com.lz.user.model.domain.UStatisticsInfo;
-import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
-import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
-import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoInsert;
-import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoEdit;
-import com.lz.user.service.IUStatisticsInfoService;
-import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.common.core.page.TableDataInfo;
+import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.poi.ExcelUtil;
+import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.dto.statistics.UserStatisticsRequest;
+import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoEdit;
+import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoInsert;
+import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
+import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
+import com.lz.user.service.IUStatisticsInfoService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 统计信息Controller
@@ -34,8 +30,7 @@ import com.lz.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/admin/user/uStatisticsInfo")
-public class UStatisticsInfoController extends BaseController
-{
+public class UStatisticsInfoController extends BaseController {
     @Resource
     private IUStatisticsInfoService uStatisticsInfoService;
 
@@ -44,12 +39,11 @@ public class UStatisticsInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('user:uStatisticsInfo:list')")
     @GetMapping("/list")
-    public TableDataInfo list(UStatisticsInfoQuery uStatisticsInfoQuery)
-    {
+    public TableDataInfo list(UStatisticsInfoQuery uStatisticsInfoQuery) {
         UStatisticsInfo uStatisticsInfo = UStatisticsInfoQuery.queryToObj(uStatisticsInfoQuery);
         startPage();
         List<UStatisticsInfo> list = uStatisticsInfoService.selectUStatisticsInfoList(uStatisticsInfo);
-        List<UStatisticsInfoVo> listVo= list.stream().map(UStatisticsInfoVo::objToVo).collect(Collectors.toList());
+        List<UStatisticsInfoVo> listVo = list.stream().map(UStatisticsInfoVo::objToVo).collect(Collectors.toList());
         TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
@@ -61,8 +55,7 @@ public class UStatisticsInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('user:uStatisticsInfo:export')")
     @Log(title = "统计信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, UStatisticsInfoQuery uStatisticsInfoQuery)
-    {
+    public void export(HttpServletResponse response, UStatisticsInfoQuery uStatisticsInfoQuery) {
         UStatisticsInfo uStatisticsInfo = UStatisticsInfoQuery.queryToObj(uStatisticsInfoQuery);
         List<UStatisticsInfo> list = uStatisticsInfoService.selectUStatisticsInfoList(uStatisticsInfo);
         ExcelUtil<UStatisticsInfo> util = new ExcelUtil<UStatisticsInfo>(UStatisticsInfo.class);
@@ -74,8 +67,7 @@ public class UStatisticsInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('user:uStatisticsInfo:query')")
     @GetMapping(value = "/{statisticsId}")
-    public AjaxResult getInfo(@PathVariable("statisticsId") String statisticsId)
-    {
+    public AjaxResult getInfo(@PathVariable("statisticsId") String statisticsId) {
         UStatisticsInfo uStatisticsInfo = uStatisticsInfoService.selectUStatisticsInfoByStatisticsId(statisticsId);
         return success(UStatisticsInfoVo.objToVo(uStatisticsInfo));
     }
@@ -86,8 +78,7 @@ public class UStatisticsInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('user:uStatisticsInfo:add')")
     @Log(title = "统计信息", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody UStatisticsInfoInsert uStatisticsInfoInsert)
-    {
+    public AjaxResult add(@RequestBody UStatisticsInfoInsert uStatisticsInfoInsert) {
         UStatisticsInfo uStatisticsInfo = UStatisticsInfoInsert.insertToObj(uStatisticsInfoInsert);
         return toAjax(uStatisticsInfoService.insertUStatisticsInfo(uStatisticsInfo));
     }
@@ -98,8 +89,7 @@ public class UStatisticsInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('user:uStatisticsInfo:edit')")
     @Log(title = "统计信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody UStatisticsInfoEdit uStatisticsInfoEdit)
-    {
+    public AjaxResult edit(@RequestBody UStatisticsInfoEdit uStatisticsInfoEdit) {
         UStatisticsInfo uStatisticsInfo = UStatisticsInfoEdit.editToObj(uStatisticsInfoEdit);
         return toAjax(uStatisticsInfoService.updateUStatisticsInfo(uStatisticsInfo));
     }
@@ -110,8 +100,18 @@ public class UStatisticsInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('user:uStatisticsInfo:remove')")
     @Log(title = "统计信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{statisticsIds}")
-    public AjaxResult remove(@PathVariable String[] statisticsIds)
-    {
+    public AjaxResult remove(@PathVariable String[] statisticsIds) {
         return toAjax(uStatisticsInfoService.deleteUStatisticsInfoByStatisticsIds(statisticsIds));
+    }
+
+    /**
+     * 用户注册统计
+     *
+     * @param userStatisticsRequest 请求参数
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/register")
+    public AjaxResult userRegisterStatistics(@Validated UserStatisticsRequest userStatisticsRequest) {
+        return success(uStatisticsInfoService.userRegisterStatistics(userStatisticsRequest));
     }
 }

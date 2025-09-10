@@ -1,16 +1,19 @@
 package com.lz.user.model.domain;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.common.annotation.Excel;
+import lombok.Data;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
+
 /**
  * 统计信息对象 u_u_statistics_info
  *
@@ -19,53 +22,75 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  */
 @TableName("u_u_statistics_info")
 @Data
-public class UStatisticsInfo implements Serializable
-{
+public class UStatisticsInfo implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /** 统计编号 */
-        @Excel(name = "统计编号")
+    /**
+     * 统计编号
+     */
+    @Excel(name = "统计编号")
     @TableId(value = "statistics_id", type = IdType.ASSIGN_ID)
     private String statisticsId;
 
-    /** 统计类型 */
-        @Excel(name = "统计类型")
+    /**
+     * 统计类型
+     */
+    @Excel(name = "统计类型")
     private String type;
 
-    /** 统计名称 */
-        @Excel(name = "统计名称")
+    /**
+     * 统计名称
+     */
+    @Excel(name = "统计名称")
     private String statisticsName;
 
-    /** 公共KEY */
-        @Excel(name = "公共KEY")
+    /**
+     * 公共KEY
+     */
+    @Excel(name = "公共KEY")
     private String commonKey;
 
-    /** KEY */
-        @Excel(name = "KEY")
+    /**
+     * KEY
+     */
+    @Excel(name = "KEY")
     private String statisticsKey;
 
-    /** 期数 */
-        @Excel(name = "期数")
+    /**
+     * 期数
+     */
+    @Excel(name = "期数")
     private Long stages;
 
-    /** 统计内容 */
-        @Excel(name = "统计内容")
+    /**
+     * 统计内容
+     */
+    @Excel(name = "统计内容")
     private String content;
 
-    /** 统计内容 */
-        @Excel(name = "统计内容")
+    /**
+     * 统计内容
+     */
+    @Excel(name = "统计内容")
     private String extendContent;
 
-    /** 描述 */
-        @Excel(name = "描述")
+    /**
+     * 描述
+     */
+    @Excel(name = "描述")
     private String remark;
 
-    /** 创建时间 */
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
-    /** 请求参数 */
+    /**
+     * 请求参数
+     */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @TableField(exist = false)
     private Map<String, Object> params;

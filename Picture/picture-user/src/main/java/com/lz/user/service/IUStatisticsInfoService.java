@@ -1,21 +1,24 @@
 package com.lz.user.service;
 
-import java.util.List;
-import com.lz.user.model.domain.UStatisticsInfo;
-import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
-import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
+import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.dto.statistics.UserStatisticsRequest;
+import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
+import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
+
+import java.util.List;
+
 /**
  * 统计信息Service接口
  *
  * @author YY
  * @date 2025-09-09
  */
-public interface IUStatisticsInfoService extends IService<UStatisticsInfo>
-{
+public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
     //region mybatis代码
+
     /**
      * 查询统计信息
      *
@@ -64,6 +67,7 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo>
      */
     public int deleteUStatisticsInfoByStatisticsId(String statisticsId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +83,15 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo>
      * @return UStatisticsInfoVO集合
      */
     List<UStatisticsInfoVo> convertVoList(List<UStatisticsInfo> uStatisticsInfoList);
+
+    /**
+     * 用户注册统计
+     *
+     * @param userStatisticsRequest 统计请求
+     * @return LineStatisticsVo
+     * @author: YY
+     * @method: userRegisterStatistics
+     * @date: 2025/9/10 15:53
+     **/
+    LineStatisticsVo userRegisterStatistics(UserStatisticsRequest userStatisticsRequest);
 }

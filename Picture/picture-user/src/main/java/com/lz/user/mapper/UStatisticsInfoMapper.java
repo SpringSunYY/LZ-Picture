@@ -1,8 +1,11 @@
 package com.lz.user.mapper;
 
 import java.util.List;
+
+import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 
 /**
  * 统计信息Mapper接口
@@ -59,4 +62,6 @@ public interface UStatisticsInfoMapper extends BaseMapper<UStatisticsInfo>
      * @return 结果
      */
     public int deleteUStatisticsInfoByStatisticsIds(String[] statisticsIds);
+
+    List<StatisticsRo> userRegisterStatistics(UserStatisticsRequest requestToday);
 }
