@@ -48,7 +48,7 @@
         </BorderBox4>
         <BorderBox8 class="default-border">
           <!--性别分布-->
-          <PieCharts chart-name="用户性别比例"/>
+          <PieCharts :chart-name="userSexStatisticsName" :chart-data="userSexStatisticsData"/>
         </BorderBox8>
         <!--登录-->
         <div class="default-border">
@@ -64,7 +64,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import {BorderBox4, BorderBox6, BorderBox7, BorderBox8, Decoration5} from '@kjgl77/datav-vue3'
 import PieCharts from "@/components/Statistics/PieCharts";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts";
@@ -78,7 +78,7 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
-  userRegisterStatistics
+  userRegisterStatistics, userSexStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
 
@@ -92,7 +92,7 @@ const query = ref({
 const dataRange = ref([])
 const userRegisterStatisticsData = ref({})
 const userRegisterStatisticsName = ref('用户注册统计')
-const onDateChange = (val: [string, string] | null) => {
+const onDateChange = (val) => {
   query.value.startDate = val?.[0] || ''
   query.value.endDate = val?.[1] || ''
   getStatistics()
@@ -108,6 +108,14 @@ const getUserRegisterStatistics = () => {
   })
 }
 
+const userSexStatisticsData = ref({})
+const userSexStatisticsName = ref('用户性别比例')
+const getUserSexStatistics = () => {
+  userSexStatistics().then(res => {
+    userSexStatisticsData.value = res.data.datas
+  })
+}
+getUserSexStatistics()
 const getStatistics = () => {
   getUserRegisterStatistics()
 }

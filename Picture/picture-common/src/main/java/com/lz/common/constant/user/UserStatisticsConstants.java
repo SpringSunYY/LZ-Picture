@@ -22,4 +22,17 @@ public class UserStatisticsConstants {
      * 用户注册缓存时间
      */
     public static final int USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户性别
+     */
+    public static final String USER_STATISTICS_SEX = "user:statistics:sex";
+    /**
+     * 用户性别
+     */
+    public static final String USER_STATISTICS_SEX_NAME = "用户性别";
+    /**
+     * 用户性别缓存时间
+     */
+    public static final int USER_STATISTICS_SEX_EXPIRE_TIME = 60 * 5;
 }

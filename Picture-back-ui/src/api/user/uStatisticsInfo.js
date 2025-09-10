@@ -52,3 +52,11 @@ export function userRegisterStatistics(query) {
         params: query
     })
 }
+
+//用户性别统计
+export function userSexStatistics() {
+    return request({
+        url: '/user/uStatisticsInfo/user/sex',
+        method: 'get'
+    })
+}

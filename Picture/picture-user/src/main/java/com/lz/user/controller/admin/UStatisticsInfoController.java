@@ -114,4 +114,10 @@ public class UStatisticsInfoController extends BaseController {
     public AjaxResult userRegisterStatistics(@Validated UserStatisticsRequest userStatisticsRequest) {
         return success(uStatisticsInfoService.userRegisterStatistics(userStatisticsRequest));
     }
+
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/sex")
+    public AjaxResult userSexStatistics() {
+        return success(uStatisticsInfoService.userSexStatistics());
+    }
 }

@@ -3,6 +3,7 @@ package com.lz.user.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
@@ -94,4 +95,11 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @date: 2025/9/10 15:53
      **/
     LineStatisticsVo userRegisterStatistics(UserStatisticsRequest userStatisticsRequest);
+
+    /**
+     * 用户性别统计
+     *
+     * @return
+     */
+    PieStatisticsVo userSexStatistics();
 }

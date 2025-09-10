@@ -8,6 +8,8 @@ import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
@@ -17,6 +19,7 @@ import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
 import com.lz.user.model.enums.UStatisticsTypeEnum;
+import com.lz.user.model.enums.UUserSexEnum;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 import com.lz.user.service.IUStatisticsInfoService;
 import jakarta.annotation.Resource;
@@ -158,17 +161,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //拿到开始结束时间
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        //如果开始时间大于结束时间
-        Date startTime = DateUtils.parseDate(startDate);
-        Date endTime = DateUtils.parseDate(endDate);
-        if (startTime.getTime() > endTime.getTime()) {
-            throw new ServiceException("开始时间不能大于结束时间");
-        }
-        //如果结束时间大于当前时间
-        Date nowDate = DateUtils.getNowDate();
-        if (endTime.getTime() > nowDate.getTime()) {
-            throw new ServiceException("结束时间不能大于当前时间");
-        }
+        Date nowDate = checkDate(startDate, endDate);
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
@@ -215,15 +208,8 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
             for (String date : noStatisticsDate) {
                 StatisticsRo userRegisterStatistics = getUserRegisterStatistics(date, date, names, totals, lineStatisticsVo);
-                UStatisticsInfo uStatisticsInfo = new UStatisticsInfo();
-                uStatisticsInfo.setStatisticsId(IdUtils.snowflakeId().toString());
-                uStatisticsInfo.setType(UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue());
-                uStatisticsInfo.setStatisticsName(USER_STATISTICS_REGISTER_DAY_NAME + COMMON_SEPARATOR_CACHE + date);
-                uStatisticsInfo.setCommonKey(USER_STATISTICS_REGISTER_DAY);
-                uStatisticsInfo.setStatisticsKey(USER_STATISTICS_REGISTER_DAY + COMMON_SEPARATOR_CACHE + date);
-                uStatisticsInfo.setStages(1L);
-                uStatisticsInfo.setContent(JSONObject.toJSONString(userRegisterStatistics));
-                uStatisticsInfo.setCreateTime(DateUtils.dateTime(DateUtils.YYYY_MM_DD, date));
+                //统计数据
+                UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue(), USER_STATISTICS_REGISTER_DAY_NAME, USER_STATISTICS_REGISTER_DAY, 1L);
                 uStatisticsInfos.add(uStatisticsInfo);
             }
             uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
@@ -233,6 +219,52 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         return lineStatisticsVo;
     }
 
+    private static UStatisticsInfo getUStatisticsInfo(String date, Object content,
+                                                      String type, String statisticsName,
+                                                      String commonKey, Long stages) {
+        UStatisticsInfo uStatisticsInfo = new UStatisticsInfo();
+        uStatisticsInfo.setStatisticsId(IdUtils.snowflakeId().toString());
+        uStatisticsInfo.setType(type);
+        uStatisticsInfo.setStatisticsName(statisticsName + COMMON_SEPARATOR_CACHE + date);
+        uStatisticsInfo.setCommonKey(commonKey);
+        uStatisticsInfo.setStatisticsKey(commonKey + COMMON_SEPARATOR_CACHE + date);
+        uStatisticsInfo.setStages(stages);
+        uStatisticsInfo.setContent(JSONObject.toJSONString(content));
+        uStatisticsInfo.setCreateTime(DateUtils.dateTime(DateUtils.YYYY_MM_DD, date));
+        return uStatisticsInfo;
+    }
+
+    /**
+     * 校验时间
+     *
+     * @param startDate 开始时间
+     * @param endDate   结束时间
+     */
+    private static Date checkDate(String startDate, String endDate) {
+        //如果开始时间大于结束时间
+        Date startTime = DateUtils.parseDate(startDate);
+        Date endTime = DateUtils.parseDate(endDate);
+        if (startTime.getTime() > endTime.getTime()) {
+            throw new ServiceException("开始时间不能大于结束时间");
+        }
+        //如果结束时间大于当前时间
+        Date nowDate = DateUtils.getNowDate();
+        if (endTime.getTime() > nowDate.getTime()) {
+            throw new ServiceException("结束时间不能大于当前时间");
+        }
+        return nowDate;
+    }
+
+    /**
+     * 获取用户注册数据
+     *
+     * @param start            开始时间
+     * @param end              结束时间
+     * @param names            名称
+     * @param totals           总数
+     * @param lineStatisticsVo 折线图数据
+     * @return
+     */
     private StatisticsRo getUserRegisterStatistics(String start, String end, ArrayList<String> names, ArrayList<Long> totals, LineStatisticsVo lineStatisticsVo) {
         UserStatisticsRequest requestToday = new UserStatisticsRequest();
         requestToday.setStartDate(start);
@@ -244,6 +276,45 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         lineStatisticsVo.setNames(names);
         lineStatisticsVo.setTotals(totals);
         return last;
+    }
+
+    @Override
+    @CustomCacheable(keyPrefix = USER_STATISTICS_SEX, expireTime = USER_STATISTICS_SEX_EXPIRE_TIME)
+    public PieStatisticsVo userSexStatistics() {
+        PieStatisticsVo pieStatisticsVo = new PieStatisticsVo();
+        ArrayList<PieStatisticsVo.Data> datas = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+
+        //统计默认今天，表示最新
+        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
+        //首先查询是否有存在
+        UStatisticsInfo uStatisticsInfo = this.getOne(new LambdaQueryWrapper<UStatisticsInfo>()
+                .eq(UStatisticsInfo::getType, UStatisticsTypeEnum.STATISTICS_TYPE_5.getValue())
+                .eq(UStatisticsInfo::getCommonKey, USER_STATISTICS_SEX)
+                .orderByDesc(UStatisticsInfo::getCreateTime)
+                .last("limit 1"));
+        //如果有数据且就是今天的
+        if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
+            return JSONObject.parseObject(uStatisticsInfo.getContent(), PieStatisticsVo.class);
+        }
+        //没有数据，查询数据库
+        List<StatisticsRo> userSexStatistics = uStatisticsInfoMapper.userSexStatistics(CommonDeleteEnum.NORMAL.getValue());
+        for (StatisticsRo userSexStatistic : userSexStatistics) {
+            Optional<UUserSexEnum> enumByValue = UUserSexEnum.getEnumByValue(userSexStatistic.getName());
+            String name = enumByValue.isPresent() ? enumByValue.get().getLabel() : userSexStatistic.getName();
+            PieStatisticsVo.Data data = new PieStatisticsVo.Data();
+            data.setName(name);
+            data.setValue(userSexStatistic.getTotal());
+            datas.add(data);
+            names.add(name);
+        }
+        pieStatisticsVo.setNames(names);
+        pieStatisticsVo.setDatas(datas);
+        UStatisticsInfo newUStatisticsInfo = getUStatisticsInfo(nowData, pieStatisticsVo,
+                UStatisticsTypeEnum.STATISTICS_TYPE_5.getValue(), USER_STATISTICS_SEX_NAME, USER_STATISTICS_SEX,
+                StringUtils.isNull(uStatisticsInfo) ? 1L : uStatisticsInfo.getStages() + 1);
+        uStatisticsInfoMapper.insertOrUpdate(newUStatisticsInfo);
+        return pieStatisticsVo;
     }
     //endregion
 

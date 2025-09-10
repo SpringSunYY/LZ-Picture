@@ -126,5 +126,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         GROUP BY d.target_date
         ORDER BY d.target_date;
     </select>
+    <select id="userSexStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        SELECT
+        COALESCE(u.sex, '0') AS name,
+        COUNT(*) AS total
+        FROM u_user_info u
+        <if test="isDelete != null and isDelete != ''">
+            WHERE u.is_delete = #{isDelete}
+        </if>
+        GROUP BY COALESCE(u.sex, '0')
+        ORDER BY name;
+    </select>
 
 </mapper>
