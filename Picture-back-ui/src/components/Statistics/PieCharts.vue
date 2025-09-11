@@ -44,12 +44,13 @@ const getBrightColor = () => {
 }
 // 初始化图表
 const initChart = (data) => {
+  if (!data||!data.length) {
+    return
+  }
   if (chart.value) {
     chart.value.dispose()
     chart.value = null
   }
-
-
   const coloredData = (data) =>
       data.map(item => ({
         ...item,
