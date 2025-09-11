@@ -292,22 +292,16 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     @Override
     @CustomCacheable(keyPrefix = USER_STATISTICS_SEX, expireTime = USER_STATISTICS_SEX_EXPIRE_TIME)
     public PieStatisticsVo userSexStatistics() {
-        PieStatisticsVo pieStatisticsVo = new PieStatisticsVo();
-        ArrayList<PieStatisticsVo.Data> datas = new ArrayList<>();
-        ArrayList<String> names = new ArrayList<>();
-
         //统计默认今天，表示最新
         String nowData = DateUtils.dateTime(DateUtils.getNowDate());
-        //首先查询是否有存在
-        UStatisticsInfo uStatisticsInfo = this.getOne(new LambdaQueryWrapper<UStatisticsInfo>()
-                .eq(UStatisticsInfo::getType, UStatisticsTypeEnum.STATISTICS_TYPE_5.getValue())
-                .eq(UStatisticsInfo::getCommonKey, USER_STATISTICS_SEX)
-                .orderByDesc(UStatisticsInfo::getCreateTime)
-                .last("limit 1"));
+        UStatisticsInfo uStatisticsInfo = getUStatisticsInfoByCommonKey(USER_STATISTICS_SEX, UStatisticsTypeEnum.STATISTICS_TYPE_5.getValue());
         //如果有数据且就是今天的
         if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
             return JSONObject.parseObject(uStatisticsInfo.getContent(), PieStatisticsVo.class);
         }
+        PieStatisticsVo pieStatisticsVo = new PieStatisticsVo();
+        ArrayList<PieStatisticsVo.Data> datas = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
         //没有数据，查询数据库
         List<StatisticsRo> userSexStatistics = uStatisticsInfoMapper.userSexStatistics(CommonDeleteEnum.NORMAL.getValue());
         for (StatisticsRo userSexStatistic : userSexStatistics) {
@@ -329,7 +323,25 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     }
 
     @Override
+    public UStatisticsInfo getUStatisticsInfoByCommonKey(String commonKey, String type) {
+        //首先查询是否有存在
+        return this.getOne(new LambdaQueryWrapper<UStatisticsInfo>()
+                .eq(UStatisticsInfo::getType, type)
+                .eq(UStatisticsInfo::getCommonKey, commonKey)
+                .orderByDesc(UStatisticsInfo::getCreateTime)
+                .last("limit 1"));
+    }
+
+    @Override
+    @CustomCacheable(keyPrefix = USER_STATISTICS_AGE, expireTime = USER_STATISTICS_AGE_EXPIRE_TIME)
     public RadarStatisticsVo userAgeStatistics() {
+        //统计默认今天，表示最新
+        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
+        UStatisticsInfo uStatisticsInfo = getUStatisticsInfoByCommonKey(USER_STATISTICS_SEX, UStatisticsTypeEnum.STATISTICS_TYPE_6.getValue());
+        //如果有数据且就是今天的
+        if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
+            return JSONObject.parseObject(uStatisticsInfo.getContent(), RadarStatisticsVo.class);
+        }
         //查询到所有的用户，分批查询
         ArrayList<UserInfo> userInfos = new ArrayList<>();
         int pageNum = 0;
@@ -342,19 +354,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             userInfos.addAll(userInfoList);
             pageNum++;
         } while (userInfoList.size() == pageSize);
-        String ageRange = sysConfigService.selectConfigByKey(USER_STATISTICS_AGE);
-        if (StringUtils.isEmpty(ageRange)) {
-            ageRange = "18;30;40;50;60";
-        }
-        // 解析年龄区间配置
-        List<Integer> rangeBounds = new ArrayList<>();
-        for (String str : ageRange.split(";")) {
-            rangeBounds.add(Integer.parseInt(str));
-        }
-
+        List<Integer> rangeBounds = builderAgeBounds();
         // 为不同性别创建年龄统计Map，key为性别值，value为年龄范围统计
         Map<String, Map<String, Integer>> genderAgeStats = new LinkedHashMap<>();
-
         //总人数
         //不能拿同一个数据源，否则会重复计算
         Map<String, Integer> ageStats = initAgeStats(rangeBounds);
@@ -365,42 +367,47 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             genderAgeStats.put(sex.getValue(), initAgeStats(rangeBounds));
         }
         Date nowDate = DateUtils.getNowDate();
+        //构建用户年龄
         for (UserInfo userInfo : userInfos) {
-            Integer age = DateUtils.getAgeByData(nowDate, userInfo.getBirthday());
-            String sex = userInfo.getSex();
-            //如果性别为空
-            if (StringUtils.isEmpty(sex)) {
-                sex = UUserSexEnum.USER_SEX_0.getValue();
-            }
-            Map<String, Integer> currentAgeStats = genderAgeStats.get(sex);
-            System.out.println("currentAgeStats = " + currentAgeStats);
-            Map<String, Integer> totalAgeStats = genderAgeStats.get("-1");
-            // 分配到对应区间
-            if (age == null || age < 0) {
-                currentAgeStats.put("未知", currentAgeStats.get("未知") + 1);
-                totalAgeStats.put("未知", totalAgeStats.get("未知") + 1);
-            } else if (age < rangeBounds.getFirst()) {
-                currentAgeStats.put(rangeBounds.getFirst() + "以下", currentAgeStats.get(rangeBounds.getFirst() + "以下") + 1);
-                totalAgeStats.put(rangeBounds.getFirst() + "以下", totalAgeStats.get(rangeBounds.getFirst() + "以下") + 1);
-            } else if (age >= rangeBounds.getLast()) {
-                currentAgeStats.put(rangeBounds.getLast() + "以上",
-                        currentAgeStats.get(rangeBounds.getLast() + "以上") + 1);
-                totalAgeStats.put(rangeBounds.getLast() + "以上", totalAgeStats.get(rangeBounds.getLast() + "以上") + 1);
-            } else {
-                // 在中间区间
-                for (int i = 0; i < rangeBounds.size() - 1; i++) {
-                    int current = rangeBounds.get(i);
-                    int next = rangeBounds.get(i + 1);
-                    if (age >= current && age < next) {
-                        String rangeKey = current + "-" + (next - 1);
-                        currentAgeStats.put(rangeKey, currentAgeStats.get(rangeKey) + 1);
-                        totalAgeStats.put(rangeKey, totalAgeStats.get(rangeKey) + 1);
-                        break;
-                    }
-                }
-            }
+            builderUserAge(userInfo, nowDate, genderAgeStats, rangeBounds);
         }
         //构建返回数据
+        RadarStatisticsVo radarStatisticsVo = builderUserAgeResult(ageStats, genderAgeStats);
+        //保存结果
+        UStatisticsInfo newUStatisticsInfo = getUStatisticsInfo(nowData,radarStatisticsVo,
+                UStatisticsTypeEnum.STATISTICS_TYPE_6.getValue(), USER_STATISTICS_AGE_NAME, USER_STATISTICS_AGE,
+                StringUtils.isNull(uStatisticsInfo) ? 1L : uStatisticsInfo.getStages() + 1);
+        uStatisticsInfoMapper.insertOrUpdate(newUStatisticsInfo);
+        //构建返回数据
+        return radarStatisticsVo;
+    }
+
+    /**
+     * 构建年龄段
+     *
+     * @return
+     */
+    private List<Integer> builderAgeBounds() {
+        String ageRange = sysConfigService.selectConfigByKey(USER_STATISTICS_AGE);
+        if (StringUtils.isEmpty(ageRange)) {
+            ageRange = "18;30;40;50;60";
+        }
+        // 解析年龄区间配置
+        List<Integer> rangeBounds = new ArrayList<>();
+        for (String str : ageRange.split(";")) {
+            rangeBounds.add(Integer.parseInt(str));
+        }
+        return rangeBounds;
+    }
+
+    /**
+     * 构建用户年龄统计结果
+     *
+     * @param ageStats       年龄段
+     * @param genderAgeStats 各性别的统计
+     * @return
+     */
+    private static RadarStatisticsVo builderUserAgeResult(Map<String, Integer> ageStats, Map<String, Map<String, Integer>> genderAgeStats) {
         RadarStatisticsVo radarStatisticsVo = new RadarStatisticsVo();
         ArrayList<RadarStatisticsVo.Indicator> indicators = new ArrayList<>();
         for (Map.Entry<String, Integer> stringIntegerEntry : ageStats.entrySet()) {
@@ -412,7 +419,6 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         radarStatisticsVo.setIndicators(indicators);
         ArrayList<RadarStatisticsVo.Data> datas = new ArrayList<>();
         genderAgeStats.forEach((sex, ageStatMap) -> {
-            System.out.println("ageStatMap = " + ageStatMap);
             RadarStatisticsVo.Data data = new RadarStatisticsVo.Data();
             if (sex.equals("-1")) {
                 data.setName("总计");
@@ -427,12 +433,54 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             List<Long> values = ageStatMap.values().stream()
                     .map(Integer::longValue)
                     .toList();
-            System.out.println("values = " + values);
             data.setValues(new ArrayList<>(values));
             datas.add(data);
         });
         radarStatisticsVo.setDatas(datas);
         return radarStatisticsVo;
+    }
+
+    /**
+     * 构建用户年龄
+     *
+     * @param userInfo       用户信息
+     * @param nowDate        当前时间
+     * @param genderAgeStats 性别年龄统计
+     * @param rangeBounds    年龄区间
+     */
+    private static void builderUserAge(UserInfo userInfo, Date nowDate, Map<String, Map<String, Integer>> genderAgeStats, List<Integer> rangeBounds) {
+        Integer age = DateUtils.getAgeByData(nowDate, userInfo.getBirthday());
+        String sex = userInfo.getSex();
+        //如果性别为空
+        if (StringUtils.isEmpty(sex)) {
+            sex = UUserSexEnum.USER_SEX_0.getValue();
+        }
+        Map<String, Integer> currentAgeStats = genderAgeStats.get(sex);
+        Map<String, Integer> totalAgeStats = genderAgeStats.get("-1");
+        // 分配到对应区间
+        if (age == null || age < 0) {
+            currentAgeStats.put("未知", currentAgeStats.get("未知") + 1);
+            totalAgeStats.put("未知", totalAgeStats.get("未知") + 1);
+        } else if (age < rangeBounds.getFirst()) {
+            currentAgeStats.put(rangeBounds.getFirst() + "以下", currentAgeStats.get(rangeBounds.getFirst() + "以下") + 1);
+            totalAgeStats.put(rangeBounds.getFirst() + "以下", totalAgeStats.get(rangeBounds.getFirst() + "以下") + 1);
+        } else if (age >= rangeBounds.getLast()) {
+            currentAgeStats.put(rangeBounds.getLast() + "以上",
+                    currentAgeStats.get(rangeBounds.getLast() + "以上") + 1);
+            totalAgeStats.put(rangeBounds.getLast() + "以上", totalAgeStats.get(rangeBounds.getLast() + "以上") + 1);
+        } else {
+            // 在中间区间
+            for (int i = 0; i < rangeBounds.size() - 1; i++) {
+                int current = rangeBounds.get(i);
+                int next = rangeBounds.get(i + 1);
+                if (age >= current && age < next) {
+                    String rangeKey = current + "-" + (next - 1);
+                    currentAgeStats.put(rangeKey, currentAgeStats.get(rangeKey) + 1);
+                    totalAgeStats.put(rangeKey, totalAgeStats.get(rangeKey) + 1);
+                    break;
+                }
+            }
+        }
     }
 
     private Map<String, Integer> initAgeStats(List<Integer> rangeBounds) {

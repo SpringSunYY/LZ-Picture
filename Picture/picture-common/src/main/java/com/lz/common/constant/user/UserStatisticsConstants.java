@@ -35,4 +35,16 @@ public class UserStatisticsConstants {
      * 用户性别缓存时间
      */
     public static final int USER_STATISTICS_SEX_EXPIRE_TIME = 60 * 5;
+    /**
+     * 用户年龄比例
+     */
+    public static final String USER_STATISTICS_AGE = "user:statistics:age";
+    /**
+     * 用户年龄比例
+     */
+    public static final String USER_STATISTICS_AGE_NAME = "用户年龄比例";
+    /**
+     * 用户年龄比例缓存时间
+     */
+    public static final int USER_STATISTICS_AGE_EXPIRE_TIME = 60 * 5;
 }

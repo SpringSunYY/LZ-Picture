@@ -105,6 +105,16 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
     PieStatisticsVo userSexStatistics();
 
     /**
+     * 获取通用统计信息，返回最新的
+     * @author: YY
+     * @method: getUStatisticsInfoByCommonKey
+     * @date: 2025/9/11 20:33
+     * @param
+     * @return UStatisticsInfo
+     **/
+    UStatisticsInfo getUStatisticsInfoByCommonKey(String commonKey, String type);
+
+    /**
      * 用户年龄统计
      * @author: YY
      * @method: userAgeStatistics
