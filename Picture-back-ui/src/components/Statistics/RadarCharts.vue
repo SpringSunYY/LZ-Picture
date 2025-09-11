@@ -2,7 +2,7 @@
   <div :class="className" :style="{ height, width }" ref="chartRef"/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons'
@@ -11,12 +11,10 @@ const props = defineProps({
   className: {type: String, default: 'chart'},
   width: {type: String, default: '100%'},
   height: {type: String, default: '100%'},
+  chartName: {type: String, default: '年龄段人数占比'},
   chartData: {
     type: Object,
     default: () => ({
-      maleData: [80, 150, 200, 120, 90, 60, 20],
-      femaleData: [70, 140, 180, 130, 90, 60, 30],
-      legendData: ['总人数', '男性', '女性'],
       indicator: [
         {text: '18以下'},
         {text: '19-30'},
@@ -25,52 +23,71 @@ const props = defineProps({
         {text: '51-60'},
         {text: '60以上'},
         {text: '未知'}
+      ],
+      data: [
+        {name: '总人数', data: [160, 310, 410, 260, 185, 123, 52]},
+        {name: '男', data: [80, 150, 200, 120, 90, 60, 20]},
+        {name: '女', data: [70, 140, 180, 130, 90, 60, 30]},
+        {name: '未知', data: [10, 20, 30, 10, 5, 3, 2]}
       ]
     })
+  },
+  //默认总数索引
+  defaultTotalIndex: {
+    type: Number,
+    default: 0
+  },
+  // 默认隐藏的索引
+  defaultHiddenIndex: {
+    type: Array,
+    default: [-1] // -1 表示不隐藏
+  },
+  //默认颜色
+  defaultColor: {
+    type: Array,
+    default: () => ['#4A99FF', '#4BFFFC', '#FFB74A', '#816d85', '#FF4A4A']
   }
 })
 
-const chart = ref(null)
-const chartRef = ref(null)
+const chart = ref<echarts.EChartsType | null>(null)
+const chartRef = ref<HTMLDivElement | null>(null)
 
 // 构建 series
-const buildSeries = (legendData, indicator, maleData, femaleData) => {
-  const ageTotalData = maleData.map((v, i) => v + femaleData[i])
-  const totalPeople = ageTotalData.reduce((sum, v) => sum + v, 0)
-
-  // Calculate a cleaner max value for the radar axis
-  // Find the absolute maximum value across all data series
-  const allData = [...ageTotalData, ...maleData, ...femaleData];
-  const absoluteMax = Math.max(...allData);
-
-  // Determine a "nice" maximum value.
-  // This can be done by finding the nearest power of 10, or by rounding up to a significant digit.
-  // For simplicity, let's round up to the nearest 50 or 100 if the number is large, or simply round up.
+const buildSeries = (indicator, data) => {
+  // 计算最大值
+  // 查找所有数据绝对最大值
+  const totalData = data[props.defaultTotalIndex].data;
+  const absoluteMax = Math.max(...totalData);
+  const total = totalData.reduce((sum, v) => sum + v, 0)
+  //排除统计总数data，拿到其他data
+  const otherData = data.filter((_, index) => index !== props.defaultTotalIndex)
+  //确定好最大值。
   let max;
   if (absoluteMax < 10) {
-    max = Math.ceil(absoluteMax) + 1; // Add a small buffer
+    max = Math.ceil(absoluteMax) + 1; // 添加一个小缓冲区
   } else if (absoluteMax < 100) {
-    max = Math.ceil(absoluteMax / 10) * 10; // Round to nearest 10
+    max = Math.ceil(absoluteMax / 10) * 10; // 10
   } else if (absoluteMax < 500) {
-    max = Math.ceil(absoluteMax / 50) * 50; // Round to nearest 50
+    max = Math.ceil(absoluteMax / 50) * 50; //50
   } else {
-    max = Math.ceil(absoluteMax / 100) * 100; // Round to nearest 100
+    max = Math.ceil(absoluteMax / 100) * 100; //100
   }
 
-  // Ensure there's always a reasonable buffer if max is 0 or very small
+  // 如果最大值为 0 或非常小，确保始终有一个合理的缓冲区
   if (max <= absoluteMax) {
-    max = absoluteMax + Math.max(1, Math.ceil(absoluteMax * 0.1)); // Add at least 10% buffer
+    max = absoluteMax + Math.max(1, Math.ceil(absoluteMax * 0.01));
   }
 
-  // Assign the calculated max to each indicator. ECharts will then distribute ticks more predictably.
+  //设置最大值
   indicator.forEach(item => item.max = max);
-
-  const colorArr = ['#4A99FF', '#4BFFFC', '#FFB74A']
-
+  const colorArr = props.defaultColor
   const series = []
 
-  // 总人数、男性、女性系列
-  const dataArr = [ageTotalData, maleData, femaleData]
+  // 数据
+  const dataArr = data.map(item => {
+    return item.data
+  })
+  const legendData = data.map(item => item.name)
   dataArr.forEach((arr, idx) => {
     series.push({
       name: legendData[idx],
@@ -85,9 +102,8 @@ const buildSeries = (legendData, indicator, maleData, femaleData) => {
       }
     })
   })
-
   // 单点 tooltip 系列
-  ageTotalData.forEach((v, i) => {
+  totalData.forEach((v, i) => {
     dataArr.forEach((arr, seriesIdx) => {
       series.push({
         name: legendData[seriesIdx],
@@ -101,20 +117,19 @@ const buildSeries = (legendData, indicator, maleData, femaleData) => {
           show: true,
           trigger: 'item',
           formatter: () => {
-            const ageName = indicator[i].text
-            const ageTotal = ageTotalData[i]
-            const male = maleData[i]
-            const female = femaleData[i]
-            // Handle division by zero for percentages if ageTotal is 0
-            const agePercent = ageTotal === 0 ? 0 : ((ageTotal / totalPeople) * 100).toFixed(2)
-            const malePercent = ageTotal === 0 ? 0 : ((male / ageTotal) * 100).toFixed(2)
-            const femalePercent = ageTotal === 0 ? 0 : ((female / ageTotal) * 100).toFixed(2)
+            const name = indicator[i].text
+            // console.log(name)
+            const currentTotal = totalData[i]
+            const currentPercent = currentTotal === 0 ? 0 : ((currentTotal / total) * 100).toFixed(2)
+            var text = ''
+            for (let j = 0; j < otherData.length; j++) {
+              text = text + `${otherData[j].name}: ${otherData[j].data[i]} (${(otherData[j].data[i] / currentTotal * 100).toFixed(2)}%)<br/>`
+            }
 
-            return `${ageName}<br/>
-                    ${ageName}总人数: ${ageTotal} (占总人数: ${agePercent}%)<br/>
-                    男性人数: ${male} (占年龄段: ${malePercent}%)<br/>
-                    女性人数: ${female} (占年龄段: ${femalePercent}%)<br/>
-                    总人数: ${totalPeople}`
+            return `${name}${props.chartName}<br/>
+                    ${name}: ${currentTotal} (${currentPercent}%)<br/>
+                    ${text}
+                    总计: ${total}`
           }
         },
         z: 10
@@ -130,21 +145,36 @@ const initChart = () => {
     chart.value.dispose()
     chart.value = null
   }
-  chart.value = echarts.init(chartRef.value, 'macarons')
+  chart.value = echarts.init(chartRef.value!, 'macarons')
 
-  const {legendData, indicator, maleData, femaleData} = props.chartData
+  const {indicator, data} = props.chartData
+  const legendData = data.map((d: any) => d.name)
+
+  // 动态生成 legend.selected
+  const selectedMap: Record<string, boolean> = {}
+  legendData.forEach((name, idx) => {
+    selectedMap[name] = !props.defaultHiddenIndex.includes(idx)
+  })
 
   const option = {
     title: {
-      text: '年龄段人数占比',
+      text: props.chartName,
       textStyle: {color: '#00E4FF', fontSize: 16},
       top: '5%',
       left: '2%'
     },
-    color: ['#4A99FF', '#4BFFFC', '#FFB74A'],
     tooltip: {
       trigger: 'item',
-      triggerOn: 'mousemove|click'
+      formatter: (params: any) => {
+        const seriesName = params.seriesName; // 对应 legendData
+        const value = params.value;           // 当前 series 的值数组
+        let text = `${seriesName}<br/>`;
+        value.forEach((v: number, i: number) => {
+          const name = indicator[i].text;
+          text += `${name}: ${v}<br/>`;
+        });
+        return text;
+      }
     },
     legend: {
       orient: 'vertical',
@@ -155,24 +185,28 @@ const initChart = () => {
       itemWidth: 14,
       itemHeight: 14,
       itemGap: 21,
-      textStyle: {fontSize: 14, color: '#00E4FF'}
+      textStyle: {fontSize: 14, color: '#00E4FF'},
+      selected: selectedMap
     },
     radar: {
       name: {textStyle: {color: '#ffffff', fontSize: 16}},
-      indicator: indicator,
-      splitArea: {show: true, areaStyle: {color: ['rgba(255,255,255,0)', 'rgba(255,255,255,0)']}},
+      indicator,
+      splitArea: {
+        show: true,
+        areaStyle: {color: ['rgba(255,255,255,0)', 'rgba(255,255,255,0)']}
+      },
       axisLine: {lineStyle: {color: '#153269'}},
       splitLine: {lineStyle: {color: '#113865', width: 1}},
-      center: ['40%', '50%'], // [横向位置, 纵向位置]，百分比或像素，默认是 ['50%', '50%']
-      radius: '70%'           // 雷达图半径，可以是百分比（相对容器）或者像素
+      center: ['40%', '50%'],
+      radius: '70%'
     },
-    series: buildSeries(legendData, indicator, maleData, femaleData)
+    series: buildSeries(indicator, data)
   }
 
-  chart.value.setOption(option)
+  chart.value.setOption(option, true)
 }
 
-// resize
+// 自适应窗口大小
 const handleResize = () => chart.value?.resize()
 
 onMounted(() => {
@@ -187,6 +221,5 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// 监听数据变化
 watch(() => props.chartData, () => initChart(), {deep: true})
 </script>
