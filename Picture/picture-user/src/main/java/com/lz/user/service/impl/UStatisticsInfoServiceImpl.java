@@ -9,25 +9,30 @@ import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.system.service.ISysConfigService;
 import com.lz.user.mapper.UStatisticsInfoMapper;
 import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
 import com.lz.user.model.enums.UStatisticsTypeEnum;
 import com.lz.user.model.enums.UUserSexEnum;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 import com.lz.user.service.IUStatisticsInfoService;
+import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.ConfigConstants.USER_STATISTICS_AGE;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.user.UserStatisticsConstants.*;
 
@@ -41,6 +46,12 @@ import static com.lz.common.constant.user.UserStatisticsConstants.*;
 public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMapper, UStatisticsInfo> implements IUStatisticsInfoService {
     @Resource
     private UStatisticsInfoMapper uStatisticsInfoMapper;
+
+    @Resource
+    private IUserInfoService userInfoService;
+
+    @Resource
+    private ISysConfigService sysConfigService;
 
     //region mybatis代码
 
@@ -315,6 +326,126 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 StringUtils.isNull(uStatisticsInfo) ? 1L : uStatisticsInfo.getStages() + 1);
         uStatisticsInfoMapper.insertOrUpdate(newUStatisticsInfo);
         return pieStatisticsVo;
+    }
+
+    @Override
+    public RadarStatisticsVo userAgeStatistics() {
+        //查询到所有的用户，分批查询
+        ArrayList<UserInfo> userInfos = new ArrayList<>();
+        int pageNum = 0;
+        int pageSize = 1000;
+        List<UserInfo> userInfoList;
+        do {
+            userInfoList = userInfoService.list(new LambdaQueryWrapper<UserInfo>()
+                    .select(UserInfo::getSex, UserInfo::getBirthday)
+                    .last("limit " + (pageNum * pageSize) + "," + pageSize));
+            userInfos.addAll(userInfoList);
+            pageNum++;
+        } while (userInfoList.size() == pageSize);
+        String ageRange = sysConfigService.selectConfigByKey(USER_STATISTICS_AGE);
+        if (StringUtils.isEmpty(ageRange)) {
+            ageRange = "18;30;40;50;60";
+        }
+        // 解析年龄区间配置
+        List<Integer> rangeBounds = new ArrayList<>();
+        for (String str : ageRange.split(";")) {
+            rangeBounds.add(Integer.parseInt(str));
+        }
+
+        // 为不同性别创建年龄统计Map，key为性别值，value为年龄范围统计
+        Map<String, Map<String, Integer>> genderAgeStats = new LinkedHashMap<>();
+
+        //总人数
+        //不能拿同一个数据源，否则会重复计算
+        Map<String, Integer> ageStats = initAgeStats(rangeBounds);
+        genderAgeStats.put("-1", ageStats);
+        // 初始化各性别的年龄区间统计
+        for (UUserSexEnum sex : UUserSexEnum.values()) {
+            // 以性别值为key创建map
+            genderAgeStats.put(sex.getValue(), initAgeStats(rangeBounds));
+        }
+        Date nowDate = DateUtils.getNowDate();
+        for (UserInfo userInfo : userInfos) {
+            Integer age = DateUtils.getAgeByData(nowDate, userInfo.getBirthday());
+            String sex = userInfo.getSex();
+            //如果性别为空
+            if (StringUtils.isEmpty(sex)) {
+                sex = UUserSexEnum.USER_SEX_0.getValue();
+            }
+            Map<String, Integer> currentAgeStats = genderAgeStats.get(sex);
+            System.out.println("currentAgeStats = " + currentAgeStats);
+            Map<String, Integer> totalAgeStats = genderAgeStats.get("-1");
+            // 分配到对应区间
+            if (age == null || age < 0) {
+                currentAgeStats.put("未知", currentAgeStats.get("未知") + 1);
+                totalAgeStats.put("未知", totalAgeStats.get("未知") + 1);
+            } else if (age < rangeBounds.getFirst()) {
+                currentAgeStats.put(rangeBounds.getFirst() + "以下", currentAgeStats.get(rangeBounds.getFirst() + "以下") + 1);
+                totalAgeStats.put(rangeBounds.getFirst() + "以下", totalAgeStats.get(rangeBounds.getFirst() + "以下") + 1);
+            } else if (age >= rangeBounds.getLast()) {
+                currentAgeStats.put(rangeBounds.getLast() + "以上",
+                        currentAgeStats.get(rangeBounds.getLast() + "以上") + 1);
+                totalAgeStats.put(rangeBounds.getLast() + "以上", totalAgeStats.get(rangeBounds.getLast() + "以上") + 1);
+            } else {
+                // 在中间区间
+                for (int i = 0; i < rangeBounds.size() - 1; i++) {
+                    int current = rangeBounds.get(i);
+                    int next = rangeBounds.get(i + 1);
+                    if (age >= current && age < next) {
+                        String rangeKey = current + "-" + (next - 1);
+                        currentAgeStats.put(rangeKey, currentAgeStats.get(rangeKey) + 1);
+                        totalAgeStats.put(rangeKey, totalAgeStats.get(rangeKey) + 1);
+                        break;
+                    }
+                }
+            }
+        }
+        //构建返回数据
+        RadarStatisticsVo radarStatisticsVo = new RadarStatisticsVo();
+        ArrayList<RadarStatisticsVo.Indicator> indicators = new ArrayList<>();
+        for (Map.Entry<String, Integer> stringIntegerEntry : ageStats.entrySet()) {
+            RadarStatisticsVo.Indicator indicator = new RadarStatisticsVo.Indicator();
+            indicator.setText(stringIntegerEntry.getKey());
+            indicator.setMax(0L);
+            indicators.add(indicator);
+        }
+        radarStatisticsVo.setIndicators(indicators);
+        ArrayList<RadarStatisticsVo.Data> datas = new ArrayList<>();
+        genderAgeStats.forEach((sex, ageStatMap) -> {
+            System.out.println("ageStatMap = " + ageStatMap);
+            RadarStatisticsVo.Data data = new RadarStatisticsVo.Data();
+            if (sex.equals("-1")) {
+                data.setName("总计");
+            } else {
+                Optional<UUserSexEnum> sexEnumOpt = UUserSexEnum.getEnumByValue(sex);
+                if (sexEnumOpt.isPresent()) {
+                    data.setName(sexEnumOpt.get().getLabel());
+                } else {
+                    data.setName("未知");
+                }
+            }
+            List<Long> values = ageStatMap.values().stream()
+                    .map(Integer::longValue)
+                    .toList();
+            System.out.println("values = " + values);
+            data.setValues(new ArrayList<>(values));
+            datas.add(data);
+        });
+        radarStatisticsVo.setDatas(datas);
+        return radarStatisticsVo;
+    }
+
+    private Map<String, Integer> initAgeStats(List<Integer> rangeBounds) {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        map.put("未知", 0);
+        map.put(rangeBounds.getFirst() + "以下", 0);
+        for (int i = 0; i < rangeBounds.size() - 1; i++) {
+            int current = rangeBounds.get(i);
+            int next = rangeBounds.get(i + 1);
+            map.put(current + "-" + (next - 1), 0);
+        }
+        map.put(rangeBounds.getLast() + "以上", 0);
+        return map;
     }
     //endregion
 

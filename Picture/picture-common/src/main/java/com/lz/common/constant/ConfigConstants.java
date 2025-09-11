@@ -17,6 +17,11 @@ public class ConfigConstants {
     public static final String PICTURE_P = "picture:p";
 
     /**
+     * 用户统计-用户年龄段
+     */
+    public static final String USER_STATISTICS_AGE = "user:statistics:age";
+
+    /**
      * 图片文字水印
      */
     public static final String PICTURE_WATERMARK_TEXT = "sys_config:picture:watermark:text";

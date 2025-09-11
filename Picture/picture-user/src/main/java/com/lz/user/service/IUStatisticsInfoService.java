@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
@@ -102,4 +103,13 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @return
      */
     PieStatisticsVo userSexStatistics();
+
+    /**
+     * 用户年龄统计
+     * @author: YY
+     * @method: userAgeStatistics
+     * @date: 2025/9/11 18:38
+     * @return RadarStatisticsVo
+     **/
+    RadarStatisticsVo userAgeStatistics();
 }

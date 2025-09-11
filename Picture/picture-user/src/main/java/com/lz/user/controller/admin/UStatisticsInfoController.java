@@ -120,4 +120,10 @@ public class UStatisticsInfoController extends BaseController {
     public AjaxResult userSexStatistics() {
         return success(uStatisticsInfoService.userSexStatistics());
     }
+
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/age")
+    public AjaxResult userAgeStatistics() {
+        return success(uStatisticsInfoService.userAgeStatistics());
+    }
 }

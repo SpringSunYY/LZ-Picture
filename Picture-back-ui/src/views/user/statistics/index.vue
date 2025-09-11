@@ -44,7 +44,7 @@
       <el-col :span="6">
         <BorderBox4 :reverse="true" :color="border4Color" class="default-border">
           <!--年龄分布-->
-          <RadarCharts/>
+          <RadarCharts :chart-data="userAgeStatisticsData" :chart-name="userAgeStatisticsName"/>
         </BorderBox4>
         <BorderBox8 class="default-border">
           <!--性别分布-->
@@ -78,6 +78,7 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
+  userAgeStatistics,
   userRegisterStatistics, userSexStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
@@ -116,6 +117,15 @@ const getUserSexStatistics = () => {
   })
 }
 getUserSexStatistics()
+// 用户年龄
+const userAgeStatisticsName = ref('用户年龄比例')
+const userAgeStatisticsData = ref({})
+const getUserAgeStatistics = () => {
+  userAgeStatistics().then(res => {
+    userAgeStatisticsData.value = res.data
+  })
+}
+getUserAgeStatistics()
 const getStatistics = () => {
   getUserRegisterStatistics()
 }

@@ -2,6 +2,8 @@ package com.lz.user;
 
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.common.utils.DateUtils;
 import com.lz.user.mapper.UStatisticsInfoMapper;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
@@ -54,5 +56,11 @@ public class UStatisticsTest {
         System.out.println("statisticsRos = " + statisticsRos);
         lineStatisticsVo = uStatisticsInfoService.userRegisterStatistics(requestToday);
         System.out.println("lineStatisticsVo = " + lineStatisticsVo);
+    }
+
+    @Test
+    public void testUserSexStatistics() {
+        RadarStatisticsVo pieStatisticsVo = uStatisticsInfoService.userAgeStatistics();
+        System.out.println("pieStatisticsVo = " + pieStatisticsVo);
     }
 }

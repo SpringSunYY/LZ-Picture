@@ -15,7 +15,7 @@ const props = defineProps({
   chartData: {
     type: Object,
     default: () => ({
-      indicator: [
+      indicators: [
         {text: '18以下'},
         {text: '19-30'},
         {text: '31-40'},
@@ -24,11 +24,11 @@ const props = defineProps({
         {text: '60以上'},
         {text: '未知'}
       ],
-      data: [
-        {name: '总人数', data: [160, 310, 410, 260, 185, 123, 52]},
-        {name: '男', data: [80, 150, 200, 120, 90, 60, 20]},
-        {name: '女', data: [70, 140, 180, 130, 90, 60, 30]},
-        {name: '未知', data: [10, 20, 30, 10, 5, 3, 2]}
+      datas: [
+        {name: '总人数', values: [160, 310, 410, 260, 185, 123, 52]},
+        {name: '男', values: [80, 150, 200, 120, 90, 60, 20]},
+        {name: '女', values: [70, 140, 180, 130, 90, 60, 30]},
+        {name: '未知', values: [10, 20, 30, 10, 5, 3, 2]}
       ]
     })
   },
@@ -40,12 +40,12 @@ const props = defineProps({
   // 默认隐藏的索引
   defaultHiddenIndex: {
     type: Array,
-    default: [-1] // -1 表示不隐藏
+    default: [1] // -1 表示不隐藏
   },
   //默认颜色
   defaultColor: {
     type: Array,
-    default: () => ['#4A99FF', '#4BFFFC', '#FFB74A', '#816d85', '#FF4A4A']
+    default: () => ['#4A99FF', '#4BFFFC', '#FFB74A', '#816d85', '#FFFFFF']
   }
 })
 
@@ -53,12 +53,12 @@ const chart = ref<echarts.EChartsType | null>(null)
 const chartRef = ref<HTMLDivElement | null>(null)
 
 // 构建 series
-const buildSeries = (indicator, data) => {
+const buildSeries = (indicators, data) => {
   // 计算最大值
   // 查找所有数据绝对最大值
-  const totalData = data[props.defaultTotalIndex].data;
+  const totalData = data[props.defaultTotalIndex].values;
   const absoluteMax = Math.max(...totalData);
-  const total = totalData.reduce((sum, v) => sum + v, 0)
+  const total = totalData.reduce((sum, v) => Number(sum) + Number(v), 0)
   //排除统计总数data，拿到其他data
   const otherData = data.filter((_, index) => index !== props.defaultTotalIndex)
   //确定好最大值。
@@ -79,13 +79,13 @@ const buildSeries = (indicator, data) => {
   }
 
   //设置最大值
-  indicator.forEach(item => item.max = max);
+  indicators.forEach(item => item.max = max);
   const colorArr = props.defaultColor
   const series = []
 
   // 数据
   const dataArr = data.map(item => {
-    return item.data
+    return item.values
   })
   const legendData = data.map(item => item.name)
   dataArr.forEach((arr, idx) => {
@@ -117,13 +117,13 @@ const buildSeries = (indicator, data) => {
           show: true,
           trigger: 'item',
           formatter: () => {
-            const name = indicator[i].text
+            const name = indicators[i].text
             // console.log(name)
             const currentTotal = totalData[i]
             const currentPercent = currentTotal === 0 ? 0 : ((currentTotal / total) * 100).toFixed(2)
             var text = ''
             for (let j = 0; j < otherData.length; j++) {
-              text = text + `${otherData[j].name}: ${otherData[j].data[i]} (${(otherData[j].data[i] / currentTotal * 100).toFixed(2)}%)<br/>`
+              text = text + `${otherData[j].name}: ${otherData[j].values[i]} (${(otherData[j].values[i] / currentTotal * 100).toFixed(2)}%)<br/>`
             }
 
             return `${name}${props.chartName}<br/>
@@ -147,8 +147,8 @@ const initChart = () => {
   }
   chart.value = echarts.init(chartRef.value!, 'macarons')
 
-  const {indicator, data} = props.chartData
-  const legendData = data.map((d: any) => d.name)
+  const {indicators, datas} = props.chartData
+  const legendData = datas.map((d: any) => d.name)
 
   // 动态生成 legend.selected
   const selectedMap: Record<string, boolean> = {}
@@ -170,7 +170,7 @@ const initChart = () => {
         const value = params.value;           // 当前 series 的值数组
         let text = `${seriesName}<br/>`;
         value.forEach((v: number, i: number) => {
-          const name = indicator[i].text;
+          const name = indicators[i].text;
           text += `${name}: ${v}<br/>`;
         });
         return text;
@@ -180,17 +180,17 @@ const initChart = () => {
       orient: 'vertical',
       icon: 'circle',
       data: legendData,
-      bottom: 30,
+      bottom: 20,
       right: 20,
       itemWidth: 14,
       itemHeight: 14,
-      itemGap: 21,
+      itemGap: 10,
       textStyle: {fontSize: 14, color: '#00E4FF'},
       selected: selectedMap
     },
     radar: {
       name: {textStyle: {color: '#ffffff', fontSize: 16}},
-      indicator,
+      indicator: indicators,
       splitArea: {
         show: true,
         areaStyle: {color: ['rgba(255,255,255,0)', 'rgba(255,255,255,0)']}
@@ -200,7 +200,7 @@ const initChart = () => {
       center: ['40%', '50%'],
       radius: '70%'
     },
-    series: buildSeries(indicator, data)
+    series: buildSeries(indicators, datas)
   }
 
   chart.value.setOption(option, true)
@@ -208,12 +208,20 @@ const initChart = () => {
 
 // 自适应窗口大小
 const handleResize = () => chart.value?.resize()
-
+let resizeObserver: ResizeObserver | null = null
+const observeResize = () => {
+  if (!chartRef.value) return
+  resizeObserver = new ResizeObserver(() => {
+    chart.value?.resize()
+  })
+  resizeObserver.observe(chartRef.value)
+}
 onMounted(() => {
   nextTick(() => {
     initChart()
     window.addEventListener('resize', handleResize)
   })
+  observeResize()
 })
 
 onBeforeUnmount(() => {

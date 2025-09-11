@@ -60,3 +60,11 @@ export function userSexStatistics() {
         method: 'get'
     })
 }
+
+//用户年龄统计
+export function userAgeStatistics() {
+    return request({
+        url: '/user/uStatisticsInfo/user/age',
+        method: 'get'
+    })
+}
