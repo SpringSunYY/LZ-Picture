@@ -141,6 +141,7 @@ const buildSeries = (indicators, data) => {
 
 // 初始化图表
 const initChart = () => {
+  if (!props.chartData || !props.chartData.indicators || !props.chartData.datas) return
   if (chart.value) {
     chart.value.dispose()
     chart.value = null

@@ -15,16 +15,11 @@ const props = defineProps({
   autoResize: {type: Boolean, default: true},
   // 图表核心数据：原始月度合格率数据
   chartData: {
-    type: Array, // 明确类型为 Array
-    default: () => [
-      {"name": "一月", "value": 800},
-      {"name": "二月", "value": 870.8},
-      {"name": "三月", "value": 71},
-      {"name": "四月", "value": 80},
-      {"name": "五月", "value": 66},
-      {"name": "六月", "value": 80},
-      {"name": "七月", "value": 80}
-    ]
+    type: Object,
+    default: () => ({
+      names: ['产品A', '产品B', '产品C', '产品D', '产品E', '产品F', '产品G', '产品H'],
+      totals: [120, 200, 150, 80, 70, 110, 130, 180]
+    })
   },
   chartName: {type: String, default: '用户每日登录'}, // 图表标题
   chartTitle: {type: Array, default: ["数据", "趋势"]}
@@ -52,20 +47,18 @@ const initChart = async () => {
 // 处理数据并设置ECharts配置项
 const setOptions = () => {
   if (!chart) return;
-
-  const xData = []; // X轴：月份名称
-  const yData = []; // Y轴：处理后的合格率数据
+  if (!props.chartData) return;
+  const xData = props.chartData.names; // X轴：
+  const yData = props.chartData.totals; // Y轴
   const differenceData = []; // 用于存储与上一期相比的增减量
 
   // 处理原始数据：提取X轴和处理Y轴数据
-  props.chartData.forEach((item, index) => {
-    xData.push(item.name);
-    yData.push(item.value);
-
+  yData.forEach((item, index) => {
+    console.log(item);
     // 计算与上一期相比的增减量
     if (index > 0) {
-      const previousValue = props.chartData[index - 1].value;
-      const difference = item.value - previousValue;
+      const previousValue = yData[index - 1];
+      const difference = item - previousValue;
       differenceData.push(difference);
     } else {
       differenceData.push(null); // 第一期没有前一期可以比较
@@ -97,7 +90,7 @@ const setOptions = () => {
         const currentItem = params[0];
 
         if (currentItem) {
-          const name = currentItem.name; // X轴名称 (月份)
+          const name = currentItem.name; // X轴名称
           const value = currentItem.value; // 当前值
 
           // 显示月份名称
