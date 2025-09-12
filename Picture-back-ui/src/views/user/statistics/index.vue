@@ -52,7 +52,7 @@
         </BorderBox8>
         <!--登录-->
         <div class="default-border">
-          <BarLineCharts/>
+          <BarLineCharts :chart-data="userLoginStatisticsData" :chart-name="userLoginStatisticsName"/>
         </div>
       </el-col>
     </el-row>
@@ -78,7 +78,7 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
-  userAgeStatistics,
+  userAgeStatistics, userLoginStatistics,
   userRegisterStatistics, userSexStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
@@ -90,7 +90,7 @@ const query = ref({
   startDate: defaultStart,
   endDate: defaultEnd
 })
-const dataRange = ref([])
+// 用户注册
 const userRegisterStatisticsData = ref({})
 const userRegisterStatisticsName = ref('用户注册统计')
 const onDateChange = (val) => {
@@ -100,7 +100,6 @@ const onDateChange = (val) => {
 }
 
 const getUserRegisterStatistics = () => {
-  console.log('query', query.value)
   userRegisterStatistics(query.value).then(res => {
     userRegisterStatisticsData.value.chartXData = res.data.names
     userRegisterStatisticsData.value.chartYData = []
@@ -109,6 +108,15 @@ const getUserRegisterStatistics = () => {
   })
 }
 
+//用户登录
+const userLoginStatisticsData = ref({})
+const userLoginStatisticsName = ref('用户登录统计')
+const getUserLoginStatistics = () => {
+  userLoginStatistics(query.value).then(res => {
+    userLoginStatisticsData.value = res.data
+  })
+}
+// 用户性别
 const userSexStatisticsData = ref({})
 const userSexStatisticsName = ref('用户性别比例')
 const getUserSexStatistics = () => {
@@ -128,6 +136,7 @@ const getUserAgeStatistics = () => {
 getUserAgeStatistics()
 const getStatistics = () => {
   getUserRegisterStatistics()
+  getUserLoginStatistics()
 }
 getStatistics()
 </script>

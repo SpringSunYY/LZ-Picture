@@ -5,6 +5,7 @@ import java.util.List;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import org.apache.ibatis.annotations.Param;
 
@@ -64,7 +65,20 @@ public interface UStatisticsInfoMapper extends BaseMapper<UStatisticsInfo>
      */
     public int deleteUStatisticsInfoByStatisticsIds(String[] statisticsIds);
 
-    List<StatisticsRo> userRegisterStatistics(UserStatisticsRequest requestToday);
+    /**
+     * 用户注册统计
+     * @param request 请求
+     * @return
+     */
+    List<StatisticsRo> userRegisterStatistics(UserStatisticsRequest request);
+
+    /**
+     * 用户登录统计
+     *
+     * @param request 请求
+     * @return
+     */
+    List<StatisticsRo> userLoginStatistics(UserLoginStatisticsRequest request);
 
     /**
      * 用户性别统计

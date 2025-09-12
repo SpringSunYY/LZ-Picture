@@ -7,6 +7,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoEdit;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoInsert;
@@ -113,6 +114,17 @@ public class UStatisticsInfoController extends BaseController {
     @GetMapping("/user/register")
     public AjaxResult userRegisterStatistics(@Validated UserStatisticsRequest userStatisticsRequest) {
         return success(uStatisticsInfoService.userRegisterStatistics(userStatisticsRequest));
+    }
+
+    /**
+     * 用户登录统计
+     *
+     * @param request 请求参数
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/login")
+    public AjaxResult userRegisterStatistics(@Validated UserLoginStatisticsRequest request) {
+        return success(uStatisticsInfoService.userLoginStatistics(request));
     }
 
     @PreAuthorize("@ss.hasPermi('user:statistics')")

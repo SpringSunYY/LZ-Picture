@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
+import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
@@ -19,6 +20,7 @@ import com.lz.system.service.ISysConfigService;
 import com.lz.user.mapper.UStatisticsInfoMapper;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
 import com.lz.user.model.enums.UStatisticsTypeEnum;
@@ -27,12 +29,17 @@ import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 import com.lz.user.service.IUStatisticsInfoService;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.lz.common.constant.ConfigConstants.USER_STATISTICS_AGE;
+import static com.lz.common.constant.ConfigConstants.USER_STATISTICS_AGE_KEY;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.user.UserStatisticsConstants.*;
 
@@ -42,6 +49,7 @@ import static com.lz.common.constant.user.UserStatisticsConstants.*;
  * @author YY
  * @date 2025-09-09
  */
+@Slf4j
 @Service
 public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMapper, UStatisticsInfo> implements IUStatisticsInfoService {
     @Resource
@@ -185,48 +193,43 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         ArrayList<Long> totals = new ArrayList<>();
         //如果包含的日期有今天，则查询今天
         //是否包含今天
-        boolean containsToday = dateRanges.contains(DateUtils.dateTime(nowDate));
+        String today = DateUtils.dateTime(nowDate);
+        boolean containsToday = dateRanges.contains(today);
         if (containsToday) {
-            getUserRegisterStatistics(startDate, endDate, names, totals, lineStatisticsVo);
+            //查询今天
+            List<StatisticsRo> userRegisterStatistics = getUserRegisterStatistics(today, today);
+            //构建名称和数量
+            builderNamesAndTotals(names, totals, userRegisterStatistics);
             //如果包含了且范围只有1，就表示统计今天
             if (dateRanges.size() == 1) {
+                lineStatisticsVo.setNames(names);
+                lineStatisticsVo.setTotals(totals);
                 return lineStatisticsVo;
             }
-            //删除今天,添加倒数第二天为最后一天
+            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
             dateRanges.removeLast();
             end = dateRanges.getLast();
         }
         //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
-        List<UStatisticsInfo> uStatisticsInfoList = this.list(new LambdaQueryWrapper<UStatisticsInfo>()
-                .eq(UStatisticsInfo::getType, UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue())
-                .eq(UStatisticsInfo::getCommonKey, USER_STATISTICS_REGISTER_DAY)
-                .apply("date_format(create_time,'%Y-%m-%d') between {0} and {1}", startDate, end)
-        );
-        List<String> noStatisticsDate = new ArrayList<>(dateRanges);
-        if (StringUtils.isNotEmpty(uStatisticsInfoList)) {
-            //添加所有统计到的数据
-            for (UStatisticsInfo uStatisticsInfo : uStatisticsInfoList) {
-                String dateToStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, uStatisticsInfo.getCreateTime());
-                names.add(dateToStr);
-                String statisticsStr = uStatisticsInfo.getContent();
-                StatisticsRo statisticsRo = JSONObject.parseObject(statisticsStr, StatisticsRo.class);
-                totals.add(statisticsRo.getTotal());
-                //如果没有统计，则添加
-                noStatisticsDate.remove(dateToStr);
-            }
-        }
+        List<UStatisticsInfo> uStatisticsInfoList = getUStatisticsInfosByDateAndKeyType(startDate, end, UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue(), USER_STATISTICS_REGISTER_DAY);
+        //获取没有统计的日期
+        List<String> noStatisticsDate = getNoStatisticsDate(dateRanges, uStatisticsInfoList, names, totals);
         if (StringUtils.isNotEmpty(noStatisticsDate)) {
             ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
             for (String date : noStatisticsDate) {
-                StatisticsRo userRegisterStatistics = getUserRegisterStatistics(date, date, names, totals, lineStatisticsVo);
+                List<StatisticsRo> userRegisterStatistics = getUserRegisterStatistics(date, date);
+                builderNamesAndTotals(names, totals, userRegisterStatistics);
                 //统计数据
                 UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue(), USER_STATISTICS_REGISTER_DAY_NAME, USER_STATISTICS_REGISTER_DAY, 1L);
                 uStatisticsInfos.add(uStatisticsInfo);
             }
             uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
         }
+        //构建结果，因为当前时间和数据是一一对应的，但是时间排序不一样，所以要排序
+        sortNamesAndTotals(names, totals);
         //排序，根据时间排序
-        lineStatisticsVo.getNames().sort(Comparator.naturalOrder());
+        lineStatisticsVo.setNames(names);
+        lineStatisticsVo.setTotals(totals);
         return lineStatisticsVo;
     }
 
@@ -269,24 +272,16 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     /**
      * 获取用户注册数据
      *
-     * @param start            开始时间
-     * @param end              结束时间
-     * @param names            名称
-     * @param totals           总数
-     * @param lineStatisticsVo 折线图数据
+     * @param start 开始时间
+     * @param end   结束时间
      * @return
      */
-    private StatisticsRo getUserRegisterStatistics(String start, String end, ArrayList<String> names, ArrayList<Long> totals, LineStatisticsVo lineStatisticsVo) {
-        UserStatisticsRequest requestToday = new UserStatisticsRequest();
-        requestToday.setStartDate(start);
-        requestToday.setEndDate(end);
-        List<StatisticsRo> userRegisterToday = uStatisticsInfoMapper.userRegisterStatistics(requestToday);
-        StatisticsRo last = userRegisterToday.getLast();
-        names.add(last.getName());
-        totals.add(last.getTotal());
-        lineStatisticsVo.setNames(names);
-        lineStatisticsVo.setTotals(totals);
-        return last;
+    private List<StatisticsRo> getUserRegisterStatistics(String start, String end) {
+        return getUserStatistics(
+                start, end,
+                UserStatisticsRequest::new,
+                uStatisticsInfoMapper::userRegisterStatistics
+        );
     }
 
     @Override
@@ -337,7 +332,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     public RadarStatisticsVo userAgeStatistics() {
         //统计默认今天，表示最新
         String nowData = DateUtils.dateTime(DateUtils.getNowDate());
-        UStatisticsInfo uStatisticsInfo = getUStatisticsInfoByCommonKey(USER_STATISTICS_SEX, UStatisticsTypeEnum.STATISTICS_TYPE_6.getValue());
+        UStatisticsInfo uStatisticsInfo = getUStatisticsInfoByCommonKey(USER_STATISTICS_AGE, UStatisticsTypeEnum.STATISTICS_TYPE_6.getValue());
         //如果有数据且就是今天的
         if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
             return JSONObject.parseObject(uStatisticsInfo.getContent(), RadarStatisticsVo.class);
@@ -374,7 +369,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //构建返回数据
         RadarStatisticsVo radarStatisticsVo = builderUserAgeResult(ageStats, genderAgeStats);
         //保存结果
-        UStatisticsInfo newUStatisticsInfo = getUStatisticsInfo(nowData,radarStatisticsVo,
+        UStatisticsInfo newUStatisticsInfo = getUStatisticsInfo(nowData, radarStatisticsVo,
                 UStatisticsTypeEnum.STATISTICS_TYPE_6.getValue(), USER_STATISTICS_AGE_NAME, USER_STATISTICS_AGE,
                 StringUtils.isNull(uStatisticsInfo) ? 1L : uStatisticsInfo.getStages() + 1);
         uStatisticsInfoMapper.insertOrUpdate(newUStatisticsInfo);
@@ -384,11 +379,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
     /**
      * 构建年龄段
-     *
-     * @return
      */
     private List<Integer> builderAgeBounds() {
-        String ageRange = sysConfigService.selectConfigByKey(USER_STATISTICS_AGE);
+        String ageRange = sysConfigService.selectConfigByKey(USER_STATISTICS_AGE_KEY);
         if (StringUtils.isEmpty(ageRange)) {
             ageRange = "18;30;40;50;60";
         }
@@ -405,7 +398,6 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
      *
      * @param ageStats       年龄段
      * @param genderAgeStats 各性别的统计
-     * @return
      */
     private static RadarStatisticsVo builderUserAgeResult(Map<String, Integer> ageStats, Map<String, Map<String, Integer>> genderAgeStats) {
         RadarStatisticsVo radarStatisticsVo = new RadarStatisticsVo();
@@ -494,6 +486,178 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         }
         map.put(rangeBounds.getLast() + "以上", 0);
         return map;
+    }
+
+
+    @Override
+//    @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_DAY, expireTime = USER_STATISTICS_LOGIN_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
+    public BarStatisticsVo userLoginStatistics(UserLoginStatisticsRequest request) {
+        //拿到开始结束时间
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        Date nowDate = checkDate(startDate, endDate);
+        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
+        //如果为空查询全部
+        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
+            return new BarStatisticsVo();
+        }
+        //灵活判断最近天数
+        String end = dateRanges.getLast();
+        BarStatisticsVo barStatisticsVo = new BarStatisticsVo();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Long> totals = new ArrayList<>();
+        //如果包含的日期有今天，则查询今天
+        //是否包含今天
+        String today = DateUtils.dateTime(nowDate);
+        boolean containsToday = dateRanges.contains(today);
+        if (containsToday) {
+            List<StatisticsRo> userLoginStatistics = getUserLoginStatistics(today, today);
+            builderNamesAndTotals(names, totals, userLoginStatistics);
+            //如果包含了且范围只有1，就表示统计今天
+            if (dateRanges.size() == 1) {
+                barStatisticsVo.setNames(names);
+                barStatisticsVo.setTotals(totals);
+                return barStatisticsVo;
+            }
+            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
+            dateRanges.removeLast();
+            end = dateRanges.getLast();
+        }
+        //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
+        List<UStatisticsInfo> uStatisticsInfoList = getUStatisticsInfosByDateAndKeyType(startDate, end, UStatisticsTypeEnum.STATISTICS_TYPE_2.getValue(), USER_STATISTICS_LOGIN_DAY);
+        //获取没有统计的日期
+        List<String> noStatisticsDate = getNoStatisticsDate(dateRanges, uStatisticsInfoList, names, totals);
+        if (StringUtils.isNotEmpty(noStatisticsDate)) {
+            ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
+            for (String date : noStatisticsDate) {
+                List<StatisticsRo> userRegisterStatistics = getUserLoginStatistics(date, date);
+                builderNamesAndTotals(names, totals, userRegisterStatistics);
+                //统计数据
+                UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_2.getValue(), USER_STATISTICS_LOGIN_DAY_NAME, USER_STATISTICS_LOGIN_DAY, 1L);
+                uStatisticsInfos.add(uStatisticsInfo);
+            }
+            uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
+        }
+        //构建结果，因为当前时间和数据是一一对应的，但是时间排序不一样，所以要排序
+        sortNamesAndTotals(names, totals);
+        //排序，根据时间排序
+        barStatisticsVo.setNames(names);
+        barStatisticsVo.setTotals(totals);
+        return barStatisticsVo;
+    }
+
+    private void sortNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals) {
+        //把两个list绑定成一个临时集合
+        List<Map.Entry<String, Long>> combined = new ArrayList<>();
+        for (int i = 0; i < names.size(); i++) {
+            combined.add(new AbstractMap.SimpleEntry<>(names.get(i), totals.get(i)));
+        }
+        //时间升序排序
+        combined.sort(Comparator.comparing(entry-> LocalDate.parse(entry.getKey(), DateTimeFormatter.ofPattern(DateUtils.YYYY_MM_DD))));
+        //清空数据重新填充
+        names.clear();
+        totals.clear();
+        for (Map.Entry<String, Long> entry : combined) {
+            names.add(entry.getKey());
+            totals.add(entry.getValue());
+        }
+    }
+
+
+    /**
+     * 构建names和totals
+     *
+     * @param names         names
+     * @param totals        totals
+     * @param statisticsRos 统计列表
+     */
+    private void builderNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, List<StatisticsRo> statisticsRos) {
+        for (StatisticsRo statisticsRo : statisticsRos) {
+            names.add(statisticsRo.getName());
+            totals.add(statisticsRo.getTotal());
+        }
+    }
+
+    @Override
+    public List<UStatisticsInfo> getUStatisticsInfosByDateAndKeyType(String startDate, String end, String type, String commonKey) {
+        return this.list(new LambdaQueryWrapper<UStatisticsInfo>()
+                .eq(UStatisticsInfo::getType, type)
+                .eq(UStatisticsInfo::getCommonKey, commonKey)
+                .apply("date_format(create_time,'%Y-%m-%d') between {0} and {1}", startDate, end)
+        );
+    }
+
+    /**
+     * 获取没有统计的日期
+     *
+     * @param dateRanges          时间范围
+     * @param uStatisticsInfoList 统计数据
+     * @param names               名称
+     * @param totals              总数
+     * @return
+     */
+    private static List<String> getNoStatisticsDate(List<String> dateRanges, List<UStatisticsInfo> uStatisticsInfoList, ArrayList<String> names, ArrayList<Long> totals) {
+        List<String> noStatisticsDate = new ArrayList<>(dateRanges);
+        if (StringUtils.isNotEmpty(uStatisticsInfoList)) {
+            //添加所有统计到的数据
+            for (UStatisticsInfo uStatisticsInfo : uStatisticsInfoList) {
+                String dateToStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, uStatisticsInfo.getCreateTime());
+                names.add(dateToStr);
+                String statisticsStr = uStatisticsInfo.getContent();
+                StatisticsRo statisticsRo = JSONObject.parseObject(statisticsStr, StatisticsRo.class);
+                totals.add(statisticsRo.getTotal());
+                //如果没有统计，则添加
+                noStatisticsDate.remove(dateToStr);
+            }
+        }
+        return noStatisticsDate;
+    }
+
+    /**
+     * 获取用户登录统计
+     *
+     * @param startDate 开始时间
+     * @param endDate   结束时间
+     */
+    private List<StatisticsRo> getUserLoginStatistics(String startDate, String endDate) {
+        return getUserStatistics(
+                startDate, endDate,
+                UserLoginStatisticsRequest::new,
+                uStatisticsInfoMapper::userLoginStatistics
+        );
+    }
+
+
+    /**
+     * 获取用户统计
+     *
+     * @param startDate       开始时间
+     * @param endDate         结束时间
+     * @param requestSupplier 构造request
+     * @param queryFunction   查询方法
+     */
+    private <R> List<StatisticsRo> getUserStatistics(
+            String startDate,
+            String endDate,
+            Supplier<R> requestSupplier,
+            Function<R, List<StatisticsRo>> queryFunction
+    ) {
+        try {
+            // 1. 构造 request
+            R request = requestSupplier.get();
+            request.getClass().getMethod("setStartDate", String.class).invoke(request, startDate);
+            request.getClass().getMethod("setEndDate", String.class).invoke(request, endDate);
+
+            // 2. 执行 mapper 方法（方法引用传进来）
+            List<StatisticsRo> list = queryFunction.apply(request);
+            if (list == null || list.isEmpty()) {
+                return null;
+            }
+            return list;
+        } catch (Exception e) {
+            log.error("统计失败", e);
+            throw new ServiceException("统计失败");
+        }
     }
     //endregion
 

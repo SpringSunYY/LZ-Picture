@@ -2,10 +2,12 @@ package com.lz.user.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
@@ -106,20 +108,47 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
 
     /**
      * 获取通用统计信息，返回最新的
+     *
+     * @param
+     * @return UStatisticsInfo
      * @author: YY
      * @method: getUStatisticsInfoByCommonKey
      * @date: 2025/9/11 20:33
-     * @param
-     * @return UStatisticsInfo
      **/
     UStatisticsInfo getUStatisticsInfoByCommonKey(String commonKey, String type);
 
     /**
      * 用户年龄统计
+     *
+     * @return RadarStatisticsVo
      * @author: YY
      * @method: userAgeStatistics
      * @date: 2025/9/11 18:38
-     * @return RadarStatisticsVo
      **/
     RadarStatisticsVo userAgeStatistics();
+
+    /**
+     * 用户登录统计
+     *
+     * @param request
+     * @return BarStatisticsVo
+     * @author: YY
+     * @method: userLoginStatistics
+     * @date: 2025/9/12 15:50
+     **/
+    BarStatisticsVo userLoginStatistics(UserLoginStatisticsRequest request);
+
+    /**
+     * 根据时间范围、类型、键获取通用统计信息
+     *
+     * @param startDate 开始时间
+     * @param endDate   结束时间
+     * @param type      类型
+     * @param commonKey 键-公共
+     * @return List<UStatisticsInfo>
+     * @author: YY
+     * @method: getUStatisticsInfosByDateAndKeyType
+     * @date: 2025/9/12 16:01
+     **/
+    List<UStatisticsInfo> getUStatisticsInfosByDateAndKeyType(String startDate, String endDate, String type, String commonKey);
 }

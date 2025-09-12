@@ -19,7 +19,7 @@ public class ConfigConstants {
     /**
      * 用户统计-用户年龄段
      */
-    public static final String USER_STATISTICS_AGE = "user:statistics:age";
+    public static final String USER_STATISTICS_AGE_KEY = "user:statistics:age";
 
     /**
      * 图片文字水印

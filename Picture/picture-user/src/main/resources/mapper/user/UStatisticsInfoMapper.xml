@@ -126,6 +126,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         GROUP BY d.target_date
         ORDER BY d.target_date;
     </select>
+    <select id="userLoginStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        WITH RECURSIVE date_range AS (SELECT DATE (#{startDate}) AS target_date
+        UNION ALL
+        SELECT DATE_ADD(target_date, INTERVAL 1 DAY)
+        FROM date_range
+        WHERE target_date &lt; DATE (#{endDate})
+        )
+        SELECT d.target_date as name,
+        COALESCE(COUNT(u.user_id), 0) AS total
+        FROM date_range d
+        LEFT JOIN u_login_log_info u
+        ON DATE (u.login_time) = d.target_date
+        <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+        <if test="userName != null  and userName != ''">and user_name like concat('%', #{userName}, '%')</if>
+        <if test="loginType != null  and loginType != ''">and login_type = #{loginType}</if>
+        <if test="loginLocation != null  and loginLocation != ''">and login_location like concat('%',
+            #{loginLocation}, '%')
+        </if>
+        <if test="browser != null  and browser != ''">and browser like concat('%', #{browser}, '%')</if>
+        <if test="os != null  and os != ''">and os like concat('%', #{os}, '%')</if>
+        <if test="platform != null  and platform != ''">and platform like concat('%', #{platform}, '%')</if>
+        <if test="status != null  and status != ''">and status = #{status}</if>
+        GROUP BY d.target_date
+        ORDER BY d.target_date;
+    </select>
     <select id="userSexStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
         SELECT
         COALESCE(u.sex, '0') AS name,

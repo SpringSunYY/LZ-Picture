@@ -53,6 +53,15 @@ export function userRegisterStatistics(query) {
     })
 }
 
+//用户登录统计
+export function userLoginStatistics(query) {
+    return request({
+        url: '/user/uStatisticsInfo/user/login',
+        method: 'get',
+        params: query
+    })
+}
+
 //用户性别统计
 export function userSexStatistics() {
     return request({

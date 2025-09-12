@@ -47,4 +47,13 @@ public class UserStatisticsConstants {
      * 用户年龄比例缓存时间
      */
     public static final int USER_STATISTICS_AGE_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户登录-每日
+     */
+    public static final String USER_STATISTICS_LOGIN_DAY = "user:statistics:login:day";
+
+    public static final String USER_STATISTICS_LOGIN_DAY_NAME = "用户登录-每日";
+
+    public static final int USER_STATISTICS_LOGIN_DAY_EXPIRE_TIME = 60 * 5;
 }
