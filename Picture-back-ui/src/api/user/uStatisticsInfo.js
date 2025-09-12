@@ -62,6 +62,15 @@ export function userLoginStatistics(query) {
     })
 }
 
+//用户消息发送统计
+export function userInformTypeStatistics(query) {
+    return request({
+        url: '/user/uStatisticsInfo/user/informType',
+        method: 'get',
+        params: query
+    })
+}
+
 //用户性别统计
 export function userSexStatistics() {
     return request({

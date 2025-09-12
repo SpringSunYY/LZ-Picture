@@ -45,7 +45,7 @@ public enum UStatisticsTypeEnum {
     /**
      * 消息发送类型
      */
-    STATISTICS_TYPE_7("7", "消息发送类型");
+    STATISTICS_TYPE_7("7", "用户消息发送");
 
     private final String value;
     private final String label;

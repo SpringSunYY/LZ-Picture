@@ -127,6 +127,16 @@ public class UStatisticsInfoController extends BaseController {
         return success(uStatisticsInfoService.userLoginStatistics(request));
     }
 
+    /**
+     * 用户消息发送统计
+     * @return
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/informType")
+    public AjaxResult userInformTypeStatistics(@Validated UserStatisticsRequest request) {
+        return success(uStatisticsInfoService.userInformTypeStatistics(request));
+    }
+
     @PreAuthorize("@ss.hasPermi('user:statistics')")
     @GetMapping("/user/sex")
     public AjaxResult userSexStatistics() {

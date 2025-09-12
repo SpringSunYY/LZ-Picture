@@ -12,7 +12,7 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, watch, nextTick, markRaw} from 'vue'
 import * as echarts from 'echarts'
-import 'echarts/theme/macarons' // 引入主题
+import 'echarts/theme/macarons'
 
 const props = defineProps({
   className: {type: String, default: 'chart'},
@@ -22,66 +22,53 @@ const props = defineProps({
   chartData: {
     type: Object,
     default: () => ({
-      nameList: ['产品A', '产品B', '产品C', '产品D', '产品E', '产品F', '产品G', '产品H'],
-      valueList: [120, 200, 150, 80, 70, 110, 130, 180]
+      names: ['产品A', '产品B', '产品C', '产品D', '产品E', '产品F', '产品G', '产品H'],
+      totals: [120, 200, 150, 80, 0, 110, 130, 0]
     })
   },
-  chartCarousel: {type: Number, default: 500}, // 轮播间隔时间 (ms)
-  chartItemTotal: {type: Number, default: 5} // 每次显示的最多条目数
+  chartCarousel: {type: Number, default: 500},
+  chartItemTotal: {type: Number, default: 5}
 })
 
-const chart = ref(null) // ECharts 实例
-const chartRef = ref(null) // DOM 引用
-const intervalId = ref(null) // 轮播定时器 ID
-const currentIndex = ref(0) // 当前轮播的起始下标
+const chart = ref(null)
+const chartRef = ref(null)
+const intervalId = ref(null)
+const currentIndex = ref(0)
+let resizeObserver = null
 
-/**
- * 获取当前轮播显示的数据
- * @param {number} startIndex - 当前轮播的起始下标
- * @param {number} visibleItems - 需要显示的条目数
- * @returns {object} - 包含当前名称列表、数值列表以及所有数据的真实排序列表
- */
 const getCurrentData = (startIndex, visibleItems) => {
-  const {nameList = [], valueList = []} = props.chartData
-
-  // 1. 创建一个包含所有数据及其原始信息的数组
-  const allData = nameList.map((name, index) => ({
+  const {names = [], totals = []} = props.chartData
+  const filteredData = names.map((name, index) => ({
     name,
-    value: valueList[index],
-    originalIndex: index // 保存原始索引，以便查找
-  }))
+    value: totals[index]
+  })).filter(item => item.value > 0)
 
-  // 2. 对所有数据按数值降序排序，以获得真实排名
-  allData.sort((a, b) => b.value - a.value)
+  filteredData.sort((a, b) => b.value - a.value)
 
   const currentNameList = []
   const currentValueList = []
+  const currentDisplayNameList = []
 
-  // 3. 根据 startIndex 和 visibleItems，从排序后的 allData 中提取当前显示的数据
-  for (let i = 0; i < visibleItems; i++) {
-    // 使用模运算循环获取数据
-    const idx = (startIndex + i) % allData.length
-    currentNameList.push(allData[idx].name)
-    currentValueList.push(allData[idx].value)
+  for (let i = 0; i < Math.min(visibleItems, filteredData.length); i++) {
+    const idx = (startIndex + i) % filteredData.length
+    const item = filteredData[idx]
+    currentNameList.push(item.name)
+    currentValueList.push(item.value)
+    currentDisplayNameList.push(item.name.length > 4 ? item.name.slice(0, 4) + '…' : item.name)
   }
 
-  return {currentNameList, currentValueList, sortedAllData: allData}
+  return {currentNameList, currentValueList, currentDisplayNameList, sortedAllData: filteredData}
 }
 
-/**
- * 更新 ECharts 图表配置
- * @param {number} startIndex - 当前轮播的起始下标
- */
 const updateChart = (startIndex = 0) => {
   if (!chart.value) return
-
-  const {nameList = []} = props.chartData
-  const totalItems = nameList.length
-  // 确定本次图表需要显示的实际条目数，不能超过总条目数
-  const visibleItems = Math.min(totalItems, props.chartItemTotal)
-
-  // 获取当前显示的数据以及所有数据的排序列表
-  const {currentNameList, currentValueList, sortedAllData} = getCurrentData(startIndex, visibleItems)
+  const visibleItems = Math.min(props.chartData.names.length, props.chartItemTotal)
+  const {
+    currentNameList,
+    currentValueList,
+    currentDisplayNameList,
+    sortedAllData
+  } = getCurrentData(startIndex, visibleItems)
 
   const option = {
     title: {
@@ -94,86 +81,60 @@ const updateChart = (startIndex = 0) => {
       trigger: 'item',
       axisPointer: {type: 'shadow'},
       formatter: function (params) {
-        // params.name 是当前 tooltip 触发项的名称
-        // 在 sortedAllData 中找到该名称对应的项，获取其真实排名
         const realRank = sortedAllData.findIndex(item => item.name === params.name) + 1
-        const realName = params.name
-        const value = params.value
-        return `
-          <div style="font-size:13px;line-height:20px;">
-            <b>排名：</b>${realRank}<br/>
-            <b>名称：</b>${realName}<br/>
-            <b>数值：</b>${value}
-          </div>
-        `
+        return `<div style="font-size:13px;line-height:20px;">
+                  <b>排名：</b>${realRank}<br/>
+                  <b>名称：</b>${params.name}<br/>
+                  <b>数值：</b>${params.value}
+                </div>`
       }
     },
-    grid: {top: '13%', left: '15%', right: '3%', bottom: '3%'},
+    grid: {top: '13%', left: '20%', right: '3%', bottom: '3%'},
     yAxis: {
       type: 'category',
-      inverse: true, // 反转Y轴，使数值最大的在最上方
+      inverse: true,
       axisLabel: {color: '#ffffff', fontSize: 14},
       axisLine: {show: false},
       axisTick: {show: false},
       splitArea: {show: false},
-      data: currentNameList
+      data: currentDisplayNameList
     },
     xAxis: {
       type: 'value',
       axisLine: {show: false},
       axisTick: {show: false},
       splitLine: {show: false},
-      axisLabel: {show: false}, // 不显示X轴刻度标签
-      splitArea: {show: false},   // 取消交替底色
+      axisLabel: {show: false},
+      splitArea: {show: false}     // 取消交替底色
     },
-    series: [
-      {
-        type: 'bar',
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            {offset: 0, color: '#00BBFD'}, // 渐变色起点
-            {offset: 1, color: '#0085FA'}  // 渐变色终点
-          ]),
-          borderRadius: [10, 10, 10, 10] // 圆角
-        },
-        label: {
-          show: true,
-          position: ['95%', '10%'], // 标签位置
-          verticalAlign: 'bottom',
-          align: 'center',
-          formatter: '{c}', // 显示数值
-          color: '#ffffff',
-          fontSize: 14
-        },
-        barWidth: '10px', // 柱子宽度
-        data: currentValueList
+    series: [{
+      type: 'bar',
+      barWidth: '10px',
+      data: currentValueList.map((v, i) => ({value: v, name: currentNameList[i]})),
+      label: {show: true, position: 'right', formatter: '{c}', color: '#ffffff', fontSize: 14},
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{offset: 0, color: '#00BBFD'}, {
+          offset: 1,
+          color: '#0085FA'
+        }]), borderRadius: [10, 10, 10, 10]
       }
-    ]
+    }]
   }
 
-  // 设置图表选项，true 表示合并配置，覆盖旧配置
   chart.value.setOption(option, true)
 }
 
-/**
- * 启动自动轮播
- */
 const startCarousel = () => {
-  stopCarousel() // 先停止当前可能存在的轮播
-  const {nameList = []} = props.chartData
-  // 只有当总条目数大于显示条目数时才开启轮播
-  if (nameList.length > props.chartItemTotal) {
+  stopCarousel()
+  const filteredLength = props.chartData.totals.filter(v => v > 0).length
+  if (filteredLength > props.chartItemTotal) {
     intervalId.value = setInterval(() => {
-      // 循环更新 currentIndex，实现轮播
-      currentIndex.value = (currentIndex.value + 1) % nameList.length
+      currentIndex.value = (currentIndex.value + 1) % filteredLength
       updateChart(currentIndex.value)
     }, props.chartCarousel)
   }
 }
 
-/**
- * 停止自动轮播
- */
 const stopCarousel = () => {
   if (intervalId.value) {
     clearInterval(intervalId.value)
@@ -181,96 +142,48 @@ const stopCarousel = () => {
   }
 }
 
-/**
- * 鼠标移入事件：停止自动轮播
- */
-const handleMouseEnter = () => {
-  stopCarousel()
-}
-
-/**
- * 鼠标移出事件：重新开始自动轮播
- */
-const handleMouseLeave = () => {
-  startCarousel()
-}
-
-/**
- * 鼠标滚轮事件：手动切换图表
- * @param {Event} event - 鼠标滚轮事件对象
- */
+const handleMouseEnter = () => stopCarousel()
+const handleMouseLeave = () => startCarousel()
 const handleWheel = (event) => {
-  const {nameList = []} = props.chartData
-  if (!nameList.length) return // 如果没有数据，则不处理
-
-  stopCarousel() // 手动操作时，停止自动轮播
-
-  if (event.deltaY > 0) {
-    // 向下滚 → 显示下一页（下一组数据）
-    currentIndex.value = (currentIndex.value + 1) % nameList.length
-  } else {
-    // 向上滚 → 显示上一页（上一组数据）
-    // 使用 (currentIndex.value - 1 + nameList.length) % nameList.length 来处理负数取模
-    currentIndex.value = (currentIndex.value - 1 + nameList.length) % nameList.length
-  }
+  const filteredLength = props.chartData.totals.filter(v => v > 0).length
+  if (!filteredLength) return
+  stopCarousel()
+  currentIndex.value = event.deltaY > 0 ? (currentIndex.value + 1) % filteredLength : (currentIndex.value - 1 + filteredLength) % filteredLength
   updateChart(currentIndex.value)
 }
 
-/**
- * 初始化 ECharts 图表
- */
 const initChart = () => {
-  // 如果已有图表实例，先销毁
-  if (chart.value) {
-    chart.value.dispose()
-    chart.value = null
-  }
-  // 确保 DOM 元素存在
+  if (chart.value) chart.value.dispose()
   if (!chartRef.value) return
-
-  // 使用 markRaw 包裹 echarts.init() 的结果，防止 ECharts 实例被 Vue 代理
   chart.value = markRaw(echarts.init(chartRef.value, 'macarons'))
-
-  currentIndex.value = 0 // 重置轮播下标
-  updateChart() // 初始化显示第一页数据
-  startCarousel() // 启动自动轮播
+  currentIndex.value = 0
+  updateChart()
+  startCarousel()
 }
 
-/**
- * 响应窗口大小变化，重置图表尺寸
- */
-const resizeChart = () => {
-  // 使用可选链 ?. 确保 chart.value 存在
-  chart.value?.resize()
-}
+const resizeChart = () => chart.value?.resize()
 
-// 组件挂载后执行
 onMounted(async () => {
-  await nextTick() // 等待 DOM 更新完成
-  initChart() // 初始化图表
-  window.addEventListener('resize', resizeChart) // 监听窗口大小变化
+  await nextTick()
+  initChart()
+  // 使用 ResizeObserver 监听容器尺寸变化，自适应
+  resizeObserver = new ResizeObserver(resizeChart)
+  resizeObserver.observe(chartRef.value)
 })
 
-// 组件卸载前执行
 onBeforeUnmount(() => {
-  if (chart.value) {
-    chart.value.dispose() // 销毁图表实例
-    chart.value = null
-  }
-  stopCarousel() // 停止轮播
-  window.removeEventListener('resize', resizeChart) // 移除事件监听器
+  if (chart.value) chart.value.dispose()
+  stopCarousel()
+  resizeObserver?.disconnect()
 })
 
-// 监听 chartData 变化，数据更新时重新初始化图表
-watch(
-    () => props.chartData,
-    () => initChart(),
-    {deep: true} // 深度监听，确保对象内部变化也能触发
-)
+watch(() => props.chartData, () => initChart(), {deep: true})
 </script>
 
 <style scoped>
 .chart {
-  overflow: hidden; /* 隐藏超出部分，确保图表在容器内 */
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 </style>

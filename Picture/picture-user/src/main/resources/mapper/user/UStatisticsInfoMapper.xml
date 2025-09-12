@@ -1,24 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.user.mapper.UStatisticsInfoMapper">
 
     <resultMap type="UStatisticsInfo" id="UStatisticsInfoResult">
-        <result property="statisticsId"    column="statistics_id"    />
-        <result property="type"    column="type"    />
-        <result property="statisticsName"    column="statistics_name"    />
-        <result property="commonKey"    column="common_key"    />
-        <result property="statisticsKey"    column="statistics_key"    />
-        <result property="stages"    column="stages"    />
-        <result property="content"    column="content"    />
-        <result property="extendContent"    column="extend_content"    />
-        <result property="remark"    column="remark"    />
-        <result property="createTime"    column="create_time"    />
+        <result property="statisticsId" column="statistics_id"/>
+        <result property="type" column="type"/>
+        <result property="statisticsName" column="statistics_name"/>
+        <result property="commonKey" column="common_key"/>
+        <result property="statisticsKey" column="statistics_key"/>
+        <result property="stages" column="stages"/>
+        <result property="content" column="content"/>
+        <result property="extendContent" column="extend_content"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="selectUStatisticsInfoVo">
-        select statistics_id, type, statistics_name, common_key, statistics_key, stages, content, extend_content, remark, create_time from u_u_statistics_info
+        select statistics_id,
+               type,
+               statistics_name,
+               common_key,
+               statistics_key,
+               stages,
+               content,
+               extend_content,
+               remark,
+               create_time
+        from u_u_statistics_info
     </sql>
 
     <select id="selectUStatisticsInfoList" parameterType="UStatisticsInfo" resultMap="UStatisticsInfoResult">
@@ -66,7 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="extendContent != null">extend_content,</if>
             <if test="remark != null">remark,</if>
             <if test="createTime != null">create_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="statisticsId != null">#{statisticsId},</if>
             <if test="type != null and type != ''">#{type},</if>
@@ -78,7 +88,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="extendContent != null">#{extendContent},</if>
             <if test="remark != null">#{remark},</if>
             <if test="createTime != null">#{createTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateUStatisticsInfo" parameterType="UStatisticsInfo">
@@ -98,7 +108,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteUStatisticsInfoByStatisticsId" parameterType="String">
-        delete from u_u_statistics_info where statistics_id = #{statisticsId}
+        delete
+        from u_u_statistics_info
+        where statistics_id = #{statisticsId}
     </delete>
 
     <delete id="deleteUStatisticsInfoByStatisticsIds" parameterType="String">
@@ -161,6 +173,48 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         GROUP BY COALESCE(u.sex, '0')
         ORDER BY name;
+    </select>
+    <select id="userInformTypeStatistics" resultType="com.lz.user.model.dto.statistics.UserInformTypeStatisticsRo">
+        WITH RECURSIVE date_range AS (
+        SELECT #{startDate} AS stat_date
+        UNION ALL
+        SELECT DATE_ADD(stat_date, INTERVAL 1 DAY)
+        FROM date_range
+        WHERE stat_date &lt; #{endDate}
+        )
+        SELECT
+        d.stat_date AS sendTime,
+        t.template_key AS templateKey,
+        t.locale AS locale,
+        t.template_type AS templateType,
+        COALESCE(SUM(i.count_per_day), 0) AS total
+        FROM date_range d
+        CROSS JOIN (
+        SELECT DISTINCT template_key, locale, template_type
+        FROM u_inform_info
+        ) t
+        LEFT JOIN (
+        SELECT
+        template_key,
+        locale,
+        template_type,
+        send_time,
+        COUNT(*) AS count_per_day
+        FROM u_inform_info
+        WHERE send_time >= CONCAT(#{startDate}, ' 00:00:00')
+        AND send_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+        <if test="isDelete != null and isDelete != ''">
+            AND is_delete = #{isDelete}
+        </if>
+        GROUP BY template_key, locale, template_type, send_time
+        ) i
+        ON i.template_key = t.template_key
+        AND i.locale = t.locale
+        AND i.template_type = t.template_type
+        AND i.send_time >= d.stat_date
+        AND i.send_time &lt; d.stat_date + INTERVAL 1 DAY
+        GROUP BY d.stat_date, t.template_key, t.locale, t.template_type
+        ORDER BY d.stat_date ASC, t.template_key, t.locale, t.template_type;
     </select>
 
 </mapper>

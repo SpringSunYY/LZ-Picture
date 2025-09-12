@@ -134,10 +134,16 @@ public class InformTemplateInfoServiceImpl extends ServiceImpl<InformTemplateInf
      **/
     @Override
     public InformTemplateInfo getInformTemplateInfoByKeyLocaleType(String templateKey, String locale, String templateType) {
-        return this.getOne(new LambdaQueryWrapper<InformTemplateInfo>()
+        String key = UserConfigRedisConstants.CONFIG_TEMPLATE_INFO + templateType + ":" + templateKey + ":" + locale;
+        if (redisCache.hasKey( key)) {
+            return redisCache.getCacheObject(key);
+        }
+        InformTemplateInfo one = this.getOne(new LambdaQueryWrapper<InformTemplateInfo>()
                 .eq(InformTemplateInfo::getTemplateKey, templateKey)
                 .eq(InformTemplateInfo::getLocale, locale)
                 .eq(InformTemplateInfo::getTemplateType, templateType));
+        redisCache.setCacheObject(key, one);
+        return one;
     }
 
     /**

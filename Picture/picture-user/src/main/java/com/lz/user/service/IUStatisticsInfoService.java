@@ -151,4 +151,14 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @date: 2025/9/12 16:01
      **/
     List<UStatisticsInfo> getUStatisticsInfosByDateAndKeyType(String startDate, String endDate, String type, String commonKey);
+
+    /**
+     * 用户消息发送统计
+     * @author: YY
+     * @method: userInformTypeStatistics
+     * @date: 2025/9/12 18:36
+     * @param request 统计请求
+     * @return BarStatisticsVo
+     **/
+    BarStatisticsVo userInformTypeStatistics(UserStatisticsRequest request);
 }

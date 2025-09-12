@@ -9,7 +9,7 @@
         </BorderBox4>
         <BorderBox6 class="default-border">
           <!--消息排行-->
-          <BarRankingCharts chart-name="消息类型发送"/>
+          <BarRankingCharts :chart-name="userInformTypeStatisticsName" :chart-data="userInformTypeStatisticsData"/>
         </BorderBox6>
         <div class="default-border">
           <!--消息信息-->
@@ -78,7 +78,7 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
-  userAgeStatistics, userLoginStatistics,
+  userAgeStatistics, userInformTypeStatistics, userLoginStatistics,
   userRegisterStatistics, userSexStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
@@ -116,6 +116,14 @@ const getUserLoginStatistics = () => {
     userLoginStatisticsData.value = res.data
   })
 }
+//用户信息
+const userInformTypeStatisticsData = ref({})
+const userInformTypeStatisticsName = ref('消息发送统计')
+const getUserInformTypeStatistics = () => {
+  userInformTypeStatistics(query.value).then(res => {
+    userInformTypeStatisticsData.value = res.data
+  })
+}
 // 用户性别
 const userSexStatisticsData = ref({})
 const userSexStatisticsName = ref('用户性别比例')
@@ -137,6 +145,7 @@ getUserAgeStatistics()
 const getStatistics = () => {
   getUserRegisterStatistics()
   getUserLoginStatistics()
+  getUserInformTypeStatistics()
 }
 getStatistics()
 </script>

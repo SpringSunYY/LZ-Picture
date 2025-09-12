@@ -56,4 +56,11 @@ public class UserStatisticsConstants {
     public static final String USER_STATISTICS_LOGIN_DAY_NAME = "用户登录-每日";
 
     public static final int USER_STATISTICS_LOGIN_DAY_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户消息发送-每日
+     */
+    public static final String USER_STATISTICS_INFORM_DAY = "user:statistics:inform:day";
+    public static final String USER_STATISTICS_INFORM_DAY_NAME = "用户消息发送-每日";
+    public static final int USER_STATISTICS_INFORM_DAY_EXPIRE_TIME = 60 * 5;
 }

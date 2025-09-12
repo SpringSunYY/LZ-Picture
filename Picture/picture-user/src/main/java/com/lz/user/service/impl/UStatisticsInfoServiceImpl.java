@@ -1,5 +1,6 @@
 package com.lz.user.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,10 +17,13 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.config.model.domain.InformTemplateInfo;
+import com.lz.config.service.IInformTemplateInfoService;
 import com.lz.system.service.ISysConfigService;
 import com.lz.user.mapper.UStatisticsInfoMapper;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.dto.statistics.UserInformTypeStatisticsRo;
 import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
@@ -60,6 +64,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
     @Resource
     private ISysConfigService sysConfigService;
+
+    @Resource
+    private IInformTemplateInfoService informTemplateInfoService;
 
     //region mybatis代码
 
@@ -174,7 +181,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     }
 
     //region 用户统计
-    @CustomCacheable(keyPrefix = USER_STATISTICS_REGISTER_DAY, expireTime = USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
+//    @CustomCacheable(keyPrefix = USER_STATISTICS_REGISTER_DAY, expireTime = USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
     public LineStatisticsVo userRegisterStatistics(UserStatisticsRequest request) {
         //拿到开始结束时间
@@ -490,7 +497,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
 
     @Override
-//    @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_DAY, expireTime = USER_STATISTICS_LOGIN_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_DAY, expireTime = USER_STATISTICS_LOGIN_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
     public BarStatisticsVo userLoginStatistics(UserLoginStatisticsRequest request) {
         //拿到开始结束时间
         String startDate = request.getStartDate();
@@ -553,7 +560,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             combined.add(new AbstractMap.SimpleEntry<>(names.get(i), totals.get(i)));
         }
         //时间升序排序
-        combined.sort(Comparator.comparing(entry-> LocalDate.parse(entry.getKey(), DateTimeFormatter.ofPattern(DateUtils.YYYY_MM_DD))));
+        combined.sort(Comparator.comparing(entry -> LocalDate.parse(entry.getKey(), DateTimeFormatter.ofPattern(DateUtils.YYYY_MM_DD))));
         //清空数据重新填充
         names.clear();
         totals.clear();
@@ -636,11 +643,11 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
      * @param requestSupplier 构造request
      * @param queryFunction   查询方法
      */
-    private <R> List<StatisticsRo> getUserStatistics(
+    private <R, T> List<T> getUserStatistics(
             String startDate,
             String endDate,
             Supplier<R> requestSupplier,
-            Function<R, List<StatisticsRo>> queryFunction
+            Function<R, List<T>> queryFunction
     ) {
         try {
             // 1. 构造 request
@@ -649,15 +656,149 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             request.getClass().getMethod("setEndDate", String.class).invoke(request, endDate);
 
             // 2. 执行 mapper 方法（方法引用传进来）
-            List<StatisticsRo> list = queryFunction.apply(request);
+            List<T> list = queryFunction.apply(request);
             if (list == null || list.isEmpty()) {
-                return null;
+                return Collections.emptyList();
             }
             return list;
         } catch (Exception e) {
             log.error("统计失败", e);
             throw new ServiceException("统计失败");
         }
+    }
+
+
+    @Override
+    @CustomCacheable(keyPrefix = USER_STATISTICS_INFORM_DAY, expireTime = USER_STATISTICS_INFORM_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
+    public BarStatisticsVo userInformTypeStatistics(UserStatisticsRequest request) {
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        Date nowDate = checkDate(startDate, endDate);
+        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
+        //如果为空查询全部
+        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
+            return new BarStatisticsVo();
+        }
+        //灵活判断最近天数
+        String end = dateRanges.getLast();
+        BarStatisticsVo barStatisticsVo = new BarStatisticsVo();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Long> totals = new ArrayList<>();
+        //如果包含的日期有今天，则查询今天
+        //是否包含今天
+        String today = DateUtils.dateTime(nowDate);
+        boolean containsToday = dateRanges.contains(today);
+        if (containsToday) {
+            List<UserInformTypeStatisticsRo> userLoginStatistics = getInformTypeStatistics(today, today);
+            builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics);
+            //如果包含了且范围只有1，就表示统计今天
+            if (dateRanges.size() == 1) {
+                builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics);
+                barStatisticsVo.setNames(names);
+                barStatisticsVo.setTotals(totals);
+                return barStatisticsVo;
+            }
+            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
+            dateRanges.removeLast();
+            end = dateRanges.getLast();
+        }
+        //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
+        List<UStatisticsInfo> uStatisticsInfoList = getUStatisticsInfosByDateAndKeyType(startDate, end, UStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(), USER_STATISTICS_INFORM_DAY);
+        //获取没有统计的日期
+        List<String> noStatisticsDate = getInformTypeNoStatisticsDate(dateRanges, uStatisticsInfoList, names, totals);
+        if (StringUtils.isNotEmpty(noStatisticsDate)) {
+            ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
+            for (String date : noStatisticsDate) {
+                List<UserInformTypeStatisticsRo> userRegisterStatistics = getInformTypeStatistics(date, date);
+                builderUserInformTypeRoNamesAndTotals(names, totals, userRegisterStatistics);
+                //统计数据
+                UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(), USER_STATISTICS_INFORM_DAY_NAME, USER_STATISTICS_INFORM_DAY, 1L);
+                uStatisticsInfos.add(uStatisticsInfo);
+            }
+            uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
+        }
+        //构建结果，因为当前时间和数据是一一对应的，但是时间排序不一样，所以要排序
+        sortUserInformTypeNamesAndTotals(names, totals);
+        //排序，根据时间排序
+        barStatisticsVo.setNames(names);
+        barStatisticsVo.setTotals(totals);
+        return barStatisticsVo;
+    }
+
+    /**
+     * 获取没有统计的日期 消息类型
+     *
+     * @param dateRanges          日期范围
+     * @param uStatisticsInfoList 统计数据
+     * @param names               名称
+     * @param totals              总数
+     */
+    private List<String> getInformTypeNoStatisticsDate(List<String> dateRanges, List<UStatisticsInfo> uStatisticsInfoList, ArrayList<String> names, ArrayList<Long> totals) {
+        List<String> noStatisticsDate = new ArrayList<>(dateRanges);
+        if (StringUtils.isNotEmpty(uStatisticsInfoList)) {
+            //添加所有统计到的数据
+            for (UStatisticsInfo uStatisticsInfo : uStatisticsInfoList) {
+                String dateToStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, uStatisticsInfo.getCreateTime());
+                String statisticsStr = uStatisticsInfo.getContent();
+                List<UserInformTypeStatisticsRo> statisticsRo = JSONArray.parseArray(statisticsStr, UserInformTypeStatisticsRo.class);
+                builderUserInformTypeRoNamesAndTotals(names, totals, statisticsRo);
+                //如果没有统计，则添加
+                noStatisticsDate.remove(dateToStr);
+            }
+        }
+        return noStatisticsDate;
+    }
+
+    /**
+     * 构建消息结果，根据total排序
+     *
+     * @param names  名称
+     * @param totals 总数
+     */
+    private void sortUserInformTypeNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals) {
+        //创建一个临时的map，存储name和total
+        HashMap<String, Long> tempMap = new HashMap<>();
+        for (int i = 0; i < names.size(); i++) {
+            String name = names.get(i);
+            if (tempMap.containsKey(name)) {
+                tempMap.put(name, tempMap.get(name) + totals.get(i));
+            } else {
+                tempMap.put(name, totals.get(i));
+            }
+        }
+        //根据总数排序,map的value进行排序
+        // 按 value 降序排序
+        LinkedHashMap<String, Long> sortedMap = tempMap.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+        //清空数据集并重新填充数据
+        names.clear();
+        totals.clear();
+        sortedMap.forEach((name, total) -> {
+            names.add(name);
+            totals.add(total);
+        });
+    }
+
+    private void builderUserInformTypeRoNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, List<UserInformTypeStatisticsRo> statisticsRos) {
+        for (UserInformTypeStatisticsRo statisticsRo : statisticsRos) {
+            InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(statisticsRo.getTemplateKey(), statisticsRo.getLocale(), statisticsRo.getTemplateType());
+            names.add(informTemplateInfoByKeyLocaleType.getTemplateName());
+            totals.add(statisticsRo.getTotal());
+        }
+    }
+
+    private List<UserInformTypeStatisticsRo> getInformTypeStatistics(String startDate, String endDate) {
+        return getUserStatistics(
+                startDate, endDate,
+                UserStatisticsRequest::new,
+                uStatisticsInfoMapper::userInformTypeStatistics
+        );
     }
     //endregion
 
