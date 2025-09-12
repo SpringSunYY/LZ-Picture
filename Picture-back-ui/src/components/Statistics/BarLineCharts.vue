@@ -47,7 +47,7 @@ const initChart = async () => {
 // 处理数据并设置ECharts配置项
 const setOptions = () => {
   if (!chart) return;
-  if (!props.chartData) return;
+  if (!props.chartData || !props.chartData.names || !props.chartData.totals) return;
   const xData = props.chartData.names; // X轴：
   const yData = props.chartData.totals; // Y轴
   const differenceData = []; // 用于存储与上一期相比的增减量
@@ -97,7 +97,7 @@ const setOptions = () => {
           tooltipContent += `${name}<br/>`;
 
           // 显示主数据系列的值，并格式化为带百分比的数值
-          tooltipContent += `${currentItem.seriesName}：${value.toFixed(2)}`;
+          tooltipContent += `${currentItem.seriesName}：${value}`;
 
           // 添加与上一期的增减量信息
           const diff = differenceData[currentItem.dataIndex];
@@ -136,8 +136,8 @@ const setOptions = () => {
       splitArea: {show: false},   // 取消交替底色
       axisLabel: {
         show: true,
-        color: "rgb(170,170,170)",
-        fontSize: 16
+        color: "rgb(255,255,255)",
+        fontSize: 12
       } // X轴标签样式
     }],
     yAxis: [
