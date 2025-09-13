@@ -86,3 +86,12 @@ export function userAgeStatistics() {
         method: 'get'
     })
 }
+
+//用户消息统计
+export function userInformStatistics(query) {
+    return request({
+        url: '/user/uStatisticsInfo/user/inform',
+        method: 'get',
+        params: query
+    })
+}

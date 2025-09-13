@@ -7,9 +7,11 @@ import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.dto.statistics.UserInformStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
+import com.lz.user.model.vo.statistics.UserInformStatisticsVo;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 
 import java.util.List;
@@ -154,11 +156,23 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
 
     /**
      * 用户消息发送统计
+     *
+     * @param request 统计请求
+     * @return BarStatisticsVo
      * @author: YY
      * @method: userInformTypeStatistics
      * @date: 2025/9/12 18:36
-     * @param request 统计请求
-     * @return BarStatisticsVo
      **/
     BarStatisticsVo userInformTypeStatistics(UserStatisticsRequest request);
+
+    /**
+     * 用户消息统计
+     *
+     * @param request 请求
+     * @return List<UserInformStatisticsVo>
+     * @author: YY
+     * @method: userInformStatistics
+     * @date: 2025/9/13 16:35
+     **/
+    List<UserInformStatisticsVo> userInformStatistics(UserInformStatisticsRequest request);
 }

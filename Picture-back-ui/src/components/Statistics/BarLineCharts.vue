@@ -54,7 +54,7 @@ const setOptions = () => {
 
   // 处理原始数据：提取X轴和处理Y轴数据
   yData.forEach((item, index) => {
-    console.log(item);
+    // console.log(item);
     // 计算与上一期相比的增减量
     if (index > 0) {
       const previousValue = yData[index - 1];
@@ -120,11 +120,11 @@ const setOptions = () => {
       }
     },
     grid: {
-      left: "0%",
-      right: "0%",
+      left: "3%",
+      right: "3%",
       bottom: "1%",
       top: "20%",
-      height: "75%",
+      height: "80%",
       containLabel: true,
       z: 22 // 层级（确保不被覆盖）
     },

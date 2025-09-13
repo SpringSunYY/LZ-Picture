@@ -13,7 +13,9 @@
         </BorderBox6>
         <div class="default-border">
           <!--消息信息-->
-          <TableRanking/>
+          <TableRanking ref="tableRankingRef"
+                        :headers="userInformStatisticsHeaders" :data="userInformStatisticsData" height="100%"
+                        @scrolledToBottom="handleScrollEnd"/>
         </div>
       </el-col>
 
@@ -78,7 +80,7 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
-  userAgeStatistics, userInformTypeStatistics, userLoginStatistics,
+  userAgeStatistics, userInformStatistics, userInformTypeStatistics, userLoginStatistics,
   userRegisterStatistics, userSexStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
@@ -96,6 +98,8 @@ const userRegisterStatisticsName = ref('用户注册统计')
 const onDateChange = (val) => {
   query.value.startDate = val?.[0] || ''
   query.value.endDate = val?.[1] || ''
+  userInformStatisticsData.value = []
+  userInformQuery.value.pageNum = 1
   getStatistics()
 }
 
@@ -142,10 +146,46 @@ const getUserAgeStatistics = () => {
   })
 }
 getUserAgeStatistics()
+
+//用户消息
+const tableRankingRef = ref()
+const userInformStatisticsHeaders = ref(['标题', '用户', '读取', '发送时间'])
+const userInformStatisticsData = ref([])
+const userInformQuery = ref({
+  startDate: '',
+  endDate: '',
+  pageNum: 1,
+  pageSize: 20
+})
+const isNextInform = ref(true)
+const getUserInformStatistics = () => {
+  userInformQuery.value.startDate = query.value.startDate
+  userInformQuery.value.endDate = query.value.endDate
+  isNextInform.value = false
+  userInformStatistics(userInformQuery.value).then(res => {
+    res.data.forEach(item => {
+      item.isRead = item.isRead ? '是' : '否'
+      const itemData = [item.informTitle, item.userName, item.isRead, item.sendTime]
+      userInformStatisticsData.value.push(itemData)
+    })
+    if (res.data.length < userInformQuery.value.pageSize) {
+      isNextInform.value = false
+    } else {
+      userInformQuery.value.pageNum += 1
+      isNextInform.value = true
+    }
+  })
+}
+const handleScrollEnd = () => {
+  if (isNextInform.value) {
+    getUserInformStatistics()
+  }
+}
 const getStatistics = () => {
   getUserRegisterStatistics()
   getUserLoginStatistics()
   getUserInformTypeStatistics()
+  getUserInformStatistics()
 }
 getStatistics()
 </script>

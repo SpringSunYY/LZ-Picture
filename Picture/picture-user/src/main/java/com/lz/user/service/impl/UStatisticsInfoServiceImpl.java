@@ -21,15 +21,19 @@ import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.service.IInformTemplateInfoService;
 import com.lz.system.service.ISysConfigService;
 import com.lz.user.mapper.UStatisticsInfoMapper;
+import com.lz.user.model.domain.InformInfo;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.domain.UserInfo;
+import com.lz.user.model.dto.statistics.UserInformStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserInformTypeStatisticsRo;
 import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
 import com.lz.user.model.enums.UStatisticsTypeEnum;
 import com.lz.user.model.enums.UUserSexEnum;
+import com.lz.user.model.vo.statistics.UserInformStatisticsVo;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
+import com.lz.user.service.IInformInfoService;
 import com.lz.user.service.IUStatisticsInfoService;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
@@ -67,6 +71,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
     @Resource
     private IInformTemplateInfoService informTemplateInfoService;
+
+    @Resource
+    private IInformInfoService informInfoService;
 
     //region mybatis代码
 
@@ -181,7 +188,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     }
 
     //region 用户统计
-//    @CustomCacheable(keyPrefix = USER_STATISTICS_REGISTER_DAY, expireTime = USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @CustomCacheable(keyPrefix = USER_STATISTICS_REGISTER_DAY, expireTime = USER_STATISTICS_REGISTER_DAY_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
     public LineStatisticsVo userRegisterStatistics(UserStatisticsRequest request) {
         //拿到开始结束时间
@@ -206,7 +213,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             //查询今天
             List<StatisticsRo> userRegisterStatistics = getUserRegisterStatistics(today, today);
             //构建名称和数量
-            builderNamesAndTotals(names, totals, userRegisterStatistics);
+            for (StatisticsRo userRegisterStatistic : userRegisterStatistics) {
+                builderNamesAndTotals(names, totals, userRegisterStatistic);
+            }
             //如果包含了且范围只有1，就表示统计今天
             if (dateRanges.size() == 1) {
                 lineStatisticsVo.setNames(names);
@@ -225,10 +234,12 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
             for (String date : noStatisticsDate) {
                 List<StatisticsRo> userRegisterStatistics = getUserRegisterStatistics(date, date);
-                builderNamesAndTotals(names, totals, userRegisterStatistics);
-                //统计数据
-                UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue(), USER_STATISTICS_REGISTER_DAY_NAME, USER_STATISTICS_REGISTER_DAY, 1L);
-                uStatisticsInfos.add(uStatisticsInfo);
+                for (StatisticsRo userRegisterStatistic : userRegisterStatistics) {
+                    builderNamesAndTotals(names, totals, userRegisterStatistic);
+                    //统计数据
+                    UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistic, UStatisticsTypeEnum.STATISTICS_TYPE_1.getValue(), USER_STATISTICS_REGISTER_DAY_NAME, USER_STATISTICS_REGISTER_DAY, 1L);
+                    uStatisticsInfos.add(uStatisticsInfo);
+                }
             }
             uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
         }
@@ -519,7 +530,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         boolean containsToday = dateRanges.contains(today);
         if (containsToday) {
             List<StatisticsRo> userLoginStatistics = getUserLoginStatistics(today, today);
-            builderNamesAndTotals(names, totals, userLoginStatistics);
+            for (StatisticsRo userLoginStatistic : userLoginStatistics) {
+                builderNamesAndTotals(names, totals, userLoginStatistic);
+            }
             //如果包含了且范围只有1，就表示统计今天
             if (dateRanges.size() == 1) {
                 barStatisticsVo.setNames(names);
@@ -538,10 +551,12 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
             for (String date : noStatisticsDate) {
                 List<StatisticsRo> userRegisterStatistics = getUserLoginStatistics(date, date);
-                builderNamesAndTotals(names, totals, userRegisterStatistics);
-                //统计数据
-                UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_2.getValue(), USER_STATISTICS_LOGIN_DAY_NAME, USER_STATISTICS_LOGIN_DAY, 1L);
-                uStatisticsInfos.add(uStatisticsInfo);
+                for (StatisticsRo userRegisterStatistic : userRegisterStatistics) {
+                    builderNamesAndTotals(names, totals, userRegisterStatistic);
+                    //统计数据
+                    UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistic, UStatisticsTypeEnum.STATISTICS_TYPE_2.getValue(), USER_STATISTICS_LOGIN_DAY_NAME, USER_STATISTICS_LOGIN_DAY, 1L);
+                    uStatisticsInfos.add(uStatisticsInfo);
+                }
             }
             uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
         }
@@ -574,15 +589,13 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     /**
      * 构建names和totals
      *
-     * @param names         names
-     * @param totals        totals
-     * @param statisticsRos 统计列表
+     * @param names        names
+     * @param totals       totals
+     * @param statisticsRo 统计
      */
-    private void builderNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, List<StatisticsRo> statisticsRos) {
-        for (StatisticsRo statisticsRo : statisticsRos) {
-            names.add(statisticsRo.getName());
-            totals.add(statisticsRo.getTotal());
-        }
+    private void builderNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, StatisticsRo statisticsRo) {
+        names.add(statisticsRo.getName());
+        totals.add(statisticsRo.getTotal());
     }
 
     @Override
@@ -799,6 +812,37 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 UserStatisticsRequest::new,
                 uStatisticsInfoMapper::userInformTypeStatistics
         );
+    }
+
+
+    @Override
+    public List<UserInformStatisticsVo> userInformStatistics(UserInformStatisticsRequest request) {
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        checkDate(startDate, endDate);
+        startDate = startDate + " 00:00:00";
+        endDate = endDate + " 23:59:59";
+        Long pageNum = request.getPageNum();
+        Long pageSize = request.getPageSize();
+        List<InformInfo> informInfos = informInfoService.list(new LambdaQueryWrapper<InformInfo>()
+                .select(InformInfo::getUserId, InformInfo::getIsRead, InformInfo::getInformTitle, InformInfo::getSendTime)
+                .ge(InformInfo::getSendTime, startDate)
+                .le(InformInfo::getSendTime, endDate)
+                .last("limit " + ((pageNum - 1) * pageSize) + "," + pageSize)
+        );
+        if (StringUtils.isEmpty(informInfos)) {
+            return List.of();
+        }
+        //获取到所有的用户id
+        List<String> userIds = informInfos.stream().map(InformInfo::getUserId).toList();
+        List<UserInfo> userInfos = userInfoService.list(new LambdaQueryWrapper<UserInfo>().in(UserInfo::getUserId, userIds));
+        //转换为map方便查询userId-userName
+        Map<String, String> userInfoMap = userInfos.stream().collect(Collectors.toMap(UserInfo::getUserId, UserInfo::getUserName));
+        return informInfos.stream().map(informInfo -> {
+            UserInformStatisticsVo userInformStatisticsVo = UserInformStatisticsVo.objToVo(informInfo);
+            userInformStatisticsVo.setUserName(userInfoMap.get(informInfo.getUserId()));
+            return userInformStatisticsVo;
+        }).toList();
     }
     //endregion
 

@@ -26,7 +26,7 @@ const props = defineProps({
       totals: [120, 200, 150, 80, 0, 110, 130, 0]
     })
   },
-  chartCarousel: {type: Number, default: 500},
+  chartCarousel: {type: Number, default: 1000},
   chartItemTotal: {type: Number, default: 5}
 })
 
@@ -35,6 +35,15 @@ const chartRef = ref(null)
 const intervalId = ref(null)
 const currentIndex = ref(0)
 let resizeObserver = null
+
+// 防抖函数，避免频繁触发 resize
+const debounce = (fn, delay = 200) => {
+  let timer = null
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}
 
 const getCurrentData = (startIndex, visibleItems) => {
   const {names = [], totals = []} = props.chartData
@@ -62,6 +71,7 @@ const getCurrentData = (startIndex, visibleItems) => {
 
 const updateChart = (startIndex = 0) => {
   if (!chart.value) return
+  if (!props.chartData || !props.chartData.totals || !props.chartData.totals.length || !props.chartData.names || !props.chartData.names.length) return;
   const visibleItems = Math.min(props.chartData.names.length, props.chartItemTotal)
   const {
     currentNameList,
@@ -89,7 +99,7 @@ const updateChart = (startIndex = 0) => {
                 </div>`
       }
     },
-    grid: {top: '13%', left: '20%', right: '3%', bottom: '3%'},
+    grid: {top: '13%', left: '20%', right: '5%', bottom: '3%'},
     yAxis: {
       type: 'category',
       inverse: true,
@@ -105,7 +115,7 @@ const updateChart = (startIndex = 0) => {
       axisTick: {show: false},
       splitLine: {show: false},
       axisLabel: {show: false},
-      splitArea: {show: false}     // 取消交替底色
+      splitArea: {show: false}
     },
     series: [{
       type: 'bar',
@@ -113,10 +123,11 @@ const updateChart = (startIndex = 0) => {
       data: currentValueList.map((v, i) => ({value: v, name: currentNameList[i]})),
       label: {show: true, position: 'right', formatter: '{c}', color: '#ffffff', fontSize: 14},
       itemStyle: {
-        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{offset: 0, color: '#00BBFD'}, {
-          offset: 1,
-          color: '#0085FA'
-        }]), borderRadius: [10, 10, 10, 10]
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          {offset: 0, color: '#00BBFD'},
+          {offset: 1, color: '#0085FA'}
+        ]),
+        borderRadius: [10, 10, 10, 10]
       }
     }]
   }
@@ -126,6 +137,7 @@ const updateChart = (startIndex = 0) => {
 
 const startCarousel = () => {
   stopCarousel()
+  if (!props.chartData.totals || !props.chartData.totals.length) return
   const filteredLength = props.chartData.totals.filter(v => v > 0).length
   if (filteredLength > props.chartItemTotal) {
     intervalId.value = setInterval(() => {
@@ -148,7 +160,9 @@ const handleWheel = (event) => {
   const filteredLength = props.chartData.totals.filter(v => v > 0).length
   if (!filteredLength) return
   stopCarousel()
-  currentIndex.value = event.deltaY > 0 ? (currentIndex.value + 1) % filteredLength : (currentIndex.value - 1 + filteredLength) % filteredLength
+  currentIndex.value = event.deltaY > 0
+      ? (currentIndex.value + 1) % filteredLength
+      : (currentIndex.value - 1 + filteredLength) % filteredLength
   updateChart(currentIndex.value)
 }
 
@@ -161,20 +175,23 @@ const initChart = () => {
   startCarousel()
 }
 
-const resizeChart = () => chart.value?.resize()
+const resizeChart = debounce(() => chart.value?.resize(), 200)
 
 onMounted(async () => {
   await nextTick()
   initChart()
-  // 使用 ResizeObserver 监听容器尺寸变化，自适应
+  // 容器变化监听
   resizeObserver = new ResizeObserver(resizeChart)
   resizeObserver.observe(chartRef.value)
+  // 窗口变化监听
+  window.addEventListener('resize', resizeChart)
 })
 
 onBeforeUnmount(() => {
   if (chart.value) chart.value.dispose()
   stopCarousel()
   resizeObserver?.disconnect()
+  window.removeEventListener('resize', resizeChart)
 })
 
 watch(() => props.chartData, () => initChart(), {deep: true})

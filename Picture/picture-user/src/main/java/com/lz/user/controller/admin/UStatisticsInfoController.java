@@ -7,6 +7,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.user.model.domain.UStatisticsInfo;
+import com.lz.user.model.dto.statistics.UserInformStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoEdit;
@@ -147,5 +148,15 @@ public class UStatisticsInfoController extends BaseController {
     @GetMapping("/user/age")
     public AjaxResult userAgeStatistics() {
         return success(uStatisticsInfoService.userAgeStatistics());
+    }
+
+    /**
+     * 用户消息发送统计
+     * @return
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/inform")
+    public AjaxResult userInformStatistics(@Validated UserInformStatisticsRequest request) {
+        return success(uStatisticsInfoService.userInformStatistics(request));
     }
 }
