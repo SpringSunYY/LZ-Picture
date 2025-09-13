@@ -12,6 +12,7 @@ import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
+import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
 import static com.lz.common.constant.ConfigConstants.USER_STATISTICS_AGE_KEY;
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.user.UserStatisticsConstants.*;
+import static com.lz.framework.web.service.UserInfoTokenService.LOGIN_USER_KEY;
 
 /**
  * 统计信息Service业务层处理
@@ -74,6 +76,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
     @Resource
     private IInformInfoService informInfoService;
+
+    @Resource
+    private RedisCache redisCache;
 
     //region mybatis代码
 
@@ -869,6 +874,12 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 StringUtils.isNull(uStatisticsInfo) ? 1L : uStatisticsInfo.getStages() + 1);
         uStatisticsInfoMapper.insertOrUpdate(newUStatisticsInfo);
         return count;
+    }
+
+    @Override
+    @CustomCacheable(keyPrefix = USER_STATISTICS_ONLINE_COUNT, expireTime = USER_STATISTICS_ONLINE_COUNT_EXPIRE_TIME)
+    public Long userOnlineTotalStatistics() {
+        return redisCache.getPatternSize(LOGIN_USER_KEY);
     }
     //endregion
 

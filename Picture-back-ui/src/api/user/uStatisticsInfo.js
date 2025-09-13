@@ -103,3 +103,11 @@ export function userTotalStatistics() {
         method: 'get'
     })
 }
+
+//用户在线总数统计
+export function userOnlineTotalStatistics() {
+    return request({
+        url: '/user/uStatisticsInfo/user/online/total',
+        method: 'get'
+    })
+}

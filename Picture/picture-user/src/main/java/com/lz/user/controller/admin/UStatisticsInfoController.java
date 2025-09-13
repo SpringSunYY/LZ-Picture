@@ -168,4 +168,13 @@ public class UStatisticsInfoController extends BaseController {
     public AjaxResult userTotalStatistics() {
         return success(uStatisticsInfoService.userTotalStatistics());
     }
+
+    /**
+     * 用户在线总数
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/online/total")
+    public AjaxResult userOnlineTotalStatistics() {
+        return success(uStatisticsInfoService.userOnlineTotalStatistics());
+    }
 }

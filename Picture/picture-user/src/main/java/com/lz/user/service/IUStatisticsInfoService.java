@@ -186,4 +186,15 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @date: 2025/9/13 18:59
      **/
     Long userTotalStatistics();
+
+    /**
+     * 用户在线总数统计
+     *
+     * @param
+     * @return Long
+     * @author: YY
+     * @method: userOnlineTotalStatistics
+     * @date: 2025/9/13 19:14
+     **/
+    Long userOnlineTotalStatistics();
 }

@@ -33,11 +33,11 @@
           <!--用户信息-->
           <el-row>
             <el-col :span="12" class="dashboard-border">
-              <DashboardRotateProportionCharts/>
+              <DashboardRotateProportionCharts :chart-name="userOnlineStatisticsName" :total="userTotalStatisticsData" height="100%" :count="userOnlineStatisticsData"/>
             </el-col>
 
             <el-col :span="12" class="dashboard-border">
-              <DashboardRotateTotalCharts :total="userTotalStatisticsData" height="100%"  />
+              <DashboardRotateTotalCharts :chart-name="userTotalStatisticsName" :total="userTotalStatisticsData" height="100%"  />
             </el-col>
           </el-row>
         </BorderBox7>
@@ -80,7 +80,7 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
-  userAgeStatistics, userInformStatistics, userInformTypeStatistics, userLoginStatistics,
+  userAgeStatistics, userInformStatistics, userInformTypeStatistics, userLoginStatistics, userOnlineTotalStatistics,
   userRegisterStatistics, userSexStatistics, userTotalStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
@@ -183,12 +183,23 @@ const handleScrollEnd = () => {
 }
 //用户总数
 const userTotalStatisticsData = ref(0)
+const userTotalStatisticsName = ref('用户总数')
 const getUserTotalStatistics = () => {
   userTotalStatistics().then(res => {
     userTotalStatisticsData.value = res.data
   })
 }
 getUserTotalStatistics()
+
+//用户在线总数
+const userOnlineStatisticsData = ref(0)
+const userOnlineStatisticsName = ref('用户在线总数')
+const getUserOnlineStatistics = () => {
+  userOnlineTotalStatistics().then(res => {
+    userOnlineStatisticsData.value = res.data
+  })
+}
+getUserOnlineStatistics()
 const getStatistics = () => {
   getUserRegisterStatistics()
   getUserLoginStatistics()

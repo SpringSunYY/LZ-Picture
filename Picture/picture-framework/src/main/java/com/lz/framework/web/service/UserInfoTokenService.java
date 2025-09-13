@@ -50,7 +50,7 @@ public class UserInfoTokenService {
 
     private static final Long MILLIS_MINUTE_TEN = 20 * 60 * 1000L;
 
-    protected static final String LOGIN_USER_KEY = "user:login:";
+    public static final String LOGIN_USER_KEY = "user:login:";
 
     /**
      * 令牌前缀

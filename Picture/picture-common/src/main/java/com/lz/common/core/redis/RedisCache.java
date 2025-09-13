@@ -346,4 +346,44 @@ public class RedisCache {
     public Set<ZSetOperations.TypedTuple<String>> zSetRangeWithScores(String key, int start, int end) {
         return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
     }
+
+    /**
+     * 获取匹配指定模式的key的数量
+     *
+     * @param pattern key模式，支持通配符(*)，如 "user:*"
+     * @return 匹配的key的数量
+     */
+    public long getPatternSize(String pattern) {
+        // 如果pattern不包含通配符，自动添加*
+        if (!pattern.contains("*") && !pattern.contains("?") && !pattern.contains("[")) {
+            pattern = pattern + "*";
+        }
+
+        long count = 0;
+        Cursor<String> cursor = null;
+        try {
+            ScanOptions options = ScanOptions.scanOptions()
+                    .match(pattern)
+                    .count(1000) // 每次迭代返回的元素数量
+                    .build();
+
+            cursor = redisTemplate.scan(options);
+            while (cursor.hasNext()) {
+                cursor.next();
+                count++;
+            }
+        } catch (Exception e) {
+            // 在实际项目中应该使用日志框架记录异常
+            System.err.println("Error scanning keys for pattern " + pattern + ": " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                try {
+                    cursor.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing cursor: " + e.getMessage());
+                }
+            }
+        }
+        return count;
+    }
 }
