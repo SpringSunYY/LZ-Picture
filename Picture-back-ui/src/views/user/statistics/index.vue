@@ -37,7 +37,7 @@
             </el-col>
 
             <el-col :span="12" class="dashboard-border">
-              <DashboardRotateTotalCharts/>
+              <DashboardRotateTotalCharts :total="userTotalStatisticsData" height="100%"  />
             </el-col>
           </el-row>
         </BorderBox7>
@@ -81,7 +81,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
   userAgeStatistics, userInformStatistics, userInformTypeStatistics, userLoginStatistics,
-  userRegisterStatistics, userSexStatistics
+  userRegisterStatistics, userSexStatistics, userTotalStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
 
@@ -181,6 +181,14 @@ const handleScrollEnd = () => {
     getUserInformStatistics()
   }
 }
+//用户总数
+const userTotalStatisticsData = ref(0)
+const getUserTotalStatistics = () => {
+  userTotalStatistics().then(res => {
+    userTotalStatisticsData.value = res.data
+  })
+}
+getUserTotalStatistics()
 const getStatistics = () => {
   getUserRegisterStatistics()
   getUserLoginStatistics()

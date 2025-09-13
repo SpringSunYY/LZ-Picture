@@ -95,3 +95,11 @@ export function userInformStatistics(query) {
         params: query
     })
 }
+
+//用户总数
+export function userTotalStatistics() {
+    return request({
+        url: '/user/uStatisticsInfo/user/total',
+        method: 'get'
+    })
+}

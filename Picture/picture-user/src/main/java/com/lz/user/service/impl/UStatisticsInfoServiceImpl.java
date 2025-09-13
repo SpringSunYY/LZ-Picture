@@ -851,6 +851,25 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             return userInformStatisticsVo;
         }).toList();
     }
+
+    @Override
+    @CustomCacheable(keyPrefix = USER_STATISTICS_COUNT, expireTime = USER_STATISTICS_COUNT_EXPIRE_TIME)
+    public Long userTotalStatistics() {
+        //统计默认今天，表示最新
+        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
+        UStatisticsInfo uStatisticsInfo = getUStatisticsInfoByCommonKey(USER_STATISTICS_COUNT, UStatisticsTypeEnum.STATISTICS_TYPE_8.getValue());
+        //如果有数据且就是今天的
+        if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
+            return JSONObject.parseObject(uStatisticsInfo.getContent(), Long.class);
+        }
+        long count = userInfoService.count();
+        //保存结果
+        UStatisticsInfo newUStatisticsInfo = getUStatisticsInfo(nowData, count,
+                UStatisticsTypeEnum.STATISTICS_TYPE_8.getValue(), USER_STATISTICS_COUNT_NAME, USER_STATISTICS_COUNT,
+                StringUtils.isNull(uStatisticsInfo) ? 1L : uStatisticsInfo.getStages() + 1);
+        uStatisticsInfoMapper.insertOrUpdate(newUStatisticsInfo);
+        return count;
+    }
     //endregion
 
 }
