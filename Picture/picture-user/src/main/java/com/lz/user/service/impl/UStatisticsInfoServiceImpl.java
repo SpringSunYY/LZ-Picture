@@ -701,12 +701,13 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //是否包含今天
         String today = DateUtils.dateTime(nowDate);
         boolean containsToday = dateRanges.contains(today);
+        Map<String, InformTemplateInfo> templateInfoMap = new HashMap<>();
         if (containsToday) {
             List<UserInformTypeStatisticsRo> userLoginStatistics = getInformTypeStatistics(today, today);
-            builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics);
+            builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics, templateInfoMap);
             //如果包含了且范围只有1，就表示统计今天
             if (dateRanges.size() == 1) {
-                builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics);
+                builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics, templateInfoMap);
                 barStatisticsVo.setNames(names);
                 barStatisticsVo.setTotals(totals);
                 return barStatisticsVo;
@@ -718,12 +719,12 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
         List<UStatisticsInfo> uStatisticsInfoList = getUStatisticsInfosByDateAndKeyType(startDate, end, UStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(), USER_STATISTICS_INFORM_DAY);
         //获取没有统计的日期
-        List<String> noStatisticsDate = getInformTypeNoStatisticsDate(dateRanges, uStatisticsInfoList, names, totals);
+        List<String> noStatisticsDate = getInformTypeNoStatisticsDate(dateRanges, uStatisticsInfoList, names, totals, templateInfoMap);
         if (StringUtils.isNotEmpty(noStatisticsDate)) {
             ArrayList<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
             for (String date : noStatisticsDate) {
                 List<UserInformTypeStatisticsRo> userRegisterStatistics = getInformTypeStatistics(date, date);
-                builderUserInformTypeRoNamesAndTotals(names, totals, userRegisterStatistics);
+                builderUserInformTypeRoNamesAndTotals(names, totals, userRegisterStatistics, templateInfoMap);
                 //统计数据
                 UStatisticsInfo uStatisticsInfo = getUStatisticsInfo(date, userRegisterStatistics, UStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(), USER_STATISTICS_INFORM_DAY_NAME, USER_STATISTICS_INFORM_DAY, 1L);
                 uStatisticsInfos.add(uStatisticsInfo);
@@ -746,7 +747,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
      * @param names               名称
      * @param totals              总数
      */
-    private List<String> getInformTypeNoStatisticsDate(List<String> dateRanges, List<UStatisticsInfo> uStatisticsInfoList, ArrayList<String> names, ArrayList<Long> totals) {
+    private List<String> getInformTypeNoStatisticsDate(List<String> dateRanges, List<UStatisticsInfo> uStatisticsInfoList, ArrayList<String> names, ArrayList<Long> totals, Map<String, InformTemplateInfo> templateInfoMap) {
         List<String> noStatisticsDate = new ArrayList<>(dateRanges);
         if (StringUtils.isNotEmpty(uStatisticsInfoList)) {
             //添加所有统计到的数据
@@ -754,7 +755,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 String dateToStr = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, uStatisticsInfo.getCreateTime());
                 String statisticsStr = uStatisticsInfo.getContent();
                 List<UserInformTypeStatisticsRo> statisticsRo = JSONArray.parseArray(statisticsStr, UserInformTypeStatisticsRo.class);
-                builderUserInformTypeRoNamesAndTotals(names, totals, statisticsRo);
+                builderUserInformTypeRoNamesAndTotals(names, totals, statisticsRo, templateInfoMap);
                 //如果没有统计，则添加
                 noStatisticsDate.remove(dateToStr);
             }
@@ -798,10 +799,16 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         });
     }
 
-    private void builderUserInformTypeRoNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, List<UserInformTypeStatisticsRo> statisticsRos) {
+    private void builderUserInformTypeRoNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, List<UserInformTypeStatisticsRo> statisticsRos, Map<String, InformTemplateInfo> templateInfoMap) {
         for (UserInformTypeStatisticsRo statisticsRo : statisticsRos) {
-            InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(statisticsRo.getTemplateKey(), statisticsRo.getLocale(), statisticsRo.getTemplateType());
-            names.add(informTemplateInfoByKeyLocaleType.getTemplateName());
+            String templateName;
+            if (templateInfoMap.containsKey(statisticsRo.getTemplateKey() + statisticsRo.getLocale() + statisticsRo.getTemplateType())) {
+                templateName = templateInfoMap.get(statisticsRo.getTemplateKey() + statisticsRo.getLocale() + statisticsRo.getTemplateType()).getTemplateName();
+            } else {
+                InformTemplateInfo informTemplateInfoByKeyLocaleType = informTemplateInfoService.getInformTemplateInfoByKeyLocaleType(statisticsRo.getTemplateKey(), statisticsRo.getLocale(), statisticsRo.getTemplateType());
+                templateName = informTemplateInfoByKeyLocaleType.getTemplateName();
+            }
+            names.add(templateName);
             totals.add(statisticsRo.getTotal());
         }
     }
