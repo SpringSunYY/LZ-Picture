@@ -62,10 +62,10 @@ public class UserGenerateTest {
         List<String> occupationList = List.of("Java开发工程师", "Python开发工程师", "C++开发工程师", "大学老师", "学生", "公务员", "运维工程师", "项目经理", "数据分析师", "测试工程师", "产品经理", "UI设计师", "UX设计师", "数据科学家", "软件架构师", "网络工程师", "硬件工程师", "软件测试师", "软件工程师", "软件开发工程师", "软件测试工程师", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监");
         for (int i = 0; i < 100; i++) {
             ArrayList<UserInfo> value = new ArrayList<>();
-            for (int j = 0; j < 2000; j++) {
+            for (int j = 0; j < 3000; j++) {
                 UserInfo userInfo = new UserInfo();
                 userInfo.setUserId(IdUtils.snowflakeId().toString());
-                String userName = "LZ-Picture_2_" + i + "_" + j;
+                String userName = "LZ-Picture_3_" + i + "_" + j;
                 userInfo.setUserName(userName);
                 userInfo.setPhone(RandomUtils.generateChinesePhoneNumber());
                 userInfo.setCountryCode("+86");
@@ -165,7 +165,7 @@ public class UserGenerateTest {
             ArrayList<InformInfo> informInfos = new ArrayList<>();
             for (UserInfo userInfo : userInfoList) {
                 Random random = new Random();
-                int i = random.nextInt(100);
+                int i = random.nextInt(10);
                 for (int j = 0; j < i; j++) {
                     InformInfo informInfo = new InformInfo();
                     informInfo.setRecordId(IdUtils.fastSimpleUUID());

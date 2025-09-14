@@ -129,15 +129,20 @@
         WHERE target_date &lt; DATE(#{endDate})
         )
         SELECT d.target_date AS name,
-        COUNT(u.user_id) AS total
+        COALESCE(u.total, 0) AS total
         FROM date_range d
-        LEFT JOIN u_user_info u
-        ON u.create_time >= d.target_date
-        AND u.create_time &lt; DATE_ADD(d.target_date, INTERVAL 1 DAY)
+        LEFT JOIN (
+        SELECT DATE(create_time) AS stat_date,
+        COUNT(user_id) AS total
+        FROM u_user_info
+        WHERE create_time >= #{startDate}
+        AND create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         <if test="isDelete != null and isDelete != ''">
-            AND u.is_delete = #{isDelete}
+            AND is_delete = #{isDelete}
         </if>
-        GROUP BY d.target_date
+        GROUP BY DATE(create_time)
+        ) u
+        ON d.target_date = u.stat_date
         ORDER BY d.target_date
     </select>
 
@@ -149,37 +154,41 @@
         FROM date_range
         WHERE target_date &lt; DATE(#{endDate})
         )
-        SELECT d.target_date as name,
-        COUNT(u.user_id) AS total
+        SELECT d.target_date AS name,
+        COALESCE(t.total, 0) AS total
         FROM date_range d
-        LEFT JOIN u_login_log_info u
-        ON u.login_time >= d.target_date
-        AND u.login_time &lt; DATE_ADD(d.target_date, INTERVAL 1 DAY)
+        LEFT JOIN (
+        SELECT DATE(login_time) AS stat_date,
+        COUNT(user_id) AS total
+        FROM u_login_log_info
+        WHERE login_time >= #{startDate}
+        AND login_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         <if test="userId != null and userId != ''">
-            AND u.user_id = #{userId}
+            AND user_id = #{userId}
         </if>
         <if test="userName != null and userName != ''">
-            AND u.user_name LIKE concat('%', #{userName}, '%')
+            AND user_name LIKE concat('%', #{userName}, '%')
         </if>
         <if test="loginType != null and loginType != ''">
-            AND u.login_type = #{loginType}
+            AND login_type = #{loginType}
         </if>
         <if test="loginLocation != null and loginLocation != ''">
-            AND u.login_location LIKE concat('%', #{loginLocation}, '%')
+            AND login_location LIKE concat('%', #{loginLocation}, '%')
         </if>
         <if test="browser != null and browser != ''">
-            AND u.browser LIKE concat('%', #{browser}, '%')
+            AND browser LIKE concat('%', #{browser}, '%')
         </if>
         <if test="os != null and os != ''">
-            AND u.os LIKE concat('%', #{os}, '%')
+            AND os LIKE concat('%', #{os}, '%')
         </if>
         <if test="platform != null and platform != ''">
-            AND u.platform LIKE concat('%', #{platform}, '%')
+            AND platform = #{platform}
         </if>
         <if test="status != null and status != ''">
-            AND u.status = #{status}
+            AND status = #{status}
         </if>
-        GROUP BY d.target_date
+        GROUP BY DATE(login_time)) t
+        ON d.target_date = t.stat_date
         ORDER BY d.target_date
     </select>
 
@@ -200,40 +209,28 @@
         UNION ALL
         SELECT DATE_ADD(stat_date, INTERVAL 1 DAY)
         FROM date_range
-        WHERE stat_date &lt; #{endDate}
-        )
+        WHERE stat_date &lt; #{endDate})
         SELECT
         d.stat_date AS sendTime,
         t.template_key AS templateKey,
         t.locale AS locale,
         t.template_type AS templateType,
-        COALESCE(SUM(i.count_per_day), 0) AS total
+        COALESCE(i.total, 0) AS total
         FROM date_range d
-        CROSS JOIN (
-        SELECT DISTINCT template_key, locale, template_type
-        FROM u_inform_info
-        ) t
+        CROSS JOIN ( SELECT template_key, locale, template_type FROM u_inform_info) t
         LEFT JOIN (
         SELECT
-        template_key,
-        locale,
-        template_type,
-        send_time,
-        COUNT(*) AS count_per_day
+        DATE(send_time) AS stat_date, template_key,locale, template_type, COUNT(*) AS total
         FROM u_inform_info
-        WHERE send_time >= CONCAT(#{startDate}, ' 00:00:00')
-        AND send_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+        WHERE send_time &gt;= #{startDate} AND send_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         <if test="isDelete != null and isDelete != ''">
             AND is_delete = #{isDelete}
         </if>
-        GROUP BY template_key, locale, template_type, send_time
-        ) i
-        ON i.template_key = t.template_key
+        GROUP BY DATE(send_time), template_key, locale, template_type) i
+        ON i.stat_date = d.stat_date
+        AND i.template_key = t.template_key
         AND i.locale = t.locale
         AND i.template_type = t.template_type
-        AND i.send_time >= d.stat_date
-        AND i.send_time &lt; d.stat_date + INTERVAL 1 DAY
-        GROUP BY d.stat_date, t.template_key, t.locale, t.template_type
         ORDER BY d.stat_date ASC, t.template_key, t.locale, t.template_type;
     </select>
 
