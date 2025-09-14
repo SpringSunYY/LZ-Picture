@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
+import {ref, onMounted, onBeforeUnmount, watch, nextTick, computed} from 'vue'
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons'
 
@@ -15,6 +15,7 @@ const props = defineProps({
   chartData: {
     type: Object,
     default: () => ({
+      //和datas的values一一对应
       indicators: [
         {text: '18以下'},
         {text: '19-30'},
@@ -25,10 +26,10 @@ const props = defineProps({
         {text: '未知'}
       ],
       datas: [
-        {name: '总人数', values: [160, 310, 410, 260, 185, 123, 52]},
-        {name: '男', values: [80, 150, 200, 120, 90, 60, 20]},
-        {name: '女', values: [70, 140, 180, 130, 90, 60, 30]},
-        {name: '未知', values: [10, 20, 30, 10, 5, 3, 2]}
+        {name: '总人数', values: [0, 310, 410, 260, 185, 123, 52]},
+        {name: '男', values: [0, 150, 200, 120, 90, 60, 20]},
+        {name: '女', values: [0, 140, 180, 130, 90, 60, 30]},
+        {name: '未知', values: [0, 20, 30, 10, 5, 3, 2]}
       ]
     })
   },
@@ -45,23 +46,49 @@ const props = defineProps({
   //默认颜色
   defaultColor: {
     type: Array,
-    default: () => ['#4A99FF', '#4BFFFC', '#FFB74A', '#816d85', '#FFFFFF']
+    default: () => ['#4A99FF', '#FFB74A', '#816d85', '#4BFFFC']
   }
 })
 
 const chart = ref<echarts.EChartsType | null>(null)
 const chartRef = ref<HTMLDivElement | null>(null)
 
+// 检查数组中所有值是否都为0
+const allValuesAreZero = (values: number[]): boolean => {
+  return values.every(v => Number(v) === 0);
+}
+
 // 构建 series
 const buildSeries = (indicators, data) => {
+  // 先过滤出有效的指标索引（至少有一个系列在该位置不为0）
+  const validIndicatorIndexes = []
+  indicators.forEach((indicator, index) => {
+    const hasValidData = data.some(series => Number(series.values[index]) !== 0)
+    if (hasValidData) {
+      validIndicatorIndexes.push(index)
+    }
+  })
+
+  // 如果没有有效指标，返回空数组
+  if (validIndicatorIndexes.length === 0) {
+    return []
+  }
+
+  // 基于有效指标索引，重新构建indicators和数据
+  const filteredIndicators = validIndicatorIndexes.map(index => ({...indicators[index]}))
+  const filteredData = data.map(series => ({
+    name: series.name,
+    values: validIndicatorIndexes.map(index => series.values[index])
+  }))
+
   // 计算最大值
-  // 查找所有数据绝对最大值
-  const totalData = data[props.defaultTotalIndex].values;
+  const totalData = filteredData[props.defaultTotalIndex].values;
   const absoluteMax = Math.max(...totalData);
   const total = totalData.reduce((sum, v) => Number(sum) + Number(v), 0)
-  //排除统计总数data，拿到其他data
-  const otherData = data.filter((_, index) => index !== props.defaultTotalIndex)
-  //确定好最大值。
+  // 排除统计总数data，拿到其他data
+  const otherData = filteredData.filter((_, index) => index !== props.defaultTotalIndex)
+
+  // 确定好最大值。
   let max;
   if (absoluteMax < 10) {
     max = Math.ceil(absoluteMax) + 1; // 添加一个小缓冲区
@@ -78,65 +105,82 @@ const buildSeries = (indicators, data) => {
     max = absoluteMax + Math.max(1, Math.ceil(absoluteMax * 0.01));
   }
 
-  //设置最大值
-  indicators.forEach(item => item.max = max);
+  // 设置最大值
+  filteredIndicators.forEach(item => item.max = max);
   const colorArr = props.defaultColor
   const series = []
 
   // 数据
-  const dataArr = data.map(item => {
+  const dataArr = filteredData.map(item => {
     return item.values
   })
-  const legendData = data.map(item => item.name)
+  const legendData = filteredData.map(item => item.name)
+
   dataArr.forEach((arr, idx) => {
-    series.push({
-      name: legendData[idx],
-      type: 'radar',
-      data: [arr],
-      lineStyle: {color: colorArr[idx]},
-      areaStyle: {color: colorArr[idx], opacity: idx === 0 ? 0.2 : 0.3},
-      itemStyle: {color: colorArr[idx]},
-      symbolSize: 6,
-      tooltip: {
-        trigger: 'item'
-      }
-    })
-  })
+    // 优化：如果当前 series 的所有值都为0，则不显示该 series
+    if (!allValuesAreZero(arr)) {
+      series.push({
+        name: legendData[idx],
+        type: 'radar',
+        data: [arr],
+        lineStyle: {color: colorArr[idx]},
+        areaStyle: {color: colorArr[idx], opacity: idx === 0 ? 0.2 : 0.3},
+        itemStyle: {color: colorArr[idx]},
+        symbolSize: 6,
+        tooltip: {
+          trigger: 'item'
+        }
+      });
+    }
+  });
+
   // 单点 tooltip 系列
   totalData.forEach((v, i) => {
-    dataArr.forEach((arr, seriesIdx) => {
-      series.push({
-        name: legendData[seriesIdx],
-        type: 'radar',
-        data: [arr.map((val, j) => j === i ? val : 0)],
-        lineStyle: {color: 'transparent'},
-        areaStyle: {color: 'transparent'},
-        symbolSize: 10,
-        itemStyle: {color: colorArr[seriesIdx]},
-        tooltip: {
-          show: true,
-          trigger: 'item',
-          formatter: () => {
-            const name = indicators[i].text
-            // console.log(name)
-            const currentTotal = totalData[i]
-            const currentPercent = currentTotal === 0 ? 0 : ((currentTotal / total) * 100).toFixed(2)
-            var text = ''
-            for (let j = 0; j < otherData.length; j++) {
-              text = text + `${otherData[j].name}: ${otherData[j].values[i]} (${(otherData[j].values[i] / currentTotal * 100).toFixed(2)}%)<br/>`
-            }
+    // 优化：如果当前 indicator 的所有 data 对应的值都为0，则不生成 tooltip 系列
+    const allSeriesForIndicatorAreZero = otherData.every(item => Number(item.values[i]) === 0);
+    if (!allSeriesForIndicatorAreZero && Number(totalData[i]) !== 0) {
+      dataArr.forEach((arr, seriesIdx) => {
+        // 优化：如果当前 series 在此 indicator 上的值为0，则不单独为这个点生成 tooltip 系列
+        if (arr[i] !== 0) {
+          series.push({
+            name: legendData[seriesIdx],
+            type: 'radar',
+            data: [arr.map((val, j) => j === i ? val : 0)],
+            lineStyle: {color: 'transparent'},
+            areaStyle: {color: 'transparent'},
+            symbolSize: 10,
+            itemStyle: {color: colorArr[seriesIdx]},
+            tooltip: {
+              show: true,
+              trigger: 'item',
+              formatter: () => {
+                const name = filteredIndicators[i].text
+                const currentTotal = totalData[i]
+                // 这里用原始total计算百分比，保持数据一致性
+                const originalTotal = data[props.defaultTotalIndex].values.reduce((sum, v) => Number(sum) + Number(v), 0)
+                const currentPercent = currentTotal === 0 ? 0 : ((currentTotal / originalTotal) * 100).toFixed(2)
+                var text = ''
+                for (let j = 0; j < otherData.length; j++) {
+                  // 优化：只显示非零的数据
+                  if (otherData[j].values[i] !== 0) {
+                    text = text + `${otherData[j].name}: ${otherData[j].values[i]} (${(otherData[j].values[i] / currentTotal * 100).toFixed(2)}%)<br/>`
+                  }
+                }
 
-            return `${name}${props.chartName}<br/>
-                    ${name}: ${currentTotal} (${currentPercent}%)<br/>
-                    ${text}
-                    总计: ${total}`
-          }
-        },
-        z: 10
+                return `${name}${props.chartName}<br/>
+                        ${name}: ${currentTotal} (${currentPercent}%)<br/>
+                        ${text}
+                        总计: ${originalTotal}`
+              }
+            },
+            z: 10
+          })
+        }
       })
-    })
+    }
   })
-  return series
+
+  return {series, indicators: filteredIndicators}
 }
 
 // 初始化图表
@@ -157,6 +201,9 @@ const initChart = () => {
     selectedMap[name] = !props.defaultHiddenIndex.includes(idx)
   })
 
+  // 构建过滤后的series和indicators
+  const buildResult = buildSeries(indicators, datas)
+
   const option = {
     title: {
       text: props.chartName,
@@ -167,12 +214,17 @@ const initChart = () => {
     tooltip: {
       trigger: 'item',
       formatter: (params: any) => {
+        // 这里的 tooltipFormatter 需要根据实际情况调整，因为它目前是针对 radar type 的通用formatter
+        // 如果需要更精细的控制，可以参考 buildSeries 中单点 tooltip 的 formatter
         const seriesName = params.seriesName; // 对应 legendData
         const value = params.value;           // 当前 series 的值数组
         let text = `${seriesName}<br/>`;
         value.forEach((v: number, i: number) => {
-          const name = indicators[i].text;
-          text += `${name}: ${v}<br/>`;
+          // 优化：只显示非零的数据
+          if (v !== 0 && buildResult.indicators && buildResult.indicators[i]) {
+            const name = buildResult.indicators[i].text;
+            text += `${name}: ${v}<br/>`;
+          }
         });
         return text;
       }
@@ -191,7 +243,7 @@ const initChart = () => {
     },
     radar: {
       name: {textStyle: {color: '#ffffff', fontSize: 16}},
-      indicator: indicators,
+      indicator: buildResult.indicators || [],
       splitArea: {
         show: true,
         areaStyle: {color: ['rgba(255,255,255,0)', 'rgba(255,255,255,0)']}
@@ -201,7 +253,7 @@ const initChart = () => {
       center: ['40%', '50%'],
       radius: '70%'
     },
-    series: buildSeries(indicators, datas)
+    series: buildResult.series || []
   }
 
   chart.value.setOption(option, true)
@@ -217,6 +269,7 @@ const observeResize = () => {
   })
   resizeObserver.observe(chartRef.value)
 }
+
 onMounted(() => {
   nextTick(() => {
     initChart()
@@ -228,6 +281,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   chart.value?.dispose()
   window.removeEventListener('resize', handleResize)
+  if (resizeObserver && chartRef.value) {
+    resizeObserver.unobserve(chartRef.value);
+  }
 })
 
 watch(() => props.chartData, () => initChart(), {deep: true})

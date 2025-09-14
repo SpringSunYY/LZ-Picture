@@ -47,6 +47,7 @@
         <BorderBox4 :reverse="true" :color="border4Color" class="default-border">
           <!--年龄分布-->
           <RadarCharts :chart-data="userAgeStatisticsData" :chart-name="userAgeStatisticsName"/>
+<!--          <RadarCharts />-->
         </BorderBox4>
         <BorderBox8 class="default-border">
           <!--性别分布-->
@@ -186,7 +187,7 @@ const userTotalStatisticsData = ref(0)
 const userTotalStatisticsName = ref('用户总数')
 const getUserTotalStatistics = () => {
   userTotalStatistics().then(res => {
-    userTotalStatisticsData.value = res.data
+    userTotalStatisticsData.value = Number(res.data)
   })
 }
 getUserTotalStatistics()
@@ -196,7 +197,7 @@ const userOnlineStatisticsData = ref(0)
 const userOnlineStatisticsName = ref('用户在线总数')
 const getUserOnlineStatistics = () => {
   userOnlineTotalStatistics().then(res => {
-    userOnlineStatisticsData.value = res.data
+    userOnlineStatisticsData.value = Number(res.data)
   })
 }
 getUserOnlineStatistics()
