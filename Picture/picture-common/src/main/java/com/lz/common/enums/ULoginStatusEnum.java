@@ -10,14 +10,14 @@ import java.util.Optional;
  * 登录状态 枚举
  */
 @Getter
-public enum ULoginStatus {
+public enum ULoginStatusEnum {
     LOGIN_STATUS_0("0", "成功"),
     LOGIN_STATUS_1("1", "失败");
 
-    private static final Map<String, ULoginStatus> VALUE_TO_ENUM = new HashMap<>();
+    private static final Map<String, ULoginStatusEnum> VALUE_TO_ENUM = new HashMap<>();
 
     static {
-        for (ULoginStatus item : values()) {
+        for (ULoginStatusEnum item : values()) {
             VALUE_TO_ENUM.put(item.value, item);
         }
     }
@@ -25,7 +25,7 @@ public enum ULoginStatus {
     private final String value;
     private final String label;
 
-    ULoginStatus(String value, String label) {
+    ULoginStatusEnum(String value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -36,7 +36,7 @@ public enum ULoginStatus {
      * @param value 枚举的值
      * @return 对应的枚举对象，如果没有找到则返回 Optional.empty()
      */
-    public static Optional<ULoginStatus> getEnumByValue(String value) {
+    public static Optional<ULoginStatusEnum> getEnumByValue(String value) {
         if (value == null || value.isEmpty()) {
             return Optional.empty();
         }

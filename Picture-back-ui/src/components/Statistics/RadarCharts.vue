@@ -46,7 +46,7 @@ const props = defineProps({
   //默认颜色
   defaultColor: {
     type: Array,
-    default: () => ['#4A99FF', '#FFB74A', '#816d85', '#4BFFFC']
+    default: () => ['#4A99FF', '#816d85', '#FFB74A', '#4BFFFC']
   }
 })
 

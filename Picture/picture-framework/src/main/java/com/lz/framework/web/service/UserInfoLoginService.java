@@ -8,8 +8,8 @@ import com.lz.common.constant.redis.UserRedisConstants;
 import com.lz.common.core.domain.model.AuthUserInfo;
 import com.lz.common.core.domain.model.LoginUserInfo;
 import com.lz.common.core.redis.RedisCache;
-import com.lz.common.enums.ULoginStatus;
-import com.lz.common.enums.ULoginType;
+import com.lz.common.enums.ULoginStatusEnum;
+import com.lz.common.enums.ULoginTypeEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.exception.user.CaptchaException;
 import com.lz.common.exception.user.CaptchaExpireException;
@@ -117,7 +117,7 @@ public class UserInfoLoginService {
 //        }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
-        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(username, authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_0.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(), "登录成功"));
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(username, authUserInfo.getUserId(), ULoginTypeEnum.LOGIN_TYPE_0.getValue(), ULoginStatusEnum.LOGIN_STATUS_0.getValue(), "登录成功"));
         // 生成token
         return userTokenService.createToken(loginUserInfo);
     }
@@ -224,7 +224,7 @@ public class UserInfoLoginService {
         }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
-        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_1.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(), "登录成功"));
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginTypeEnum.LOGIN_TYPE_1.getValue(), ULoginStatusEnum.LOGIN_STATUS_0.getValue(), "登录成功"));
         // 生成token
         return userTokenService.createToken(loginUserInfo);
     }
@@ -307,7 +307,7 @@ public class UserInfoLoginService {
         }
         Set<String> userPermission = authUserInfoService.getUserPermission(authUserInfo);
         LoginUserInfo loginUserInfo = new LoginUserInfo(authUserInfo.getUserId(), authUserInfo, userPermission);
-        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginType.LOGIN_TYPE_0.getValue(), ULoginStatus.LOGIN_STATUS_0.getValue(), "登录成功"));
+        AsyncManager.me().execute(UserInfoLoginAsyncFactory.userInfoLogin(authUserInfo.getUserName(), authUserInfo.getUserId(), ULoginTypeEnum.LOGIN_TYPE_0.getValue(), ULoginStatusEnum.LOGIN_STATUS_0.getValue(), "登录成功"));
         // 生成token
         return userTokenService.createToken(loginUserInfo);
     }

@@ -2,7 +2,7 @@ package com.lz.framework.web.service;
 
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.core.domain.model.LoginUser;
-import com.lz.common.enums.UserStatus;
+import com.lz.common.enums.UserStatusEnum;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.MessageUtils;
 import com.lz.common.utils.StringUtils;
@@ -44,12 +44,12 @@ public class UserDetailsServiceImpl implements UserDetailsService
             log.info("登录用户：{} 不存在.", username);
             throw new ServiceException(MessageUtils.message("user.not.exists"));
         }
-        else if (UserStatus.DELETED.getCode().equals(user.getDelFlag()))
+        else if (UserStatusEnum.DELETED.getCode().equals(user.getDelFlag()))
         {
             log.info("登录用户：{} 已被删除.", username);
             throw new ServiceException(MessageUtils.message("user.password.delete"));
         }
-        else if (UserStatus.DISABLE.getCode().equals(user.getStatus()))
+        else if (UserStatusEnum.DISABLE.getCode().equals(user.getStatus()))
         {
             log.info("登录用户：{} 已被停用.", username);
             throw new ServiceException(MessageUtils.message("user.blocked"));

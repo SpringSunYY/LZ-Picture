@@ -35,7 +35,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="登录IP地址" prop="ipaddr">
+      <el-form-item label="IP地址" prop="ipaddr">
         <el-input
             v-model="queryParams.ipaddr"
             placeholder="请输入登录IP地址"
@@ -51,7 +51,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="浏览器类型" prop="browser">
+      <el-form-item label="浏览器" prop="browser">
         <el-input
             v-model="queryParams.browser"
             placeholder="请输入浏览器类型"
