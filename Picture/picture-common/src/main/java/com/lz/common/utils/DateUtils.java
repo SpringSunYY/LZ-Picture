@@ -356,6 +356,23 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return null;
     }
 
+    /**
+     * 根据指定时间获取年龄
+     *
+     * @param nowDate  当前时间
+     * @param birthday 出生日期
+     * @return
+     */
+    public static Integer getAgeByData(Date nowDate, Date birthday) {
+        if (StringUtils.isNull(birthday) || StringUtils.isNull(nowDate)) {
+            return null;
+        }
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDate nowLocalDate = nowDate.toInstant().atZone(zone).toLocalDate();
+        LocalDate birthdayLocalDate = birthday.toInstant().atZone(zone).toLocalDate();
+        return Period.between(birthdayLocalDate, nowLocalDate).getYears();
+    }
+
     public static void main(String[] args) {
         Date date = new Date();
         System.out.println(getYearDay(date, 1, 1, "yyyy-MM-dd"));
@@ -374,22 +391,5 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         for (String dateRange : dateRanges) {
             System.out.println(dateRange);
         }
-    }
-
-    /**
-     * 根据指定时间获取年龄
-     *
-     * @param nowDate  当前时间
-     * @param birthday 出生日期
-     * @return
-     */
-    public static Integer getAgeByData(Date nowDate, Date birthday) {
-        if (StringUtils.isNull(birthday) || StringUtils.isNull(nowDate)) {
-            return null;
-        }
-        ZoneId zone = ZoneId.systemDefault();
-        LocalDate nowLocalDate = nowDate.toInstant().atZone(zone).toLocalDate();
-        LocalDate birthdayLocalDate = birthday.toInstant().atZone(zone).toLocalDate();
-        return Period.between(birthdayLocalDate, nowLocalDate).getYears();
     }
 }
