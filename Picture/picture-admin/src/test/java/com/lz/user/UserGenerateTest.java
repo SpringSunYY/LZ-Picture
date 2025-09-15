@@ -162,10 +162,10 @@ public class UserGenerateTest {
                 .last("limit 10000"));
         List<InformTemplateInfo> informTemplateInfos = informTemplateInfoService.list(new LambdaQueryWrapper<InformTemplateInfo>());
         HashMap<String, List<InformInfo>> informMap = new HashMap<>();
-        Long size=0L;
+        Long size = 0L;
         for (UserInfo userInfo : userInfoList) {
+            ArrayList<InformInfo> informInfos = new ArrayList<>();
             for (InformTemplateInfo informTemplateInfo : informTemplateInfos) {
-                ArrayList<InformInfo> informInfos = new ArrayList<>();
                 if (StringUtils.isEmpty(informTemplateInfo.getInformTitle())) {
                     continue;
                 }
@@ -189,8 +189,8 @@ public class UserGenerateTest {
                     informInfos.add(informInfo);
                     size++;
                 }
-                informMap.put(userInfo.getUserId(), informInfos);
             }
+            informMap.put(userInfo.getUserId(), informInfos);
         }
         System.out.println("size = " + size);
         int index = 0;
@@ -220,11 +220,11 @@ public class UserGenerateTest {
             System.err.println("i = " + i);
             for (int j = 0; j < 10000; j++) {
 //                System.out.println("j = " + j);
-                if (i % 2 == 0){
+                if (i % 2 == 0) {
                     result = i * j;
-                }else if (i % 3 == 0){
+                } else if (i % 3 == 0) {
                     result = i - j;
-                }else {
+                } else {
                     result = i + j;
                 }
             }

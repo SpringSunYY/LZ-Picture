@@ -210,8 +210,8 @@
         template_type AS templateType,
         COUNT(*) AS total
         FROM u_inform_info
-        WHERE send_time >= ${startDate}
-        AND send_time &lt; DATE_ADD(${endDate} , INTERVAL 1 DAY)
+        WHERE send_time >= #{startDate}
+        AND send_time &lt; DATE_ADD(#{endDate} , INTERVAL 1 DAY)
         <if test="isDelete != null and isDelete != ''">
             AND is_delete = #{isDelete}
         </if>

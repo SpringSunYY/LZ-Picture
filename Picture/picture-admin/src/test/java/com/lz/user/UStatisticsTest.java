@@ -7,6 +7,7 @@ import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.common.utils.DateUtils;
 import com.lz.user.mapper.UStatisticsInfoMapper;
+import com.lz.user.model.dto.statistics.UserInformTypeStatisticsRo;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.service.IUStatisticsInfoService;
 import jakarta.annotation.Resource;
@@ -69,5 +70,15 @@ public class UStatisticsTest {
     public void testUserLocationStatistics() {
         List<MapStatisticsVo> mapStatisticsVos = uStatisticsInfoService.userLocationStatistics(null);
         mapStatisticsVos.forEach(System.out::println);
+    }
+
+    @Test
+    public void testUserInformStatistics() {
+        UserStatisticsRequest request = new UserStatisticsRequest();
+        request.setStartDate("2025-09-01");
+        request.setEndDate("2025-09-10");
+        request.setIsDelete("0");
+        List<UserInformTypeStatisticsRo> userInformTypeStatisticsRos = uStatisticsInfoMapper.userInformTypeStatistics(request);
+        System.out.println("statisticsRos = " + userInformTypeStatisticsRos);
     }
 }
