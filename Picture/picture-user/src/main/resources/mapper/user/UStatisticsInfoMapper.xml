@@ -204,34 +204,32 @@
         ORDER BY name;
     </select>
     <select id="userInformTypeStatistics" resultType="com.lz.user.model.dto.statistics.UserInformTypeStatisticsRo">
-        WITH RECURSIVE date_range AS (
-        SELECT #{startDate} AS stat_date
-        UNION ALL
-        SELECT DATE_ADD(stat_date, INTERVAL 1 DAY)
-        FROM date_range
-        WHERE stat_date &lt; #{endDate})
-        SELECT
-        d.stat_date AS sendTime,
-        t.template_key AS templateKey,
-        t.locale AS locale,
-        t.template_type AS templateType,
-        COALESCE(i.total, 0) AS total
-        FROM date_range d
-        CROSS JOIN ( SELECT template_key, locale, template_type FROM u_inform_info) t
-        LEFT JOIN (
-        SELECT
-        DATE(send_time) AS stat_date, template_key,locale, template_type, COUNT(*) AS total
+        SELECT DATE(send_time) AS sendTime,
+        template_key AS templateKey,
+        locale AS locale,
+        template_type AS templateType,
+        COUNT(*) AS total
         FROM u_inform_info
-        WHERE send_time &gt;= #{startDate} AND send_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+        WHERE send_time >= ${startDate}
+        AND send_time &lt; DATE_ADD(${endDate} , INTERVAL 1 DAY)
         <if test="isDelete != null and isDelete != ''">
             AND is_delete = #{isDelete}
         </if>
-        GROUP BY DATE(send_time), template_key, locale, template_type) i
-        ON i.stat_date = d.stat_date
-        AND i.template_key = t.template_key
-        AND i.locale = t.locale
-        AND i.template_type = t.template_type
-        ORDER BY d.stat_date ASC, t.template_key, t.locale, t.template_type;
+        GROUP BY sendTime, templateKey, locale, templateType
+        ORDER BY sendTime, templateKey, locale, templateType;
+    </select>
+    <select id="userLocationStatistics" resultType="com.lz.common.core.domain.statistics.ro.MapStatisticsRo">
+        select ip_address as location, count(*) as total
+        from u_user_info
+        <where>
+            <if test="location != null and location != ''">
+                and ip_address like concat('%', #{location}, '%')
+            </if>
+            <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
+            <if test="startDate != null and startDate != ''">and create_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
+        </where>
+        group by location;
     </select>
 
 </mapper>

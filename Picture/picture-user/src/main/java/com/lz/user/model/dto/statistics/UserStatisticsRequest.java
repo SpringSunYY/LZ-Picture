@@ -27,4 +27,6 @@ public class UserStatisticsRequest implements Serializable {
      * 删除标记（0=未删除 1=已删除）
      */
     private String isDelete;
+
+    private String location;
 }

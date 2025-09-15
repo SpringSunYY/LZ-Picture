@@ -130,6 +130,7 @@ public class UStatisticsInfoController extends BaseController {
 
     /**
      * 用户消息发送统计
+     *
      * @return
      */
     @PreAuthorize("@ss.hasPermi('user:statistics')")
@@ -152,6 +153,7 @@ public class UStatisticsInfoController extends BaseController {
 
     /**
      * 用户消息发送统计
+     *
      * @return
      */
     @PreAuthorize("@ss.hasPermi('user:statistics')")
@@ -176,5 +178,14 @@ public class UStatisticsInfoController extends BaseController {
     @GetMapping("/user/online/total")
     public AjaxResult userOnlineTotalStatistics() {
         return success(uStatisticsInfoService.userOnlineTotalStatistics());
+    }
+
+    /**
+     * 用户分布
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/location")
+    public AjaxResult userLocationStatistics(String location) {
+        return success(uStatisticsInfoService.userLocationStatistics(location));
     }
 }

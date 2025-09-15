@@ -7,6 +7,7 @@ import com.lz.common.enums.ULoginStatusEnum;
 import com.lz.common.enums.ULoginTypeEnum;
 import com.lz.common.enums.UUserStatusEnum;
 import com.lz.common.utils.RandomUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.service.IInformTemplateInfoService;
@@ -161,9 +162,13 @@ public class UserGenerateTest {
                 .last("limit 10000"));
         List<InformTemplateInfo> informTemplateInfos = informTemplateInfoService.list(new LambdaQueryWrapper<InformTemplateInfo>());
         HashMap<String, List<InformInfo>> informMap = new HashMap<>();
-        for (InformTemplateInfo informTemplateInfo : informTemplateInfos) {
-            ArrayList<InformInfo> informInfos = new ArrayList<>();
-            for (UserInfo userInfo : userInfoList) {
+        Long size=0L;
+        for (UserInfo userInfo : userInfoList) {
+            for (InformTemplateInfo informTemplateInfo : informTemplateInfos) {
+                ArrayList<InformInfo> informInfos = new ArrayList<>();
+                if (StringUtils.isEmpty(informTemplateInfo.getInformTitle())) {
+                    continue;
+                }
                 Random random = new Random();
                 int i = random.nextInt(10);
                 for (int j = 0; j < i; j++) {
@@ -182,10 +187,12 @@ public class UserGenerateTest {
                     informInfo.setSendTime(RandomUtils.generateDate(2025, 2025));
                     informInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
                     informInfos.add(informInfo);
+                    size++;
                 }
+                informMap.put(userInfo.getUserId(), informInfos);
             }
-            informMap.put(informTemplateInfo.getTemplateId().toString(), informInfos);
         }
+        System.out.println("size = " + size);
         int index = 0;
         List<Future<Boolean>> futures = new ArrayList<>();
         for (String id : informMap.keySet()) {

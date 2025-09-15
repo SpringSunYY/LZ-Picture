@@ -2,10 +2,7 @@ package com.lz.user.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.*;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.dto.statistics.UserInformStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
@@ -197,4 +194,15 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @date: 2025/9/13 19:14
      **/
     Long userOnlineTotalStatistics();
+
+    /**
+     * 用户地理位置统计
+     *
+     * @param location 地址
+     * @return List<MapStatisticsVo>
+     * @author: YY
+     * @method: userLocationStatistics
+     * @date: 2025/9/13 19:17
+     **/
+    List<MapStatisticsVo> userLocationStatistics(String location);
 }

@@ -111,3 +111,12 @@ export function userOnlineTotalStatistics() {
         method: 'get'
     })
 }
+
+//用户分布
+export function userLocationStatistics(params) {
+    return request({
+        url: '/user/uStatisticsInfo/user/location',
+        method: 'get',
+        params: params
+    })
+}

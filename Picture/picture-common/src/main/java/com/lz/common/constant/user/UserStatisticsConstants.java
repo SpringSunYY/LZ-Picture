@@ -77,4 +77,11 @@ public class UserStatisticsConstants {
     public static final String USER_STATISTICS_ONLINE_COUNT = "user:statistics:online:count";
     public static final String USER_STATISTICS_ONLINE_COUNT_NAME = "用户在线总数-每日";
     public static final int USER_STATISTICS_ONLINE_COUNT_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户地理位置
+     */
+    public static final String USER_STATISTICS_LOCATION = "user:statistics:location";
+    public static final String USER_STATISTICS_LOCATION_NAME = "用户地理位置-每日";
+    public static final int USER_STATISTICS_LOCATION_EXPIRE_TIME = 60 * 5;
 }

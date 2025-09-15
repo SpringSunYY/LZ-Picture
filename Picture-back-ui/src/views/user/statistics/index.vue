@@ -27,17 +27,20 @@
         </div>
 
         <div class="map-border">
-          <MapCharts height="100%"/>
+          <MapCharts :chart-name="userMapStatisticsName" :chart-data="userMapStatisticsData"
+                     @getData="getMapStatisticsData" height="100%"/>
         </div>
         <BorderBox7 class="dashboard-border">
           <!--用户信息-->
           <el-row>
             <el-col :span="12" class="dashboard-border">
-              <DashboardRotateProportionCharts :chart-name="userOnlineStatisticsName" :total="userTotalStatisticsData" height="100%" :count="userOnlineStatisticsData"/>
+              <DashboardRotateProportionCharts :chart-name="userOnlineStatisticsName" :total="userTotalStatisticsData"
+                                               height="100%" :count="userOnlineStatisticsData"/>
             </el-col>
 
             <el-col :span="12" class="dashboard-border">
-              <DashboardRotateTotalCharts :chart-name="userTotalStatisticsName" :total="userTotalStatisticsData" height="100%"  />
+              <DashboardRotateTotalCharts :chart-name="userTotalStatisticsName" :total="userTotalStatisticsData"
+                                          height="100%"/>
             </el-col>
           </el-row>
         </BorderBox7>
@@ -47,7 +50,7 @@
         <BorderBox4 :reverse="true" :color="border4Color" class="default-border">
           <!--年龄分布-->
           <RadarCharts :chart-data="userAgeStatisticsData" :chart-name="userAgeStatisticsName"/>
-<!--          <RadarCharts />-->
+          <!--          <RadarCharts />-->
         </BorderBox4>
         <BorderBox8 class="default-border">
           <!--性别分布-->
@@ -81,8 +84,15 @@ import DashboardRotateTotalCharts from "@/components/Statistics/DashboardRotateT
 import DateRangePicker from "@/components/Statistics/DateRangePicker";
 import {ref} from "vue"
 import {
-  userAgeStatistics, userInformStatistics, userInformTypeStatistics, userLoginStatistics, userOnlineTotalStatistics,
-  userRegisterStatistics, userSexStatistics, userTotalStatistics
+  userAgeStatistics,
+  userInformStatistics,
+  userInformTypeStatistics,
+  userLocationStatistics,
+  userLoginStatistics,
+  userOnlineTotalStatistics,
+  userRegisterStatistics,
+  userSexStatistics,
+  userTotalStatistics
 } from "@/api/user/uStatisticsInfo";
 import dayjs from "dayjs";
 
@@ -201,6 +211,20 @@ const getUserOnlineStatistics = () => {
   })
 }
 getUserOnlineStatistics()
+
+const userMapStatisticsData = ref([])
+const userMapStatisticsName = ref('用户分布')
+//地图
+const getMapStatisticsData = async (current) => {
+  console.log('getMapData', current)
+  userMapStatisticsData.value = []
+  const locationResult = await userLocationStatistics({location: current?.name || ''})
+  userMapStatisticsData.value.push({
+    name: '用户人数',
+    value: locationResult.data
+  })
+}
+getMapStatisticsData()
 const getStatistics = () => {
   getUserRegisterStatistics()
   getUserLoginStatistics()

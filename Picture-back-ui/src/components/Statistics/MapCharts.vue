@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import {getGeoJson} from '@/api/file.js';
 
@@ -17,7 +17,27 @@ const props = defineProps({
   initCountry: {type: String, default: 'china'},
   initName: {type: String, default: '中华人民共和国'},
   chartName: {type: String, default: '用户分布'},
-});
+  // 图表数据，根据每个name 生成一个数据项，比如用户人数，就是一个数据项，显示某个项的图表数据
+  //比如这里默认就是用户人数和用户登录数，里面的每一项的的location对应地图fullname，value是对应的值
+  chartData: {
+    type: Array,
+    default: () => [
+      {name: "用户人数", value: [{location: "广东省", value: 1000}]},
+      {name: "用户登录数", value: [{location: "广东省", value: 1000}]},
+    ]
+  },
+  //默认索引,用于判断chartData的哪个是默认的数据的索引，比如"用户总数"，
+  //那么柱形图上的数据，还有地图默认判断颜色的数据就是这个索引的数据
+  defaultIndexName: {
+    type: String,
+    default: "用户人数"
+  },
+  //需要返回的层级，比如province，那么地图进入到省级地图后提示父组件要执行方法，
+  returnLevel: {
+    type: Array,
+    default: ['province', 'china']
+  },
+})
 
 const chart = ref(null);
 const chartRef = ref(null);
@@ -28,12 +48,34 @@ const parentInfo = ref([]); // 下钻历史：[{name, level}]
 const isChartReady = ref(false); // 图表是否完全初始化标志
 const resizeTimer = ref(null); // 防抖定时器
 const isRendering = ref(false); // 渲染状态标志
+const emits = defineEmits(['getData']);
+
+// 计算默认数据项的索引
+const defaultDataIndex = computed(() => {
+  const index = props.chartData.findIndex(item => item.name === props.defaultIndexName);
+  return index >= 0 ? index : 0;
+});
+
+// 获取默认数据项
+const defaultDataItem = computed(() => {
+  return props.chartData[defaultDataIndex.value] || props.chartData[0] || {name: '', value: []};
+});
+
+// 计算所有数据项的总计
+const dataSummary = computed(() => {
+  const summary = {};
+  if (!props.chartData) return
+  props.chartData.forEach(dataItem => {
+    summary[dataItem.name] = dataItem.value.reduce((sum, item) => Number(sum) + (Number(item.value) || 0), 0);
+  });
+  return summary;
+});
 
 /**
  * 层级推断逻辑（基于当前地图整体层级，而非单个区域层级）
  */
 const formateLevel = (currentLevel) => {
-  console.log('当前地图层级:', currentLevel);
+  // console.log('当前地图层级:', currentLevel);
   switch (currentLevel) {
     case props.initCountry: // 国家（如 china）
       return 'province'; // 下一级：省份
@@ -62,11 +104,28 @@ const initializeParentInfo = () => {
   } else {
     parentInfo.value = [{name: props.initName, level: 'province'}];
   }
-  console.log('初始化下钻历史:', parentInfo.value);
 };
 
 /**
- * 生成地图/散点数据（修复：空数据场景返回空数组）
+ * 根据地区名称获取各项数据值
+ */
+function getDataValuesByLocation(locationName) {
+  const result = {};
+
+  props.chartData.forEach(dataItem => {
+    const locationData = dataItem.value.find(item =>
+        item.location === locationName ||
+        item.location.includes(locationName) ||
+        locationName.includes(item.location)
+    );
+    result[dataItem.name] = locationData ? locationData.value : 0; // 如果没有匹配数据，设为0
+  });
+
+  return result;
+}
+
+/**
+ * 生成地图/散点数据（使用props.chartData动态生成）
  */
 function getMapData() {
   if (geoJsonFeatures.value.length === 0) {
@@ -75,18 +134,34 @@ function getMapData() {
 
   const tmp = geoJsonFeatures.value.map(feature => {
     const {name, fullname, adcode, level, center} = feature.properties || {};
-    const value = Math.round(Math.random() * 5000) + 200;
-    const login = Math.round(value * (0.5 + Math.random() * 0.4));
-    return {name, fullname, cityCode: adcode, level, center, value, login};
-  }).sort((a, b) => a.value - b.value); // 升序排序
+
+    // 获取该地区的所有数据项值
+    const dataValues = getDataValuesByLocation(fullname || name);
+
+    // 获取默认数据项的值作为主要值
+    const mainValue = dataValues[defaultDataItem.value.name] || 0;
+
+    return {
+      name,
+      fullname,
+      cityCode: adcode,
+      level,
+      center,
+      value: mainValue,
+      ...dataValues // 包含所有数据项的值
+    };
+  }).sort((a, b) => a.value - b.value); // 按主要值升序排序
 
   const mapData = tmp.map(item => ({
     name: item.name,
     value: item.value,
-    login: item.login,
     level: item.level,
     cityCode: item.cityCode,
-    fullname: item.fullname
+    fullname: item.fullname,
+    ...Object.keys(dataSummary.value).reduce((acc, key) => {
+      acc[key] = item[key] || 0;
+      return acc;
+    }, {})
   }));
 
   const pointData = tmp.map(item => ({
@@ -97,14 +172,95 @@ function getMapData() {
       item.value
     ],
     cityCode: item.cityCode,
-    fullname: item.fullname
+    fullname: item.fullname,
+    ...Object.keys(dataSummary.value).reduce((acc, key) => {
+      acc[key] = item[key] || 0;
+      return acc;
+    }, {})
   }));
 
   return {mapData, pointData};
 }
 
 /**
- * 渲染地图 - 完全重写，分离坐标系避免冲突
+ * 生成动态的tooltip格式化器
+ */
+function generateTooltipFormatter() {
+  return (params) => {
+    if (!params?.data) return '';
+    const d = params.data;
+
+    let content = `<div style="text-align:left">
+      ${d.fullname || d.name}<br/>`;
+
+    // 动态添加各个数据项
+    props.chartData.forEach(dataItem => {
+      const value = d[dataItem.name] || 0;
+      content += `${dataItem.name}：${value} 人<br/>`;
+    });
+
+    content += `<hr style="border:0;border-top:1px solid #666;margin:4px 0"/>`;
+
+    // 添加总计信息
+    Object.entries(dataSummary.value).forEach(([name, total]) => {
+      content += `总${name}：${total} 人<br/>`;
+    });
+
+    content += `</div>`;
+    return content;
+  };
+}
+
+/**
+ * 生成动态的统计信息图形元素
+ */
+function generateGraphicElements() {
+  const summaryEntries = Object.entries(dataSummary.value);
+  if (summaryEntries.length === 0) return [];
+
+  // 计算需要的高度
+  const lineHeight = 20;
+  const padding = 10;
+  const totalHeight = summaryEntries.length * lineHeight + padding * 2;
+
+  // 生成文本内容
+  const textContent = summaryEntries.map(([name, total]) => `总${name}：${total} 人`).join('\n');
+
+  return [
+    {
+      type: 'group',
+      right: 20,
+      bottom: 30,
+      children: [
+        {
+          type: 'rect',
+          shape: {width: 200, height: totalHeight, r: 8},
+          style: {
+            fill: 'rgba(0,0,0,0.01)',
+            stroke: '#00cfff',
+            lineWidth: 1,
+            shadowBlur: 8,
+            shadowColor: 'rgba(0,0,0,0.25)'
+          }
+        },
+        {
+          type: 'text',
+          style: {
+            text: textContent,
+            x: padding,
+            y: padding,
+            fill: '#fff',
+            font: '14px Microsoft YaHei',
+            lineHeight: lineHeight
+          }
+        }
+      ]
+    }
+  ];
+}
+
+/**
+ * 渲染地图 - 使用动态数据
  */
 function renderMap() {
   if (!chart.value || isRendering.value) return;
@@ -121,9 +277,6 @@ function renderMap() {
   const values = mapData.map(d => d.value);
   const min = values.length ? Math.min(...values) : 0;
   const max = values.length ? Math.max(...values) : 10000;
-  //计算总数
-  const totalUsers = mapData.reduce((sum, d) => sum + (d.value || 0), 0);
-  const totalLogins = mapData.reduce((sum, d) => sum + (d.login || 0), 0);
 
   // 处理 visualMap 极值相同的情况
   let visualMapMin = min;
@@ -137,10 +290,13 @@ function renderMap() {
   const barSeriesData = mapData.map(d => ({
     name: d.name,
     value: d.value,
-    login: d.login,
     cityCode: d.cityCode,
     level: d.level,
-    fullname: d.fullname
+    fullname: d.fullname,
+    ...Object.keys(dataSummary.value).reduce((acc, key) => {
+      acc[key] = d[key] || 0;
+      return acc;
+    }, {})
   }));
 
   // 关键修复：完全重构配置，避免坐标系冲突
@@ -155,54 +311,13 @@ function renderMap() {
     }],
     tooltip: {
       trigger: 'item',
-      formatter: (params) => {
-        if (!params?.data) return '';
-        const d = params.data;
-        return `<div style="text-align:left">
-            ${d.fullname || d.name}<br/>
-            用户人数：${d.value || 0} 人<br/>
-            登录人数：${d.login || 0} 人<br/>
-            <hr style="border:0;border-top:1px solid #666;margin:4px 0"/>
-            总用户数：${totalUsers} 人<br/>
-            总登录数：${totalLogins} 人
-          </div>`;
-      },
+      formatter: generateTooltipFormatter(),
       backgroundColor: 'rgba(60, 60, 60, 0.7)',
       borderColor: '#333',
       borderWidth: 1,
       textStyle: {color: '#fff'}
     },
-    graphic: [
-      {
-        type: 'group',
-        right: 20,
-        bottom: 30,
-        children: [
-          {
-            type: 'rect',
-            shape: {width: 180, height: 60, r: 8},
-            style: {
-              fill: 'rgba(0,0,0,0.01)',  // 半透明背景
-              stroke: '#00cfff',        // 外边框颜色
-              lineWidth: 1,
-              shadowBlur: 8,
-              shadowColor: 'rgba(0,0,0,0.25)'
-            }
-          },
-          {
-            type: 'text',
-            style: {
-              text: `总用户数：${totalUsers} 人\n总登录数：${totalLogins} 人`,
-              x: 10, // 相对于 rect 的内边距
-              y: 10,
-              fill: '#fff',
-              font: '14px Microsoft YaHei',
-              lineHeight: 20
-            }
-          }
-        ]
-      }
-    ],
+    graphic: generateGraphicElements(),
     // 关键修复：将 grid 放在 geo 之后，确保坐标系初始化顺序正确
     geo: {
       map: mapName,
@@ -271,8 +386,7 @@ function renderMap() {
     } : {}),
     visualMap: {
       min: visualMapMin,
-      max:
-      visualMapMax,
+      max: visualMapMax,
       left: '3%',
       bottom: '5%',
       calculable: true,
@@ -283,7 +397,7 @@ function renderMap() {
     series: [
       // 地图系列
       {
-        name: '用户人数',
+        name: defaultDataItem.value.name,
         type: 'map',
         geoIndex: 0, // 关联第 0 个 geo 组件
         map: mapName,
@@ -397,6 +511,11 @@ async function loadMapData() {
     if (geoJsonFeatures.value.length === 0 && parentInfo.value.length > 1) {
       console.warn('无下级数据，自动回退');
       goBack();
+    }
+    //通知父组件已经到达下一层，需要获取数据
+    if (props.returnLevel.find(level => level === currentInfo?.level)) {
+      console.log('触发 getData 事件', currentInfo)
+      emits('getData', currentInfo)
     }
   } catch (err) {
     console.error('地图数据加载失败:', err);
@@ -573,6 +692,20 @@ watch(() => props.initName, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     initializeParentInfo();
     loadMapData();
+  }
+});
+
+// 监听 chartData 变化，重新渲染地图
+watch(() => props.chartData, () => {
+  if (chart.value && isChartReady.value) {
+    renderMap();
+  }
+}, {deep: true});
+
+// 监听 defaultIndexName 变化
+watch(() => props.defaultIndexName, () => {
+  if (chart.value && isChartReady.value) {
+    renderMap();
   }
 });
 

@@ -2,6 +2,7 @@ package com.lz.user.mapper;
 
 import java.util.List;
 
+import com.lz.common.core.domain.statistics.ro.MapStatisticsRo;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.user.model.domain.UStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -92,4 +93,6 @@ public interface UStatisticsInfoMapper extends BaseMapper<UStatisticsInfo>
      * @return
      */
     List<UserInformTypeStatisticsRo> userInformTypeStatistics(UserStatisticsRequest request);
+
+    List<MapStatisticsRo> userLocationStatistics(UserStatisticsRequest request);
 }

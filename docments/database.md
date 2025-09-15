@@ -751,9 +751,9 @@ CREATE TABLE u_login_log_info (
 | --------------- | -------- | ---- | ------ | ---- | -------- | -------- |
 | statistics_id   | varchar  | 128  | 主键   | 否   |          | 统计编号 |
 | type            | varchar  | 2    |        | 否   |          | 统计类型 |
-| statistics_name | varchar  | 32   |        | 否   |          | 统计名称 |
-| common_key      | varchar  | 64   |        | 否   |          | 公共KEY  |
-| statistics_key  | varchar  | 64   |        | 否   |          | KEY      |
+| statistics_name | varchar  | 128  |        | 否   |          | 统计名称 |
+| common_key      | varchar  | 128  |        | 否   |          | 公共KEY  |
+| statistics_key  | varchar  | 128  |        | 否   |          | KEY      |
 | stages          | int      |      |        | 否   |          | 期数     |
 | content         | text     |      |        | 是   |          | 统计内容 |
 | extend_content  | text     |      |        | 是   |          | 额外内容 |
@@ -768,9 +768,9 @@ DROP TABLE IF EXISTS u_u_statistics_info;
 CREATE TABLE u_statistics_info (
   statistics_id    VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '统计编号',
   type             VARCHAR(2)   NOT NULL COMMENT '统计类型',
-  statistics_name  VARCHAR(32)  NOT NULL COMMENT '统计名称',
-  common_key   VARCHAR(64)      NOT NULL COMMENT '公共KEY',  
-  statistics_key   VARCHAR(64)  NOT NULL COMMENT 'KEY',
+  statistics_name  VARCHAR(128)  NOT NULL COMMENT '统计名称',
+  common_key   VARCHAR(128)      NOT NULL COMMENT '公共KEY',  
+  statistics_key   VARCHAR(128)  NOT NULL COMMENT 'KEY',
   stages           INT                   COMMENT '期数',
   content          TEXT                  COMMENT '统计内容',
   extend_content          TEXT           COMMENT '统计内容',  

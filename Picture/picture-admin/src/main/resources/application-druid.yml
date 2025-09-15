@@ -24,7 +24,7 @@ spring:
       # 最大连接池数量
       maxActive: 20
       # 配置获取连接等待超时的时间
-      maxWait: 60000
+      maxWait: 90000
       # 配置连接超时时间
       connectTimeout: 30000
       # 配置网络超时时间

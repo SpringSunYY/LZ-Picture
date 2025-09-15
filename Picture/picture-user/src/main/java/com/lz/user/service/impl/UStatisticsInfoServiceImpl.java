@@ -7,11 +7,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
+import com.lz.common.core.domain.statistics.ro.MapStatisticsRo;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
-import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.*;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.exception.ServiceException;
@@ -840,6 +838,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 .select(InformInfo::getUserId, InformInfo::getIsRead, InformInfo::getInformTitle, InformInfo::getSendTime)
                 .ge(InformInfo::getSendTime, startDate)
                 .le(InformInfo::getSendTime, endDate)
+                .orderByDesc(InformInfo::getSendTime)
                 .last("limit " + ((pageNum - 1) * pageSize) + "," + pageSize)
         );
         if (StringUtils.isEmpty(informInfos)) {
@@ -880,6 +879,92 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     @CustomCacheable(keyPrefix = USER_STATISTICS_ONLINE_COUNT, expireTime = USER_STATISTICS_ONLINE_COUNT_EXPIRE_TIME)
     public Long userOnlineTotalStatistics() {
         return redisCache.getPatternSize(LOGIN_USER_KEY);
+    }
+
+    @CustomCacheable(keyPrefix = USER_STATISTICS_LOCATION, expireTime = USER_STATISTICS_LOCATION_EXPIRE_TIME, keyField = "location")
+    @Override
+    public List<MapStatisticsVo> userLocationStatistics(String location) {
+        //统计默认今天，表示最新
+        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
+        String key = "";
+        boolean isChina = StringUtils.isEmpty(location) || location.equals("中国") || location.equals("中华人民共和国");
+        if (isChina) {
+            location = "";
+            key = USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + "中国";
+        } else {
+            key = USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + location;
+        }
+        UStatisticsInfo uStatisticsInfo = getUStatisticsInfoByCommonKey(key, UStatisticsTypeEnum.STATISTICS_TYPE_3.getValue());
+        //如果有数据且就是今天的
+        if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
+            return JSONArray.parseArray(uStatisticsInfo.getContent(), MapStatisticsVo.class);
+        }
+        UserStatisticsRequest request = new UserStatisticsRequest();
+        request.setLocation(location);
+        List<MapStatisticsRo> statisticsRos = uStatisticsInfoMapper.userLocationStatistics(request);
+        if (StringUtils.isEmpty(statisticsRos)) {
+            return List.of();
+        }
+        //遍历结果分为2类，第一类为空格前的数据，第二类为空格分割，前+后数据
+        Map<String, Long> countryMap = new HashMap<>();
+        Map<String, Map<String, Long>> provinceMap = new HashMap<>();
+        //便利结果，将数据分类
+        for (MapStatisticsRo mapStatisticsRo : statisticsRos) {
+            String[] split = mapStatisticsRo.getLocation().split(" ");
+            //国家
+            if (countryMap.containsKey(split[0])) {
+                countryMap.put(split[0], countryMap.get(split[0]) + mapStatisticsRo.getTotal());
+            } else {
+                countryMap.put(split[0], mapStatisticsRo.getTotal());
+            }
+            //省份
+            if (!(split.length > 1)) {
+                continue;
+            }
+
+            if (provinceMap.containsKey(split[0])) {
+                Map<String, Long> hashMap = provinceMap.get(split[0]);
+                hashMap.put(split[1], mapStatisticsRo.getTotal());
+                provinceMap.put(split[0], hashMap);
+            } else {
+                HashMap<String, Long> value = new HashMap<>();
+                value.put(split[1], mapStatisticsRo.getTotal());
+                provinceMap.put(split[0], value);
+
+            }
+        }
+        List<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
+        //把结果转换为list，国家的，省份的
+        List<MapStatisticsVo> countryMapList = countryMap.entrySet().stream().map(entry -> {
+            MapStatisticsVo mapStatisticsVo = new MapStatisticsVo();
+            mapStatisticsVo.setLocation(entry.getKey());
+            mapStatisticsVo.setValue(entry.getValue());
+            return mapStatisticsVo;
+        }).toList();
+        uStatisticsInfos.add(getUStatisticsInfo(nowData, countryMapList, UStatisticsTypeEnum.STATISTICS_TYPE_3.getValue(),
+                USER_STATISTICS_LOCATION_NAME + COMMON_SEPARATOR_CACHE + "中国",
+                USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + "中国", 1L));
+
+        Map<String, List<MapStatisticsVo>> provinceMapListMap = new HashMap<>();
+        for (Map.Entry<String, Map<String, Long>> stringMapEntry : provinceMap.entrySet()) {
+            List<MapStatisticsVo> mapStatisticsVos = stringMapEntry.getValue().entrySet().stream().map(entry -> {
+                MapStatisticsVo mapStatisticsVo = new MapStatisticsVo();
+                mapStatisticsVo.setLocation(entry.getKey());
+                mapStatisticsVo.setValue(entry.getValue());
+                return mapStatisticsVo;
+            }).toList();
+            provinceMapListMap.put(stringMapEntry.getKey(), mapStatisticsVos);
+            uStatisticsInfos.add(getUStatisticsInfo(nowData, mapStatisticsVos, UStatisticsTypeEnum.STATISTICS_TYPE_3.getValue(),
+                    USER_STATISTICS_LOCATION_NAME + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(),
+                    USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(), 1L));
+        }
+        uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
+        //返回结果
+        //如果传过来位置
+        if (!isChina) {
+            return provinceMapListMap.get(location);
+        }
+        return countryMapList;
     }
     //endregion
 
