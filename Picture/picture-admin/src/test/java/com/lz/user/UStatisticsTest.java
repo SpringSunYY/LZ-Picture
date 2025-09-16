@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户统计测试
@@ -80,5 +81,18 @@ public class UStatisticsTest {
         request.setIsDelete("0");
         List<UserInformTypeStatisticsRo> userInformTypeStatisticsRos = uStatisticsInfoMapper.userInformTypeStatistics(request);
         System.out.println("statisticsRos = " + userInformTypeStatisticsRos);
+    }
+
+    @Test
+    public void testUserLoginLocationStatistics() {
+        UserStatisticsRequest request = new UserStatisticsRequest();
+        request.setStartDate("2025-09-02");
+        request.setEndDate("2025-09-16");
+        request.setLocation("中国");
+        Map<String, List<MapStatisticsVo>> stringListMap = uStatisticsInfoService.userLoginLocationStatistics(request);
+        stringListMap.forEach((k, v) -> {
+            System.out.println("k = " + k);
+            System.out.println("v = " + v);
+        });
     }
 }

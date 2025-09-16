@@ -907,32 +907,29 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //遍历结果分为2类，第一类为空格前的数据，第二类为空格分割，前+后数据
         Map<String, Long> countryMap = new HashMap<>();
         Map<String, Map<String, Long>> provinceMap = new HashMap<>();
-        //便利结果，将数据分类
+        //遍历结果，将数据分类
         for (MapStatisticsRo mapStatisticsRo : statisticsRos) {
-            String[] split = mapStatisticsRo.getLocation().split(" ");
-            //国家
-            if (countryMap.containsKey(split[0])) {
-                countryMap.put(split[0], countryMap.get(split[0]) + mapStatisticsRo.getTotal());
-            } else {
-                countryMap.put(split[0], mapStatisticsRo.getTotal());
-            }
-            //省份
-            if (!(split.length > 1)) {
-                continue;
-            }
-
-            if (provinceMap.containsKey(split[0])) {
-                Map<String, Long> hashMap = provinceMap.get(split[0]);
-                hashMap.put(split[1], mapStatisticsRo.getTotal());
-                provinceMap.put(split[0], hashMap);
-            } else {
-                HashMap<String, Long> value = new HashMap<>();
-                value.put(split[1], mapStatisticsRo.getTotal());
-                provinceMap.put(split[0], value);
-
-            }
+            builderLoginLocationMap(mapStatisticsRo.getTotal(), mapStatisticsRo.getLocation(), countryMap, provinceMap);
         }
         List<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
+        Map<String, List<MapStatisticsVo>> provinceMapListMap = new HashMap<>();
+        List<MapStatisticsVo> countryMapList = getLocationMapStatisticsVos(countryMap, provinceMap, uStatisticsInfos, provinceMapListMap,
+                nowData, UStatisticsTypeEnum.STATISTICS_TYPE_3.getValue(), USER_STATISTICS_LOCATION_NAME, USER_STATISTICS_LOCATION);
+        uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
+        //返回结果
+        //如果传过来位置
+        if (!isChina) {
+            return provinceMapListMap.get(location);
+        }
+        return countryMapList;
+    }
+
+    private static List<MapStatisticsVo> getLocationMapStatisticsVos(Map<String, Long> countryMap,
+                                                                     Map<String, Map<String, Long>> provinceMap,
+                                                                     List<UStatisticsInfo> uStatisticsInfos,
+                                                                     Map<String, List<MapStatisticsVo>> provinceMapListMap,
+                                                                     String nowData, String type, String statisticsName, String commonKey
+    ) {
         //把结果转换为list，国家的，省份的
         List<MapStatisticsVo> countryMapList = countryMap.entrySet().stream().map(entry -> {
             MapStatisticsVo mapStatisticsVo = new MapStatisticsVo();
@@ -940,11 +937,10 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             mapStatisticsVo.setValue(entry.getValue());
             return mapStatisticsVo;
         }).toList();
-        uStatisticsInfos.add(getUStatisticsInfo(nowData, countryMapList, UStatisticsTypeEnum.STATISTICS_TYPE_3.getValue(),
-                USER_STATISTICS_LOCATION_NAME + COMMON_SEPARATOR_CACHE + "中国",
-                USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + "中国", 1L));
+        uStatisticsInfos.add(getUStatisticsInfo(nowData, countryMapList, type,
+                statisticsName + COMMON_SEPARATOR_CACHE + "中国",
+                commonKey + COMMON_SEPARATOR_CACHE + "中国", 1L));
 
-        Map<String, List<MapStatisticsVo>> provinceMapListMap = new HashMap<>();
         for (Map.Entry<String, Map<String, Long>> stringMapEntry : provinceMap.entrySet()) {
             List<MapStatisticsVo> mapStatisticsVos = stringMapEntry.getValue().entrySet().stream().map(entry -> {
                 MapStatisticsVo mapStatisticsVo = new MapStatisticsVo();
@@ -953,17 +949,252 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 return mapStatisticsVo;
             }).toList();
             provinceMapListMap.put(stringMapEntry.getKey(), mapStatisticsVos);
-            uStatisticsInfos.add(getUStatisticsInfo(nowData, mapStatisticsVos, UStatisticsTypeEnum.STATISTICS_TYPE_3.getValue(),
-                    USER_STATISTICS_LOCATION_NAME + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(),
-                    USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(), 1L));
-        }
-        uStatisticsInfoMapper.insertOrUpdate(uStatisticsInfos);
-        //返回结果
-        //如果传过来位置
-        if (!isChina) {
-            return provinceMapListMap.get(location);
+            uStatisticsInfos.add(getUStatisticsInfo(nowData, mapStatisticsVos, type,
+                    statisticsName + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(),
+                    commonKey + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(), 1L));
         }
         return countryMapList;
+    }
+
+    //    @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_LOCATION, expireTime = USER_STATISTICS_LOGIN_LOCATION_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @Override
+    public Map<String, List<MapStatisticsVo>> userLoginLocationStatistics(UserStatisticsRequest request) {
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        String location = request.getLocation();
+        Date nowDate = checkDate(startDate, endDate);
+        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
+        //如果为空查询全部
+        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
+            return new HashMap<>();
+        }
+        String commonKey = "";
+        boolean isChina = StringUtils.isEmpty(location) || location.equals("中国") || location.equals("中华人民共和国");
+        if (isChina) {
+            location = "";
+            commonKey = USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + "中国";
+        } else {
+            commonKey = USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + location;
+        }
+        Map<String, Map<String, List<MapStatisticsVo>>> provinceMapList = new HashMap<>();
+        Map<String, List<MapStatisticsVo>> countryMapList = new HashMap<>();
+        //灵活判断最近天数
+        String end = dateRanges.getLast();
+        //是否包含今天
+        String today = DateUtils.dateTime(nowDate);
+        //遍历结果分为2类，第一类为空格前的数据，第二类为空格分割，前+后数据
+        //key-时间，value：key-省份，value-值总数
+        Map<String, Map<String, Long>> countryMap = new HashMap<>();
+        //key-时间，value：key-省份，value：key-城市，value-值总数
+        Map<String, Map<String, Map<String, Long>>> provinceMap = new HashMap<>();
+        if (dateRanges.contains(today)) {
+            List<MapStatisticsRo> loginLocationStatistics = getLoginLocationStatistics(today, today, location);
+            builderLoginLocationStatistics(countryMap, provinceMap, loginLocationStatistics);
+            //如果包含了且范围只有1，就表示统计今天
+            if (dateRanges.size() == 1) {
+                return builderLoginLocationResult(countryMap, provinceMap, provinceMapList, countryMapList, isChina, location);
+            }
+            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
+            dateRanges.removeLast();
+            end = dateRanges.getLast();
+        }
+        //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询，这里为老数据
+        List<UStatisticsInfo> uStatisticsInfos = getUStatisticsInfosByDateAndKeyType(startDate, end, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
+                commonKey);
+        //获取没有统计的数据
+        List<String> noStatisticsData = new ArrayList<>(dateRanges);
+
+        for (UStatisticsInfo uStatisticsInfo : uStatisticsInfos) {
+            List<MapStatisticsVo> statisticsVos = JSONArray.parseArray(uStatisticsInfo.getContent(), MapStatisticsVo.class);
+            if (isChina) {
+                countryMapList.put(DateUtils.dateTime(uStatisticsInfo.getCreateTime()), statisticsVos);
+            } else {
+                Map<String, List<MapStatisticsVo>> provinceData = new HashMap<>();
+                // 这里需要根据实际数据结构进行处理，暂时先添加一个默认的键
+                String commonKey1 = uStatisticsInfo.getCommonKey();
+                provinceData.put(commonKey1.substring(commonKey1.lastIndexOf(COMMON_SEPARATOR_CACHE) + 1), statisticsVos);
+                provinceMapList.put(DateUtils.dateTime(uStatisticsInfo.getCreateTime()), provinceData);
+            }
+            noStatisticsData.remove(DateUtils.dateTime(uStatisticsInfo.getCreateTime()));
+        }
+        //转换为 Map
+        ArrayList<UStatisticsInfo> noUStatisticsInfos = new ArrayList<>();
+        //遍历结果分为2类，第一类为空格前的数据，第二类为空格分割，前+后数据
+        //key-时间，value：key-省份，value-值总数
+        Map<String, Map<String, Long>> noCountryMap = new HashMap<>();
+        //key-时间，value：key-省份，value：key-城市，value-值总数
+        Map<String, Map<String, Map<String, Long>>> noProvinceMap = new HashMap<>();
+        for (String data : noStatisticsData) {
+            List<MapStatisticsRo> loginLocationStatistics = getLoginLocationStatistics(data, data, location);
+            builderLoginLocationStatistics(noCountryMap, noProvinceMap, loginLocationStatistics);
+            builderLoginLocationResult(data, noCountryMap, noProvinceMap, noUStatisticsInfos);
+        }
+
+        //处理为统计集合
+        if (StringUtils.isNotEmpty(noCountryMap) || StringUtils.isNotEmpty(noProvinceMap)) {
+            builderProcessLoginLocationMap(noCountryMap, noProvinceMap, provinceMapList, countryMapList);
+            ArrayList<UStatisticsInfo> noStatisticsInfos = new ArrayList<>();
+            countryMapList.forEach((key, value) -> {
+                noStatisticsInfos.add(getUStatisticsInfo(key, value, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(), USER_STATISTICS_LOGIN_LOCATION_NAME + COMMON_SEPARATOR_CACHE + "中国",
+                        USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + "中国", 1L));
+            });
+            provinceMapList.forEach((key, value) -> {
+                value.forEach((key1, value1) -> {
+                    noStatisticsInfos.add(getUStatisticsInfo(key, value1, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(), USER_STATISTICS_LOGIN_LOCATION_NAME + COMMON_SEPARATOR_CACHE + key1,
+                            USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + key1, 1L));
+                });
+            });
+            uStatisticsInfoMapper.insert(noStatisticsInfos);
+        }
+        builderProcessLoginLocationMap(countryMap, provinceMap, provinceMapList, countryMapList);
+        return builderLoginLocationResult(countryMap, provinceMap, provinceMapList, countryMapList, isChina, location);
+    }
+
+    private Map<String, List<MapStatisticsVo>> builderLoginLocationResult(Map<String, Map<String, Long>> countryMap, Map<String, Map<String, Map<String, Long>>> provinceMap, Map<String, Map<String, List<MapStatisticsVo>>> provinceMapList, Map<String, List<MapStatisticsVo>> countryMapList, boolean isChina, String location) {
+        builderProcessLoginLocationMap(countryMap, provinceMap, provinceMapList, countryMapList);
+        Map<String, List<MapStatisticsVo>> resultMap = new HashMap<>();
+        if (isChina) {
+            // 当查询中国数据时，返回全国各省的数据
+            resultMap = countryMapList;
+        } else {
+            // 当查询特定省份数据时，返回该省下各城市的数据
+
+            HashMap<String, List<MapStatisticsVo>> stringListHashMap = new HashMap<>();
+            for (Map.Entry<String, Map<String, List<MapStatisticsVo>>> stringMapEntry : provinceMapList.entrySet()) {
+                stringListHashMap.put(stringMapEntry.getKey(), stringMapEntry.getValue().get(location));
+            }
+            resultMap = stringListHashMap;
+        }
+        //根据键的值
+        return resultMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    private void builderProcessLoginLocationMap(Map<String, Map<String, Long>> noCountryMap, Map<String, Map<String, Map<String, Long>>> noProvinceMap,
+                                                Map<String, Map<String, List<MapStatisticsVo>>> provinceMapList, Map<String, List<MapStatisticsVo>> countryMapList) {
+
+        //先处理国家,第一个key是时间，第二个是对应省份+值
+        noCountryMap.forEach((key, value) -> {
+            List<MapStatisticsVo> voList = value.entrySet().stream().map(entry -> {
+                return new MapStatisticsVo(entry.getKey(), entry.getValue());
+            }).toList();
+            countryMapList.put(key, voList);
+        });
+
+        //再处理省份,第一个是时间，第二个对应省份，第三个是对应城市+值
+        noProvinceMap.forEach((key, value) -> {
+            if (!provinceMapList.containsKey(key)) {
+                provinceMapList.put(key, new HashMap<>());
+            }
+            Map<String, List<MapStatisticsVo>> provinceMap = provinceMapList.get(key);
+            //省份
+            value.forEach((key1, value1) -> {
+                if (!provinceMap.containsKey(key1)) {
+                    provinceMap.put(key1, new ArrayList<>());
+                }
+                //城市
+                value1.forEach((key2, value2) -> {
+                    provinceMap.get(key1).add(new MapStatisticsVo(key2, value2));
+                });
+            });
+        });
+    }
+
+    private List<MapStatisticsVo> builderLoginLocationResult(String data,
+                                                             Map<String, Map<String, Long>> countryMap, Map<String, Map<String, Map<String, Long>>> provinceMap,
+                                                             List<UStatisticsInfo> uStatisticsInfos) {
+        Map<String, Map<String, Long>> currentProvinceMap = provinceMap.get(data);
+        Map<String, Long> currentCountryMap = countryMap.get(data);
+        // 添加空值检查，防止NullPointerException
+        if (currentCountryMap == null) {
+            currentCountryMap = new HashMap<>();
+        }
+        if (currentProvinceMap == null) {
+            currentProvinceMap = new HashMap<>();
+        }
+        return getLoginLocationMapStatisticsVos(currentCountryMap, currentProvinceMap, uStatisticsInfos,
+                data, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(), USER_STATISTICS_LOGIN_LOCATION_NAME, USER_STATISTICS_LOGIN_LOCATION);
+    }
+
+    private List<MapStatisticsVo> getLoginLocationMapStatisticsVos(Map<String, Long> countryMap, Map<String, Map<String, Long>> provinceMap, List<UStatisticsInfo> uStatisticsInfos,
+                                                                   String data, String type, String statisticsName, String commonKey) {
+        //把结果转换为list，国家的，省份的
+        List<MapStatisticsVo> countryMapList = countryMap.entrySet().stream().map(entry -> {
+            MapStatisticsVo mapStatisticsVo = new MapStatisticsVo();
+            mapStatisticsVo.setLocation(entry.getKey());
+            mapStatisticsVo.setValue(entry.getValue());
+            return mapStatisticsVo;
+        }).toList();
+        uStatisticsInfos.add(getUStatisticsInfo(data, countryMapList, type,
+                statisticsName + COMMON_SEPARATOR_CACHE + "中国",
+                commonKey + COMMON_SEPARATOR_CACHE + "中国", 1L));
+
+        for (Map.Entry<String, Map<String, Long>> stringMapEntry : provinceMap.entrySet()) {
+            List<MapStatisticsVo> mapStatisticsVos = stringMapEntry.getValue().entrySet().stream().map(entry -> {
+                MapStatisticsVo mapStatisticsVo = new MapStatisticsVo();
+                mapStatisticsVo.setLocation(entry.getKey());
+                mapStatisticsVo.setValue(entry.getValue());
+                return mapStatisticsVo;
+            }).toList();
+            uStatisticsInfos.add(getUStatisticsInfo(data, mapStatisticsVos, type,
+                    statisticsName + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(),
+                    commonKey + COMMON_SEPARATOR_CACHE + stringMapEntry.getKey(), 1L));
+        }
+        return countryMapList;
+    }
+
+    private void builderLoginLocationStatistics(Map<String, Map<String, Long>> countryMap, Map<String, Map<String, Map<String, Long>>> provinceMap, List<MapStatisticsRo> loginLocationStatistics) {
+        //遍历结果，将数据分类
+        for (MapStatisticsRo mapStatisticsRo : loginLocationStatistics) {
+            String location = mapStatisticsRo.getLocation();
+            String date = mapStatisticsRo.getDate();
+            if (!countryMap.containsKey(date)) {
+                countryMap.put(date, new HashMap<String, Long>());
+            }
+            if (!provinceMap.containsKey(date)) {
+                provinceMap.put(date, new HashMap<String, Map<String, Long>>());
+            }
+            Map<String, Long> currentCountryMap = countryMap.get(date);
+            Map<String, Map<String, Long>> currentProvinceMap = provinceMap.get(date);
+            builderLoginLocationMap(mapStatisticsRo.getTotal(), location, currentCountryMap, currentProvinceMap);
+        }
+    }
+
+    private void builderLoginLocationMap(Long total, String location, Map<String, Long> currentCountryMap, Map<String, Map<String, Long>> currentProvinceMap) {
+        String[] split = location.split(" ");
+        //国家
+        if (currentCountryMap.containsKey(split[0])) {
+            currentCountryMap.put(split[0], currentCountryMap.get(split[0]) + total);
+        } else {
+            currentCountryMap.put(split[0], total);
+        }
+        //省份
+        if (!(split.length > 1)) {
+            return;
+        }
+        if (currentProvinceMap.containsKey(split[0])) {
+            Map<String, Long> hashMap = currentProvinceMap.get(split[0]);
+            hashMap.put(split[1], total);
+            currentProvinceMap.put(split[0], hashMap);
+        } else {
+            HashMap<String, Long> value = new HashMap<>();
+            value.put(split[1], total);
+            currentProvinceMap.put(split[0], value);
+        }
+    }
+
+    private List<MapStatisticsRo> getLoginLocationStatistics(String startDate, String endDate, String location) {
+        UserStatisticsRequest request = new UserStatisticsRequest();
+        request.setStartDate(startDate);
+        request.setEndDate(endDate);
+        request.setLocation(location);
+        return uStatisticsInfoMapper.userLoginLocationStatistics(request);
     }
     //endregion
 

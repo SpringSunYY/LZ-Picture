@@ -84,4 +84,11 @@ public class UserStatisticsConstants {
     public static final String USER_STATISTICS_LOCATION = "user:statistics:location";
     public static final String USER_STATISTICS_LOCATION_NAME = "用户地理位置-每日";
     public static final int USER_STATISTICS_LOCATION_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户登录地理位置
+     */
+    public static final String USER_STATISTICS_LOGIN_LOCATION = "user:statistics:login:location";
+    public static final String USER_STATISTICS_LOGIN_LOCATION_NAME = "用户登录地理位置-每日";
+    public static final int USER_STATISTICS_LOGIN_LOCATION_EXPIRE_TIME = 60 * 5;
 }

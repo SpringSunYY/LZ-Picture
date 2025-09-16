@@ -87,7 +87,7 @@ import {
   userAgeStatistics,
   userInformStatistics,
   userInformTypeStatistics,
-  userLocationStatistics,
+  userLocationStatistics, userLoginLocationStatistics,
   userLoginStatistics,
   userOnlineTotalStatistics,
   userRegisterStatistics,
@@ -126,11 +126,11 @@ const getUserRegisterStatistics = () => {
 //用户登录
 const userLoginStatisticsData = ref({})
 const userLoginStatisticsName = ref('用户登录统计')
-const getUserLoginStatistics = () => {
-  userLoginStatistics(query.value).then(res => {
-    userLoginStatisticsData.value = res.data
-  })
-}
+// const getUserLoginStatistics = () => {
+//   userLoginStatistics(query.value).then(res => {
+//     userLoginStatisticsData.value = res.data
+//   })
+// }
 //用户信息
 const userInformTypeStatisticsData = ref({})
 const userInformTypeStatisticsName = ref('消息发送统计')
@@ -216,18 +216,60 @@ const userMapStatisticsData = ref([])
 const userMapStatisticsName = ref('用户分布')
 //地图
 const getMapStatisticsData = async (current) => {
-  console.log('getMapData', current)
+  // console.log('getMapData', current)
   userMapStatisticsData.value = []
   const locationResult = await userLocationStatistics({location: current?.name || ''})
   userMapStatisticsData.value.push({
     name: '用户人数',
     value: locationResult.data
   })
+  const loginResult = await userLoginLocationStatistics({
+    location: current?.name || '',
+    startDate: query.value.startDate,
+    endDate: query.value.endDate
+  })
+  // 构建地图数据
+  const totalMap = {}
+  Object.values(loginResult.data).forEach(dayArr => {
+    dayArr.forEach(item => {
+      if (!item || !item.location) return
+      const loc = item.location
+      const val = Number(item.value) || 0
+      totalMap[loc] = (totalMap[loc] || 0) + val
+    })
+  })
+  const loginLocation = Object.entries(totalMap).map(([location, value]) => ({
+    location: location,
+    value: value
+  }))
+  console.log(loginLocation)
+  userMapStatisticsData.value.push({
+    name: '用户登录数',
+    value: loginLocation
+  })
+
+  // 构建 chartData
+  const names = []
+  const totals = []
+
+  Object.entries(loginResult.data).forEach(([date, dayArr]) => {
+    // 计算当天总数
+    const total = dayArr.reduce((sum, item) => sum + (Number(item.value) || 0), 0)
+
+    names.push(date)
+    totals.push(total)
+  })
+
+  const chartData = {
+    names,
+    totals
+  }
+  userLoginStatisticsData.value = chartData
 }
 getMapStatisticsData()
 const getStatistics = () => {
   getUserRegisterStatistics()
-  getUserLoginStatistics()
+  // getUserLoginStatistics()
   getUserInformTypeStatistics()
   getUserInformStatistics()
 }

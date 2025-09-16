@@ -231,5 +231,16 @@
         </where>
         group by location;
     </select>
+    <select id="userLoginLocationStatistics"
+            resultType="com.lz.common.core.domain.statistics.ro.MapStatisticsRo">
+        select DATE (login_time) as date, login_location as location, count(*) as total
+        from u_login_log_info
+        where login_time >= #{startDate} and login_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
+        <if test="location != null and location != ''">
+            and login_location like concat('%', #{location}, '%')
+        </if>
+        group by date, login_location
+        order by date, login_location;
+    </select>
 
 </mapper>

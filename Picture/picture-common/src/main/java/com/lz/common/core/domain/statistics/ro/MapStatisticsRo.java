@@ -14,5 +14,5 @@ import lombok.Data;
 public class MapStatisticsRo {
     private String location;
     private Long total;
-    private Long date;
+    private String date;
 }

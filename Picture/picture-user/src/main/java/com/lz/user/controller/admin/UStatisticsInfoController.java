@@ -185,7 +185,16 @@ public class UStatisticsInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('user:statistics')")
     @GetMapping("/user/location")
-    public AjaxResult userLocationStatistics(UserStatisticsRequest location) {
-        return success(uStatisticsInfoService.userLocationStatistics(location));
+    public AjaxResult userLocationStatistics(UserStatisticsRequest request) {
+        return success(uStatisticsInfoService.userLocationStatistics(request));
+    }
+
+    /**
+     * 用户登录分布
+     */
+    @PreAuthorize("@ss.hasPermi('user:statistics')")
+    @GetMapping("/user/login/location")
+    public AjaxResult userLoginLocationStatistics(@Validated UserStatisticsRequest request) {
+        return success(uStatisticsInfoService.userLoginLocationStatistics(request));
     }
 }

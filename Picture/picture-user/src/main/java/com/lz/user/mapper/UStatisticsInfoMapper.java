@@ -95,4 +95,6 @@ public interface UStatisticsInfoMapper extends BaseMapper<UStatisticsInfo>
     List<UserInformTypeStatisticsRo> userInformTypeStatistics(UserStatisticsRequest request);
 
     List<MapStatisticsRo> userLocationStatistics(UserStatisticsRequest request);
+
+    List<MapStatisticsRo> userLoginLocationStatistics(UserStatisticsRequest request);
 }

@@ -12,6 +12,7 @@ import com.lz.user.model.vo.statistics.UserInformStatisticsVo;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 统计信息Service接口
@@ -198,11 +199,22 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
     /**
      * 用户地理位置统计
      *
-     * @param location 地址
+     * @param request 请求
      * @return List<MapStatisticsVo>
      * @author: YY
      * @method: userLocationStatistics
      * @date: 2025/9/13 19:17
      **/
-    List<MapStatisticsVo> userLocationStatistics(UserStatisticsRequest location);
+    List<MapStatisticsVo> userLocationStatistics(UserStatisticsRequest request);
+
+    /**
+     * 用户登录地理位置统计
+     *
+     * @param request 请求
+     * @return List<MapStatisticsVo>
+     * @author: YY
+     * @method: userLoginLocationStatistics
+     * @date: 2025/9/16 16:03
+     **/
+    Map<String, List<MapStatisticsVo>> userLoginLocationStatistics(UserStatisticsRequest request);
 }

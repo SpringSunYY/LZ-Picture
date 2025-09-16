@@ -120,3 +120,13 @@ export function userLocationStatistics(params) {
         params: params
     })
 }
+
+
+//用户登录分布
+export function userLoginLocationStatistics(params) {
+    return request({
+        url: '/user/uStatisticsInfo/user/login/location',
+        method: 'get',
+        params: params
+    })
+}
