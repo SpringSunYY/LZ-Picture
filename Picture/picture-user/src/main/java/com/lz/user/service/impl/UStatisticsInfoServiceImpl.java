@@ -956,7 +956,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         return countryMapList;
     }
 
-    //    @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_LOCATION, expireTime = USER_STATISTICS_LOGIN_LOCATION_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_LOCATION, expireTime = USER_STATISTICS_LOGIN_LOCATION_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
     public Map<String, List<MapStatisticsVo>> userLoginLocationStatistics(UserStatisticsRequest request) {
         String startDate = request.getStartDate();
