@@ -881,12 +881,13 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         return redisCache.getPatternSize(LOGIN_USER_KEY);
     }
 
-    @CustomCacheable(keyPrefix = USER_STATISTICS_LOCATION, expireTime = USER_STATISTICS_LOCATION_EXPIRE_TIME, keyField = "location")
+    @CustomCacheable(keyPrefix = USER_STATISTICS_LOCATION, expireTime = USER_STATISTICS_LOCATION_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
-    public List<MapStatisticsVo> userLocationStatistics(String location) {
+    public List<MapStatisticsVo> userLocationStatistics(UserStatisticsRequest request) {
         //统计默认今天，表示最新
         String nowData = DateUtils.dateTime(DateUtils.getNowDate());
         String key = "";
+        String location = request.getLocation();
         boolean isChina = StringUtils.isEmpty(location) || location.equals("中国") || location.equals("中华人民共和国");
         if (isChina) {
             location = "";
@@ -899,8 +900,6 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         if (StringUtils.isNotNull(uStatisticsInfo) && DateUtils.dateTime(uStatisticsInfo.getCreateTime()).equals(nowData)) {
             return JSONArray.parseArray(uStatisticsInfo.getContent(), MapStatisticsVo.class);
         }
-        UserStatisticsRequest request = new UserStatisticsRequest();
-        request.setLocation(location);
         List<MapStatisticsRo> statisticsRos = uStatisticsInfoMapper.userLocationStatistics(request);
         if (StringUtils.isEmpty(statisticsRos)) {
             return List.of();

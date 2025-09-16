@@ -204,5 +204,5 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @method: userLocationStatistics
      * @date: 2025/9/13 19:17
      **/
-    List<MapStatisticsVo> userLocationStatistics(String location);
+    List<MapStatisticsVo> userLocationStatistics(UserStatisticsRequest location);
 }

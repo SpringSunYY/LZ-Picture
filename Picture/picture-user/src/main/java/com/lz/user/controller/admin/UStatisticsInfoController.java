@@ -185,7 +185,7 @@ public class UStatisticsInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('user:statistics')")
     @GetMapping("/user/location")
-    public AjaxResult userLocationStatistics(String location) {
+    public AjaxResult userLocationStatistics(UserStatisticsRequest location) {
         return success(uStatisticsInfoService.userLocationStatistics(location));
     }
 }
