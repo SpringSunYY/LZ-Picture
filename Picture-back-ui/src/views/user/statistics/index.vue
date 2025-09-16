@@ -213,18 +213,33 @@ const getUserOnlineStatistics = () => {
 getUserOnlineStatistics()
 
 const userMapStatisticsData = ref([])
+const userLoginLocationMapStatisticsData = ref([])
+const userUserLocationStatisticsData = ref([])
 const userMapStatisticsName = ref('用户分布')
+const userMapCurrent = ref('')
 //地图
 const getMapStatisticsData = async (current) => {
   // console.log('getMapData', current)
   userMapStatisticsData.value = []
-  const locationResult = await userLocationStatistics({location: current?.name || ''})
+  userMapCurrent.value = current?.name
+  await getUserLoginLocationMapStatisticsData()
+  await getUserUserLocationStatisticsData()
+}
+const getUserUserLocationStatisticsData = async (current) => {
+  const locationResult = await userLocationStatistics({location: userMapCurrent.value || ''})
+  userUserLocationStatisticsData.value = locationResult.data
+  //如果存在用户人数，先删除
+  if (userMapStatisticsData.value.find(item => item.name === '用户人数')) {
+    userMapStatisticsData.value = userMapStatisticsData.value.filter(item => item.name !== '用户人数')
+  }
   userMapStatisticsData.value.push({
     name: '用户人数',
-    value: locationResult.data
+    value: userUserLocationStatisticsData.value
   })
+}
+const getUserLoginLocationMapStatisticsData = async (current) => {
   const loginResult = await userLoginLocationStatistics({
-    location: current?.name || '',
+    location: userMapCurrent.value || '',
     startDate: query.value.startDate,
     endDate: query.value.endDate
   })
@@ -243,9 +258,14 @@ const getMapStatisticsData = async (current) => {
     value: value
   }))
   console.log(loginLocation)
+  userLoginLocationMapStatisticsData.value = loginLocation
+  //如果存在用户登录数，先删除
+  if (userMapStatisticsData.value.find(item => item.name === '用户登录数')) {
+    userMapStatisticsData.value = userMapStatisticsData.value.filter(item => item.name !== '用户登录数')
+  }
   userMapStatisticsData.value.push({
     name: '用户登录数',
-    value: loginLocation
+    value: userLoginLocationMapStatisticsData.value
   })
 
   // 构建 chartData
@@ -259,7 +279,6 @@ const getMapStatisticsData = async (current) => {
     names.push(date)
     totals.push(total)
   })
-
   const chartData = {
     names,
     totals
@@ -269,7 +288,7 @@ const getMapStatisticsData = async (current) => {
 getMapStatisticsData()
 const getStatistics = () => {
   getUserRegisterStatistics()
-  // getUserLoginStatistics()
+  getUserLoginLocationMapStatisticsData()
   getUserInformTypeStatistics()
   getUserInformStatistics()
 }
