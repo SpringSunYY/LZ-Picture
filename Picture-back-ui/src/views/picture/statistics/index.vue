@@ -7,7 +7,9 @@
         </div>
       </el-col>
       <el-col :span="12">
-        <div class="top-count"></div>
+        <div class="top-count">
+          <p>总计：512312张图片</p>
+        </div>
         <el-row :gutter="20">
           <el-col :span="12">
             <BorderBox8 class="top-center">
@@ -80,10 +82,9 @@ import WaterMapProportionCharts from "@/components/Statistics/WaterMapProportion
 import PieIntervalCharts from "@/components/Statistics/PieIntervalCharts.vue";
 import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
 import PictureScreenBorder from "@/components/Border/PictureScreenBorder.vue";
-import {BorderBox4, BorderBox6, BorderBox7, BorderBox8, Decoration5, BorderBox12, Decoration2} from '@kjgl77/datav-vue3'
+import {BorderBox7, BorderBox8, Decoration2} from '@kjgl77/datav-vue3'
 import TableRanking from "@/components/Statistics/TableRanking.vue";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
-
 </script>
 <style scoped lang="scss">
 .picture-statistics {
@@ -93,10 +94,16 @@ import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
   .base-height {
     height: 35vh;
   }
-  .top-count{
+
+  .top-count {
     margin-top: 8vh;
     height: 8vh;
+    font-size: 3vh;
+    text-align: center;
+    color: white;
+    font-weight: bold;
   }
+
   .top-center {
     height: 17vh;
   }

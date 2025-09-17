@@ -86,7 +86,7 @@ const props = defineProps({
 const stars = ref([])
 
 const generateStars = () => {
-  const starCount = 400
+  const starCount = 500
   for (let i = 0; i < starCount; i++) {
     stars.value.push({
       id: i,
