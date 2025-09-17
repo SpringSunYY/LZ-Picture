@@ -26,6 +26,35 @@ export default {
             }
         })
     },
+    downloadNetwork(url) {
+        url = baseURL + "/common/download/network?url=" + encodeURIComponent(url);
+        return new Promise((resolve, reject) => {
+            axios({
+                method: 'get',
+                url: url,
+                responseType: 'blob',
+                headers: {'Authorization': 'Bearer ' + getToken()}
+            }).then(async (res) => { // 添加 async
+                const isBlob = blobValidate(res.data);
+                if (isBlob) {
+                    const blob = new Blob([res.data]);
+
+                    // 转换为 Base64
+                    try {
+                        const base64String = await blobToBase64(blob);
+                        console.log('Base64:', base64String.substring(0, 50) + '...'); // 打印前50字符
+                        resolve(base64String); // 返回完整 Base64 字符串
+                    } catch (err) {
+                        reject(err);
+                        this.printErrMsg(new Blob([JSON.stringify({msg: 'Base64转换失败'})]));
+                    }
+                } else {
+                    this.printErrMsg(res.data);
+                    reject(new Error('Invalid blob'));
+                }
+            }).catch(reject);
+        });
+    },
     resource(resource) {
         var url = baseURL + "/common/download/resource?resource=" + encodeURIComponent(resource);
         axios({
@@ -43,7 +72,7 @@ export default {
             }
         })
     },
-    downloadStatisticsPicture(isDelete, type, commonKey, statisticsKey, stages, number,fileName) {
+    downloadStatisticsPicture(isDelete, type, commonKey, statisticsKey, stages, number, fileName) {
         var url = baseURL + "/picture/statisticsInfo/download/hot" +
             "?isDelete=" + encodeURIComponent(isDelete) +
             "&type=" + encodeURIComponent(type) +
@@ -60,7 +89,7 @@ export default {
             const isBlob = blobValidate(res.data)
             if (isBlob) {
                 const blob = new Blob([res.data])
-                this.saveAs(blob,fileName)
+                this.saveAs(blob, fileName)
             } else {
                 this.printErrMsg(res.data);
             }
@@ -100,3 +129,12 @@ export default {
     }
 }
 
+
+const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result); // 包含 "data:image/jpg;base64," 前缀
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+};

@@ -197,7 +197,20 @@ export const dynamicRoutes = [
                 meta: {title: '图片统计', activeMenu: '/picture'}
             }
         ]
-    }
+    },
+    {
+        path: '/jay/picture-statistics',
+        hidden: true,
+        permissions: ['jay:statistics'],
+        children: [
+            {
+                path: 'index',
+                component: () => import('@/views/jay/index.vue'),
+                name: 'jayStatistics',
+                meta: {title: 'jay', activeMenu: '/picture'}
+            }
+        ]
+    },
 ]
 
 const router = createRouter({

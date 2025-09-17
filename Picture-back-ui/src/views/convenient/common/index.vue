@@ -114,11 +114,11 @@ const operations = ref([
     icon: 'picture'
   },
   {
-    key: '',
-    permission: ['1'],
-    name: '任务调度',
-    shortDescription: '定时任务监控',
-    description: '创建、编辑和监控定时任务，支持多种触发方式和任务日志记录，提高自动化水平。',
+    key: 'jayStatistics',
+    permission: ['jay:statistics'],
+    name: '周杰伦词云图',
+    shortDescription: '周杰伦',
+    description: 'Jay',
   },
   {
     key: '',
@@ -196,6 +196,9 @@ function clickOperation(operation) {
       break;
     case 'pictureStatistics':
       handleToFullPage('pictureStatistics')
+      break;
+    case 'jayStatistics':
+      handleToFullPage('jayStatistics')
       break;
     default:
       noOperation()

@@ -1,12 +1,16 @@
 package com.lz.web.controller.common;
 
+import com.alibaba.fastjson.JSON;
 import com.lz.common.config.RuoYiConfig;
 import com.lz.common.constant.Constants;
 import com.lz.common.core.domain.AjaxResult;
+import com.lz.common.manager.file.PictureDownloadManager;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.file.FileUploadUtils;
 import com.lz.common.utils.file.FileUtils;
+import com.lz.common.utils.http.HttpUtils;
 import com.lz.framework.config.ServerConfig;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -16,6 +20,12 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +67,43 @@ public class CommonController {
             }
         } catch (Exception e) {
             log.error("下载文件失败", e);
+        }
+    }
+
+    /**
+     * 下载网络资源
+     */
+    @GetMapping("/download/network")
+    public void fileDownloadNetwork(String url, HttpServletResponse response, HttpServletRequest request) {
+        try {
+//            System.out.println("url = " + url);
+            response.reset();
+            response.setContentType("application/octet-stream");
+            String fileName = FileUtils.getName(url);
+            response.setCharacterEncoding(Constants.UTF8);
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+
+            // 打开 URL 作为输入流
+            try (InputStream inputStream = new URL(url).openStream();
+                 OutputStream out = response.getOutputStream()) {
+
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = inputStream.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                }
+                out.flush();
+            }
+        } catch (Exception e) {
+            try {
+                response.reset(); // 清除之前的响应头和内容
+//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 设置状态码
+                response.setContentType("application/json"); // 设置响应类型为 JSON
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(JSON.toJSONString(e.getMessage())); // 写入错误信息
+            } catch (IOException ioEx) {
+                log.error("写入错误响应失败", ioEx);
+            }
         }
     }
 

@@ -163,9 +163,7 @@ const initChart = (data) => {
         const percentage = total > 0 ? ((params.data.value / total) * 100).toFixed(1) : '0.0';
         return `${params.data.name}: ${params.data.value} (${percentage}%)<br/>总计: ${total}`;
       },
-      backgroundColor: 'rgba(0,0,0,0.8)',
-      borderColor: '#ccc',
-      borderWidth: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
       textStyle: {
         color: '#fff'
       }
