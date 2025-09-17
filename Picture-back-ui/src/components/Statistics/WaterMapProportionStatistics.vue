@@ -1,18 +1,19 @@
 <template>
-  <div :class="className" :style="{ height, width }" ref="chartRef" />
+  <div :class="className" :style="{ height, width }" ref="chartRef"/>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-liquidfill';
+import 'echarts/theme/macarons' // 引入主题
 
 const props = defineProps({
-  className: { type: String, default: 'chart' },
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '100%' },
-  total: { type: Number, default: 100 },
-  current: { type: Number, default: 50 },
+  className: {type: String, default: 'chart'},
+  width: {type: String, default: '100%'},
+  height: {type: String, default: '100%'},
+  total: {type: Number, default: 100},
+  current: {type: Number, default: 50},
 });
 
 const chart = ref<echarts.EChartsType | null>(null);
@@ -30,7 +31,7 @@ let timer: number | null = null;
 function getCirlPoint(x0: number, y0: number, r: number, angle: number) {
   const x1 = x0 + r * Math.cos((angle * Math.PI) / 180);
   const y1 = y0 + r * Math.sin((angle * Math.PI) / 180);
-  return { x: x1, y: y1 };
+  return {x: x1, y: y1};
 }
 
 // 初始化图表，只在组件加载时调用一次
@@ -46,9 +47,14 @@ const initChart = () => {
 
   // 基础配置，包含静态元素和水球图（水球图有自己的动画）
   baseOption = {
-    backgroundColor: '#020f18',
+    // backgroundColor: '#020f18',
     tooltip: {
+      backgroundColor: 'rgba(37,37,36,0.5)',
+      borderWidth: 0,
       show: true,
+      textStyle: {
+        color: '#ffffff'
+      },
       trigger: 'item',
       formatter: (params: any) => {
         if (params.seriesType === 'liquidFill') {
@@ -75,7 +81,7 @@ const initChart = () => {
               startAngle: ((0 + angle) * Math.PI) / 180,
               endAngle: ((90 + angle) * Math.PI) / 180,
             },
-            style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 },
+            style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
             silent: true,
           };
         },
@@ -95,7 +101,7 @@ const initChart = () => {
               startAngle: ((180 + angle) * Math.PI) / 180,
               endAngle: ((270 + angle) * Math.PI) / 180,
             },
-            style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 },
+            style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
             silent: true,
           };
         },
@@ -115,7 +121,7 @@ const initChart = () => {
               startAngle: ((270 + -angle) * Math.PI) / 180,
               endAngle: ((40 + -angle) * Math.PI) / 180,
             },
-            style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 },
+            style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
             silent: true,
           };
         },
@@ -135,7 +141,7 @@ const initChart = () => {
               startAngle: ((90 + -angle) * Math.PI) / 180,
               endAngle: ((220 + -angle) * Math.PI) / 180,
             },
-            style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 },
+            style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
             silent: true,
           };
         },
@@ -153,8 +159,8 @@ const initChart = () => {
           const point = getCirlPoint(x0, y0, r, 90 + -angle);
           return {
             type: "circle",
-            shape: { cx: point.x, cy: point.y, r: 5 },
-            style: { stroke: '#0ff', fill: '#0ff' },
+            shape: {cx: point.x, cy: point.y, r: 5},
+            style: {stroke: '#0ff', fill: '#0ff'},
             silent: true,
           };
         },
@@ -171,8 +177,8 @@ const initChart = () => {
           const point = getCirlPoint(x0, y0, r, 270 + -angle);
           return {
             type: "circle",
-            shape: { cx: point.x, cy: point.y, r: 5 },
-            style: { stroke: '#0ff', fill: '#0ff' },
+            shape: {cx: point.x, cy: point.y, r: 5},
+            style: {stroke: '#0ff', fill: '#0ff'},
             silent: true,
           };
         },
@@ -186,15 +192,15 @@ const initChart = () => {
         data: [percentage, percentage, percentage],
         label: {
           show: true,
-          textStyle: { color: '#fff', fontSize: 24 },
+          textStyle: {color: '#fff', fontSize: 24},
           formatter: (params: any) => {
             return `${props.current}(${(params.value * 100).toFixed(0)}%)`;
           },
         },
-        backgroundStyle: { borderWidth: 1, color: 'transparent' },
+        backgroundStyle: {borderWidth: 1, color: 'transparent'},
         outline: {
           show: true,
-          itemStyle: { borderColor: '#0ff', borderWidth: 2 },
+          itemStyle: {borderColor: '#0ff', borderWidth: 2},
           borderDistance: 3,
         },
       },
@@ -215,10 +221,70 @@ function animateChart() {
     myChartInstance.setOption({
       series: [
         // 更新内线和外线系列的角度
-        { name: "内线", renderItem: (params, api) => { /* ... 重新定义 renderItem ... */ return { type: "arc", shape: { cx: api.getWidth() / 2, cy: api.getHeight() / 2, r: Math.min(api.getWidth(), api.getHeight()) / 2.3, startAngle: ((0 + angle) * Math.PI) / 180, endAngle: ((90 + angle) * Math.PI) / 180, }, style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 }, silent: true, }; } },
-        { name: "内线", renderItem: (params, api) => { return { type: "arc", shape: { cx: api.getWidth() / 2, cy: api.getHeight() / 2, r: Math.min(api.getWidth(), api.getHeight()) / 2.3, startAngle: ((180 + angle) * Math.PI) / 180, endAngle: ((270 + angle) * Math.PI) / 180, }, style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 }, silent: true, }; } },
-        { name: "外线", renderItem: (params, api) => { return { type: "arc", shape: { cx: api.getWidth() / 2, cy: api.getHeight() / 2, r: Math.min(api.getWidth(), api.getHeight()) / 2.1, startAngle: ((270 + -angle) * Math.PI) / 180, endAngle: ((40 + -angle) * Math.PI) / 180, }, style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 }, silent: true, }; } },
-        { name: "外线", renderItem: (params, api) => { return { type: "arc", shape: { cx: api.getWidth() / 2, cy: api.getHeight() / 2, r: Math.min(api.getWidth(), api.getHeight()) / 2.1, startAngle: ((90 + -angle) * Math.PI) / 180, endAngle: ((220 + -angle) * Math.PI) / 180, }, style: { stroke: '#0ff', fill: "transparent", lineWidth: 3.5 }, silent: true, }; } },
+        {
+          name: "内线", renderItem: (params, api) => { /* ... 重新定义 renderItem ... */
+            return {
+              type: "arc",
+              shape: {
+                cx: api.getWidth() / 2,
+                cy: api.getHeight() / 2,
+                r: Math.min(api.getWidth(), api.getHeight()) / 2.3,
+                startAngle: ((0 + angle) * Math.PI) / 180,
+                endAngle: ((90 + angle) * Math.PI) / 180,
+              },
+              style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
+              silent: true,
+            };
+          }
+        },
+        {
+          name: "内线", renderItem: (params, api) => {
+            return {
+              type: "arc",
+              shape: {
+                cx: api.getWidth() / 2,
+                cy: api.getHeight() / 2,
+                r: Math.min(api.getWidth(), api.getHeight()) / 2.3,
+                startAngle: ((180 + angle) * Math.PI) / 180,
+                endAngle: ((270 + angle) * Math.PI) / 180,
+              },
+              style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
+              silent: true,
+            };
+          }
+        },
+        {
+          name: "外线", renderItem: (params, api) => {
+            return {
+              type: "arc",
+              shape: {
+                cx: api.getWidth() / 2,
+                cy: api.getHeight() / 2,
+                r: Math.min(api.getWidth(), api.getHeight()) / 2.1,
+                startAngle: ((270 + -angle) * Math.PI) / 180,
+                endAngle: ((40 + -angle) * Math.PI) / 180,
+              },
+              style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
+              silent: true,
+            };
+          }
+        },
+        {
+          name: "外线", renderItem: (params, api) => {
+            return {
+              type: "arc",
+              shape: {
+                cx: api.getWidth() / 2,
+                cy: api.getHeight() / 2,
+                r: Math.min(api.getWidth(), api.getHeight()) / 2.1,
+                startAngle: ((90 + -angle) * Math.PI) / 180,
+                endAngle: ((220 + -angle) * Math.PI) / 180,
+              },
+              style: {stroke: '#0ff', fill: "transparent", lineWidth: 3.5},
+              silent: true,
+            };
+          }
+        },
         // 更新线头点的位置
         {
           name: "线头点",
@@ -227,7 +293,12 @@ function animateChart() {
             const y0 = api.getHeight() / 2;
             const r = Math.min(api.getWidth(), api.getHeight()) / 2.1;
             const point = getCirlPoint(x0, y0, r, 90 + -angle);
-            return { type: "circle", shape: { cx: point.x, cy: point.y, r: 5 }, style: { stroke: '#0ff', fill: '#0ff' }, silent: true, };
+            return {
+              type: "circle",
+              shape: {cx: point.x, cy: point.y, r: 5},
+              style: {stroke: '#0ff', fill: '#0ff'},
+              silent: true,
+            };
           },
         },
         {
@@ -237,7 +308,12 @@ function animateChart() {
             const y0 = api.getHeight() / 2;
             const r = Math.min(api.getWidth(), api.getHeight()) / 2.1;
             const point = getCirlPoint(x0, y0, r, 270 + -angle);
-            return { type: "circle", shape: { cx: point.x, cy: point.y, r: 5 }, style: { stroke: '#0ff', fill: '#0ff' }, silent: true, };
+            return {
+              type: "circle",
+              shape: {cx: point.x, cy: point.y, r: 5},
+              style: {stroke: '#0ff', fill: '#0ff'},
+              silent: true,
+            };
           },
         },
         // 注意：liquidFill 系列的数据和动画是由 ECharts 内部管理的，
