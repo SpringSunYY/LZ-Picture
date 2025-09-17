@@ -4,16 +4,16 @@
       <KeywordCharts/>
     </div>
     <div style="height: 300px">
-      <LineAvgStatistics/>
+      <LineAvgCharts/>
     </div>
     <div style="height: 300px">
-      <BarAvgStatistics/>
+      <BarAvgCharts/>
     </div>
     <div style="height: 300px">
-      <WaterMapRotateProportionStatistics/>
+      <WaterMapRotateProportionCharts/>
     </div>
     <div style="height: 300px">
-      <WaterMapProportionStatistics/>
+      <WaterMapProportionCharts/>
     </div>
     <div style="height: 300px">
       <PieIntervalCharts/>
@@ -25,10 +25,10 @@
 </template>
 <script setup lang="ts">
 import KeywordCharts from "@/components/Statistics/KeywordCharts.vue";
-import LineAvgStatistics from "@/components/Statistics/LineAvgStatistics.vue";
-import BarAvgStatistics from "@/components/Statistics/BarAvgStatistics.vue";
-import WaterMapRotateProportionStatistics from "@/components/Statistics/WaterMapRotateProportionStatistics.vue";
-import WaterMapProportionStatistics from "@/components/Statistics/WaterMapProportionStatistics.vue";
+import LineAvgCharts from "@/components/Statistics/LineAvgCharts.vue";
+import BarAvgCharts from "@/components/Statistics/BarAvgCharts.vue";
+import WaterMapRotateProportionCharts from "@/components/Statistics/WaterMapRotateProportionCharts.vue";
+import WaterMapProportionCharts from "@/components/Statistics/WaterMapProportionCharts.vue";
 import PieIntervalCharts from "@/components/Statistics/PieIntervalCharts.vue";
 import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
 </script>
