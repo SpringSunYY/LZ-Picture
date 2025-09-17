@@ -86,7 +86,7 @@ const props = defineProps({
 const stars = ref([])
 
 const generateStars = () => {
-  const starCount = 150
+  const starCount = 400
   for (let i = 0; i < starCount; i++) {
     stars.value.push({
       id: i,
@@ -279,7 +279,7 @@ onMounted(() => {
 /* 内容区域 */
 .content-area {
   position: relative;
-  padding: 80px 60px 60px;
+  padding: 5px;
   height: 100%;
   box-sizing: border-box;
   z-index: 5;

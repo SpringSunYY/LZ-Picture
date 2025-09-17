@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
 
 const props = defineProps({
@@ -26,40 +26,40 @@ const props = defineProps({
   chartData: {
     type: Array,
     default: () => [
-      { name: '听音乐', value: 2 },
-      { name: '看电影', value: 12 },
-      { name: '跑步', value: 22 },
-      { name: '瑜伽', value: 42 },
-      { name: '发呆', value: 52 },
-      { name: '阅读', value: 62 },
-      { name: '唱歌', value: 72 },
-      { name: '跳舞', value: 72 },
-      { name: '追星', value: 72 },
-      { name: '看星星', value: 72 },
-      { name: '看月亮', value: 72 },
-      { name: '吃汉堡', value: 72 },
-      { name: '做早餐', value: 72 },
-      { name: '爬山', value: 72 },
-      { name: '旅行', value: 24 },
-      { name: '喝奶茶', value: 72 },
-      { name: '买衣服', value: 72 },
-      { name: '理财', value: 72 },
-      { name: '洗衣服', value: 72 },
-      { name: '收纳', value: 80 },
-      { name: '早起', value: 72 },
-      { name: '熬夜', value: 65 },
-      { name: '追剧', value: 72 },
-      { name: '逛街', value: 72 },
-      { name: '敲代码', value: 72 },
-      { name: '创作', value: 72 },
-      { name: '做梦', value: 72 },
-      { name: '悲伤', value: 72 },
-      { name: '开心', value: 72 }
+      {name: '听音乐', value: 2},
+      {name: '看电影', value: 12},
+      {name: '跑步', value: 22},
+      {name: '瑜伽', value: 42},
+      {name: '发呆', value: 52},
+      {name: '阅读', value: 62},
+      {name: '唱歌', value: 72},
+      {name: '跳舞', value: 72},
+      {name: '追星', value: 72},
+      {name: '看星星', value: 72},
+      {name: '看月亮', value: 72},
+      {name: '吃汉堡', value: 72},
+      {name: '做早餐', value: 72},
+      {name: '爬山', value: 72},
+      {name: '旅行', value: 24},
+      {name: '喝奶茶', value: 72},
+      {name: '买衣服', value: 72},
+      {name: '理财', value: 72},
+      {name: '洗衣服', value: 72},
+      {name: '收纳', value: 80},
+      {name: '早起', value: 72},
+      {name: '熬夜', value: 65},
+      {name: '追剧', value: 72},
+      {name: '逛街', value: 72},
+      {name: '敲代码', value: 72},
+      {name: '创作', value: 72},
+      {name: '做梦', value: 72},
+      {name: '悲伤', value: 72},
+      {name: '开心', value: 72}
     ]
   },
   fontSizeRange: {
     type: Array,
-    default: () => [12, 36] // 默认字体大小范围 [最小, 最大]
+    default: () => [8, 24] // 默认字体大小范围 [最小, 最大]
   },
   defaultColor: {
     type: Array,
@@ -91,7 +91,7 @@ const calculateTotal = (data) => {
 // 获取数据中的最小和最大 value 值
 const getMinMaxValue = (data) => {
   if (!data || data.length === 0) {
-    return { min: 0, max: 0 };
+    return {min: 0, max: 0};
   }
   const values = data.map(item => item.value);
   return {
@@ -121,7 +121,7 @@ const initChart = (data) => {
     chart.value = null;
   }
 
-  const { min: minChartValue, max: maxChartValue } = getMinMaxValue(data);
+  const {min: minChartValue, max: maxChartValue} = getMinMaxValue(data);
 
   const seriesData = data.map((item) => {
     return {
@@ -150,11 +150,11 @@ const initChart = (data) => {
       show: true,
       text: props.chartName,
       textStyle: {
-        fontSize: 24,
-        color: '#666',
+        fontSize: 16,
+        color: '#ffffff',
       },
-      x: 'left', // 标题居中
-      y: 'top',
+      top: '5%',
+      left: '5%',
     },
     tooltip: {
       show: true,
@@ -244,20 +244,20 @@ onBeforeUnmount(() => {
 
 // 监听数据变化，重新渲染图表
 watch(
-  () => props.chartData,
-  (newData) => {
-    initChart(newData);
-  },
-  { deep: true }
+    () => props.chartData,
+    (newData) => {
+      initChart(newData);
+    },
+    {deep: true}
 );
 
 // 监听字体大小范围变化，重新渲染图表
 watch(
-  () => props.fontSizeRange,
-  (newRange) => {
-    initChart(props.chartData);
-  },
-  { deep: true }
+    () => props.fontSizeRange,
+    (newRange) => {
+      initChart(props.chartData);
+    },
+    {deep: true}
 );
 </script>
 

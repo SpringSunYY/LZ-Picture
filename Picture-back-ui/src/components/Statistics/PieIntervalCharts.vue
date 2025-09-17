@@ -133,18 +133,19 @@ const initChart = (data) => {
     title: {
       // 使用 props.chartName 作为总标题
       text: props.chartName,
-      left: "49.5%", // 居中
+      left: "49%", // 居中
       top: "42%",
-      itemGap: 10, // 标题内元素间距
+      textStyle: {
+        color: '#fff',  // 白色文字（适配深色背景）
+        fontSize: 16,
+      },
       textAlign: "center", // 居中对齐
       subtext: '总共:' + sum,
       subtextStyle: {
         color: '#fff',  // 白色文字（适配深色背景）
         fontSize: 14,
-        lineHeight: 20,
       }
     },
-    backgroundColor: '#243c54', // 图表背景色
     tooltip: {
       trigger: 'item', // 触发类型为数据项
       formatter: function (params) {
@@ -187,9 +188,7 @@ const initChart = (data) => {
         // 查找对应的数据项，获取其百分比
         const item = data.find(d => d.name === name);
         if (item) {
-          // 计算百分比并格式化
-          const percent = ((item.value / sum) * 100).toFixed(1);
-          return `${name}  ${percent}%`;
+          return `${name} `;
         }
         return name;
       }

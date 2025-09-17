@@ -59,7 +59,7 @@ const setOptions = () => {
       top: "2%",
       textStyle: {
         color: "#fff",
-        fontSize: 20
+        fontSize: 18
       }
     },
     tooltip: {
@@ -155,8 +155,8 @@ const setOptions = () => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 5,
-        itemStyle: {color: '#ff00f5'},
-        lineStyle: {color: '#d143cc'}
+        itemStyle: {color: '#45D0E3'},
+        lineStyle: {color: '#45D0E3'}
       }
     ]
   };

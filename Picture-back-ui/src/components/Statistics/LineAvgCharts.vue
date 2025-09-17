@@ -91,7 +91,7 @@ const setOptions = () => {
       backgroundColor: 'rgba(37,37,36,0.5)',
       borderWidth: 0,
       textStyle: {
-        color: '#ffffff'
+        color: '#ffffff',
       },
       // 自定义 tooltip 格式化器
       formatter: function (params) {
@@ -166,7 +166,7 @@ const setOptions = () => {
       y: "2%",
       textStyle: {
         color: '#fff',
-        fontSize: '22'
+        fontSize: '18'
       },
     },
     xAxis: {
