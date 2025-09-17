@@ -9,15 +9,19 @@
   <div style="height: 300px">
     <BarAvgStatistics/>
   </div>
+    <div style="height: 300px">
+    <WaterMapProportionStatistics/>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import KeywordCharts from "@/components/Statistics/KeywordCharts.vue";
 import LineAvgStatistics from "@/components/Statistics/LineAvgStatistics.vue";
 import BarAvgStatistics from "@/components/Statistics/BarAvgStatistics.vue";
+import WaterMapProportionStatistics from "@/components/Statistics/WaterMapProportionStatistics.vue";
 </script>
 <style scoped lang="scss">
 .picture-statistics{
-  background-color: black;
+  //background-color: black;
 }
 </style>
