@@ -8,11 +8,11 @@ import com.lz.user.model.dto.statistics.UserInformStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserLoginStatisticsRequest;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
+import com.lz.user.model.vo.statistics.LoginLocationStatisticsVo;
 import com.lz.user.model.vo.statistics.UserInformStatisticsVo;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 统计信息Service接口
@@ -216,5 +216,5 @@ public interface IUStatisticsInfoService extends IService<UStatisticsInfo> {
      * @method: userLoginLocationStatistics
      * @date: 2025/9/16 16:03
      **/
-    Map<String, List<MapStatisticsVo>> userLoginLocationStatistics(UserStatisticsRequest request);
+    List<LoginLocationStatisticsVo> userLoginLocationStatistics(UserStatisticsRequest request);
 }

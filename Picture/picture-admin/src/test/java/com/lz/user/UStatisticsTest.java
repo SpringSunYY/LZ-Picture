@@ -3,19 +3,18 @@ package com.lz.user;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.MapStatisticsVo;
-import com.lz.common.core.domain.statistics.vo.PieStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.RadarStatisticsVo;
 import com.lz.common.utils.DateUtils;
 import com.lz.user.mapper.UStatisticsInfoMapper;
 import com.lz.user.model.dto.statistics.UserInformTypeStatisticsRo;
 import com.lz.user.model.dto.statistics.UserStatisticsRequest;
+import com.lz.user.model.vo.statistics.LoginLocationStatisticsVo;
 import com.lz.user.service.IUStatisticsInfoService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户统计测试
@@ -89,10 +88,7 @@ public class UStatisticsTest {
         request.setStartDate("2025-09-02");
         request.setEndDate("2025-09-16");
         request.setLocation("中国");
-        Map<String, List<MapStatisticsVo>> stringListMap = uStatisticsInfoService.userLoginLocationStatistics(request);
-        stringListMap.forEach((k, v) -> {
-            System.out.println("k = " + k);
-            System.out.println("v = " + v);
-        });
+        List<LoginLocationStatisticsVo> loginLocationStatisticsVos = uStatisticsInfoService.userLoginLocationStatistics(request);
+        loginLocationStatisticsVos.forEach(System.out::println);
     }
 }

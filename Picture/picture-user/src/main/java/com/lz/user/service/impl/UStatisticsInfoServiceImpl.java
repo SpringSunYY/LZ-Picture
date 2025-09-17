@@ -30,6 +30,7 @@ import com.lz.user.model.dto.statistics.UserStatisticsRequest;
 import com.lz.user.model.dto.uStatisticsInfo.UStatisticsInfoQuery;
 import com.lz.user.model.enums.UStatisticsTypeEnum;
 import com.lz.user.model.enums.UUserSexEnum;
+import com.lz.user.model.vo.statistics.LoginLocationStatisticsVo;
 import com.lz.user.model.vo.statistics.UserInformStatisticsVo;
 import com.lz.user.model.vo.uStatisticsInfo.UStatisticsInfoVo;
 import com.lz.user.service.IInformInfoService;
@@ -958,7 +959,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
     @CustomCacheable(keyPrefix = USER_STATISTICS_LOGIN_LOCATION, expireTime = USER_STATISTICS_LOGIN_LOCATION_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
-    public Map<String, List<MapStatisticsVo>> userLoginLocationStatistics(UserStatisticsRequest request) {
+    public List<LoginLocationStatisticsVo> userLoginLocationStatistics(UserStatisticsRequest request) {
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
         String location = request.getLocation();
@@ -966,7 +967,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
-            return new HashMap<>();
+            return new ArrayList<>();
         }
         String commonKey = "";
         boolean isChina = StringUtils.isEmpty(location) || location.equals("中国") || location.equals("中华人民共和国");
@@ -1050,7 +1051,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         return builderLoginLocationResult(countryMap, provinceMap, provinceMapList, countryMapList, isChina, location);
     }
 
-    private Map<String, List<MapStatisticsVo>> builderLoginLocationResult(Map<String, Map<String, Long>> countryMap, Map<String, Map<String, Map<String, Long>>> provinceMap, Map<String, Map<String, List<MapStatisticsVo>>> provinceMapList, Map<String, List<MapStatisticsVo>> countryMapList, boolean isChina, String location) {
+    private List<LoginLocationStatisticsVo> builderLoginLocationResult(Map<String, Map<String, Long>> countryMap, Map<String, Map<String, Map<String, Long>>> provinceMap, Map<String, Map<String, List<MapStatisticsVo>>> provinceMapList, Map<String, List<MapStatisticsVo>> countryMapList, boolean isChina, String location) {
         builderProcessLoginLocationMap(countryMap, provinceMap, provinceMapList, countryMapList);
         Map<String, List<MapStatisticsVo>> resultMap = new HashMap<>();
         if (isChina) {
@@ -1066,7 +1067,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             resultMap = stringListHashMap;
         }
         //根据键的值
-        return resultMap.entrySet().stream()
+        LinkedHashMap<String, List<MapStatisticsVo>> result = resultMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
@@ -1074,6 +1075,9 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                         (e1, e2) -> e1,
                         LinkedHashMap::new
                 ));
+        return result.entrySet().stream().map(entry -> {
+            return new LoginLocationStatisticsVo(entry.getKey(), entry.getValue());
+        }).toList();
     }
 
     private void builderProcessLoginLocationMap(Map<String, Map<String, Long>> noCountryMap, Map<String, Map<String, Map<String, Long>>> noProvinceMap,

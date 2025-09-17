@@ -87,8 +87,8 @@ import {
   userAgeStatistics,
   userInformStatistics,
   userInformTypeStatistics,
-  userLocationStatistics, userLoginLocationStatistics,
-  userLoginStatistics,
+  userLocationStatistics,
+  userLoginLocationStatistics,
   userOnlineTotalStatistics,
   userRegisterStatistics,
   userSexStatistics,
@@ -122,7 +122,7 @@ const getUserRegisterStatistics = () => {
     console.log(userRegisterStatisticsData.value)
   })
 }
-
+getUserRegisterStatistics()
 //用户登录
 const userLoginStatisticsData = ref({})
 const userLoginStatisticsName = ref('用户登录统计')
@@ -139,6 +139,7 @@ const getUserInformTypeStatistics = () => {
     userInformTypeStatisticsData.value = res.data
   })
 }
+getUserInformTypeStatistics()
 // 用户性别
 const userSexStatisticsData = ref({})
 const userSexStatisticsName = ref('用户性别比例')
@@ -187,6 +188,7 @@ const getUserInformStatistics = () => {
     }
   })
 }
+getUserInformStatistics()
 const handleScrollEnd = () => {
   if (isNextInform.value) {
     getUserInformStatistics()
@@ -243,17 +245,29 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
     startDate: query.value.startDate,
     endDate: query.value.endDate
   })
+  if (!loginResult.data) {
+    return
+  }
   // 构建地图数据
-  const totalMap = {}
-  Object.values(loginResult.data).forEach(dayArr => {
-    dayArr.forEach(item => {
-      if (!item || !item.location) return
-      const loc = item.location
-      const val = Number(item.value) || 0
-      totalMap[loc] = (totalMap[loc] || 0) + val
-    })
-  })
-  const loginLocation = Object.entries(totalMap).map(([location, value]) => ({
+  // 创建 location 总数统计对象
+  const locationTotalMap = {};
+  // 构建 chartData
+  const names = []
+  const totals = []
+  loginResult.data?.forEach(item => {
+
+    var total = 0
+    item.datas?.forEach(data => {
+      const loc = data.location;
+      const val = Number(data.value) || 0;
+      total += val
+      // 累加到对应 location
+      locationTotalMap[loc] = (locationTotalMap[loc] || 0) + val;
+    });
+    names.push(item.date)
+    totals.push(total)
+  });
+  const loginLocation = Object.entries(locationTotalMap).map(([location, value]) => ({
     location: location,
     value: value
   }))
@@ -269,30 +283,18 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
   })
 
   // 构建 chartData
-  const names = []
-  const totals = []
-
-  Object.entries(loginResult.data).forEach(([date, dayArr]) => {
-    // 计算当天总数
-    const total = dayArr.reduce((sum, item) => sum + (Number(item.value) || 0), 0)
-
-    names.push(date)
-    totals.push(total)
-  })
-  const chartData = {
+  userLoginStatisticsData.value = {
     names,
     totals
   }
-  userLoginStatisticsData.value = chartData
 }
-getMapStatisticsData()
+// getMapStatisticsData()
 const getStatistics = () => {
   getUserRegisterStatistics()
   getUserLoginLocationMapStatisticsData()
   getUserInformTypeStatistics()
   getUserInformStatistics()
 }
-getStatistics()
 </script>
 
 <style scoped lang="scss">
