@@ -3,13 +3,12 @@
     <KeywordCharts/>
   </div>
   <div style="height: 300px">
-    <BarAvgStatisics/>
+    <BarAvgStatistics/>
   </div>
 </template>
 <script setup lang="ts">
-
 import KeywordCharts from "@/components/Statistics/KeywordCharts.vue";
-import BarAvgStatisics from "@/components/Statistics/BarAvgStatisics.vue";
+import BarAvgStatistics from "@/components/Statistics/BarAvgStatistics.vue";
 </script>
 <style scoped lang="scss">
 

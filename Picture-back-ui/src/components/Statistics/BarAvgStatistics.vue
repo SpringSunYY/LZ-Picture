@@ -87,9 +87,8 @@ const setOptions = () => {
     tooltip: {
       show: true,
       trigger: 'axis', // 使用 'axis' 触发，方便对比同一X轴上的多个系列
-      backgroundColor: '#E8E093',
-      borderColor: '#E8E093',
-      borderWidth: 4,
+      backgroundColor: 'rgba(37,37,36,0.5)',
+      borderWidth: 0,
       textStyle: {
         color: '#354060'
       },
