@@ -18,6 +18,9 @@
     <div style="height: 300px">
       <PieIntervalCharts/>
     </div>
+    <div style="height: 300px">
+      <PieLineCharts/>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -27,6 +30,7 @@ import BarAvgStatistics from "@/components/Statistics/BarAvgStatistics.vue";
 import WaterMapRotateProportionStatistics from "@/components/Statistics/WaterMapRotateProportionStatistics.vue";
 import WaterMapProportionStatistics from "@/components/Statistics/WaterMapProportionStatistics.vue";
 import PieIntervalCharts from "@/components/Statistics/PieIntervalCharts.vue";
+import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
 </script>
 <style scoped lang="scss">
 .picture-statistics {
