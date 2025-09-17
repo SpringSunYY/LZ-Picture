@@ -60,6 +60,7 @@ const setOptions = () => {
 
   // --- 计算平均值 ---
   const average_val = yData.reduce((sum, val) => sum + val, 0) / yData.length;
+  const total_val = yData.reduce((sum, val) => sum + val, 0);
   const average_data = yData.map(() => average_val); // 为每个点填充平均值
 
   // --- 计算与上一期的增减量 (绝对值) ---
@@ -90,7 +91,7 @@ const setOptions = () => {
       backgroundColor: 'rgba(37,37,36,0.5)',
       borderWidth: 0,
       textStyle: {
-        color: '#354060'
+        color: '#ffffff'
       },
       // 自定义 tooltip 格式化器
       formatter: function (params) {
@@ -115,17 +116,18 @@ const setOptions = () => {
             const trendColor = difference >= 0 ? '#00ff00' : '#ff0000'; // 绿色表示增加, 红色表示减少
 
             // 显示增减量（绝对值）
-            trendText = `<span style="color: ${trendColor};"> 较上一期 ${trendSign}${differenceDisplay}</span>`;
+            trendText = `<span style="color: ${trendColor};">  (${trendSign}${differenceDisplay})</span>`;
           }
           // 显示系列名称，X轴名称，当前值，以及增减趋势
           html += `${linedemoSeries.seriesName} <br/> ${linedemoSeries.name} : ${currentVal}${trendText}<br/>`;
+          html += `总计 : ${total_val}<br/>`;
         }
 
         // 2. 处理平均值系列
         if (averageSeries) {
           // 显示平均值系列名称、X轴名称、平均值
           // 注意：averageSeries.value 是一个数值，.toFixed(2) 用于格式化
-          html += `${averageSeries.seriesName} <br/> ${averageSeries.name} : ${averageSeries.value.toFixed(2)}<br/>`;
+          html += `${averageSeries.seriesName} : ${averageSeries.value.toFixed(2)}<br/>`;
         }
 
         return html;
