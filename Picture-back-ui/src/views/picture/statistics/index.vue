@@ -1,5 +1,5 @@
 <template>
-  <div class="picture-statistics">
+  <PictureScreenBorder class="picture-statistics">
     <div style="height: 300px">
       <KeywordCharts/>
     </div>
@@ -21,7 +21,7 @@
     <div style="height: 300px">
       <PieLineCharts/>
     </div>
-  </div>
+  </PictureScreenBorder>
 </template>
 <script setup lang="ts">
 import KeywordCharts from "@/components/Statistics/KeywordCharts.vue";
@@ -31,9 +31,11 @@ import WaterMapRotateProportionCharts from "@/components/Statistics/WaterMapRota
 import WaterMapProportionCharts from "@/components/Statistics/WaterMapProportionCharts.vue";
 import PieIntervalCharts from "@/components/Statistics/PieIntervalCharts.vue";
 import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
+import PictureScreenBorder from "@/components/Border/PictureScreenBorder.vue";
 </script>
 <style scoped lang="scss">
 .picture-statistics {
-  //background-color: black;
+  min-height: 100vh;
+  max-width: 100%;
 }
 </style>
