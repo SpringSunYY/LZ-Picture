@@ -106,11 +106,12 @@ const operations = ref([
     icon: 'user'
   },
   {
-    key: '',
-    permission: ['1'],
-    name: '用户管理',
-    shortDescription: '注册、登录、权限',
-    description: '用户注册、登录、权限管理及个人信息编辑功能，提供安全可靠的用户认证体系。',
+    key: 'pictureStatistics',
+    permission: ['picture:statistics'],
+    name: '图片模块可视化',
+    shortDescription: '图片数据可视化',
+    description: '实时数据图表展示，展示图库模块统计数据。',
+    icon: 'picture'
   },
   {
     key: '',
@@ -192,6 +193,9 @@ function clickOperation(operation) {
       break;
     case 'userStatistics':
       handleToFullPage('userStatistics')
+      break;
+    case 'pictureStatistics':
+      handleToFullPage('pictureStatistics')
       break;
     default:
       noOperation()

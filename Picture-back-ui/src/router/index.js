@@ -184,6 +184,19 @@ export const dynamicRoutes = [
                 meta: {title: '用户统计', activeMenu: '/user'}
             }
         ]
+    },
+    {
+        path: '/picture/statistics',
+        hidden: true,
+        permissions: ['picture:statistics'],
+        children: [
+            {
+                path: 'index',
+                component: () => import('@/views/picture/statistics/index.vue'),
+                name: 'pictureStatistics',
+                meta: {title: '图片统计', activeMenu: '/picture'}
+            }
+        ]
     }
 ]
 
