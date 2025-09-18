@@ -49,6 +49,16 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="创建时间" style="width: 308px">
+        <el-date-picker
+            v-model="daterangeCreateTime"
+            value-format="YYYY-MM-DD"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -127,6 +137,13 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="用户编号" align="center" prop="userId" v-if="columns[10].visible"
                        :show-overflow-tooltip="true"/>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable="custom"
+                       v-if="columns[11].visible"
+                       :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -193,6 +210,7 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const daterangeCreateTime = ref([]);
 const isAsc = ref();
 const orderByColumn = ref('');
 const data = reactive({
@@ -248,6 +266,7 @@ const data = reactive({
     {key: 8, label: '分享次数', visible: true},
     {key: 9, label: '下载次数', visible: true},
     {key: 10, label: '用户编号', visible: false},
+    {key: 11, label: '创建时间', visible: true},
   ],
 });
 
@@ -273,6 +292,10 @@ function getList() {
   if (orderByColumn.value != null && isAsc.value !== null) {
     queryParams.value.params["orderByColumn"] = orderByColumn.value;
     queryParams.value.params["isAsc"] = isAsc.value;
+  }
+  if (null != daterangeCreateTime && '' != daterangeCreateTime) {
+    queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
+    queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
   }
   listPictureTagRelInfo(queryParams.value).then(response => {
     pictureTagRelInfoList.value = response.rows;

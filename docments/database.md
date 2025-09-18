@@ -2263,18 +2263,19 @@ CREATE TABLE p_picture_info
 
 #### 图片标签关联表：p_picture_tag_rel_info
 
-| 字段名         | 类型    | 长度 | 键类型                           | Null | 默认值 | 描述      |
-| -------------- | ------- | ---- | -------------------------------- | ---- | ------ | --------- |
-| picture_id     | varchar | 128  | 外键 (p_picture_info:picture_id) | 否   |        | 图片 编号 |
-| picture_name   | varchar | 32   |                                  | 否   |        | 图片名称  |
-| tag_id         | varchar | 128  | 外键 (p_tag_info:tag_id)         | 否   |        | 标签 编号 |
-| tag_name       | varchar | 32   |                                  | 否   |        | 标签名称  |
-| look_count     | bigint  |      | 索引                             | 否   | 0      | 查看次数  |
-| collect_count  | bigint  |      | 索引                             | 否   | 0      | 收藏次数  |
-| like_count     | bigint  |      | 索引                             | 否   | 0      | 点赞次数  |
-| share_count    | bigint  |      | 索引                             | 否   | 0      | 分享次数  |
-| download_count | bigint  |      | 索引                             | 否   | 0      | 下载次数  |
-| user_id        | varchar | 128  |                                  | 是   |        | 用户编号  |
+| 字段名         | 类型     | 长度 | 键类型                           | Null | 默认值   | 描述      |
+| -------------- | -------- | ---- | -------------------------------- | ---- | -------- | --------- |
+| picture_id     | varchar  | 128  | 外键 (p_picture_info:picture_id) | 否   |          | 图片 编号 |
+| picture_name   | varchar  | 32   |                                  | 否   |          | 图片名称  |
+| tag_id         | varchar  | 128  | 外键 (p_tag_info:tag_id)         | 否   |          | 标签 编号 |
+| tag_name       | varchar  | 32   |                                  | 否   |          | 标签名称  |
+| look_count     | bigint   |      | 索引                             | 否   | 0        | 查看次数  |
+| collect_count  | bigint   |      | 索引                             | 否   | 0        | 收藏次数  |
+| like_count     | bigint   |      | 索引                             | 否   | 0        | 点赞次数  |
+| share_count    | bigint   |      | 索引                             | 否   | 0        | 分享次数  |
+| download_count | bigint   |      | 索引                             | 否   | 0        | 下载次数  |
+| user_id        | varchar  | 128  |                                  | 是   |          | 用户编号  |
+| create_time    | datetime |      |                                  | 否   | 当前时间 | 创建时间  |
 
 一张图片最多保存5个标签
 
@@ -2292,6 +2293,7 @@ CREATE TABLE p_picture_tag_rel_info
     share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
     download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
     user_id varchar(128) NOT NULL COMMONT '用户编号',
+    create_time  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (picture_id, tag_id),
     INDEX idx_picture_id (picture_id),
     INDEX idx_tag_id (tag_id),
@@ -2302,7 +2304,7 @@ CREATE TABLE p_picture_tag_rel_info
     CONSTRAINT fk_rel_tag
         FOREIGN KEY (tag_id)
             REFERENCES p_picture_tag_info (tag_id)
-            ON DELETE CASCADE
+            ON DELETE CASCADE,
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='图片标签关联表';
 ```

@@ -1,5 +1,6 @@
 package com.lz.picture.model.vo.pictureTagRelInfo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.common.annotation.Excel;
 import com.lz.picture.model.domain.PictureTagRelInfo;
 import lombok.Data;
@@ -7,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 图片标签关联Vo对象 p_picture_tag_rel_info
@@ -85,6 +87,12 @@ public class PictureTagRelInfoVo implements Serializable {
     @Excel(name = "所属用户")
     private String userId;
 
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     /**
      * 对象转封装类

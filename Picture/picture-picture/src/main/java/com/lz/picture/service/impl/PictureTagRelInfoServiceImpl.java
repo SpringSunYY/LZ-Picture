@@ -13,10 +13,7 @@ import com.lz.picture.service.IPictureTagRelInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR;
@@ -54,9 +51,9 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
      * @return 图片标签关联
      */
     @CustomSort(sortFields = {
-            "lookCount", "collectCount", "likeCount", "shareCount", "downloadCount"
+            "lookCount", "collectCount", "likeCount", "shareCount", "downloadCount", "createTime"
     }, sortMappingFields = {
-            "look_count", "collect_count", "like_count", "share_count", "download_count"
+            "look_count", "collect_count", "like_count", "share_count", "download_count", "create_time"
     })
     @Override
     public List<PictureTagRelInfo> selectPictureTagRelInfoList(PictureTagRelInfo pictureTagRelInfo) {
@@ -124,6 +121,10 @@ public class PictureTagRelInfoServiceImpl extends ServiceImpl<PictureTagRelInfoM
 
         String tagId = pictureTagRelInfoQuery.getTagId();
         queryWrapper.eq(StringUtils.isNotEmpty(tagId), "tag_id", tagId);
+
+        Date createTime = pictureTagRelInfoQuery.getCreateTime();
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
+
 
         return queryWrapper;
     }

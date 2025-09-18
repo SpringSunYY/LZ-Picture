@@ -623,6 +623,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
                 rel.setUserId(pictureInfo.getUserId());
+                rel.setCreateTime(pictureInfo.getCreateTime());
                 pictureTagRelInfos.add(rel);
             });
             pictureTagRelInfoService.saveBatch(pictureTagRelInfos);
@@ -848,6 +849,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 || spaceInfo.getTotalSize() > spaceInfo.getMaxSize() && !spaceInfo.getSpaceType().equals(PSpaceTypeEnum.SPACE_TYPE_0.getValue())) {
             throw new ServiceException("空间已满，无法上传图片", HttpStatus.MOVED_PERM);
         }
+        pictureInfo.setUpdateTime(updateTime);
         pictureInfoMapper.updatePictureInfo(pictureInfo);
         if (!pictureInfoDb.getSpaceId().equals(spaceInfo.getSpaceId())) {
             //更新空间信息
@@ -963,6 +965,7 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
                 rel.setTagName(tagInfo.getName());
                 rel.setTagId(tagInfo.getTagId()); // 这里使用回填的ID
                 rel.setUserId(pictureInfo.getUserId());
+                rel.setCreateTime(pictureInfo.getUpdateTime());
                 //判断是否之前有关联标签，如果有设置默认记录值下载、浏览、分享、点赞、收藏次数
                 if (tagRelInfoMap.containsKey(tagInfo.getTagId())) {
                     PictureTagRelInfo tagRelInfo = tagRelInfoMap.get(tagInfo.getTagId());

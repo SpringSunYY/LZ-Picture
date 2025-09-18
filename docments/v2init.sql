@@ -940,6 +940,34 @@ CREATE TABLE `p_picture_tag_info`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '图片标签信息表' ROW_FORMAT = Dynamic;
 
 
+DROP TABLE IF EXISTS p_picture_tag_rel_info;
+CREATE TABLE p_picture_tag_rel_info
+(
+    picture_id varchar(128) NOT NULL COMMENT '图片编号',
+    picture_name VARCHAR(32) NOT NULL COMMENT '图片名称',
+    tag_id     VARCHAR(128) NOT NULL COMMENT '标签编号',
+    tag_name VARCHAR(32) NOT NULL COMMENT '标签名称',
+    look_count BIGINT NOT NULL DEFAULT 0 COMMENT '查看次数',
+    collect_count BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+    like_count BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
+    share_count  BIGINT NOT NULL DEFAULT 0 COMMENT '分享次数',
+    download_count BIGINT NOT NULL DEFAULT 0 COMMENT '下载次数',  
+    user_id varchar(128) NOT NULL COMMONT '用户编号',
+    create_time  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (picture_id, tag_id),
+    INDEX idx_picture_id (picture_id),
+    INDEX idx_tag_id (tag_id),
+    CONSTRAINT fk_rel_picture
+        FOREIGN KEY (picture_id)
+            REFERENCES p_picture_info (picture_id)
+            ON DELETE CASCADE,
+    CONSTRAINT fk_rel_tag
+        FOREIGN KEY (tag_id)
+            REFERENCES p_picture_tag_info (tag_id)
+            ON DELETE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='图片标签关联表';
+
 -- ----------------------------
 -- Table structure for p_search_log_info
 -- ----------------------------

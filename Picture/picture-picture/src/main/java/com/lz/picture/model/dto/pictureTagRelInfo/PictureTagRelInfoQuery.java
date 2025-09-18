@@ -1,19 +1,16 @@
 package com.lz.picture.model.dto.pictureTagRelInfo;
 
-import java.io.Serial;
-import java.util.Map;
-import java.io.Serializable;
-
-import com.lz.common.annotation.Excel;
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
-
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lz.picture.model.domain.PictureTagRelInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 图片标签关联Query对象 p_picture_tag_rel_info
@@ -55,6 +52,12 @@ public class PictureTagRelInfoQuery implements Serializable {
      * 所属用户
      */
     private String userId;
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date createTime;
 
     /**
      * 请求参数
