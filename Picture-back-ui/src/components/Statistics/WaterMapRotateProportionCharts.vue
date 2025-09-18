@@ -55,7 +55,8 @@ const initChart = () => {
       top: "2%",
       textStyle: {
         color: "#fff",
-        fontSize: 18
+        fontSize: 16,
+        fontWeight: "normal",
       }
     },
     tooltip: {
@@ -202,7 +203,7 @@ const initChart = () => {
         data: [percentage, percentage, percentage],
         label: {
           show: true,
-          textStyle: {color: '#fff', fontSize: 24},
+          textStyle: {color: '#fff', fontSize: 18},
           formatter: (params: any) => {
             return `${props.current}(${(params.value * 100).toFixed(0)}%)`;
           },
@@ -358,17 +359,10 @@ onBeforeUnmount(() => {
 
 // 监听 prop 变化，重新设置数据，ECharts 会自动更新水球图
 watch([() => props.current, () => props.total], () => {
-  if (myChartInstance && baseOption) {
-    const percentage = props.current / props.total;
-    // 只更新 liquidFill 系列的数据，ECharts 会自动播放动画
-    myChartInstance.setOption({
-      series: [
-        {
-          name: 'liquidFill',
-          data: [percentage, percentage, percentage],
-        },
-      ],
-    });
+  if (myChartInstance) {
+    myChartInstance.clear();
+    initChart();
   }
 });
+
 </script>

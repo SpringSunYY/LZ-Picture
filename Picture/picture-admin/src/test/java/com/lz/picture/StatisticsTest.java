@@ -1,6 +1,6 @@
 package com.lz.picture;
 
-import com.lz.common.core.domain.statistics.vo.KeywordStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.service.IStatisticsInfoService;
 import com.lz.picture.utils.PictureStatisticsUtil;
@@ -45,7 +45,7 @@ public class StatisticsTest {
         request.setStartDate("2025-07-18");
         request.setEndDate("2025-09-18");
         request.setSize(100L);
-        List<KeywordStatisticsVo> keywordStatisticsVos = statisticsInfoService.searchKeywordStatistics(request);
-        keywordStatisticsVos.forEach(System.err::println);
+        List<StatisticsVo> statisticsVos = statisticsInfoService.searchKeywordStatistics(request);
+        statisticsVos.forEach(System.err::println);
     }
 }

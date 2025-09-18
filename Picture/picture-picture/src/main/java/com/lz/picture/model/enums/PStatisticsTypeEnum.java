@@ -48,7 +48,15 @@ public enum PStatisticsTypeEnum {
     /**
      * 热门标签
      */
-    STATISTICS_TYPE_8("8", "热门标签");
+    STATISTICS_TYPE_8("8", "热门标签"),
+    /**
+     * 图片状态
+     */
+    STATISTICS_TYPE_9("9", "图片状态"),
+    /**
+     * 图片上传类型
+     */
+    STATISTICS_TYPE_10("10", "图片上传类型");
 
     private final String value;
     private final String label;

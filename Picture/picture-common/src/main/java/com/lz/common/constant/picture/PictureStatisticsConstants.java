@@ -36,4 +36,17 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_TAG_KEYWORD = "picture:statistics:tag:keyword";
     public static final String PICTURE_STATISTICS_TAG_KEYWORD_NAME = "标签关键词-每日";
     public static final int PICTURE_STATISTICS_TAG_KEYWORD_EXPIRE_TIME = 60 * 5;
+    /**
+     * 图片状态
+     */
+    public static final String PICTURE_STATISTICS_PICTURE_STATUS = "picture:statistics:picture:status";
+    public static final String PICTURE_STATISTICS_PICTURE_STATUS_NAME = "图片状态-每日";
+    public static final int PICTURE_STATISTICS_PICTURE_STATUS_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 图片上传类型
+     */
+    public static final String PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE = "picture:statistics:picture:upload:type";
+    public static final String PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_NAME = "图片上传类型-每日";
+    public static final int PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_EXPIRE_TIME = 60 * 5;
 }

@@ -56,7 +56,8 @@ const drawChart = () => {
       top: "2%",
       textStyle: {
         color: "#fff",
-        fontSize: 18
+        fontSize: 16,
+        fontWeight: "normal",
       }
     },
     tooltip: {

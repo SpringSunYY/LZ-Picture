@@ -123,7 +123,8 @@
     <select id="keywordSearchStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
         select count(*) as total, keyword as name
         from p_search_log_info
-        where create_time >= #{startDate} and create_time  &lt; DATE_ADD(#{endDate},INTERVAL 1 day)
+        where create_time >= #{startDate}
+          and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         group by name
             limit #{size};
     </select>
@@ -133,6 +134,24 @@
         where create_time >= #{startDate}
           and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         group by name limit #{size};
+    </select>
+    <select id="pictureStatusStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select count(*) as total, picture_status as name
+        from p_picture_info
+        <where>
+            <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
+            <if test="uploadType != null and uploadType != ''">and upload_type = #{uploadType}</if>
+        </where>
+        group by picture_status;
+    </select>
+    <select id="pictureUploadTypeStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select count(*) as total, upload_type as name
+        from p_picture_info
+        <where>
+            <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
+            <if test="pictureStatus != null and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
+        </where>
+        group by upload_type;
     </select>
 
 </mapper>

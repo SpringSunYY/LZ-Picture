@@ -27,7 +27,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="公共KEY" prop="commonKey">
+      <el-form-item label="KEY" prop="commonKey">
         <el-input
             v-model="queryParams.commonKey"
             placeholder="请输入公共KEY"

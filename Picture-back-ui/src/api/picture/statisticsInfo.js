@@ -69,3 +69,20 @@ export function tagKeywordStatistics(query) {
         params: query
     })
 }
+
+
+//图片状态
+export function pictureStatusStatistics() {
+    return request({
+        url: '/picture/statisticsInfo/picture/status',
+        method: 'get',
+    })
+}
+
+//图片上传类型
+export function pictureUploadTypeStatistics() {
+    return request({
+        url: '/picture/statisticsInfo/picture/upload/type',
+        method: 'get',
+    })
+}

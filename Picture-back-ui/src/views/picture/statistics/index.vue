@@ -1,6 +1,6 @@
 <template>
   <PictureScreenBorder class="picture-statistics">
-    <el-row gutter="20">
+    <el-row :gutter="20">
       <el-col :span="6">
         <div class="base-height">
           <KeywordCharts :chart-name="searchKeywordName" :chart-data="searchKeywordData"/>
@@ -8,7 +8,7 @@
       </el-col>
       <el-col :span="12">
         <div class="top-count">
-          <p>总计：512312张图片</p>
+          <p>总计：{{ pictureTotal }}张图片</p>
         </div>
         <el-row :gutter="20">
           <el-col :span="12">
@@ -32,19 +32,15 @@
     <BorderBox7 class="center-height-1">
       <el-row :gutter="20" class="center-height-1">
         <el-col :span="4" :offset="2">
-          <WaterMapRotateProportionCharts/>
+          <WaterMapRotateProportionCharts :chart-name="pictureStatusNormalName" :total="pictureTotal"
+                                          :current="pictureStatusNormalTotal"/>
+        </el-col>
+        <el-col :span="4" v-for="item in pictureTypeData">
+          <WaterMapProportionCharts :chart-name="item.name" :current="item.value" :total="pictureTotal"/>
         </el-col>
         <el-col :span="4">
-          <WaterMapProportionCharts/>
-        </el-col>
-        <el-col :span="4">
-          <WaterMapProportionCharts/>
-        </el-col>
-        <el-col :span="4">
-          <WaterMapProportionCharts/>
-        </el-col>
-        <el-col :span="4">
-          <WaterMapRotateProportionCharts/>
+          <WaterMapRotateProportionCharts :chart-name="pictureStatusPrivateName" :total="pictureTotal"
+                                          :current="pictureStatusPrivateTotal"/>
         </el-col>
       </el-row>
     </BorderBox7>
@@ -93,7 +89,12 @@ import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
 import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
-import {searchKeywordStatistics, tagKeywordStatistics} from "@/api/picture/statisticsInfo.js";
+import {
+  pictureStatusStatistics,
+  pictureUploadTypeStatistics,
+  searchKeywordStatistics,
+  tagKeywordStatistics
+} from "@/api/picture/statisticsInfo.js";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
 const defaultEnd = dayjs().format("YYYY-MM-DD")
@@ -127,6 +128,37 @@ const getTagKeywordData = () => {
     tagKeywordData.value = res.data
   })
 }
+//图片状态
+const pictureTotal = ref(0)
+const pictureStatusNormalTotal = ref(0)
+const pictureStatusNormalName = ref('公共图片')
+const pictureStatusPrivateTotal = ref(0)
+const pictureStatusPrivateName = ref('私有图片')
+const getPictureStatusData = () => {
+  pictureStatusStatistics().then(res => {
+    if (res.data) {
+      res.data.map(item => {
+        const value = Number(item.value)
+        if (item.name === "公共") {
+          pictureStatusNormalTotal.value = value
+        }
+        if (item.name === "私有") {
+          pictureStatusPrivateTotal.value = value
+        }
+        pictureTotal.value += value
+      })
+    }
+  })
+}
+getPictureStatusData()
+//图片上传类型
+const pictureTypeData = ref([])
+const getPictureTypeData = () => {
+  pictureUploadTypeStatistics().then(res => {
+    pictureTypeData.value = res.data
+  })
+}
+getPictureTypeData()
 getStatistics()
 </script>
 <style scoped lang="scss">

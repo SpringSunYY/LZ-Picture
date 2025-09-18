@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -83,4 +84,28 @@ public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
      * @date: 2025/9/18 18:23
      **/
     List<StatisticsRo> tagKeywordStatistics(KeywordStatisticsRequest request);
+
+    /**
+     * 图片状态统计
+     *
+     * @param delete     删除
+     * @param uploadType 上传类型
+     * @return List<StatisticsRo>
+     * @author: YY
+     * @method: pictureStatusStatistics
+     * @date: 2025/9/18 19:18
+     **/
+    List<StatisticsRo> pictureStatusStatistics(@Param("delete") String delete, @Param("uploadType") String uploadType);
+
+    /**
+     * 图片上传类型统计
+     *
+     * @param delete        删除
+     * @param pictureStatus 状态
+     * @return List<StatisticsRo>
+     * @author: YY
+     * @method: pictureUploadTypeStatistics
+     * @date: 2025/9/18 19:18
+     **/
+    List<StatisticsRo> pictureUploadTypeStatistics(@Param("delete") String delete, @Param("pictureStatus") String pictureStatus);
 }

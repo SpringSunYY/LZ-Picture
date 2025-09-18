@@ -9,7 +9,7 @@ import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.config.RuoYiConfig;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
-import com.lz.common.core.domain.statistics.vo.KeywordStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.manager.file.PictureDownloadManager;
@@ -27,6 +27,8 @@ import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
+import com.lz.picture.model.enums.PPictureStatusEnum;
+import com.lz.picture.model.enums.PPictureUploadTypeEnum;
 import com.lz.picture.model.enums.PStatisticsTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
@@ -369,12 +371,21 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         );
     }
 
+    @Override
+    public StatisticsInfo getStatisticsInfoByCommonKey(String commonKey, String type) {
+        return this.getOne(new LambdaQueryWrapper<StatisticsInfo>()
+                .eq(StatisticsInfo::getType, type)
+                .eq(StatisticsInfo::getCommonKey, commonKey)
+                .orderByDesc(StatisticsInfo::getCreateTime)
+                .last("limit 1"));
+    }
+
     //region 统计
     @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SEARCHER_KEYWORD,
             expireTime = PICTURE_STATISTICS_SEARCHER_KEYWORD_EXPIRE_TIME,
             useQueryParamsAsKey = true)
     @Override
-    public List<KeywordStatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request) {
+    public List<StatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request) {
         //拿到开始结束时间
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
@@ -425,13 +436,14 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
 
     /**
      * 获取没有统计的日期
-     * @author: YY
-     * @method: getNoStatisticsDate
-     * @date: 2025/9/18 18:28
+     *
      * @param dateRanges
      * @param statisticsInfoList
      * @param resultMap
      * @return List<String>
+     * @author: YY
+     * @method: getNoStatisticsDate
+     * @date: 2025/9/18 18:28
      **/
     @NotNull
     private List<String> getNoStatisticsDate(List<String> dateRanges, List<StatisticsInfo> statisticsInfoList, Map<String, Long> resultMap) {
@@ -476,9 +488,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @method: builderKeywordStatisticsResult
      * @date: 2025/9/18 16:39
      **/
-    private List<KeywordStatisticsVo> builderKeywordStatisticsResult(Map<String, Long> resultMap) {
+    private List<StatisticsVo> builderKeywordStatisticsResult(Map<String, Long> resultMap) {
         return resultMap.entrySet().stream().map(entry -> {
-            KeywordStatisticsVo vo = new KeywordStatisticsVo();
+            StatisticsVo vo = new StatisticsVo();
             vo.setName(entry.getKey());
             vo.setValue(entry.getValue());
             return vo;
@@ -514,7 +526,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             expireTime = PICTURE_STATISTICS_TAG_KEYWORD_EXPIRE_TIME,
             useQueryParamsAsKey = true)
     @Override
-    public List<KeywordStatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request) {
+    public List<StatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request) {
         //拿到开始结束时间
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
@@ -562,6 +574,61 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         }
         return builderKeywordStatisticsResult(resultMap);
     }
+
+    @Override
+//    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_STATUS, expireTime = PICTURE_STATISTICS_PICTURE_STATUS_EXPIRE_TIME)
+    public List<StatisticsVo> pictureStatusStatistics() {
+        //统计默认今天，表示最新
+        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
+        StatisticsInfo statisticsInfo = getStatisticsInfoByCommonKey(PICTURE_STATISTICS_PICTURE_STATUS, PStatisticsTypeEnum.STATISTICS_TYPE_9.getValue());
+        //如果有数据且就是今天的
+        if (StringUtils.isNotNull(statisticsInfo) && DateUtils.dateTime(statisticsInfo.getCreateTime()).equals(nowData)) {
+            return JSONObject.parseArray(statisticsInfo.getContent(), StatisticsVo.class);
+        }
+        List<StatisticsVo> statisticsVoList = new ArrayList<>();
+        //没有数据，查询数据库
+        List<StatisticsRo> userSexStatistics = statisticsInfoMapper.pictureStatusStatistics("", "");
+        for (StatisticsRo userSexStatistic : userSexStatistics) {
+            Optional<PPictureStatusEnum> enumByValue = PPictureStatusEnum.getEnumByValue(userSexStatistic.getName());
+            String name = enumByValue.isPresent() ? enumByValue.get().getLabel() : userSexStatistic.getName();
+            StatisticsVo statisticsVo = new StatisticsVo();
+            statisticsVo.setName(name);
+            statisticsVo.setValue(userSexStatistic.getTotal());
+            statisticsVoList.add(statisticsVo);
+        }
+        StatisticsInfo newStatisticsInfo = builderStatisticsInfo(nowData, statisticsVoList, PStatisticsTypeEnum.STATISTICS_TYPE_9.getValue(),
+                PICTURE_STATISTICS_PICTURE_STATUS, PICTURE_STATISTICS_PICTURE_STATUS_NAME, 1L);
+        statisticsInfoMapper.insert(newStatisticsInfo);
+        return statisticsVoList;
+    }
+
+//    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, expireTime = PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_EXPIRE_TIME)
+    @Override
+    public List<StatisticsVo> pictureUploadTypeStatistics() {
+        //统计默认今天，表示最新
+        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
+        StatisticsInfo statisticsInfo = getStatisticsInfoByCommonKey(PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, PStatisticsTypeEnum.STATISTICS_TYPE_10.getValue());
+        //如果有数据且就是今天的
+        if (StringUtils.isNotNull(statisticsInfo) && DateUtils.dateTime(statisticsInfo.getCreateTime()).equals(nowData)) {
+            return JSONObject.parseArray(statisticsInfo.getContent(), StatisticsVo.class);
+        }
+        List<StatisticsVo> statisticsVoList = new ArrayList<>();
+        //没有数据，查询数据库
+        List<StatisticsRo> userSexStatistics = statisticsInfoMapper.pictureUploadTypeStatistics("", "");
+        for (StatisticsRo userSexStatistic : userSexStatistics) {
+            Optional<PPictureUploadTypeEnum> enumByValue = PPictureUploadTypeEnum.getEnumByValue(userSexStatistic.getName());
+            String name = enumByValue.isPresent() ? enumByValue.get().getLabel() : userSexStatistic.getName();
+            StatisticsVo statisticsVo = new StatisticsVo();
+            statisticsVo.setName(name);
+            statisticsVo.setValue(userSexStatistic.getTotal());
+            statisticsVoList.add(statisticsVo);
+        }
+        StatisticsInfo newStatisticsInfo = builderStatisticsInfo(nowData, statisticsVoList, PStatisticsTypeEnum.STATISTICS_TYPE_10.getValue(),
+                PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_NAME, 1L);
+        statisticsInfoMapper.insert(newStatisticsInfo);
+        return statisticsVoList;
+    }
+
     //endregion
 
 }

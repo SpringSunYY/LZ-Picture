@@ -2,7 +2,7 @@ package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lz.common.core.domain.statistics.vo.KeywordStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
@@ -160,6 +160,18 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
     List<StatisticsInfo> getStatisticsInfosByDateAndKeyType(String startDate, String endDate, String type, String commonKey);
 
     /**
+     * 获取统计信息最新
+     *
+     * @param commonKey 公共key
+     * @param type      类型
+     * @return StatisticsInfo
+     * @author: YY
+     * @method: getStatisticsInfoByCommonKey
+     * @date: 2025/9/18 19:22
+     **/
+    StatisticsInfo getStatisticsInfoByCommonKey(String commonKey, String type);
+
+    /**
      * 搜索记录关键词统计
      *
      * @param request 请求
@@ -168,7 +180,7 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: keywordSearchStatistics
      * @date: 2025/9/18 16:03
      **/
-    List<KeywordStatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request);
+    List<StatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request);
 
     /**
      * 图片标签关键词统计-热门标签
@@ -179,5 +191,27 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: tagKeywordStatistics
      * @date: 2025/9/18 18:22
      **/
-    List<KeywordStatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request);
+    List<StatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request);
+
+    /**
+     * 获取图片状态统计
+     *
+     * @param
+     * @return List<StatisticsVo>
+     * @author: YY
+     * @method: pictureStatusStatistics
+     * @date: 2025/9/18 19:23
+     **/
+    List<StatisticsVo> pictureStatusStatistics();
+
+    /**
+     * 图片上传类型统计
+     *
+     * @param
+     * @return List<StatisticsVo>
+     * @author: YY
+     * @method: pictureUploadTypeStatistics
+     * @date: 2025/9/18 19:24
+     **/
+    List<StatisticsVo> pictureUploadTypeStatistics();
 }

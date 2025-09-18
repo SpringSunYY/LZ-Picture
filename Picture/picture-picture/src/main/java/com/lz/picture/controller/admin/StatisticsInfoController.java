@@ -148,4 +148,22 @@ public class StatisticsInfoController extends BaseController {
     public AjaxResult tagKeywordStatistics(@Validated KeywordStatisticsRequest request) {
         return success(statisticsInfoService.tagKeywordStatistics(request));
     }
+
+    /**
+     * 图片状态统计
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/picture/status")
+    public AjaxResult pictureStatusStatistics() {
+        return success(statisticsInfoService.pictureStatusStatistics());
+    }
+
+    /**
+     * 图片上传类型
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/picture/upload/type")
+    public AjaxResult pictureUploadTypeStatistics() {
+        return success(statisticsInfoService.pictureUploadTypeStatistics());
+    }
 }
