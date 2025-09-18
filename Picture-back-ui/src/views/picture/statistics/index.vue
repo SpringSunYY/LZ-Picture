@@ -25,7 +25,7 @@
       </el-col>
       <el-col :span="6">
         <div class="base-height">
-          <KeywordCharts/>
+          <KeywordCharts :chart-name="tagKeywordName" :chart-data="tagKeywordData"/>
         </div>
       </el-col>
     </el-row>
@@ -93,7 +93,7 @@ import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
 import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
-import {searchKeywordStatistics} from "@/api/picture/statisticsInfo.js";
+import {searchKeywordStatistics, tagKeywordStatistics} from "@/api/picture/statisticsInfo.js";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
 const defaultEnd = dayjs().format("YYYY-MM-DD")
@@ -109,6 +109,7 @@ const onDateChange = (val) => {
 }
 const getStatistics = () => {
   getSearchKeywordData()
+  getTagKeywordData()
 }
 //搜索关键词统计
 const searchKeywordData = ref([])
@@ -116,6 +117,14 @@ const searchKeywordName = ref('热门搜索')
 const getSearchKeywordData = () => {
   searchKeywordStatistics({startDate: query.value.startDate, endDate: query.value.endDate, size: 50}).then(res => {
     searchKeywordData.value = res.data
+  })
+}
+//标签关键词统计
+const tagKeywordData = ref([])
+const tagKeywordName = ref('热门标签')
+const getTagKeywordData = () => {
+  tagKeywordStatistics({startDate: query.value.startDate, endDate: query.value.endDate, size: 50}).then(res => {
+    tagKeywordData.value = res.data
   })
 }
 getStatistics()

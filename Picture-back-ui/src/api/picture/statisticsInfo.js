@@ -60,3 +60,12 @@ export function searchKeywordStatistics(query) {
         params: query
     })
 }
+
+//标签关键词统计
+export function tagKeywordStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/tag/keyword',
+        method: 'get',
+        params: query
+    })
+}

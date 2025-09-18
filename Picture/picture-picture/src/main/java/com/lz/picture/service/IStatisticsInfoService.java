@@ -169,4 +169,15 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @date: 2025/9/18 16:03
      **/
     List<KeywordStatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request);
+
+    /**
+     * 图片标签关键词统计-热门标签
+     *
+     * @param request 请求
+     * @return List<KeywordStatisticsVo>
+     * @author: YY
+     * @method: tagKeywordStatistics
+     * @date: 2025/9/18 18:22
+     **/
+    List<KeywordStatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request);
 }

@@ -29,4 +29,11 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_SEARCHER_KEYWORD = "picture:statistics:searcher:keyword";
     public static final String PICTURE_STATISTICS_SEARCHER_KEYWORD_NAME = "搜索关键词-每日";
     public static final int PICTURE_STATISTICS_SEARCHER_KEYWORD_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 标签关键词
+     */
+    public static final String PICTURE_STATISTICS_TAG_KEYWORD = "picture:statistics:tag:keyword";
+    public static final String PICTURE_STATISTICS_TAG_KEYWORD_NAME = "标签关键词-每日";
+    public static final int PICTURE_STATISTICS_TAG_KEYWORD_EXPIRE_TIME = 60 * 5;
 }

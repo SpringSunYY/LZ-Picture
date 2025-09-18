@@ -44,7 +44,11 @@ public enum PStatisticsTypeEnum {
     /**
      * 搜索关键词
      */
-    STATISTICS_TYPE_7("7", "搜索关键词");
+    STATISTICS_TYPE_7("7", "热门搜索"),
+    /**
+     * 热门标签
+     */
+    STATISTICS_TYPE_8("8", "热门标签");
 
     private final String value;
     private final String label;

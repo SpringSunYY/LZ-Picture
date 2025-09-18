@@ -139,4 +139,13 @@ public class StatisticsInfoController extends BaseController {
     public AjaxResult searchKeywordStatistics(@Validated KeywordStatisticsRequest request) {
         return success(statisticsInfoService.searchKeywordStatistics(request));
     }
+
+    /**
+     * 图片标签关键词统计
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/tag/keyword")
+    public AjaxResult tagKeywordStatistics(@Validated KeywordStatisticsRequest request) {
+        return success(statisticsInfoService.tagKeywordStatistics(request));
+    }
 }

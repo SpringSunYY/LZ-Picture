@@ -127,5 +127,12 @@
         group by name
             limit #{size};
     </select>
+    <select id="tagKeywordStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select count(*) as total, tag_name as name
+        from p_picture_tag_rel_info
+        where create_time >= #{startDate}
+          and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
+        group by name limit #{size};
+    </select>
 
 </mapper>
