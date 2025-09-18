@@ -3,7 +3,7 @@
     <el-row gutter="20">
       <el-col :span="6">
         <div class="base-height">
-          <KeywordCharts/>
+          <KeywordCharts :chart-name="searchKeywordName" :chart-data="searchKeywordData"/>
         </div>
       </el-col>
       <el-col :span="12">
@@ -71,9 +71,14 @@
         <BarAvgCharts/>
       </el-col>
     </el-row>
+    <DateRangePicker
+        @change="onDateChange"
+        top="1%"
+        right="25%"
+    />
   </PictureScreenBorder>
 </template>
-<script setup lang="ts">
+<script setup>
 import KeywordCharts from "@/components/Statistics/KeywordCharts.vue";
 import LineAvgCharts from "@/components/Statistics/LineAvgCharts.vue";
 import BarAvgCharts from "@/components/Statistics/BarAvgCharts.vue";
@@ -85,6 +90,35 @@ import PictureScreenBorder from "@/components/Border/PictureScreenBorder.vue";
 import {BorderBox7, BorderBox8, Decoration2} from '@kjgl77/datav-vue3'
 import TableRanking from "@/components/Statistics/TableRanking.vue";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
+import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
+import dayjs from "dayjs";
+import {ref} from "vue";
+import {searchKeywordStatistics} from "@/api/picture/statisticsInfo.js";
+
+const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
+const defaultEnd = dayjs().format("YYYY-MM-DD")
+const query = ref({
+  startDate: defaultStart,
+  endDate: defaultEnd
+})
+// 用户注册
+const onDateChange = (val) => {
+  query.value.startDate = val?.[0] || ''
+  query.value.endDate = val?.[1] || ''
+  getStatistics()
+}
+const getStatistics = () => {
+  getSearchKeywordData()
+}
+//搜索关键词统计
+const searchKeywordData = ref([])
+const searchKeywordName = ref('热门搜索')
+const getSearchKeywordData = () => {
+  searchKeywordStatistics({startDate: query.value.startDate, endDate: query.value.endDate, size: 50}).then(res => {
+    searchKeywordData.value = res.data
+  })
+}
+getStatistics()
 </script>
 <style scoped lang="scss">
 .picture-statistics {

@@ -168,5 +168,5 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: keywordSearchStatistics
      * @date: 2025/9/18 16:03
      **/
-    List<KeywordStatisticsVo> keywordSearchStatistics(KeywordStatisticsRequest request);
+    List<KeywordStatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request);
 }

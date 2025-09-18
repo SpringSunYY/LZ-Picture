@@ -135,8 +135,8 @@ public class StatisticsInfoController extends BaseController {
      * 搜索关键词统计
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")
-    @GetMapping("/keyword/search")
-    public AjaxResult keywordSearchStatistics(@Validated KeywordStatisticsRequest request) {
-        return success(statisticsInfoService.keywordSearchStatistics(request));
+    @GetMapping("/search/keyword")
+    public AjaxResult searchKeywordStatistics(@Validated KeywordStatisticsRequest request) {
+        return success(statisticsInfoService.searchKeywordStatistics(request));
     }
 }

@@ -50,3 +50,13 @@ export function delStatisticsInfo(statisticsId) {
         method: 'delete'
     })
 }
+
+
+//搜索关键词统计
+export function searchKeywordStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/search/keyword',
+        method: 'get',
+        params: query
+    })
+}

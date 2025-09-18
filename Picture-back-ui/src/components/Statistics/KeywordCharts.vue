@@ -71,6 +71,10 @@ const props = defineProps({
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
     ]
+  },
+  maxLabelLength: {
+    type: Number,
+    default: 4 // 默认最多显示5个字
   }
 });
 
@@ -129,7 +133,7 @@ const initChart = (data) => {
       value: item.value,
       label: {
         show: true,
-        formatter: '{b}',
+        formatter: () => truncateName(item.name, props.maxLabelLength), // 只显示截断的
         color: getRandomColor(),
         fontSize: getFontSize(item.value, minChartValue, maxChartValue, props.fontSizeRange[0], props.fontSizeRange[1])
       },
@@ -219,7 +223,10 @@ const initChart = (data) => {
 
   chart.value.setOption(option);
 };
-
+const truncateName = (name, maxLength) => {
+  if (!name) return '';
+  return name.length > maxLength ? name.substring(0, maxLength) : name;
+};
 // 处理窗口大小变化
 const handleResize = () => {
   chart.value?.resize();

@@ -373,7 +373,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             expireTime = PICTURE_STATISTICS_SEARCHER_KEYWORD_EXPIRE_TIME,
             useQueryParamsAsKey = true)
     @Override
-    public List<KeywordStatisticsVo> keywordSearchStatistics(KeywordStatisticsRequest request) {
+    public List<KeywordStatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request) {
         //拿到开始结束时间
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();

@@ -45,7 +45,7 @@ public class StatisticsTest {
         request.setStartDate("2025-07-18");
         request.setEndDate("2025-09-18");
         request.setSize(100L);
-        List<KeywordStatisticsVo> keywordStatisticsVos = statisticsInfoService.keywordSearchStatistics(request);
+        List<KeywordStatisticsVo> keywordStatisticsVos = statisticsInfoService.searchKeywordStatistics(request);
         keywordStatisticsVos.forEach(System.err::println);
     }
 }
