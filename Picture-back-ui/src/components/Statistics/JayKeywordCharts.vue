@@ -7,6 +7,7 @@ import {nextTick, onBeforeUnmount, onMounted, ref, watch, getCurrentInstance} fr
 import * as echarts from 'echarts';
 import 'echarts-wordcloud';
 import {isHttp} from "@/utils/validate.js";
+import {generateRandomColor} from "@/utils/ruoyi.js";
 
 const {proxy} = getCurrentInstance();
 
@@ -296,13 +297,6 @@ const props = defineProps({
 const chart = ref(null);
 const chartRef = ref(null);
 
-const getRandomColor = () => {
-  if (props.defaultColor.length > 0) {
-    return props.defaultColor[Math.floor(Math.random() * props.defaultColor.length)];
-  }
-  return `rgb(${Math.random() * 160 | 0}, ${Math.random() * 160 | 0}, ${Math.random() * 160 | 0})`;
-};
-
 const loadMaskImage = async (src, containerWidth, containerHeight) => {
   return new Promise(async (resolve, reject) => {
     if (!src) {
@@ -380,7 +374,7 @@ const initChart = async () => {
   const dataWithColor = props.chartData.map(item => ({
     ...item,
     textStyle: {
-      color: getRandomColor(),
+      color: generateRandomColor(props.defaultColor),
       animation: 'unifiedFade 1000ms easeOutQuart forwards'
     }
   }));

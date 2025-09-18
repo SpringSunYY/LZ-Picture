@@ -5,7 +5,8 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
 import * as echarts from 'echarts'
-import 'echarts/theme/macarons' // 引入主题
+import 'echarts/theme/macarons'
+import {generateRandomColor} from "@/utils/ruoyi.js"; // 引入主题
 
 const props = defineProps({
   className: {
@@ -30,19 +31,22 @@ const props = defineProps({
       {name: 'YY', value: 100},
       {name: 'XC', value: 100}
     ]
-  }
+  },
+  defaultColor: {
+    type: Array,
+    default: () => [
+      '#5B8FF9', '#5AD8A6', '#5D7092', '#F6BD16', '#E86A92',
+      '#7262FD', '#269A29', '#8E36BE', '#41A7E2', '#7747A3',
+      '#FF7F50', '#FFDAB9', '#ADFF2F', '#00CED1', '#9370DB',
+      '#3CB371', '#FF69B4', '#FFB6C1', '#DA70D6', '#98FB98',
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+    ]
+  },
 })
 
 const chart = ref(null) // 图表实例
 const chartRef = ref(null) // DOM 引用
-
-// 生成明亮的随机颜色
-const getBrightColor = () => {
-  const r = Math.floor(Math.random() * 155 + 150) // 200-255之间
-  const g = Math.floor(Math.random() * 155 + 150)
-  const b = Math.floor(Math.random() * 155 + 150)
-  return `rgb(${r},${g},${b},0.9)`
-}
 
 // 计算数据总和
 const calculateTotal = (data) => {
@@ -64,9 +68,9 @@ const initChart = (data) => {
   // 为数据项添加颜色
   const coloredData = data.map(item => ({
     ...item,
-    // itemStyle: {
-    //   color: getBrightColor()
-    // }
+    itemStyle: {
+      color: generateRandomColor(props.defaultColor)
+    }
   }))
 
   // 计算总数
@@ -88,7 +92,7 @@ const initChart = (data) => {
     tooltip: {
       trigger: 'item',
       // 格式化tooltip，添加总数显示
-      formatter: function(params) {
+      formatter: function (params) {
         return `${params.seriesName} <br/>${params.name} : ${params.value} (${params.percent.toFixed(1)}%)<br/>总数: ${total}`
       }
     },
@@ -146,10 +150,10 @@ onBeforeUnmount(() => {
 
 // 监听数据变化，重新渲染图表
 watch(
-  () => props.chartData,
-  (newData) => {
-    initChart(newData)
-  },
-  {deep: true}
+    () => props.chartData,
+    (newData) => {
+      initChart(newData)
+    },
+    {deep: true}
 )
 </script>

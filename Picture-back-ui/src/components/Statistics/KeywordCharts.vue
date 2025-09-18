@@ -5,6 +5,7 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
+import {generateRandomColor} from "@/utils/ruoyi.js";
 
 const props = defineProps({
   className: {
@@ -81,12 +82,6 @@ const props = defineProps({
 const chart = ref(null); // 图表实例
 const chartRef = ref(null); // DOM 引用
 
-// 生成随机颜色
-const getRandomColor = () => {
-  const randomIndex = Math.floor(Math.random() * props.defaultColor.length);
-  return props.defaultColor[randomIndex];
-};
-
 // 计算数据总和
 const calculateTotal = (data) => {
   return data.reduce((sum, item) => Number(sum) + (Number(item.value) || 0), 0);
@@ -134,7 +129,7 @@ const initChart = (data) => {
       label: {
         show: true,
         formatter: () => truncateName(item.name, props.maxLabelLength), // 只显示截断的
-        color: getRandomColor(),
+        color: generateRandomColor(props.defaultColor),
         fontSize: getFontSize(item.value, minChartValue, maxChartValue, props.fontSizeRange[0], props.fontSizeRange[1])
       },
       itemStyle: {

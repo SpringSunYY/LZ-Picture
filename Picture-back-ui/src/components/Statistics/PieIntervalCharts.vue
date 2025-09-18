@@ -6,7 +6,8 @@
 import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
 // 引入 ECharts 主题，您可以根据需要选择或移除
-import 'echarts/theme/macarons'; // 例如：'macarons', 'dark', 'shine' 等
+import 'echarts/theme/macarons';
+import {generateRandomColor} from "@/utils/ruoyi.js"; // 例如：'macarons', 'dark', 'shine' 等
 
 // 定义组件接收的 props，用于外部传入配置
 const props = defineProps({
@@ -39,7 +40,18 @@ const props = defineProps({
       {name: '种子企业', value: 22},
       {name: '农机销售', value: 10}
     ]
-  }
+  },
+  defaultColor: {
+    type: Array,
+    default: () => [
+      'rgba(91, 143, 249, 1)', 'rgba(90, 216, 166, 1)', 'rgba(93, 112, 146, 1)', 'rgba(246, 189, 22, 1)', 'rgba(232, 106, 146, 1)',
+      'rgba(114, 98, 253, 1)', 'rgba(38, 154, 41, 1)', 'rgba(142, 54, 190, 1)', 'rgba(65, 167, 226, 1)', 'rgba(119, 71, 163, 1)',
+      'rgba(255, 127, 80, 1)', 'rgba(255, 218, 185, 1)', 'rgba(173, 255, 47, 1)', 'rgba(0, 206, 209, 1)', 'rgba(147, 112, 219, 1)',
+      'rgba(60, 179, 113, 1)', 'rgba(255, 105, 180, 1)', 'rgba(255, 182, 193, 1)', 'rgba(218, 112, 214, 1)', 'rgba(152, 251, 152, 1)',
+      'rgba(255, 107, 107, 1)', 'rgba(78, 205, 196, 1)', 'rgba(69, 183, 209, 1)', 'rgba(150, 206, 180, 1)', 'rgba(255, 234, 167, 1)',
+      'rgba(221, 160, 221, 1)', 'rgba(152, 216, 200, 1)', 'rgba(247, 220, 111, 1)', 'rgba(187, 143, 206, 1)', 'rgba(133, 193, 233, 1)'
+    ]
+  },
 });
 
 // ECharts 实例的引用
@@ -47,13 +59,6 @@ const chart = ref(null);
 // DOM 元素的 ref 引用，用于挂载 ECharts
 const chartRef = ref(null);
 
-// 生成随机的RGBA颜色字符串
-const getRandomColor = () => {
-  const r = Math.floor(Math.random() * 256);
-  const g = Math.floor(Math.random() * 256);
-  const b = Math.floor(Math.random() * 256);
-  return `rgba(${r}, ${g}, ${b}, 1)`; // 默认不透明
-};
 
 // 生成带有指定透明度的颜色
 const getTransparentColor = (color, alpha = 0.3) => {
@@ -88,7 +93,7 @@ const initChart = (data) => {
   const sum = data.reduce((total, item) => total + item.value, 0);
 
   // 生成随机颜色列表
-  const generatedColors = Array.from({length: data.length}, getRandomColor);
+  const generatedColors = data.map(color => generateRandomColor(props.defaultColor));
 
   // 为图表内部颜色列表做准备
   const colorList1 = []; // 实际使用的颜色列表（包含透明）

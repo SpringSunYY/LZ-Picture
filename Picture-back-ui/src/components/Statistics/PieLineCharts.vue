@@ -5,7 +5,8 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue';
 import * as echarts from 'echarts';
-import 'echarts/theme/macarons'; // 引入主题，用于图表渲染
+import 'echarts/theme/macarons';
+import {generateRandomColor} from "@/utils/ruoyi.js"; // 引入主题，用于图表渲染
 
 // 定义组件的属性 (Props)
 const props = defineProps({
@@ -35,7 +36,18 @@ const props = defineProps({
       {name: '重疾险', value: 260},
       {name: '团财险', value: 180}
     ]
-  }
+  },
+  defaultColor: {
+    type: Array,
+    default: () => [
+      '#5B8FF9', '#5AD8A6', '#5D7092', '#F6BD16', '#E86A92',
+      '#7262FD', '#269A29', '#8E36BE', '#41A7E2', '#7747A3',
+      '#FF7F50', '#FFDAB9', '#ADFF2F', '#00CED1', '#9370DB',
+      '#3CB371', '#FF69B4', '#FFB6C1', '#DA70D6', '#98FB98',
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+    ]
+  },
 });
 
 const chart = ref(null); // ECharts 图表实例
@@ -68,15 +80,6 @@ const dashed = (val) => {
   return dataArr;
 };
 
-// 辅助函数：生成随机颜色
-const getRandomColor = () => {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
 
 // 辅助函数：将十六进制颜色转换为带透明度的 rgba 格式
 const getAlphaColor = (hex, alpha) => {
@@ -101,7 +104,7 @@ const initChart = (data) => {
 
   // 为数据项添加随机颜色和样式
   const styledData = data.map((item) => {
-    const randomColor = getRandomColor();
+    const randomColor = generateRandomColor(props.defaultColor);
     return {
       ...item,
       itemStyle: {

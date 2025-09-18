@@ -284,3 +284,17 @@ export function isEmptyObject(obj) {
         return false;
     });
 }
+
+// 生成随机颜色
+export function generateRandomColor(colorList) {
+    if (colorList && colorList.length > 0) {
+        const randomIndex = Math.floor(Math.random() * colorList.length);
+        return colorList[randomIndex];
+    } else {
+        const r = Math.floor(Math.random() * 155 + 150) // 200-255之间
+        const g = Math.floor(Math.random() * 155 + 150)
+        const b = Math.floor(Math.random() * 155 + 150)
+        return `rgb(${r},${g},${b},0.9)`
+    }
+}
+;
