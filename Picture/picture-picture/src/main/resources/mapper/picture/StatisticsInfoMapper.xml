@@ -119,4 +119,13 @@
             #{statisticsId}
         </foreach>
     </delete>
+
+    <select id="keywordSearchStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select count(*) as total, keyword as name
+        from p_search_log_info
+        where create_time >= #{startDate} and create_time  &lt; DATE_ADD(#{endDate},INTERVAL 1 day)
+        group by name
+            limit #{size};
+    </select>
+
 </mapper>

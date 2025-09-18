@@ -16,6 +16,7 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.uuid.IdUtils;
+import com.lz.common.utils.verify.DateVerifyUtils;
 import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.service.IInformTemplateInfoService;
 import com.lz.system.service.ISysConfigService;
@@ -198,7 +199,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //拿到开始结束时间
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        Date nowDate = checkDate(startDate, endDate);
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
@@ -268,27 +269,6 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         uStatisticsInfo.setContent(JSONObject.toJSONString(content));
         uStatisticsInfo.setCreateTime(DateUtils.dateTime(DateUtils.YYYY_MM_DD, date));
         return uStatisticsInfo;
-    }
-
-    /**
-     * 校验时间
-     *
-     * @param startDate 开始时间
-     * @param endDate   结束时间
-     */
-    private static Date checkDate(String startDate, String endDate) {
-        //如果开始时间大于结束时间
-        Date startTime = DateUtils.parseDate(startDate);
-        Date endTime = DateUtils.parseDate(endDate);
-        if (startTime.getTime() > endTime.getTime()) {
-            throw new ServiceException("开始时间不能大于结束时间");
-        }
-        //如果结束时间大于当前时间
-        Date nowDate = DateUtils.getNowDate();
-        if (endTime.getTime() > nowDate.getTime()) {
-            throw new ServiceException("结束时间不能大于当前时间");
-        }
-        return nowDate;
     }
 
     /**
@@ -517,7 +497,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         //拿到开始结束时间
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        Date nowDate = checkDate(startDate, endDate);
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
@@ -690,7 +670,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     public BarStatisticsVo userInformTypeStatistics(UserStatisticsRequest request) {
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        Date nowDate = checkDate(startDate, endDate);
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
@@ -830,7 +810,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
     public List<UserInformStatisticsVo> userInformStatistics(UserInformStatisticsRequest request) {
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        checkDate(startDate, endDate);
+        DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
         startDate = startDate + " 00:00:00";
         endDate = endDate + " 23:59:59";
         Long pageNum = request.getPageNum();
@@ -963,7 +943,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
         String location = request.getLocation();
-        Date nowDate = checkDate(startDate, endDate);
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {

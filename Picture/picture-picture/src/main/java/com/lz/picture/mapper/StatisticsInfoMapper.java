@@ -1,7 +1,9 @@
 package com.lz.picture.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.picture.model.domain.StatisticsInfo;
+import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 
 import java.util.List;
 
@@ -59,4 +61,15 @@ public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
      * @return 结果
      */
     public int deleteStatisticsInfoByStatisticsIds(String[] statisticsIds);
+
+    /**
+     * 用户搜索关键词统计
+     *
+     * @param request 请求参数
+     * @return List<StatisticsRo>
+     * @author: YY
+     * @method: keywordSearchStatistics
+     * @date: 2025/9/18 16:30
+     **/
+    List<StatisticsRo> keywordSearchStatistics(KeywordStatisticsRequest request);
 }

@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import static com.lz.common.constant.picture.PictureStatisticsConstants.PICTURE_STATISTICS_PICTURE_HOT;
 import static com.lz.common.constant.redis.UserConfigRedisConstants.CONFIG_TEMPLATE_INFO;
-import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT;
 
 /**
  * 缓存监控

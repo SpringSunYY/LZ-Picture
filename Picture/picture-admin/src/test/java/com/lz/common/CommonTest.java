@@ -20,8 +20,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
-import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT;
-import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY;
+import static com.lz.common.constant.picture.PictureStatisticsConstants.PICTURE_STATISTICS_PICTURE_HOT;
+import static com.lz.common.constant.picture.PictureStatisticsConstants.PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY;
+
 
 /**
  * Project: Picture

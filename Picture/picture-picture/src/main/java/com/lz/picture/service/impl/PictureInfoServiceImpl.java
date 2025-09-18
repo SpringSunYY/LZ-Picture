@@ -75,11 +75,11 @@ import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE;
 import static com.lz.common.constant.config.TemplateInfoKeyConstants.DOWNLOAD_PICTURE_AUTHOR_PROPORTION;
 import static com.lz.common.constant.picture.PictureInfoConstants.*;
+import static com.lz.common.constant.picture.PictureStatisticsConstants.PICTURE_STATISTICS_PICTURE_HOT;
+import static com.lz.common.constant.picture.PictureStatisticsConstants.PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY;
 import static com.lz.common.constant.redis.PictureRedisConstants.*;
 import static com.lz.common.utils.DateUtils.YYYY_MM_DD_HH_MM_SS;
 import static com.lz.config.utils.ConfigInfoUtils.*;
-import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT;
-import static com.lz.picture.utils.PictureStatisticsUtil.PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY;
 
 /**
  * 图片信息Service业务层处理
@@ -1753,7 +1753,5 @@ public class PictureInfoServiceImpl extends ServiceImpl<PictureInfoMapper, Pictu
         }
         return vos;
     }
-
-
     //region
 }

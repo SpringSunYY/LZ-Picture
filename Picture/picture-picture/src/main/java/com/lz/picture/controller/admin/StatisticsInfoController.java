@@ -8,6 +8,7 @@ import com.lz.common.enums.BusinessType;
 import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.StatisticsInfo;
+import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.*;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -113,6 +115,7 @@ public class StatisticsInfoController extends BaseController {
         return success(statisticsInfoService.getStatisticsInfoStages(request));
     }
 
+    @PreAuthorize("@ss.hasPermi('picture:download:hot')")
     @GetMapping("/download/hot")
     public void hot(Boolean isDelete, String type, String commonKey, String statisticsKey, Long stage, int number, HttpServletResponse response, HttpServletRequest request) {
         try {
@@ -126,5 +129,14 @@ public class StatisticsInfoController extends BaseController {
         } catch (Exception e) {
             log.error("下载文件失败", e);
         }
+    }
+
+    /**
+     * 搜索关键词统计
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/keyword/search")
+    public AjaxResult keywordSearchStatistics(@Validated KeywordStatisticsRequest request) {
+        return success(statisticsInfoService.keywordSearchStatistics(request));
     }
 }

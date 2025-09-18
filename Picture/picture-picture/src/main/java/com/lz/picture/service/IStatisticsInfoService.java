@@ -2,9 +2,11 @@ package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.statistics.vo.KeywordStatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
+import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
@@ -142,4 +144,29 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @date: 2025/7/25 15:36
      **/
     StatisticsFileDto getStatisticsPictureHotFilePath(String type, String commonKey, String statisticsKey, Long stage, int number);
+
+    /**
+     * 根据日期和key获取统计信息
+     *
+     * @param startDate 开始时间
+     * @param endDate   结束时间
+     * @param type      类型
+     * @param commonKey 公共key
+     * @return List<StatisticsInfo>
+     * @author: YY
+     * @method: getStatisticsInfosByDateAndKeyType
+     * @date: 2025/9/18 16:49
+     **/
+    List<StatisticsInfo> getStatisticsInfosByDateAndKeyType(String startDate, String endDate, String type, String commonKey);
+
+    /**
+     * 搜索记录关键词统计
+     *
+     * @param request 请求
+     * @return List<KeywordStatisticsVo>
+     * @author: YY
+     * @method: keywordSearchStatistics
+     * @date: 2025/9/18 16:03
+     **/
+    List<KeywordStatisticsVo> keywordSearchStatistics(KeywordStatisticsRequest request);
 }

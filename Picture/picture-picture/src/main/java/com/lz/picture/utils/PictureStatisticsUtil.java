@@ -27,6 +27,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
+import static com.lz.common.constant.picture.PictureStatisticsConstants.*;
 import static com.lz.config.utils.ConfigInfoUtils.*;
 
 /**
@@ -51,20 +52,6 @@ public class PictureStatisticsUtil {
     @Resource
     private RedisCache redisCache;
 
-    private static final String PICTURE_STATISTICS_PICTURE_HOT_KEY = "picture:statistics:picture:hot:minute";
-    private static final Integer PICTURE_STATISTICS_PICTURE_HOT_EXPIRE_TIME = 60 * 60 * 24;
-    //图片热门统计缓存key，日
-    public static final String PICTURE_STATISTICS_PICTURE_HOT = "picture:statistics:picture:hot";
-    private static final String PICTURE_STATISTICS_PICTURE_HOT_DAY_NAME = "图片热门统计日排行";
-    //图片热门统计缓存key，周
-    private static final String PICTURE_STATISTICS_PICTURE_HOT_WEEK_NAME = "图片热门统计周排行";
-    //图片热门统计缓存key，月
-    private static final String PICTURE_STATISTICS_PICTURE_HOT_MONTH_NAME = "图片热门统计月排行";
-    //图片热门统计缓存key，年
-    private static final String PICTURE_STATISTICS_PICTURE_HOT_YEAR_NAME = "图片热门统计年排行";
-    //图片热门统计缓存key，总
-    public static final String PICTURE_STATISTICS_PICTURE_HOT_TOTAL_KEY = "picture:statistics:picture:hot:total";
-    private static final String PICTURE_STATISTICS_PICTURE_HOT_TOTAL_NAME = "图片热门统计总排行";
     //当前key,需要存入缓存的
     private static String currentKey = PICTURE_STATISTICS_PICTURE_HOT_KEY + COMMON_SEPARATOR_CACHE + System.currentTimeMillis();
     private static String oldKey = "";

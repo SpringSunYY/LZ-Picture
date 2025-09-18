@@ -8,6 +8,8 @@ import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.config.RuoYiConfig;
+import com.lz.common.core.domain.statistics.ro.StatisticsRo;
+import com.lz.common.core.domain.statistics.vo.KeywordStatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
 import com.lz.common.manager.file.PictureDownloadManager;
@@ -16,12 +18,16 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.file.FileUtils;
+import com.lz.common.utils.uuid.IdUtils;
+import com.lz.common.utils.verify.DateVerifyUtils;
 import com.lz.picture.mapper.StatisticsInfoMapper;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
+import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
+import com.lz.picture.model.enums.PStatisticsTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
@@ -36,6 +42,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
+import static com.lz.common.constant.picture.PictureStatisticsConstants.*;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_STATISTICS_STAGES;
 import static com.lz.common.constant.redis.PictureRedisConstants.PICTURE_STATISTICS_STAGES_EXPIRE_TIME;
 import static com.lz.config.utils.ConfigInfoUtils.PICTURE_INDEX_P_VALUE;
@@ -344,6 +352,143 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         if (!batchDownloadFileDtos.isEmpty()) {
             //下载文件
             pictureDownloadManager.downloadFile(batchDownloadFileDtos);
+        }
+    }
+    //endregion
+
+    @Override
+    public List<StatisticsInfo> getStatisticsInfosByDateAndKeyType(String startDate, String endDate, String type, String commonKey) {
+        return this.list(new LambdaQueryWrapper<StatisticsInfo>()
+                .eq(StatisticsInfo::getType, type)
+                .eq(StatisticsInfo::getCommonKey, commonKey)
+                //大于开始时间
+                .ge(StatisticsInfo::getCreateTime, startDate)
+                //小于结束时间
+                .apply("create_time < DATE_ADD({0},INTERVAL 1 day)", endDate)
+        );
+    }
+
+    //region 统计
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SEARCHER_KEYWORD,
+            expireTime = PICTURE_STATISTICS_SEARCHER_KEYWORD_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    @Override
+    public List<KeywordStatisticsVo> keywordSearchStatistics(KeywordStatisticsRequest request) {
+        //拿到开始结束时间
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
+        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
+        //如果为空查询全部
+        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
+            return List.of();
+        }
+        //灵活判断最近天数
+        String end = dateRanges.getLast();
+        //key-关键词，value-值
+        Map<String, Long> resultMap = new HashMap<>();
+        //是否包含今天
+        String today = DateUtils.dateTime(nowDate);
+        if (dateRanges.contains(today)) {
+            List<StatisticsRo> statisticsRoList = statisticsInfoMapper.keywordSearchStatistics(request);
+            builderKeywordStatisticsRoNamesAndValue(resultMap, statisticsRoList);
+            //如果只包含今天，就表示统计今天
+            if (dateRanges.size() == 1) {
+                return builderKeywordStatisticsResult(resultMap);
+            }
+            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
+            dateRanges.removeLast();
+            end = dateRanges.getLast();
+        }
+        //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
+        List<StatisticsInfo> statisticsInfoList = getStatisticsInfosByDateAndKeyType(startDate, end, PStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(), PICTURE_STATISTICS_SEARCHER_KEYWORD);
+        List<String> noStatisticsDate = new ArrayList<>(dateRanges);
+        if (!statisticsInfoList.isEmpty()) {
+            for (StatisticsInfo statisticsInfo : statisticsInfoList) {
+                //删除统计的日期
+                noStatisticsDate.remove(DateUtils.dateTime(statisticsInfo.getCreateTime()));
+                if (StringUtils.isNotEmpty(statisticsInfo.getContent())) {
+                    //拿到内容
+                    String content = statisticsInfo.getContent();
+                    //拿到内容中的关键词
+                    List<StatisticsRo> keywordList = JSONObject.parseArray(content, StatisticsRo.class);
+                    //添加到结果中
+                    builderKeywordStatisticsRoNamesAndValue(resultMap, keywordList);
+                }
+            }
+        }
+        if (!noStatisticsDate.isEmpty()) {
+            List<StatisticsInfo> noStatisticsInfoList = new ArrayList<>();
+            for (String date : noStatisticsDate) {
+                KeywordStatisticsRequest keywordStatisticsRequest = new KeywordStatisticsRequest();
+                keywordStatisticsRequest.setStartDate(date);
+                keywordStatisticsRequest.setEndDate(date);
+                keywordStatisticsRequest.setSize(request.getSize());
+                List<StatisticsRo> statisticsRos = statisticsInfoMapper.keywordSearchStatistics(keywordStatisticsRequest);
+                builderKeywordStatisticsRoNamesAndValue(resultMap, statisticsRos);
+                StatisticsInfo statisticsInfo = builderStatisticsInfo(date, statisticsRos, PStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(),
+                        PICTURE_STATISTICS_SEARCHER_KEYWORD, PICTURE_STATISTICS_SEARCHER_KEYWORD_NAME, 1L);
+                noStatisticsInfoList.add(statisticsInfo);
+            }
+            statisticsInfoMapper.insert(noStatisticsInfoList);
+        }
+        return builderKeywordStatisticsResult(resultMap);
+    }
+
+    private StatisticsInfo builderStatisticsInfo(String date, Object content, String type, String commonKey, String statisticsName, Long stage) {
+        StatisticsInfo statisticsInfo = new StatisticsInfo();
+        statisticsInfo.setStatisticsId(IdUtils.snowflakeId().toString());
+        statisticsInfo.setType(type);
+        statisticsInfo.setStatisticsName(statisticsName);
+        statisticsInfo.setCommonKey(commonKey);
+        statisticsInfo.setStatisticsKey(commonKey + COMMON_SEPARATOR_CACHE + date);
+        statisticsInfo.setStages(stage);
+        statisticsInfo.setContent(JSONObject.toJSONString(content));
+        statisticsInfo.setCreateTime(DateUtils.dateTime(DateUtils.YYYY_MM_DD, date));
+        return statisticsInfo;
+    }
+
+
+    /**
+     * 构建关键词统计结果
+     *
+     * @param resultMap resultMap
+     * @return List<KeywordStatisticsVo>
+     * @author: YY
+     * @method: builderKeywordStatisticsResult
+     * @date: 2025/9/18 16:39
+     **/
+    private List<KeywordStatisticsVo> builderKeywordStatisticsResult(Map<String, Long> resultMap) {
+        return resultMap.entrySet().stream().map(entry -> {
+            KeywordStatisticsVo vo = new KeywordStatisticsVo();
+            vo.setName(entry.getKey());
+            vo.setValue(entry.getValue());
+            return vo;
+        }).toList();
+    }
+
+    /**
+     * 构建关键词统计结果
+     *
+     * @param resultMap        resultMap
+     * @param statisticsRoList statisticsRoList
+     * @author: YY
+     * @method: builderKeywordStatisticsRoNamesAndValue
+     * @date: 2025/9/18 16:39
+     **/
+    private void builderKeywordStatisticsRoNamesAndValue(Map<String, Long> resultMap, List<StatisticsRo> statisticsRoList) {
+        if (StringUtils.isEmpty(statisticsRoList)) {
+            return;
+        }
+        for (StatisticsRo statisticsRo : statisticsRoList) {
+            if (StringUtils.isEmpty(statisticsRo.getName()) || StringUtils.isNull(statisticsRo.getTotal())) {
+                continue;
+            }
+            if (resultMap.containsKey(statisticsRo.getName())) {
+                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getTotal());
+            } else {
+                resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
+            }
         }
     }
     //endregion
