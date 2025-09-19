@@ -873,6 +873,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         if (isChina) {
             location = "";
             key = USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + "中国";
+            request.setLocation("");
         } else {
             key = USER_STATISTICS_LOCATION + COMMON_SEPARATOR_CACHE + location;
         }

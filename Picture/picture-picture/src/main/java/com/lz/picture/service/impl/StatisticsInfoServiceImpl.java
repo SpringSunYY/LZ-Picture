@@ -10,6 +10,7 @@ import com.lz.common.config.OssConfig;
 import com.lz.common.config.RuoYiConfig;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.LineManyStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
@@ -25,8 +26,10 @@ import com.lz.common.utils.verify.DateVerifyUtils;
 import com.lz.picture.mapper.StatisticsInfoMapper;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
+import com.lz.picture.model.dto.statistics.BasePictureStatisticsRequest;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
+import com.lz.picture.model.dto.statistics.PictureStatisticsRo;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
@@ -431,14 +434,14 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     @CustomCacheable(keyPrefix = PICTURE_STATISTICS_USER_BEHAVIOR,
             expireTime = PICTURE_STATISTICS_USER_BEHAVIOR_EXPIRE_TIME,
             useQueryParamsAsKey = true)
-    public List<StatisticsVo> userBehaviorStatistics(PictureStatisticsRequest request) {
+    public List<StatisticsVo> userBehaviorStatistics(BasePictureStatisticsRequest request) {
         return buildRangeStatistics(
                 PICTURE_STATISTICS_USER_BEHAVIOR,
                 PStatisticsTypeEnum.STATISTICS_TYPE_13,
                 PICTURE_STATISTICS_USER_BEHAVIOR_NAME,
                 request,
                 (req, date) -> {
-                    PictureStatisticsRequest tmp = new PictureStatisticsRequest();
+                    BasePictureStatisticsRequest tmp = new BasePictureStatisticsRequest();
                     tmp.setStartDate(date);
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.userBehaviorStatistics(tmp);
@@ -450,14 +453,14 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
 
     @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_DOWNLOAD, expireTime = PICTURE_STATISTICS_PICTURE_DOWNLOAD_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
-    public BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request) {
+    public BarStatisticsVo pictureDownloadStatistics(BasePictureStatisticsRequest request) {
         return buildRangeStatistics(
                 PICTURE_STATISTICS_PICTURE_DOWNLOAD,
                 PStatisticsTypeEnum.STATISTICS_TYPE_14,
                 PICTURE_STATISTICS_PICTURE_DOWNLOAD_NAME,
                 request,
                 (req, date) -> {
-                    PictureStatisticsRequest tmp = new PictureStatisticsRequest();
+                    BasePictureStatisticsRequest tmp = new BasePictureStatisticsRequest();
                     tmp.setStartDate(date);
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.pictureDownloadStatistics(tmp);
@@ -466,17 +469,17 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         );
     }
 
-    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SPACE,
-            expireTime = PICTURE_STATISTICS_SPACE_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SPACE_ADD,
+            expireTime = PICTURE_STATISTICS_SPACE_ADD_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
-    public BarStatisticsVo spaceStatistics(PictureStatisticsRequest request) {
+    public BarStatisticsVo spaceStatistics(BasePictureStatisticsRequest request) {
         return buildRangeStatistics(
-                PICTURE_STATISTICS_SPACE,
+                PICTURE_STATISTICS_SPACE_ADD,
                 PStatisticsTypeEnum.STATISTICS_TYPE_15,
-                PICTURE_STATISTICS_SPACE_NAME,
+                PICTURE_STATISTICS_SPACE_ADD_NAME,
                 request,
                 (req, date) -> {
-                    PictureStatisticsRequest tmp = new PictureStatisticsRequest();
+                    BasePictureStatisticsRequest tmp = new BasePictureStatisticsRequest();
                     tmp.setStartDate(date);
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.spaceStatistics(tmp);
@@ -485,17 +488,6 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         );
     }
 
-    private BarStatisticsVo builderBarStatisticsResult(Map<String, Long> resultMap) {
-        //key是时间，value是数量
-        //根据时间排序
-        LinkedHashMap<String, Long> sortMap = resultMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        BarStatisticsVo barStatisticsVo = new BarStatisticsVo();
-        barStatisticsVo.setNames(sortMap.keySet().stream().map(date -> date).toList());
-        barStatisticsVo.setTotals(sortMap.values().stream().map(total -> total).toList());
-        return barStatisticsVo;
-    }
 
     /**
      * 构建范围查询统计
@@ -547,8 +539,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         }
 
         // 历史数据查统计表
-        List<StatisticsInfo> statisticsInfoList =
-                getStatisticsInfosByDateAndKeyType(startDate, end, statisticsTypeEnum.getValue(), commonKey);
+        List<StatisticsInfo> statisticsInfoList = getStatisticsInfosByDateAndKeyType(startDate, end, statisticsTypeEnum.getValue(), commonKey);
 
         // 找到没统计过的日期
         List<String> noStatisticsDate = getNoStatisticsDate(dateRanges, statisticsInfoList, resultMap);
@@ -564,6 +555,24 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             statisticsInfoMapper.insert(newInfoList);
         }
         return resultBuilder.apply(resultMap);
+    }
+
+    /**
+     * 构建柱形图结果
+     *
+     * @param resultMap 返回结果
+     * @return
+     */
+    private BarStatisticsVo builderBarStatisticsResult(Map<String, Long> resultMap) {
+        //key是时间，value是数量
+        //根据时间排序
+        LinkedHashMap<String, Long> sortMap = resultMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        BarStatisticsVo barStatisticsVo = new BarStatisticsVo();
+        barStatisticsVo.setNames(sortMap.keySet().stream().map(date -> date).toList());
+        barStatisticsVo.setTotals(sortMap.values().stream().map(total -> total).toList());
+        return barStatisticsVo;
     }
 
     /**
@@ -692,6 +701,129 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             return vo;
         }).toList();
     }
+
+
+    @Override
+    public LineManyStatisticsVo pictureStatistics(PictureStatisticsRequest request) {
+        // 拿到开始结束时间
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
+        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
+        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
+            // 创建一个空的Map并使用resultBuilder来生成默认结果
+            return new LineManyStatisticsVo();
+        }
+
+        String end = dateRanges.getLast();
+        String today = DateUtils.dateTime(nowDate);
+        //初始化数据 key-时间，key-类型，value-数量
+        HashMap<String, Map<String, Long>> resultMap = new HashMap<>();
+        for (String date : dateRanges) {
+            HashMap<String, Long> value = new HashMap<>();
+            Arrays.stream(PPictureUploadTypeEnum.values()).forEach(enumItem -> value.put(enumItem.getValue(), 0L));
+            resultMap.put(date, value);
+        }
+        ArrayList<PictureStatisticsRo> pictureStatisticsRos = new ArrayList<>();
+        // 今天的数据必须实时查
+        if (dateRanges.contains(today)) {
+            request.setEndDate(today);
+            request.setStartDate(today);
+            List<PictureStatisticsRo> todayList = statisticsInfoMapper.pictureStatistics(request);
+            pictureStatisticsRos.addAll(todayList);
+            //如果只有一个
+            if (dateRanges.size() == 1) {
+                return builderPictureStatisticsResult(resultMap, pictureStatisticsRos);
+            }
+            dateRanges.removeLast();
+            end = dateRanges.getLast();
+        }
+        // 历史数据查统计表
+        List<StatisticsInfo> statisticsInfoList = getStatisticsInfosByDateAndKeyType(startDate, end, PStatisticsTypeEnum.STATISTICS_TYPE_16.getValue(), PICTURE_STATISTICS_PICTURE_ADD);
+        List<String> noStatisticsDate = new ArrayList<>(dateRanges);
+        if (!statisticsInfoList.isEmpty()) {
+            for (StatisticsInfo statisticsInfo : statisticsInfoList) {
+                //删除统计的日期
+                noStatisticsDate.remove(DateUtils.dateTime(statisticsInfo.getCreateTime()));
+                if (StringUtils.isNotEmpty(statisticsInfo.getContent())) {
+                    //拿到内容
+                    String content = statisticsInfo.getContent();
+                    //拿到内容中的关键词
+                    List<PictureStatisticsRo> currentList = JSONObject.parseArray(content, PictureStatisticsRo.class);
+                    pictureStatisticsRos.addAll(currentList);
+                }
+            }
+        }
+        if (StringUtils.isNotEmpty(noStatisticsDate)) {
+            List<StatisticsInfo> newInfoList = new ArrayList<>();
+            for (String date : noStatisticsDate) {
+                request.setStartDate(date);
+                request.setEndDate(date);
+                List<PictureStatisticsRo> currentList = statisticsInfoMapper.pictureStatistics(request);
+                pictureStatisticsRos.addAll(currentList);
+                StatisticsInfo info = builderStatisticsInfo(date, currentList,
+                        PStatisticsTypeEnum.STATISTICS_TYPE_16.getValue(), PICTURE_STATISTICS_PICTURE_ADD, PICTURE_STATISTICS_PICTURE_ADD_NAME, 1L);
+                newInfoList.add(info);
+            }
+            if (StringUtils.isNotEmpty(newInfoList)) {
+                statisticsInfoMapper.insert(newInfoList);
+            }
+        }
+        return builderPictureStatisticsResult(resultMap, pictureStatisticsRos);
+    }
+
+    private LineManyStatisticsVo builderPictureStatisticsResult(HashMap<String, Map<String, Long>> resultMap, List<PictureStatisticsRo> pictureStatisticsRoList) {
+        if (StringUtils.isEmpty(pictureStatisticsRoList)) {
+            return new LineManyStatisticsVo();
+        }
+        for (PictureStatisticsRo pictureStatisticsRo : pictureStatisticsRoList) {
+            String createTime = pictureStatisticsRo.getCreateTime();
+            if (!resultMap.containsKey(createTime)) {
+                resultMap.put(createTime, new HashMap<>());
+            }
+            //当前map
+            Map<String, Long> currentMap = resultMap.get(createTime);
+            if (currentMap.containsKey(pictureStatisticsRo.getUploadType())) {
+                currentMap.put(pictureStatisticsRo.getUploadType(), currentMap.get(pictureStatisticsRo.getUploadType()) + pictureStatisticsRo.getTotal());
+            } else {
+                currentMap.put(pictureStatisticsRo.getUploadType(), pictureStatisticsRo.getTotal());
+            }
+        }
+        //按照时间排序
+        LinkedHashMap<String, Map<String, Long>> sortMap = resultMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        //新建value map，key-上传类型，value-数量
+        Map<String, List<Long>> resultValueMap = new HashMap<>();
+        for (Map.Entry<String, Map<String, Long>> entry : sortMap.entrySet()) {
+            Map<String, Long> value = entry.getValue();
+            value.forEach((key1, value1) -> {
+                if (!resultValueMap.containsKey(key1)) {
+                    resultValueMap.put(key1, new ArrayList<>());
+                }
+                resultValueMap.get(key1).add(value1);
+            });
+        }
+        //拿到所有的时间，也就是sortMap的key
+        List<String> timeList = sortMap.keySet().stream().toList();
+        List<LineManyStatisticsVo.Data> dataList = new ArrayList<>();
+        resultValueMap.forEach((key, value) -> {
+            LineManyStatisticsVo.Data data = new LineManyStatisticsVo.Data();
+            Optional<PPictureUploadTypeEnum> enumByValue = PPictureUploadTypeEnum.getEnumByValue(key);
+            if (enumByValue.isPresent()) {
+                data.setName(enumByValue.get().getLabel());
+            } else {
+                data.setName(key);
+            }
+            data.setValue(value);
+            dataList.add(data);
+        });
+        LineManyStatisticsVo lineManyStatisticsVo = new LineManyStatisticsVo();
+        lineManyStatisticsVo.setNames(timeList);
+        lineManyStatisticsVo.setValues(dataList);
+        return lineManyStatisticsVo;
+    }
+
 
     @Override
     @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_STATUS, expireTime = PICTURE_STATISTICS_PICTURE_STATUS_EXPIRE_TIME)

@@ -97,6 +97,15 @@ export function spaceStatistics(query) {
     })
 }
 
+//图片统计
+export function pictureStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/picture',
+        method: 'get',
+        params: query
+    })
+}
+
 //图片状态
 export function pictureStatusStatistics() {
     return request({

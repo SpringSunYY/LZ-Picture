@@ -3,11 +3,13 @@ package com.lz.picture.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.LineManyStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.BasePictureStatisticsRequest;
 import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
@@ -204,7 +206,7 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: userBehaviorStatistics
      * @date: 2025/9/19 15:56
      **/
-    List<StatisticsVo> userBehaviorStatistics(PictureStatisticsRequest request);
+    List<StatisticsVo> userBehaviorStatistics(BasePictureStatisticsRequest request);
 
 
     /**
@@ -216,7 +218,7 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: pictureDownloadStatistics
      * @date: 2025/9/19 22：00
      **/
-    BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request);
+    BarStatisticsVo pictureDownloadStatistics(BasePictureStatisticsRequest request);
 
     /**
      * 空间统计
@@ -227,7 +229,19 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @method: spaceStatistics
      * @date: 2025/9/19 22:00
      **/
-    BarStatisticsVo spaceStatistics(PictureStatisticsRequest request);
+    BarStatisticsVo spaceStatistics(BasePictureStatisticsRequest request);
+
+
+    /**
+     * 图片统计
+     *
+     * @param request 统计信息
+     * @return LineManyStatisticsVo
+     * @author: YY
+     * @method: pictureStatistics
+     * @date: 2025/9/19 22:28
+     **/
+    LineManyStatisticsVo pictureStatistics(PictureStatisticsRequest request);
 
     /**
      * 获取图片状态统计

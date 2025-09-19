@@ -193,5 +193,22 @@
           and create_time &lt; DATE_ADD(#{endDate} , INTERVAL 1 day)
         group by name
     </select>
+    <select id="pictureStatistics" resultType="com.lz.picture.model.dto.statistics.PictureStatisticsRo">
+        SELECT COUNT(*) AS total,
+        DATE(create_time) AS createTime,
+        upload_type AS uploadType
+        FROM p_picture_info
+        <where>
+            <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
+            <if test="categoryId != null and categoryId != ''">and category_id = #{categoryId}</if>
+            <if test="spaceId != null and spaceId != ''">and space_id = #{spaceId}</if>
+            <if test="folderId != null and folderId != ''">and folder_id = #{folderId}</if>
+            <if test="userId != null and userId != ''">and user_id = #{userId}</if>
+            <if test="pictureStatus != null and pictureStatus != ''">and picture_status = #{pictureStatus}</if>
+            <if test="startDate != null and startDate != ''">and create_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)</if>
+        </where>
+        GROUP BY DATE(create_time), upload_type;
+    </select>
 
 </mapper>

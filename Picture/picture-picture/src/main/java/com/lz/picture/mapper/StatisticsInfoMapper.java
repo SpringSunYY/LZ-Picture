@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.BasePictureStatisticsRequest;
 import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
+import com.lz.picture.model.dto.statistics.PictureStatisticsRo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -112,53 +114,69 @@ public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
 
     /**
      * 空间文件总数统计
+     *
+     * @param delete      删除
+     * @param spaceStatus 状态
+     * @return List<StatisticsRo>
      * @author: YY
      * @method: spaceFileTotalStatistics
      * @date: 2025/9/19 14:57
-     * @param delete 删除
-     * @param spaceStatus 状态
-     * @return List<StatisticsRo>
      **/
     List<StatisticsRo> spaceFileTotalStatistics(@Param("delete") String delete, @Param("spaceStatus") String spaceStatus);
 
     /**
      * 空间文件大小统计
+     *
+     * @param delete      删除
+     * @param spaceStatus 状态
+     * @return List<StatisticsRo>
      * @author: YY
      * @method: spaceFileSizeStatistics
      * @date: 2025/9/19 15:14
-     * @param delete 删除
-     * @param spaceStatus 状态
-     * @return List<StatisticsRo>
      **/
     List<StatisticsRo> spaceFileSizeStatistics(@Param("delete") String delete, @Param("spaceStatus") String spaceStatus);
 
     /**
      * 用户行为统计
+     *
+     * @param request 请求参数
+     * @return List<StatisticsRo>
      * @author: YY
      * @method: userBehaviorStatistics
      * @date: 2025/9/19 15:59
-     * @param request 请求参数
-     * @return List<StatisticsRo>
      **/
-    List<StatisticsRo> userBehaviorStatistics(PictureStatisticsRequest request);
+    List<StatisticsRo> userBehaviorStatistics(BasePictureStatisticsRequest request);
 
     /**
      * 图片下载统计
+     *
+     * @param request 请求参数
+     * @return List<StatisticsRo>
      * @author: YY
      * @method: pictureDownloadStatistics
      * @date: 2025/9/19 16:56
-     * @param request 请求参数
-     * @return List<StatisticsRo>
      **/
-    List<StatisticsRo> pictureDownloadStatistics(PictureStatisticsRequest request);
+    List<StatisticsRo> pictureDownloadStatistics(BasePictureStatisticsRequest request);
 
     /**
      * 空间统计
+     *
+     * @param request 请求参数
+     * @return List<StatisticsRo>
      * @author: YY
      * @method: spaceStatistics
      * @date: 2025/9/19 22:04
-     * @param request 请求参数
-     * @return List<StatisticsRo>
      **/
-    List<StatisticsRo> spaceStatistics(PictureStatisticsRequest request);
+    List<StatisticsRo> spaceStatistics(BasePictureStatisticsRequest request);
+
+    /**
+     * 图片统计
+     *
+     * @param request 请求参数
+     * @return List<PictureStatisticsRo>
+     * @author: YY
+     * @method: pictureStatistics
+     * @date: 2025/9/19 22:33
+     **/
+    List<PictureStatisticsRo> pictureStatistics(PictureStatisticsRequest request);
 }

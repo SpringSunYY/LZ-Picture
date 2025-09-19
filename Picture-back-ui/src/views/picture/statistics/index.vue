@@ -61,7 +61,7 @@
         <LineAvgCharts :chart-data="pictureDownloadData" :chart-name="pictureDownloadName"/>
       </el-col>
       <el-col :span="10">
-        <LineZoomCharts/>
+        <LineZoomCharts :chart-name="pictureName" :chart-data="pictureData" />
       </el-col>
       <el-col :span="7">
         <BarAvgCharts :chart-data="spaceData" :chart-name="spaceName"/>
@@ -90,7 +90,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
 import {
-  pictureDownloadStatistics,
+  pictureDownloadStatistics, pictureStatistics,
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
   searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics, spaceStatistics,
@@ -116,6 +116,7 @@ const getStatistics = () => {
   getUserBehaviorData()
   getPictureDownloadData()
   getSpaceData()
+  getPictureData()
 }
 //搜索关键词统计
 const searchKeywordData = ref([])
@@ -147,6 +148,14 @@ const spaceName = ref('空间统计')
 const getSpaceData = () => {
   spaceStatistics(query.value).then(res => {
     spaceData.value = res.data
+  })
+}
+//图片统计
+const pictureData = ref([])
+const pictureName = ref('图片统计')
+const getPictureData = () => {
+  pictureStatistics(query.value).then(res => {
+    pictureData.value = res.data
   })
 }
 //图片状态

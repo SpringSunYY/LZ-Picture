@@ -81,7 +81,14 @@ public class PictureStatisticsConstants {
     /**
      * 空间
      */
-    public static final String PICTURE_STATISTICS_SPACE = "picture:statistics:space";
-    public static final String PICTURE_STATISTICS_SPACE_NAME = "空间-每日";
-    public static final int PICTURE_STATISTICS_SPACE_EXPIRE_TIME = 60 * 5;
+    public static final String PICTURE_STATISTICS_SPACE_ADD = "picture:statistics:space:add";
+    public static final String PICTURE_STATISTICS_SPACE_ADD_NAME = "空间新增-每日";
+    public static final int PICTURE_STATISTICS_SPACE_ADD_EXPIRE_TIME = 60 * 5;
+
+    /**
+     *  图片
+     */
+    public static final String PICTURE_STATISTICS_PICTURE_ADD = "picture:statistics:picture:add";
+    public static final String PICTURE_STATISTICS_PICTURE_ADD_NAME = "图片新增-每日";
+    public static final int PICTURE_STATISTICS_PICTURE_ADD_EXPIRE_TIME = 60 * 5;
 }

@@ -9,6 +9,7 @@ import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.BasePictureStatisticsRequest;
 import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.*;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
@@ -155,7 +156,7 @@ public class StatisticsInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")
     @GetMapping("/user/behavior")
-    public AjaxResult userBehaviorStatistics(@Validated PictureStatisticsRequest request) {
+    public AjaxResult userBehaviorStatistics(@Validated BasePictureStatisticsRequest request) {
         return success(statisticsInfoService.userBehaviorStatistics(request));
     }
 
@@ -164,7 +165,7 @@ public class StatisticsInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")
     @GetMapping("/picture/download")
-    public AjaxResult pictureDownloadStatistics(@Validated PictureStatisticsRequest request) {
+    public AjaxResult pictureDownloadStatistics(@Validated BasePictureStatisticsRequest request) {
         return success(statisticsInfoService.pictureDownloadStatistics(request));
     }
 
@@ -173,8 +174,17 @@ public class StatisticsInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")
     @GetMapping("/space")
-    public AjaxResult spaceStatistics(@Validated PictureStatisticsRequest request) {
+    public AjaxResult spaceStatistics(@Validated BasePictureStatisticsRequest request) {
         return success(statisticsInfoService.spaceStatistics(request));
+    }
+
+    /**
+     * 图片统计
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/picture")
+    public AjaxResult pictureStatistics(@Validated PictureStatisticsRequest request) {
+        return success(statisticsInfoService.pictureStatistics(request));
     }
 
     /**
