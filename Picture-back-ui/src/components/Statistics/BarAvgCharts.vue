@@ -71,14 +71,13 @@ const setOptions = () => {
         const currentValue = params[0].value;
 
         const currentIndex = xData.indexOf(xAxisCategory);
-        let percentageChange = '';
+        let percentageChange = '0';
         if (currentIndex > 0) {
           const lastValue = yData[currentIndex - 1];
           if (lastValue !== 0) {
-            percentageChange =
-                (((currentValue - lastValue) / lastValue) * 100).toFixed(2);
+            percentageChange = currentValue - lastValue;
           } else if (currentValue > 0) {
-            percentageChange = '∞';
+            percentageChange = '+';
           } else if (currentValue < 0) {
             percentageChange = '-∞';
           }

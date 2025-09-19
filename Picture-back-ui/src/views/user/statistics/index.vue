@@ -116,10 +116,10 @@ const onDateChange = (val) => {
 
 const getUserRegisterStatistics = () => {
   userRegisterStatistics(query.value).then(res => {
-    userRegisterStatisticsData.value.chartXData = res.data.names
-    userRegisterStatisticsData.value.chartYData = []
-    userRegisterStatisticsData.value.chartYData.push({value: res.data.totals, name: userRegisterStatisticsName.value})
-    console.log(userRegisterStatisticsData.value)
+    userRegisterStatisticsData.value.names = res.data.names
+    userRegisterStatisticsData.value.values = []
+    userRegisterStatisticsData.value.values.push({value: res.data.totals, name: userRegisterStatisticsName.value})
+    // console.log(userRegisterStatisticsData.value)
   })
 }
 getUserRegisterStatistics()

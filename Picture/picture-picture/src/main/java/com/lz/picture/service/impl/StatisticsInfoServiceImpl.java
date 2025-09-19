@@ -524,6 +524,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
 
         String end = dateRanges.getLast();
         Map<String, Long> resultMap = new HashMap<>();
+        for (String dateRange : dateRanges) {
+            resultMap.put(dateRange, 0L);
+        }
         String today = DateUtils.dateTime(nowDate);
 
         // 今天的数据必须实时查
