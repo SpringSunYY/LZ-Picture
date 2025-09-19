@@ -405,7 +405,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     tmp.setSize(req.getSize());
                     return statisticsInfoMapper.keywordSearchStatistics(tmp);
                 },
-                this::builderKeywordStatisticsResult
+                this::builderKeywordStatisticsResult,
+                false
         );
     }
 
@@ -426,7 +427,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     tmp.setSize(req.getSize());
                     return statisticsInfoMapper.tagKeywordStatistics(tmp);
                 },
-                this::builderKeywordStatisticsResult
+                this::builderKeywordStatisticsResult,
+                false
         );
     }
 
@@ -446,7 +448,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.userBehaviorStatistics(tmp);
                 },
-                this::builderUserBehaviorStatisticsResult
+                this::builderUserBehaviorStatisticsResult,
+                false
         );
     }
 
@@ -465,7 +468,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.pictureDownloadStatistics(tmp);
                 },
-                this::builderBarStatisticsResult
+                this::builderBarStatisticsResult,
+                true
         );
     }
 
@@ -484,7 +488,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.spaceStatistics(tmp);
                 },
-                this::builderBarStatisticsResult
+                this::builderBarStatisticsResult,
+                true
         );
     }
 
@@ -498,6 +503,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @param request            请求参数
      * @param queryFunction      查询方法
      * @param resultBuilder      结果构建方法
+     * @param isInit             是否初始化
      * @return List<StatisticsVo>
      * @author: YY
      * @method: buildRangeStatistics
@@ -509,7 +515,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             String statisticsName,
             REQ request,
             BiFunction<REQ, String, List<StatisticsRo>> queryFunction, // queryFunction(request, date)
-            Function<Map<String, Long>, R> resultBuilder
+            Function<Map<String, Long>, R> resultBuilder,
+            boolean isInit
     ) {
         // 拿到开始结束时间
         String startDate = (String) ReflectUtils.getFieldValue(request, "startDate");
@@ -524,8 +531,10 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
 
         String end = dateRanges.getLast();
         Map<String, Long> resultMap = new HashMap<>();
-        for (String dateRange : dateRanges) {
-            resultMap.put(dateRange, 0L);
+        if (isInit) {
+            for (String dateRange : dateRanges) {
+                resultMap.put(dateRange, 0L);
+            }
         }
         String today = DateUtils.dateTime(nowDate);
 
