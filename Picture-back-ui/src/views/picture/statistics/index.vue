@@ -49,7 +49,7 @@
         <TableRanking/>
       </el-col>
       <el-col :span="8">
-        <PieIntervalCharts/>
+        <PieIntervalCharts :chart-name="userBehaviorName" :chart-data="userBehaviorData"/>
       </el-col>
       <el-col :span="8" class="center-height-2">
         <TableRanking/>
@@ -93,7 +93,7 @@ import {
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
   searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics,
-  tagKeywordStatistics
+  tagKeywordStatistics, userBehaviorStatistics
 } from "@/api/picture/statisticsInfo.js";
 import {formatSizeToGB} from "@/utils/ruoyi.js";
 
@@ -112,6 +112,7 @@ const onDateChange = (val) => {
 const getStatistics = () => {
   getSearchKeywordData()
   getTagKeywordData()
+  getUserBehaviorData()
 }
 //搜索关键词统计
 const searchKeywordData = ref([])
@@ -184,6 +185,15 @@ const getSpaceFileTotalData = () => {
   })
 }
 getSpaceFileTotalData()
+
+//用户行文
+const userBehaviorData = ref([])
+const userBehaviorName = ref('用户行为')
+const getUserBehaviorData = () => {
+  userBehaviorStatistics(query.value).then(res => {
+    userBehaviorData.value = res.data
+  })
+}
 getStatistics()
 </script>
 <style scoped lang="scss">

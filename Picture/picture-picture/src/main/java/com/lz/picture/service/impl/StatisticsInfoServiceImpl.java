@@ -18,19 +18,18 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.file.FileUtils;
+import com.lz.common.utils.reflect.ReflectUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.common.utils.verify.DateVerifyUtils;
 import com.lz.picture.mapper.StatisticsInfoMapper;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
-import com.lz.picture.model.enums.PPictureStatusEnum;
-import com.lz.picture.model.enums.PPictureUploadTypeEnum;
-import com.lz.picture.model.enums.PSpaceTypeEnum;
-import com.lz.picture.model.enums.PStatisticsTypeEnum;
+import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
@@ -44,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -384,65 +384,167 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     }
 
     //region 统计
+    @Override
     @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SEARCHER_KEYWORD,
             expireTime = PICTURE_STATISTICS_SEARCHER_KEYWORD_EXPIRE_TIME,
             useQueryParamsAsKey = true)
-    @Override
     public List<StatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request) {
-        //拿到开始结束时间
-        String startDate = request.getStartDate();
-        String endDate = request.getEndDate();
+        return buildRangeStatistics(
+                PICTURE_STATISTICS_SEARCHER_KEYWORD,
+                PStatisticsTypeEnum.STATISTICS_TYPE_7,
+                PICTURE_STATISTICS_SEARCHER_KEYWORD_NAME,
+                request,
+                (req, date) -> {
+                    KeywordStatisticsRequest tmp = new KeywordStatisticsRequest();
+                    tmp.setStartDate(date);
+                    tmp.setEndDate(date);
+                    tmp.setSize(req.getSize());
+                    return statisticsInfoMapper.keywordSearchStatistics(tmp);
+                },
+                this::builderKeywordStatisticsResult
+        );
+    }
+
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_TAG_KEYWORD,
+            expireTime = PICTURE_STATISTICS_TAG_KEYWORD_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    @Override
+    public List<StatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request) {
+        return buildRangeStatistics(
+                PICTURE_STATISTICS_TAG_KEYWORD,
+                PStatisticsTypeEnum.STATISTICS_TYPE_8,
+                PICTURE_STATISTICS_TAG_KEYWORD_NAME,
+                request,
+                (req, date) -> {
+                    KeywordStatisticsRequest tmp = new KeywordStatisticsRequest();
+                    tmp.setStartDate(date);
+                    tmp.setEndDate(date);
+                    tmp.setSize(req.getSize());
+                    return statisticsInfoMapper.tagKeywordStatistics(tmp);
+                },
+                this::builderKeywordStatisticsResult
+        );
+    }
+
+    @Override
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_USER_BEHAVIOR,
+            expireTime = PICTURE_STATISTICS_USER_BEHAVIOR_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    public List<StatisticsVo> userBehaviorStatistics(PictureStatisticsRequest request) {
+        return buildRangeStatistics(
+                PICTURE_STATISTICS_USER_BEHAVIOR,
+                PStatisticsTypeEnum.STATISTICS_TYPE_13,
+                PICTURE_STATISTICS_USER_BEHAVIOR_NAME,
+                request,
+                (req, date) -> {
+                    PictureStatisticsRequest tmp = new PictureStatisticsRequest();
+                    tmp.setStartDate(date);
+                    tmp.setEndDate(date);
+                    return statisticsInfoMapper.userBehaviorStatistics(tmp);
+                },
+                this::builderUserBehaviorStatisticsResult
+        );
+    }
+
+    /**
+     * 构建范围查询统计
+     *
+     * @param commonKey          公共key
+     * @param statisticsTypeEnum 统计类型枚举
+     * @param statisticsName     统计名称
+     * @param request            请求参数
+     * @param queryFunction      查询方法
+     * @param resultBuilder      结果构建方法
+     * @return List<StatisticsVo>
+     * @author: YY
+     * @method: buildRangeStatistics
+     * @date: 2025/9/19 16:31
+     **/
+    private <REQ> List<StatisticsVo> buildRangeStatistics(
+            String commonKey,
+            PStatisticsTypeEnum statisticsTypeEnum,
+            String statisticsName,
+            REQ request,
+            BiFunction<REQ, String, List<StatisticsRo>> queryFunction, // queryFunction(request, date)
+            Function<Map<String, Long>, List<StatisticsVo>> resultBuilder
+    ) {
+        // 拿到开始结束时间
+        String startDate = (String) ReflectUtils.getFieldValue(request, "startDate");
+        String endDate = (String) ReflectUtils.getFieldValue(request, "endDate");
         Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
+
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
-        //如果为空查询全部
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
             return List.of();
         }
-        //灵活判断最近天数
+
         String end = dateRanges.getLast();
-        //key-关键词，value-值
         Map<String, Long> resultMap = new HashMap<>();
-        //是否包含今天
         String today = DateUtils.dateTime(nowDate);
+
+        // 今天的数据必须实时查
         if (dateRanges.contains(today)) {
-            List<StatisticsRo> statisticsRoList = statisticsInfoMapper.keywordSearchStatistics(request);
-            builderKeywordStatisticsRoNamesAndValue(resultMap, statisticsRoList);
-            //如果只包含今天，就表示统计今天
+            List<StatisticsRo> todayList = queryFunction.apply(request, today);
+            builderStatisticsRoNamesAndValue(resultMap, todayList);
+
             if (dateRanges.size() == 1) {
-                return builderKeywordStatisticsResult(resultMap);
+                return resultBuilder.apply(resultMap);
             }
-            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
             dateRanges.removeLast();
             end = dateRanges.getLast();
         }
-        //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
-        List<StatisticsInfo> statisticsInfoList = getStatisticsInfosByDateAndKeyType(startDate, end, PStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(), PICTURE_STATISTICS_SEARCHER_KEYWORD);
-        //获取没有统计的日期
+
+        // 历史数据查统计表
+        List<StatisticsInfo> statisticsInfoList =
+                getStatisticsInfosByDateAndKeyType(startDate, end, statisticsTypeEnum.getValue(), commonKey);
+
+        // 找到没统计过的日期
         List<String> noStatisticsDate = getNoStatisticsDate(dateRanges, statisticsInfoList, resultMap);
         if (!noStatisticsDate.isEmpty()) {
-            List<StatisticsInfo> noStatisticsInfoList = new ArrayList<>();
+            List<StatisticsInfo> newInfoList = new ArrayList<>();
             for (String date : noStatisticsDate) {
-                KeywordStatisticsRequest keywordStatisticsRequest = new KeywordStatisticsRequest();
-                keywordStatisticsRequest.setStartDate(date);
-                keywordStatisticsRequest.setEndDate(date);
-                keywordStatisticsRequest.setSize(request.getSize());
-                List<StatisticsRo> statisticsRos = statisticsInfoMapper.keywordSearchStatistics(keywordStatisticsRequest);
-                builderKeywordStatisticsRoNamesAndValue(resultMap, statisticsRos);
-                StatisticsInfo statisticsInfo = builderStatisticsInfo(date, statisticsRos, PStatisticsTypeEnum.STATISTICS_TYPE_7.getValue(),
-                        PICTURE_STATISTICS_SEARCHER_KEYWORD, PICTURE_STATISTICS_SEARCHER_KEYWORD_NAME, 1L);
-                noStatisticsInfoList.add(statisticsInfo);
+                List<StatisticsRo> statisticsRos = queryFunction.apply(request, date);
+                builderStatisticsRoNamesAndValue(resultMap, statisticsRos);
+                StatisticsInfo info = builderStatisticsInfo(date, statisticsRos,
+                        statisticsTypeEnum.getValue(), commonKey, statisticsName, 1L);
+                newInfoList.add(info);
             }
-            statisticsInfoMapper.insert(noStatisticsInfoList);
+            statisticsInfoMapper.insert(newInfoList);
         }
-        return builderKeywordStatisticsResult(resultMap);
+        return resultBuilder.apply(resultMap);
+    }
+
+    /**
+     * 构建用户行为统计结果
+     *
+     * @param resultMap 统计结果
+     * @return
+     */
+    private List<StatisticsVo> builderUserBehaviorStatisticsResult(Map<String, Long> resultMap) {
+        List<StatisticsVo> statisticsVoList = new ArrayList<>();
+        resultMap
+                .forEach((key, value) -> {
+                            Optional<PUserBehaviorTypeEnum> enumByValue = PUserBehaviorTypeEnum.getEnumByValue(key);
+                            StatisticsVo statisticsVo = new StatisticsVo();
+                            statisticsVo.setValue(value);
+                            if (enumByValue.isPresent()) {
+                                PUserBehaviorTypeEnum behaviorTypeEnum = enumByValue.get();
+                                statisticsVo.setName(behaviorTypeEnum.getLabel());
+                            } else {
+                                statisticsVo.setName(key);
+                            }
+                            statisticsVoList.add(statisticsVo);
+                        }
+                );
+        return statisticsVoList;
     }
 
     /**
      * 获取没有统计的日期
      *
-     * @param dateRanges
-     * @param statisticsInfoList
-     * @param resultMap
+     * @param dateRanges         时间范围
+     * @param statisticsInfoList 统计信息
+     * @param resultMap          结果
      * @return List<String>
      * @author: YY
      * @method: getNoStatisticsDate
@@ -461,13 +563,52 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     //拿到内容中的关键词
                     List<StatisticsRo> keywordList = JSONObject.parseArray(content, StatisticsRo.class);
                     //添加到结果中
-                    builderKeywordStatisticsRoNamesAndValue(resultMap, keywordList);
+                    builderStatisticsRoNamesAndValue(resultMap, keywordList);
                 }
             }
         }
         return noStatisticsDate;
     }
 
+    /**
+     * 构建关键词统计结果
+     *
+     * @param resultMap        resultMap
+     * @param statisticsRoList statisticsRoList
+     * @author: YY
+     * @method: builderKeywordStatisticsRoNamesAndValue
+     * @date: 2025/9/18 16:39
+     **/
+    private void builderStatisticsRoNamesAndValue(Map<String, Long> resultMap, List<StatisticsRo> statisticsRoList) {
+        if (StringUtils.isEmpty(statisticsRoList)) {
+            return;
+        }
+        for (StatisticsRo statisticsRo : statisticsRoList) {
+            if (StringUtils.isEmpty(statisticsRo.getName()) || StringUtils.isNull(statisticsRo.getTotal())) {
+                continue;
+            }
+            if (resultMap.containsKey(statisticsRo.getName())) {
+                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getTotal());
+            } else {
+                resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
+            }
+        }
+    }
+
+    /**
+     * 构建统计信息
+     *
+     * @param date           date
+     * @param content        content
+     * @param type           type
+     * @param commonKey      commonKey
+     * @param statisticsName statisticsName
+     * @param stage          stage
+     * @return StatisticsInfo
+     * @author: YY
+     * @method: builderStatisticsInfo
+     * @date: 2025/9/18 16:39
+     **/
     private StatisticsInfo builderStatisticsInfo(String date, Object content, String type, String commonKey, String statisticsName, Long stage) {
         StatisticsInfo statisticsInfo = new StatisticsInfo();
         statisticsInfo.setStatisticsId(IdUtils.snowflakeId().toString());
@@ -498,84 +639,6 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             vo.setValue(entry.getValue());
             return vo;
         }).toList();
-    }
-
-    /**
-     * 构建关键词统计结果
-     *
-     * @param resultMap        resultMap
-     * @param statisticsRoList statisticsRoList
-     * @author: YY
-     * @method: builderKeywordStatisticsRoNamesAndValue
-     * @date: 2025/9/18 16:39
-     **/
-    private void builderKeywordStatisticsRoNamesAndValue(Map<String, Long> resultMap, List<StatisticsRo> statisticsRoList) {
-        if (StringUtils.isEmpty(statisticsRoList)) {
-            return;
-        }
-        for (StatisticsRo statisticsRo : statisticsRoList) {
-            if (StringUtils.isEmpty(statisticsRo.getName()) || StringUtils.isNull(statisticsRo.getTotal())) {
-                continue;
-            }
-            if (resultMap.containsKey(statisticsRo.getName())) {
-                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getTotal());
-            } else {
-                resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
-            }
-        }
-    }
-
-    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_TAG_KEYWORD,
-            expireTime = PICTURE_STATISTICS_TAG_KEYWORD_EXPIRE_TIME,
-            useQueryParamsAsKey = true)
-    @Override
-    public List<StatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request) {
-        //拿到开始结束时间
-        String startDate = request.getStartDate();
-        String endDate = request.getEndDate();
-        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
-        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
-        //如果为空查询全部
-        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
-            return List.of();
-        }
-        //灵活判断最近天数
-        String end = dateRanges.getLast();
-        //key-关键词，value-值
-        Map<String, Long> resultMap = new HashMap<>();
-        //是否包含今天
-        String today = DateUtils.dateTime(nowDate);
-        if (dateRanges.contains(today)) {
-            List<StatisticsRo> statisticsRoList = statisticsInfoMapper.tagKeywordStatistics(request);
-            builderKeywordStatisticsRoNamesAndValue(resultMap, statisticsRoList);
-            //如果只包含今天，就表示统计今天
-            if (dateRanges.size() == 1) {
-                return builderKeywordStatisticsResult(resultMap);
-            }
-            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
-            dateRanges.removeLast();
-            end = dateRanges.getLast();
-        }
-        //首先查询开始时间和结束时间-1这个时间范围内是否有数据，因为当天数据是会更新的，所以要新的查询
-        List<StatisticsInfo> statisticsInfoList = getStatisticsInfosByDateAndKeyType(startDate, end, PStatisticsTypeEnum.STATISTICS_TYPE_8.getValue(), PICTURE_STATISTICS_TAG_KEYWORD);
-        //拿到没有统计的日期
-        List<String> noStatisticsDate = getNoStatisticsDate(dateRanges, statisticsInfoList, resultMap);
-        if (!noStatisticsDate.isEmpty()) {
-            List<StatisticsInfo> noStatisticsInfoList = new ArrayList<>();
-            for (String date : noStatisticsDate) {
-                KeywordStatisticsRequest keywordStatisticsRequest = new KeywordStatisticsRequest();
-                keywordStatisticsRequest.setStartDate(date);
-                keywordStatisticsRequest.setEndDate(date);
-                keywordStatisticsRequest.setSize(request.getSize());
-                List<StatisticsRo> statisticsRos = statisticsInfoMapper.tagKeywordStatistics(keywordStatisticsRequest);
-                builderKeywordStatisticsRoNamesAndValue(resultMap, statisticsRos);
-                StatisticsInfo statisticsInfo = builderStatisticsInfo(date, statisticsRos, PStatisticsTypeEnum.STATISTICS_TYPE_8.getValue(),
-                        PICTURE_STATISTICS_TAG_KEYWORD, PICTURE_STATISTICS_TAG_KEYWORD_NAME, 1L);
-                noStatisticsInfoList.add(statisticsInfo);
-            }
-            statisticsInfoMapper.insert(noStatisticsInfoList);
-        }
-        return builderKeywordStatisticsResult(resultMap);
     }
 
     @Override
@@ -690,7 +753,5 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         statisticsInfoMapper.insert(newStatisticsInfo);
         return statisticsVoList;
     }
-
     //endregion
-
 }

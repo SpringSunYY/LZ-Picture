@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -130,4 +131,14 @@ public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
      * @return List<StatisticsRo>
      **/
     List<StatisticsRo> spaceFileSizeStatistics(@Param("delete") String delete, @Param("spaceStatus") String spaceStatus);
+
+    /**
+     * 用户行为统计
+     * @author: YY
+     * @method: userBehaviorStatistics
+     * @date: 2025/9/19 15:59
+     * @param request 请求参数
+     * @return List<StatisticsRo>
+     **/
+    List<StatisticsRo> userBehaviorStatistics(PictureStatisticsRequest request);
 }

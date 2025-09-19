@@ -9,6 +9,7 @@ import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.*;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
 import com.lz.picture.service.IStatisticsInfoService;
@@ -147,6 +148,15 @@ public class StatisticsInfoController extends BaseController {
     @GetMapping("/tag/keyword")
     public AjaxResult tagKeywordStatistics(@Validated KeywordStatisticsRequest request) {
         return success(statisticsInfoService.tagKeywordStatistics(request));
+    }
+
+    /**
+     * 用户行文统计
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/user/behavior")
+    public AjaxResult userBehaviorStatistics(@Validated PictureStatisticsRequest request) {
+        return success(statisticsInfoService.userBehaviorStatistics(request));
     }
 
     /**

@@ -171,6 +171,12 @@
         </where>
         group by space_type;
     </select>
-
+    <select id="userBehaviorStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select count(*) as total, behavior_type as name
+        from p_user_behavior_info
+        where create_time >= #{startDate}
+          and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
+        group by name
+    </select>
 
 </mapper>

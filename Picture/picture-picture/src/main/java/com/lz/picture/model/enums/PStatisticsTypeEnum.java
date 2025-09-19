@@ -66,7 +66,11 @@ public enum PStatisticsTypeEnum {
     /**
      * 空间文件总数
      */
-    STATISTICS_TYPE_11("11", "空间文件总数");
+    STATISTICS_TYPE_11("11", "空间文件总数"),
+    /**
+     * 用户行为
+     */
+    STATISTICS_TYPE_13("13", "用户行为");
 
     private final String value;
     private final String label;

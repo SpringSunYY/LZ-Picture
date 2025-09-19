@@ -7,6 +7,7 @@ import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
+import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsFileDto;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
@@ -193,6 +194,15 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      **/
     List<StatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request);
 
+    /**
+     * 用户行为统计
+     * @author: YY
+     * @method: userBehaviorStatistics
+     * @date: 2025/9/19 15:56
+     * @param request 请求
+     * @return List<StatisticsVo>
+     **/
+    List<StatisticsVo> userBehaviorStatistics(PictureStatisticsRequest request);
     /**
      * 获取图片状态统计
      *

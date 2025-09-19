@@ -70,6 +70,14 @@ export function tagKeywordStatistics(query) {
     })
 }
 
+//用户行为
+export function userBehaviorStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/user/behavior',
+        method: 'get',
+        params: query
+    })
+}
 
 //图片状态
 export function pictureStatusStatistics() {

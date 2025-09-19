@@ -90,7 +90,7 @@ const initChart = (data) => {
   }
 
   // 计算实际数据的总和，用于中心标题和 Tooltip
-  const sum = data.reduce((total, item) => total + item.value, 0);
+  const sum = data.reduce((total, item) => Number(total) + Number(item.value), 0);
 
   // 生成随机颜色列表
   const generatedColors = data.map(color => generateRandomColor(props.defaultColor));

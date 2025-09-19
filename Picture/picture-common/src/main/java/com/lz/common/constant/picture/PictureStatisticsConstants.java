@@ -63,4 +63,11 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_SPACE_FILE_SIZE = "picture:statistics:space:file:size";
     public static final String PICTURE_STATISTICS_SPACE_FILE_SIZE_NAME = "空间文件大小-每日";
     public static final int PICTURE_STATISTICS_SPACE_FILE_SIZE_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户行为
+     */
+    public static final String PICTURE_STATISTICS_USER_BEHAVIOR = "picture:statistics:user:behavior";
+    public static final String PICTURE_STATISTICS_USER_BEHAVIOR_NAME = "用户行为-每日";
+    public static final int PICTURE_STATISTICS_USER_BEHAVIOR_EXPIRE_TIME = 60 * 5;
 }
