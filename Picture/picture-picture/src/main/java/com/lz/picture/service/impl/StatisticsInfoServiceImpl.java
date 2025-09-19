@@ -9,6 +9,7 @@ import com.lz.common.annotation.CustomSort;
 import com.lz.common.config.OssConfig;
 import com.lz.common.config.RuoYiConfig;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
+import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.core.redis.RedisCache;
@@ -446,6 +447,36 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         );
     }
 
+
+    @Override
+    public BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request) {
+        return buildRangeStatistics(
+                PICTURE_STATISTICS_PICTURE_DOWNLOAD,
+                PStatisticsTypeEnum.STATISTICS_TYPE_14,
+                PICTURE_STATISTICS_PICTURE_DOWNLOAD_NAME,
+                request,
+                (req, date) -> {
+                    PictureStatisticsRequest tmp = new PictureStatisticsRequest();
+                    tmp.setStartDate(date);
+                    tmp.setEndDate(date);
+                    return statisticsInfoMapper.pictureDownloadStatistics(tmp);
+                },
+                this::builderPictureDownloadStatisticsResult
+        );
+    }
+
+    private BarStatisticsVo builderPictureDownloadStatisticsResult(Map<String, Long> resultMap) {
+        //key是时间，value是数量
+        //根据时间排序
+        LinkedHashMap<String, Long> sortMap = resultMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        BarStatisticsVo barStatisticsVo = new BarStatisticsVo();
+        barStatisticsVo.setNames(sortMap.keySet().stream().map(date -> date).toList());
+        barStatisticsVo.setTotals(sortMap.values().stream().map(total -> total).toList());
+        return barStatisticsVo;
+    }
+
     /**
      * 构建范围查询统计
      *
@@ -460,13 +491,13 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @method: buildRangeStatistics
      * @date: 2025/9/19 16:31
      **/
-    private <REQ> List<StatisticsVo> buildRangeStatistics(
+    private <REQ, R> R buildRangeStatistics(
             String commonKey,
             PStatisticsTypeEnum statisticsTypeEnum,
             String statisticsName,
             REQ request,
             BiFunction<REQ, String, List<StatisticsRo>> queryFunction, // queryFunction(request, date)
-            Function<Map<String, Long>, List<StatisticsVo>> resultBuilder
+            Function<Map<String, Long>, R> resultBuilder
     ) {
         // 拿到开始结束时间
         String startDate = (String) ReflectUtils.getFieldValue(request, "startDate");
@@ -475,7 +506,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
 
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
-            return List.of();
+            // 创建一个空的Map并使用resultBuilder来生成默认结果
+            return resultBuilder.apply(new HashMap<>());
         }
 
         String end = dateRanges.getLast();

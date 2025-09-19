@@ -24,7 +24,7 @@ const props = defineProps({
     })
   },
   chartName: {type: String, default: '交易总量统计'}, // 图表标题
-  chartTitle: {type: Array, default: ['交易量', '平均值']} // legend 显示的系列名称
+  chartTitle: {type: Array, default: ['图片下载', '平均值']} // legend 显示的系列名称
 });
 
 const chartRef = ref(null);
@@ -59,8 +59,8 @@ const setOptions = () => {
   const yData = props.chartData.totals; // Y轴数值
 
   // --- 计算平均值 ---
-  const average_val = yData.reduce((sum, val) => sum + val, 0) / yData.length;
-  const total_val = yData.reduce((sum, val) => sum + val, 0);
+  const average_val = yData.reduce((sum, val) => Number(sum) + Number(val), 0) / yData.length;
+  const total_val = yData.reduce((sum, val) => Number(sum) + Number(val), 0);
   const average_data = yData.map(() => average_val); // 为每个点填充平均值
 
   // --- 计算与上一期的增减量 (绝对值) ---
@@ -166,7 +166,7 @@ const setOptions = () => {
       y: "2%",
       textStyle: {
         color: '#fff',
-        fontSize: '18'
+        fontSize: '16'
       },
     },
     xAxis: {

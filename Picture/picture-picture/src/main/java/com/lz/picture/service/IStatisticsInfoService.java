@@ -2,6 +2,7 @@ package com.lz.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
@@ -244,4 +245,6 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @return List<StatisticsVo>
      **/
     List<StatisticsVo> spaceFileSizeStatistics();
+
+    BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request);
 }

@@ -70,7 +70,11 @@ public enum PStatisticsTypeEnum {
     /**
      * 用户行为
      */
-    STATISTICS_TYPE_13("13", "用户行为");
+    STATISTICS_TYPE_13("13", "用户行为"),
+    /**
+     * 图片下载
+     */
+    STATISTICS_TYPE_14("14", "图片下载");
 
     private final String value;
     private final String label;

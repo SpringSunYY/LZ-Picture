@@ -57,8 +57,8 @@ const setOptions = () => {
     // console.log(item);
     // 计算与上一期相比的增减量
     if (index > 0) {
-      const previousValue = yData[index - 1];
-      const difference = item - previousValue;
+      const previousValue = Number(yData[index - 1]);
+      const difference = Number(item) - previousValue;
       differenceData.push(difference);
     } else {
       differenceData.push(null); // 第一期没有前一期可以比较

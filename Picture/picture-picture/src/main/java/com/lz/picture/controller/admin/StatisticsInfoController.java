@@ -160,6 +160,15 @@ public class StatisticsInfoController extends BaseController {
     }
 
     /**
+     * 图片下载
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/picture/download")
+    public AjaxResult pictureDownloadStatistics(@Validated PictureStatisticsRequest request) {
+        return success(statisticsInfoService.pictureDownloadStatistics(request));
+    }
+
+    /**
      * 图片状态统计
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")

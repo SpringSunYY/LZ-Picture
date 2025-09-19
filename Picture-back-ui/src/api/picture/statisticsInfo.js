@@ -79,6 +79,15 @@ export function userBehaviorStatistics(query) {
     })
 }
 
+//图片下载
+export function pictureDownloadStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/picture/download',
+        method: 'get',
+        params: query
+    })
+}
+
 //图片状态
 export function pictureStatusStatistics() {
     return request({

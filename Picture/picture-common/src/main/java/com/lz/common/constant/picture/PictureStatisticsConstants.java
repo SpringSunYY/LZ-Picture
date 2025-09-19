@@ -70,4 +70,11 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_USER_BEHAVIOR = "picture:statistics:user:behavior";
     public static final String PICTURE_STATISTICS_USER_BEHAVIOR_NAME = "用户行为-每日";
     public static final int PICTURE_STATISTICS_USER_BEHAVIOR_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 图片下载
+     */
+    public static final String PICTURE_STATISTICS_PICTURE_DOWNLOAD = "picture:statistics:picture:download";
+    public static final String PICTURE_STATISTICS_PICTURE_DOWNLOAD_NAME = "图片下载-每日";
+    public static final int PICTURE_STATISTICS_PICTURE_DOWNLOAD_EXPIRE_TIME = 60 * 5;
 }
