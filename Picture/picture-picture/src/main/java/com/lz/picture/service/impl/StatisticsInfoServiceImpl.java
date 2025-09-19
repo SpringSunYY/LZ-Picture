@@ -29,6 +29,7 @@ import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoQuery;
 import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.enums.PPictureStatusEnum;
 import com.lz.picture.model.enums.PPictureUploadTypeEnum;
+import com.lz.picture.model.enums.PSpaceTypeEnum;
 import com.lz.picture.model.enums.PStatisticsTypeEnum;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
@@ -43,6 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
@@ -576,55 +579,114 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     }
 
     @Override
-//    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_STATUS, expireTime = PICTURE_STATISTICS_PICTURE_STATUS_EXPIRE_TIME)
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_STATUS, expireTime = PICTURE_STATISTICS_PICTURE_STATUS_EXPIRE_TIME)
     public List<StatisticsVo> pictureStatusStatistics() {
-        //统计默认今天，表示最新
-        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
-        StatisticsInfo statisticsInfo = getStatisticsInfoByCommonKey(PICTURE_STATISTICS_PICTURE_STATUS, PStatisticsTypeEnum.STATISTICS_TYPE_9.getValue());
-        //如果有数据且就是今天的
-        if (StringUtils.isNotNull(statisticsInfo) && DateUtils.dateTime(statisticsInfo.getCreateTime()).equals(nowData)) {
-            return JSONObject.parseArray(statisticsInfo.getContent(), StatisticsVo.class);
-        }
-        List<StatisticsVo> statisticsVoList = new ArrayList<>();
-        //没有数据，查询数据库
-        List<StatisticsRo> userSexStatistics = statisticsInfoMapper.pictureStatusStatistics("", "");
-        for (StatisticsRo userSexStatistic : userSexStatistics) {
-            Optional<PPictureStatusEnum> enumByValue = PPictureStatusEnum.getEnumByValue(userSexStatistic.getName());
-            String name = enumByValue.isPresent() ? enumByValue.get().getLabel() : userSexStatistic.getName();
-            StatisticsVo statisticsVo = new StatisticsVo();
-            statisticsVo.setName(name);
-            statisticsVo.setValue(userSexStatistic.getTotal());
-            statisticsVoList.add(statisticsVo);
-        }
-        StatisticsInfo newStatisticsInfo = builderStatisticsInfo(nowData, statisticsVoList, PStatisticsTypeEnum.STATISTICS_TYPE_9.getValue(),
-                PICTURE_STATISTICS_PICTURE_STATUS, PICTURE_STATISTICS_PICTURE_STATUS_NAME, 1L);
-        statisticsInfoMapper.insert(newStatisticsInfo);
-        return statisticsVoList;
+        return buildStatistics(
+                PICTURE_STATISTICS_PICTURE_STATUS,
+                PStatisticsTypeEnum.STATISTICS_TYPE_9,
+                PICTURE_STATISTICS_PICTURE_STATUS_NAME,
+                () -> statisticsInfoMapper.pictureStatusStatistics("", ""),
+                PPictureStatusEnum::getEnumByValue,
+                PPictureStatusEnum::getLabel
+        );
     }
 
-//    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, expireTime = PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_EXPIRE_TIME)
     @Override
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, expireTime = PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_EXPIRE_TIME)
     public List<StatisticsVo> pictureUploadTypeStatistics() {
-        //统计默认今天，表示最新
-        String nowData = DateUtils.dateTime(DateUtils.getNowDate());
-        StatisticsInfo statisticsInfo = getStatisticsInfoByCommonKey(PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, PStatisticsTypeEnum.STATISTICS_TYPE_10.getValue());
-        //如果有数据且就是今天的
-        if (StringUtils.isNotNull(statisticsInfo) && DateUtils.dateTime(statisticsInfo.getCreateTime()).equals(nowData)) {
+        return buildStatistics(
+                PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE,
+                PStatisticsTypeEnum.STATISTICS_TYPE_10,
+                PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_NAME,
+                () -> statisticsInfoMapper.pictureUploadTypeStatistics("", ""),
+                PPictureUploadTypeEnum::getEnumByValue,
+                PPictureUploadTypeEnum::getLabel
+        );
+    }
+
+    @Override
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SPACE_FILE_TOTAL, expireTime = PICTURE_STATISTICS_SPACE_FILE_TOTAL_EXPIRE_TIME)
+    public List<StatisticsVo> spaceFileTotalStatistics() {
+        return buildStatistics(
+                PICTURE_STATISTICS_SPACE_FILE_TOTAL,
+                PStatisticsTypeEnum.STATISTICS_TYPE_11,
+                PICTURE_STATISTICS_SPACE_FILE_TOTAL_NAME,
+                () -> statisticsInfoMapper.spaceFileTotalStatistics("", ""),
+                PSpaceTypeEnum::getEnumByValue,
+                PSpaceTypeEnum::getLabel
+        );
+    }
+
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SPACE_FILE_SIZE, expireTime = PICTURE_STATISTICS_SPACE_FILE_SIZE_EXPIRE_TIME)
+    @Override
+    public List<StatisticsVo> spaceFileSizeStatistics() {
+        return buildStatistics(
+                PICTURE_STATISTICS_SPACE_FILE_SIZE,
+                PStatisticsTypeEnum.STATISTICS_TYPE_12,
+                PICTURE_STATISTICS_SPACE_FILE_SIZE_NAME,
+                () -> statisticsInfoMapper.spaceFileSizeStatistics("", ""),
+                PSpaceTypeEnum::getEnumByValue,
+                PSpaceTypeEnum::getLabel
+        );
+    }
+
+    /**
+     * 通用的统计方法抽取
+     *
+     * @param commonKey          公共key
+     * @param statisticsTypeEnum 统计类型
+     * @param statisticsName     统计名称
+     * @param querySupplier      查询方法
+     * @param enumResolver       枚举解析函数：根据数据库返回的 name，尝试解析成对应的枚举
+     * @param labelExtractor     枚举标签提取函数：从枚举中获取展示用的 label
+     * @param <E>                枚举泛型，用于支持不同的枚举类型
+     * @return 统计结果列表
+     */
+    private <E> List<StatisticsVo> buildStatistics(
+            String commonKey,
+            PStatisticsTypeEnum statisticsTypeEnum,
+            String statisticsName,
+            Supplier<List<StatisticsRo>> querySupplier,
+            Function<String, Optional<E>> enumResolver,
+            Function<E, String> labelExtractor
+    ) {
+        //获取当前日期
+        String nowDate = DateUtils.dateTime(DateUtils.getNowDate());
+
+        //获取今天的数据
+        StatisticsInfo statisticsInfo = getStatisticsInfoByCommonKey(commonKey, statisticsTypeEnum.getValue());
+
+        // 如果有今天数据直接返回
+        if (StringUtils.isNotNull(statisticsInfo)
+                && DateUtils.dateTime(statisticsInfo.getCreateTime()).equals(nowDate)) {
             return JSONObject.parseArray(statisticsInfo.getContent(), StatisticsVo.class);
         }
+
+        //如果没有数据，查询数据库
         List<StatisticsVo> statisticsVoList = new ArrayList<>();
-        //没有数据，查询数据库
-        List<StatisticsRo> userSexStatistics = statisticsInfoMapper.pictureUploadTypeStatistics("", "");
-        for (StatisticsRo userSexStatistic : userSexStatistics) {
-            Optional<PPictureUploadTypeEnum> enumByValue = PPictureUploadTypeEnum.getEnumByValue(userSexStatistic.getName());
-            String name = enumByValue.isPresent() ? enumByValue.get().getLabel() : userSexStatistic.getName();
-            StatisticsVo statisticsVo = new StatisticsVo();
-            statisticsVo.setName(name);
-            statisticsVo.setValue(userSexStatistic.getTotal());
-            statisticsVoList.add(statisticsVo);
+        List<StatisticsRo> statisticsRoList = querySupplier.get();
+
+        // 遍历数据库返回结果
+        for (StatisticsRo ro : statisticsRoList) {
+            // 将数据库的 name 转换为枚举，匹配则取枚举的 label
+            String name = enumResolver.apply(ro.getName())
+                    .map(labelExtractor)
+                    .orElse(ro.getName());
+            StatisticsVo vo = new StatisticsVo();
+            vo.setName(name);
+            vo.setValue(ro.getTotal());
+            statisticsVoList.add(vo);
         }
-        StatisticsInfo newStatisticsInfo = builderStatisticsInfo(nowData, statisticsVoList, PStatisticsTypeEnum.STATISTICS_TYPE_10.getValue(),
-                PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE, PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_NAME, 1L);
+
+        // 构建新的 StatisticsInfo
+        StatisticsInfo newStatisticsInfo = builderStatisticsInfo(
+                nowDate,
+                statisticsVoList,
+                statisticsTypeEnum.getValue(),
+                commonKey,
+                statisticsName,
+                1L
+        );
         statisticsInfoMapper.insert(newStatisticsInfo);
         return statisticsVoList;
     }

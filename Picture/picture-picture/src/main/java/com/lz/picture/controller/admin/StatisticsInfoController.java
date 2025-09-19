@@ -166,4 +166,22 @@ public class StatisticsInfoController extends BaseController {
     public AjaxResult pictureUploadTypeStatistics() {
         return success(statisticsInfoService.pictureUploadTypeStatistics());
     }
+
+    /**
+     * 空间文件总数
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/space/file/total")
+    public AjaxResult spaceFileTotalStatistics() {
+        return success(statisticsInfoService.spaceFileTotalStatistics());
+    }
+
+    /**
+     * 空间文件大小
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/space/file/size")
+    public AjaxResult spaceFileSizeStatistics() {
+        return success(statisticsInfoService.spaceFileSizeStatistics());
+    }
 }

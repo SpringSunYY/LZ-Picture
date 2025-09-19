@@ -49,4 +49,18 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE = "picture:statistics:picture:upload:type";
     public static final String PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_NAME = "图片上传类型-每日";
     public static final int PICTURE_STATISTICS_PICTURE_UPLOAD_TYPE_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 空间文件总数
+     */
+    public static final String PICTURE_STATISTICS_SPACE_FILE_TOTAL = "picture:statistics:space:file:total";
+    public static final String PICTURE_STATISTICS_SPACE_FILE_TOTAL_NAME = "空间文件总数-每日";
+    public static final int PICTURE_STATISTICS_SPACE_FILE_TOTAL_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 空间文件大小
+     */
+    public static final String PICTURE_STATISTICS_SPACE_FILE_SIZE = "picture:statistics:space:file:size";
+    public static final String PICTURE_STATISTICS_SPACE_FILE_SIZE_NAME = "空间文件大小-每日";
+    public static final int PICTURE_STATISTICS_SPACE_FILE_SIZE_EXPIRE_TIME = 60 * 5;
 }

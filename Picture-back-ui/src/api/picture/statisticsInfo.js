@@ -86,3 +86,19 @@ export function pictureUploadTypeStatistics() {
         method: 'get',
     })
 }
+
+//空间文件大小
+export function spaceFileSizeStatistics() {
+    return request({
+        url: '/picture/statisticsInfo/space/file/size',
+        method: 'get',
+    })
+}
+
+//空间文件总数
+export function spaceFileTotalStatistics() {
+    return request({
+        url: '/picture/statisticsInfo/space/file/total',
+        method: 'get',
+    })
+}

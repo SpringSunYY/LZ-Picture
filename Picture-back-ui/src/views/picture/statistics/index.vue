@@ -13,12 +13,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <BorderBox8 class="top-center">
-              <PieLineCharts/>
+              <PieLineCharts :chart-name="spaceFileSizeName" :chart-data="spaceFileSizeData" data-unit="GB"/>
             </BorderBox8>
           </el-col>
           <el-col :span="12">
             <BorderBox8 :reverse="true" class="top-center">
-              <PieLineCharts/>
+              <PieLineCharts :chart-name="spaceFileTotalName" :chart-data="spaceFileTotalData" data-unit="个"/>
             </BorderBox8>
           </el-col>
         </el-row>
@@ -36,7 +36,7 @@
                                           :current="pictureStatusNormalTotal"/>
         </el-col>
         <el-col :span="4" v-for="item in pictureTypeData">
-          <WaterMapProportionCharts :chart-name="item.name" :current="item.value" :total="pictureTotal"/>
+          <WaterMapProportionCharts :chart-name="item.name" :current="Number(item.value)" :total="pictureTotal"/>
         </el-col>
         <el-col :span="4">
           <WaterMapRotateProportionCharts :chart-name="pictureStatusPrivateName" :total="pictureTotal"
@@ -92,9 +92,10 @@ import {ref} from "vue";
 import {
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
-  searchKeywordStatistics,
+  searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics,
   tagKeywordStatistics
 } from "@/api/picture/statisticsInfo.js";
+import {formatSizeToGB} from "@/utils/ruoyi.js";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
 const defaultEnd = dayjs().format("YYYY-MM-DD")
@@ -159,6 +160,30 @@ const getPictureTypeData = () => {
   })
 }
 getPictureTypeData()
+
+//空间文件大小
+const spaceFileSizeData = ref([])
+const spaceFileSizeName = ref('空间文件大小')
+const getSpaceFileSizeData = () => {
+  spaceFileSizeStatistics().then(res => {
+    spaceFileSizeData.value = res.data.map(item => {
+      return {
+        name: item.name,
+        value: formatSizeToGB(item.value)
+      }
+    })
+  })
+}
+getSpaceFileSizeData()
+//空间文件总数
+const spaceFileTotalData = ref([])
+const spaceFileTotalName = ref('空间文件总数')
+const getSpaceFileTotalData = () => {
+  spaceFileTotalStatistics().then(res => {
+    spaceFileTotalData.value = res.data
+  })
+}
+getSpaceFileTotalData()
 getStatistics()
 </script>
 <style scoped lang="scss">

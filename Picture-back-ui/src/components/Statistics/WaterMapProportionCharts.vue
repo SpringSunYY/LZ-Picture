@@ -70,8 +70,8 @@ const drawChart = () => {
       formatter: function (params: any) {
         // params.value 是 liquidFill 的 data 值 (0-1 之间)
         // 这里我们用 props.current 和 props.total 来展示
-        const currentVal = props.current;
-        const totalVal = props.total;
+        const currentVal = Number(props.current);
+        const totalVal = Number(props.total);
         const calculatedPercentage = totalVal > 0 ? (currentVal / totalVal * 100).toFixed(0) : '0';
 
         // params.seriesName 是 '预估量'

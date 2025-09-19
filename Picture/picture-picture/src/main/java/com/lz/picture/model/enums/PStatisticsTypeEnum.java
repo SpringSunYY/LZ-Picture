@@ -56,7 +56,17 @@ public enum PStatisticsTypeEnum {
     /**
      * 图片上传类型
      */
-    STATISTICS_TYPE_10("10", "图片上传类型");
+    STATISTICS_TYPE_10("10", "图片上传类型"),
+
+    /**
+     * 空间文件大小
+     */
+    STATISTICS_TYPE_12("12", "空间文件大小"),
+
+    /**
+     * 空间文件总数
+     */
+    STATISTICS_TYPE_11("11", "空间文件总数");
 
     private final String value;
     private final String label;

@@ -108,4 +108,26 @@ public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
      * @date: 2025/9/18 19:18
      **/
     List<StatisticsRo> pictureUploadTypeStatistics(@Param("delete") String delete, @Param("pictureStatus") String pictureStatus);
+
+    /**
+     * 空间文件总数统计
+     * @author: YY
+     * @method: spaceFileTotalStatistics
+     * @date: 2025/9/19 14:57
+     * @param delete 删除
+     * @param spaceStatus 状态
+     * @return List<StatisticsRo>
+     **/
+    List<StatisticsRo> spaceFileTotalStatistics(@Param("delete") String delete, @Param("spaceStatus") String spaceStatus);
+
+    /**
+     * 空间文件大小统计
+     * @author: YY
+     * @method: spaceFileSizeStatistics
+     * @date: 2025/9/19 15:14
+     * @param delete 删除
+     * @param spaceStatus 状态
+     * @return List<StatisticsRo>
+     **/
+    List<StatisticsRo> spaceFileSizeStatistics(@Param("delete") String delete, @Param("spaceStatus") String spaceStatus);
 }

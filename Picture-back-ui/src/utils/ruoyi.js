@@ -261,6 +261,13 @@ export const formatSize = (bytes) => {
     return `${formattedSize}${units[unitIndex]}`
 }
 
+export const formatSizeToGB = (bytes) => {
+    let size = bytes / 1024 / 1024 / 1024
+    //保留两位小数
+    return Number(size).toFixed(2)
+}
+
+
 /**
  * 判断是否为空对象
  * @param obj

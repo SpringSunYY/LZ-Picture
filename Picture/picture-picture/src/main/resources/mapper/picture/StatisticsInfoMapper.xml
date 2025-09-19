@@ -153,5 +153,24 @@
         </where>
         group by upload_type;
     </select>
+    <select id="spaceFileTotalStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select sum(total_count) as total, space_type as name
+        from p_space_info
+        <where>
+            <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
+            <if test="spaceStatus != null and spaceStatus != ''">and space_status = #{spaceStatus}</if>
+        </where>
+        group by space_type;
+    </select>
+    <select id="spaceFileSizeStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select sum(total_size) as total, space_type as name
+        from p_space_info
+        <where>
+            <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
+            <if test="spaceStatus != null and spaceStatus != ''">and space_status = #{spaceStatus}</if>
+        </where>
+        group by space_type;
+    </select>
+
 
 </mapper>

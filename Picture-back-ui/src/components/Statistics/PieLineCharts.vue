@@ -37,6 +37,11 @@ const props = defineProps({
       {name: '团财险', value: 180}
     ]
   },
+  // 数据单位
+  dataUnit:{
+    type: String,
+    default: ''
+  },
   defaultColor: {
     type: Array,
     default: () => [
@@ -100,7 +105,7 @@ const initChart = (data) => {
   }
 
   // 计算数据总和
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const total = data.reduce((sum, item) => Number(sum) + Number(item.value), 0);
 
   // 为数据项添加随机颜色和样式
   const styledData = data.map((item) => {
@@ -136,7 +141,7 @@ const initChart = (data) => {
       trigger: "item",
       formatter: (params) => {
         // 格式化 tooltip，同时显示当前值、百分比和总数
-        return `${params.name}: ${params.value} (${params.percent}%)<br/>总数: ${total}`;
+        return `${params.name}: ${params.value}${props.dataUnit} (${params.percent}%)<br/>总数: ${total}${props.dataUnit}`;
       },
     },
     legend: {

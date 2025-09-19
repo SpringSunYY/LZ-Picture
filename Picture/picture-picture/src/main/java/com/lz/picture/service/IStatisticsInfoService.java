@@ -214,4 +214,24 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
      * @date: 2025/9/18 19:24
      **/
     List<StatisticsVo> pictureUploadTypeStatistics();
+
+    /**
+     * 空间文件总数
+     *
+     * @return List<StatisticsVo>
+     * @author: YY
+     * @method: spaceFileTotalStatistics
+     * @date: 2025/9/19 14:52
+     **/
+    List<StatisticsVo> spaceFileTotalStatistics();
+
+    /**
+     * 空间文件大小统计
+     * @author: YY
+     * @method: spaceFileSizeStatistics
+     * @date: 2025/9/19 15:13
+     * @param
+     * @return List<StatisticsVo>
+     **/
+    List<StatisticsVo> spaceFileSizeStatistics();
 }
