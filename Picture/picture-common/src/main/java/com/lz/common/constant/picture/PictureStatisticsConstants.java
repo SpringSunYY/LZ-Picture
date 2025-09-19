@@ -77,4 +77,11 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_PICTURE_DOWNLOAD = "picture:statistics:picture:download";
     public static final String PICTURE_STATISTICS_PICTURE_DOWNLOAD_NAME = "图片下载-每日";
     public static final int PICTURE_STATISTICS_PICTURE_DOWNLOAD_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 空间
+     */
+    public static final String PICTURE_STATISTICS_SPACE = "picture:statistics:space";
+    public static final String PICTURE_STATISTICS_SPACE_NAME = "空间-每日";
+    public static final int PICTURE_STATISTICS_SPACE_EXPIRE_TIME = 60 * 5;
 }

@@ -64,7 +64,7 @@
         <LineZoomCharts/>
       </el-col>
       <el-col :span="7">
-        <BarAvgCharts/>
+        <BarAvgCharts :chart-data="spaceData" :chart-name="spaceName"/>
       </el-col>
     </el-row>
     <DateRangePicker
@@ -93,7 +93,7 @@ import {
   pictureDownloadStatistics,
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
-  searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics,
+  searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics, spaceStatistics,
   tagKeywordStatistics, userBehaviorStatistics
 } from "@/api/picture/statisticsInfo.js";
 import {formatSizeToGB} from "@/utils/ruoyi.js";
@@ -115,6 +115,7 @@ const getStatistics = () => {
   getTagKeywordData()
   getUserBehaviorData()
   getPictureDownloadData()
+  getSpaceData()
 }
 //搜索关键词统计
 const searchKeywordData = ref([])
@@ -138,6 +139,14 @@ const pictureDownloadName = ref('图片下载')
 const getPictureDownloadData = () => {
   pictureDownloadStatistics(query.value).then(res => {
     pictureDownloadData.value = res.data
+  })
+}
+//空间统计
+const spaceData = ref([])
+const spaceName = ref('空间统计')
+const getSpaceData = () => {
+  spaceStatistics(query.value).then(res => {
+    spaceData.value = res.data
   })
 }
 //图片状态

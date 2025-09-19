@@ -88,6 +88,15 @@ export function pictureDownloadStatistics(query) {
     })
 }
 
+//空间统计
+export function spaceStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/space',
+        method: 'get',
+        params: query
+    })
+}
+
 //图片状态
 export function pictureStatusStatistics() {
     return request({

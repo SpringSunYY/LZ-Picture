@@ -185,5 +185,13 @@
           and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         group by name
     </select>
+    <select id="spaceStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select count(*) as total, DATE (create_time) as name
+        from p_space_info
+        where
+            create_time >= #{startDate}
+          and create_time &lt; DATE_ADD(#{endDate} , INTERVAL 1 day)
+        group by name
+    </select>
 
 </mapper>

@@ -197,13 +197,38 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
 
     /**
      * 用户行为统计
+     *
+     * @param request 请求
+     * @return List<StatisticsVo>
      * @author: YY
      * @method: userBehaviorStatistics
      * @date: 2025/9/19 15:56
-     * @param request 请求
-     * @return List<StatisticsVo>
      **/
     List<StatisticsVo> userBehaviorStatistics(PictureStatisticsRequest request);
+
+
+    /**
+     * 图片下载统计
+     *
+     * @param request 统计信息
+     * @return BarStatisticsVo
+     * @author: YY
+     * @method: pictureDownloadStatistics
+     * @date: 2025/9/19 22：00
+     **/
+    BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request);
+
+    /**
+     * 空间统计
+     *
+     * @param request 请求
+     * @return BarStatisticsVo
+     * @author: YY
+     * @method: spaceStatistics
+     * @date: 2025/9/19 22:00
+     **/
+    BarStatisticsVo spaceStatistics(PictureStatisticsRequest request);
+
     /**
      * 获取图片状态统计
      *
@@ -238,13 +263,12 @@ public interface IStatisticsInfoService extends IService<StatisticsInfo> {
 
     /**
      * 空间文件大小统计
+     *
+     * @param
+     * @return List<StatisticsVo>
      * @author: YY
      * @method: spaceFileSizeStatistics
      * @date: 2025/9/19 15:13
-     * @param
-     * @return List<StatisticsVo>
      **/
     List<StatisticsVo> spaceFileSizeStatistics();
-
-    BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request);
 }

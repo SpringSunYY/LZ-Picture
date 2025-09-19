@@ -448,6 +448,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     }
 
 
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_DOWNLOAD, expireTime = PICTURE_STATISTICS_PICTURE_DOWNLOAD_EXPIRE_TIME, useQueryParamsAsKey = true)
     @Override
     public BarStatisticsVo pictureDownloadStatistics(PictureStatisticsRequest request) {
         return buildRangeStatistics(
@@ -461,11 +462,30 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     tmp.setEndDate(date);
                     return statisticsInfoMapper.pictureDownloadStatistics(tmp);
                 },
-                this::builderPictureDownloadStatisticsResult
+                this::builderBarStatisticsResult
         );
     }
 
-    private BarStatisticsVo builderPictureDownloadStatisticsResult(Map<String, Long> resultMap) {
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_SPACE,
+            expireTime = PICTURE_STATISTICS_SPACE_EXPIRE_TIME, useQueryParamsAsKey = true)
+    @Override
+    public BarStatisticsVo spaceStatistics(PictureStatisticsRequest request) {
+        return buildRangeStatistics(
+                PICTURE_STATISTICS_SPACE,
+                PStatisticsTypeEnum.STATISTICS_TYPE_15,
+                PICTURE_STATISTICS_SPACE_NAME,
+                request,
+                (req, date) -> {
+                    PictureStatisticsRequest tmp = new PictureStatisticsRequest();
+                    tmp.setStartDate(date);
+                    tmp.setEndDate(date);
+                    return statisticsInfoMapper.spaceStatistics(tmp);
+                },
+                this::builderBarStatisticsResult
+        );
+    }
+
+    private BarStatisticsVo builderBarStatisticsResult(Map<String, Long> resultMap) {
         //key是时间，value是数量
         //根据时间排序
         LinkedHashMap<String, Long> sortMap = resultMap.entrySet().stream()

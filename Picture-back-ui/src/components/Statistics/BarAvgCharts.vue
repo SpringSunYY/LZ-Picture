@@ -24,7 +24,7 @@ const props = defineProps({
     })
   },
   chartName: {type: String, default: '实际完工数统计'},
-  chartTitle: {type: Array, default: () => ['实际完工数', '趋势线']}
+  chartTitle: {type: Array, default: () => ['每日新增', '平均值']}
 });
 
 const chartRef = ref(null);
@@ -45,11 +45,12 @@ const initChart = async () => {
 // 设置 ECharts 配置
 const setOptions = () => {
   if (!chart) return;
+  if (!props.chartData || !props.chartData.names || !props.chartData.totals) return;
   const xData = props.chartData.names;
   const yData = props.chartData.totals;
 
   // 总和 & 平均值
-  const totalSum = yData.reduce((a, b) => a + b, 0);
+  const totalSum = yData.reduce((a, b) => Number(a) + Number(b), 0);
   const averageValue = totalSum / yData.length;
 
   const option = {
@@ -70,7 +71,7 @@ const setOptions = () => {
         const currentValue = params[0].value;
 
         const currentIndex = xData.indexOf(xAxisCategory);
-        let percentageChange = '-';
+        let percentageChange = '';
         if (currentIndex > 0) {
           const lastValue = yData[currentIndex - 1];
           if (lastValue !== 0) {

@@ -151,4 +151,14 @@ public interface StatisticsInfoMapper extends BaseMapper<StatisticsInfo> {
      * @return List<StatisticsRo>
      **/
     List<StatisticsRo> pictureDownloadStatistics(PictureStatisticsRequest request);
+
+    /**
+     * 空间统计
+     * @author: YY
+     * @method: spaceStatistics
+     * @date: 2025/9/19 22:04
+     * @param request 请求参数
+     * @return List<StatisticsRo>
+     **/
+    List<StatisticsRo> spaceStatistics(PictureStatisticsRequest request);
 }

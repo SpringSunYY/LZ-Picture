@@ -169,6 +169,15 @@ public class StatisticsInfoController extends BaseController {
     }
 
     /**
+     * 空间统计
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/space")
+    public AjaxResult spaceStatistics(@Validated PictureStatisticsRequest request) {
+        return success(statisticsInfoService.spaceStatistics(request));
+    }
+
+    /**
      * 图片状态统计
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")
