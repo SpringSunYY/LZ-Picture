@@ -785,9 +785,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     }
 
     private LineManyStatisticsVo builderPictureStatisticsResult(HashMap<String, Map<String, Long>> resultMap, List<PictureStatisticsRo> pictureStatisticsRoList) {
-        if (StringUtils.isEmpty(pictureStatisticsRoList)) {
-            return new LineManyStatisticsVo();
-        }
+//        if (StringUtils.isEmpty(pictureStatisticsRoList)) {
+//            return new LineManyStatisticsVo();
+//        }
         for (PictureStatisticsRo pictureStatisticsRo : pictureStatisticsRoList) {
             String createTime = pictureStatisticsRo.getCreateTime();
             if (!resultMap.containsKey(createTime)) {
