@@ -14,7 +14,7 @@
         <div class="default-border">
           <!--消息信息-->
           <TableRanking ref="tableRankingRef"
-                        :headers="userInformStatisticsHeaders" :data="userInformStatisticsData" height="100%"
+                        :columns="userInformStatisticsHeaders" :data="userInformStatisticsData" height="100%"
                         @scrolledToBottom="handleScrollEnd"/>
         </div>
       </el-col>
@@ -161,7 +161,24 @@ getUserAgeStatistics()
 
 //用户消息
 const tableRankingRef = ref()
-const userInformStatisticsHeaders = ref(['标题', '用户', '读取', '发送时间'])
+const userInformStatisticsHeaders = ref([
+  {
+    label: '标题',
+    prop: 'informTitle'
+  },
+  {
+    label: '用户',
+    prop: 'userName'
+  },
+  {
+    label: '读取',
+    prop: 'isRead'
+  },
+  {
+    label: '发送时间',
+    prop: 'sendTime'
+  }
+])
 const userInformStatisticsData = ref([])
 const userInformQuery = ref({
   startDate: '',
@@ -177,8 +194,8 @@ const getUserInformStatistics = () => {
   userInformStatistics(userInformQuery.value).then(res => {
     res.data.forEach(item => {
       item.isRead = item.isRead ? '是' : '否'
-      const itemData = [item.informTitle, item.userName, item.isRead, item.sendTime]
-      userInformStatisticsData.value.push(itemData)
+      console.log(item)
+      userInformStatisticsData.value.push(item)
     })
     if (res.data.length < userInformQuery.value.pageSize) {
       isNextInform.value = false

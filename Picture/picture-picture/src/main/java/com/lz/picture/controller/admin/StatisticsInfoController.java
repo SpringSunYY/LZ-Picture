@@ -5,14 +5,17 @@ import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.file.FileUtils;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.picture.model.domain.StatisticsInfo;
+import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statistics.KeywordStatisticsRequest;
 import com.lz.picture.model.dto.statistics.BasePictureStatisticsRequest;
 import com.lz.picture.model.dto.statistics.PictureStatisticsRequest;
 import com.lz.picture.model.dto.statisticsInfo.*;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
+import com.lz.picture.service.IPictureInfoService;
 import com.lz.picture.service.IStatisticsInfoService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.lz.common.constant.picture.PictureInfoConstants.PICTURE_HOT_TOTAL;
+
 /**
  * 统计信息Controller
  *
@@ -38,6 +43,9 @@ import java.util.stream.Collectors;
 public class StatisticsInfoController extends BaseController {
     @Resource
     private IStatisticsInfoService statisticsInfoService;
+
+    @Resource
+    private IPictureInfoService pictureInfoService;
 
     /**
      * 查询统计信息列表
@@ -185,6 +193,23 @@ public class StatisticsInfoController extends BaseController {
     @GetMapping("/picture")
     public AjaxResult pictureStatistics(@Validated PictureStatisticsRequest request) {
         return success(statisticsInfoService.pictureStatistics(request));
+    }
+
+    /**
+     * 图片热门
+     */
+    @GetMapping("/picture/hot")
+    public TableDataInfo getPictureInfoHot(PictureInfoHotRequest pictureInfoHotRequest) {
+        if (StringUtils.isEmpty(pictureInfoHotRequest.getType())) {
+            pictureInfoHotRequest.setType(PICTURE_HOT_TOTAL);
+        }
+        if (StringUtils.isNull(pictureInfoHotRequest.getPageNum()) || pictureInfoHotRequest.getPageNum() <= 0) {
+            pictureInfoHotRequest.setPageNum(1);
+        }
+        if (StringUtils.isNull(pictureInfoHotRequest.getPageSize()) || pictureInfoHotRequest.getPageSize() < 0 || pictureInfoHotRequest.getPageSize() > 50) {
+            pictureInfoHotRequest.setPageSize(35);
+        }
+        return pictureInfoService.getPictureInfoHot(pictureInfoHotRequest);
     }
 
     /**

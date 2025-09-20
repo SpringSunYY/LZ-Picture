@@ -47,7 +47,7 @@ const initChart = async () => {
 // 设置配置
 const setOptions = () => {
   if (!chart) return
-
+  if (!props.chartData || !props.chartData.values || !props.chartData.values.length || !props.chartData.names || !props.chartData.names.length) return;
   const xData = props.chartData.names || []
   const seriesData = (props.chartData.values || []).map(yDatum => ({
     name: yDatum.name || '',

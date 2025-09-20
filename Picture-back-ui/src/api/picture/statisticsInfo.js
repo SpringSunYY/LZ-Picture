@@ -106,6 +106,15 @@ export function pictureStatistics(query) {
     })
 }
 
+//图片热门
+export function pictureHotStatistics(query) {
+    return request({
+        url: '/picture/statisticsInfo/picture/hot',
+        method: 'get',
+        params: query
+    })
+}
+
 //图片状态
 export function pictureStatusStatistics() {
     return request({

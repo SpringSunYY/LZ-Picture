@@ -51,7 +51,7 @@ const initChart = async () => {
 const setOptions = () => {
   if (!chart) return;
   if (!props.chartData || !props.chartData.names || !props.chartData.totals) {
-    console.error("Chart data is invalid.");
+    console.warn("Chart data is invalid.");
     return;
   }
 

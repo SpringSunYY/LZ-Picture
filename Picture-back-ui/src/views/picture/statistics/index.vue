@@ -46,7 +46,28 @@
     </BorderBox7>
     <el-row :gutter="20" class="center-height-2">
       <el-col :span="8" class="center-height-2">
-        <TableRanking/>
+        <el-tabs class="tabs" v-model="activePictureTableRankingName" @tabChange="handleChangeTab">
+          <el-tab-pane name="day" label="今日热门" class="center-height-2-table">
+            <TableRanking @scrolledToBottom="handleScrollEnd" :data="pictureRankingData"
+                          :columns="pictureRankingHeaders" height="100%"/>
+          </el-tab-pane>
+          <el-tab-pane name="week" label="本周热门" class="center-height-2-table">
+            <TableRanking @scrolledToBottom="handleScrollEnd" :data="pictureRankingData"
+                          :columns="pictureRankingHeaders" height="100%"/>
+          </el-tab-pane>
+          <el-tab-pane name="month" label="本月热门" class="center-height-2-table">
+            <TableRanking @scrolledToBottom="handleScrollEnd" :data="pictureRankingData"
+                          :columns="pictureRankingHeaders" height="100%"/>
+          </el-tab-pane>
+          <el-tab-pane name="total" label="总热门" class="center-height-2-table">
+            <TableRanking @scrolledToBottom="handleScrollEnd" :data="pictureRankingData"
+                          :columns="pictureRankingHeaders" height="100%"/>
+          </el-tab-pane>
+          <el-tab-pane name="new" label="最新" class="center-height-2-table">
+            <TableRanking @scrolledToBottom="handleScrollEnd" :data="pictureRankingData"
+                          :columns="pictureRankingHeaders" height="100%"/>
+          </el-tab-pane>
+        </el-tabs>
       </el-col>
       <el-col :span="8">
         <PieIntervalCharts :chart-name="userBehaviorName" :chart-data="userBehaviorData"/>
@@ -90,7 +111,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
 import {
-  pictureDownloadStatistics, pictureStatistics,
+  pictureDownloadStatistics, pictureHotStatistics, pictureStatistics,
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
   searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics, spaceStatistics,
@@ -216,7 +237,7 @@ const getSpaceFileTotalData = () => {
 }
 getSpaceFileTotalData()
 
-//用户行文
+//用户行为
 const userBehaviorData = ref([])
 const userBehaviorName = ref('用户行为')
 const getUserBehaviorData = () => {
@@ -224,6 +245,68 @@ const getUserBehaviorData = () => {
     userBehaviorData.value = res.data
   })
 }
+
+//热门图片
+const activePictureTableRankingName = ref('day')
+const pictureRankingData = ref([])
+const pictureRankingHeaders = ref([
+  {
+    label: '图片编号',
+    prop: 'pictureId'
+  }, {
+    label: '图片名称',
+    prop: 'name'
+  }, {
+    label: '浏览量',
+    prop: 'lookCount'
+  }, {
+    label: '收藏量',
+    prop: 'collectCount'
+  }, {
+    label: '点赞',
+    prop: 'likeCount'
+  }, {
+    label: '分享',
+    prop: 'shareCount'
+  }])
+const pictureRankingQuery = ref({
+  pageNum: 1,
+  pageSize: 35,
+  type: activePictureTableRankingName.value
+})
+const isNextInform = ref(true)
+const getPictureRankingData = () => {
+  isNextInform.value = false
+  pictureHotStatistics(pictureRankingQuery.value).then(res => {
+    if (!res?.rows) return
+    res.data = res?.rows?.forEach(item => {
+      pictureRankingData.value.push(item)
+    })
+    if (res?.rows.length < pictureRankingQuery.value.pageSize) {
+      isNextInform.value = false
+    } else {
+      pictureRankingQuery.value.pageNum += 1
+      isNextInform.value = true
+    }
+  })
+
+}
+const handleChangeTab = (tab) => {
+  pictureRankingData.value = []
+  pictureRankingQuery.value = {
+    pageNum: 1,
+    pageSize: 35,
+    type: tab
+  }
+  getPictureRankingData()
+}
+const handleScrollEnd = () => {
+  if (!isNextInform.value) {
+    return
+  }
+  getPictureRankingData()
+}
+getPictureRankingData()
 getStatistics()
 </script>
 <style scoped lang="scss">
@@ -256,6 +339,12 @@ getStatistics()
   .center-height-2 {
     margin: 2px auto;
     height: 18vh;
+
+
+    .center-height-2-table {
+      padding-top: 1px;
+      height: 14vh;
+    }
   }
 
   .bottom-height {
@@ -263,4 +352,19 @@ getStatistics()
     height: 30vh;
   }
 }
+
+::v-deep(.el-tabs__header) {
+  margin: 0;
+}
+
+::v-deep(.el-tabs__header .el-tabs__item) {
+  color: #ffffff;
+  text-align: center;
+  justify-content: center;
+}
+
+::v-deep(.el-tabs__header .el-tabs__item.is-active) {
+  color: #1890ff;
+}
+
 </style>
