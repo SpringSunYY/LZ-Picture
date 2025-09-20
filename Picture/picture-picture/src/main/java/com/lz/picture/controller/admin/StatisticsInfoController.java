@@ -213,6 +213,15 @@ public class StatisticsInfoController extends BaseController {
     }
 
     /**
+     * 图片分类
+     */
+    @PreAuthorize("@ss.hasPermi('picture:statistics')")
+    @GetMapping("/picture/category")
+    public AjaxResult pictureCategoryStatistics() {
+        return success(statisticsInfoService.pictureCategoryStatistics());
+    }
+
+    /**
      * 图片状态统计
      */
     @PreAuthorize("@ss.hasPermi('picture:statistics')")

@@ -82,7 +82,11 @@ public enum PStatisticsTypeEnum {
     /**
      * 图片新增
      */
-    STATISTICS_TYPE_16("16", "图片新增");
+    STATISTICS_TYPE_16("16", "图片新增"),
+    /**
+     * 图片分类
+     */
+    STATISTICS_TYPE_17("17","图片分类");
 
     private final String value;
     private final String label;

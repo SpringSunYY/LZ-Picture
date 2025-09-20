@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onBeforeUnmount, watch, nextTick, markRaw} from 'vue'
+import {markRaw, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons'
 import {generateRandomColor} from "@/utils/ruoyi.js";
@@ -70,10 +70,9 @@ const debounce = (fn, delay = 200) => {
 const getSortedAllData = () => {
   const names = (props.chartData && props.chartData.names) || []
   const totals = (props.chartData && props.chartData.totals) || []
-  const arr = names.map((n, i) => ({name: n, value: totals[i]}))
-      .filter(item => typeof item.value === 'number' && item.value > 0)
-      .sort((a, b) => b.value - a.value)
-  return arr
+  return names.map((n, i) => ({name: n, value: totals[i]}))
+      .filter(item =>  Number(item.value) > 0)
+      .sort((a, b) => b.value - a.value);
 }
 
 /**
@@ -86,7 +85,6 @@ const getCurrentData = (startIndex, visibleItems) => {
   const currentNameList = []
   const currentValueList = []
   const currentDisplayNameList = []
-
   if (len === 0) {
     return {currentNameList, currentValueList, currentDisplayNameList, sortedAllData}
   }
@@ -110,7 +108,6 @@ const getCurrentData = (startIndex, visibleItems) => {
 const updateChart = (startIndex = 0) => {
   if (!chart.value) return
   if (!props.chartData || !Array.isArray(props.chartData.names) || !Array.isArray(props.chartData.totals)) return
-
   const visibleItems = Math.min((props.chartData.names || []).length, props.chartItemTotal)
   const {
     currentNameList,
@@ -140,7 +137,6 @@ const updateChart = (startIndex = 0) => {
       fontSize: 14
     }
   }))
-
   const option = {
     title: {
       text: props.chartName,
@@ -294,7 +290,6 @@ onBeforeUnmount(() => {
 
 // 数据/方向变化时：重置并重启（确保当前 index 在新数据下合理）
 watch(() => props.chartData, () => initChart(), {deep: true})
-watch(() => props.chartDirection, () => updateChart(currentIndex.value))
 </script>
 
 <style scoped>

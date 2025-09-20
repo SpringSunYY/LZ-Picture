@@ -115,6 +115,14 @@ export function pictureHotStatistics(query) {
     })
 }
 
+//图片分类
+export function pictureCategoryStatistics() {
+    return request({
+        url: '/picture/statisticsInfo/picture/category',
+        method: 'get',
+    })
+}
+
 //图片状态
 export function pictureStatusStatistics() {
     return request({

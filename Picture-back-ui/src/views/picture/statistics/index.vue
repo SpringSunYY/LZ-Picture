@@ -73,7 +73,7 @@
         <PieIntervalCharts :chart-name="userBehaviorName" :chart-data="userBehaviorData"/>
       </el-col>
       <el-col :span="8" class="center-height-2">
-        <BarAxisRankingCharts chartDirection="right"/>
+        <BarAxisRankingCharts :chart-name="pictureCategoryName" :chart-data="pictureCategoryData" chartDirection="right"/>
       </el-col>
     </el-row>
     <Decoration2 style="width:100%; height:5px;"/>
@@ -111,6 +111,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
 import {
+  pictureCategoryStatistics,
   pictureDownloadStatistics, pictureHotStatistics, pictureStatistics,
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
@@ -306,6 +307,16 @@ const handleScrollEnd = () => {
   }
   getPictureRankingData()
 }
+
+//图片分类
+const pictureCategoryData = ref([])
+const pictureCategoryName=ref('图片分类下载排行')
+const getPictureCategoryData = () => {
+  pictureCategoryStatistics().then(res => {
+    pictureCategoryData.value = res.data
+  })
+}
+getPictureCategoryData()
 getPictureRankingData()
 getStatistics()
 </script>

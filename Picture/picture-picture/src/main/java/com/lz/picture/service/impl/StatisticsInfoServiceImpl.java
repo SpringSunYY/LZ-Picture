@@ -1,5 +1,6 @@
 package com.lz.picture.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,6 +25,7 @@ import com.lz.common.utils.reflect.ReflectUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.common.utils.verify.DateVerifyUtils;
 import com.lz.picture.mapper.StatisticsInfoMapper;
+import com.lz.picture.model.domain.PictureCategoryInfo;
 import com.lz.picture.model.domain.StatisticsInfo;
 import com.lz.picture.model.dto.pictureInfo.PictureInfoHotRequest;
 import com.lz.picture.model.dto.statistics.BasePictureStatisticsRequest;
@@ -36,6 +38,7 @@ import com.lz.picture.model.dto.statisticsInfo.StatisticsInfoRequest;
 import com.lz.picture.model.enums.*;
 import com.lz.picture.model.vo.pictureInfo.PictureInfoStatisticsVo;
 import com.lz.picture.model.vo.statisticsInfo.StatisticsInfoVo;
+import com.lz.picture.service.IPictureCategoryInfoService;
 import com.lz.picture.service.IStatisticsInfoService;
 import com.lz.picture.utils.MarkdownBuilder;
 import jakarta.annotation.Resource;
@@ -73,6 +76,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     private RedisCache redisCache;
     @Resource
     private PictureDownloadManager pictureDownloadManager;
+
+    @Resource
+    private IPictureCategoryInfoService pictureCategoryInfoService;
     //region mybatis代码
 
     /**
@@ -716,6 +722,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
 
 
     @Override
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_ADD, expireTime = PICTURE_STATISTICS_PICTURE_ADD_EXPIRE_TIME, useQueryParamsAsKey = true)
     public LineManyStatisticsVo pictureStatistics(PictureStatisticsRequest request) {
         // 拿到开始结束时间
         String startDate = request.getStartDate();
@@ -948,6 +955,52 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
         );
         statisticsInfoMapper.insert(newStatisticsInfo);
         return statisticsVoList;
+    }
+
+
+    @CustomCacheable(keyPrefix = PICTURE_STATISTICS_PICTURE_CATEGORY, expireTime = PICTURE_STATISTICS_PICTURE_CATEGORY_EXPIRE_TIME)
+    @Override
+    public BarStatisticsVo pictureCategoryStatistics() {
+        //获取当前日期
+        String nowDate = DateUtils.dateTime(DateUtils.getNowDate());
+
+        //获取今天的数据
+        StatisticsInfo statisticsInfo = getStatisticsInfoByCommonKey(PICTURE_STATISTICS_PICTURE_CATEGORY, PStatisticsTypeEnum.STATISTICS_TYPE_17.getValue());
+
+        // 如果有今天数据直接返回
+        if (StringUtils.isNotNull(statisticsInfo)
+                && DateUtils.dateTime(statisticsInfo.getCreateTime()).equals(nowDate)) {
+            List<PictureCategoryInfo> pictureCategoryInfos = JSONArray.parseArray(statisticsInfo.getContent(), PictureCategoryInfo.class);
+            return builderPictureCategoryResult(pictureCategoryInfos);
+        }
+        List<PictureCategoryInfo> pictureCategoryInfos = pictureCategoryInfoService.list(new LambdaQueryWrapper<PictureCategoryInfo>()
+                .select(PictureCategoryInfo::getCategoryId, PictureCategoryInfo::getName, PictureCategoryInfo::getDownloadCount)
+                .orderByDesc(PictureCategoryInfo::getDownloadCount)
+        );
+        builderStatisticsInfo(nowDate, pictureCategoryInfos, PStatisticsTypeEnum.STATISTICS_TYPE_17.getValue(),
+                PICTURE_STATISTICS_PICTURE_CATEGORY, PICTURE_STATISTICS_PICTURE_CATEGORY_NAME, 1L);
+        return builderPictureCategoryResult(pictureCategoryInfos);
+    }
+
+    /**
+     * 构建图片分类结果
+     *
+     * @param pictureCategoryInfos 图片分类信息
+     * @return BarStatisticsVo
+     * @author: YY
+     * @method: builderPictureCategoryResult
+     * @date: 2025/9/21 00:07
+     **/
+    private BarStatisticsVo builderPictureCategoryResult(List<PictureCategoryInfo> pictureCategoryInfos) {
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Long> totals = new ArrayList<>();
+        for (PictureCategoryInfo pictureCategoryInfo : pictureCategoryInfos) {
+            if (StringUtils.isNull(pictureCategoryInfo.getDownloadCount()) || pictureCategoryInfo.getDownloadCount() <= 0)
+                continue;
+            names.add(pictureCategoryInfo.getName());
+            totals.add(pictureCategoryInfo.getDownloadCount());
+        }
+        return new BarStatisticsVo(names, totals);
     }
     //endregion
 }

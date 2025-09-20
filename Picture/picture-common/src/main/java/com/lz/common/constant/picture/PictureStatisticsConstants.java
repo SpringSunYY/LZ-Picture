@@ -91,4 +91,11 @@ public class PictureStatisticsConstants {
     public static final String PICTURE_STATISTICS_PICTURE_ADD = "picture:statistics:picture:add";
     public static final String PICTURE_STATISTICS_PICTURE_ADD_NAME = "图片新增-每日";
     public static final int PICTURE_STATISTICS_PICTURE_ADD_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 图片分类
+     */
+    public static final String PICTURE_STATISTICS_PICTURE_CATEGORY = "picture:statistics:picture:category";
+    public static final String PICTURE_STATISTICS_PICTURE_CATEGORY_NAME = "图片分类-每日";
+    public static final int PICTURE_STATISTICS_PICTURE_CATEGORY_EXPIRE_TIME = 60 * 5;
 }
