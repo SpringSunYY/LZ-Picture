@@ -52,7 +52,7 @@
         <PieIntervalCharts :chart-name="userBehaviorName" :chart-data="userBehaviorData"/>
       </el-col>
       <el-col :span="8" class="center-height-2">
-        <TableRanking/>
+        <BarAxisRankingCharts chartDirection="right"/>
       </el-col>
     </el-row>
     <Decoration2 style="width:100%; height:5px;"/>
@@ -61,7 +61,7 @@
         <LineAvgCharts :chart-data="pictureDownloadData" :chart-name="pictureDownloadName"/>
       </el-col>
       <el-col :span="10">
-        <LineZoomCharts :chart-name="pictureName" :chart-data="pictureData" />
+        <LineZoomCharts :chart-name="pictureName" :chart-data="pictureData"/>
       </el-col>
       <el-col :span="7">
         <BarAvgCharts :chart-data="spaceData" :chart-name="spaceName"/>
@@ -97,6 +97,8 @@ import {
   tagKeywordStatistics, userBehaviorStatistics
 } from "@/api/picture/statisticsInfo.js";
 import {formatSizeToGB} from "@/utils/ruoyi.js";
+import BarRankingCharts from "@/components/Statistics/BarRankingCharts.vue";
+import BarAxisRankingCharts from "@/components/Statistics/BarAxisRankingCharts.vue";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
 const defaultEnd = dayjs().format("YYYY-MM-DD")
