@@ -85,7 +85,7 @@ public class SearchLogInfo implements Serializable {
     /**
      * 搜索时长（毫秒）
      */
-    @Excel(name = "搜索时长", readConverterExp = "毫=秒")
+    @Excel(name = "搜索时长")
     private Long searchDuration;
 
     /**

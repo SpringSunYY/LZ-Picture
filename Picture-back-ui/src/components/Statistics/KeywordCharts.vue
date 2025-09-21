@@ -179,18 +179,13 @@ const initChart = (data) => {
         layout: 'force',
         roam: 'scale',
         force: {
-          // --- 关键调整：让动画更快稳定 ---
-          // 显著增加斥力 (repulsion) 和重力 (gravity)，促使节点更快地分开和聚集。
-          // 减小边长 (edgeLength)，增加节点间的相互作用力。
-          // 增加摩擦力 (friction) 至接近 1，使动量衰减更快，动画更快停止。
-          repulsion: 100, // 增加斥力，确保词语快速分开
-          gravity: 0.3,   // 增加重力，加速节点向中心聚集并稳定
-          edgeLength: 5,  // 减小边长，增强节点间作用力
-          friction: 0.99, // 极高的摩擦力，使动画几乎立即衰减并停止
-          // --- 关键点：力导向布局在找到稳定状态后会自动停止 ---
-          // ECharts 的力导向布局算法会在能量（力的总和）达到一个局部最小值时停止。
-          // 通过上述参数的调整，这个“稳定状态”会非常快地达到。
-          // `layoutAnimation: true` 保持，它控制的是初始布局的动画过程，而非持续的移动。
+           // 调整力导向参数，确保词语不会被挤到边界外
+          repulsion: 100,    // 增加斥力，让词语更好地分散
+          gravity: 0.5,      // 降低重力，减少向中心聚集的趋势
+          edgeLength: 5,    // 增加边长，给词语更多空间
+          friction: 0.5,     // 适当的摩擦力，保持动画流畅但快速稳定
+          // 添加边界约束
+          layoutAnimation: true
         },
         label: {
           show: true,
@@ -220,8 +215,20 @@ const initChart = (data) => {
 };
 const truncateName = (name, maxLength) => {
   if (!name) return '';
-  return name.length > maxLength ? name.substring(0, maxLength) : name;
+  let width = 0;
+  let result = '';
+  for (const char of name) {
+    // 判断是否全角字符
+    // 基本中日韩范围：\u4E00-\u9FFF
+    // 扩展可用正则：/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/
+    const isFullWidth = /[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(char) || char.charCodeAt(0) > 255;
+    width += isFullWidth ? 1 : 0.5;
+    if (width > maxLength) break;
+    result += char;
+  }
+  return result;
 };
+
 // 处理窗口大小变化
 const handleResize = () => {
   chart.value?.resize();
