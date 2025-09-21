@@ -56,7 +56,7 @@ public class SpaceInfoController extends BaseController {
             SpaceInfoVo spaceInfoVo = SpaceInfoVo.objToVo(vo);
             listVo.add(spaceInfoVo);
         });
-        TableDataInfo table = getDataTable(listVo);
+        TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
     }
