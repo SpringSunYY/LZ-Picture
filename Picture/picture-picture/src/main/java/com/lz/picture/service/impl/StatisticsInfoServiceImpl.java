@@ -399,7 +399,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             expireTime = PICTURE_STATISTICS_SEARCHER_KEYWORD_EXPIRE_TIME,
             useQueryParamsAsKey = true)
     public List<StatisticsVo> searchKeywordStatistics(KeywordStatisticsRequest request) {
-        return buildRangeStatistics(
+        List<StatisticsVo> statisticsVoList = buildRangeStatistics(
                 PICTURE_STATISTICS_SEARCHER_KEYWORD,
                 PStatisticsTypeEnum.STATISTICS_TYPE_7,
                 PICTURE_STATISTICS_SEARCHER_KEYWORD_NAME,
@@ -414,6 +414,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                 this::builderKeywordStatisticsResult,
                 false
         );
+        return statisticsVoList.subList(0, (int) Math.min(statisticsVoList.size(), request.getSize()));
     }
 
     @CustomCacheable(keyPrefix = PICTURE_STATISTICS_TAG_KEYWORD,
@@ -421,7 +422,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             useQueryParamsAsKey = true)
     @Override
     public List<StatisticsVo> tagKeywordStatistics(KeywordStatisticsRequest request) {
-        return buildRangeStatistics(
+        List<StatisticsVo> statisticsVoList = buildRangeStatistics(
                 PICTURE_STATISTICS_TAG_KEYWORD,
                 PStatisticsTypeEnum.STATISTICS_TYPE_8,
                 PICTURE_STATISTICS_TAG_KEYWORD_NAME,
@@ -436,6 +437,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                 this::builderKeywordStatisticsResult,
                 false
         );
+        return statisticsVoList.subList(0, (int) Math.min(statisticsVoList.size(), request.getSize()));
     }
 
     @Override
@@ -712,7 +714,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      * @date: 2025/9/18 16:39
      **/
     private List<StatisticsVo> builderKeywordStatisticsResult(Map<String, Long> resultMap) {
-        return resultMap.entrySet().stream().map(entry -> {
+        //根据值排序
+        Map<String, Long> sortMap = resultMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        return sortMap.entrySet().stream().map(entry -> {
             StatisticsVo vo = new StatisticsVo();
             vo.setName(entry.getKey());
             vo.setValue(entry.getValue());

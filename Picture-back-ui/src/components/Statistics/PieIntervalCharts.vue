@@ -145,7 +145,7 @@ const initChart = (data) => {
         fontSize: 16,
       },
       textAlign: "center", // 居中对齐
-      subtext: '总共:' + sum,
+      subtext: sum,
       subtextStyle: {
         color: '#fff',  // 白色文字（适配深色背景）
         fontSize: 14,

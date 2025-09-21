@@ -195,11 +195,8 @@ public class RandomUtils {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 20; i++) {
-            System.out.println(generateRandomIPAddress());
-        }
-        for (int i = 0; i < 20; i++) {
-            System.out.println(generateRandomIpAddr());
+        for (int i = 0; i < 1000; i++) {
+            System.out.println("i%3 = " + i % 3);
         }
     }
 

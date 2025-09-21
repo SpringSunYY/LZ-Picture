@@ -60,7 +60,7 @@ const props = defineProps({
   },
   fontSizeRange: {
     type: Array,
-    default: () => [12, 36] // 默认字体大小范围 [最小, 最大]
+    default: () => [12, 24] // 默认字体大小范围 [最小, 最大]
   },
   defaultColor: {
     type: Array,

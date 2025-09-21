@@ -96,7 +96,7 @@ const drawChart = () => {
           // 显示文本格式为 "当前数(百分比%)"
           formatter: `${props.current}(${displayPercentage}%)`,
           textStyle: {
-            fontSize: '20px', // 文本字号
+            fontSize: '16px', // 文本字号
             color: '#fff',
           },
         },

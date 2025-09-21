@@ -203,7 +203,7 @@ const initChart = () => {
         data: [percentage, percentage, percentage],
         label: {
           show: true,
-          textStyle: {color: '#fff', fontSize: 18},
+          textStyle: {color: '#fff', fontSize: 16},
           formatter: (params: any) => {
             return `${props.current}(${(params.value * 100).toFixed(0)}%)`;
           },

@@ -25,7 +25,7 @@
       </el-col>
       <el-col :span="6">
         <div class="base-height">
-          <KeywordCharts :chart-name="tagKeywordName" :chart-data="tagKeywordData"/>
+          <KeywordCharts :chart-name="tagKeywordName" :chart-data="tagKeywordData" />
         </div>
       </el-col>
     </el-row>
