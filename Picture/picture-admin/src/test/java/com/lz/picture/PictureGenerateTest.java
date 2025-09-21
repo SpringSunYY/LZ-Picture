@@ -5,10 +5,13 @@ import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.RandomUtils;
 import com.lz.common.utils.uuid.IdUtils;
 import com.lz.picture.model.domain.SearchLogInfo;
+import com.lz.picture.model.domain.SpaceInfo;
 import com.lz.picture.model.enums.PSearchReferSourceEnum;
 import com.lz.picture.model.enums.PSearchStatusEnum;
 import com.lz.picture.model.enums.PSearchTypeEnum;
+import com.lz.picture.model.enums.PSpaceStatusEnum;
 import com.lz.picture.service.ISearchLogInfoService;
+import com.lz.picture.service.ISpaceInfoService;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
@@ -37,6 +40,9 @@ public class PictureGenerateTest {
 
     @Resource
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    @Resource
+    private ISpaceInfoService spaceInfoService;
 
     @Resource
     private IUserInfoService userInfoService;
@@ -103,5 +109,53 @@ public class PictureGenerateTest {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Test
+    public void testGenerateSpace() {
+        LinkedMap<Integer, List<SpaceInfo>> generateMap = new LinkedMap<>();
+        int insertCount = 0;
+        String spaceName = "Space-";
+        String spaceType1 = "1";
+        String spaceType2 = "2";
+        List<UserInfo> userInfoList = userInfoService.list(new LambdaQueryWrapper<UserInfo>()
+                .eq(UserInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
+                .orderByDesc(UserInfo::getCreateTime)
+                .last("limit 10000"));
+        for (int i = 0; i < 10; i++) {
+            ArrayList<SpaceInfo> spaceInfos = new ArrayList<>();
+            for (UserInfo userInfo : userInfoList) {
+                insertCount++;
+                SpaceInfo spaceInfo = new SpaceInfo();
+                spaceInfo.setSpaceId(IdUtils.snowflakeId().toString());
+                boolean b = i % 2 == 0;
+                spaceInfo.setSpaceName(b ? spaceName + "团队" + i : spaceName + "个人" + i);
+                spaceInfo.setSpaceAvatar("/picture/cover/2025/07/30/TTYY-1950539728734523393-compressed.webp");
+                spaceInfo.setMaxSize(1073741824L);
+                spaceInfo.setMaxCount(300L);
+                spaceInfo.setLookCount(0L);
+                spaceInfo.setCollectCount(0L);
+                spaceInfo.setDownloadCount(0L);
+                spaceInfo.setTotalSize(0L);
+                spaceInfo.setTotalCount(0L);
+                spaceInfo.setUserId(userInfo.getUserId());
+                spaceInfo.setSpaceDesc("");
+                spaceInfo.setSpaceStatus(PSpaceStatusEnum.SPACE_STATUS_1.getValue());
+                spaceInfo.setSpaceType(b ? spaceType1 : spaceType2);
+                spaceInfo.setMemberLimit(b ? 10L : 1L);
+                spaceInfo.setCurrentMembers(1L);
+                spaceInfo.setCreateTime(RandomUtils.generateDate(2025, 2025));
+                spaceInfo.setLastUpdateTime(null);
+                spaceInfo.setUpdateTime(null);
+                spaceInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+                spaceInfo.setDeletedTime(null);
+                spaceInfos.add(spaceInfo);
+            }
+            generateMap.put(i, spaceInfos);
+        }
+        System.out.println("insertCount = " + insertCount);
+        for (List<SpaceInfo> spaceInfos : generateMap.values()) {
+            spaceInfoService.saveBatch(spaceInfos);
+        }
     }
 }
