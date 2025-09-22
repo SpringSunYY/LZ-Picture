@@ -199,6 +199,19 @@ export const dynamicRoutes = [
         ]
     },
     {
+      path: '/points/statistics',
+      hidden: true,
+      permissions: ['points:statistics'],
+      children: [
+          {
+              path: 'index',
+              component: () => import('@/views/points/statistics/index.vue'),
+              name: 'pointsStatistics',
+              meta: {title: '积分统计', activeMenu: '/points'}
+          }
+      ]
+    },
+    {
         path: '/jay/picture-statistics',
         hidden: true,
         permissions: ['jay:statistics'],

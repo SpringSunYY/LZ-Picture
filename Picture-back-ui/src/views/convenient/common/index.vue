@@ -90,14 +90,6 @@ const {p_statistics_type} = proxy.useDict('p_statistics_type');
 // region定义功能列表数据
 const operations = ref([
   {
-    key: 'downloadHot',
-    permission: ['picture:download:hot'],
-    name: '下载热门图片',
-    shortDescription: '下载最近热门的图片',
-    description: '下载最近热门的图片，选择需要下载的数量和类型，下载最热门的图片',
-    icon: 'hot'
-  },
-  {
     key: 'userStatistics',
     permission: ['user:statistics'],
     name: '用户数据可视化',
@@ -114,6 +106,14 @@ const operations = ref([
     icon: 'picture'
   },
   {
+    key: 'pointsStatistics',
+    permission: ['points:statistics'],
+    name: '积分模块可视化',
+    shortDescription: '积分模块可视化',
+    description: '积分模块实时图标统计可视化',
+    icon: 'user'
+  },
+  {
     key: 'jayStatistics',
     permission: ['jay:statistics'],
     name: '周杰伦词云图',
@@ -121,11 +121,12 @@ const operations = ref([
     description: 'Jay',
   },
   {
-    key: '',
-    permission: ['1'],
-    name: '通知中心',
-    shortDescription: '消息提醒系统',
-    description: '集成站内信、邮件、短信等多渠道通知，确保重要信息及时送达用户。',
+    key: 'downloadHot',
+    permission: ['picture:download:hot'],
+    name: '下载热门图片',
+    shortDescription: '下载最近热门的图片',
+    description: '下载最近热门的图片，选择需要下载的数量和类型，下载最热门的图片',
+    icon: 'hot'
   },
   {
     key: '',
@@ -199,6 +200,9 @@ function clickOperation(operation) {
       break;
     case 'jayStatistics':
       handleToFullPage('jayStatistics')
+      break;
+    case 'pointsStatistics':
+      handleToFullPage('pointsStatistics')
       break;
     default:
       noOperation()
