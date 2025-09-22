@@ -145,7 +145,7 @@ const initChart = (data) => {
       },
     },
     legend: {
-      top: "center",
+      bottom: "5%",
       right: "5%",
       orient: "vertical",
       data: styledData,
@@ -170,7 +170,7 @@ const initChart = (data) => {
       {
         type: "pie",
         // 调整 radius 和 center 以增大饼图尺寸
-        radius: ['20%', '85%'], // 主饼图的内外半径，外半径设置为85%高度
+        radius: ['20%', '65%'], // 主饼图的内外半径，外半径设置为85%高度
         center: ['50%', '50%'], // 将饼图中心移至容器中央
         roseType: "radius",
         zlevel: 10,
@@ -239,7 +239,7 @@ const initChart = (data) => {
         data: dashed(80)
       }, {
         type: "pie",
-        radius: ["92%", "92.3%"],
+        radius: ["90%", "90.3%"],
         center: ["50%", "50%"],
         hoverAnimation: false,
         clockWise: false,

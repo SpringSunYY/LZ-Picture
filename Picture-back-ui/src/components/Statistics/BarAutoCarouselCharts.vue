@@ -13,8 +13,6 @@ const props = defineProps({
   height: {type: String, default: '100%'},
   chartData: {
     type: Object,
-    required: true,
-    // 默认数据精简，避免初始渲染卡顿
     default: () => ({
       names: [
         '2021/09/01', '2021/09/02', '2021/09/03', '2021/09/04', '2021/09/05',
@@ -70,7 +68,7 @@ const setOptions = () => {
     title: {
       text: props.chartName,
       left: "2%",
-      top: "2%",
+      top: "8%",
       textStyle: {color: "#fff", fontSize: 18}
     },
     tooltip: {
@@ -105,26 +103,27 @@ const setOptions = () => {
     },
     legend: {
       data: legendData,
-      top: "12",
+      top: "20",
       left: 'center',
       itemWidth: 12,
       itemHeight: 12,
       itemGap: 25,
       textStyle: {fontSize: 13, color: "#82AFC6", fontFamily: 'Source Han Sans CN-Normal', padding: [0, 0, 0, 2]}
     },
-    dataZoom: [{type: 'inside', xAxisIndex: 0, filterMode: 'weakFilter', zoomOnMouseWheel: true, moveOnMouseMove: true},
+    dataZoom: [
+      {type: 'inside', xAxisIndex: 0, filterMode: 'weakFilter', zoomOnMouseWheel: true, moveOnMouseMove: true},
       {
         type: 'slider',
         xAxisIndex: 0,
         filterMode: 'weakFilter',
         height: 20,
-        bottom: 10,
+        bottom: '5%',
         textStyle: {color: '#82AFC6'},
         handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,21.5H6.7V20.1h6.6V21.5z',
         handleSize: '80%',
         showDetail: false
       }],
-    grid: {top: '10%', right: '16', left: '16', bottom: '20%', containLabel: true},
+    grid: {top: '20%', right: '20', left: '10', bottom: '12%', containLabel: true},
     xAxis: {
       type: 'category',
       data: names,
@@ -134,7 +133,6 @@ const setOptions = () => {
     },
     yAxis: [{
       type: 'value',
-      name: legendData[0],
       boundaryGap: ['0%', '20%'],
       alignTicks: true,
       splitNumber: 5,
@@ -163,7 +161,7 @@ const setOptions = () => {
           },
           borderRadius: [10, 10, 0, 0]
         },
-        barWidth: 26,
+        barWidth: 15,
         markLine: {
           data: [{name: '平均值', yAxis: average}],
           symbol: 'none',

@@ -73,8 +73,8 @@ const setOptions = () => {
       trigger: 'axis',
       axisPointer: {type: 'line', label: {color: '#fff'}}
     },
-    grid: {top: 80, bottom: 100, left: 60, right: 30, backgroundColor: 'transparent'},
-    legend: {top: '11%', left: 'center', textStyle: {color: '#90979c'}},
+    grid: {top: 60, bottom: 70, left: 60, right: 30, backgroundColor: 'transparent'},
+    legend: {top: '5%', left: 'center', textStyle: {color: '#90979c'}},
     xAxis: [{
       type: 'category',
       axisLine: {lineStyle: {color: 'rgba(255,255,255,0.73)'}},
@@ -94,7 +94,7 @@ const setOptions = () => {
         type: 'slider',
         show: true,
         xAxisIndex: [0],
-        bottom: 50,
+        bottom: 15,
         height: 30,
         start: 10,
         end: 80,
