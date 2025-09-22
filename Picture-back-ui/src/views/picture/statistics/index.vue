@@ -25,20 +25,20 @@
       </el-col>
       <el-col :span="6">
         <div class="base-height">
-          <KeywordCharts :chart-name="tagKeywordName" :chart-data="tagKeywordData" />
+          <KeywordCharts :chart-name="tagKeywordName" :chart-data="tagKeywordData"/>
         </div>
       </el-col>
     </el-row>
     <BorderBox7 class="center-height-1">
       <el-row :gutter="20" class="center-height-1">
-        <el-col :span="4" :offset="2">
+        <el-col :span="4" :offset="2" class="center-height-1">
           <WaterMapRotateProportionCharts :chart-name="pictureStatusNormalName" :total="pictureTotal"
                                           :current="pictureStatusNormalTotal"/>
         </el-col>
-        <el-col :span="4" v-for="item in pictureTypeData">
+        <el-col :span="4" v-for="item in pictureTypeData" class="center-height-1">
           <WaterMapProportionCharts :chart-name="item.name" :current="Number(item.value)" :total="pictureTotal"/>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="4" class="center-height-1">
           <WaterMapRotateProportionCharts :chart-name="pictureStatusPrivateName" :total="pictureTotal"
                                           :current="pictureStatusPrivateTotal"/>
         </el-col>
@@ -73,7 +73,8 @@
         <PieIntervalCharts :chart-name="userBehaviorName" :chart-data="userBehaviorData"/>
       </el-col>
       <el-col :span="8" class="center-height-2">
-        <BarAxisRankingCharts :chart-name="pictureCategoryName" :chart-data="pictureCategoryData" chartDirection="right"/>
+        <BarAxisRankingCharts :chart-name="pictureCategoryName" :chart-data="pictureCategoryData"
+                              chartDirection="right"/>
       </el-col>
     </el-row>
     <Decoration2 style="width:100%; height:5px;"/>
@@ -310,7 +311,7 @@ const handleScrollEnd = () => {
 
 //图片分类
 const pictureCategoryData = ref([])
-const pictureCategoryName=ref('图片分类下载排行')
+const pictureCategoryName = ref('图片分类下载排行')
 const getPictureCategoryData = () => {
   pictureCategoryStatistics().then(res => {
     pictureCategoryData.value = res.data
