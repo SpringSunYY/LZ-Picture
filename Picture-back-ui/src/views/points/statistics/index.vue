@@ -56,6 +56,8 @@ import RadarCharts from "@/components/Statistics/RadarCharts.vue";
   height: 100%;
   padding: 1vh;
   background-image: url("/src/assets/images/points-statistics-bg.png");
+  background-size: cover;
+  background-position: center;
   min-height: 100vh;
   max-width: 100%;
 

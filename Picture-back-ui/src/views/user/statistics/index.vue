@@ -319,7 +319,8 @@ const getStatistics = () => {
   background-image: url("/src/assets/images/user-statistics-bg.png");
   min-height: 100vh;
   max-width: 100%;
-
+  background-repeat: repeat;
+  background-size: contain;
   .default-border {
     margin-top: 0.5vh;
     height: 32.5vh;

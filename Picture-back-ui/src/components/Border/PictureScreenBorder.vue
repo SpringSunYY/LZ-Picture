@@ -2,10 +2,10 @@
   <div class="screen-border" :style="{ width, height }">
     <div class="stars-container">
       <div
-        v-for="star in stars"
-        :key="star.id"
-        class="star"
-        :style="{
+          v-for="star in stars"
+          :key="star.id"
+          class="star"
+          :style="{
           left: star.x + '%',
           top: star.y + '%',
           animationDelay: star.delay + 's',
@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted} from 'vue'
 
 const props = defineProps({
   width: {
@@ -106,7 +106,9 @@ onMounted(() => {
 <style scoped>
 .screen-border {
   position: relative;
-  background: linear-gradient(135deg, #0a1428 0%, #1e3a8a 50%, #1e40af 100%);
+  background-image: url("/src/assets/images/picture-statistics-bg.png");
+  background-repeat: repeat;
+  background-size: contain;
   overflow: hidden;
 }
 
@@ -131,8 +133,14 @@ onMounted(() => {
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 /* 主边框 */
@@ -155,35 +163,32 @@ onMounted(() => {
   background: transparent;
   border: 2px solid #00ffff;
   clip-path: polygon(
-    30px 0%,
-    calc(50% - 80px) 0%,
-    calc(50% - 60px) 20px,
-    calc(50% + 60px) 20px,
-    calc(50% + 80px) 0%,
-    calc(100% - 30px) 0%,
-    100% 30px,
-    100% calc(100% - 30px),
-    calc(100% - 30px) 100%,
-    30px 100%,
-    0% calc(100% - 30px),
-    0% 30px
+      30px 0%,
+      calc(50% - 80px) 0%,
+      calc(50% - 60px) 20px,
+      calc(50% + 60px) 20px,
+      calc(50% + 80px) 0%,
+      calc(100% - 30px) 0%,
+      100% 30px,
+      100% calc(100% - 30px),
+      calc(100% - 30px) 100%,
+      30px 100%,
+      0% calc(100% - 30px),
+      0% 30px
   );
-  box-shadow:
-    0 0 20px rgba(0, 255, 255, 0.5),
-    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5),
+  inset 0 0 20px rgba(0, 255, 255, 0.1);
   animation: borderGlow 2s ease-in-out infinite alternate;
 }
 
 @keyframes borderGlow {
   0% {
-    box-shadow:
-      0 0 20px rgba(0, 255, 255, 0.5),
-      inset 0 0 20px rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
   }
   100% {
-    box-shadow:
-      0 0 30px rgba(0, 255, 255, 0.8),
-      inset 0 0 30px rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.8),
+    inset 0 0 30px rgba(0, 255, 255, 0.2);
   }
 }
 
@@ -194,10 +199,25 @@ onMounted(() => {
   height: 60px;
 }
 
-.top-left { top: 0; left: 0; }
-.top-right { top: 0; right: 0; }
-.bottom-left { bottom: 0; left: 0; }
-.bottom-right { bottom: 0; right: 0; }
+.top-left {
+  top: 0;
+  left: 0;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+}
+
+.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+}
 
 .corner-lines {
   position: relative;
@@ -212,7 +232,10 @@ onMounted(() => {
   padding: 12px 8px;
 }
 
-.corner-lines.vertical .line { width: 20px; height: 3px; }
+.corner-lines.vertical .line {
+  width: 20px;
+  height: 3px;
+}
 
 .corner-lines.horizontal {
   display: flex;
@@ -222,7 +245,10 @@ onMounted(() => {
   align-items: flex-end;
 }
 
-.corner-lines.horizontal .line { width: 3px; height: 20px; }
+.corner-lines.horizontal .line {
+  width: 3px;
+  height: 20px;
+}
 
 .corner-lines .line {
   background: #00ffff;
@@ -231,8 +257,12 @@ onMounted(() => {
 }
 
 @keyframes cornerBlink {
-  0%, 70% { opacity: 0.4; }
-  35% { opacity: 1; }
+  0%, 70% {
+    opacity: 0.4;
+  }
+  35% {
+    opacity: 1;
+  }
 }
 
 /* 标题区域 - 无边框 */
@@ -249,10 +279,9 @@ onMounted(() => {
   color: #ffffff;
   font-size: 36px;
   font-weight: 700;
-  text-shadow:
-    0 0 10px rgba(0, 255, 255, 0.8),
-    0 0 20px rgba(0, 255, 255, 0.4),
-    2px 2px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8),
+  0 0 20px rgba(0, 255, 255, 0.4),
+  2px 2px 4px rgba(0, 0, 0, 0.8);
   letter-spacing: 3px;
   text-transform: uppercase;
   position: relative;
@@ -263,16 +292,14 @@ onMounted(() => {
 /* 标题背景发光动画 */
 @keyframes titleGlow {
   0% {
-    box-shadow:
-      0 0 25px rgba(0, 255, 255, 0.6),
-      inset 0 0 20px rgba(0, 255, 255, 0.15),
-      0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6),
+    inset 0 0 20px rgba(0, 255, 255, 0.15),
+    0 5px 15px rgba(0, 0, 0, 0.3);
   }
   100% {
-    box-shadow:
-      0 0 35px rgba(0, 255, 255, 0.9),
-      inset 0 0 30px rgba(0, 255, 255, 0.25),
-      0 8px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 35px rgba(0, 255, 255, 0.9),
+    inset 0 0 30px rgba(0, 255, 255, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -305,13 +332,27 @@ onMounted(() => {
   animation: waveMove 6s ease-in-out infinite;
 }
 
-.wave1 { animation-delay: 0s; }
-.wave2 { animation-delay: -2s; fill: rgba(0, 255, 255, 0.05); }
-.wave3 { animation-delay: -4s; fill: rgba(0, 255, 255, 0.03); }
+.wave1 {
+  animation-delay: 0s;
+}
+
+.wave2 {
+  animation-delay: -2s;
+  fill: rgba(0, 255, 255, 0.05);
+}
+
+.wave3 {
+  animation-delay: -4s;
+  fill: rgba(0, 255, 255, 0.03);
+}
 
 @keyframes waveMove {
-  0%, 100% { d: path("M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z"); }
-  50% { d: path("M0,80 C300,20 800,100 1200,40 L1200,120 L0,120 Z"); }
+  0%, 100% {
+    d: path("M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z");
+  }
+  50% {
+    d: path("M0,80 C300,20 800,100 1200,40 L1200,120 L0,120 Z");
+  }
 }
 
 /* 响应式设计 */
@@ -329,7 +370,14 @@ onMounted(() => {
     height: 40px;
   }
 
-  .corner-lines.vertical .line { width: 15px; height: 2px; }
-  .corner-lines.horizontal .line { width: 2px; height: 15px; }
+  .corner-lines.vertical .line {
+    width: 15px;
+    height: 2px;
+  }
+
+  .corner-lines.horizontal .line {
+    width: 2px;
+    height: 15px;
+  }
 }
 </style>
