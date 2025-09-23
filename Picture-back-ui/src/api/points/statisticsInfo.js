@@ -51,3 +51,12 @@ export function pointsUsageTypeStatistics(query){
     params: query
   })
 }
+
+//用户充值排行
+export function pointsOrderRankStatistics(query){
+  return request({
+    url: '/points/statisticsInfo/points/order/rank',
+    method: 'get',
+    params: query
+  })
+}

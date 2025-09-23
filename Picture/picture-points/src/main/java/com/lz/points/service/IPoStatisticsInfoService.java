@@ -2,9 +2,11 @@ package com.lz.points.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
+import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
 
@@ -104,4 +106,15 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo> {
      * @date: 2025/9/23 16:46
      **/
     List<StatisticsVo> pointsUsageTypeStatistics(PointsUsageLogStatisticsRequest request);
+
+    /**
+     * 积分订单排行
+     *
+     * @param request 订单统计请求参数
+     * @return BarStatisticsVo
+     * @author: YY
+     * @method: pointsOrderRank
+     * @date: 2025/9/23 16:46
+     **/
+    BarStatisticsVo pointsOrderRankStatistics(PaymentOrderStatisticsRequest request);
 }

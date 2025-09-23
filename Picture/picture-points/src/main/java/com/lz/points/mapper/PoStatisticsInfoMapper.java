@@ -1,8 +1,11 @@
 package com.lz.points.mapper;
 
 import java.util.List;
+
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
+import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRo;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRo;
 
@@ -71,4 +74,14 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      * @return List<PointsUsageLogStatisticsRo>
      **/
     List<PointsUsageLogStatisticsRo> pointsUsageTypeStatistics(PointsUsageLogStatisticsRequest request);
+
+    /**
+     * 积分充值排行
+     * @author: YY
+     * @method: pointsOrderRank
+     * @date: 2025/9/23 22:14
+     * @param request 查询参数
+     * @return List<PointsUsageLogStatisticsRo>
+     **/
+    List<PaymentOrderStatisticsRo> pointsOrderRankStatistics(PaymentOrderStatisticsRequest request);
 }

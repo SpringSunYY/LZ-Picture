@@ -8,7 +8,7 @@
         </div>
         <Decoration10 style="width:90%; height:5px;"/>
         <div class="base-charts">
-          <BarRankingCharts/>
+          <BarRankingCharts :chart-data="pointsOrderRankDate" :chart-name="pointsOrderRankName"/>
         </div>
         <Decoration2 style="width:100%; height:5px;"/>
         <div class="bottom-charts">
@@ -53,11 +53,10 @@ import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts.vue";
 import BarAutoCarouselCharts from "@/components/Statistics/BarAutoCarouselCharts.vue";
 import {BorderBox10, BorderBox11, BorderBox13, Decoration10, Decoration2} from "@kjgl77/datav-vue3";
-import RadarCharts from "@/components/Statistics/RadarCharts.vue";
 import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
-import {pointsUsageTypeStatistics} from "@/api/points/statisticsInfo.js";
+import {pointsOrderRankStatistics, pointsUsageTypeStatistics} from "@/api/points/statisticsInfo.js";
 import PieGradientCharts from "@/components/Statistics/PieGradientCharts.vue";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
@@ -81,8 +80,18 @@ const getPointsUsageType = () => {
   })
 }
 
+//用户充值排行
+const pointsOrderRankDate = ref([])
+const pointsOrderRankName = ref('用户充值排行')
+const getPointsOrderRank = () => {
+  pointsOrderRankStatistics(query.value).then(res => {
+    pointsOrderRankDate.value = res.data
+  })
+}
+
 const getStatistics = async () => {
   getPointsUsageType()
+  getPointsOrderRank()
 }
 getStatistics()
 </script>

@@ -5,13 +5,16 @@ import com.lz.common.core.controller.BaseController;
 import com.lz.common.core.domain.AjaxResult;
 import com.lz.common.core.page.TableDataInfo;
 import com.lz.common.enums.BusinessType;
+import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.poi.ExcelUtil;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoEdit;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoInsert;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
+import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
 import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
+import com.lz.points.model.enums.PoRechargeStatusEnum;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
 import com.lz.points.service.IPoStatisticsInfoService;
 import jakarta.annotation.Resource;
@@ -113,5 +116,16 @@ public class PoStatisticsInfoController extends BaseController {
     public AjaxResult pointsUsageTypeStatistics(@Validated PointsUsageLogStatisticsRequest request) {
         request.setLogType(PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue());
         return success(poStatisticsInfoService.pointsUsageTypeStatistics(request));
+    }
+
+    /**
+     * 用户充值排行
+     */
+    @PreAuthorize("@ss.hasPermi('points:statistics')")
+    @GetMapping("/points/order/rank")
+    public AjaxResult pointsOrderRankStatistics(@Validated PaymentOrderStatisticsRequest request) {
+        request.setPaymentStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
+        request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        return success(poStatisticsInfoService.pointsOrderRankStatistics(request));
     }
 }
