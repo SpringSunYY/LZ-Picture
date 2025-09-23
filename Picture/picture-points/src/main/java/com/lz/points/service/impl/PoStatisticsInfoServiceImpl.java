@@ -233,7 +233,6 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         }
         //构建结果
         ArrayList<StatisticsVo> statisticsVos = new ArrayList<>();
-        ArrayList<RadarStatisticsVo.Indicator> indicators = new ArrayList<>();
         for (Map.Entry<String, Long> stringLongEntry : resultMap.entrySet()) {
             StatisticsVo statisticsVo = new StatisticsVo();
             Optional<PoPointsUsageTypeEnum> enumByValue = PoPointsUsageTypeEnum.getEnumByValue(stringLongEntry.getKey());
