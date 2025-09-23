@@ -45,10 +45,8 @@ import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
 import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
 import BarRankingCharts from "@/components/Statistics/BarRankingCharts.vue";
 import BarAutoCarouselCharts from "@/components/Statistics/BarAutoCarouselCharts.vue";
-import {BorderBox11, BorderBox10, Decoration10, BorderBox5, BorderBox13, Decoration2} from "@kjgl77/datav-vue3";
+import {BorderBox10, BorderBox11, BorderBox13, Decoration10, Decoration2} from "@kjgl77/datav-vue3";
 import RadarCharts from "@/components/Statistics/RadarCharts.vue";
-
-
 </script>
 <style scoped lang="scss">
 .points-statistics {
