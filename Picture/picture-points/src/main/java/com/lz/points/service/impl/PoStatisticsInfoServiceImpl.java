@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
+import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
@@ -31,7 +33,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.lz.common.constant.Constants.COMMON_SEPARATOR_CACHE;
@@ -171,6 +172,22 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
     }
 
     //region 统计
+
+    /**
+     * 构建统计
+     *
+     * @param commonKey      统计的通用key
+     * @param typeEnum       统计类型枚举
+     * @param statisticsName 统计名称
+     * @param request        请求参数
+     * @param roClass        返回结果对象
+     * @param queryFunction  查询方法
+     * @param resultBuilder  构建结果方法
+     * @return R
+     * @author: YY
+     * @method: buildRangeStatistics
+     * @date: 2025/9/23 23:30
+     **/
     private <REQ, RO, R> R buildRangeStatistics(
             String commonKey,
             PoStatisticsTypeEnum typeEnum,
@@ -178,7 +195,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             REQ request,
             Class<RO> roClass,
             BiFunction<REQ, String, List<RO>> queryFunction,
-            Function<List<RO>, R> resultBuilder
+            BiFunction<List<RO>, List<String>, R> resultBuilder
     ) {
         // 拿到开始结束时间
         String startDate = (String) ReflectUtils.getFieldValue(request, "startDate");
@@ -186,7 +203,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
         List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
         if (dateRanges == null || dateRanges.isEmpty()) {
-            return resultBuilder.apply(new ArrayList<>());
+            return resultBuilder.apply(new ArrayList<>(), dateRanges);
         }
 
         String end = dateRanges.getLast();
@@ -203,7 +220,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             List<RO> todayList = queryFunction.apply(request, today);
             resultList.addAll(todayList);
             if (dateRanges.size() == 1) {
-                return resultBuilder.apply(resultList);
+                return resultBuilder.apply(resultList, dateRanges);
             }
             dateRanges.removeLast();
             end = dateRanges.getLast();
@@ -212,9 +229,10 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         // 2. 历史数据（从统计表里取）
         List<PoStatisticsInfo> statisticsInfos =
                 getPoStatisticsInfosByDateAndKeyType(startDate, end, typeEnum.getValue(), commonKey);
+        List<String> noStatisticsDates = new ArrayList<>(dateRanges);
         for (PoStatisticsInfo info : statisticsInfos) {
             String currentDate = DateUtils.dateTime(info.getCreateTime());
-            dateRanges.remove(currentDate);
+            noStatisticsDates.remove(currentDate);
             String content = info.getContent();
             if (StringUtils.isNotEmpty(content)) {
                 // 获取泛型类型参数
@@ -225,9 +243,9 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         }
 
         // 3. 没有统计过的 → 现查 DB + 插入统计表
-        if (!dateRanges.isEmpty()) {
+        if (!noStatisticsDates.isEmpty()) {
             List<PoStatisticsInfo> newInfos = new ArrayList<>();
-            for (String currentDate : dateRanges) {
+            for (String currentDate : noStatisticsDates) {
                 ReflectUtils.setFieldValue(request, "startDate", currentDate);
                 ReflectUtils.setFieldValue(request, "endDate", currentDate);
                 List<RO> list = queryFunction.apply(request, currentDate);
@@ -247,7 +265,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         }
 
         // 4. 统一构建结果
-        return resultBuilder.apply(resultList);
+        return resultBuilder.apply(resultList, dateRanges);
     }
 
     @Override
@@ -262,10 +280,17 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
                 request,
                 PointsUsageLogStatisticsRo.class,
                 (req, date) -> getPointsUsageTypeStatistics(req),
-                this::builderPointsUsageTypeStatisticsResult
+                (resultList, dateRanges) -> builderPointsUsageTypeStatisticsResult(resultList)
         );
     }
 
+
+    /**
+     * 构建积分使用类型统计结果
+     *
+     * @param userRegisterStatisticsResult 结果
+     * @return
+     */
     private List<StatisticsVo> builderPointsUsageTypeStatisticsResult(List<PointsUsageLogStatisticsRo> userRegisterStatisticsResult) {
         if (StringUtils.isEmpty(userRegisterStatisticsResult)) {
             return new ArrayList<>();
@@ -301,6 +326,51 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         return poStatisticsInfoMapper.pointsUsageTypeStatistics(request);
     }
 
+    @Override
+    public LineStatisticsVo pointsUsageStatistics(PointsUsageLogStatisticsRequest request) {
+        return buildRangeStatistics(
+                POINTS_STATISTICS_POINTS_USAGE,
+                PoStatisticsTypeEnum.STATISTICS_TYPE_3,
+                POINTS_STATISTICS_POINTS_USAGE_NAME,
+                request,
+                StatisticsRo.class,
+                (req, date) -> {
+                    List<StatisticsRo> statisticsRos = poStatisticsInfoMapper.pointsUsageStatistics(req);
+                    //因为消费是负数，所以这里取负数
+                    return statisticsRos.stream().peek(statisticsRo -> {
+                        //因为消费是负数，所以这里取负数
+                        statisticsRo.setTotal(-statisticsRo.getTotal());
+                    }).collect(Collectors.toList());
+                },
+                this::builderLineStatisticsVoResult
+        );
+    }
+
+    /**
+     * 构建积分使用统计结果
+     *
+     * @param statisticsRos 统计结果
+     * @param dateRanges 日期范围
+     * @return LineStatisticsVo
+     */
+    private LineStatisticsVo builderLineStatisticsVoResult(List<StatisticsRo> statisticsRos, List<String> dateRanges) {
+        //根据时间升序
+        statisticsRos.sort(Comparator.comparing(StatisticsRo::getName));
+        LinkedHashMap<String, Long> resultMap = new LinkedHashMap<>();
+        for (String dateRange : dateRanges) {
+            resultMap.put(dateRange, 0L);
+        }
+        for (StatisticsRo statisticsRo : statisticsRos) {
+           resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
+        }
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Long>values= new ArrayList<>();
+        resultMap.forEach((dateRange, total) ->{
+            names.add(dateRange);
+            values.add(total);
+        });
+        return new LineStatisticsVo(names,values);
+    }
 
     @Override
     @CustomCacheable(keyPrefix = POINTS_STATISTICS_USER_CHARGE_RANKING,
@@ -318,11 +388,16 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
                     processPointsOrderRankRo(list);
                     return list;
                 },
-                this::builderPointsOrderRankResult
+                (resultList, dateRanges)-> builderPointsOrderRankResult(resultList)
         );
     }
 
 
+    /**
+     * 处理查询到的充值排名结果
+     *
+     * @param pointsUsageLogStatisticsRos 统计结果
+     */
     private void processPointsOrderRankRo(List<PaymentOrderStatisticsRo> pointsUsageLogStatisticsRos) {
         if (StringUtils.isEmpty(pointsUsageLogStatisticsRos)) {
             return;
@@ -335,6 +410,12 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         }
     }
 
+    /**
+     * 构建用户充值排名统计结果
+     *
+     * @param statisticsRos 统计结果
+     * @return BarStatisticsVo
+     */
     private BarStatisticsVo builderPointsOrderRankResult(List<PaymentOrderStatisticsRo> statisticsRos) {
         if (StringUtils.isEmpty(statisticsRos)) {
             return new BarStatisticsVo();

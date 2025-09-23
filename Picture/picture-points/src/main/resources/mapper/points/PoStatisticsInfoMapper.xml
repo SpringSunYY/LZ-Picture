@@ -132,4 +132,14 @@
         </where>
         group by user_id limit 50;
     </select>
+    <select id="pointsUsageStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
+        select sum(points_used) as total, DATE(create_time) as name
+        from po_points_usage_log_info
+        <where>
+            <if test="logType != null and logType != ''">and log_type = #{logType}</if>
+            <if test="startDate != null and startDate != ''">and create_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
+        </where>
+        group by name;
+    </select>
 </mapper>

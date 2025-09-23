@@ -2,6 +2,7 @@ package com.lz.points.mapper;
 
 import java.util.List;
 
+import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
@@ -84,4 +85,6 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      * @return List<PointsUsageLogStatisticsRo>
      **/
     List<PaymentOrderStatisticsRo> pointsOrderRankStatistics(PaymentOrderStatisticsRequest request);
+
+    List<StatisticsRo> pointsUsageStatistics(PointsUsageLogStatisticsRequest req);
 }

@@ -17,6 +17,13 @@ public class PointsStatisticsConstants {
     public static final int POINTS_STATISTICS_POINTS_USAGE_TYPE_EXPIRE_TIME = 60 * 5;
 
     /**
+     * 积分统计-积分使用
+     */
+    public static final String POINTS_STATISTICS_POINTS_USAGE = "points:statistics:points:usage";
+    public static final String POINTS_STATISTICS_POINTS_USAGE_NAME = "积分使用-每日";
+    public static final int POINTS_STATISTICS_POINTS_USAGE_EXPIRE_TIME = 60 * 5;
+
+    /**
      * 用户充值排行统计
      */
     public static final String POINTS_STATISTICS_USER_CHARGE_RANKING = "points:statistics:user:charge:ranking";

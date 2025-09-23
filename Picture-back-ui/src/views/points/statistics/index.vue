@@ -12,7 +12,7 @@
         </div>
         <Decoration2 style="width:100%; height:5px;"/>
         <div class="bottom-charts">
-          <LineAvgCharts/>
+          <LineAvgCharts :chart-data="pointsUsageDate" :chart-name="pointsUsageName" :chart-title="pointsUsageTitle"/>
         </div>
       </el-col>
       <el-col :span="12">
@@ -56,7 +56,11 @@ import {BorderBox10, BorderBox11, BorderBox13, Decoration10, Decoration2} from "
 import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
-import {pointsOrderRankStatistics, pointsUsageTypeStatistics} from "@/api/points/statisticsInfo.js";
+import {
+  pointsOrderRankStatistics,
+  pointsUsageStatistics,
+  pointsUsageTypeStatistics
+} from "@/api/points/statisticsInfo.js";
 import PieGradientCharts from "@/components/Statistics/PieGradientCharts.vue";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
@@ -89,7 +93,17 @@ const getPointsOrderRank = () => {
   })
 }
 
+//积分使用统计
+const pointsUsageName = ref('积分使用')
+const pointsUsageDate = ref([])
+const pointsUsageTitle= ref(['积分总量', '平均值'])
+const getPointsUsage = () => {
+  pointsUsageStatistics(query.value).then(res => {
+    pointsUsageDate.value = res.data
+  })
+}
 const getStatistics = async () => {
+  getPointsUsage()
   getPointsUsageType()
   getPointsOrderRank()
 }

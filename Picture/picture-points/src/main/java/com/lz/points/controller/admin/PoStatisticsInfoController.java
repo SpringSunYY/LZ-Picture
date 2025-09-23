@@ -118,6 +118,16 @@ public class PoStatisticsInfoController extends BaseController {
         return success(poStatisticsInfoService.pointsUsageTypeStatistics(request));
     }
 
+    /****
+     * 积分使用统计
+     */
+    @PreAuthorize("@ss.hasPermi('points:statistics')")
+    @GetMapping("/points/usage")
+    public AjaxResult pointsUsageStatistics(@Validated PointsUsageLogStatisticsRequest request) {
+        request.setLogType(PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue());
+        return success(poStatisticsInfoService.pointsUsageStatistics(request));
+    }
+
     /**
      * 用户充值排行
      */
