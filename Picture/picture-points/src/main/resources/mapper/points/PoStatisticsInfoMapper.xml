@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.points.mapper.PoStatisticsInfoMapper">
-    
+
     <resultMap type="PoStatisticsInfo" id="PoStatisticsInfoResult">
-        <result property="statisticsId"    column="statistics_id"    />
-        <result property="type"    column="type"    />
-        <result property="statisticsName"    column="statistics_name"    />
-        <result property="commonKey"    column="common_key"    />
-        <result property="statisticsKey"    column="statistics_key"    />
-        <result property="stages"    column="stages"    />
-        <result property="content"    column="content"    />
-        <result property="extendContent"    column="extend_content"    />
-        <result property="remark"    column="remark"    />
-        <result property="createTime"    column="create_time"    />
+        <result property="statisticsId" column="statistics_id"/>
+        <result property="type" column="type"/>
+        <result property="statisticsName" column="statistics_name"/>
+        <result property="commonKey" column="common_key"/>
+        <result property="statisticsKey" column="statistics_key"/>
+        <result property="stages" column="stages"/>
+        <result property="content" column="content"/>
+        <result property="extendContent" column="extend_content"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="selectPoStatisticsInfoVo">
-        select statistics_id, type, statistics_name, common_key, statistics_key, stages, content, extend_content, remark, create_time from po_po_statistics_info
+        select statistics_id,
+               type,
+               statistics_name,
+               common_key,
+               statistics_key,
+               stages,
+               content,
+               extend_content,
+               remark,
+               create_time
+        from po_po_statistics_info
     </sql>
 
     <select id="selectPoStatisticsInfoList" parameterType="PoStatisticsInfo" resultMap="PoStatisticsInfoResult">
         <include refid="selectPoStatisticsInfoVo"/>
-        <where>  
-            <if test="statisticsId != null  and statisticsId != ''"> and statistics_id = #{statisticsId}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
-            <if test="statisticsName != null  and statisticsName != ''"> and statistics_name like concat('%', #{statisticsName}, '%')</if>
-            <if test="commonKey != null  and commonKey != ''"> and common_key = #{commonKey}</if>
-            <if test="statisticsKey != null  and statisticsKey != ''"> and statistics_key = #{statisticsKey}</if>
-            <if test="stages != null "> and stages = #{stages}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        <where>
+            <if test="statisticsId != null  and statisticsId != ''">and statistics_id = #{statisticsId}</if>
+            <if test="type != null  and type != ''">and type = #{type}</if>
+            <if test="statisticsName != null  and statisticsName != ''">and statistics_name like concat('%',
+                #{statisticsName}, '%')
+            </if>
+            <if test="commonKey != null  and commonKey != ''">and common_key = #{commonKey}</if>
+            <if test="statisticsKey != null  and statisticsKey != ''">and statistics_key = #{statisticsKey}</if>
+            <if test="stages != null ">and stages = #{stages}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
         </where>
     </select>
-    
+
     <select id="selectPoStatisticsInfoByStatisticsId" parameterType="String" resultMap="PoStatisticsInfoResult">
         <include refid="selectPoStatisticsInfoVo"/>
         where statistics_id = #{statisticsId}
@@ -52,7 +66,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="extendContent != null">extend_content,</if>
             <if test="remark != null">remark,</if>
             <if test="createTime != null">create_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="statisticsId != null">#{statisticsId},</if>
             <if test="type != null and type != ''">#{type},</if>
@@ -64,7 +78,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="extendContent != null">#{extendContent},</if>
             <if test="remark != null">#{remark},</if>
             <if test="createTime != null">#{createTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePoStatisticsInfo" parameterType="PoStatisticsInfo">
@@ -84,13 +98,27 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deletePoStatisticsInfoByStatisticsId" parameterType="String">
-        delete from po_po_statistics_info where statistics_id = #{statisticsId}
+        delete
+        from po_po_statistics_info
+        where statistics_id = #{statisticsId}
     </delete>
 
     <delete id="deletePoStatisticsInfoByStatisticsIds" parameterType="String">
-        delete from po_po_statistics_info where statistics_id in 
+        delete from po_po_statistics_info where statistics_id in
         <foreach item="statisticsId" collection="array" open="(" separator="," close=")">
             #{statisticsId}
         </foreach>
     </delete>
+
+    <select id="pointsUsageTypeStatistics"
+            resultType="com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRo">
+        select count(*) as value, DATE(create_time) as date, usage_type as usageType
+        from po_points_usage_log_info
+        <where>
+            <if test="logType != null and logType != ''">and log_type = #{logType}</if>
+            <if test="startDate != null and startDate != ''">and create_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
+        </where>
+        group by date, usageType;
+    </select>
 </mapper>

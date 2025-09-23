@@ -42,3 +42,12 @@ export function delStatisticsInfo(statisticsId) {
     method: 'delete'
   })
 }
+
+//积分消耗类型统计
+export function pointsUsageTypeStatistics(query){
+  return request({
+    url: '/points/statisticsInfo/points/usage/type',
+    method: 'get',
+    params: query
+  })
+}

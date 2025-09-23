@@ -3,7 +3,8 @@
     <el-row :gutter="1">
       <el-col :span="6">
         <div class="base-charts" style="padding: 3vh">
-          <RadarCharts/>
+          <!--          <RadarCharts :chart-data="pointsUsageTypeDate" :chart-name="pointsUsageTypeName"/>-->
+          <PieGradientCharts :chart-data="pointsUsageTypeDate" :chart-name="pointsUsageTypeName"/>
         </div>
         <Decoration10 style="width:90%; height:5px;"/>
         <div class="base-charts">
@@ -34,6 +35,12 @@
         </div>
       </el-col>
     </el-row>
+
+    <DateRangePicker
+        @change="onDateChange"
+        top="1%"
+        left="25%"
+    />
   </BorderBox11>
 </template>
 <script setup>
@@ -47,6 +54,37 @@ import BarRankingCharts from "@/components/Statistics/BarRankingCharts.vue";
 import BarAutoCarouselCharts from "@/components/Statistics/BarAutoCarouselCharts.vue";
 import {BorderBox10, BorderBox11, BorderBox13, Decoration10, Decoration2} from "@kjgl77/datav-vue3";
 import RadarCharts from "@/components/Statistics/RadarCharts.vue";
+import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
+import dayjs from "dayjs";
+import {ref} from "vue";
+import {pointsUsageTypeStatistics} from "@/api/points/statisticsInfo.js";
+import PieGradientCharts from "@/components/Statistics/PieGradientCharts.vue";
+
+const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
+const defaultEnd = dayjs().format("YYYY-MM-DD")
+const query = ref({
+  startDate: defaultStart,
+  endDate: defaultEnd
+})
+const onDateChange = (val) => {
+  query.value.startDate = val?.[0] || ''
+  query.value.endDate = val?.[1] || ''
+  getStatistics()
+}
+
+//积分使用类型
+const pointsUsageTypeDate = ref([])
+const pointsUsageTypeName = ref('积分使用类型')
+const getPointsUsageType = () => {
+  pointsUsageTypeStatistics(query.value).then(res => {
+    pointsUsageTypeDate.value = res.data
+  })
+}
+
+const getStatistics = async () => {
+  getPointsUsageType()
+}
+getStatistics()
 </script>
 <style scoped lang="scss">
 .points-statistics {

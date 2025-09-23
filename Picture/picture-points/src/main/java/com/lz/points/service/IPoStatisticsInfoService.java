@@ -1,21 +1,24 @@
 package com.lz.points.service;
 
-import java.util.List;
-import com.lz.points.model.domain.PoStatisticsInfo;
-import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
-import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
-
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.lz.common.core.domain.statistics.vo.StatisticsVo;
+import com.lz.points.model.domain.PoStatisticsInfo;
+import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
+import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
+import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
+
+import java.util.List;
+
 /**
  * 统计信息Service接口
  *
  * @author YY
  * @date 2025-09-23
  */
-public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo>
-{
+public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo> {
     //region mybatis代码
+
     /**
      * 查询统计信息
      *
@@ -64,6 +67,7 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo>
      */
     public int deletePoStatisticsInfoByStatisticsId(String statisticsId);
     //endregion
+
     /**
      * 获取查询条件
      *
@@ -79,4 +83,25 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo>
      * @return PoStatisticsInfoVO集合
      */
     List<PoStatisticsInfoVo> convertVoList(List<PoStatisticsInfo> poStatisticsInfoList);
+
+    /**
+     * 根据日期和类型获取积分信息
+     *
+     * @param startDate 开始日期
+     * @param end       结束日期
+     * @param type      类型
+     * @param commonKey 公共键
+     */
+    List<PoStatisticsInfo> getPoStatisticsInfosByDateAndKeyType(String startDate, String end, String type, String commonKey);
+
+    /**
+     * 积分使用类型统计
+     *
+     * @param request 请求参数
+     * @return RadarStatisticsVo
+     * @author: YY
+     * @method: pointsUsageTypeStatistics
+     * @date: 2025/9/23 16:46
+     **/
+    List<StatisticsVo> pointsUsageTypeStatistics(PointsUsageLogStatisticsRequest request);
 }

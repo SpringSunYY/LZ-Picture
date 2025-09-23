@@ -3,6 +3,8 @@ package com.lz.points.mapper;
 import java.util.List;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
+import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRo;
 
 /**
  * 统计信息Mapper接口
@@ -59,4 +61,14 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      * @return 结果
      */
     public int deletePoStatisticsInfoByStatisticsIds(String[] statisticsIds);
+
+    /**
+     * 统计积分使用类型
+     * @author: YY
+     * @method: pointsUsageTypeStatistics
+     * @date: 2025/9/23 16:50
+     * @param request 查询参数
+     * @return List<PointsUsageLogStatisticsRo>
+     **/
+    List<PointsUsageLogStatisticsRo> pointsUsageTypeStatistics(PointsUsageLogStatisticsRequest request);
 }
