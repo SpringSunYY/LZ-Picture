@@ -38,8 +38,8 @@
 
     <DateRangePicker
         @change="onDateChange"
-        top="1%"
-        left="25%"
+        top="3%"
+        left="20%"
     />
   </BorderBox11>
 </template>
@@ -74,7 +74,7 @@ const onDateChange = (val) => {
 
 //积分使用类型
 const pointsUsageTypeDate = ref([])
-const pointsUsageTypeName = ref('积分使用类型')
+const pointsUsageTypeName = ref('积分使用')
 const getPointsUsageType = () => {
   pointsUsageTypeStatistics(query.value).then(res => {
     pointsUsageTypeDate.value = res.data
