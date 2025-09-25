@@ -33,7 +33,9 @@ const props = defineProps({
     type: String,
     default: 'left',
     validator: (value) => ['left', 'right'].includes(value)
-  }
+  },
+  //标题长度限制
+  defaultTitleLength: {type: Number, default: 4},
 })
 
 const chart = ref(null)
@@ -69,7 +71,7 @@ const getCurrentData = (startIndex, visibleItems) => {
     const item = filteredData[idx]
     currentNameList.push(item.name)
     currentValueList.push(item.value)
-    currentDisplayNameList.push(item.name.length > 4 ? item.name.slice(0, 4) + '…' : item.name)
+    currentDisplayNameList.push(item.name.length > props.defaultTitleLength ? item.name.slice(0, props.defaultTitleLength) : item.name)
   }
 
   return {currentNameList, currentValueList, currentDisplayNameList, sortedAllData: filteredData}
@@ -95,7 +97,7 @@ const updateChart = (startIndex = 0) => {
       text: props.chartName,
       textStyle: {color: '#ffffff', fontSize: 16},
       left: 'center',
-      top: '2%'
+      top: '5%'
     },
     tooltip: {
       trigger: 'item',

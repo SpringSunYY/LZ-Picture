@@ -46,6 +46,8 @@ const props = defineProps({
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
     ]
   },
+    //标题长度限制
+  defaultTitleLength: {type: Number, default: 4},
 })
 
 const chart = ref(null)
@@ -71,7 +73,7 @@ const getSortedAllData = () => {
   const names = (props.chartData && props.chartData.names) || []
   const totals = (props.chartData && props.chartData.totals) || []
   return names.map((n, i) => ({name: n, value: totals[i]}))
-      .filter(item =>  Number(item.value) > 0)
+      .filter(item => Number(item.value) > 0)
       .sort((a, b) => b.value - a.value);
 }
 
@@ -96,7 +98,7 @@ const getCurrentData = (startIndex, visibleItems) => {
     currentNameList.push(item.name)
     currentValueList.push(item.value)
     // 名称截断
-    currentDisplayNameList.push(item.name.length > 4 ? item.name.slice(0, 4) + '…' : item.name)
+    currentDisplayNameList.push(item.name.length > props.defaultTitleLength ? item.name.slice(0, props.defaultTitleLength) : item.name)
   }
 
   return {currentNameList, currentValueList, currentDisplayNameList, sortedAllData}
@@ -142,7 +144,7 @@ const updateChart = (startIndex = 0) => {
       text: props.chartName,
       textStyle: {color: '#ffffff', fontSize: 16},
       left: 'center',
-      top: '2%'
+      top: '5%'
     },
     tooltip: {
       trigger: 'item',
@@ -157,8 +159,8 @@ const updateChart = (startIndex = 0) => {
       }
     },
     grid: isRight
-        ? {top: '26%', left: '10%', right: '20%', bottom: '3%'}   // 柱子在左，名字在右
-        : {top: '26%', left: '20%', right: '10%', bottom: '3%'}, // 柱子在右，名字在左
+        ? {top: '20%', left: '10%', right: '20%', bottom: '5%'}   // 柱子在左，名字在右
+        : {top: '20%', left: '20%', right: '10%', bottom: '5%'}, // 柱子在右，名字在左
     yAxis: {
       type: 'category',
       inverse: true,
@@ -175,7 +177,7 @@ const updateChart = (startIndex = 0) => {
     xAxis: {
       type: 'value',
       axisLine: {show: true},
-      position:'top',
+      position: 'top',
       axisTick: {show: true}, // 显示刻度线
       axisLabel: {
         show: true,          // 显示刻度值

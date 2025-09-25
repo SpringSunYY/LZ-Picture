@@ -30,7 +30,8 @@
         <BorderBox13 class="base-charts">
           <BarAxisRankingCharts chart-direction="right"
                                 :chart-data="pointsRechargePackageDate"
-                                :chart-name="pointsRechargePackageName"/>
+                                :chart-name="pointsRechargePackageName"
+                                :default-title-length="6"/>
         </BorderBox13>
         <div class="bottom-charts" style="padding: 3vh">
           <PieLineCharts/>
@@ -114,7 +115,7 @@ const getPointsUsage = () => {
 const pointsRechargePackageDate = ref([])
 const pointsRechargePackageName = ref('积分充值套餐排行')
 const getPointsRechargePackage = () => {
-    const currentQuery = {
+  const currentQuery = {
     startDate: query.value.startDate,
     endDate: query.value.endDate,
     size: 50
