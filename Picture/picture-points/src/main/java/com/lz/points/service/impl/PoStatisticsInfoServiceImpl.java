@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.annotation.CustomCacheable;
+import com.lz.common.annotation.CustomSort;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.common.core.domain.statistics.vo.BarStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
@@ -74,6 +75,8 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
      * @return 统计信息
      */
     @Override
+    @CustomSort(sortFields = {"statisticsName", "commonKey", "statisticsKey", "createTime"},
+            sortMappingFields = {"statistics_name", "common_key", "statistics_key", "create_time"})
     public List<PoStatisticsInfo> selectPoStatisticsInfoList(PoStatisticsInfo poStatisticsInfo) {
         return poStatisticsInfoMapper.selectPoStatisticsInfoList(poStatisticsInfo);
     }

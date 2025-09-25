@@ -46,6 +46,14 @@
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
             </if>
         </where>
+        <choose>
+            <when test="params.sortSql != null and params.sortSql != ''">
+                ${params.sortSql}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectPoStatisticsInfoByStatisticsId" parameterType="String" resultMap="PoStatisticsInfoResult">

@@ -113,7 +113,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="statisticsInfoList" @selection-change="handleSelectionChange">
+    <el-table ref="tableRef" v-loading="loading" :data="statisticsInfoList" @selection-change="handleSelectionChange"
+              @sort-change="customSort">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="统计编号" align="center" prop="statisticsId" v-if="columns[0].visible"
                        :show-overflow-tooltip="true"/>
@@ -122,13 +123,13 @@
           <dict-tag :options="po_statistics_type" :value="scope.row.type"/>
         </template>
       </el-table-column>
-      <el-table-column label="统计名称" align="center" prop="statisticsName" v-if="columns[2].visible"
+      <el-table-column label="统计名称" align="center" prop="statisticsName" sortable="custom" v-if="columns[2].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="公共KEY" align="center" prop="commonKey" v-if="columns[3].visible"
+      <el-table-column label="公共KEY" align="center" prop="commonKey" sortable="custom" v-if="columns[3].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="KEY" align="center" prop="statisticsKey" v-if="columns[4].visible"
+      <el-table-column label="KEY" align="center" prop="statisticsKey" sortable="custom" v-if="columns[4].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="期数" align="center" prop="stages" v-if="columns[5].visible"
+      <el-table-column label="期数" align="center" prop="stages" sortable="custom" v-if="columns[5].visible"
                        :show-overflow-tooltip="true"/>
       <el-table-column label="统计内容" align="center" prop="content" v-if="columns[6].visible"
                        :show-overflow-tooltip="true"/>
@@ -136,7 +137,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="描述" align="center" prop="remark" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[9].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -230,6 +232,8 @@ const total = ref(0);
 const title = ref("");
 const daterangeCreateTime = ref([]);
 
+const isAsc = ref();
+const orderByColumn = ref('');
 const data = reactive({
   form: {},
   queryParams: {
@@ -281,6 +285,10 @@ const {queryParams, form, rules, columns} = toRefs(data);
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
+  if (orderByColumn.value != null && isAsc.value !== null) {
+    queryParams.value.params["orderByColumn"] = orderByColumn.value;
+    queryParams.value.params["isAsc"] = isAsc.value;
+  }
   if (null != daterangeCreateTime && '' != daterangeCreateTime) {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
@@ -290,6 +298,19 @@ function getList() {
     total.value = response.total;
     loading.value = false;
   });
+}
+
+//自定义排序
+function customSort({column, prop, order}) {
+  if (prop !== undefined && prop !== '' && order !== null && order !== '') {
+    orderByColumn.value = prop;
+    isAsc.value = order === "ascending";
+  } else {
+    orderByColumn.value = null;
+    isAsc.value = null;
+  }
+  queryParams.value.pageNum = 1;
+  getList();
 }
 
 // 取消按钮
@@ -324,7 +345,10 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   daterangeCreateTime.value = [];
+  orderByColumn.value = null
+  isAsc.value = null;
   proxy.resetForm("queryRef");
+  proxy.$refs.tableRef.clearSort();
   handleQuery();
 }
 
