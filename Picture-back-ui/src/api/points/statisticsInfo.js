@@ -69,3 +69,12 @@ export function pointsUsageStatistics(query) {
         params: query
     })
 }
+
+//充值套餐排行
+export function pointsRechargePackageRankStatistics(query) {
+    return request({
+        url: '/points/statisticsInfo/points/package/rank',
+        method: 'get',
+        params: query
+    })
+}

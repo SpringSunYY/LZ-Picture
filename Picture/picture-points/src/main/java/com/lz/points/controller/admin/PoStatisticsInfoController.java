@@ -12,6 +12,7 @@ import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoEdit;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoInsert;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
 import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
+import com.lz.points.model.dto.statistics.PointsRechargeStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
 import com.lz.points.model.enums.PoPointsUsageLogTypeEnum;
 import com.lz.points.model.enums.PoRechargeStatusEnum;
@@ -137,5 +138,16 @@ public class PoStatisticsInfoController extends BaseController {
         request.setPaymentStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
         request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         return success(poStatisticsInfoService.pointsOrderRankStatistics(request));
+    }
+
+    /**
+     * 充值套餐排行
+     */
+    @PreAuthorize("@ss.hasPermi('points:statistics')")
+    @GetMapping("/points/package/rank")
+    public AjaxResult pointsRechargePackageRankStatistics(@Validated PointsRechargeStatisticsRequest request) {
+        request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        request.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
+        return success(poStatisticsInfoService.pointsRechargePackageRankStatistics(request));
     }
 }

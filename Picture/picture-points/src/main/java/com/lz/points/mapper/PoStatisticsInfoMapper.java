@@ -5,10 +5,7 @@ import java.util.List;
 import com.lz.common.core.domain.statistics.ro.StatisticsRo;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
-import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRo;
-import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
-import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRo;
+import com.lz.points.model.dto.statistics.*;
 
 /**
  * 统计信息Mapper接口
@@ -86,5 +83,23 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      **/
     List<PaymentOrderStatisticsRo> pointsOrderRankStatistics(PaymentOrderStatisticsRequest request);
 
-    List<StatisticsRo> pointsUsageStatistics(PointsUsageLogStatisticsRequest req);
+    /**
+     * 积分使用排行
+     * @author: YY
+     * @method: pointsUsageRank
+     * @date: 2025/9/23 22:14
+     * @param request 查询参数
+     * @return List<PointsUsageLogStatisticsRo>
+     **/
+    List<StatisticsRo> pointsUsageStatistics(PointsUsageLogStatisticsRequest request);
+
+    /**
+     *
+     * @author: YY
+     * @method: pointsRechargeRankStatistics
+     * @date: 2025/9/25 15:54
+     * @param request 请求参数
+     * @return List<PointsRechargeStatisticsRo>
+     **/
+    List<PointsRechargeStatisticsRo> pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request);
 }

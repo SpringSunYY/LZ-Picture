@@ -10,7 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 订单支付统计
+ * 充值订单统计
  *
  * @Project: Picture
  * @Author: YY
@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @Version: 1.0
  */
 @Data
-public class PaymentOrderStatisticsRequest implements Serializable {
+public class PointsRechargeStatisticsRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @NotBlank(message = "开始时间不能为空")
@@ -30,7 +30,7 @@ public class PaymentOrderStatisticsRequest implements Serializable {
     @NotNull(message = "数量不能为空")
     private Long size;
 
-    private String paymentStatus;
+    private String rechargeStatus;
 
     private String isDelete;
 }

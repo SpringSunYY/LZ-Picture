@@ -28,7 +28,9 @@
           <BarAutoCarouselCharts/>
         </div>
         <BorderBox13 class="base-charts">
-          <BarAxisRankingCharts chart-direction="right"/>
+          <BarAxisRankingCharts chart-direction="right"
+                                :chart-data="pointsRechargePackageDate"
+                                :chart-name="pointsRechargePackageName"/>
         </BorderBox13>
         <div class="bottom-charts" style="padding: 3vh">
           <PieLineCharts/>
@@ -57,7 +59,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
 import {
-  pointsOrderRankStatistics,
+  pointsOrderRankStatistics, pointsRechargePackageRankStatistics,
   pointsUsageStatistics,
   pointsUsageTypeStatistics
 } from "@/api/points/statisticsInfo.js";
@@ -88,7 +90,12 @@ const getPointsUsageType = () => {
 const pointsOrderRankDate = ref([])
 const pointsOrderRankName = ref('用户充值排行')
 const getPointsOrderRank = () => {
-  pointsOrderRankStatistics(query.value).then(res => {
+  const currentQuery = {
+    startDate: query.value.startDate,
+    endDate: query.value.endDate,
+    size: 50
+  }
+  pointsOrderRankStatistics(currentQuery).then(res => {
     pointsOrderRankDate.value = res.data
   })
 }
@@ -96,16 +103,31 @@ const getPointsOrderRank = () => {
 //积分使用统计
 const pointsUsageName = ref('积分使用')
 const pointsUsageDate = ref([])
-const pointsUsageTitle= ref(['积分总量', '平均值'])
+const pointsUsageTitle = ref(['积分总量', '平均值'])
 const getPointsUsage = () => {
   pointsUsageStatistics(query.value).then(res => {
     pointsUsageDate.value = res.data
+  })
+}
+
+//积分充值套餐排行
+const pointsRechargePackageDate = ref([])
+const pointsRechargePackageName = ref('积分充值套餐排行')
+const getPointsRechargePackage = () => {
+    const currentQuery = {
+    startDate: query.value.startDate,
+    endDate: query.value.endDate,
+    size: 50
+  }
+  pointsRechargePackageRankStatistics(currentQuery).then(res => {
+    pointsRechargePackageDate.value = res.data
   })
 }
 const getStatistics = async () => {
   getPointsUsage()
   getPointsUsageType()
   getPointsOrderRank()
+  getPointsRechargePackage()
 }
 getStatistics()
 </script>

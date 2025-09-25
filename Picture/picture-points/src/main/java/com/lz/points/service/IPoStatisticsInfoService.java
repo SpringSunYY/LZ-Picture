@@ -8,6 +8,7 @@ import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
 import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
+import com.lz.points.model.dto.statistics.PointsRechargeStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
 
@@ -128,4 +129,14 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo> {
      * @date: 2025/9/23 16:46
      **/
     BarStatisticsVo pointsOrderRankStatistics(PaymentOrderStatisticsRequest request);
+
+    /**
+     * 积分套餐充值排行
+     * @author: YY
+     * @method: pointsRechargeRankStatistics
+     * @date: 2025/9/25 15:46
+     * @param request
+     * @return BarStatisticsVo
+     **/
+    BarStatisticsVo pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request);
 }

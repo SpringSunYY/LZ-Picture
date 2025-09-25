@@ -130,7 +130,7 @@
             <if test="paymentStatus != null and paymentStatus != ''">and payment_status = #{paymentStatus}</if>
             <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
-        group by user_id limit 50;
+        group by user_id limit #{size};
     </select>
     <select id="pointsUsageStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
         select sum(points_used) as total, DATE(create_time) as name
@@ -141,5 +141,17 @@
             <if test="endDate != null and endDate != ''">and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
         </where>
         group by name;
+    </select>
+    <select id="pointsRechargePackageRankStatistics"
+            resultType="com.lz.points.model.dto.statistics.PointsRechargeStatisticsRo">
+        select sum(recharge_count) as value, package_id as data
+        from po_points_recharge_info
+        <where>
+            <if test="startDate != null and startDate != ''">and arrival_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and arrival_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
+            <if test="rechargeStatus != null and rechargeStatus != ''">and recharge_status = #{rechargeStatus}</if>
+            <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
+        </where>
+        group by package_id limit #{size};
     </select>
 </mapper>

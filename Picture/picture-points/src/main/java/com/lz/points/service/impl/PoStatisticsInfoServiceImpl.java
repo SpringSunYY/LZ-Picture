@@ -17,15 +17,14 @@ import com.lz.common.utils.uuid.IdUtils;
 import com.lz.common.utils.verify.DateVerifyUtils;
 import com.lz.points.mapper.PoStatisticsInfoMapper;
 import com.lz.points.model.domain.PoStatisticsInfo;
+import com.lz.points.model.domain.PointsRechargePackageInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
-import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
-import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRo;
-import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
-import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRo;
+import com.lz.points.model.dto.statistics.*;
 import com.lz.points.model.enums.PoPointsUsageTypeEnum;
 import com.lz.points.model.enums.PoStatisticsTypeEnum;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
 import com.lz.points.service.IPoStatisticsInfoService;
+import com.lz.points.service.IPointsRechargePackageInfoService;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
@@ -51,6 +50,9 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
 
     @Resource
     private IUserInfoService userInfoService;
+
+    @Resource
+    private IPointsRechargePackageInfoService pointsRechargePackageInfoService;
 
     //region mybatis代码
 
@@ -326,6 +328,9 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         return poStatisticsInfoMapper.pointsUsageTypeStatistics(request);
     }
 
+    @CustomCacheable(keyPrefix = POINTS_STATISTICS_POINTS_USAGE,
+            expireTime = POINTS_STATISTICS_POINTS_USAGE_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
     @Override
     public LineStatisticsVo pointsUsageStatistics(PointsUsageLogStatisticsRequest request) {
         return buildRangeStatistics(
@@ -350,7 +355,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
      * 构建积分使用统计结果
      *
      * @param statisticsRos 统计结果
-     * @param dateRanges 日期范围
+     * @param dateRanges    日期范围
      * @return LineStatisticsVo
      */
     private LineStatisticsVo builderLineStatisticsVoResult(List<StatisticsRo> statisticsRos, List<String> dateRanges) {
@@ -361,20 +366,20 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             resultMap.put(dateRange, 0L);
         }
         for (StatisticsRo statisticsRo : statisticsRos) {
-           resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
+            resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
         }
         ArrayList<String> names = new ArrayList<>();
-        ArrayList<Long>values= new ArrayList<>();
-        resultMap.forEach((dateRange, total) ->{
+        ArrayList<Long> values = new ArrayList<>();
+        resultMap.forEach((dateRange, total) -> {
             names.add(dateRange);
             values.add(total);
         });
-        return new LineStatisticsVo(names,values);
+        return new LineStatisticsVo(names, values);
     }
 
     @Override
     @CustomCacheable(keyPrefix = POINTS_STATISTICS_USER_CHARGE_RANKING,
-            expireTime = POINTS_STATISTICS_POINTS_USAGE_TYPE_EXPIRE_TIME,
+            expireTime = POINTS_STATISTICS_USER_CHARGE_RANKING_EXPIRE_TIME,
             useQueryParamsAsKey = true)
     public BarStatisticsVo pointsOrderRankStatistics(PaymentOrderStatisticsRequest request) {
         return buildRangeStatistics(
@@ -388,7 +393,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
                     processPointsOrderRankRo(list);
                     return list;
                 },
-                (resultList, dateRanges)-> builderPointsOrderRankResult(resultList)
+                (resultList, dateRanges) -> builderPointsOrderRankResult(resultList)
         );
     }
 
@@ -403,8 +408,11 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             return;
         }
         for (PaymentOrderStatisticsRo pointsUsageLogStatisticsRo : pointsUsageLogStatisticsRos) {
-            if (StringUtils.isEmpty(pointsUsageLogStatisticsRo.getName())) {
-                UserInfo userInfo = userInfoService.selectUserInfoByUserId(pointsUsageLogStatisticsRo.getData());
+            if (StringUtils.isNotEmpty(pointsUsageLogStatisticsRo.getName())) {
+                continue;
+            }
+            UserInfo userInfo = userInfoService.selectUserInfoByUserId(pointsUsageLogStatisticsRo.getData());
+            if (StringUtils.isNotNull(userInfo)) {
                 pointsUsageLogStatisticsRo.setName(userInfo.getUserName());
             }
         }
@@ -423,12 +431,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         List<String> names = new ArrayList<>();
         List<Long> totals = new ArrayList<>();
         for (PaymentOrderStatisticsRo statisticsRo : statisticsRos) {
-            if (StringUtils.isEmpty(statisticsRo.getName())) {
-                UserInfo userInfo = userInfoService.selectUserInfoByUserId(statisticsRo.getData());
-                names.add(userInfo.getUserName());
-            } else {
-                names.add(statisticsRo.getName());
-            }
+            names.add(statisticsRo.getName());
             totals.add(statisticsRo.getValue());
         }
         return new BarStatisticsVo(names, totals);
@@ -447,6 +450,62 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         statisticsInfo.setContent(JSONObject.toJSONString(content));
         statisticsInfo.setCreateTime(DateUtils.dateTime(DateUtils.YYYY_MM_DD, date));
         return statisticsInfo;
+    }
+
+    @Override
+    public BarStatisticsVo pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request) {
+        return buildRangeStatistics(
+                POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING,
+                PoStatisticsTypeEnum.STATISTICS_TYPE_6,
+                POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING_NAME,
+                request,
+                PointsRechargeStatisticsRo.class,
+                (req, date) -> {
+                    List<PointsRechargeStatisticsRo> list = poStatisticsInfoMapper.pointsRechargePackageRankStatistics(req);
+                    processPointsRechargePackageRo(list);
+                    return list;
+                },
+                (resultList, dateRanges) -> builderPointsRechargePackageRankResult(resultList)
+        );
+    }
+
+    /**
+     * 构建用户充值排名统计结果
+     *
+     * @param resultList 统计结果
+     * @return BarStatisticsVo
+     */
+    private BarStatisticsVo builderPointsRechargePackageRankResult(List<PointsRechargeStatisticsRo> resultList) {
+        if (StringUtils.isEmpty(resultList)) {
+            return new BarStatisticsVo();
+        }
+        List<String> names = new ArrayList<>();
+        List<Long> totals = new ArrayList<>();
+        for (PointsRechargeStatisticsRo statisticsRo : resultList) {
+            names.add(statisticsRo.getName());
+            totals.add(statisticsRo.getValue());
+        }
+        return new BarStatisticsVo(names, totals);
+    }
+
+    /**
+     * 处理查询到的充值排名结果
+     *
+     * @param list 统计结果
+     */
+    private void processPointsRechargePackageRo(List<PointsRechargeStatisticsRo> list) {
+        if (StringUtils.isEmpty(list)) {
+            return;
+        }
+        for (PointsRechargeStatisticsRo pointsRechargeStatisticsRo : list) {
+            if (StringUtils.isNotEmpty(pointsRechargeStatisticsRo.getName())) {
+                continue;
+            }
+            PointsRechargePackageInfo packageInfo = pointsRechargePackageInfoService.selectPointsRechargePackageInfoByPackageId(pointsRechargeStatisticsRo.getData());
+            if (StringUtils.isNotNull(packageInfo)) {
+                pointsRechargeStatisticsRo.setName(packageInfo.getPackageName());
+            }
+        }
     }
     //endregion
 
