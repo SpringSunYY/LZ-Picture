@@ -25,6 +25,7 @@ import com.lz.points.model.enums.PoPaymentTypeEnum;
 import com.lz.points.model.enums.PoPointsUsageTypeEnum;
 import com.lz.points.model.enums.PoStatisticsTypeEnum;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
+import com.lz.points.model.vo.statistics.PaymentOrderMapStatisticsVo;
 import com.lz.points.service.IPoStatisticsInfoService;
 import com.lz.points.service.IPointsRechargePackageInfoService;
 import com.lz.user.model.domain.UserInfo;
@@ -32,6 +33,7 @@ import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -559,6 +561,232 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             statisticsVos.add(statisticsVo);
         }
         return statisticsVos;
+    }
+
+    @Override
+    @CustomCacheable(keyPrefix = POINTS_STATISTICS_USER_PAYMENT_MAP,
+            expireTime = POINTS_STATISTICS_USER_PAYMENT_MAP_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    public List<PaymentOrderMapStatisticsVo> pointsOrderIpAddressStatistics(PaymentOrderMapStatisticsRequest request) {
+        String startDate = request.getStartDate();
+        String endDate = request.getEndDate();
+        String location = request.getIpAddress();
+        Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
+        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
+        //如果为空查询全部
+        if (StringUtils.isEmpty(dateRanges) || dateRanges == null) {
+            return new ArrayList<>();
+        }
+        String commonKey = "";
+        boolean isChina = StringUtils.isEmpty(location) || location.equals("中国") || location.equals("中华人民共和国");
+        if (isChina) {
+            location = "";
+            commonKey = POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + "中国";
+        } else {
+            commonKey = POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + location;
+        }
+
+        //key-时间，value：key-省份
+        Map<String, Map<String, PaymentOrderMapStatisticsRo>> countryMap = new HashMap<>();
+        //key-时间，value：key-省份，value：key-城市
+        Map<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> provinceMap = new HashMap<>();
+        //初始化数据
+        for (String date : dateRanges) {
+            countryMap.put(date, new HashMap<>());
+            provinceMap.put(date, new HashMap<>());
+        }
+        //灵活判断最近天数
+        String end = dateRanges.getLast();
+        //是否包含今天
+        String today = DateUtils.dateTime(nowDate);
+        if (dateRanges.contains(today)) {
+            List<PaymentOrderMapStatisticsRo> currentStatistics = getPointsOrderIpAddressStatistics(today, today, request);
+            builderPointsOrderIpAddressStatistics(countryMap, provinceMap, currentStatistics);
+            //如果包含了且范围只有1，就表示统计今天
+            if (dateRanges.size() == 1) {
+                return builderPointsOrderIpAddressResult(countryMap, provinceMap, isChina, location);
+            }
+            //删除今天,添加倒数第二天为最后一天,今天就是最后一天
+            dateRanges.removeLast();
+            end = dateRanges.getLast();
+        }
+        //查询昨天及以前的数据
+        List<PoStatisticsInfo> statistics = getPoStatisticsInfosByDateAndKeyType(startDate, end,
+                PoStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
+                commonKey);
+        //没有统计的数据
+        List<String> noStatistics = new ArrayList<>(dateRanges);
+        for (PoStatisticsInfo poStatisticsInfo : statistics) {
+            List<PaymentOrderMapStatisticsRo> statisticsRos = JSONArray.parseArray(poStatisticsInfo.getContent(), PaymentOrderMapStatisticsRo.class);
+            builderPointsOrderIpAddressStatistics(countryMap, provinceMap, statisticsRos);
+            noStatistics.remove(DateUtils.dateTime(poStatisticsInfo.getCreateTime()));
+        }
+
+        //如果有没有统计数据
+        if (StringUtils.isNotEmpty(noStatistics)) {
+            //key-时间，value：key-省份
+            Map<String, Map<String, PaymentOrderMapStatisticsRo>> noCountryMap = new HashMap<>();
+            //key-时间，value：key-省份，value：key-城市
+            Map<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> noProvinceMap = new HashMap<>();
+            for (String currentDate : noStatistics) {
+                noCountryMap.put(currentDate, new HashMap<>());
+                noProvinceMap.put(currentDate, new HashMap<>());
+                List<PaymentOrderMapStatisticsRo> pointsOrderIpAddressStatistics = getPointsOrderIpAddressStatistics(currentDate, currentDate, request);
+                builderPointsOrderIpAddressStatistics(noCountryMap, noProvinceMap, pointsOrderIpAddressStatistics);
+            }
+            //遍历没有统计结果插入数据库
+            ArrayList<PoStatisticsInfo> statisticsInfos = new ArrayList<>();
+            for (Map.Entry<String, Map<String, PaymentOrderMapStatisticsRo>> entry : noCountryMap.entrySet()) {
+                List<PaymentOrderMapStatisticsRo> list = entry.getValue().values().stream().toList();
+                statisticsInfos.add(
+                        getPoStatisticsInfo(entry.getKey(), list, PoStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
+                                POINTS_STATISTICS_USER_PAYMENT_MAP_NAME + COMMON_SEPARATOR_CACHE + "中国",
+                                POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + "中国", 1L)
+                );
+            }
+            for (Map.Entry<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> currentMap : noProvinceMap.entrySet()) {
+                //key省份
+                for (Map.Entry<String, Map<String, PaymentOrderMapStatisticsRo>> entry : currentMap.getValue().entrySet()) {
+                    List<PaymentOrderMapStatisticsRo> list = entry.getValue().values().stream().toList();
+                    statisticsInfos.add(
+                            getPoStatisticsInfo(currentMap.getKey(), list, PoStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
+                                    POINTS_STATISTICS_USER_PAYMENT_MAP_NAME + COMMON_SEPARATOR_CACHE + entry.getKey(),
+                                    POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + entry.getKey(), 1L)
+                    );
+                }
+            }
+            poStatisticsInfoMapper.insert(statisticsInfos);
+            //合并统计数据和没有统计数据
+            countryMap.putAll(noCountryMap);
+            provinceMap.putAll(noProvinceMap);
+        }
+        return builderPointsOrderIpAddressResult(countryMap, provinceMap, isChina, location);
+    }
+
+    private List<PaymentOrderMapStatisticsVo> builderPointsOrderIpAddressResult(Map<String, Map<String, PaymentOrderMapStatisticsRo>> countryMap,
+                                                                                Map<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> provinceMap,
+                                                                                boolean isChina, String ipAddress) {
+        //key-时间，key-省份，value
+        Map<String, Map<String, PaymentOrderMapStatisticsRo>> resultMap = new HashMap<>();
+        if (isChina) {
+            resultMap = countryMap;
+        } else {
+            //获取省份,返回每个城市的数据
+            for (Map.Entry<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> currentMap : provinceMap.entrySet()) {
+                String date = currentMap.getKey();
+                //找到对应的省份
+                Map<String, Map<String, PaymentOrderMapStatisticsRo>> currentProvinceMap = currentMap.getValue();
+                currentProvinceMap.get(ipAddress);
+                resultMap.put(date, currentProvinceMap.get(ipAddress));
+            }
+        }
+        //构建结果
+        //根据时间排序
+        LinkedHashMap<String, Map<String, PaymentOrderMapStatisticsRo>> sortMap = resultMap.entrySet()
+                .stream().sorted(
+                        Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (e1, e2)
+                                -> e1, LinkedHashMap::new));
+
+        return sortMap.entrySet().stream().map(entry -> {
+            PaymentOrderMapStatisticsVo vo = new PaymentOrderMapStatisticsVo();
+            vo.setDate(entry.getKey());
+            List<PaymentOrderMapStatisticsVo.Data> dataList = entry.getValue().entrySet().stream().map(entry1 -> {
+                PaymentOrderMapStatisticsVo.Data data = new PaymentOrderMapStatisticsVo.Data();
+                data.setIpAddress(entry1.getKey());
+                data.setValue(entry1.getValue().getValue());
+                data.setAmount(entry1.getValue().getAmount());
+                return data;
+            }).toList();
+            vo.setDatas(dataList);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    private void builderPointsOrderIpAddressStatistics(Map<String, Map<String, PaymentOrderMapStatisticsRo>> countryMap,
+                                                       Map<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> provinceMap,
+                                                       List<PaymentOrderMapStatisticsRo> statisticsRos) {
+        if (StringUtils.isEmpty(statisticsRos)) {
+            return;
+        }
+        //遍历结果
+        for (PaymentOrderMapStatisticsRo statisticsRo : statisticsRos) {
+            String ipAddress = statisticsRo.getIpAddress();
+            String date = statisticsRo.getDate();
+            BigDecimal amount = statisticsRo.getAmount();
+            Long value = statisticsRo.getValue();
+            Map<String, PaymentOrderMapStatisticsRo> currentCountryMap = countryMap.get(date);
+            Map<String, Map<String, PaymentOrderMapStatisticsRo>> currentProvinceMap = provinceMap.get(date);
+            builderIpAddressMap(date, ipAddress, amount, value, currentCountryMap, currentProvinceMap);
+        }
+    }
+
+    /**
+     * 构建结果
+     *
+     * @param date               时间
+     * @param ipAddress          ip地址
+     * @param amount             金额
+     * @param value              数量
+     * @param currentCountryMap  国家
+     * @param currentProvinceMap 省份
+     * @return void
+     * @author: YY
+     * @method: builderIpAddressMap
+     * @date: 2025/9/25 19:28
+     **/
+    private void builderIpAddressMap(String date, String ipAddress, BigDecimal amount, Long value, Map<String, PaymentOrderMapStatisticsRo> currentCountryMap, Map<String, Map<String, PaymentOrderMapStatisticsRo>> currentProvinceMap) {
+        if (StringUtils.isEmpty(ipAddress)) {
+            return;
+        }
+        String[] split = ipAddress.split(" ");
+        if (split.length < 1) {
+            return;
+        }
+        String province = split[0];
+        //国家
+        builderAddress(date, amount, value, currentCountryMap, province);
+        if (split.length < 2) {
+            return;
+        }
+        String city = split[1];
+        //省份
+        if (currentProvinceMap.containsKey(province)) {
+            Map<String, PaymentOrderMapStatisticsRo> roMap = currentProvinceMap.get(province);
+            builderAddress(date, amount, value, roMap, city);
+        } else {
+            Map<String, PaymentOrderMapStatisticsRo> roMap = new HashMap<>();
+            PaymentOrderMapStatisticsRo ro = new PaymentOrderMapStatisticsRo();
+            ro.setIpAddress(city);
+            ro.setAmount(amount);
+            ro.setValue(value);
+            ro.setDate(date);
+            roMap.put(city, ro);
+            currentProvinceMap.put(province, roMap);
+        }
+    }
+
+    private static void builderAddress(String date, BigDecimal amount, Long value, Map<String, PaymentOrderMapStatisticsRo> map, String address) {
+        if (map.containsKey(address)) {
+            PaymentOrderMapStatisticsRo ro = map.get(address);
+            ro.setAmount(ro.getAmount().add(amount));
+            ro.setValue(ro.getValue() + value);
+            map.put(address, ro);
+        } else {
+            PaymentOrderMapStatisticsRo ro = new PaymentOrderMapStatisticsRo();
+            ro.setIpAddress(address);
+            ro.setAmount(amount);
+            ro.setValue(value);
+            ro.setDate(date);
+            map.put(address, ro);
+        }
+    }
+
+    private List<PaymentOrderMapStatisticsRo> getPointsOrderIpAddressStatistics(String start, String end, PaymentOrderMapStatisticsRequest request) {
+        request.setStartDate(start);
+        request.setEndDate(end);
+        return poStatisticsInfoMapper.pointsOrderIpAddressStatistics(request);
     }
     //endregion
 

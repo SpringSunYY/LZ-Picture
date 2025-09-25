@@ -7,10 +7,12 @@ import com.lz.common.core.domain.statistics.vo.LineStatisticsVo;
 import com.lz.common.core.domain.statistics.vo.StatisticsVo;
 import com.lz.points.model.domain.PoStatisticsInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
+import com.lz.points.model.dto.statistics.PaymentOrderMapStatisticsRequest;
 import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsRechargeStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
+import com.lz.points.model.vo.statistics.PaymentOrderMapStatisticsVo;
 
 import java.util.List;
 
@@ -141,4 +143,6 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo> {
     BarStatisticsVo pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request);
 
     List<StatisticsVo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request);
+
+    List<PaymentOrderMapStatisticsVo> pointsOrderIpAddressStatistics(PaymentOrderMapStatisticsRequest request);
 }

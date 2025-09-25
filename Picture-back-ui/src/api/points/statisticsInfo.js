@@ -87,3 +87,12 @@ export function pointsPaymentStatistics(query) {
         params: query
     })
 }
+
+//用户支付区域统计
+export function pointsOrderIpAddressStatistics(query) {
+    return request({
+        url: '/points/statisticsInfo/points/order/address',
+        method: 'get',
+        params: query
+    })
+}

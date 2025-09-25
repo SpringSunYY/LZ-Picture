@@ -958,6 +958,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         } else {
             commonKey = USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + location;
         }
+        //存储结果
         Map<String, Map<String, List<MapStatisticsVo>>> provinceMapList = new HashMap<>();
         Map<String, List<MapStatisticsVo>> countryMapList = new HashMap<>();
         //灵活判断最近天数
@@ -1017,12 +1018,14 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             builderProcessLoginLocationMap(noCountryMap, noProvinceMap, provinceMapList, countryMapList);
             ArrayList<UStatisticsInfo> noStatisticsInfos = new ArrayList<>();
             countryMapList.forEach((key, value) -> {
-                noStatisticsInfos.add(getUStatisticsInfo(key, value, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(), USER_STATISTICS_LOGIN_LOCATION_NAME + COMMON_SEPARATOR_CACHE + "中国",
+                noStatisticsInfos.add(getUStatisticsInfo(key, value, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
+                        USER_STATISTICS_LOGIN_LOCATION_NAME + COMMON_SEPARATOR_CACHE + "中国",
                         USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + "中国", 1L));
             });
             provinceMapList.forEach((key, value) -> {
                 value.forEach((key1, value1) -> {
-                    noStatisticsInfos.add(getUStatisticsInfo(key, value1, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(), USER_STATISTICS_LOGIN_LOCATION_NAME + COMMON_SEPARATOR_CACHE + key1,
+                    noStatisticsInfos.add(getUStatisticsInfo(key, value1, UStatisticsTypeEnum.STATISTICS_TYPE_4.getValue(),
+                            USER_STATISTICS_LOGIN_LOCATION_NAME + COMMON_SEPARATOR_CACHE + key1,
                             USER_STATISTICS_LOGIN_LOCATION + COMMON_SEPARATOR_CACHE + key1, 1L));
                 });
             });

@@ -174,4 +174,16 @@
         </where>
         group by data;
     </select>
+    <select id="pointsOrderIpAddressStatistics"
+            resultType="com.lz.points.model.dto.statistics.PaymentOrderMapStatisticsRo">
+        select count(*) as value,sum(receipt_amount) as amount, DATE(payment_time) as date,ip_address as ipAddress
+        from po_payment_order_info
+        <where>
+            <if test="startDate != null and startDate != ''">and payment_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and payment_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
+            <if test="orderStatus != null and orderStatus != ''">and order_status = #{orderStatus}</if>
+            <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
+        </where>
+        group by date ,ipAddress;
+    </select>
 </mapper>

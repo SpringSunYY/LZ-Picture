@@ -108,8 +108,18 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      * @author: YY
      * @method: pointsPaymentStatistics
      * @date: 2025/9/25 16:56
-     * @param request
+     * @param request 查询参数
      * @return List<PointsRechargeStatisticsRo>
      **/
     List<PointsRechargeStatisticsRo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request);
+
+    /**
+     * 订单IP地址统计
+     * @author: YY
+     * @method: pointsOrderIpAddressStatistics
+     * @date: 2025/9/25 17:51
+     * @param request 查询参数
+     * @return List<PointsRechargeStatisticsRo>
+     **/
+    List<PaymentOrderMapStatisticsRo> pointsOrderIpAddressStatistics(PaymentOrderMapStatisticsRequest request);
 }

@@ -43,4 +43,11 @@ public class PointsStatisticsConstants {
     public static final String POINTS_STATISTICS_USER_CHARGE_PAYMENT = "points:statistics:user:charge:payment";
     public static final String POINTS_STATISTICS_USER_CHARGE_PAYMENT_NAME = "用户充值支付统计-每日";
     public static final int POINTS_STATISTICS_USER_CHARGE_PAYMENT_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户支付map统计
+     */
+    public static final String POINTS_STATISTICS_USER_PAYMENT_MAP = "points:statistics:user:payment:map";
+    public static final String POINTS_STATISTICS_USER_PAYMENT_MAP_NAME = "用户支付地图统计-每日";
+    public static final int POINTS_STATISTICS_USER_PAYMENT_MAP_EXPIRE_TIME = 60 * 5;
 }

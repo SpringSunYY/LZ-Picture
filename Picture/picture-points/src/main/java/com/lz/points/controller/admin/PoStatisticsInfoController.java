@@ -11,6 +11,7 @@ import com.lz.points.model.domain.PoStatisticsInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoEdit;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoInsert;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
+import com.lz.points.model.dto.statistics.PaymentOrderMapStatisticsRequest;
 import com.lz.points.model.dto.statistics.PaymentOrderStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsRechargeStatisticsRequest;
 import com.lz.points.model.dto.statistics.PointsUsageLogStatisticsRequest;
@@ -160,5 +161,17 @@ public class PoStatisticsInfoController extends BaseController {
         request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         request.setRechargeStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
         return success(poStatisticsInfoService.pointsRechargePackageRankStatistics(request));
+    }
+
+
+    /**
+     * 用户支付区域统计
+     */
+    @PreAuthorize("@ss.hasPermi('points:statistics')")
+    @GetMapping("/points/order/address")
+    public AjaxResult pointsOrderIpAddressStatistics(PaymentOrderMapStatisticsRequest request) {
+        request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        request.setOrderStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
+        return success(poStatisticsInfoService.pointsOrderIpAddressStatistics(request));
     }
 }

@@ -61,6 +61,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
 import {
+  pointsOrderIpAddressStatistics,
   pointsOrderRankStatistics, pointsPaymentStatistics, pointsRechargePackageRankStatistics,
   pointsUsageStatistics,
   pointsUsageTypeStatistics
@@ -139,12 +140,26 @@ const getPointsPayment = () => {
   })
 }
 
+//用户区域统计
+const pointsOrderTotalAddressData = ref([])
+const pointsOrderTotalAddressName = ref('用户区域统计')
+const getPointsOrderAddress = () => {
+  const currentQuery = {
+    startDate: query.value.startDate,
+    endDate: query.value.endDate,
+  }
+  pointsOrderIpAddressStatistics(currentQuery).then(res => {
+    pointsOrderTotalAddressData.value = res.data
+  })
+}
+
 const getStatistics = async () => {
   getPointsUsage()
   getPointsUsageType()
   getPointsOrderRank()
   getPointsRechargePackage()
   getPointsPayment()
+  getPointsOrderAddress()
 }
 getStatistics()
 </script>
