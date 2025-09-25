@@ -199,7 +199,7 @@ const getPointsOrderAddress = () => {
       value: amounts
     })
 
-    console.log('valueMap', valueMap)
+    // console.log('valueMap', valueMap)
     // 金额地图
     let amountValues = Object.entries(amountMap).map(([location, value]) => ({
       location: location,
@@ -219,7 +219,7 @@ const getPointsOrderAddress = () => {
         value: valueValues
       }
     ]
-    console.log('pointsOrderAddressData', pointsOrderAddressData.value)
+    // console.log('pointsOrderAddressData', pointsOrderAddressData.value)
   })
 }
 

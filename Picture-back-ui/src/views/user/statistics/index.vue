@@ -32,7 +32,7 @@
         </div>
         <BorderBox7 class="dashboard-border">
           <!--用户信息-->
-          <el-row>
+          <el-row :gutter="1">
             <el-col :span="12" class="dashboard-border">
               <DashboardRotateProportionCharts :chart-name="userOnlineStatisticsName" :total="userTotalStatisticsData"
                                                height="100%" :count="userOnlineStatisticsData"/>
@@ -315,8 +315,9 @@ const getStatistics = () => {
 <style scoped lang="scss">
 .user-statistics {
   background-image: url("/src/assets/images/user-statistics-bg.png");
-  min-height: 100vh;
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  padding: 0.5vh;
   background-repeat: repeat;
   background-size: contain;
   .default-border {
@@ -325,7 +326,7 @@ const getStatistics = () => {
   }
 
   .map-border {
-    height: 65vh;
+    height: 64vh;
   }
 
   .dashboard-border {
@@ -351,8 +352,6 @@ const getStatistics = () => {
 
   .title-decoration {
     position: absolute;
-    bottom: 0; // 装饰条紧贴容器底部
-    left: 0;
     top: 2vh;
     width: 100%;
     height: 7vh;
