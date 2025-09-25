@@ -272,7 +272,6 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
   const names = []
   const totals = []
   loginResult.data?.forEach(item => {
-
     var total = 0
     item.datas?.forEach(data => {
       const loc = data.location;
@@ -284,12 +283,11 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
     names.push(item.date)
     totals.push(total)
   });
-  const loginLocation = Object.entries(locationTotalMap).map(([location, value]) => ({
+  // console.log(loginLocation)
+  userLoginLocationMapStatisticsData.value = Object.entries(locationTotalMap).map(([location, value]) => ({
     location: location,
     value: value
   }))
-  console.log(loginLocation)
-  userLoginLocationMapStatisticsData.value = loginLocation
   //如果存在用户登录数，先删除
   if (userMapStatisticsData.value.find(item => item.name === '用户登录数')) {
     userMapStatisticsData.value = userMapStatisticsData.value.filter(item => item.name !== '用户登录数')

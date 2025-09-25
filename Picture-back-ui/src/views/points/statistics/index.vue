@@ -17,15 +17,15 @@
       </el-col>
       <el-col :span="12">
         <div class="map-charts">
-          <MapCharts/>
+          <MapCharts :chart-data="pointsOrderAddressData" :default-index-name="pointsOrderAmountAddressName"/>
         </div>
         <BorderBox10 class="bottom-center-charts">
-          <LineZoomCharts/>
+          <LineZoomCharts :chart-name="pointsOrderAmountName" :chart-data="pointsOrderAmountData"/>
         </BorderBox10>
       </el-col>
       <el-col :span="6">
         <div class="base-charts">
-          <BarAutoCarouselCharts/>
+          <BarAutoCarouselCharts :chart-data="pointsOrderTotalData" :chart-name="pointsOrderTotalName"/>
         </div>
         <BorderBox13 class="base-charts">
           <BarAxisRankingCharts chart-direction="right"
@@ -141,15 +141,85 @@ const getPointsPayment = () => {
 }
 
 //用户区域统计
-const pointsOrderTotalAddressData = ref([])
-const pointsOrderTotalAddressName = ref('用户区域统计')
+const pointsOrderAddressData = ref([])
+const pointsOrderTotalAddressName = ref('订单数')
+const pointsOrderAmountAddressName= ref('支付金额')
+const pointsOrderTotalData = ref({
+  names: [],
+  values: []
+})
+const pointsOrderTotalName = ref('每日订单')
+const pointsOrderAmountData = ref({
+  names: [],
+  values: []
+})
+const pointsOrderAmountName = ref('每日金额')
 const getPointsOrderAddress = () => {
   const currentQuery = {
     startDate: query.value.startDate,
     endDate: query.value.endDate,
   }
+  pointsOrderAmountData.value = {
+    names: [],
+    values: []
+  }
+  pointsOrderTotalData.value = {
+    names: [],
+    values: []
+  }
+  pointsOrderAddressData.value = []
   pointsOrderIpAddressStatistics(currentQuery).then(res => {
-    pointsOrderTotalAddressData.value = res.data
+    const data = res.data
+    let names = []
+    let values = []
+    let amounts = []
+    let amountMap = {}
+    let valueMap = {}
+    data.forEach(item => {
+      names.push(item.date)
+      if (!item.datas) {
+        return
+      }
+      let totalValue = 0
+      let totalAmount = 0
+      item.datas.forEach(data => {
+        totalAmount = totalValue + data.value
+        totalAmount = totalAmount + data.amount
+        amountMap[data.ipAddress] = (amountMap[data.ipAddress] || 0) + Number(data.amount)
+        valueMap[data.ipAddress] = (valueMap[data.ipAddress] || 0) + Number(data.value)
+      })
+      values.push(totalValue)
+      amounts.push(totalAmount)
+    })
+    pointsOrderTotalData.value.names = names
+    pointsOrderTotalData.value.values = values
+    pointsOrderAmountData.value.names = names
+    pointsOrderAmountData.value.values.push({
+      name: pointsOrderAmountName.value,
+      value: amounts
+    })
+
+    console.log('valueMap', valueMap)
+    // 金额地图
+    let amountValues = Object.entries(amountMap).map(([location, value]) => ({
+      location: location,
+      value: value
+    }))
+    let valueValues = Object.entries(valueMap).map(([location, value]) => ({
+      location: location,
+      value: value
+    }))
+    pointsOrderAddressData.value = [
+      {
+        name: pointsOrderAmountAddressName.value,
+        value: amountValues
+      },
+      {
+        name: pointsOrderTotalAddressName.value,
+        value: valueValues
+      }
+    ]
+    console.log('pointsOrderAddressData', pointsOrderAddressData.value)
   })
 }
 

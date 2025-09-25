@@ -36,7 +36,7 @@ let count = 0;
  * 辅助函数：计算图表指标（总数、平均值、增减数据）
  */
 const calculateChartMetrics = (names, values) => {
-  const total = values.reduce((sum, current) => sum + current, 0);
+  const total = values.reduce((sum, current) => Number(sum) + Number(current), 0);
   const average = (total / values.length).toFixed(2);
   const diffData = values.map((value, index) => {
     if (index === 0) return '-';
