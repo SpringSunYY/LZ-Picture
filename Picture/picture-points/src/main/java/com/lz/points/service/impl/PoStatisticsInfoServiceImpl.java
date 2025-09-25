@@ -21,6 +21,7 @@ import com.lz.points.model.domain.PoStatisticsInfo;
 import com.lz.points.model.domain.PointsRechargePackageInfo;
 import com.lz.points.model.dto.poStatisticsInfo.PoStatisticsInfoQuery;
 import com.lz.points.model.dto.statistics.*;
+import com.lz.points.model.enums.PoPaymentTypeEnum;
 import com.lz.points.model.enums.PoPointsUsageTypeEnum;
 import com.lz.points.model.enums.PoStatisticsTypeEnum;
 import com.lz.points.model.vo.poStatisticsInfo.PoStatisticsInfoVo;
@@ -455,6 +456,9 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         return statisticsInfo;
     }
 
+    @CustomCacheable(keyPrefix = POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING,
+            expireTime = POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
     @Override
     public BarStatisticsVo pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request) {
         return buildRangeStatistics(
@@ -509,6 +513,52 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
                 pointsRechargeStatisticsRo.setName(packageInfo.getPackageName());
             }
         }
+    }
+
+    @CustomCacheable(keyPrefix = POINTS_STATISTICS_USER_CHARGE_PAYMENT,
+            expireTime = POINTS_STATISTICS_USER_CHARGE_PAYMENT_EXPIRE_TIME,
+            useQueryParamsAsKey = true)
+    @Override
+    public List<StatisticsVo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request) {
+        return buildRangeStatistics(
+                POINTS_STATISTICS_USER_CHARGE_PAYMENT,
+                PoStatisticsTypeEnum.STATISTICS_TYPE_7,
+                POINTS_STATISTICS_USER_CHARGE_PAYMENT_NAME,
+                request,
+                PointsRechargeStatisticsRo.class,
+                (req, date) -> {
+                    return poStatisticsInfoMapper.pointsPaymentStatistics(req);
+                },
+                (resultList, dateRanges) -> builderPointPaymentResult(resultList)
+        );
+    }
+
+    private List<StatisticsVo> builderPointPaymentResult(List<PointsRechargeStatisticsRo> resultList) {
+        if (StringUtils.isEmpty(resultList)) {
+            return new ArrayList<>();
+        }
+        HashMap<String, Long> resultMap = new HashMap<>();
+        for (PointsRechargeStatisticsRo statisticsRo : resultList) {
+            if (resultMap.containsKey(statisticsRo.getData())) {
+                resultMap.put(statisticsRo.getData(), resultMap.get(statisticsRo.getData()) + statisticsRo.getValue());
+            } else {
+                resultMap.put(statisticsRo.getData(), statisticsRo.getValue());
+            }
+        }
+        //遍历结果获取label、value
+        List<StatisticsVo> statisticsVos = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : resultMap.entrySet()) {
+            StatisticsVo statisticsVo = new StatisticsVo();
+            Optional<PoPaymentTypeEnum> enumByValue = PoPaymentTypeEnum.getEnumByValue(entry.getKey());
+            if (enumByValue.isPresent()) {
+                statisticsVo.setName(enumByValue.get().getLabel());
+            } else {
+                statisticsVo.setName(entry.getKey());
+            }
+            statisticsVo.setValue(entry.getValue());
+            statisticsVos.add(statisticsVo);
+        }
+        return statisticsVos;
     }
     //endregion
 

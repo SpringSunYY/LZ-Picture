@@ -30,7 +30,7 @@ public class PaymentOrderStatisticsRequest implements Serializable {
     @NotNull(message = "数量不能为空")
     private Long size;
 
-    private String paymentStatus;
+    private String orderStatus;
 
     private String isDelete;
 }

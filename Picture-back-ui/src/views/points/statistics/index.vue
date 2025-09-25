@@ -34,7 +34,8 @@
                                 :default-title-length="6"/>
         </BorderBox13>
         <div class="bottom-charts" style="padding: 3vh">
-          <PieLineCharts/>
+          <PieLineCharts :chart-name="pointsPaymentName"
+                         :chart-data="pointsPaymentDate"/>
         </div>
       </el-col>
     </el-row>
@@ -60,7 +61,7 @@ import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";
 import dayjs from "dayjs";
 import {ref} from "vue";
 import {
-  pointsOrderRankStatistics, pointsRechargePackageRankStatistics,
+  pointsOrderRankStatistics, pointsPaymentStatistics, pointsRechargePackageRankStatistics,
   pointsUsageStatistics,
   pointsUsageTypeStatistics
 } from "@/api/points/statisticsInfo.js";
@@ -124,11 +125,26 @@ const getPointsRechargePackage = () => {
     pointsRechargePackageDate.value = res.data
   })
 }
+
+//用户支付方式
+const pointsPaymentDate = ref([])
+const pointsPaymentName = ref('用户支付方式')
+const getPointsPayment = () => {
+  const currentQuery = {
+    startDate: query.value.startDate,
+    endDate: query.value.endDate,
+  }
+  pointsPaymentStatistics(currentQuery).then(res => {
+    pointsPaymentDate.value = res.data
+  })
+}
+
 const getStatistics = async () => {
   getPointsUsage()
   getPointsUsageType()
   getPointsOrderRank()
   getPointsRechargePackage()
+  getPointsPayment()
 }
 getStatistics()
 </script>

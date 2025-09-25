@@ -102,4 +102,14 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      * @return List<PointsRechargeStatisticsRo>
      **/
     List<PointsRechargeStatisticsRo> pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request);
+
+    /**
+     * 用户充值方式统计
+     * @author: YY
+     * @method: pointsPaymentStatistics
+     * @date: 2025/9/25 16:56
+     * @param request
+     * @return List<PointsRechargeStatisticsRo>
+     **/
+    List<PointsRechargeStatisticsRo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request);
 }

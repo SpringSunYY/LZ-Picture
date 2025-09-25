@@ -36,4 +36,11 @@ public class PointsStatisticsConstants {
     public static final String POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING = "points:statistics:user:charge:package:ranking";
     public static final String POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING_NAME = "积分充值套餐排行-每日";
     public static final int POINTS_STATISTICS_USER_CHARGE_PACKAGE_RANKING_EXPIRE_TIME = 60 * 5;
+
+    /**
+     * 用户充值支付统计
+     */
+    public static final String POINTS_STATISTICS_USER_CHARGE_PAYMENT = "points:statistics:user:charge:payment";
+    public static final String POINTS_STATISTICS_USER_CHARGE_PAYMENT_NAME = "用户充值支付统计-每日";
+    public static final int POINTS_STATISTICS_USER_CHARGE_PAYMENT_EXPIRE_TIME = 60 * 5;
 }

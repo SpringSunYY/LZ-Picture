@@ -135,7 +135,7 @@
         <where>
             <if test="startDate != null and startDate != ''">and payment_time >= #{startDate}</if>
             <if test="endDate != null and endDate != ''">and payment_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
-            <if test="paymentStatus != null and paymentStatus != ''">and payment_status = #{paymentStatus}</if>
+            <if test="orderStatus != null and orderStatus != ''">and order_status = #{orderStatus}</if>
             <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
         group by user_id limit #{size};
@@ -161,5 +161,17 @@
             <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
         </where>
         group by package_id limit #{size};
+    </select>
+    <select id="pointsPaymentStatistics"
+            resultType="com.lz.points.model.dto.statistics.PointsRechargeStatisticsRo">
+        select count(*) as value, payment_type as data
+        from po_payment_order_info
+        <where>
+            <if test="startDate != null and startDate != ''">and payment_time >= #{startDate}</if>
+            <if test="endDate != null and endDate != ''">and payment_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)</if>
+            <if test="orderStatus != null and orderStatus != ''">and order_status = #{orderStatus}</if>
+            <if test="isDelete != null and isDelete != ''">and is_delete = #{isDelete}</if>
+        </where>
+        group by data;
     </select>
 </mapper>

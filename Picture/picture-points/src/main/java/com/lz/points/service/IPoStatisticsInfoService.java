@@ -139,4 +139,6 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo> {
      * @return BarStatisticsVo
      **/
     BarStatisticsVo pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request);
+
+    List<StatisticsVo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request);
 }

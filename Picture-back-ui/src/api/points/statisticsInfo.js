@@ -78,3 +78,12 @@ export function pointsRechargePackageRankStatistics(query) {
         params: query
     })
 }
+
+//用户支付方式统计
+export function pointsPaymentStatistics(query) {
+    return request({
+        url: '/points/statisticsInfo/points/payment',
+        method: 'get',
+        params: query
+    })
+}

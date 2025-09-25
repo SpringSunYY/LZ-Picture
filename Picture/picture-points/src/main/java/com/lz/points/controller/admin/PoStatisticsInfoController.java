@@ -135,9 +135,20 @@ public class PoStatisticsInfoController extends BaseController {
     @PreAuthorize("@ss.hasPermi('points:statistics')")
     @GetMapping("/points/order/rank")
     public AjaxResult pointsOrderRankStatistics(@Validated PaymentOrderStatisticsRequest request) {
-        request.setPaymentStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
+        request.setOrderStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
         request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         return success(poStatisticsInfoService.pointsOrderRankStatistics(request));
+    }
+
+    /**
+     * 用户支付方式统计
+     */
+    @PreAuthorize("@ss.hasPermi('points:statistics')")
+    @GetMapping("/points/payment")
+    public AjaxResult pointsPaymentStatistics(PaymentOrderStatisticsRequest request) {
+        request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+        request.setOrderStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
+        return success(poStatisticsInfoService.pointsPaymentStatistics(request));
     }
 
     /**
