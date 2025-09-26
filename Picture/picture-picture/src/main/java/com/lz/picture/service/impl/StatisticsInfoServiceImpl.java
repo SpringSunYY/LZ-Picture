@@ -591,7 +591,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         BarStatisticsVo barStatisticsVo = new BarStatisticsVo();
         barStatisticsVo.setNames(sortMap.keySet().stream().map(date -> date).toList());
-        barStatisticsVo.setTotals(sortMap.values().stream().map(total -> total).toList());
+        barStatisticsVo.setValues(sortMap.values().stream().map(total -> total).toList());
         return barStatisticsVo;
     }
 
@@ -665,13 +665,13 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             return;
         }
         for (StatisticsRo statisticsRo : statisticsRoList) {
-            if (StringUtils.isEmpty(statisticsRo.getName()) || StringUtils.isNull(statisticsRo.getTotal())) {
+            if (StringUtils.isEmpty(statisticsRo.getName()) || StringUtils.isNull(statisticsRo.getValue())) {
                 continue;
             }
             if (resultMap.containsKey(statisticsRo.getName())) {
-                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getTotal());
+                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getValue());
             } else {
-                resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
+                resultMap.put(statisticsRo.getName(), statisticsRo.getValue());
             }
         }
     }
@@ -807,9 +807,9 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             //当前map
             Map<String, Long> currentMap = resultMap.get(createTime);
             if (currentMap.containsKey(pictureStatisticsRo.getUploadType())) {
-                currentMap.put(pictureStatisticsRo.getUploadType(), currentMap.get(pictureStatisticsRo.getUploadType()) + pictureStatisticsRo.getTotal());
+                currentMap.put(pictureStatisticsRo.getUploadType(), currentMap.get(pictureStatisticsRo.getUploadType()) + pictureStatisticsRo.getValue());
             } else {
-                currentMap.put(pictureStatisticsRo.getUploadType(), pictureStatisticsRo.getTotal());
+                currentMap.put(pictureStatisticsRo.getUploadType(), pictureStatisticsRo.getValue());
             }
         }
         //按照时间排序
@@ -838,7 +838,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
             } else {
                 data.setName(key);
             }
-            data.setValue(value);
+            data.setValues(value);
             dataList.add(data);
         });
         LineManyStatisticsVo lineManyStatisticsVo = new LineManyStatisticsVo();
@@ -944,7 +944,7 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
                     .orElse(ro.getName());
             StatisticsVo vo = new StatisticsVo();
             vo.setName(name);
-            vo.setValue(ro.getTotal());
+            vo.setValue(ro.getValue());
             statisticsVoList.add(vo);
         }
 

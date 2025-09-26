@@ -15,5 +15,5 @@ import java.util.List;
 public class LineStatisticsVo {
    private List<String> names;
 
-    private List<Long> totals;
+    private List<Long> values;
 }

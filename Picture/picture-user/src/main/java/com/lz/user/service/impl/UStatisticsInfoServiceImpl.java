@@ -224,7 +224,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             //如果包含了且范围只有1，就表示统计今天
             if (dateRanges.size() == 1) {
                 lineStatisticsVo.setNames(names);
-                lineStatisticsVo.setTotals(totals);
+                lineStatisticsVo.setValues(totals);
                 return lineStatisticsVo;
             }
             //删除今天,添加倒数第二天为最后一天,今天就是最后一天
@@ -252,7 +252,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         sortNamesAndTotals(names, totals);
         //排序，根据时间排序
         lineStatisticsVo.setNames(names);
-        lineStatisticsVo.setTotals(totals);
+        lineStatisticsVo.setValues(totals);
         return lineStatisticsVo;
     }
 
@@ -306,7 +306,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             String name = enumByValue.isPresent() ? enumByValue.get().getLabel() : userSexStatistic.getName();
             PieStatisticsVo.Data data = new PieStatisticsVo.Data();
             data.setName(name);
-            data.setValue(userSexStatistic.getTotal());
+            data.setValue(userSexStatistic.getValue());
             datas.add(data);
             names.add(name);
         }
@@ -520,7 +520,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             //如果包含了且范围只有1，就表示统计今天
             if (dateRanges.size() == 1) {
                 barStatisticsVo.setNames(names);
-                barStatisticsVo.setTotals(totals);
+                barStatisticsVo.setValues(totals);
                 return barStatisticsVo;
             }
             //删除今天,添加倒数第二天为最后一天,今天就是最后一天
@@ -548,7 +548,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         sortNamesAndTotals(names, totals);
         //排序，根据时间排序
         barStatisticsVo.setNames(names);
-        barStatisticsVo.setTotals(totals);
+        barStatisticsVo.setValues(totals);
         return barStatisticsVo;
     }
 
@@ -579,7 +579,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
      */
     private void builderNamesAndTotals(ArrayList<String> names, ArrayList<Long> totals, StatisticsRo statisticsRo) {
         names.add(statisticsRo.getName());
-        totals.add(statisticsRo.getTotal());
+        totals.add(statisticsRo.getValue());
     }
 
     @Override
@@ -609,7 +609,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 names.add(dateToStr);
                 String statisticsStr = uStatisticsInfo.getContent();
                 StatisticsRo statisticsRo = JSONObject.parseObject(statisticsStr, StatisticsRo.class);
-                totals.add(statisticsRo.getTotal());
+                totals.add(statisticsRo.getValue());
                 //如果没有统计，则添加
                 noStatisticsDate.remove(dateToStr);
             }
@@ -693,7 +693,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             if (dateRanges.size() == 1) {
                 builderUserInformTypeRoNamesAndTotals(names, totals, userLoginStatistics, templateInfoMap);
                 barStatisticsVo.setNames(names);
-                barStatisticsVo.setTotals(totals);
+                barStatisticsVo.setValues(totals);
                 return barStatisticsVo;
             }
             //删除今天,添加倒数第二天为最后一天,今天就是最后一天
@@ -719,7 +719,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         sortUserInformTypeNamesAndTotals(names, totals);
         //排序，根据时间排序
         barStatisticsVo.setNames(names);
-        barStatisticsVo.setTotals(totals);
+        barStatisticsVo.setValues(totals);
         return barStatisticsVo;
     }
 
@@ -793,7 +793,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
                 templateName = informTemplateInfoByKeyLocaleType.getTemplateName();
             }
             names.add(templateName);
-            totals.add(statisticsRo.getTotal());
+            totals.add(statisticsRo.getValue());
         }
     }
 
@@ -891,7 +891,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
         Map<String, Map<String, Long>> provinceMap = new HashMap<>();
         //遍历结果，将数据分类
         for (MapStatisticsRo mapStatisticsRo : statisticsRos) {
-            builderLoginLocationMap(mapStatisticsRo.getTotal(), mapStatisticsRo.getLocation(), countryMap, provinceMap);
+            builderLoginLocationMap(mapStatisticsRo.getValue(), mapStatisticsRo.getLocation(), countryMap, provinceMap);
         }
         List<UStatisticsInfo> uStatisticsInfos = new ArrayList<>();
         Map<String, List<MapStatisticsVo>> provinceMapListMap = new HashMap<>();
@@ -1150,7 +1150,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             }
             Map<String, Long> currentCountryMap = countryMap.get(date);
             Map<String, Map<String, Long>> currentProvinceMap = provinceMap.get(date);
-            builderLoginLocationMap(mapStatisticsRo.getTotal(), location, currentCountryMap, currentProvinceMap);
+            builderLoginLocationMap(mapStatisticsRo.getValue(), location, currentCountryMap, currentProvinceMap);
         }
     }
 

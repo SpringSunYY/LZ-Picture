@@ -121,7 +121,7 @@
     </delete>
 
     <select id="keywordSearchStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, keyword as name
+        select count(*) as value, keyword as name
         from p_search_log_info
         where create_time >= #{startDate}
           and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
@@ -129,14 +129,14 @@
             limit #{size};
     </select>
     <select id="tagKeywordStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, tag_name as name
+        select count(*) as value, tag_name as name
         from p_picture_tag_rel_info
         where create_time >= #{startDate}
           and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         group by name limit #{size};
     </select>
     <select id="pictureStatusStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, picture_status as name
+        select count(*) as value, picture_status as name
         from p_picture_info
         <where>
             <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
@@ -145,7 +145,7 @@
         group by picture_status;
     </select>
     <select id="pictureUploadTypeStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, upload_type as name
+        select count(*) as value, upload_type as name
         from p_picture_info
         <where>
             <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
@@ -154,7 +154,7 @@
         group by upload_type;
     </select>
     <select id="spaceFileTotalStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select sum(total_count) as total, space_type as name
+        select sum(total_count) as value, space_type as name
         from p_space_info
         <where>
             <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
@@ -163,7 +163,7 @@
         group by space_type;
     </select>
     <select id="spaceFileSizeStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select sum(total_size) as total, space_type as name
+        select sum(total_size) as value, space_type as name
         from p_space_info
         <where>
             <if test="delete != null and delete != ''">and is_delete = #{delete}</if>
@@ -172,21 +172,21 @@
         group by space_type;
     </select>
     <select id="userBehaviorStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, behavior_type as name
+        select count(*) as value, behavior_type as name
         from p_user_behavior_info
         where create_time >= #{startDate}
           and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         group by name
     </select>
     <select id="pictureDownloadStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, DATE (create_time) as name
+        select count(*) as value, DATE (create_time) as name
         from p_picture_download_log_info
         where create_time >= #{startDate}
           and create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         group by name
     </select>
     <select id="spaceStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
-        select count(*) as total, DATE (create_time) as name
+        select count(*) as value, DATE (create_time) as name
         from p_space_info
         where
             create_time >= #{startDate}
@@ -194,7 +194,7 @@
         group by name
     </select>
     <select id="pictureStatistics" resultType="com.lz.picture.model.dto.statistics.PictureStatisticsRo">
-        SELECT COUNT(*) AS total,
+        SELECT COUNT(*) AS value,
         DATE(create_time) AS createTime,
         upload_type AS uploadType
         FROM p_picture_info

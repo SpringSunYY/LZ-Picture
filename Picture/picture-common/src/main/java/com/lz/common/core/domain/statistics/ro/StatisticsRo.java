@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class StatisticsRo {
     private String name;
-    private Long total;
+    private Long value;
 }

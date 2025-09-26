@@ -16,5 +16,5 @@ import java.io.Serializable;
 public class PictureStatisticsRo implements Serializable {
     private String createTime;
     private String uploadType;
-    private Long total;
+    private Long value;
 }

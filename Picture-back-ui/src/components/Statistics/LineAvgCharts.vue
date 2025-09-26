@@ -18,9 +18,9 @@ const props = defineProps({
   chartData: {
     type: Object,
     default: () => ({
-      // 默认数据，您可以根据需要传入 names (x轴) 和 totals (y轴/实际值)
+      // 默认数据，您可以根据需要传入 names (x轴) 和 values (y轴/实际值)
       names: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      totals: [2220, 1682, 2791, 3000, 4090, 3230, 2910]
+      values: [2220, 1682, 2791, 3000, 4090, 3230, 2910]
     })
   },
   chartName: {type: String, default: '交易总量统计'}, // 图表标题
@@ -50,13 +50,13 @@ const initChart = async () => {
 // 处理数据并设置ECharts配置项
 const setOptions = () => {
   if (!chart) return;
-  if (!props.chartData || !props.chartData.names || !props.chartData.totals) {
+  if (!props.chartData || !props.chartData.names || !props.chartData.values) {
     console.warn("Chart data is invalid.");
     return;
   }
 
   const xData = props.chartData.names; // X轴名称
-  const yData = props.chartData.totals; // Y轴数值
+  const yData = props.chartData.values; // Y轴数值
 
   // --- 计算平均值 ---
   const average_val = yData.reduce((sum, val) => Number(sum) + Number(val), 0) / yData.length;

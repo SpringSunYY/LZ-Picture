@@ -18,7 +18,7 @@ const props = defineProps({
     type: Object,
     default: () => ({
       names: ['产品A', '产品B', '产品C', '产品D', '产品E', '产品F', '产品G', '产品H'],
-      totals: [120, 200, 150, 80, 70, 110, 130, 180]
+      values: [120, 200, 150, 80, 70, 110, 130, 180]
     })
   },
   chartName: {type: String, default: '用户每日登录'}, // 图表标题
@@ -47,9 +47,9 @@ const initChart = async () => {
 // 处理数据并设置ECharts配置项
 const setOptions = () => {
   if (!chart) return;
-  if (!props.chartData || !props.chartData.names || !props.chartData.totals) return;
+  if (!props.chartData || !props.chartData.names || !props.chartData.values) return;
   const xData = props.chartData.names; // X轴：
-  const yData = props.chartData.totals; // Y轴
+  const yData = props.chartData.values; // Y轴
   const differenceData = []; // 用于存储与上一期相比的增减量
 
   // 处理原始数据：提取X轴和处理Y轴数据

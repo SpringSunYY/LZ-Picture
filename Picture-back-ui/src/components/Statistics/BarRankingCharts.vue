@@ -23,7 +23,7 @@ const props = defineProps({
     type: Object,
     default: () => ({
       names: ['产品A', '产品B', '产品C', '产品D', '产品E', '产品F', '产品G', '产品H'],
-      totals: [120, 200, 150, 80, 0, 110, 130, 0]
+      values: [120, 200, 150, 80, 0, 110, 130, 0]
     })
   },
   chartCarousel: {type: Number, default: 1000},
@@ -54,10 +54,10 @@ const debounce = (fn, delay = 200) => {
 }
 
 const getCurrentData = (startIndex, visibleItems) => {
-  const {names = [], totals = []} = props.chartData
+  const {names = [], values = []} = props.chartData
   const filteredData = names.map((name, index) => ({
     name,
-    value: totals[index]
+    value: values[index]
   })).filter(item => item.value > 0)
 
   filteredData.sort((a, b) => b.value - a.value)
@@ -79,7 +79,7 @@ const getCurrentData = (startIndex, visibleItems) => {
 
 const updateChart = (startIndex = 0) => {
   if (!chart.value) return
-  if (!props.chartData || !props.chartData.totals?.length || !props.chartData.names?.length) return;
+  if (!props.chartData || !props.chartData.values?.length || !props.chartData.names?.length) return;
 
   const visibleItems = Math.min(props.chartData.names.length, props.chartItemTotal)
   const {
@@ -168,8 +168,8 @@ const updateChart = (startIndex = 0) => {
 
 const startCarousel = () => {
   stopCarousel()
-  if (!props.chartData.totals?.length) return
-  const filteredLength = props.chartData.totals.filter(v => v > 0).length
+  if (!props.chartData.values?.length) return
+  const filteredLength = props.chartData.values.filter(v => v > 0).length
   if (filteredLength > props.chartItemTotal) {
     intervalId.value = setInterval(() => {
       currentIndex.value = (currentIndex.value + 1) % filteredLength
@@ -188,7 +188,7 @@ const stopCarousel = () => {
 const handleMouseEnter = () => stopCarousel()
 const handleMouseLeave = () => startCarousel()
 const handleWheel = (event) => {
-  const filteredLength = props.chartData.totals.filter(v => v > 0).length
+  const filteredLength = props.chartData.values.filter(v => v > 0).length
   if (!filteredLength) return
   stopCarousel()
   currentIndex.value = event.deltaY > 0

@@ -350,7 +350,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
                     //因为消费是负数，所以这里取负数
                     return statisticsRos.stream().peek(statisticsRo -> {
                         //因为消费是负数，所以这里取负数
-                        statisticsRo.setTotal(-statisticsRo.getTotal());
+                        statisticsRo.setValue(-statisticsRo.getValue());
                     }).collect(Collectors.toList());
                 },
                 this::builderLineStatisticsVoResult
@@ -372,7 +372,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             resultMap.put(dateRange, 0L);
         }
         for (StatisticsRo statisticsRo : statisticsRos) {
-            resultMap.put(statisticsRo.getName(), statisticsRo.getTotal());
+            resultMap.put(statisticsRo.getName(), statisticsRo.getValue());
         }
         ArrayList<String> names = new ArrayList<>();
         ArrayList<Long> values = new ArrayList<>();
@@ -597,6 +597,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         boolean isChina = StringUtils.isEmpty(location) || location.equals("中国") || location.equals("中华人民共和国");
         if (isChina) {
             location = "";
+            request.setIpAddress("");
             commonKey = POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + "中国";
         } else {
             commonKey = POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + location;

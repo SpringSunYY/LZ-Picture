@@ -13,6 +13,6 @@ import lombok.Data;
 @Data
 public class MapStatisticsRo {
     private String location;
-    private Long total;
+    private Long value;
     private String date;
 }

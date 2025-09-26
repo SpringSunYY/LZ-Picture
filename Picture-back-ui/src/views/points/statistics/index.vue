@@ -204,7 +204,7 @@ const getPointsOrderAddress = () => {
     pointsOrderAmountData.value.names = names
     pointsOrderAmountData.value.values.push({
       name:  userMapCurrent.value,
-      value: amounts
+      values: amounts
     })
 
     // console.log('valueMap', valueMap)

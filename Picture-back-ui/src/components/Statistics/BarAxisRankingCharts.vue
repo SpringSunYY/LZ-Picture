@@ -24,7 +24,7 @@ const props = defineProps({
     type: Object,
     default: () => ({
       names: ['产品A', '产品B', '产品C', '产品D', '产品E', '产品F', '产品G', '产品H'],
-      totals: [120, 200, 150, 80, 0, 110, 130, 0]
+      values: [120, 200, 150, 80, 0, 110, 130, 0]
     })
   },
   chartCarousel: {type: Number, default: 1000},
@@ -71,8 +71,8 @@ const debounce = (fn, delay = 200) => {
  */
 const getSortedAllData = () => {
   const names = (props.chartData && props.chartData.names) || []
-  const totals = (props.chartData && props.chartData.totals) || []
-  return names.map((n, i) => ({name: n, value: totals[i]}))
+  const values = (props.chartData && props.chartData.values) || []
+  return names.map((n, i) => ({name: n, value: values[i]}))
       .filter(item => Number(item.value) > 0)
       .sort((a, b) => b.value - a.value);
 }
@@ -109,7 +109,7 @@ const getCurrentData = (startIndex, visibleItems) => {
  */
 const updateChart = (startIndex = 0) => {
   if (!chart.value) return
-  if (!props.chartData || !Array.isArray(props.chartData.names) || !Array.isArray(props.chartData.totals)) return
+  if (!props.chartData || !Array.isArray(props.chartData.names) || !Array.isArray(props.chartData.values)) return
   const visibleItems = Math.min((props.chartData.names || []).length, props.chartItemTotal)
   const {
     currentNameList,

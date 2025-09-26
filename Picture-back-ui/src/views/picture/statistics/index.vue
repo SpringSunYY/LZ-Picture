@@ -105,7 +105,7 @@ import WaterMapProportionCharts from "@/components/Statistics/WaterMapProportion
 import PieIntervalCharts from "@/components/Statistics/PieIntervalCharts.vue";
 import PieLineCharts from "@/components/Statistics/PieLineCharts.vue";
 import PictureScreenBorder from "@/components/Border/PictureScreenBorder.vue";
-import {BorderBox7, BorderBox8, Decoration2} from '@kjgl77/datav-vue3'
+import {BorderBox8, Decoration2} from '@kjgl77/datav-vue3'
 import TableRanking from "@/components/Statistics/TableRanking.vue";
 import LineZoomCharts from "@/components/Statistics/LineZoomCharts.vue";
 import DateRangePicker from "@/components/Statistics/DateRangePicker.vue";

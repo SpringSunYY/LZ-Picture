@@ -15,5 +15,5 @@ import java.util.List;
 public class BarStatisticsVo {
    private List<String> names;
 
-    private List<Long> totals;
+    private List<Long> values;
 }

@@ -138,7 +138,8 @@
                        :show-overflow-tooltip="true"/>
       <el-table-column label="描述" align="center" prop="remark" v-if="columns[8].visible"
                        :show-overflow-tooltip="true"/>
-      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180" v-if="columns[9].visible"
+      <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" width="180"
+                       v-if="columns[9].visible"
                        :show-overflow-tooltip="true">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>

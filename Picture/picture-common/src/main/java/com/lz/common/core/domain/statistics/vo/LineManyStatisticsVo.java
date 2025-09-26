@@ -16,6 +16,6 @@ public class LineManyStatisticsVo {
     @lombok.Data
     public static class Data {
         private String name;
-        private List<Long> value;
+        private List<Long> values;
     }
 }

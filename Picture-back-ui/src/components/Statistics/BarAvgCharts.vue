@@ -20,11 +20,11 @@ const props = defineProps({
         '2021/09/06', '2021/09/07', '2021/09/08', '2021/09/09', '2021/09/10',
         '2021/09/11', '2021/09/12'
       ],
-      totals: [67, 97, 80, 76, 52, 63, 24, 97, 56, 78, 84, 45]
+      values: [67, 97, 80, 76, 52, 63, 24, 97, 56, 78, 84, 45]
     })
   },
   chartName: {type: String, default: '实际完工数统计'},
-  chartTitle: {type: Array, default: () => ['每日新增', '平均值']}
+  chartTitle: {type: Array, default: () => ['每日新增', '趋势']}
 });
 
 const chartRef = ref(null);
@@ -45,9 +45,9 @@ const initChart = async () => {
 // 设置 ECharts 配置
 const setOptions = () => {
   if (!chart) return;
-  if (!props.chartData || !props.chartData.names || !props.chartData.totals) return;
+  if (!props.chartData || !props.chartData.names || !props.chartData.values) return;
   const xData = props.chartData.names;
-  const yData = props.chartData.totals;
+  const yData = props.chartData.values;
 
   // 总和 & 平均值
   const totalSum = yData.reduce((a, b) => Number(a) + Number(b), 0);

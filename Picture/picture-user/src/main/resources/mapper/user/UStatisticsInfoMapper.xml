@@ -129,11 +129,11 @@
         WHERE target_date &lt; DATE(#{endDate})
         )
         SELECT d.target_date AS name,
-        COALESCE(u.total, 0) AS total
+        COALESCE(u.value, 0) AS value
         FROM date_range d
         LEFT JOIN (
         SELECT DATE(create_time) AS stat_date,
-        COUNT(user_id) AS total
+        COUNT(user_id) AS value
         FROM u_user_info
         WHERE create_time >= #{startDate}
         AND create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
@@ -155,11 +155,11 @@
         WHERE target_date &lt; DATE(#{endDate})
         )
         SELECT d.target_date AS name,
-        COALESCE(t.total, 0) AS total
+        COALESCE(t.total, 0) AS value
         FROM date_range d
         LEFT JOIN (
         SELECT DATE(login_time) AS stat_date,
-        COUNT(user_id) AS total
+        COUNT(user_id) AS value
         FROM u_login_log_info
         WHERE login_time >= #{startDate}
         AND login_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
@@ -195,7 +195,7 @@
     <select id="userSexStatistics" resultType="com.lz.common.core.domain.statistics.ro.StatisticsRo">
         SELECT
         COALESCE(u.sex, '0') AS name,
-        COUNT(*) AS total
+        COUNT(*) AS value
         FROM u_user_info u
         <if test="isDelete != null and isDelete != ''">
             WHERE u.is_delete = #{isDelete}
@@ -208,7 +208,7 @@
         template_key AS templateKey,
         locale AS locale,
         template_type AS templateType,
-        COUNT(*) AS total
+        COUNT(*) AS value
         FROM u_inform_info
         WHERE send_time >= #{startDate}
         AND send_time &lt; DATE_ADD(#{endDate} , INTERVAL 1 DAY)
@@ -219,7 +219,7 @@
         ORDER BY sendTime, templateKey, locale, templateType;
     </select>
     <select id="userLocationStatistics" resultType="com.lz.common.core.domain.statistics.ro.MapStatisticsRo">
-        select ip_address as location, count(*) as total
+        select ip_address as location, count(*) as value
         from u_user_info
         <where>
             <if test="location != null and location != ''">
@@ -233,7 +233,7 @@
     </select>
     <select id="userLoginLocationStatistics"
             resultType="com.lz.common.core.domain.statistics.ro.MapStatisticsRo">
-        select DATE (login_time) as date, login_location as location, count(*) as total
+        select DATE (login_time) as date, login_location as location, count(*) as value
         from u_login_log_info
         where login_time >= #{startDate} and login_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 day)
         <if test="location != null and location != ''">

@@ -118,7 +118,7 @@ const getUserRegisterStatistics = () => {
   userRegisterStatistics(query.value).then(res => {
     userRegisterStatisticsData.value.names = res.data.names
     userRegisterStatisticsData.value.values = []
-    userRegisterStatisticsData.value.values.push({value: res.data.totals, name: userRegisterStatisticsName.value})
+    userRegisterStatisticsData.value.values.push({values: res.data.values, name: userRegisterStatisticsName.value})
     // console.log(userRegisterStatisticsData.value)
   })
 }
@@ -270,7 +270,7 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
   const locationTotalMap = {};
   // 构建 chartData
   const names = []
-  const totals = []
+  const values = []
   loginResult.data?.forEach(item => {
     var total = 0
     item.datas?.forEach(data => {
@@ -281,7 +281,7 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
       locationTotalMap[loc] = (locationTotalMap[loc] || 0) + val;
     });
     names.push(item.date)
-    totals.push(total)
+    values.push(total)
   });
   // console.log(loginLocation)
   userLoginLocationMapStatisticsData.value = Object.entries(locationTotalMap).map(([location, value]) => ({
@@ -300,7 +300,7 @@ const getUserLoginLocationMapStatisticsData = async (current) => {
   // 构建 chartData
   userLoginStatisticsData.value = {
     names,
-    totals
+    values
   }
 }
 // getMapStatisticsData()
