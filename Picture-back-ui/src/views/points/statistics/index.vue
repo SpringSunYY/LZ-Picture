@@ -31,7 +31,7 @@
           <BarAxisRankingCharts chart-direction="right"
                                 :chart-data="pointsRechargePackageDate"
                                 :chart-name="pointsRechargePackageName"
-                                :default-title-length="6"/>
+                                :default-title-length="5"/>
         </BorderBox13>
         <div class="bottom-charts" style="padding: 3vh">
           <PieLineCharts :chart-name="pointsPaymentName"

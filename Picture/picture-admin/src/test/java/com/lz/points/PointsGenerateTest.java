@@ -12,10 +12,12 @@ import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * 积分模块测试类
@@ -45,9 +47,8 @@ public class PointsGenerateTest {
     @Resource
     private IPointsUsageLogInfoService pointsUsageLogInfoService;
 
-
     @Resource
-    private TransactionTemplate transactionTemplate;
+    private IPoStatisticsInfoService poStatisticsInfoService;
 
     @Test
     public void testGenerateAccountInfo() {
@@ -81,37 +82,20 @@ public class PointsGenerateTest {
                 .last("limit 10000"));
         //查询充值套餐
         List<PointsRechargePackageInfo> pointsRechargePackageInfoList = pointsRechargePackageInfoService.list();
-        //把充值套餐转换为map，key为list索引，value为充值套餐
-        HashMap<Integer, PointsRechargePackageInfo> packageInfoHashMap = new HashMap<>();
-        for (int i = 0; i < pointsRechargePackageInfoList.size(); i++) {
-            PointsRechargePackageInfo pointsRechargePackageInfo = pointsRechargePackageInfoList.get(i);
-            packageInfoHashMap.put(i, pointsRechargePackageInfo);
-        }
         int count = 0;
-        int index = 1;
-        int max = pointsRechargePackageInfoList.size();
-        Random random = new Random();
-
         ArrayList<PaymentOrderInfo> paymentOrderInfos = new ArrayList<>();
         ArrayList<PointsRechargeInfo> pointsRechargeInfos = new ArrayList<>();
         ArrayList<PointsUsageLogInfo> pointsUsageLogInfos = new ArrayList<>();
         for (AccountInfo accountInfo : accountInfoList) {
-            for (int i = 0; i < 10; i++) {
+            for (PointsRechargePackageInfo packageInfo : pointsRechargePackageInfoList) {
                 count++;
-                int nextInt = random.nextInt(index);
-                index++;
-                if (index > max) {
-                    nextInt = 0;
-                }
-                PointsRechargePackageInfo packageInfo = packageInfoHashMap.get(nextInt);
-
                 PaymentOrderInfo orderInfo = new PaymentOrderInfo();
                 String orderId = IdUtils.snowflakeId().toString();
                 orderInfo.setOrderId(orderId);
                 orderInfo.setUserId(accountInfo.getUserId());
                 orderInfo.setOrderType(PoOrderTypeEnum.ORDER_TYPE_0.getValue());
-                orderInfo.setOrderStatus(PoAccountStatusEnum.ACCOUNT_STATUS_0.getValue());
-                String paymentType = nextInt % 2 == 0 ? PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue() : PoPaymentTypeEnum.PAYMENT_TYPE_1.getValue();
+                orderInfo.setOrderStatus(PoOrderStatusEnum.ORDER_STATUS_1.getValue());
+                String paymentType = Long.parseLong(accountInfo.getAccountId()) % 2 == 0 ? PoPaymentTypeEnum.PAYMENT_TYPE_0.getValue() : PoPaymentTypeEnum.PAYMENT_TYPE_1.getValue();
                 orderInfo.setPaymentType(paymentType);
                 BigDecimal totalAmount = packageInfo.getPrice();
                 orderInfo.setTotalAmount(totalAmount);
@@ -195,12 +179,10 @@ public class PointsGenerateTest {
             }
         }
         System.out.println("count = " + count);
-        transactionTemplate.executeWithoutResult(status -> {
-            paymentOrderInfoService.saveBatch(paymentOrderInfos);
-            pointsRechargeInfoService.saveBatch(pointsRechargeInfos);
-            pointsUsageLogInfoService.saveBatch(pointsUsageLogInfos);
-            accountInfoService.updateBatchById(accountInfoList);
-        });
+        paymentOrderInfoService.saveBatch(paymentOrderInfos);
+        pointsRechargeInfoService.saveBatch(pointsRechargeInfos);
+        pointsUsageLogInfoService.saveBatch(pointsUsageLogInfos);
+        accountInfoService.updateBatchById(accountInfoList);
     }
 
     @Test
@@ -213,7 +195,7 @@ public class PointsGenerateTest {
         Long totalCount = 100L;
         for (AccountInfo accountInfo : accountInfoList) {
             String accountId = accountInfo.getAccountId();
-            long l = Long.parseLong(accountId) % 3 + 1;
+            long l = Long.parseLong(accountId) % 3;
             for (int i = 0; i < 10; i++) {
                 PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
                 pointsUsageLogInfo.setLogId(IdUtils.snowflakeId().toString());
@@ -225,7 +207,7 @@ public class PointsGenerateTest {
                 pointsUsageLogInfo.setPointsBefore(accountInfo.getPointsBalance());
                 pointsUsageLogInfo.setPointsUsed(totalCount);
                 //使用后积分
-                accountInfo.setPointsBalance(accountInfo.getPointsBalance()+totalCount);
+                accountInfo.setPointsBalance(accountInfo.getPointsBalance() + totalCount);
                 pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance());
                 pointsUsageLogInfo.setDeviceId(null);
                 pointsUsageLogInfo.setBrowser("Chrome");
@@ -242,5 +224,10 @@ public class PointsGenerateTest {
         }
         pointsUsageLogInfoService.saveBatch(pointsUsageLogInfos);
         accountInfoService.updateBatchById(accountInfoList);
+    }
+
+    @Test
+    public void testDeleteStatistics() {
+        poStatisticsInfoService.remove(new LambdaQueryWrapper<>());
     }
 }
