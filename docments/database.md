@@ -765,7 +765,7 @@ CREATE TABLE u_login_log_info (
 DROP TABLE IF EXISTS u_u_statistics_info;
 
 -- 创建统计信息表
-CREATE TABLE u_statistics_info (
+CREATE TABLE u_u_statistics_info (
   statistics_id    VARCHAR(128) NOT NULL PRIMARY KEY COMMENT '统计编号',
   type             VARCHAR(2)   NOT NULL COMMENT '统计类型',
   statistics_name  VARCHAR(128)  NOT NULL COMMENT '统计名称',
