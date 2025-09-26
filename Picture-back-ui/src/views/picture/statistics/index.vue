@@ -29,21 +29,21 @@
         </div>
       </el-col>
     </el-row>
-    <BorderBox7 class="center-height-1">
-      <el-row :gutter="20" class="center-height-1">
-        <el-col :span="4" :offset="2" class="center-height-1">
-          <WaterMapRotateProportionCharts :chart-name="pictureStatusNormalName" :total="pictureTotal"
-                                          :current="pictureStatusNormalTotal"/>
-        </el-col>
-        <el-col :span="4" v-for="item in pictureTypeData" class="center-height-1">
-          <WaterMapProportionCharts :chart-name="item.name" :current="Number(item.value)" :total="pictureTotal"/>
-        </el-col>
-        <el-col :span="4" class="center-height-1">
-          <WaterMapRotateProportionCharts :chart-name="pictureStatusPrivateName" :total="pictureTotal"
-                                          :current="pictureStatusPrivateTotal"/>
-        </el-col>
-      </el-row>
-    </BorderBox7>
+    <div style="width: 80%; margin: 0 auto">
+        <el-row :gutter="20" class="center-height-1">
+          <el-col :span="4" :offset="2" class="center-height-1">
+            <WaterMapRotateProportionCharts :chart-name="pictureStatusNormalName" :total="pictureTotal"
+                                            :current="pictureStatusNormalTotal"/>
+          </el-col>
+          <el-col :span="4" v-for="item in pictureTypeData" class="center-height-1">
+            <WaterMapProportionCharts :chart-name="item.name" :current="Number(item.value)" :total="pictureTotal"/>
+          </el-col>
+          <el-col :span="4" class="center-height-1">
+            <WaterMapRotateProportionCharts :chart-name="pictureStatusPrivateName" :total="pictureTotal"
+                                            :current="pictureStatusPrivateTotal"/>
+          </el-col>
+        </el-row>
+    </div>
     <el-row :gutter="20" class="center-height-2">
       <el-col :span="8" class="center-height-2">
         <el-tabs class="tabs" v-model="activePictureTableRankingName" @tabChange="handleChangeTab">
@@ -113,14 +113,19 @@ import dayjs from "dayjs";
 import {ref} from "vue";
 import {
   pictureCategoryStatistics,
-  pictureDownloadStatistics, pictureHotStatistics, pictureStatistics,
+  pictureDownloadStatistics,
+  pictureHotStatistics,
+  pictureStatistics,
   pictureStatusStatistics,
   pictureUploadTypeStatistics,
-  searchKeywordStatistics, spaceFileSizeStatistics, spaceFileTotalStatistics, spaceStatistics,
-  tagKeywordStatistics, userBehaviorStatistics
+  searchKeywordStatistics,
+  spaceFileSizeStatistics,
+  spaceFileTotalStatistics,
+  spaceStatistics,
+  tagKeywordStatistics,
+  userBehaviorStatistics
 } from "@/api/picture/statisticsInfo.js";
 import {formatSizeToGB} from "@/utils/ruoyi.js";
-import BarRankingCharts from "@/components/Statistics/BarRankingCharts.vue";
 import BarAxisRankingCharts from "@/components/Statistics/BarAxisRankingCharts.vue";
 
 const defaultStart = dayjs().subtract(14, "day").format("YYYY-MM-DD")
