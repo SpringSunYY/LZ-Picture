@@ -1,4 +1,4 @@
-# LitchiPicture
+# LZ-Picture
 
 [TOC]
 
