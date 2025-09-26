@@ -111,7 +111,7 @@ public interface PoStatisticsInfoMapper extends BaseMapper<PoStatisticsInfo>
      * @param request 查询参数
      * @return List<PointsRechargeStatisticsRo>
      **/
-    List<PointsRechargeStatisticsRo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request);
+    List<PointsRechargeStatisticsRo> pointsPaymentTypeStatistics(PaymentOrderStatisticsRequest request);
 
     /**
      * 订单IP地址统计

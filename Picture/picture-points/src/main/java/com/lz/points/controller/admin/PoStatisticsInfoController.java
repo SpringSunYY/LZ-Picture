@@ -149,7 +149,7 @@ public class PoStatisticsInfoController extends BaseController {
     public AjaxResult pointsPaymentStatistics(PaymentOrderStatisticsRequest request) {
         request.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
         request.setOrderStatus(PoRechargeStatusEnum.RECHARGE_STATUS_1.getValue());
-        return success(poStatisticsInfoService.pointsPaymentStatistics(request));
+        return success(poStatisticsInfoService.pointsPaymentTypeStatistics(request));
     }
 
     /**

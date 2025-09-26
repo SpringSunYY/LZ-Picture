@@ -142,7 +142,23 @@ public interface IPoStatisticsInfoService extends IService<PoStatisticsInfo> {
      **/
     BarStatisticsVo pointsRechargePackageRankStatistics(PointsRechargeStatisticsRequest request);
 
-    List<StatisticsVo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request);
+    /**
+     * 用户支付方式统计
+     * @author: YY
+     * @method: pointsPaymentStatistics
+     * @date: 2025/9/26 17:22
+     * @param request 请求
+     * @return List<StatisticsVo>
+     **/
+    List<StatisticsVo> pointsPaymentTypeStatistics(PaymentOrderStatisticsRequest request);
 
+    /**
+     * 积分订单以及金额区域
+     * @author: YY
+     * @method: pointsOrderIpAddressStatistics
+     * @date: 2025/9/26 17:22
+     * @param request 请求
+     * @return List<PaymentOrderMapStatisticsVo>
+     **/
     List<PaymentOrderMapStatisticsVo> pointsOrderIpAddressStatistics(PaymentOrderMapStatisticsRequest request);
 }

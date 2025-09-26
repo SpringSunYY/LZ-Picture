@@ -91,7 +91,7 @@ const setOptions = () => {
         if (!projectData) return '';
         const currentIndex = names.indexOf(name);
         const diffInfo = diffData[currentIndex];
-        const diffText = diffInfo === '-' ? `上一期：-` : `上一期：${diffInfo.isIncrease ? '↑' : '↓'}${Math.abs(diffInfo.value)}个 (${diffInfo.percent})`;
+        const diffText = diffInfo === '-' ? `上一期：-` : `上一期：${diffInfo.isIncrease ? '↑' : '↓'} ${Math.abs(diffInfo.value)}个 (${diffInfo.percent})`;
         return `
           <div style="font-size: 14px;font-family: Source Han Sans CN-Medium;font-weight: 500;color: #FFFFFF;margin-bottom:12px;">${name}</div>
           <div style="font-size: 14px;font-family: Source Han Sans CN-Medium;font-weight: 500;color: #FFFFFF;margin-bottom:4px;">${projectData.seriesName}：${projectData.value}</div>
@@ -161,7 +161,7 @@ const setOptions = () => {
           },
           borderRadius: [10, 10, 0, 0]
         },
-        barWidth: 15,
+        barWidth: 12,
         markLine: {
           data: [{name: '平均值', yAxis: average}],
           symbol: 'none',

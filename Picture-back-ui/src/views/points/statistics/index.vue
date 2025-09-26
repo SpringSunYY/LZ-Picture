@@ -17,7 +17,8 @@
       </el-col>
       <el-col :span="12">
         <div class="map-charts">
-          <MapCharts :chart-data="pointsOrderAddressData" :default-index-name="pointsOrderAmountAddressName"/>
+          <MapCharts @getData="getMapStatisticsData" :chart-data="pointsOrderAddressData"
+                     :default-index-name="pointsOrderAmountAddressName" :chart-name="''"/>
         </div>
         <BorderBox10 class="bottom-center-charts">
           <LineZoomCharts :chart-name="pointsOrderAmountName" :chart-data="pointsOrderAmountData"/>
@@ -143,7 +144,8 @@ const getPointsPayment = () => {
 //用户区域统计
 const pointsOrderAddressData = ref([])
 const pointsOrderTotalAddressName = ref('订单数')
-const pointsOrderAmountAddressName= ref('支付金额')
+const pointsOrderAmountAddressName = ref('支付金额')
+const userMapCurrent = ref('')
 const pointsOrderTotalData = ref({
   names: [],
   values: []
@@ -154,14 +156,20 @@ const pointsOrderAmountData = ref({
   values: []
 })
 const pointsOrderAmountName = ref('每日金额')
+//地图
+const getMapStatisticsData = async (current) => {
+  userMapCurrent.value = current?.name
+  getPointsOrderAddress()
+}
 const getPointsOrderAddress = () => {
   const currentQuery = {
     startDate: query.value.startDate,
     endDate: query.value.endDate,
+    ipAddress: userMapCurrent.value
   }
   pointsOrderAmountData.value = {
     names: [],
-    values: []
+    values: pointsOrderAmountData.value.values
   }
   pointsOrderTotalData.value = {
     names: [],
@@ -183,8 +191,8 @@ const getPointsOrderAddress = () => {
       let totalValue = 0
       let totalAmount = 0
       item.datas.forEach(data => {
-        totalAmount = totalValue + data.value
-        totalAmount = totalAmount + data.amount
+        totalValue += Number(data.value)
+        totalAmount += Number(data.amount)
         amountMap[data.ipAddress] = (amountMap[data.ipAddress] || 0) + Number(data.amount)
         valueMap[data.ipAddress] = (valueMap[data.ipAddress] || 0) + Number(data.value)
       })
@@ -195,7 +203,7 @@ const getPointsOrderAddress = () => {
     pointsOrderTotalData.value.values = values
     pointsOrderAmountData.value.names = names
     pointsOrderAmountData.value.values.push({
-      name: pointsOrderAmountName.value,
+      name:  userMapCurrent.value,
       value: amounts
     })
 
@@ -231,7 +239,11 @@ const getStatistics = async () => {
   getPointsPayment()
   getPointsOrderAddress()
 }
-getStatistics()
+getPointsUsage()
+getPointsUsageType()
+getPointsOrderRank()
+getPointsRechargePackage()
+getPointsPayment()
 </script>
 <style scoped lang="scss">
 .points-statistics {

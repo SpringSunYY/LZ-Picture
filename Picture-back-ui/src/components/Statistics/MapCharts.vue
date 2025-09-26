@@ -196,14 +196,14 @@ function generateTooltipFormatter() {
     // 动态添加各个数据项
     props.chartData.forEach(dataItem => {
       const value = d[dataItem.name] || 0;
-      content += `${dataItem.name}：${value} 人<br/>`;
+      content += `${dataItem.name}：${value} <br/>`;
     });
 
     content += `<hr style="border:0;border-top:1px solid #666;margin:4px 0"/>`;
 
     // 添加总计信息
     Object.entries(dataSummary.value).forEach(([name, total]) => {
-      content += `总${name}：${total} 人<br/>`;
+      content += `总${name}：${total} <br/>`;
     });
 
     content += `</div>`;
@@ -224,7 +224,7 @@ function generateGraphicElements() {
   const totalHeight = summaryEntries.length * lineHeight + padding * 2;
 
   // 生成文本内容
-  const textContent = summaryEntries.map(([name, total]) => `总${name}：${total} 人`).join('\n');
+  const textContent = summaryEntries.map(([name, total]) => `总${name}：${total}`).join('\n');
 
   return [
     {
@@ -514,7 +514,7 @@ async function loadMapData() {
     }
     //通知父组件已经到达下一层，需要获取数据
     if (props.returnLevel.find(level => level === currentInfo?.level)) {
-      console.log('触发 getData 事件', currentInfo)
+      // console.log('触发 getData 事件', currentInfo)
       emits('getData', currentInfo)
     }
   } catch (err) {

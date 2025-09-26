@@ -378,7 +378,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         ArrayList<Long> values = new ArrayList<>();
         resultMap.forEach((dateRange, total) -> {
             names.add(dateRange);
-            values.add(total);
+            values.add(-total);
         });
         return new LineStatisticsVo(names, values);
     }
@@ -434,11 +434,19 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         if (StringUtils.isEmpty(statisticsRos)) {
             return new BarStatisticsVo();
         }
+        LinkedHashMap<String, Long> resultMap = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
         List<Long> totals = new ArrayList<>();
         for (PaymentOrderStatisticsRo statisticsRo : statisticsRos) {
-            names.add(statisticsRo.getName());
-            totals.add(statisticsRo.getValue());
+            if (resultMap.containsKey(statisticsRo.getName())) {
+                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getValue());
+            } else {
+                resultMap.put(statisticsRo.getName(), statisticsRo.getValue());
+            }
+        }
+        for (Map.Entry<String, Long> stringLongEntry : resultMap.entrySet()) {
+            totals.add(stringLongEntry.getValue());
+            names.add(stringLongEntry.getKey());
         }
         return new BarStatisticsVo(names, totals);
     }
@@ -488,11 +496,19 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         if (StringUtils.isEmpty(resultList)) {
             return new BarStatisticsVo();
         }
+        LinkedHashMap<String, Long> resultMap = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
         List<Long> totals = new ArrayList<>();
         for (PointsRechargeStatisticsRo statisticsRo : resultList) {
-            names.add(statisticsRo.getName());
-            totals.add(statisticsRo.getValue());
+            if (resultMap.containsKey(statisticsRo.getName())) {
+                resultMap.put(statisticsRo.getName(), resultMap.get(statisticsRo.getName()) + statisticsRo.getValue());
+            } else {
+                resultMap.put(statisticsRo.getName(), statisticsRo.getValue());
+            }
+        }
+        for (Map.Entry<String, Long> stringLongEntry : resultMap.entrySet()) {
+            totals.add(stringLongEntry.getValue());
+            names.add(stringLongEntry.getKey());
         }
         return new BarStatisticsVo(names, totals);
     }
@@ -521,7 +537,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             expireTime = POINTS_STATISTICS_USER_CHARGE_PAYMENT_EXPIRE_TIME,
             useQueryParamsAsKey = true)
     @Override
-    public List<StatisticsVo> pointsPaymentStatistics(PaymentOrderStatisticsRequest request) {
+    public List<StatisticsVo> pointsPaymentTypeStatistics(PaymentOrderStatisticsRequest request) {
         return buildRangeStatistics(
                 POINTS_STATISTICS_USER_CHARGE_PAYMENT,
                 PoStatisticsTypeEnum.STATISTICS_TYPE_7,
@@ -529,7 +545,7 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
                 request,
                 PointsRechargeStatisticsRo.class,
                 (req, date) -> {
-                    return poStatisticsInfoMapper.pointsPaymentStatistics(req);
+                    return poStatisticsInfoMapper.pointsPaymentTypeStatistics(req);
                 },
                 (resultList, dateRanges) -> builderPointPaymentResult(resultList)
         );
@@ -585,7 +601,8 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         } else {
             commonKey = POINTS_STATISTICS_USER_PAYMENT_MAP + COMMON_SEPARATOR_CACHE + location;
         }
-
+        //此处不是准确的地理等级，而是空格级，空格前1级，空格后2级，因为一般是省份 城市，所以这样标注，
+        // 存入数据库只是统计数据只是城市或者省份，默认1级
         //key-时间，value：key-省份
         Map<String, Map<String, PaymentOrderMapStatisticsRo>> countryMap = new HashMap<>();
         //key-时间，value：key-省份，value：key-城市
@@ -666,20 +683,11 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
     private List<PaymentOrderMapStatisticsVo> builderPointsOrderIpAddressResult(Map<String, Map<String, PaymentOrderMapStatisticsRo>> countryMap,
                                                                                 Map<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> provinceMap,
                                                                                 boolean isChina, String ipAddress) {
-        //key-时间，key-省份，value
+        //key-时间，key-省份，value，为什么只拿省份的，因为第一次国家统计是包含到了城市，
+        // 当你统计了省份的时候，就只统计了省份，所以此处相当于是国家级别
         Map<String, Map<String, PaymentOrderMapStatisticsRo>> resultMap = new HashMap<>();
-        if (isChina) {
-            resultMap = countryMap;
-        } else {
-            //获取省份,返回每个城市的数据
-            for (Map.Entry<String, Map<String, Map<String, PaymentOrderMapStatisticsRo>>> currentMap : provinceMap.entrySet()) {
-                String date = currentMap.getKey();
-                //找到对应的省份
-                Map<String, Map<String, PaymentOrderMapStatisticsRo>> currentProvinceMap = currentMap.getValue();
-                currentProvinceMap.get(ipAddress);
-                resultMap.put(date, currentProvinceMap.get(ipAddress));
-            }
-        }
+        resultMap = countryMap;
+
         //构建结果
         //根据时间排序
         LinkedHashMap<String, Map<String, PaymentOrderMapStatisticsRo>> sortMap = resultMap.entrySet()
