@@ -26,7 +26,7 @@ const props = defineProps({
   },
   chartName: {
     type: String,
-    default: 'E词云图'
+    default: ''
   },
   chartData: {
     type: Array,
