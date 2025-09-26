@@ -202,4 +202,45 @@ public class PointsGenerateTest {
             accountInfoService.updateBatchById(accountInfoList);
         });
     }
+
+    @Test
+    public void testPointsUsage() {
+        //查询当前拥有账户
+        List<AccountInfo> accountInfoList = accountInfoService.list(new LambdaQueryWrapper<AccountInfo>()
+                .notIn(AccountInfo::getAccountId, List.of("1951241958457008130", "1951244312405270530", "1957116615768879106"))
+                .last("limit 10000"));
+        List<PointsUsageLogInfo> pointsUsageLogInfos = new ArrayList<>();
+        Long totalCount = 100L;
+        for (AccountInfo accountInfo : accountInfoList) {
+            String accountId = accountInfo.getAccountId();
+            long l = Long.parseLong(accountId) % 3 + 1;
+            for (int i = 0; i < 10; i++) {
+                PointsUsageLogInfo pointsUsageLogInfo = new PointsUsageLogInfo();
+                pointsUsageLogInfo.setLogId(IdUtils.snowflakeId().toString());
+                pointsUsageLogInfo.setUserId(accountInfo.getUserId());
+                pointsUsageLogInfo.setGiveUserId(null);
+                pointsUsageLogInfo.setLogType(PoPointsUsageLogTypeEnum.POINTS_USAGE_LOG_TYPE_1.getValue());
+                pointsUsageLogInfo.setUsageType(String.valueOf(l));
+                pointsUsageLogInfo.setTargetId(null);
+                pointsUsageLogInfo.setPointsBefore(accountInfo.getPointsBalance());
+                pointsUsageLogInfo.setPointsUsed(totalCount);
+                //使用后积分
+                accountInfo.setPointsBalance(accountInfo.getPointsBalance()+totalCount);
+                pointsUsageLogInfo.setPointsAfter(accountInfo.getPointsBalance());
+                pointsUsageLogInfo.setDeviceId(null);
+                pointsUsageLogInfo.setBrowser("Chrome");
+                pointsUsageLogInfo.setOs("Windows 11");
+                pointsUsageLogInfo.setPlatform("Windows");
+                pointsUsageLogInfo.setIpAddr(RandomUtils.generateRandomIpAddr());
+                pointsUsageLogInfo.setIpAddress(RandomUtils.generateRandomIPAddress());
+                Date createTime = RandomUtils.generateDate(2024, 2025);
+                pointsUsageLogInfo.setCreateTime(createTime);
+                pointsUsageLogInfo.setUpdateTime(createTime);
+                pointsUsageLogInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
+                pointsUsageLogInfos.add(pointsUsageLogInfo);
+            }
+        }
+        pointsUsageLogInfoService.saveBatch(pointsUsageLogInfos);
+        accountInfoService.updateBatchById(accountInfoList);
+    }
 }
