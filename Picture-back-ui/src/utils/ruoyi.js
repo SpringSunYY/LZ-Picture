@@ -303,5 +303,4 @@ export function generateRandomColor(colorList) {
         const b = Math.floor(Math.random() * 155 + 150)
         return `rgb(${r},${g},${b},0.9)`
     }
-}
-;
+};
