@@ -209,14 +209,17 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
         String startDate = (String) ReflectUtils.getFieldValue(request, "startDate");
         String endDate = (String) ReflectUtils.getFieldValue(request, "endDate");
         Date nowDate = DateVerifyUtils.checkDateIsStartAfter(startDate, endDate);
-        List<String> dateRanges = DateUtils.getDateRanges(startDate, endDate);
-        if (dateRanges == null || dateRanges.isEmpty()) {
-            return resultBuilder.apply(new ArrayList<>(), dateRanges);
+        //统计的时间范围
+        List<String> statisticsDateRanges = DateUtils.getDateRanges(startDate, endDate);
+        if (statisticsDateRanges == null || statisticsDateRanges.isEmpty()) {
+            return resultBuilder.apply(new ArrayList<>(), statisticsDateRanges);
         }
+        //完整日期范围，为初始化数据做准备
+        List<String> dateRanges=new ArrayList<>(statisticsDateRanges);
 
-        String end = dateRanges.getLast();
+        String end = statisticsDateRanges.getLast();
         String today = DateUtils.dateTime(nowDate);
-        boolean containsToday = dateRanges.contains(today);
+        boolean containsToday = statisticsDateRanges.contains(today);
 
         // 所有结果
         List<RO> resultList = new ArrayList<>();
@@ -227,17 +230,17 @@ public class PoStatisticsInfoServiceImpl extends ServiceImpl<PoStatisticsInfoMap
             ReflectUtils.setFieldValue(request, "endDate", today);
             List<RO> todayList = queryFunction.apply(request, today);
             resultList.addAll(todayList);
-            if (dateRanges.size() == 1) {
-                return resultBuilder.apply(resultList, dateRanges);
+            if (statisticsDateRanges.size() == 1) {
+                return resultBuilder.apply(resultList, statisticsDateRanges);
             }
-            dateRanges.removeLast();
-            end = dateRanges.getLast();
+            statisticsDateRanges.removeLast();
+            end = statisticsDateRanges.getLast();
         }
 
         // 2. 历史数据（从统计表里取）
         List<PoStatisticsInfo> statisticsInfos =
                 getPoStatisticsInfosByDateAndKeyType(startDate, end, typeEnum.getValue(), commonKey);
-        List<String> noStatisticsDates = new ArrayList<>(dateRanges);
+        List<String> noStatisticsDates = new ArrayList<>(statisticsDateRanges);
         for (PoStatisticsInfo info : statisticsInfos) {
             String currentDate = DateUtils.dateTime(info.getCreateTime());
             noStatisticsDates.remove(currentDate);
