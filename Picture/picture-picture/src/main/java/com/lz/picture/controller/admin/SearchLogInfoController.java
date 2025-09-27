@@ -50,7 +50,7 @@ public class SearchLogInfoController extends BaseController
         startPage();
         List<SearchLogInfo> list = searchLogInfoService.selectSearchLogInfoList(searchLogInfo);
         List<SearchLogInfoVo> listVo= list.stream().map(SearchLogInfoVo::objToVo).collect(Collectors.toList());
-        TableDataInfo table = getDataTable(listVo);
+        TableDataInfo table = getDataTable(list);
         table.setRows(listVo);
         return table;
     }
