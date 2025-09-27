@@ -1,6 +1,7 @@
 package com.lz.picture;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.enums.CommonHasStatisticsEnum;
 import com.lz.common.utils.RandomUtils;
@@ -66,6 +67,9 @@ public class PictureGenerateTest {
 
     @Resource
     private IStatisticsInfoService statisticsInfoService;
+
+    @Resource
+    private IUserViewLogInfoService userViewLogInfoService;
 
     List<String> keywords = List.of(
             "YY", "Spring", "懒羊羊", "AI", "海绵宝宝", "蜡笔小新", "可爱壁纸", "搞笑表情包", "表情包", "可爱的壁纸", "哆啦A梦",
@@ -450,5 +454,75 @@ public class PictureGenerateTest {
                 )));
         List<String> ids = list.stream().map(StatisticsInfo::getStatisticsId).toList();
         statisticsInfoService.removeByIds(ids);
+    }
+
+
+    @Test
+    public void deletePicture() {
+        //根据id转为 map
+        int pageSize = 10000;
+        int currentPage = 1;
+        boolean hasMoreData = true;
+        LambdaQueryWrapper<SpaceInfo> queryWrapper = new LambdaQueryWrapper<SpaceInfo>()
+                .notIn(SpaceInfo::getSpaceId, List.of("1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"));
+        while (hasMoreData) {
+            Page<SpaceInfo> page = new Page<>(currentPage, pageSize);
+
+            // 执行分页查询
+            Page<SpaceInfo> resultPage = spaceInfoService.page(page, queryWrapper);
+            //遍历每一条数据查询到图片
+            resultPage.getRecords().forEach(this::deletePicture);
+            // 判断是否还有更多数据
+            hasMoreData = currentPage < resultPage.getPages();
+            currentPage++;
+            System.out.println("当前页：" + currentPage);
+        }
+        spaceInfoService.remove(queryWrapper);
+
+        //删除完成需删除1950538697844383745此空间图片
+        SpaceInfo spaceInfo = spaceInfoService.getById("1950538697844383745");
+        deletePicture(spaceInfo);
+        spaceInfo.setTotalCount(0L);
+        spaceInfo.setTotalSize(0L);
+        spaceInfoService.updateById(spaceInfo);
+
+        //查询到剩下的图片，为分类计算使用数
+        List<PictureInfo> pictureInfos = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>());
+        HashMap<String, Long> map = new HashMap<>();
+        pictureInfos.forEach(pictureInfo -> {
+            String categoryId = pictureInfo.getCategoryId();
+            if (map.containsKey(categoryId)) {
+                map.put(categoryId, map.get(categoryId) + 1);
+            } else {
+                map.put(categoryId, 1L);
+            }
+        });
+        map.forEach((categoryId, count) -> {
+            PictureCategoryInfo categoryInfo = pictureCategoryInfoService.getById(categoryId);
+            if (StringUtils.isNotNull(categoryInfo)) {
+                categoryInfo.setUsageCount(count);
+                pictureCategoryInfoService.updateById(categoryInfo);
+            }
+        });
+    }
+
+    private void deletePicture(SpaceInfo spaceInfo) {
+        List<PictureInfo> pictureInfos = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
+                .eq(PictureInfo::getSpaceId, spaceInfo.getSpaceId()));
+        //拿到所有的图片id
+        List<String> pictureIds = new ArrayList<>();
+        //先更新图片分类
+        pictureInfos.forEach(pictureInfo -> {
+            pictureIds.add(pictureInfo.getPictureId());
+        });
+        if (StringUtils.isEmpty(pictureIds)) {
+            return;
+        }
+        //需删除用户行为、用户浏览记录、下载记录、标签关联
+        userBehaviorInfoService.remove(new LambdaQueryWrapper<UserBehaviorInfo>().in(UserBehaviorInfo::getTargetId, pictureIds));
+        userViewLogInfoService.remove(new LambdaQueryWrapper<UserViewLogInfo>().in(UserViewLogInfo::getTargetId, pictureIds));
+        pictureDownloadLogInfoService.remove(new LambdaQueryWrapper<PictureDownloadLogInfo>().in(PictureDownloadLogInfo::getPictureId, pictureIds));
+        pictureTagRelInfoService.remove(new LambdaQueryWrapper<PictureTagRelInfo>().in(PictureTagRelInfo::getPictureId, pictureIds));
+        pictureInfoService.remove(new LambdaQueryWrapper<PictureInfo>().in(PictureInfo::getPictureId, pictureIds));
     }
 }

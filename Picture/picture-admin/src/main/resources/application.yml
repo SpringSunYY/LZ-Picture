@@ -35,7 +35,7 @@ server:
 # 日志配置
 logging:
   level:
-    com.lz: debug
+    com.lz: warn
     org.springframework: warn
     org.apache.ibatis: warn
 
