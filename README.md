@@ -18,6 +18,10 @@ LZ-Picture是一个全栈应用程序，提供以下功能：
 
 该平台采用模块化系统构建，后端服务和前端界面清晰分离，遵循企业应用开发的最佳实践。
 
+本项目基于ruoyi-vue(https://doc.ruoyi.vip/ruoyi-vue/) 二次开发，十分感谢若依的开源精神，大大提高了本项目的开发进度。
+
+
+
 ### 在线地址
 
 https://springsun.online/
