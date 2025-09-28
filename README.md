@@ -22,6 +22,10 @@ LZ-Picture是一个全栈应用程序，提供以下功能：
 
 https://springsun.online/
 
+### 视频地址
+
+ https://v.douyin.com/oWdWW6xqM7g/ 1@5.com
+
 ### 系统架构/技术栈
 
 - **后端**：
