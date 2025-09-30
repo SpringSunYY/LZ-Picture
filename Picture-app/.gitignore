@@ -49,3 +49,5 @@ nbdist/
 /picture-config/src/main/resources/application-config.yml
 /picture-admin/src/main/resources/application-config.yml
 /unpackage
+/node_modules
+/package-lock.json

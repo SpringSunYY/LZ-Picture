@@ -1,0 +1,341 @@
+<template>
+  <view class="login-container">
+    <view class="top-wave">
+      <view class="wave-gradient"></view>
+    </view>
+
+    <view class="content">
+      <view class="title-section">
+        <text class="title">Hello</text>
+        <text class="subtitle">欢迎使用 LZ-Picture</text>
+      </view>
+
+      <view class="form-section">
+        <view class="input-wrapper">
+          <view class="input-container">
+            <view class="input-icon">
+              <text class="icon-user">📱</text>
+            </view>
+            <input
+                class="input-field"
+                type="text"
+                placeholder="Phone"
+                placeholder-class="placeholder-text"
+                v-model="phone"
+            />
+          </view>
+        </view>
+        <view class="input-wrapper">
+          <view class="input-container">
+            <view class="input-icon">
+              <text class="icon-user">👤</text>
+            </view>
+            <input
+                class="input-field"
+                type="text"
+                placeholder="Username"
+                placeholder-class="placeholder-text"
+                v-model="username"
+            />
+          </view>
+        </view>
+
+        <view class="input-wrapper">
+          <view class="input-container">
+            <view class="input-icon">
+              <text class="icon-lock">🔒</text>
+            </view>
+            <input
+                class="input-field"
+                type="password"
+                placeholder="Password"
+                placeholder-class="placeholder-text"
+                v-model="password"
+            />
+          </view>
+        </view>
+
+        <view class="forgot-password">
+          <text class="forgot-text" @click="handleForgotPassword">忘记密码?</text>
+        </view>
+      </view>
+
+      <view class="button-section">
+        <view class="sign-in-button" @click="handleSignIn">
+          <text class="button-text">登录</text>
+          <view class="button-icon">
+            <text class="arrow-icon">→</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="footer-section">
+        <text class="footer-text">没有账号?</text>
+        <text class="footer-link" @click="handleCreate">创建</text>
+      </view>
+    </view>
+
+    <view class="bottom-wave"></view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import {ref} from 'vue';
+import {parsePhoneNumberFromString} from 'libphonenumber-js'
+import {validatePassword} from "@/utils/validators.ts";
+
+const username = ref('');
+const phone = ref('');
+const password = ref('');
+
+// 登录逻辑
+const handleSignIn = () => {
+  //如果账号手机号都为空
+  if (!username.value && !phone.value) {
+    uni.showToast({
+      title: '请输入账号或手机号码，如果输入手机号，系统会默认使用手机号',
+      icon: 'none'
+    });
+    return;
+  }
+  // 验证国际号码
+  const phoneNumber = parsePhoneNumberFromString(phone.value, 'CN')
+  if (phone.value && !phoneNumber.isValid()) {
+    uni.showToast({
+      title: '手机号码格式错误',
+      icon: 'none'
+    });
+    return
+  }
+  const isPasswordValid = validatePassword(password.value, 8, 20);
+  if (isPasswordValid) {
+    uni.showToast({
+      title: isPasswordValid,
+      icon: 'none'
+    });
+    return
+  }
+
+  console.log('Sign in:', username.value);
+  uni.showToast({
+    title: 'Signing in...',
+    icon: 'loading'
+  });
+};
+
+// 跳转“忘记密码”页
+const handleForgotPassword = () => {
+  uni.navigateTo({
+    url: '/pages/forgot-password/forgot-password'
+  });
+};
+
+// 跳转“注册”页
+const handleCreate = () => {
+  uni.navigateTo({
+    url: '/pages/register/register'
+  });
+};
+</script>
+
+<style lang="scss" scoped>
+.login-container {
+  width: 750rpx;
+  min-height: 100vh;
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
+
+  // 顶部波浪装饰
+  .top-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 280rpx;
+    overflow: hidden;
+
+    .wave-gradient {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+      border-bottom-left-radius: 60% 25%;
+      border-bottom-right-radius: 60% 35%;
+    }
+  }
+
+  // 主要内容区
+  .content {
+    position: relative;
+    z-index: 10;
+    padding: 320rpx 60rpx 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    // 标题区域
+    .title-section {
+      width: 100%;
+      margin-bottom: 80rpx;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .title {
+        font-size: 88rpx;
+        font-weight: 700;
+        color: #000000;
+        margin-bottom: 16rpx;
+        letter-spacing: -2rpx;
+      }
+
+      .subtitle {
+        font-size: 32rpx;
+        color: #666666;
+        font-weight: 400;
+      }
+    }
+
+    // 表单区域
+    .form-section {
+      width: 100%;
+      margin-bottom: 60rpx;
+
+      .input-wrapper {
+        margin-bottom: 32rpx;
+
+        .input-container {
+          width: 100%;
+          height: 100rpx;
+          background-color: #F5F5F5;
+          border-radius: 50rpx;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          padding: 0 32rpx;
+          box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+
+          .input-icon {
+            width: 40rpx;
+            height: 40rpx;
+            margin-right: 20rpx;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .icon-user,
+            .icon-lock {
+              font-size: 36rpx;
+              opacity: 0.4;
+            }
+          }
+
+          .input-field {
+            flex: 1;
+            height: 100%;
+            font-size: 30rpx;
+            color: #333333;
+            background-color: transparent;
+          }
+        }
+      }
+
+      .forgot-password {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20rpx;
+        padding-right: 10rpx;
+
+        .forgot-text {
+          font-size: 26rpx;
+          color: #CCCCCC;
+        }
+      }
+    }
+
+    // 登录按钮区域
+    .button-section {
+      width: 100%;
+      margin-bottom: 60rpx;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      .sign-in-button {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 24rpx 40rpx;
+        background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+        border-radius: 60rpx;
+        box-shadow: 0 8rpx 24rpx rgba(168, 85, 247, 0.3);
+
+        .button-text {
+          font-size: 34rpx;
+          font-weight: 600;
+          color: #FFFFFF;
+          margin-right: 16rpx;
+        }
+
+        .button-icon {
+          width: 48rpx;
+          height: 48rpx;
+          background-color: rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          .arrow-icon {
+            font-size: 32rpx;
+            color: #FFFFFF;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+
+    // 底部注册链接区域
+    .footer-section {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      margin-top: 40rpx;
+
+      .footer-text {
+        font-size: 28rpx;
+        color: #666666;
+      }
+
+      .footer-link {
+        font-size: 28rpx;
+        color: #000000;
+        font-weight: 600;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // 底部波浪装饰
+  .bottom-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 300rpx;
+    height: 400rpx;
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    border-top-right-radius: 50% 40%;
+    border-bottom-right-radius: 0;
+    z-index: 1;
+  }
+}
+
+// input 占位符样式（需单独声明，无法嵌套在 input 内部）
+.placeholder-text {
+  color: #BBBBBB;
+  font-size: 30rpx;
+}
+</style>
