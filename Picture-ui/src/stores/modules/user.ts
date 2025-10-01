@@ -73,13 +73,13 @@ const useUserStore = defineStore('user', {
         const user = res.user
 
         // 处理头像路径
-        let avatar = user.avatarUrl || ''
+        let avatarUrl = user.avatarUrl || ''
 
         // 更新用户信息
         this.userId = user.userId
         this.userName = user.userName
         this.nickName = user?.nickName
-        this.avatar = avatar
+        this.avatar = avatarUrl
         this.permissions = res?.permissions
         return res
       } catch (error) {

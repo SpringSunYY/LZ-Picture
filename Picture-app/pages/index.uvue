@@ -1,23 +1,13 @@
 <template>
 	<view>
-		<text class="title">{{title}}</text>
+		<text class="title">{{ title }}</text>
 	</view>
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				title: 'Hello LZ-Picture'
-			}
-		},
-		onLoad() {
+<script setup>
+import { ref } from 'vue'
 
-		},
-		methods: {
-
-		}
-	}
+const title = ref('欢迎使用 LZ-Picture')
 </script>
 
 <style>

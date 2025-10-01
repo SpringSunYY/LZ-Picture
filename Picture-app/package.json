@@ -1,8 +1,19 @@
 {
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build": "vite build",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "serve": "vite preview"
+  },
   "devDependencies": {
     "sass": "^1.93.2"
   },
   "dependencies": {
-    "libphonenumber-js": "^1.12.23"
+    "axios": "^1.12.2",
+    "jsencrypt": "^3.5.4",
+    "libphonenumber-js": "^1.12.23",
+    "vuex": "^4.1.0"
   }
 }

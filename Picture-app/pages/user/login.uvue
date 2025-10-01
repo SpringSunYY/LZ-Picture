@@ -51,12 +51,9 @@
                 placeholder="Password"
                 placeholder-class="placeholder-text"
                 v-model="password"
+                password="true"
             />
           </view>
-        </view>
-
-        <view class="forgot-password">
-          <text class="forgot-text" @click="handleForgotPassword">忘记密码?</text>
         </view>
       </view>
 
@@ -79,17 +76,21 @@
   </view>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import {ref} from 'vue';
-import {parsePhoneNumberFromString} from 'libphonenumber-js'
-import {validatePassword} from "@/utils/validators.ts";
+import {validatePassword} from "@/utils/validators.js";
+import {useStore} from 'vuex';
+import parsePhoneNumberFromString from "libphonenumber-js";
+
+const store = useStore();
 
 const username = ref('');
 const phone = ref('');
 const password = ref('');
+const countryCode = ref('+86');
 
 // 登录逻辑
-const handleSignIn = () => {
+const handleSignIn = async () => {
   //如果账号手机号都为空
   if (!username.value && !phone.value) {
     uni.showToast({
@@ -99,14 +100,24 @@ const handleSignIn = () => {
     return;
   }
   // 验证国际号码
-  const phoneNumber = parsePhoneNumberFromString(phone.value, 'CN')
-  if (phone.value && !phoneNumber.isValid()) {
-    uni.showToast({
-      title: '手机号码格式错误',
-      icon: 'none'
-    });
-    return
+  //如果手机号和国家码都存在，则需要校验手机号
+  if (
+      phone.value &&
+      phone.value !== '' &&
+      countryCode.value &&
+      countryCode.value !== ''
+  ) {
+    const fullNumber = countryCode.value + phone.value
+    const phoneNumber = parsePhoneNumberFromString(fullNumber)
+    if (!phoneNumber?.isValid()) {
+      uni.showToast({
+        title: '手机号码格式错误',
+        icon: 'none'
+      });
+      return
+    }
   }
+
   const isPasswordValid = validatePassword(password.value, 8, 20);
   if (isPasswordValid) {
     uni.showToast({
@@ -117,24 +128,31 @@ const handleSignIn = () => {
   }
 
   console.log('Sign in:', username.value);
-  uni.showToast({
-    title: 'Signing in...',
-    icon: 'loading'
-  });
+  // 使用 Vuex store 进行登录
+  try {
+    await store.dispatch('Login', {
+      phone: phone.value,
+      password: password.value,
+      username: username.value,
+      countryCode: countryCode.value
+    });
+    uni.showToast({
+      title: '登录成功',
+      icon: 'success'
+    });
+    // 跳转到首页
+    uni.reLaunch({
+      url: '/pages/index'
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+  }
 };
 
-// 跳转“忘记密码”页
-const handleForgotPassword = () => {
-  uni.navigateTo({
-    url: '/pages/forgot-password/forgot-password'
-  });
-};
 
 // 跳转“注册”页
 const handleCreate = () => {
-  uni.navigateTo({
-    url: '/pages/register/register'
-  });
+  console.log('handleCreate')
 };
 </script>
 
@@ -168,7 +186,7 @@ const handleCreate = () => {
   .content {
     position: relative;
     z-index: 10;
-    padding: 320rpx 60rpx 0;
+    padding: 300rpx 60rpx 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -199,7 +217,7 @@ const handleCreate = () => {
     // 表单区域
     .form-section {
       width: 100%;
-      margin-bottom: 60rpx;
+      margin-bottom: 80rpx;
 
       .input-wrapper {
         margin-bottom: 32rpx;
@@ -257,7 +275,7 @@ const handleCreate = () => {
     // 登录按钮区域
     .button-section {
       width: 100%;
-      margin-bottom: 60rpx;
+      margin-bottom: 20rpx;
       display: flex;
       justify-content: flex-end;
       align-items: center;
@@ -324,7 +342,7 @@ const handleCreate = () => {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 300rpx;
+    width: 250rpx;
     height: 400rpx;
     background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
     border-top-right-radius: 50% 40%;
