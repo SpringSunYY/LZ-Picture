@@ -28,6 +28,10 @@ const user = {
             state.userName = userName
             storage.set(constant.userName, userName)
         },
+        SET_NICK_NAME: (state, nickName) => {
+            state.nickName = nickName
+            storage.set(constant.nickName, nickName)
+        },
         SET_AVATAR: (state, avatar) => {
             state.avatar = avatar
             storage.set(constant.avatar, avatar)
@@ -50,7 +54,7 @@ const user = {
             return new Promise((resolve, reject) => {
                 login(username, password, phone, countryCode).then(res => {
                     setToken(res.token)
-                    console.log('res', res)
+                    // console.log('res', res)
                     commit('SET_TOKEN', res.token)
                     resolve()
                 }).catch(error => {
@@ -70,6 +74,8 @@ const user = {
                     commit('SET_USER_ID', user.userId)
                     commit('SET_USER_NAME', username)
                     commit('SET_AVATAR', avatar)
+                    commit('SET_PERMISSIONS', user.permissions)
+                    commit('SET_NICK_NAME', user.nickName)
                     resolve(res)
                 }).catch(error => {
                     reject(error)

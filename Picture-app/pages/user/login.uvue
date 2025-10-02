@@ -150,9 +150,34 @@ const handleSignIn = async () => {
 };
 
 
-// 跳转“注册”页
+// 跳转"注册"页
 const handleCreate = () => {
-  console.log('handleCreate')
+  // 在微信小程序中使用 uni.navigateTo 跳转到内置注册页面
+  // 或者在H5环境中打开外部链接
+  // #ifdef H5
+  window.open('https://springsun.online/user/register')
+  // #endif
+
+  // #ifndef H5
+  // 对于小程序环境，可以使用以下方式之一：
+  // 1. 如果有内置注册页面，跳转到该页面
+  // uni.navigateTo({ url: '/pages/register' })
+
+  // 2. 如果需要打开外部链接，使用 uni.showModal 提示用户
+  uni.showModal({
+    title: '注册账号',
+    content: '请在浏览器中访问 https://springsun.online/user/register 进行注册',
+    showCancel: true,
+    confirmText: '复制链接',
+    success: function (res) {
+      if (res.confirm) {
+        uni.setClipboardData({
+          data: 'https://springsun.online/user/register'
+        });
+      }
+    }
+  });
+  // #endif
 };
 </script>
 
