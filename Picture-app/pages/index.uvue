@@ -14,9 +14,11 @@
 
       <!-- 按钮 -->
       <view class="home-card-button-wrap">
-        <view class="home-card-button">
-          <text class="home-card-button-text">Watch movie</text>
-        </view>
+        <navigator url="/pages/ai/discover" hover-class="none">
+          <view class="home-card-button">
+            <text class="home-card-button-text">Watch movie</text>
+          </view>
+        </navigator>
       </view>
 
       <!-- 底部图标区 -->

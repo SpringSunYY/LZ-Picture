@@ -12,6 +12,13 @@
         "navigationBarTitleText": "LZ-Picture",
         "backgroundColor": "#FFFFFF"
       }
+    },
+    {
+      "path": "pages/ai/discover",
+      "style": {
+        "navigationBarTitleText": "Discover",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "globalStyle": {

@@ -1,0 +1,297 @@
+<template>
+  <div class="horizontal-fall-layout">
+    <a-empty description="" v-if="pictureRows.length <= 0"></a-empty>
+
+    <div class="horizontal-masonry">
+      <div class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
+        <div
+            v-for="item in row"
+            :key="`${item.id}-${rowIndex}`"
+            class="masonry-item"
+            :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
+            @click="handlePicture(item)"
+        >
+          <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
+            <div class="masonry-item-content">
+              <div class="masonry-item-title">
+                {{ item.name }}
+              </div>
+              <div class="masonry-item-meta">
+                <div class="meta-item">
+                  <SvgIcon name="aiView"/>
+                  <span class="meta-content">{{ item.lookCount || 0 }}</span>
+                </div>
+                <div class="meta-item">
+                  <SvgIcon name="like"/>
+                  <span class="meta-content">{{ item.likeCount || 0 }}</span>
+                </div>
+                <div class="meta-item">
+                  <SvgIcon name="share"/>
+                  <span class="meta-content">{{ item.shareCount || 0 }}</span>
+                </div>
+                <div class="meta-item">
+                  <SvgIcon name="collect"/>
+                  <span class="meta-content">{{ item.collectCount || 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </MasonryImage>
+        </div>
+      </div>
+    </div>
+
+    <!-- 触底加载 -->
+    <div ref="loadMoreTrigger" class="load-more-trigger">
+      <LoadingData v-if="loading"/>
+      <NoMoreData v-else-if="noMore"/>
+    </div>
+  </div>
+</template>
+
+<script setup lang="uts" name="HorizontalFallLayout">
+import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import MasonryImage from '@/components/MasonryImage.uvue'
+import NoMoreData from '@/components/NoMoreData.uvue'
+import LoadingData from '@/components/LoadingData.uvue'
+import SvgIcon from '@/components/SvgIcon.uvue'
+
+const props = defineProps({
+  pictureList: {
+    type: Array,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  noMore: {
+    type: Boolean,
+    default: false,
+  },
+  width: {
+    type: Number,
+    default: 450,
+  },
+})
+
+// 定义事件
+const emit = defineEmits(['loadMore', 'clickPicture'])
+
+// 数据部分
+const rawPictureList = ref<any[]>([]) // 原始数据（不会做 display 样式处理）
+const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
+const loadMoreTrigger = ref(null)
+let observer: IntersectionObserver | null = null
+
+const handlePicture = (item) => {
+  emit('clickPicture', item)
+}
+
+// 加载数据
+async function loadMore() {
+  if (props.loading || props.noMore) return
+  emit('loadMore')
+}
+
+function generate() {
+  if (props.pictureList.length > 0) {
+    rawPictureList.value = [...rawPictureList.value, ...props.pictureList]
+    formatPictureListByRow()
+  }
+}
+
+// 分行排布算法（根据容器宽度）
+const formatPictureListByRow = () => {
+  const container = document.querySelector('.horizontal-masonry')
+  if (!container) return
+
+  const containerWidth = container.clientWidth
+  const baseHeight = props.width
+  const spacing = 12
+  const minWidth = 150
+
+  const rows = /** @type {any[][]} */ ([])
+  let tempRow = []
+  let totalRatio = 0
+
+  for (const pic of rawPictureList.value) {
+    if (!pic.picWidth || !pic.picHeight) continue
+
+    const r = pic.picWidth / pic.picHeight
+    const estimatedWidth = r * baseHeight
+
+    if (estimatedWidth < minWidth) {
+      continue // 丢掉太瘦图
+    }
+
+    tempRow.push(pic)
+    totalRatio += r
+
+    const totalSpacing = spacing * (tempRow.length - 1)
+    const targetWidth = containerWidth - totalSpacing
+    const currentHeight = targetWidth / totalRatio
+
+    if (currentHeight < baseHeight) {
+      // 当前高度符合要求，开始构造该行
+      const row = tempRow.map((p) => {
+        const r2 = p.picWidth / p.picHeight
+        const height = currentHeight
+        const width = r2 * height
+
+        return Object.assign({}, p, {
+          displayWidth: width,
+          displayHeight: height,
+        })
+      })
+
+      rows.push(row)
+      tempRow = []
+      totalRatio = 0
+    }
+  }
+
+  // 最后一行
+  if (tempRow.length > 0) {
+    const row = tempRow.map((p) => {
+      const r = p.picWidth / p.picHeight
+      const height = baseHeight
+      const width = r * height
+
+      return Object.assign({}, p, {
+        displayWidth: width,
+        displayHeight: height,
+      })
+    })
+    rows.push(row)
+  }
+
+  pictureRows.value = rows
+}
+
+// observer 设置
+function setupObserver() {
+  if (observer && observer.disconnect) observer.disconnect()
+
+  if (typeof IntersectionObserver === 'undefined') return
+
+  observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore()
+        }
+      },
+      {rootMargin: '150px'}
+  )
+
+  if (observer && loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value)
+  }
+}
+
+// 窗口尺寸变化时重新布局
+function handleResize() {
+  formatPictureListByRow()
+}
+
+function clearData() {
+  rawPictureList.value = []
+  pictureRows.value = []
+}
+
+// 暴露重新更新数据给父组件
+defineExpose({
+  clearData,
+})
+
+// 生命周期钩子
+onMounted(() => {
+  pictureRows.value = []
+  setupObserver()
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', handleResize)
+  }
+})
+
+watch(
+    () => props.pictureList,
+    () => {
+      generate()
+    },
+    {
+      immediate: true,
+    }
+)
+
+onBeforeUnmount(() => {
+  if (observer && observer.disconnect) observer.disconnect()
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', handleResize)
+  }
+})
+</script>
+
+<style scoped lang="scss">
+.horizontal-fall-layout {
+  padding: 8px;
+  margin: 0 auto;
+
+  .horizontal-masonry {
+    width: 100%;
+  }
+
+  .masonry-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .masonry-item {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+
+    .masonry-item-content {
+      width: 100%;
+      height: 100%;
+      //内容左右布局
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+
+      .masonry-item-title {
+        font-size: 18px;
+        margin-bottom: 0;
+      }
+
+      .masonry-item-meta {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        flex-direction: column;
+        justify-content: center;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 20px;
+
+          .meta-content {
+            padding-left: 10px;
+          }
+        }
+      }
+    }
+  }
+
+  .load-more-trigger {
+    width: 100%;
+    text-align: center;
+    padding: 16px 0;
+    color: #888;
+  }
+}
+</style>
+
+
