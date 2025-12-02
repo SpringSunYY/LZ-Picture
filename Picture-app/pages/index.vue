@@ -20,19 +20,6 @@
           </view>
         </navigator>
       </view>
-
-      <!-- 底部图标区 -->
-      <view class="home-card-bottom">
-        <view class="home-card-icon-box">
-          <text class="home-card-icon">⬇</text>
-        </view>
-        <view class="home-card-icon-box">
-          <text class="home-card-icon">❤</text>
-        </view>
-        <view class="home-card-icon-box">
-          <text class="home-card-icon">↻</text>
-        </view>
-      </view>
     </view>
   </view>
 </template>
@@ -45,6 +32,7 @@
 .home-card {
   position: relative;
   width: 100%;
+  /* 使用视口高度，始终占满一屏 */
   height: 100vh;
   overflow: hidden;
   border-radius: 0;
@@ -79,42 +67,9 @@
   );
 }
 
-.home-card-top {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.home-card-play {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 40rpx;
-  background-color: rgba(255, 255, 255, 0.16);
-  justify-content: center;
-  align-items: center;
-  display: flex;
-}
-
-.home-card-play-icon {
-  font-size: 52rpx;
-  color: #ffffff;
-}
-
-.home-card-close {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 32rpx;
-  background-color: rgba(255, 255, 255, 0.18);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 40rpx;
-  color: #ffffff;
-}
 
 .home-card-info {
-  margin-top: 750rpx;
+  margin-top: 1000rpx;
 }
 
 .home-card-title-line {
@@ -149,26 +104,4 @@
   font-weight: 600;
 }
 
-.home-card-bottom {
-  margin-top: auto;
-  padding-bottom: 24rpx;
-  flex-direction: row;
-  display: flex;
-  justify-content: space-between;
-}
-
-.home-card-icon-box {
-  width: 130rpx;
-  height: 130rpx;
-  border-radius: 48rpx;
-  background-color: rgba(0, 0, 0, 0.28);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.home-card-icon {
-  font-size: 46rpx;
-  color: #ffffff;
-}
 </style>

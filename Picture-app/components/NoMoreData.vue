@@ -1,21 +1,20 @@
 <template>
-  <div class="no-more-data" :class="`no-more-data--${variant}`">
-    <div class="no-more-data__content">
-      <div class="no-more-data__divider">
-        <div class="no-more-data__line no-more-data__line--left"></div>
-        <div
+  <view class="no-more-data" :class="`no-more-data--${variant}`">
+    <view class="no-more-data__content">
+      <view class="no-more-data__divider">
+        <view class="no-more-data__line no-more-data__line--left"></view>
+        <view
           v-if="showIcon"
           class="no-more-data__icon-wrapper"
           @click="scrollToTop"
-          :title="'点击回到顶部'"
         >
           <text class="no-more-data__icon">↑</text>
-        </div>
-        <div class="no-more-data__line no-more-data__line--right"></div>
-      </div>
-      <p class="no-more-data__text">{{ text }}</p>
-    </div>
-  </div>
+        </view>
+        <view class="no-more-data__line no-more-data__line--right"></view>
+      </view>
+      <text class="no-more-data__text">{{ text }}</text>
+    </view>
+  </view>
 </template>
 
 <script setup>
@@ -42,46 +41,51 @@ const props = defineProps({
 
 const { text, showIcon, variant, scrollBehavior } = props
 
-// 使用 ref 来存储找到的可滚动容器
+// 使用 ref 来存储找到的可滚动容器（仅 H5 有效）
 const scrollContainer = ref(null)
 
-// 在组件挂载后执行查找逻辑
+// 在 H5 环境挂载后执行查找逻辑，小程序没有 document 时直接跳过
 onMounted(() => {
-  // 从当前组件的根元素向上查找最近的可滚动父级
+  if (typeof document === 'undefined') return
   findScrollContainer()
 })
 
 const findScrollContainer = () => {
+  if (typeof document === 'undefined') return
   const rootElement = document.querySelector('.no-more-data')
-  // 添加检查确保 rootElement 存在
   if (!rootElement) {
     scrollContainer.value = null
     return
   }
   let element = null
   let currentElement = rootElement.parentElement
-  // 向上遍历父级 DOM
   while (currentElement) {
     const style = currentElement ? getComputedStyle(currentElement) : null
-    // 检查 overflow-y 样式是否为可滚动
     if (style && (style.overflowY === 'auto' || style.overflowY === 'scroll')) {
       element = currentElement
       break
     }
-    // 向上移动到父元素
     currentElement = currentElement.parentElement
   }
-  // 将找到的容器赋值给 ref
   scrollContainer.value = element
 }
 
 const scrollToTop = () => {
+  // 小程序/APP 使用 pageScrollTo，H5 保持原有行为
+  if (typeof uni !== 'undefined' && uni.pageScrollTo) {
+    uni.pageScrollTo({
+      scrollTop: 0,
+      duration: scrollBehavior === 'smooth' ? 300 : 0,
+    })
+    return
+  }
+
   if (scrollContainer.value) {
-    // 情况 1: 找到了可滚动的父容器，对该容器进行滚动
+    // H5：找到了可滚动的父容器
     // @ts-ignore uts 类型推断为 never，这里忽略类型检查
     scrollContainer.value.scrollTop = 0
-  } else {
-    // 情况 2: 没有找到，说明是页面撑开 body 的情况，对全局 window 滚动
+  } else if (typeof window !== 'undefined') {
+    // H5：对全局 window 滚动
     window.scrollTo({
       top: 0,
       behavior: scrollBehavior,

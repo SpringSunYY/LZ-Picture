@@ -1,28 +1,23 @@
 <script>
-
 export default {
-  onLaunch: function () {
+  onLaunch() {
     console.log('App Launch')
   },
-
-  onShow: function () {
+  onShow() {
     console.log('App Show')
   },
-
-  onHide: function () {
+  onHide() {
     console.log('App Hide')
   },
-
-  onLastPageBackPress: function () {
+  onLastPageBackPress() {
     console.log('onLastPageBackPress')
   },
-
-  onPageNotFound: function (options) {
+  onPageNotFound(options) {
     console.log('页面不存在:', options)
     uni.redirectTo({
-      url: '/pages//pages/user/login'
+      url: '/pages/user/login',
     })
-  }
+  },
 }
 </script>
 

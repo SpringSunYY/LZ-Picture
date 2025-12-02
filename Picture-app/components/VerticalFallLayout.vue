@@ -1,7 +1,7 @@
 <template>
-  <div class="vertical-fall-Layout">
-    <div class="masonry">
-      <div
+  <view class="vertical-fall-Layout">
+    <view class="masonry">
+      <view
         v-for="item in pictrures"
         :key="item.pictureId"
         class="masonry-item"
@@ -9,48 +9,49 @@
         @click="handlePicture(item)"
       >
         <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
-          <div class="masonry-item-content">
-            <div class="masonry-item-title">
+          <view class="masonry-item-content">
+            <view class="masonry-item-title">
               {{ item.name }}
-            </div>
-            <div class="masonry-item-meta">
-              <div class="meta-item">
+            </view>
+            <view class="masonry-item-meta">
+              <view class="meta-item">
                 <SvgIcon name="aiView" />
-                <span class="meta-content">{{ item.lookCount || 0 }}</span>
-              </div>
-              <div class="meta-item">
+                <text class="meta-content">{{ item.lookCount || 0 }}</text>
+              </view>
+              <view class="meta-item">
                 <SvgIcon name="like" />
-                <span class="meta-content">{{ item.likeCount || 0 }}</span>
-              </div>
-              <div class="meta-item">
+                <text class="meta-content">{{ item.likeCount || 0 }}</text>
+              </view>
+              <view class="meta-item">
                 <SvgIcon name="share" />
-                <span class="meta-content">{{ item.shareCount || 0 }}</span>
-              </div>
-              <div class="meta-item">
+                <text class="meta-content">{{ item.shareCount || 0 }}</text>
+              </view>
+              <view class="meta-item">
                 <SvgIcon name="collect" />
-                <span class="meta-content">{{ item.collectCount || 0 }}</span>
-              </div>
-            </div>
-          </div>
+                <text class="meta-content">{{ item.collectCount || 0 }}</text>
+              </view>
+            </view>
+          </view>
         </MasonryImage>
-      </div>
-    </div>
+      </view>
+    </view>
 
-    <!-- 触底加载 -->
-    <div ref="loadMoreTrigger" class="load-more-trigger">
+    <!-- 触底加载区域由页面控制滚动，组件只负责展示 loading / noMore 状态 -->
+    <view class="load-more-trigger">
       <LoadingData v-if="loading" />
       <NoMoreData v-else-if="noMore" />
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
 <script setup name="VerticalFallLayout">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import MasonryImage from '@/components/MasonryImage.uvue'
-import NoMoreData from '@/components/NoMoreData.uvue'
-import LoadingData from '@/components/LoadingData.uvue'
-import SvgIcon from '@/components/SvgIcon.uvue'
+import { ref, watch } from 'vue'
+import MasonryImage from '@/components/MasonryImage.vue'
+import NoMoreData from '@/components/NoMoreData.vue'
+import LoadingData from '@/components/LoadingData.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 
+// 纯 JS props，去掉所有类型声明，避免 uts 报警
 const props = defineProps({
   pictureList: {
     type: Array,
@@ -75,18 +76,10 @@ const vRate = ref(props.minWidth / 15)
 const cRate = ref(props.minWidth / 20)
 const hRate = ref(props.minWidth / 20)
 
-// 所有的图片数据
+// 所有的图片数据（内部自己维护 rowSpan）
 const pictrures = ref([])
-const loadMoreTrigger = ref(null)
-let observer = null
 
-const emits = defineEmits(['loadMore', 'handlePicture'])
-
-// 加载更多
-async function loadMore() {
-  if (props.loading || props.noMore) return
-  emits('loadMore')
-}
+const emits = defineEmits(['handlePicture'])
 
 function generate() {
   const newData = (props.pictureList || []).map((data) => ({
@@ -121,28 +114,6 @@ function calculateRowSpan(width, height) {
   return Math.round(cRate.value * aspectRatio)
 }
 
-// 设置 observer
-function setupObserver() {
-  if (observer && observer.disconnect) observer.disconnect()
-  if (typeof IntersectionObserver === 'undefined') return
-
-  observer = new IntersectionObserver(
-    (entries) => {
-      if (entries[0].isIntersecting && !props.loading) {
-        loadMore()
-      }
-    },
-    {
-      rootMargin: '150px',
-      threshold: 0.1,
-    }
-  )
-
-  if (loadMoreTrigger.value) {
-    observer.observe(loadMoreTrigger.value)
-  }
-}
-
 const handlePicture = (item) => {
   emits('handlePicture', item)
 }
@@ -150,11 +121,6 @@ const handlePicture = (item) => {
 function clearData() {
   pictrures.value = []
 }
-
-onMounted(() => {
-  setupObserver()
-  clearData()
-})
 
 // 暴露重新更新数据给父组件
 defineExpose({
@@ -167,10 +133,6 @@ watch(
     generate()
   }
 )
-
-onBeforeUnmount(() => {
-  if (observer && observer.disconnect) observer.disconnect()
-})
 </script>
 
 <style lang="scss" scoped>

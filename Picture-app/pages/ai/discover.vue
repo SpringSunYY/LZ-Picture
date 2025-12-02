@@ -14,9 +14,10 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import { onMounted, ref } from 'vue'
+import { onReachBottom } from '@dcloudio/uni-app'
 import {getPictureInfoRecommend} from "@/api/picture/picture.js";
-import HorizontalFallLayout from "@/components/HorizontalFallLayout.uvue";
+import HorizontalFallLayout from "@/components/HorizontalFallLayout.vue";
 
 const loading = ref(false)
 const noMore = ref(false)
@@ -71,6 +72,11 @@ const onHandlePicture = (item) => {
 
 // 进入页面时先加载一页数据
 onMounted(() => {
+  onLoadMore()
+})
+
+// 小程序触底加载更多
+onReachBottom(() => {
   onLoadMore()
 })
 </script>

@@ -1,15 +1,34 @@
 <template>
-  <div class="image-wrapper" @click="$emit('click', $event)">
-    <img :src="src" :alt="alt" loading="lazy" class="image" />
-    <!-- 悬停时显示的蒙版 + 文字 -->
-    <div class="hover-mask">
-      <div class="hover-content">
+  <view class="image-wrapper" @click="$emit('click', $event)">
+    <!-- H5 使用原生 img，开启浏览器原生懒加载与异步解码，提升首屏性能 -->
+    <!-- #ifdef H5 -->
+    <img
+      :src="src"
+      :alt="alt"
+      class="image"
+      loading="lazy"
+      decoding="async"
+    />
+    <!-- #endif -->
+
+    <!-- 非 H5 平台使用 uni-app 内置 image，并开启 lazy-load 懒加载 -->
+    <!-- #ifndef H5 -->
+    <image
+      :src="src"
+      class="image"
+      mode="aspectFill"
+      lazy-load="true"
+    />
+    <!-- #endif -->
+    <!-- 悬停时显示的蒙版 + 文字（小程序没有 hover，只是统一样式） -->
+    <view class="hover-mask">
+      <view class="hover-content">
         <slot>
           {{ alt }}
         </slot>
-      </div>
-    </div>
-  </div>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script setup>
@@ -35,14 +54,6 @@ const emit = defineEmits(['click'])
   overflow: hidden;
   border-radius: 12px;
   cursor: pointer;
-
-  &:hover .image {
-    transform: scale(1.05);
-  }
-
-  &:hover .hover-mask {
-    opacity: 1;
-  }
 }
 
 .image {
@@ -59,7 +70,6 @@ const emit = defineEmits(['click'])
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transition: opacity 0.3s ease;
   border-radius: 6px;
   display: flex;
   align-items: flex-end;

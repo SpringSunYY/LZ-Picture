@@ -1,59 +1,60 @@
 <template>
-  <div class="horizontal-fall-layout">
-    <a-empty description="" v-if="pictureRows.length <= 0"></a-empty>
+  <view class="horizontal-fall-layout">
+    <!-- 小程序不支持 a-empty，简单用文本占位 -->
+    <view v-if="pictureRows.length <= 0" class="empty-text">暂无数据</view>
 
-    <div class="horizontal-masonry">
-      <div class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
-        <div
-            v-for="item in row"
-            :key="`${item.id}-${rowIndex}`"
-            class="masonry-item"
-            :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
-            @click="handlePicture(item)"
+    <view class="horizontal-masonry">
+      <view class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
+        <view
+          v-for="item in row"
+          :key="`${item.id}-${rowIndex}`"
+          class="masonry-item"
+          :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
+          @click="handlePicture(item)"
         >
           <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
-            <div class="masonry-item-content">
-              <div class="masonry-item-title">
+            <view class="masonry-item-content">
+              <view class="masonry-item-title">
                 {{ item.name }}
-              </div>
-              <div class="masonry-item-meta">
-                <div class="meta-item">
-                  <SvgIcon name="aiView"/>
-                  <span class="meta-content">{{ item.lookCount || 0 }}</span>
-                </div>
-                <div class="meta-item">
-                  <SvgIcon name="like"/>
-                  <span class="meta-content">{{ item.likeCount || 0 }}</span>
-                </div>
-                <div class="meta-item">
-                  <SvgIcon name="share"/>
-                  <span class="meta-content">{{ item.shareCount || 0 }}</span>
-                </div>
-                <div class="meta-item">
-                  <SvgIcon name="collect"/>
-                  <span class="meta-content">{{ item.collectCount || 0 }}</span>
-                </div>
-              </div>
-            </div>
+              </view>
+              <view class="masonry-item-meta">
+                <view class="meta-item">
+                  <SvgIcon name="aiView" />
+                  <text class="meta-content">{{ item.lookCount || 0 }}</text>
+                </view>
+                <view class="meta-item">
+                  <SvgIcon name="like" />
+                  <text class="meta-content">{{ item.likeCount || 0 }}</text>
+                </view>
+                <view class="meta-item">
+                  <SvgIcon name="share" />
+                  <text class="meta-content">{{ item.shareCount || 0 }}</text>
+                </view>
+                <view class="meta-item">
+                  <SvgIcon name="collect" />
+                  <text class="meta-content">{{ item.collectCount || 0 }}</text>
+                </view>
+              </view>
+            </view>
           </MasonryImage>
-        </div>
-      </div>
-    </div>
+        </view>
+      </view>
+    </view>
 
     <!-- 触底加载 -->
-    <div ref="loadMoreTrigger" class="load-more-trigger">
-      <LoadingData v-if="loading"/>
-      <NoMoreData v-else-if="noMore"/>
-    </div>
-  </div>
+    <view ref="loadMoreTrigger" class="load-more-trigger">
+      <LoadingData v-if="loading" />
+      <NoMoreData v-else-if="noMore" />
+    </view>
+  </view>
 </template>
 
-<script setup lang="uts" name="HorizontalFallLayout">
-import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
-import MasonryImage from '@/components/MasonryImage.uvue'
-import NoMoreData from '@/components/NoMoreData.uvue'
-import LoadingData from '@/components/LoadingData.uvue'
-import SvgIcon from '@/components/SvgIcon.uvue'
+<script setup lang="js" name="HorizontalFallLayout">
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import MasonryImage from '@/components/MasonryImage.vue'
+import NoMoreData from '@/components/NoMoreData.vue'
+import LoadingData from '@/components/LoadingData.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 
 const props = defineProps({
   pictureList: {
@@ -77,11 +78,11 @@ const props = defineProps({
 // 定义事件
 const emit = defineEmits(['loadMore', 'clickPicture'])
 
-// 数据部分
-const rawPictureList = ref<any[]>([]) // 原始数据（不会做 display 样式处理）
-const pictureRows = ref<any[][]>([]) // 分好行后的图片展示用数据
+// 数据部分（全部使用普通 JS，避免类型告警）
+const rawPictureList = ref([]) // 原始数据（不会做 display 样式处理）
+const pictureRows = ref([]) // 分好行后的图片展示用数据
 const loadMoreTrigger = ref(null)
-let observer: IntersectionObserver | null = null
+let observer = null
 
 const handlePicture = (item) => {
   emit('clickPicture', item)
@@ -102,13 +103,31 @@ function generate() {
 
 // 分行排布算法（根据容器宽度）
 const formatPictureListByRow = () => {
-  const container = document.querySelector('.horizontal-masonry')
-  if (!container) return
-
-  const containerWidth = container.clientWidth
   const baseHeight = props.width
   const spacing = 12
   const minWidth = 150
+
+  // 计算容器宽度：H5 用 DOM，小程序用系统信息
+  let containerWidth = 0
+
+  if (typeof document !== 'undefined') {
+    // H5
+    const container = document.querySelector('.horizontal-masonry')
+    if (!container) return
+    containerWidth = container.clientWidth
+  } else if (typeof uni !== 'undefined' && uni.getSystemInfoSync) {
+    // 小程序 / App：直接使用窗口宽度，避免两端出现不一致空白
+    try {
+      const sys = uni.getSystemInfoSync()
+      containerWidth = sys.windowWidth
+    } catch (e) {
+      containerWidth = baseHeight * 2
+    }
+  } else {
+    containerWidth = baseHeight * 2
+  }
+
+  if (!containerWidth) return
 
   const rows = /** @type {any[][]} */ ([])
   let tempRow = []
@@ -132,7 +151,6 @@ const formatPictureListByRow = () => {
     const currentHeight = targetWidth / totalRatio
 
     if (currentHeight < baseHeight) {
-      // 当前高度符合要求，开始构造该行
       const row = tempRow.map((p) => {
         const r2 = p.picWidth / p.picHeight
         const height = currentHeight

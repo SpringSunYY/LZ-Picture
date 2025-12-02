@@ -3,22 +3,21 @@
     {
       "path": "pages/user/login",
       "style": {
-        "navigationBarTitleText": "LZ-Picture"
+        "navigationBarTitleText": "LZ-Picture",
+        "backgroundColor": "#FFFFFF",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/index",
       "style": {
         "navigationBarTitleText": "LZ-Picture",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#FFFFFF",
+        "navigationStyle": "custom"
       }
     },
     {
-      "path": "pages/ai/discover",
-      "style": {
-        "navigationBarTitleText": "Discover",
-        "enablePullDownRefresh": false
-      }
+      "path": "pages/ai/discover"
     }
   ],
   "globalStyle": {
