@@ -9,7 +9,8 @@
     {
       "path": "pages/index",
       "style": {
-        "navigationBarTitleText": "LZ-Picture"
+        "navigationBarTitleText": "LZ-Picture",
+        "backgroundColor": "#FFFFFF"
       }
     }
   ],
