@@ -1,19 +1,22 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "uni -p h5",
     "dev:mp-weixin": "uni -p mp-weixin",
-    "build": "vite build",
+    "build": "uni build -p h5",
     "build:mp-weixin": "uni build -p mp-weixin",
-    "serve": "vite preview"
+    "serve": "uni preview"
   },
   "devDependencies": {
-    "sass": "^1.93.2"
+    "sass": "^1.94.2",
+    "sass-loader": "^16.0.6"
   },
   "dependencies": {
     "axios": "^1.12.2",
     "jsencrypt": "^3.5.4",
     "libphonenumber-js": "^1.12.23",
+    "vk-uview-ui": "^1.5.2",
+    "vue": "^3.5.25",
     "vuex": "^4.1.0"
   }
 }

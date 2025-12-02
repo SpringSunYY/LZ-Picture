@@ -2,14 +2,15 @@
   <view class="discover-page">
     <view class="discover-list">
       <HorizontalFallLayout
-          :pictureList="pictureList"
-          :loading="loading"
-          :noMore="noMore"
-          :minWidth="220"
-          @loadMore="onLoadMore"
-          @handlePicture="onHandlePicture"
+        :pictureList="pictureList"
+        :loading="loading"
+        :noMore="noMore"
+        :minWidth="220"
+        @loadMore="onLoadMore"
+        @handlePicture="onHandlePicture"
       />
     </view>
+    <AppTabbar />
   </view>
 </template>
 
@@ -18,6 +19,7 @@ import { onMounted, ref } from 'vue'
 import { onReachBottom } from '@dcloudio/uni-app'
 import {getPictureInfoRecommend} from "@/api/picture/picture.js";
 import HorizontalFallLayout from "@/components/HorizontalFallLayout.vue";
+import AppTabbar from '@/components/AppTabbar.vue'
 
 const loading = ref(false)
 const noMore = ref(false)
@@ -85,7 +87,9 @@ onReachBottom(() => {
 .discover-page {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100vh;
+  padding-bottom: 100rpx; /* 预留底部导航高度 */
+  box-sizing: border-box;
 }
 
 .discover-title {

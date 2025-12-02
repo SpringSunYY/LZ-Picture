@@ -11,7 +11,7 @@
     {
       "path": "pages/index",
       "style": {
-        "navigationBarTitleText": "LZ-Picture",
+        "navigationBarTitleText": "首页",
         "backgroundColor": "#FFFFFF",
         "navigationStyle": "custom"
       }
@@ -19,17 +19,75 @@
     {
       "path": "pages/ai/discover",
       "style": {
-        "navigationBarTitleText": "LZ-Picture",
+        "navigationBarTitleText": "发现",
+        "backgroundColor": "#FFFFFF",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/publish/index",
+      "style": {
+        "navigationBarTitleText": "发布",
+        "backgroundColor": "#FFFFFF",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/message/index",
+      "style": {
+        "navigationBarTitleText": "消息",
+        "backgroundColor": "#FFFFFF",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/user/profile",
+      "style": {
+        "navigationBarTitleText": "我的",
         "backgroundColor": "#FFFFFF",
         "navigationStyle": "custom"
       }
     }
   ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#8B5CF6",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/ai/discover",
+        "text": "发现"
+      },
+      {
+        "pagePath": "pages/publish/index",
+        "text": "发布"
+      },
+      {
+        "pagePath": "pages/message/index",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/user/profile",
+        "text": "我的"
+      }
+    ]
+  },
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "LZ-Picture",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "vk-uview-ui/components/u-$1/u-$1.vue"
+    }
   },
   "uniIdRouter": {}
 }

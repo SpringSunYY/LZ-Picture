@@ -111,15 +111,33 @@ const formatPictureListByRow = () => {
   let containerWidth = 0
 
   if (typeof document !== 'undefined') {
-    // H5
+    // H5：直接用 DOM 宽度
     const container = document.querySelector('.horizontal-masonry')
     if (!container) return
     containerWidth = container.clientWidth
-  } else if (typeof uni !== 'undefined' && uni.getSystemInfoSync) {
-    // 小程序 / App：直接使用窗口宽度，避免两端出现不一致空白
+  } else if (typeof uni !== 'undefined') {
+    // 小程序 / App：优先使用推荐 API，避免 wx.getSystemInfoSync 的弃用警告
     try {
-      const sys = uni.getSystemInfoSync()
-      containerWidth = sys.windowWidth
+      // #ifdef MP-WEIXIN
+      if (typeof wx !== 'undefined' && wx.getWindowInfo) {
+        const info = wx.getWindowInfo()
+        containerWidth = info.windowWidth
+      } else if (uni.getSystemInfoSync) {
+        const sys = uni.getSystemInfoSync()
+        containerWidth = sys.windowWidth
+      }
+      // #endif
+
+      // #ifndef MP-WEIXIN
+      if (!containerWidth && uni.getSystemInfoSync) {
+        const sys = uni.getSystemInfoSync()
+        containerWidth = sys.windowWidth
+      }
+      // #endif
+
+      if (!containerWidth) {
+        containerWidth = baseHeight * 2
+      }
     } catch (e) {
       containerWidth = baseHeight * 2
     }

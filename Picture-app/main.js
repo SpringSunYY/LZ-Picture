@@ -2,25 +2,13 @@ import App from './App.vue'
 import store from './store'
 import './uni.scss'
 
-// #ifndef VUE3
-import Vue from 'vue'
-import './uni.promisify.adaptor'
-Vue.config.productionTip = false
-App.mpType = 'app'
-const app = new Vue({
-  ...App
-})
-app.use(store)
-app.$mount()
-// #endif
-
-// #ifdef VUE3
 import { createSSRApp } from 'vue'
+import uView from 'vk-uview-ui'
+import 'vk-uview-ui/index.scss'
+
 export function createApp() {
   const app = createSSRApp(App)
   app.use(store)
-  return {
-    app
-  }
+  app.use(uView)
+  return { app }
 }
-// #endif

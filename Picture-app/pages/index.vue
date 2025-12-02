@@ -1,40 +1,47 @@
 <template>
-  <view class="home-card">
-    <!-- 背景图 -->
-    <image class="home-card-bg" src="/static/home_bg.png" mode="aspectFill" />
+  <view class="home-page">
+    <view class="home-card">
+      <!-- 背景图 -->
+      <image class="home-card-bg" src="/static/home_bg.png" mode="aspectFill" />
 
-    <!-- 内容层 -->
-    <view class="home-card-content">
-      <!-- 文本信息 -->
-      <view class="home-card-info">
-        <text class="home-card-title-line">欢迎使用</text>
-        <text class="home-card-title-line">LZ-Picture</text>
-        <text class="home-card-subtitle">和我们一起使用图片</text>
-      </view>
+      <!-- 内容层 -->
+      <view class="home-card-content">
+        <!-- 文本信息 -->
+        <view class="home-card-info">
+          <text class="home-card-title-line">欢迎使用</text>
+          <text class="home-card-title-line">LZ-Picture</text>
+          <text class="home-card-subtitle">和我们一起使用图片</text>
+        </view>
 
-      <!-- 按钮 -->
-      <view class="home-card-button-wrap">
-        <navigator url="/pages/ai/discover" hover-class="none">
-          <view class="home-card-button">
-            <text class="home-card-button-text">Watch movie</text>
-          </view>
-        </navigator>
+        <!-- 按钮 -->
+        <view class="home-card-button-wrap">
+          <navigator url="/pages/ai/discover" hover-class="none">
+            <view class="home-card-button">
+              <text class="home-card-button-text">Watch movie</text>
+            </view>
+          </navigator>
+        </view>
       </view>
     </view>
+
+    <!-- 底部导航（固定定位，不额外撑高页面） -->
+    <AppTabbar />
   </view>
 </template>
 
 <script setup>
-// 这里暂时不需要逻辑，仅展示静态首页
+import AppTabbar from '@/components/AppTabbar.vue'
 </script>
 
 <style>
+.home-page {
+  min-height: 100vh;
+  padding-bottom: 100rpx; /* 预留底部导航高度，避免被遮挡 */
+}
+
 .home-card {
   position: relative;
   width: 100%;
-  /* 使用视口高度，始终占满一屏 */
-  height: 100vh;
-  overflow: hidden;
   border-radius: 0;
   background-color: #000;
 }
@@ -61,9 +68,9 @@
 
   /* 顶部透明，底部渐变加深，接近参考图效果 */
   background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.05),
-    rgba(0, 0, 0, 0.85)
+      to bottom,
+      rgba(0, 0, 0, 0.05),
+      rgba(0, 0, 0, 0.85)
   );
 }
 
