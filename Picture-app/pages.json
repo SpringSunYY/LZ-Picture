@@ -17,7 +17,12 @@
       }
     },
     {
-      "path": "pages/ai/discover"
+      "path": "pages/ai/discover",
+      "style": {
+        "navigationBarTitleText": "LZ-Picture",
+        "backgroundColor": "#FFFFFF",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {

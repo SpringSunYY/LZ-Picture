@@ -7,7 +7,7 @@
       <view class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
         <view
           v-for="item in row"
-          :key="`${item.id}-${rowIndex}`"
+          :key="`${item.pictureId}-${rowIndex}`"
           class="masonry-item"
           :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
           @click="handlePicture(item)"

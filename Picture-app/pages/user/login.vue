@@ -167,7 +167,7 @@ const handleCreate = () => {
   .content {
     position: relative;
     z-index: 10;
-    padding: 300rpx 60rpx 0;
+    padding: 300rpx 60rpx 80rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -196,7 +196,8 @@ const handleCreate = () => {
 
     .form-section {
       width: 100%;
-      margin-top: 200rpx;
+      max-width: 560rpx;
+      margin: 300rpx auto 0;
       .input-wrapper {
         margin-bottom: 32rpx;
 
@@ -239,15 +240,14 @@ const handleCreate = () => {
 
     .button-section {
       width: 100%;
-      margin-top: 60rpx;
-      margin-bottom: 20rpx;
+      max-width: 560rpx;
+      margin: 60rpx auto 20rpx;
       display: flex;
       justify-content: center;
       align-items: center;
 
       .sign-in-button {
         width: 100%;
-        max-width: 560rpx;
         height: 100rpx;
         border-radius: 999rpx;
         background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
