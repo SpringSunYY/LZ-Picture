@@ -4,6 +4,7 @@
       :list="list"
       :mid-button="true"
       :hide-tab-bar="true"
+      active-color="#6b4dff"
     ></u-tabbar>
   </view>
 </template>

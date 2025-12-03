@@ -15,7 +15,8 @@
 
         <!-- 按钮 -->
         <view class="home-card-button-wrap">
-          <navigator url="/pages/ai/discover" hover-class="none">
+          <!-- 发现页是 tabBar 页面，必须使用 switchTab 才能跳转 -->
+          <navigator url="/pages/ai/discover" open-type="switchTab" hover-class="none">
             <view class="home-card-button">
               <text class="home-card-button-text">Watch movie</text>
             </view>
