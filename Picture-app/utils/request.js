@@ -48,7 +48,6 @@ const request = config => {
           // 其他情况，可能是Promise的返回值结构
           res = response[1] || response.data || response
         }
-        console.log('res', res)
         const code = res.data.code || 200
         const msg = errorCode[code] || res.data.msg || errorCode['default']
         if (code === 401) {

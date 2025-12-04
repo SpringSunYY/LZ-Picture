@@ -24,7 +24,7 @@
 
     <view class="profile-content">
       <view class="profile-stats">
-        <view class="stat-item" v-for="stat in stats" :key="stat.label">
+        <view class="stat-item" v-for="stat in accountStats" :key="stat.label">
           <text class="stat-value">{{ stat.value }}</text>
           <text class="stat-label">{{ stat.label }}</text>
         </view>
@@ -79,7 +79,10 @@ import {useStore} from 'vuex'
 import AppTabbar from '@/components/AppTabbar.vue'
 import {getMyUserInfoByUserName} from "@/api/user/user.js";
 import {initCover} from "@/utils/common.js";
+import {getAccountInfo} from "@/api/points/account.js";
 
+
+//region 用户信息
 const store = useStore()
 
 const userInfo = ref({
@@ -98,16 +101,37 @@ const getUserInfo = () => {
     userInfo.value = res.data
   })
 }
+//endregion
+//region 账户信息
+const accountInfo = ref({
+  balance: 0,
+  points: 0,
+})
+const accountStats = ref([
+  {label: '积分余额', value: 38},
+  {label: '赚取积分', value: 532},
+  {label: '使用积分', value: 32},
+  {label: '充值金额', value: 98}
+])
+const getAccount = () => {
+  getAccountInfo().then((res) => {
+    accountInfo.value = res.data
+    accountStats.value = [
+      {label: '积分余额', value: accountInfo.value.pointsBalance},
+      {label: '赚取积分', value: accountInfo.value.pointsEarned},
+      {label: '使用积分', value: accountInfo.value.pointsUsed},
+      {label: '充值金额', value: accountInfo.value.rechargeAmount}
+    ]
+  })
+}
+
+//endregion
 
 onMounted(() => {
   getUserInfo()
+  getAccount()
 })
-const stats = [
-  {label: '余额', value: 38},
-  {label: '积分', value: 532},
-  {label: '收藏', value: 32},
-  {label: '优惠', value: 98}
-]
+
 
 const orderActions = [
   {label: '代付款', icon: '¥', type: 'pay'},
