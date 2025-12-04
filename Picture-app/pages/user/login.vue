@@ -79,7 +79,7 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 const store = useStore();
 
 const username = ref('');
-const phone = ref('18585595238');
+const phone = ref('13152100838');
 const password = ref('yy0908..');
 const countryCode = ref('+86');
 
@@ -125,9 +125,12 @@ const handleSignIn = async () => {
       title: '登录成功',
       icon: 'success'
     });
-    uni.reLaunch({
-      url: '/pages/index'
-    });
+    store.dispatch('GetInfo').then(res => {
+      console.log('GetInfo:', res);
+      uni.reLaunch({
+        url: '/pages/index'
+      });
+    })
   } catch (error) {
     console.error('Login error:', error);
   }
@@ -198,6 +201,7 @@ const handleCreate = () => {
       width: 100%;
       max-width: 560rpx;
       margin: 300rpx auto 0;
+
       .input-wrapper {
         margin-bottom: 32rpx;
 

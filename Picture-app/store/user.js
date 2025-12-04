@@ -8,12 +8,13 @@ const baseUrl = config.baseUrl
 
 const user = {
     state: {
+        // 从本地恢复登录态和用户信息，避免每次热更新都要重新登录
         token: getToken(),
-        userId: '',
-        userName: '',
-        nickName: '',
-        avatar: '',
-        permissions: [],
+        userId: storage.get(constant.userId) || '',
+        userName: storage.get(constant.userName) || '',
+        nickName: storage.get(constant.nickName) || '',
+        avatar: storage.get(constant.avatar) || '',
+        permissions: storage.get(constant.permissions) || [],
     },
 
     mutations: {
@@ -67,12 +68,11 @@ const user = {
         GetInfo({commit, state}) {
             return new Promise((resolve, reject) => {
                 getInfo().then(res => {
-                    const user = res.userInfo
-                    console.log('user', user)
-                    const avatar = (user == null || user.userInfoProfile === "" || user.userInfoProfile == null) ? "@/static/images/profile.jpg" : baseUrl + user.userInfoProfile
-                    const username = (user == null || user.userInfoName === "" || user.userInfoName == null) ? "" : user.userInfoName
+                    const user = res.user
+                    const avatar = (user == null || user.avatarUrl === "" || user.avatarUrl == null) ? "@/static/images/profile.jpg" : baseUrl + user.avatarUrl
+                    const userName = (user == null || user.userName === "" || user.userName == null) ? "" : user.userName
                     commit('SET_USER_ID', user.userId)
-                    commit('SET_USER_NAME', username)
+                    commit('SET_USER_NAME', userName)
                     commit('SET_AVATAR', avatar)
                     commit('SET_PERMISSIONS', user.permissions)
                     commit('SET_NICK_NAME', user.nickName)

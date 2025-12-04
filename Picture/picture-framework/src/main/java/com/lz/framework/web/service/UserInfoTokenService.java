@@ -74,8 +74,7 @@ public class UserInfoTokenService {
                 // 解析对应的权限以及用户信息
                 String uuid = (String) claims.get(LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
-                LoginUserInfo user = redisCache.getCacheObject(userKey);
-                return user;
+                return redisCache.getCacheObject(userKey);
             } catch (Exception e) {
                 log.error("获取用户信息异常'{}'", e.getMessage());
             }

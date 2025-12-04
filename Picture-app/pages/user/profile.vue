@@ -1,12 +1,12 @@
 <template>
   <view class="profile-page">
     <view class="profile-hero">
-      <view class="hero-deco hero-deco-left" />
-      <view class="hero-deco hero-deco-right" />
+      <view class="hero-deco hero-deco-left"/>
+      <view class="hero-deco hero-deco-right"/>
 
       <!-- 顶部整宽头像区域 -->
       <view class="profile-user">
-        <image class="profile-avatar" :src="userInfo.avatar" mode="aspectFill" />
+        <image class="profile-avatar" :src="userInfo.avatar" mode="aspectFill"/>
         <view class="profile-id">
           <text class="profile-name">{{ userInfo.name }}</text>
           <text class="profile-uid">ID：{{ userInfo.uid }}</text>
@@ -17,7 +17,7 @@
           <view class="action-dot"></view>
         </view>
         <view class="profile-camera">
-          <view class="camera-dot" />
+          <view class="camera-dot"/>
         </view>
       </view>
     </view>
@@ -46,7 +46,7 @@
       </view>
 
       <view class="profile-banner">
-        <image class="banner-image" :src="bannerImage" mode="aspectFill" />
+        <image class="banner-image" :src="bannerImage" mode="aspectFill"/>
         <view class="banner-content">
           <text class="banner-title">礼遇520</text>
           <text class="banner-subtitle">进场免费领大牌香水小样</text>
@@ -69,43 +69,61 @@
       </view>
     </view>
 
-    <AppTabbar />
+    <AppTabbar/>
   </view>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import {ref, onMounted} from 'vue'
+import {useStore} from 'vuex'
 import AppTabbar from '@/components/AppTabbar.vue'
+import {getMyUserInfoByUserName} from "@/api/user/user.js";
 
-const userInfo = {
-  name: '小白',
-  uid: '9527',
-  avatar: 'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=facearea&w=300&h=300&q=80'
+const store = useStore()
+
+const userInfo = ref({
+  name: 'Jessica',
+  uid: '123456',
+  avatar: "",
+})
+
+const getUserInfo = () => {
+  const username = store.state.user.userName
+  if (!username) {
+    console.warn('当前未登录，Vuex 中没有 userName')
+    return
+  }//
+  getMyUserInfoByUserName(username).then(res => {
+    userInfo.value = res.data
+  })
 }
 
+onMounted(() => {
+  getUserInfo()
+})
 const stats = [
-  { label: '余额', value: 38 },
-  { label: '积分', value: 532 },
-  { label: '收藏', value: 32 },
-  { label: '优惠', value: 98 }
+  {label: '余额', value: 38},
+  {label: '积分', value: 532},
+  {label: '收藏', value: 32},
+  {label: '优惠', value: 98}
 ]
 
 const orderActions = [
-  { label: '代付款', icon: '¥', type: 'pay' },
-  { label: '代发货', icon: '🎁', type: 'ship' },
-  { label: '待收货', icon: '📦', type: 'receive' },
-  { label: '待评价', icon: '📝', type: 'review' },
-  { label: '退货/款', icon: '↩', type: 'refund' }
+  {label: '代付款', icon: '¥', type: 'pay'},
+  {label: '代发货', icon: '🎁', type: 'ship'},
+  {label: '待收货', icon: '📦', type: 'receive'},
+  {label: '待评价', icon: '📝', type: 'review'},
+  {label: '退货/款', icon: '↩', type: 'refund'}
 ]
 
 const quickLinks = [
-  { label: '收货地址', icon: '📍', type: 'address' },
-  { label: '优惠券', icon: '🎫', type: 'coupon' },
-  { label: '历史订单', icon: '📚', type: 'history' }
+  {label: '收货地址', icon: '📍', type: 'address'},
+  {label: '优惠券', icon: '🎫', type: 'coupon'},
+  {label: '历史订单', icon: '📚', type: 'history'}
 ]
 
 const bannerImage =
-  'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80'
+    'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80'
 </script>
 
 <style scoped>
@@ -120,8 +138,6 @@ const bannerImage =
   position: relative;
   padding: 150rpx 48rpx 120rpx;
   background: linear-gradient(180deg, #7456ff, #9d6bff 70%, transparent 100%);
-  border-bottom-left-radius: 48rpx;
-  border-bottom-right-radius: 48rpx;
   overflow: hidden;
 }
 
@@ -162,7 +178,6 @@ const bannerImage =
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  border: 6rpx solid rgba(255, 255, 255, 0.3);
 }
 
 .profile-id {
