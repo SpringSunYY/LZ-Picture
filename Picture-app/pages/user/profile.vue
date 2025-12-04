@@ -6,10 +6,10 @@
 
       <!-- 顶部整宽头像区域 -->
       <view class="profile-user">
-        <image class="profile-avatar" :src="userInfo.avatar" mode="aspectFill"/>
+        <image class="profile-avatar" :src="initCover(userInfo.avatarUrl)" mode="aspectFill"/>
         <view class="profile-id">
-          <text class="profile-name">{{ userInfo.name }}</text>
-          <text class="profile-uid">ID：{{ userInfo.uid }}</text>
+          <text class="profile-name">{{ userInfo.nickName }}</text>
+          <text class="profile-uid">ID：{{ userInfo.userName }}</text>
         </view>
         <view class="profile-actions">
           <view class="action-dot"></view>
@@ -78,6 +78,7 @@ import {ref, onMounted} from 'vue'
 import {useStore} from 'vuex'
 import AppTabbar from '@/components/AppTabbar.vue'
 import {getMyUserInfoByUserName} from "@/api/user/user.js";
+import {initCover} from "@/utils/common.js";
 
 const store = useStore()
 
