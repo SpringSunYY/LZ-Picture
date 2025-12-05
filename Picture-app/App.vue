@@ -1,5 +1,17 @@
+<template>
+  <view>
+    <!-- 全局密码验证组件 -->
+    <AiPasswordVerify />
+  </view>
+</template>
+
 <script>
+import AiPasswordVerify from '@/components/ai/AiPasswordVerify.vue'
+
 export default {
+  components: {
+    AiPasswordVerify
+  },
   onLaunch() {
     console.log('App Launch')
   },

@@ -4,12 +4,14 @@
       <text class="publish-title">发布</text>
       <text class="publish-subtitle">这里可以接入图片发布 / 上传功能</text>
     </view>
+    <AiInput/>
     <AppTabbar />
   </view>
 </template>
 
 <script setup>
 import AppTabbar from '@/components/AppTabbar.vue'
+import AiInput from "@/components/ai/AiInput.vue";
 </script>
 
 <style scoped>
