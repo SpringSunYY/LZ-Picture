@@ -82,8 +82,11 @@ const username = ref('');
 const phone = ref('13152100838');
 const password = ref('yy0908..');
 const countryCode = ref('+86');
-
+const loginLoading = ref(false);
 const handleSignIn = async () => {
+  if (loginLoading.value) {
+    return;
+  }
   if (!username.value && !phone.value) {
     uni.showToast({
       title: '请输入账号或手机号码，如果输入手机号，系统会默认使用手机号',
@@ -113,8 +116,13 @@ const handleSignIn = async () => {
     return
   }
 
-  console.log('Sign in:', username.value);
   try {
+    uni.showLoading({
+      title: '登录中...',
+      mask: true
+    });
+    loginLoading.value = true;
+
     await store.dispatch('Login', {
       phone: phone.value,
       password: password.value,
@@ -133,6 +141,9 @@ const handleSignIn = async () => {
     })
   } catch (error) {
     console.error('Login error:', error);
+  } finally {
+    uni.hideLoading()
+    loginLoading.value = false;
   }
 };
 

@@ -1,8 +1,6 @@
 <template>
   <view class="home-page">
-    <view class="home-card">
-      <!-- 背景图 -->
-      <image class="home-card-bg" src="/static/home_bg.png" mode="aspectFill"/>
+    <view class="home-card" :style="style">
 
       <!-- 内容层 -->
       <view class="home-card-content">
@@ -31,12 +29,19 @@
 
 <script setup>
 import AppTabbar from '@/components/AppTabbar.vue'
+
+const bgImageUrl = '/static/home_bg.png'
+const style = {
+  backgroundImage: `url(${bgImageUrl})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  height: '100vh',
+}
 </script>
 
 <style>
 .home-page {
-  min-height: 100vh;
-  padding-bottom: 100rpx; /* 预留底部导航高度，避免被遮挡 */
+  height: 100vh;
 }
 
 .home-card {
@@ -46,15 +51,6 @@ import AppTabbar from '@/components/AppTabbar.vue'
   background-color: #000;
 }
 
-.home-card-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-}
 
 .home-card-content {
   position: relative;
@@ -80,6 +76,7 @@ import AppTabbar from '@/components/AppTabbar.vue'
 }
 
 .home-card-title-line {
+  margin-bottom: 10rpx;
   display: block;
   font-size: 56rpx;
   font-weight: 700;

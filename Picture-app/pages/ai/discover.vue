@@ -2,21 +2,21 @@
   <view class="discover-page">
     <view class="discover-list">
       <HorizontalFallLayout
-        :pictureList="pictureList"
-        :loading="loading"
-        :noMore="noMore"
-        :minWidth="220"
-        @loadMore="onLoadMore"
-        @handlePicture="onHandlePicture"
+          :pictureList="pictureList"
+          :loading="loading"
+          :noMore="noMore"
+          :minWidth="220"
+          @loadMore="onLoadMore"
+          @handlePicture="onHandlePicture"
       />
     </view>
-    <AppTabbar />
+    <AppTabbar/>
   </view>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { onReachBottom } from '@dcloudio/uni-app'
+import {onMounted, ref} from 'vue'
+import {onReachBottom} from '@dcloudio/uni-app'
 import {getPictureInfoRecommend} from "@/api/picture/picture.js";
 import HorizontalFallLayout from "@/components/HorizontalFallLayout.vue";
 import AppTabbar from '@/components/AppTabbar.vue'
@@ -57,15 +57,25 @@ const pictureQuery = ref({
   offset: 0,
 })
 const onLoadMore = async () => {
+  if (noMore.value) {
+    uni.showToast({
+      title: '没有更多了',
+      icon: 'none',
+    })
+    return
+  }
+  loading.value = true
   console.log('加载更多')
   // 这里预留给后续真正的分页加载逻辑
   const res = await getPictureInfoRecommend(pictureQuery.value)
   pictureList.value = res?.rows || []
   if (pictureList.value.length >= pictureQuery.value.pageSize) {
     pictureQuery.value.pageNum++
+    pictureQuery.value.currentPage++
   } else {
     noMore.value = true
   }
+  loading.value = false
 }
 
 const onHandlePicture = (item) => {

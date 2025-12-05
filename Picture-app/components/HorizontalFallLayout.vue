@@ -1,16 +1,18 @@
 <template>
   <view class="horizontal-fall-layout">
     <!-- 小程序不支持 a-empty，简单用文本占位 -->
-    <view v-if="pictureRows.length <= 0" class="empty-text">暂无数据</view>
+    <view v-if="pictureRows.length <= 0" class="empty-text">
+      <NoMoreData/>
+    </view>
 
     <view class="horizontal-masonry">
       <view class="masonry-row" v-for="(row, rowIndex) in pictureRows" :key="rowIndex">
         <view
-          v-for="item in row"
-          :key="`${item.pictureId}-${rowIndex}`"
-          class="masonry-item"
-          :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
-          @click="handlePicture(item)"
+            v-for="item in row"
+            :key="`${item.pictureId}-${rowIndex}`"
+            class="masonry-item"
+            :style="{ width: `${item.displayWidth}px`, height: `${item.displayHeight}px` }"
+            @click="handlePicture(item)"
         >
           <MasonryImage :src="item.thumbnailUrl" :alt="item.name">
             <view class="masonry-item-content">
@@ -19,19 +21,19 @@
               </view>
               <view class="masonry-item-meta">
                 <view class="meta-item">
-                  <zui-svg-icon icon="aiView" />
+                  <zui-svg-icon icon="aiView"/>
                   <text class="meta-content">{{ item.lookCount || 0 }}</text>
                 </view>
                 <view class="meta-item">
-                  <zui-svg-icon icon="like" />
+                  <zui-svg-icon icon="like"/>
                   <text class="meta-content">{{ item.likeCount || 0 }}</text>
                 </view>
                 <view class="meta-item">
-                  <zui-svg-icon icon="share" />
+                  <zui-svg-icon icon="share"/>
                   <text class="meta-content">{{ item.shareCount || 0 }}</text>
                 </view>
                 <view class="meta-item">
-                  <zui-svg-icon icon="collect" />
+                  <zui-svg-icon icon="collect"/>
                   <text class="meta-content">{{ item.collectCount || 0 }}</text>
                 </view>
               </view>
@@ -43,8 +45,8 @@
 
     <!-- 触底加载 -->
     <view ref="loadMoreTrigger" class="load-more-trigger">
-      <LoadingData v-if="loading" />
-      <NoMoreData v-else-if="noMore" />
+      <LoadingData v-if="loading"/>
+      <NoMoreData v-else-if="noMore"/>
     </view>
   </view>
 </template>
@@ -215,7 +217,7 @@ function setupObserver() {
           loadMore()
         }
       },
-      {rootMargin: '150px'}
+      {rootMargin: '10px'}
   )
 
   if (observer && loadMoreTrigger.value) {
@@ -276,8 +278,8 @@ onBeforeUnmount(() => {
 
   .masonry-row {
     display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 6px;
+    margin-bottom: 6px;
   }
 
   .masonry-item {
