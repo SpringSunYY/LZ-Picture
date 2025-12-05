@@ -2,7 +2,7 @@
   <view class="home-page">
     <view class="home-card">
       <!-- 背景图 -->
-      <image class="home-card-bg" src="/static/home_bg.png" mode="aspectFill" />
+      <image class="home-card-bg" src="/static/home_bg.png" mode="aspectFill"/>
 
       <!-- 内容层 -->
       <view class="home-card-content">
@@ -18,15 +18,14 @@
           <!-- 发现页是 tabBar 页面，必须使用 switchTab 才能跳转 -->
           <navigator url="/pages/ai/discover" open-type="switchTab" hover-class="none">
             <view class="home-card-button">
-              <text class="home-card-button-text">Watch movie</text>
+              <text class="home-card-button-text">Watch Picture</text>
             </view>
           </navigator>
         </view>
       </view>
     </view>
 
-    <!-- 底部导航（固定定位，不额外撑高页面） -->
-    <AppTabbar />
+    <AppTabbar/>
   </view>
 </template>
 

@@ -61,12 +61,14 @@
       <view class="profile-links">
         <view class="link-item" v-for="link in quickLinks" :key="link.label">
           <view class="link-left">
-            <view class="link-icon" :class="`link-icon-${link.type}`">
-              <text class="link-icon-text">{{ link.icon }}</text>
+            <view class="link-icon" :style="link.style">
+              <zui-svg-icon :icon="link.icon"/>
             </view>
             <text class="link-label">{{ link.label }}</text>
           </view>
-          <text class="link-arrow">></text>
+          <text class="link-arrow">
+            <zui-svg-icon icon="right"/>
+          </text>
         </view>
       </view>
     </view>
@@ -146,9 +148,24 @@ const orderActions = [
 ]
 
 const quickLinks = [
-  {label: '收货地址', icon: '📍', type: 'address'},
-  {label: '优惠券', icon: '🎫', type: 'coupon'},
-  {label: '历史订单', icon: '📚', type: 'history'}
+  {
+    label: '我的', icon: 'my', type: 'my', style: {
+      background: '#f6edff',
+      color: '#7456ff'
+    }
+  },
+  {
+    label: '我的空间', icon: 'space', type: 'space', style: {
+      background: '#fff1f5',
+      color: '#ff7cb8'
+    }
+  },
+  {
+    label: '系统设置', icon: 'system', type: 'system', style: {
+      background: '#e6f6ff',
+      color: '#37a8ff'
+    }
+  }
 ]
 
 const bannerImage =
@@ -158,7 +175,7 @@ const bannerImage =
 <style scoped>
 .profile-page {
   min-height: 100vh;
-  padding-bottom: 140rpx;
+  padding-bottom: 200rpx;
   background-color: #f7f7fb;
   box-sizing: border-box;
 }
@@ -263,68 +280,6 @@ const bannerImage =
   background: #fff;
 }
 
-.profile-level {
-  margin-top: 36rpx;
-  padding: 32rpx;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 32rpx;
-  position: relative;
-}
-
-.level-info {
-  display: flex;
-  align-items: center;
-  color: #fff;
-}
-
-.level-badge {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.level-label {
-  margin-left: 12rpx;
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.level-progress {
-  margin: 24rpx 0 16rpx;
-  height: 16rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.2);
-  overflow: hidden;
-}
-
-.level-progress-inner {
-  height: 100%;
-  background: linear-gradient(90deg, #fefefe, #f6d7ff);
-  border-radius: 16rpx;
-}
-
-.level-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
-}
-
-.level-stage {
-  font-weight: 600;
-}
-
-.vip-pill {
-  position: absolute;
-  right: 32rpx;
-  bottom: -24rpx;
-  padding: 12rpx 32rpx;
-  background: rgba(116, 86, 255, 0.9);
-  border-radius: 999rpx;
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 12rpx 24rpx rgba(0, 0, 0, 0.1);
-}
 
 .profile-stats {
   margin-top: 40rpx;
@@ -489,21 +444,6 @@ const bannerImage =
   align-items: center;
   margin-right: 20rpx;
   font-size: 32rpx;
-}
-
-.link-icon-address {
-  background: #f6edff;
-  color: #7456ff;
-}
-
-.link-icon-coupon {
-  background: #fff1f5;
-  color: #ff7cb8;
-}
-
-.link-icon-history {
-  background: #e6f6ff;
-  color: #37a8ff;
 }
 
 .link-label {
