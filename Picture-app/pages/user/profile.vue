@@ -32,13 +32,15 @@
 
       <view class="profile-section">
         <view class="section-header">
-          <text class="section-title">我的订单</text>
-          <text class="section-link">全部订单 ></text>
+          <text class="section-title">操作记录</text>
+          <text class="section-link">全部操作</text>
         </view>
         <view class="order-actions">
           <view class="order-item" v-for="item in orderActions" :key="item.label">
-            <view class="order-icon" :class="`order-icon-${item.type}`">
-              <text class="order-icon-text">{{ item.icon }}</text>
+            <view class="order-icon" :style="{
+              background: item.background
+            } ">
+              <zui-svg-icon :icon="item.icon"/>
             </view>
             <text class="order-label">{{ item.label }}</text>
           </view>
@@ -48,8 +50,8 @@
       <view class="profile-banner">
         <image class="banner-image" :src="bannerImage" mode="aspectFill"/>
         <view class="banner-content">
-          <text class="banner-title">礼遇520</text>
-          <text class="banner-subtitle">进场免费领大牌香水小样</text>
+          <text class="banner-title">积分充值</text>
+          <text class="banner-subtitle">选择您的充值方式</text>
           <view class="banner-button">
             <text class="banner-button-text">立即查看</text>
           </view>
@@ -80,6 +82,7 @@ import AppTabbar from '@/components/AppTabbar.vue'
 import {getMyUserInfoByUserName} from "@/api/user/user.js";
 import {initCover} from "@/utils/common.js";
 import {getAccountInfo} from "@/api/points/account.js";
+import ZuiSvgIcon from "@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue";
 
 
 //region 用户信息
@@ -134,11 +137,12 @@ onMounted(() => {
 
 
 const orderActions = [
-  {label: '代付款', icon: '¥', type: 'pay'},
-  {label: '代发货', icon: '🎁', type: 'ship'},
-  {label: '待收货', icon: '📦', type: 'receive'},
-  {label: '待评价', icon: '📝', type: 'review'},
-  {label: '退货/款', icon: '↩', type: 'refund'}
+  // zui-svg-icon 生成的 id 会转小写，这里也用小写
+  {label: '充值', icon: 'points-blue', type: 'points-blue', background: 'linear-gradient(135deg, #ffc7d6, #ff9fb1)'},
+  {label: '下载', icon: 'download', type: 'download', background: 'linear-gradient(135deg, #f7d8ff, #d2abff)'},
+  {label: '行为', icon: 'behavior', type: 'behavior', background: 'linear-gradient(135deg, #c7eaff, #7fd7ff)'},
+  {label: '浏览', icon: 'view', type: 'view', background: 'linear-gradient(135deg, #fde1c9, #fbb27d)'},
+  {label: '积分', icon: 'points', type: 'points', background: 'linear-gradient(135deg, #d7f5dc, #6fdc8a)'}
 ]
 
 const quickLinks = [
@@ -395,26 +399,6 @@ const bannerImage =
   justify-content: center;
   font-size: 32rpx;
   margin: 0 auto 16rpx;
-}
-
-.order-icon-pay {
-  background: linear-gradient(135deg, #ffc7d6, #ff9fb1);
-}
-
-.order-icon-ship {
-  background: linear-gradient(135deg, #f7d8ff, #d2abff);
-}
-
-.order-icon-receive {
-  background: linear-gradient(135deg, #c7eaff, #7fd7ff);
-}
-
-.order-icon-review {
-  background: linear-gradient(135deg, #fde1c9, #fbb27d);
-}
-
-.order-icon-refund {
-  background: linear-gradient(135deg, #d7f5dc, #6fdc8a);
 }
 
 .order-label {

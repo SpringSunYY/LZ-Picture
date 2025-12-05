@@ -15,19 +15,19 @@
             </view>
             <view class="masonry-item-meta">
               <view class="meta-item">
-                <SvgIcon name="aiView" />
+                <zui-svg-icon icon="aiView" />
                 <text class="meta-content">{{ item.lookCount || 0 }}</text>
               </view>
               <view class="meta-item">
-                <SvgIcon name="like" />
+                <zui-svg-icon icon="like" />
                 <text class="meta-content">{{ item.likeCount || 0 }}</text>
               </view>
               <view class="meta-item">
-                <SvgIcon name="share" />
+                <zui-svg-icon icon="share" />
                 <text class="meta-content">{{ item.shareCount || 0 }}</text>
               </view>
               <view class="meta-item">
-                <SvgIcon name="collect" />
+                <zui-svg-icon icon="collect" />
                 <text class="meta-content">{{ item.collectCount || 0 }}</text>
               </view>
             </view>
@@ -45,11 +45,10 @@
 </template>
 
 <script setup name="VerticalFallLayout">
-import { ref, watch } from 'vue'
+import {ref, watch} from 'vue'
 import MasonryImage from '@/components/MasonryImage.vue'
 import NoMoreData from '@/components/NoMoreData.vue'
 import LoadingData from '@/components/LoadingData.vue'
-import SvgIcon from '@/components/SvgIcon.vue'
 
 // 纯 JS props，去掉所有类型声明，避免 uts 报警
 const props = defineProps({
