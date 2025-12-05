@@ -206,7 +206,12 @@ public class AuthUserInfoController extends BaseUserInfoController {
 
     @PostMapping("/logout")
     public AjaxResult logout(HttpServletRequest request) {
-        LoginUserInfo loginUser = UserInfoSecurityUtils.getLoginUser();
+        LoginUserInfo loginUser = null;
+        try {
+            loginUser = UserInfoSecurityUtils.getLoginUser();
+        } catch (Exception e) {
+            return AjaxResult.success("已退出成功！！！");
+        }
         LambdaUpdateWrapper<AuthUserInfo> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(AuthUserInfo::getLastLoginTime, new Date())
                 .set(AuthUserInfo::getLastLoginIp, IpUtils.getIpAddr(request))
