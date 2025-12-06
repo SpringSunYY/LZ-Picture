@@ -180,6 +180,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { toast } from '@/utils/common'
 import { useStore } from 'vuex'
+import { useDict } from '@/utils/useDict'
 
 // 这里需要导入 API 函数，根据实际项目调整
 // import { mySpaceInfo } from '@/api/picture/space.ts'
@@ -200,11 +201,8 @@ const emit = defineEmits(['success'])
 
 const store = useStore()
 
-// 从字典 store 获取数据
-const p_picture_status = ref([
-  { dictValue: '0', dictLabel: '公开' },
-  { dictValue: '1', dictLabel: '私有' },
-])
+// 使用字典工具函数
+const { p_picture_status } = useDict('p_picture_status')
 
 const openPublic = ref(false)
 const pictureInfo = ref({
@@ -231,11 +229,7 @@ const selectedSpace = ref(null)
 const selectedFolder = ref(null)
 
 onMounted(() => {
-  // 更新字典数据
-  const dictData = store.getters['dict/getDict']('p_picture_status')
-  if (dictData) {
-    p_picture_status.value = dictData
-  }
+  // 字典已自动加载，直接使用即可
 })
 
 watch(

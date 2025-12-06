@@ -1,32 +1,21 @@
-// 格式化日期为 YYYY-MM-DD
-const formatDateByDate = (date) => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+import { getDicts } from '@/api/common/common'
+import { formatDateByDate } from '@/utils/common'
+
+// 生成带日期的 key
+const getDictKey = (key) => {
+  if (!key) return null
+  const now = formatDateByDate(new Date())
+  return `${now}:${key}`
 }
 
-// 从存储中加载字典数据
+// 从本地存储加载字典数据
 const loadDictFromStorage = () => {
   try {
-    const storageKey = 'dict_storage'
-    const data = uni.getStorageSync(storageKey)
-    if (data) {
-      return JSON.parse(data)
-    }
+    const data = uni.getStorageSync('dict_cache')
+    return data ? JSON.parse(data) : {}
   } catch (e) {
-    console.error('加载字典数据失败', e)
-  }
-  return []
-}
-
-// 保存字典数据到存储
-const saveDictToStorage = (dict) => {
-  try {
-    const storageKey = 'dict_storage'
-    uni.setStorageSync(storageKey, JSON.stringify(dict))
-  } catch (e) {
-    console.error('保存字典数据失败', e)
+    console.error('加载字典缓存失败:', e)
+    return {}
   }
 }
 
@@ -37,29 +26,12 @@ const dict = {
 
   mutations: {
     SET_DICT: (state, { key, value }) => {
-      const existingIndex = state.dict.findIndex((item) => item.key === key)
-      if (existingIndex !== -1) {
-        state.dict[existingIndex].value = value
-      } else {
-        state.dict.push({ key: key, value })
-      }
-      saveDictToStorage(state.dict)
-    },
-
-    REMOVE_DICT: (state, key) => {
-      const index = state.dict.findIndex((item) => item.key === key)
-      if (index !== -1) {
-        state.dict.splice(index, 1)
-        saveDictToStorage(state.dict)
-      }
-    },
-
-    CLEAN_DICT: (state) => {
-      state.dict = []
+      state.dict[key] = value
+      // 同时保存到本地存储
       try {
-        uni.removeStorageSync('dict_storage')
+        uni.setStorageSync('dict_cache', JSON.stringify(state.dict))
       } catch (e) {
-        console.error('清除字典存储失败', e)
+        console.error('保存字典缓存失败:', e)
       }
     },
   },
@@ -67,33 +39,38 @@ const dict = {
   getters: {
     getDict: (state) => (key) => {
       if (!key) return null
-      const now = formatDateByDate(new Date())
-      key = now + ':' + key
-      const item = state.dict.find((item) => item.key === key)
-      return item ? item.value : null
+      return state.dict[key] || null
     },
   },
 
   actions: {
-    setDict({ commit }, { key, value }) {
-      if (!key) return
-      const now = formatDateByDate(new Date())
-      key = now + ':' + key
-      commit('SET_DICT', { key, value })
-    },
+    // 获取字典数据（先查缓存，没有就从接口获取）
+    async getDict({ state, commit, getters }, dictType) {
+      if (!dictType) return []
 
-    removeDict({ commit }, key) {
-      const now = formatDateByDate(new Date())
-      key = now + ':' + key
-      commit('REMOVE_DICT', key)
-    },
+      // 生成带日期的 key
+      const dictKey = getDictKey(dictType)
+      
+      // 先查缓存 - 使用 getter 访问，避免 Proxy 问题
+      const cached = getters.getDict(dictKey)
+      if (cached && Array.isArray(cached) && cached.length > 0) {
+        return cached
+      }
 
-    cleanDict({ commit }) {
-      commit('CLEAN_DICT')
-    },
-
-    initDict() {
-      // 可加入接口初始化逻辑
+      // 没有缓存，从接口获取
+      try {
+        const resp = await getDicts(dictType)
+        if (resp?.code === 200 && resp?.data) {
+          commit('SET_DICT', { key: dictKey, value: resp.data })
+          return resp.data
+        } else {
+          console.warn(`[字典Store] 获取 ${dictType} 失败:`, resp)
+          return []
+        }
+      } catch (error) {
+        console.error(`[字典Store] 获取 ${dictType} 异常:`, error)
+        return []
+      }
     },
   },
 }

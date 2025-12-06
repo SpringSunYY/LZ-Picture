@@ -5,7 +5,7 @@
       <view class="dropdown-wrapper" ref="imageGenDropdownRef">
         <view class="action-button dropdown-toggle" @tap.stop="toggleDropdown('imageGen')">
           <zui-svg-icon icon="image" class="icon" />
-          <text>{{ selectedImageOption.dictLabel }}</text>
+          <text>{{ selectedImageOption?.dictLabel || '文生图' }}</text>
           <zui-svg-icon 
             icon="right" 
             class="chevron-icon"
@@ -14,10 +14,10 @@
         </view>
         <view v-if="showImageDropdown" class="dropdown-menu">
           <view
-            v-for="option in ai_model_params_type"
+            v-for="option in (ai_model_params_type || [])"
             :key="option.dictValue"
             class="dropdown-item"
-            :class="{ 'is-selected': selectedImageOption.dictValue === option.dictValue }"
+            :class="{ 'is-selected': selectedImageOption?.dictValue === option.dictValue }"
             @tap.stop="selectOption('imageGen', option)"
           >
             <text>{{ option.dictLabel }}</text>
@@ -33,7 +33,7 @@
         >
           <zui-svg-icon icon="image" class="icon" />
           <view class="selected-models-container">
-            <template v-if="selectedModelOptions.length > 0">
+            <template v-if="selectedModelOptions && selectedModelOptions.length > 0">
               <view
                 v-for="model in selectedModelOptions"
                 :key="model.modelKey"
@@ -141,6 +141,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { toast } from '@/utils/common'
 import { useStore } from 'vuex'
+import { useDict } from '@/utils/useDict'
 import ZuiSvgIcon from '@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue'
 
 // API 函数 - 需要根据实际项目实现
@@ -160,11 +161,8 @@ const store = useStore()
 
 const numbers = ref(1)
 
-// 从字典 store 获取数据
-const ai_model_params_type = ref(store.getters['dict/getDict']('ai_model_params_type') || [
-  { dictValue: '1', dictLabel: '文生图' },
-  { dictValue: '2', dictLabel: '图生图' }
-])
+// 使用字典工具函数
+const { ai_model_params_type } = useDict('ai_model_params_type')
 
 const modelList = ref([])
 const modelQuery = ref({
@@ -311,11 +309,7 @@ const getModelList = async () => {
 }
 
 onMounted(() => {
-  // 更新字典数据
-  const dictData = store.getters['dict/getDict']('ai_model_params_type')
-  if (dictData) {
-    ai_model_params_type.value = dictData
-  }
+  // 字典已自动加载，直接使用即可
   getModelList()
 })
 
@@ -342,10 +336,12 @@ watch(
       await getModelList()
     }
 
-    const typeOption = ai_model_params_type.value.find(
+    const typeOption = (ai_model_params_type.value || []).find(
       (item) => item.dictValue === newVal.modelType,
     )
-    if (typeOption) selectedImageOption.value = typeOption
+    if (typeOption) {
+      selectedImageOption.value = typeOption
+    }
 
     if (newVal.modelKeys && newVal.modelKeys.length) {
       selectedModelOptions.value =
@@ -375,7 +371,7 @@ watch(
 const emit = defineEmits(['update:modelValue'])
 
 const modelInfo = ref({
-  modelType: selectedImageOption.value.dictValue,
+  modelType: selectedImageOption.value?.dictValue || '1',
   modelKeys: selectedModelOptions.value.map((model) => model.modelKey),
   width: selectedRatioOption.value.width,
   height: selectedRatioOption.value.height,
@@ -392,7 +388,7 @@ const resetModel = () => {
   })
 
   modelInfo.value = {
-    modelType: selectedImageOption.value.dictValue,
+    modelType: selectedImageOption.value?.dictValue || '1',
     modelKeys: modelKeys,
     width: selectedRatioOption.value.width,
     height: selectedRatioOption.value.height,

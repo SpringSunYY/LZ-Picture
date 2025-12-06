@@ -58,6 +58,17 @@ export function tansParams(params) {
     return result
 }
 
+//格式化时间年月日
+export const formatDateByDate = (date) => {
+    date = new Date(date)
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+export const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
 
 /**
  * 初始化封面
