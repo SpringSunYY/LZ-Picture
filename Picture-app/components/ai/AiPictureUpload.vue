@@ -14,11 +14,12 @@
       />
       <!-- 上传占位符 -->
       <view v-else class="upload-placeholder">
-        <text class="placeholder-icon">+</text>
+        <zui-svg-icon icon="image" class="placeholder-icon" />
+        <text class="placeholder-text">点击上传图片</text>
       </view>
       <!-- 清除按钮 -->
       <view v-if="uploadedImage" class="clear-image-button" @tap.stop="clearImage">
-        <text class="clear-icon">×</text>
+        <zui-svg-icon icon="close" class="clear-icon" />
       </view>
     </view>
   </view>
@@ -28,12 +29,19 @@
 import { ref, watch } from 'vue'
 import { toast } from '@/utils/common'
 import AiPictureView from '@/components/ai/AiPictureView.vue'
+import ZuiSvgIcon from '@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue'
 
 const emit = defineEmits(['update:modelValue'])
 
 const props = defineProps({
-  modelValue: { type: String, default: null },
-  limitSize: { type: Number, default: 5 },
+  modelValue: {
+    type: String,
+    default: null,
+  },
+  limitSize: {
+    type: Number,
+    default: 5,
+  },
   fileTypes: {
     type: Array,
     default: () => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
@@ -54,26 +62,110 @@ watch(
 // 点击缩略图
 const handleThumbnailClick = () => {
   if (uploadedImage.value) {
-    // 如果已有图片，可以预览
     return
   } else {
     chooseImage()
   }
 }
 
+// 获取平台类型
+const getPlatform = () => {
+  // #ifdef H5
+  return 'h5'
+  // #endif
+  // #ifdef MP-WEIXIN
+  return 'mp'
+  // #endif
+  // #ifdef APP-PLUS
+  return 'app'
+  // #endif
+  return 'h5'
+}
+
+// 读取文件为 base64 (H5 平台)
+const readFileAsBase64H5 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      resolve(e.target.result)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+// 读取文件为 base64 (小程序/APP 平台)
+const readFileAsBase64Native = (filePath) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const fs = uni.getFileSystemManager()
+      fs.readFile({
+        filePath: filePath,
+        encoding: 'base64',
+        success: (res) => {
+          const base64 = `data:image/jpeg;base64,${res.data}`
+          resolve(base64)
+        },
+        fail: reject,
+      })
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 // 选择图片
 const chooseImage = () => {
+  const platform = getPlatform()
+
+  // H5 平台使用 input[type="file"]
+  // #ifdef H5
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.onchange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // 文件大小校验
+    const maxSize = props.limitSize * 1024 * 1024
+    if (file.size > maxSize) {
+      toast(
+        `图片大小不能超过${props.limitSize}MB，当前文件大小为${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      )
+      return
+    }
+
+    // 文件类型校验
+    if (!props.fileTypes.includes(file.type)) {
+      toast('请上传正确的图片格式，仅支持：' + props.fileTypes.join('、'))
+      return
+    }
+
+    try {
+      const base64 = await readFileAsBase64H5(file)
+      uploadedImage.value = base64
+      emit('update:modelValue', uploadedImage.value)
+    } catch (error) {
+      toast('图片读取失败，请重新选择')
+    }
+  }
+  input.click()
+  // #endif
+
+  // 小程序和 APP 平台使用 uni.chooseImage
+  // #ifndef H5
   uni.chooseImage({
     count: 1,
     sizeType: ['compressed'],
     sourceType: ['album', 'camera'],
-    success: (res) => {
+    success: async (res) => {
       const tempFilePath = res.tempFilePaths[0]
-      
+
       // 获取文件信息
       uni.getFileInfo({
         filePath: tempFilePath,
-        success: (fileInfo) => {
+        success: async (fileInfo) => {
           // 文件大小校验
           const maxSize = props.limitSize * 1024 * 1024
           if (fileInfo.size > maxSize) {
@@ -83,23 +175,22 @@ const chooseImage = () => {
             return
           }
 
-          // 将图片转换为 base64
-          const fs = uni.getFileSystemManager()
-          fs.readFile({
-            filePath: tempFilePath,
-            encoding: 'base64',
-            success: (readRes) => {
-              const base64 = `data:image/jpeg;base64,${readRes.data}`
-              uploadedImage.value = base64
-              emit('update:modelValue', uploadedImage.value)
-            },
-            fail: () => {
-              toast('图片读取失败，请重新选择')
-            },
-          })
+          try {
+            // 尝试读取为 base64
+            const base64 = await readFileAsBase64Native(tempFilePath)
+            uploadedImage.value = base64
+            emit('update:modelValue', uploadedImage.value)
+          } catch (error) {
+            // 如果读取 base64 失败，直接使用临时路径
+            console.warn('读取 base64 失败，使用临时路径:', error)
+            uploadedImage.value = tempFilePath
+            emit('update:modelValue', uploadedImage.value)
+          }
         },
         fail: () => {
-          toast('获取文件信息失败')
+          // 如果获取文件信息失败，直接使用临时路径
+          uploadedImage.value = tempFilePath
+          emit('update:modelValue', uploadedImage.value)
         },
       })
     },
@@ -109,6 +200,7 @@ const chooseImage = () => {
       }
     },
   })
+  // #endif
 }
 
 // 清除图片
@@ -119,6 +211,11 @@ const clearImage = () => {
 </script>
 
 <style scoped lang="scss">
+.image-uploader {
+  width: 100%;
+  height: 100%;
+}
+
 .image-thumbnail {
   flex-shrink: 0;
   position: relative;
@@ -129,7 +226,6 @@ const clearImage = () => {
   height: 100%;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   border: 2rpx solid rgba(255, 255, 255, 0.2);
   transition: border-color 0.2s ease, background-color 0.2s ease;
 
@@ -147,12 +243,16 @@ const clearImage = () => {
     height: 100%;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 20rpx;
-    gap: 8rpx;
+    gap: 16rpx;
 
     .placeholder-icon {
       font-size: 64rpx;
       color: rgba(255, 255, 255, 0.6);
-      font-weight: 300;
+    }
+
+    .placeholder-text {
+      font-size: 28rpx;
+      color: rgba(255, 255, 255, 0.6);
     }
   }
 
@@ -177,15 +277,12 @@ const clearImage = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     padding: 0;
     z-index: 1;
 
     .clear-icon {
       color: #fff;
       font-size: 32rpx;
-      font-weight: bold;
-      line-height: 1;
     }
 
     &:active {
@@ -194,4 +291,3 @@ const clearImage = () => {
   }
 }
 </style>
-

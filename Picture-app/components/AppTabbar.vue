@@ -31,10 +31,10 @@ export default {
         {
           iconPath: 'plus-circle',
           selectedIconPath: 'plus-circle-fill',
-          text: '发布',
+          text: '生成',
           midButton: true,
           customIcon: false,
-          pagePath: '/pages/publish/index'
+          pagePath: '/pages/generate/index'
         },
         {
           iconPath: 'chat',

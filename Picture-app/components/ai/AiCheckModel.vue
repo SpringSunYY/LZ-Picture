@@ -1,20 +1,20 @@
 <template>
-  <view class="action-buttons">
+  <view class="action-buttons" ref="inputContainerRef">
     <view class="left-buttons">
       <!-- 图片生成类型下拉 -->
       <view class="dropdown-wrapper" ref="imageGenDropdownRef">
         <view class="action-button dropdown-toggle" @tap.stop="toggleDropdown('imageGen')">
           <zui-svg-icon icon="image" class="icon" />
           <text>{{ selectedImageOption?.dictLabel || '文生图' }}</text>
-          <zui-svg-icon 
-            icon="right" 
+          <zui-svg-icon
+            icon="right"
             class="chevron-icon"
             :class="{ rotated: showImageDropdown }"
           />
         </view>
         <view v-if="showImageDropdown" class="dropdown-menu">
           <view
-            v-for="option in (ai_model_params_type || [])"
+            v-for="option in (ai_model_params_type.value || [])"
             :key="option.dictValue"
             class="dropdown-item"
             :class="{ 'is-selected': selectedImageOption?.dictValue === option.dictValue }"
@@ -41,13 +41,13 @@
                 @tap.stop="toggleModelSelection(model)"
               >
                 <text>{{ model.modelLabel }}</text>
-                <text class="model-remove-icon" @tap.stop="toggleModelSelection(model)">×</text>
+                <zui-svg-icon icon="close" class="model-remove-icon" />
               </view>
             </template>
             <text v-else class="placeholder-text">选择模型</text>
           </view>
-          <zui-svg-icon 
-            icon="right" 
+          <zui-svg-icon
+            icon="right"
             class="chevron-icon"
             :class="{ rotated: showModelDropdown }"
           />
@@ -62,7 +62,10 @@
             }"
             @tap.stop="toggleModelSelection(option)"
           >
-            <text>{{ option.modelLabel }}</text>
+            <view class="model-item-content">
+              <text class="model-label">{{ option.modelLabel }}</text>
+              <text class="model-info">所需{{ option.pointsNeed }}积分</text>
+            </view>
           </view>
         </view>
       </view>
@@ -71,8 +74,8 @@
       <view class="dropdown-wrapper" ref="imageRatioDropdownRef">
         <view class="action-button dropdown-toggle" @tap.stop="toggleDropdown('imageRatio')">
           <text>{{ selectedRatioDisplay }}</text>
-          <zui-svg-icon 
-            icon="right" 
+          <zui-svg-icon
+            icon="right"
             class="chevron-icon"
             :class="{ rotated: showRatioDropdown }"
           />
@@ -88,10 +91,7 @@
             <text>{{ option.label }}</text>
             <text class="ratio-value">{{ option.width }}x{{ option.height }}</text>
           </view>
-          <view
-            class="custom-ratio-item"
-            @tap.stop="selectCustomRatio"
-          >
+          <view class="custom-ratio-item">
             <text class="custom-label">自定义:</text>
             <view class="custom-ratio-inputs">
               <input
@@ -138,31 +138,23 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { toast } from '@/utils/common'
-import { useStore } from 'vuex'
+import { computed, onMounted, onUnmounted, ref, watch, getCurrentInstance } from 'vue'
 import { useDict } from '@/utils/useDict'
+import { listModel } from '@/api/ai/model'
 import ZuiSvgIcon from '@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue'
 
-// API 函数 - 需要根据实际项目实现
-const listModel = async (query) => {
-  // 这里需要实现实际的 API 调用
-  return { data: [] }
-}
+const { proxy } = getCurrentInstance()
+
+const { ai_model_params_type } = useDict('ai_model_params_type')
 
 const props = defineProps({
   modelValue: {
     type: Object,
-    default: null
-  }
+    default: null,
+  },
 })
 
-const store = useStore()
-
 const numbers = ref(1)
-
-// 使用字典工具函数
-const { ai_model_params_type } = useDict('ai_model_params_type')
 
 const modelList = ref([])
 const modelQuery = ref({
@@ -172,6 +164,7 @@ const modelQuery = ref({
 const imageGenDropdownRef = ref(null)
 const imageModelDropdownRef = ref(null)
 const imageRatioDropdownRef = ref(null)
+const inputContainerRef = ref(null)
 
 const showImageDropdown = ref(false)
 const showModelDropdown = ref(false)
@@ -221,14 +214,20 @@ const toggleDropdown = (dropdownName) => {
   if (dropdownName !== 'imageGen') showImageDropdown.value = false
   if (dropdownName !== 'imageModel') showModelDropdown.value = false
   if (dropdownName !== 'imageRatio') showRatioDropdown.value = false
-  
-  if (dropdownName === 'imageGen') showImageDropdown.value = !showImageDropdown.value
-  else if (dropdownName === 'imageModel') showModelDropdown.value = !showModelDropdown.value
-  else if (dropdownName === 'imageRatio') showRatioDropdown.value = !showRatioDropdown.value
+
+  if (dropdownName === 'imageGen') {
+    showImageDropdown.value = !showImageDropdown.value
+  } else if (dropdownName === 'imageModel') {
+    showModelDropdown.value = !showModelDropdown.value
+  } else if (dropdownName === 'imageRatio') {
+    showRatioDropdown.value = !showRatioDropdown.value
+  }
 }
 
 const selectOption = (dropdownName, option) => {
-  if (dropdownName === 'imageGen') selectedImageOption.value = option
+  if (dropdownName === 'imageGen') {
+    selectedImageOption.value = option
+  }
   closeAllDropdowns()
   modelQuery.value.modelType = option.dictValue
   selectedModelOptions.value = []
@@ -252,15 +251,6 @@ const selectRatio = (option) => {
   selectedRatioOption.value = option
   if (option.label !== '自定义') {
     closeAllDropdowns()
-  }
-  resetModel()
-}
-
-const selectCustomRatio = () => {
-  selectedRatioOption.value = {
-    label: '自定义',
-    width: customWidth.value,
-    height: customHeight.value,
   }
   resetModel()
 }
@@ -294,23 +284,80 @@ const handleNumbersInput = (e) => {
   resetModel()
 }
 
-const validateInput = () => {
-  // 输入验证逻辑
+const validateInput = (e) => {
+  const target = e.target
+  if (!target) return
+
+  let value = target.value
+  if (value === '') return
+
+  value = value.replace(/[^\d]/g, '')
+
+  const numValue = Number(value)
+  const min = target.min !== '' ? Number(target.min) : 1
+  const max = target.max !== '' ? Number(target.max) : 9
+
+  let newValue = numValue
+  if (numValue > max) newValue = max
+  if (numValue < min) newValue = min
+
+  if (newValue !== numValue || value !== String(numValue)) {
+    target.value = String(newValue)
+    numbers.value = newValue
+    resetModel()
+  }
+}
+
+const handleClickOutside = (event) => {
+  // #ifdef H5
+  const target = event.target
+
+  const isClickInsideContainer =
+    inputContainerRef.value && inputContainerRef.value.$el && inputContainerRef.value.$el.contains(target)
+
+  if (!isClickInsideContainer) {
+    closeAllDropdowns()
+    return
+  }
+
+  const isClickInsideDropdown =
+    (imageGenDropdownRef.value && imageGenDropdownRef.value.$el && imageGenDropdownRef.value.$el.contains(target)) ||
+    (imageModelDropdownRef.value && imageModelDropdownRef.value.$el && imageModelDropdownRef.value.$el.contains(target)) ||
+    (imageRatioDropdownRef.value && imageRatioDropdownRef.value.$el && imageRatioDropdownRef.value.$el.contains(target))
+
+  if (!isClickInsideDropdown) {
+    closeAllDropdowns()
+  }
+  // #endif
 }
 
 const getModelList = async () => {
   selectedModelOptions.value = []
   try {
     const res = await listModel(modelQuery.value)
-    modelList.value = res.data || []
+    if (res.code === 200) {
+      modelList.value = res.data || []
+    }
   } catch (error) {
-    toast('获取模型列表失败')
+    console.error('获取模型列表失败:', error)
   }
 }
 
 onMounted(() => {
-  // 字典已自动加载，直接使用即可
   getModelList()
+  // #ifdef H5
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', handleClickOutside)
+  }
+  // #endif
+})
+
+onUnmounted(() => {
+  // #ifdef H5
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('click', handleClickOutside)
+  }
+  // #endif
 })
 
 watch([customWidth, customHeight], () => {
@@ -330,7 +377,7 @@ watch(
     if (!newVal) return
 
     numbers.value = newVal.numbers ?? 1
-    
+
     if (newVal.modelType !== modelQuery.value.modelType) {
       modelQuery.value.modelType = newVal.modelType
       await getModelList()
@@ -357,7 +404,11 @@ watch(
       if (ratioOption) {
         selectedRatioOption.value = ratioOption
       } else {
-        selectedRatioOption.value = { label: '自定义', width: newVal.width, height: newVal.height }
+        selectedRatioOption.value = {
+          label: '自定义',
+          width: newVal.width,
+          height: newVal.height,
+        }
         customWidth.value = newVal.width
         customHeight.value = newVal.height
       }
@@ -384,7 +435,7 @@ const resetModel = () => {
 
   selectedModelOptions.value.forEach((model) => {
     modelKeys.push(model.modelKey)
-    pointsNeed += Number(model.pointsNeed)
+    pointsNeed += Number(model.pointsNeed || 0)
   })
 
   modelInfo.value = {
@@ -438,7 +489,6 @@ const resetModel = () => {
     color: #fff;
     font-size: 28rpx;
     border: none;
-    cursor: pointer;
     transition: background-color 0.2s ease;
     white-space: nowrap;
     min-width: 0;
@@ -454,6 +504,10 @@ const resetModel = () => {
     &.number-input {
       width: 240rpx;
       text-align: center;
+    }
+
+    &:active {
+      background-color: rgba(255, 255, 255, 0.25);
     }
 
     .icon {
@@ -497,10 +551,8 @@ const resetModel = () => {
       white-space: nowrap;
 
       .model-remove-icon {
-        cursor: pointer;
         font-size: 24rpx;
         color: rgba(255, 255, 255, 0.7);
-        font-weight: bold;
       }
     }
 
@@ -517,7 +569,6 @@ const resetModel = () => {
     background-color: #444;
     border-radius: 16rpx;
     padding: 16rpx 0;
-    list-style: none;
     min-width: 280rpx;
     max-height: 440rpx;
     overflow-y: auto;
@@ -539,7 +590,6 @@ const resetModel = () => {
 
     .dropdown-item {
       padding: 16rpx 32rpx;
-      cursor: pointer;
       color: #fff;
       font-size: 28rpx;
       display: flex;
@@ -553,6 +603,22 @@ const resetModel = () => {
 
       &.is-selected {
         background-color: #666;
+      }
+
+      .model-item-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4rpx;
+        flex: 1;
+
+        .model-label {
+          font-size: 28rpx;
+        }
+
+        .model-info {
+          font-size: 24rpx;
+          color: rgba(255, 255, 255, 0.7);
+        }
       }
     }
 

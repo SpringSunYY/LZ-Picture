@@ -58,6 +58,7 @@ import AiPictureUpload from '@/components/ai/AiPictureUpload.vue'
 import { toast } from '@/utils/common'
 import { usePasswordVerify } from '@/utils/auth'
 import ZuiSvgIcon from '@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue'
+import { AiLogStatusEnum } from '@/utils/enums'
 
 // API 函数 - 需要根据实际项目实现
 const generate = async (params) => {
@@ -160,9 +161,9 @@ const sendMessage = async () => {
 
     if (res.code === 200 && res.data) {
       res.data.forEach((item) => {
-        if (item.logStatus === 'FAILED') {
+        if (item.logStatus === AiLogStatusEnum.FAILED) {
           toast('模型：' + item.modelLabel + '生成失败')
-        } else if (item.logStatus === 'SUCCESS') {
+        } else if (item.logStatus === AiLogStatusEnum.SUCCESS) {
           toast('模型：' + item.modelLabel + '生成成功')
         } else {
           toast('模型：' + item.modelLabel + '生成中...')

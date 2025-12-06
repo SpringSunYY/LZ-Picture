@@ -25,7 +25,7 @@
       }
     },
     {
-      "path": "pages/publish/index",
+      "path": "pages/generate/index",
       "style": {
         "navigationBarTitleText": "发布",
         "backgroundColor": "#FFFFFF",
@@ -64,8 +64,8 @@
         "text": "发现"
       },
       {
-        "pagePath": "pages/publish/index",
-        "text": "发布"
+        "pagePath": "pages/generate/index",
+        "text": "生成"
       },
       {
         "pagePath": "pages/message/index",
