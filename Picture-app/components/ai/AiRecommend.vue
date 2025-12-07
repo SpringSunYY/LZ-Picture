@@ -2,19 +2,14 @@
   <view class="ai-recommend">
     <view class="recommend-header">
       <text class="recommend-title">推荐</text>
-      <RefreshButton
-        class="refresh-btn"
-        tip="换一批"
-        :loading="loading"
-        @click="handleClick"
-      />
+      <text class="refresh-btn" @tap="handleClick">换一批</text>
     </view>
     <view class="tag-list">
       <view
-        v-for="item in promptList"
-        :key="item.promptId"
-        class="tag-item"
-        @tap="handleClickItem(item)"
+          v-for="item in promptList"
+          :key="item.promptId"
+          class="tag-item"
+          @tap="handleClickItem(item)"
       >
         <text>{{ item.name }}</text>
       </view>
@@ -23,9 +18,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import RefreshButton from '@/components/button/RefreshButton.vue'
-import { listPrompt } from '@/api/ai/prompt'
+import {ref, onMounted} from 'vue'
+import {listPrompt} from '@/api/ai/prompt'
 
 const props = defineProps({
   modelValue: {
@@ -89,17 +83,19 @@ onMounted(() => {
     }
 
     .refresh-btn {
-      margin-left: 20rpx;
+      font-size: 24rpx;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
     }
   }
 
   .tag-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 16rpx;
+    gap: 6rpx;
 
     .tag-item {
-      padding: 12rpx 24rpx;
+      padding: 5rpx 8rpx;
       background-color: rgba(106, 106, 106, 0.6);
       border-radius: 4rpx;
       font-size: 28rpx;
