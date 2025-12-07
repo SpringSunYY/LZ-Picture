@@ -11,31 +11,34 @@
     </view>
     <!-- 全屏预览 -->
     <view v-if="fullscreenImage" class="fullscreen-modal" @tap="closeFullscreen">
-      <view class="modal-content" @tap.stop @longpress.prevent="handleLongPress">
-        <view class="modal-close-button" @tap="closeFullscreen">
-          <view class="close-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </view>
+      <view class="modal-content" @tap="closeFullscreen">
+        <view class="image-wrapper">
+          <!-- H5 平台使用原生 img -->
+          <!-- #ifdef H5 -->
+          <img
+            :src="fullscreenImage"
+            class="fullscreen-image"
+            alt="加载中"
+            @click="handleImageClick"
+            @contextmenu.prevent="handleLongPress"
+            @error="handleImageError"
+            @load="handleImageLoad"
+          />
+          <!-- #endif -->
+          <!-- 非 H5 平台使用 uni-app image -->
+          <!-- #ifndef H5 -->
+          <image
+            :src="fullscreenImage"
+            class="fullscreen-image"
+            alt="加载中"
+            mode="aspectFit"
+            @tap="handleImageClick"
+            @longpress="handleLongPress"
+            @error="handleImageError"
+            @load="handleImageLoad"
+          />
+          <!-- #endif -->
         </view>
-        <view class="rotate-clockwise-button" @tap="rotateClockwise">
-          <zui-svg-icon icon="rightRotate" class="rotate-icon" />
-        </view>
-        <view class="rotate-counter-clockwise-button" @tap="rotateCounterClockwise">
-          <zui-svg-icon icon="leftRotate" class="rotate-icon" />
-        </view>
-        <image
-          :src="fullscreenImage"
-          class="fullscreen-image"
-          alt="加载中"
-          mode="aspectFit"
-          :style="{
-            transform: `rotate(${fullscreenRotation}deg) scale(${imageScale})`,
-            transformOrigin: `${transformOriginX}% ${transformOriginY}%`,
-          }"
-          @tap="toggleImageScale"
-        />
       </view>
     </view>
   </view>
@@ -43,7 +46,6 @@
 
 <script setup>
 import { ref } from 'vue'
-import ZuiSvgIcon from '@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue'
 
 const props = defineProps({
   imageUrl: {
@@ -53,67 +55,208 @@ const props = defineProps({
 })
 
 const fullscreenImage = ref(null)
-const fullscreenRotation = ref(0)
-const imageScale = ref(1)
-const transformOriginX = ref(50)
-const transformOriginY = ref(50)
+const imageLoaded = ref(false)
 
 const openFullscreen = (imageSrc) => {
+  // console.log('打开全屏预览，图片路径:', imageSrc)
+  // 确保图片路径有效
+  if (!imageSrc) {
+    console.warn('图片路径为空')
+    return
+  }
+
+  // 直接设置图片路径
   fullscreenImage.value = imageSrc
+  // console.log('设置全屏图片:', fullscreenImage.value)
+  // 重置加载状态
+  imageLoaded.value = false
 }
 
-const closeFullscreen = () => {
+const closeFullscreen = (e) => {
+  // console.log('尝试关闭全屏预览', e)
   fullscreenImage.value = null
-  fullscreenRotation.value = 0
-  imageScale.value = 1
-  transformOriginX.value = 50
-  transformOriginY.value = 50
+  imageLoaded.value = false
 }
 
-const rotateClockwise = () => {
-  fullscreenRotation.value += 90
+// 处理图片点击事件（点击图片也关闭）
+const handleImageClick = (e) => {
+  e.stopPropagation()
+  closeFullscreen()
 }
 
-const rotateCounterClockwise = () => {
-  fullscreenRotation.value -= 90
+// 处理图片加载错误
+const handleImageError = (e) => {
+  console.error('图片加载失败:', e)
+  uni.showToast({
+    title: '图片加载失败',
+    icon: 'none',
+  })
 }
 
-// 双击图片切换缩放比例
-const toggleImageScale = (event) => {
-  if (imageScale.value === 1) {
-    // 放大图片
-    imageScale.value = 2
-  } else {
-    // 恢复到正常大小
-    imageScale.value = 1
-    transformOriginX.value = 50
-    transformOriginY.value = 50
+// 处理图片加载成功
+const handleImageLoad = (e) => {
+  // console.log('图片加载成功', e)
+  // 标记图片已加载
+  imageLoaded.value = true
+}
+
+// 将 base64 转换为临时文件路径（小程序平台）
+const convertBase64ToTempFile = (base64) => {
+  return new Promise((resolve, reject) => {
+    // #ifdef MP-WEIXIN
+    try {
+      const fs = uni.getFileSystemManager()
+      const base64Data = base64.split(',')[1] || base64
+      const fileName = `temp_${Date.now()}.jpg`
+      // 使用微信小程序的临时文件目录
+      const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`
+
+      fs.writeFile({
+        filePath: filePath,
+        data: base64Data,
+        encoding: 'base64',
+        success: () => {
+          // console.log('base64 转换为临时文件成功:', filePath)
+          resolve(filePath)
+        },
+        fail: (err) => {
+          // console.error('base64 转换为临时文件失败:', err)
+          // 如果失败，尝试使用临时目录
+          const tempPath = `wxfile://tmp_${Date.now()}.jpg`
+          fs.writeFile({
+            filePath: tempPath,
+            data: base64Data,
+            encoding: 'base64',
+            success: () => resolve(tempPath),
+            fail: () => reject(err),
+          })
+        },
+      })
+    } catch (error) {
+      console.error('base64 转换异常:', error)
+      reject(error)
+    }
+    // #endif
+
+    // #ifndef MP-WEIXIN
+    // 非微信小程序平台，尝试使用通用方式
+    try {
+      const fs = uni.getFileSystemManager()
+      const base64Data = base64.split(',')[1] || base64
+      const fileName = `temp_${Date.now()}.jpg`
+      // 使用临时目录
+      const filePath = `${uni.env.USER_DATA_PATH || ''}/${fileName}`
+
+      if (filePath) {
+        fs.writeFile({
+          filePath: filePath,
+          data: base64Data,
+          encoding: 'base64',
+          success: () => resolve(filePath),
+          fail: reject,
+        })
+      } else {
+        reject(new Error('无法获取临时目录'))
+      }
+    } catch (error) {
+      reject(error)
+    }
+    // #endif
+  })
+}
+
+// 下载网络图片到本地（小程序平台）
+const downloadImage = (url) => {
+  return new Promise((resolve, reject) => {
+    // #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO
+    uni.downloadFile({
+      url: url,
+      success: (res) => {
+        if (res.statusCode === 200) {
+          resolve(res.tempFilePath)
+        } else {
+          reject(new Error('下载失败'))
+        }
+      },
+      fail: reject,
+    })
+    // #endif
+
+    // #ifndef MP-WEIXIN && MP-ALIPAY && MP-BAIDU && MP-TOUTIAO
+    resolve(url)
+    // #endif
+  })
+}
+
+// 保存图片到相册
+const saveImageToAlbum = async (imagePath) => {
+  try {
+    let filePath = imagePath
+
+    // #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO
+    // 小程序平台：如果是 base64，先转换为临时文件
+    if (imagePath.startsWith('data:image')) {
+      filePath = await convertBase64ToTempFile(imagePath)
+    } else if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      // 如果是网络图片，先下载到本地
+      filePath = await downloadImage(imagePath)
+    }
+    // #endif
+
+    // #ifdef H5
+    // H5 平台：如果是 base64，创建下载链接
+    if (imagePath.startsWith('data:image')) {
+      const link = document.createElement('a')
+      link.href = imagePath
+      link.download = `image_${Date.now()}.jpg`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      uni.showToast({
+        title: '保存成功',
+        icon: 'success',
+      })
+      return
+    }
+    // #endif
+
+    // 保存图片到相册（小程序和 APP 平台）
+    // #ifndef H5
+    uni.saveImageToPhotosAlbum({
+      filePath: filePath,
+      success: () => {
+        uni.showToast({
+          title: '保存成功',
+          icon: 'success',
+        })
+      },
+      fail: (err) => {
+        console.error('保存图片失败:', err)
+        uni.showToast({
+          title: err.errMsg || '保存失败',
+          icon: 'none',
+        })
+      },
+    })
+    // #endif
+  } catch (error) {
+    // console.error('保存图片异常:', error)
+    uni.showToast({
+      title: error.message || '保存失败',
+      icon: 'none',
+    })
   }
 }
 
-// 处理长按事件
-const handleLongPress = () => {
+// 处理长按事件（长按不关闭，显示操作菜单）
+const handleLongPress = (e) => {
+  e.stopPropagation()
   // 可以添加保存图片等功能
   uni.showActionSheet({
     itemList: ['保存图片'],
     success: (res) => {
       if (res.tapIndex === 0 && fullscreenImage.value) {
-        // 保存图片到相册
-        uni.saveImageToPhotosAlbum({
-          filePath: fullscreenImage.value,
-          success: () => {
-            uni.showToast({
-              title: '保存成功',
-              icon: 'success',
-            })
-          },
-          fail: () => {
-            uni.showToast({
-              title: '保存失败',
-              icon: 'none',
-            })
-          },
-        })
+        saveImageToAlbum(fullscreenImage.value)
       }
     },
   })
@@ -142,111 +285,62 @@ $color-shadow: rgba(0, 0, 0, 0.4);
   height: 100%;
   overflow: hidden;
 
-  .preview-image {
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 4%;
-    transition: all 0.15s ease-in-out;
-  }
 }
 
 .fullscreen-modal {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-color: $color-bg;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  z-index: 9999;
+  /* #ifdef H5 */
   backdrop-filter: blur(16rpx);
+  /* #endif */
+
+  .modal-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+    pointer-events: auto;
+  }
+
+  .image-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
 
   .fullscreen-image {
+    width: 100%;
+    height: 100%;
     max-width: 100vw;
     max-height: 100vh;
-    width: auto;
-    height: auto;
+    /* #ifdef H5 */
     box-shadow: 0 16rpx 64rpx rgba(0, 0, 0, 0.9);
-    transition: transform 0.5s ease-in-out;
-  }
-
-  .modal-close-button {
-    position: absolute;
-    top: 40rpx;
-    right: 40rpx;
-    background: rgba($color-bg-secondary, 0.7);
-    border: 2rpx solid $color-border;
-    border-radius: 50%;
-    width: 80rpx;
-    height: 80rpx;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-
-    .close-icon {
-      width: 48rpx;
-      height: 48rpx;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: $color-text-secondary;
-      
-      svg {
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    &:active {
-      background-color: $color-bg-tertiary;
-
-      .close-icon {
-        color: $color-text-primary;
-      }
-    }
-  }
-
-  .rotate-button-base {
-    position: absolute;
-    bottom: 40rpx;
-    background: rgba($color-bg-secondary, 0.7);
-    border: 2rpx solid $color-border;
-    border-radius: 50%;
-    width: 96rpx;
-    height: 96rpx;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 101;
-
-    .rotate-icon {
-      color: $color-text-secondary;
-      font-size: 56rpx;
-      font-weight: bold;
-    }
-
-    &:active {
-      background-color: $color-bg-tertiary;
-
-      .rotate-icon {
-        color: $color-text-primary;
-      }
-    }
-  }
-
-  .rotate-clockwise-button {
-    @extend .rotate-button-base;
-    left: 55%;
-    transform: translateX(-50%);
-  }
-
-  .rotate-counter-clockwise-button {
-    @extend .rotate-button-base;
-    right: 55%;
-    transform: translateX(50%);
+    cursor: pointer;
+    /* #endif */
+    display: block !important;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background-color: transparent;
   }
 }
 </style>
