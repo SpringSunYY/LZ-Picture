@@ -2,6 +2,10 @@
   <view class="ai-generate">
     <!-- 上方输入区域 -->
     <view class="input-section">
+      <!-- 头部导航 -->
+      <view class="header-nav">
+        <text class="header-greeting">Hi~ {{ userName }}</text>
+      </view>
       <!-- Tab 切换 -->
       <view class="tab-container">
         <view class="tab-header">
@@ -158,7 +162,8 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref, computed} from 'vue'
+import {useStore} from 'vuex'
 import AiCheckModel from '@/components/ai/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiPictureUpload from '@/components/ai/AiPictureUpload.vue'
@@ -186,6 +191,14 @@ import {
 
 // 字典数据
 const {ai_model_params_type} = useDict('ai_model_params_type')
+
+// 用户信息
+const store = useStore()
+const userName = computed(() => {
+  const nickName = store.getters.nickName
+  const username = store.getters.username
+  return nickName || username || '用户'
+})
 
 const activeTab = ref('1')
 
@@ -290,11 +303,11 @@ const handleReload = (generate) => {
   if (activeTab.value) {
     modelInfoByType.value[activeTab.value] = {...modelInfo.value}
   }
-  
+
   activeTab.value = '2'
   fileInfo.value = generate.fileUrls
   prompt.value = generate.prompt
-  
+
   const reloadModelInfo = {
     modelType: generate.modelType,
     modelKeys: [generate.modelKey],
@@ -303,7 +316,7 @@ const handleReload = (generate) => {
     height: generate.height,
     pointsNeed: generate.pointsUsed,
   }
-  
+
   modelInfo.value = reloadModelInfo
   // 同步更新到对应类型
   modelInfoByType.value[generate.modelType] = {...reloadModelInfo}
@@ -326,10 +339,10 @@ const clickActiveTab = (key) => {
   if (activeTab.value) {
     modelInfoByType.value[activeTab.value] = {...modelInfo.value}
   }
-  
+
   // 切换到新类型
   activeTab.value = key
-  
+
   // 恢复新类型的模型信息
   if (modelInfoByType.value[key]) {
     modelInfo.value = {...modelInfoByType.value[key]}
@@ -574,6 +587,20 @@ $text-muted: rgba(255, 255, 255, 0.55);
   padding: 40rpx 32rpx;
   width: 100%;
   border-bottom: 2rpx solid $border-color;
+
+  .header-nav {
+    margin-bottom: 24rpx;
+    // 小程序端顶部导航栏高度为60rpx
+    // #ifndef H5
+    margin-top: 60rpx;
+    // #endif
+
+    .header-greeting {
+      font-size: 48rpx;
+      font-weight: bold;
+      color: $primary-light;
+    }
+  }
 
   .tab-container {
     width: 100%;
