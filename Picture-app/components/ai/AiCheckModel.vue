@@ -436,12 +436,15 @@ const resetModel = () => {
   if (isUpdatingFromProps.value) return
 
   const modelKeys = []
-  let pointsNeed = 0
+  let pointsNeedPerModel = 0
 
   selectedModelOptions.value.forEach((model) => {
     modelKeys.push(model.modelKey)
-    pointsNeed += Number(model.pointsNeed || 0)
+    pointsNeedPerModel += Number(model.pointsNeed || 0)
   })
+
+  // 积分 = 每个模型的积分总和 × 生成数量
+  const totalPointsNeed = pointsNeedPerModel * numbers.value
 
   const newModelInfo = {
     modelType: props.modelValue?.modelType || modelQuery.value.modelType || '1',
@@ -449,7 +452,7 @@ const resetModel = () => {
     width: selectedRatioOption.value.width,
     height: selectedRatioOption.value.height,
     numbers: numbers.value,
-    pointsNeed: pointsNeed,
+    pointsNeed: totalPointsNeed,
   }
 
   // 只有当值真正变化时才 emit

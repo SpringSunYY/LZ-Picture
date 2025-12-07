@@ -44,7 +44,7 @@
 
       <!-- 模型选择 -->
       <view class="model">
-        <AiCheckModel v-model="modelInfo"/>
+        <AiCheckModel v-model="modelInfo" @update:modelValue="handleModelInfoUpdate"/>
       </view>
 
       <!-- 生成按钮 -->
@@ -259,16 +259,43 @@ const modelInfo = ref(defaultModelInfo)
 const prompt = ref('')
 const fileInfo = ref('')
 
+// 为每个类型维护独立的模型信息（包括图片比例和生成数量）
+const modelInfoByType = ref({
+  '1': {
+    ...defaultModelInfo,
+    modelType: '1',
+    width: 682,
+    height: 1024,
+    numbers: 1,
+  }, // 文生图
+  '2': {
+    ...defaultModelInfo,
+    modelType: '2',
+    width: 682,
+    height: 1024,
+    numbers: 1,
+  }, // 图生图
+})
+
+// 初始化当前类型的模型信息
+modelInfo.value = {...modelInfoByType.value[activeTab.value]}
+
 const handleReferTo = (generate) => {
   activeTab.value = '2'
   fileInfo.value = generate.fileUrls
 }
 
 const handleReload = (generate) => {
+  // 保存当前类型的模型信息
+  if (activeTab.value) {
+    modelInfoByType.value[activeTab.value] = {...modelInfo.value}
+  }
+  
   activeTab.value = '2'
   fileInfo.value = generate.fileUrls
   prompt.value = generate.prompt
-  modelInfo.value = {
+  
+  const reloadModelInfo = {
     modelType: generate.modelType,
     modelKeys: [generate.modelKey],
     numbers: 1,
@@ -276,15 +303,41 @@ const handleReload = (generate) => {
     height: generate.height,
     pointsNeed: generate.pointsUsed,
   }
+  
+  modelInfo.value = reloadModelInfo
+  // 同步更新到对应类型
+  modelInfoByType.value[generate.modelType] = {...reloadModelInfo}
 }
 
 const handlePrompt = (generate) => {
   prompt.value = generate.prompt
 }
 
+// 处理模型信息更新，同步保存到对应类型
+const handleModelInfoUpdate = (newModelInfo) => {
+  // 同步更新当前类型的模型信息
+  if (activeTab.value && modelInfoByType.value[activeTab.value]) {
+    modelInfoByType.value[activeTab.value] = {...newModelInfo}
+  }
+}
+
 const clickActiveTab = (key) => {
+  // 保存当前类型的模型信息
+  if (activeTab.value) {
+    modelInfoByType.value[activeTab.value] = {...modelInfo.value}
+  }
+  
+  // 切换到新类型
   activeTab.value = key
-  modelInfo.value.modelType = key
+  
+  // 恢复新类型的模型信息
+  if (modelInfoByType.value[key]) {
+    modelInfo.value = {...modelInfoByType.value[key]}
+  } else {
+    // 如果新类型没有保存的信息，使用默认值
+    modelInfo.value = {...defaultModelInfo, modelType: key}
+    modelInfoByType.value[key] = {...modelInfo.value}
+  }
 }
 
 const {verify} = usePasswordVerify()
