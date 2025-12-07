@@ -1,4 +1,12 @@
 <template>
+  <!-- 小程序端遮罩层，用于点击外部关闭下拉框 -->
+  <!-- #ifndef H5 -->
+  <view
+      v-if="showModelDropdown || showRatioDropdown"
+      class="dropdown-mask"
+      @tap="closeAllDropdowns"
+  ></view>
+  <!-- #endif -->
   <view class="action-buttons" ref="inputContainerRef">
     <view class="left-buttons">
       <!-- 模型选择下拉 -->
@@ -454,6 +462,28 @@ const resetModel = () => {
 </script>
 
 <style lang="scss" scoped>
+// 小程序端遮罩层
+.dropdown-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
+  background-color: transparent;
+}
+
+// 小程序端遮罩层
+.dropdown-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
+  background-color: transparent;
+}
+
 .action-buttons {
   display: flex;
   flex-wrap: wrap;
