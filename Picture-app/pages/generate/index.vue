@@ -639,7 +639,7 @@ $text-muted: rgba(255, 255, 255, 0.55);
 
       .upload-container {
         width: 100%;
-        height: 600rpx;
+        height: 400rpx;
       }
     }
   }

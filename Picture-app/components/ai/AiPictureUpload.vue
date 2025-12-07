@@ -14,15 +14,13 @@
       />
       <!-- 上传占位符 -->
       <view v-else class="upload-placeholder">
-        <zui-svg-icon icon="image" class="placeholder-icon" />
+        <zui-svg-icon icon="picture" class="placeholder-icon" />
         <text class="placeholder-text">点击上传图片</text>
       </view>
       <!-- 清除按钮 -->
       <view v-if="uploadedImage" class="clear-image-button" @tap.stop="clearImage">
         <view class="clear-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ZuiSvgIcon icon="fork"/>
         </view>
       </view>
     </view>
@@ -218,6 +216,10 @@ const clearImage = () => {
 .image-uploader {
   width: 100%;
   height: 100%;
+  /* #ifdef MP-WEIXIN */
+  display: flex;
+  flex-direction: column;
+  /* #endif */
 }
 
 .image-thumbnail {
@@ -232,6 +234,10 @@ const clearImage = () => {
   justify-content: center;
   border: 2rpx solid rgba(255, 255, 255, 0.2);
   transition: border-color 0.2s ease, background-color 0.2s ease;
+  /* #ifdef MP-WEIXIN */
+  flex: 1 1 auto;
+  align-self: stretch;
+  /* #endif */
 
   &.drag-over {
     border-color: #409eff;
@@ -248,6 +254,9 @@ const clearImage = () => {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 20rpx;
     gap: 16rpx;
+    /* #ifdef MP-WEIXIN */
+    height: 400rpx;
+    /* #endif */
 
     .placeholder-icon {
       font-size: 64rpx;
@@ -291,7 +300,7 @@ const clearImage = () => {
       align-items: center;
       justify-content: center;
       color: #fff;
-      
+
       svg {
         width: 100%;
         height: 100%;
