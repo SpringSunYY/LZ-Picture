@@ -6,12 +6,13 @@
       @tap.stop="handleThumbnailClick"
     >
       <!-- 显示上传的图片或父组件传入的URL -->
-      <AiPictureView
-        v-if="uploadedImage"
-        :image-url="uploadedImage"
-        alt="已上传图片"
-        class="thumbnail-image"
-      />
+      <view v-if="uploadedImage" class="thumbnail-image">
+        <AiPictureView
+          :image-url="uploadedImage"
+          alt="已上传图片"
+          class="picture-view"
+        />
+      </view>
       <!-- 上传占位符 -->
       <view v-else class="upload-placeholder">
         <zui-svg-icon icon="picture" class="placeholder-icon" />
@@ -216,27 +217,22 @@ const clearImage = () => {
 .image-uploader {
   width: 100%;
   height: 100%;
-  /* #ifdef MP-WEIXIN */
-  display: flex;
-  flex-direction: column;
-  /* #endif */
 }
 
 .image-thumbnail {
-  flex-shrink: 0;
   position: relative;
   border-radius: 20rpx;
   overflow: visible;
   display: flex;
   width: 100%;
   height: 100%;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   border: 2rpx solid rgba(255, 255, 255, 0.2);
   transition: border-color 0.2s ease, background-color 0.2s ease;
-  /* #ifdef MP-WEIXIN */
-  flex: 1 1 auto;
-  align-self: stretch;
+  /* #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO */
+  // 小程序平台：确保容器有明确高度
+  min-height: 400rpx;
   /* #endif */
 
   &.drag-over {
@@ -272,10 +268,29 @@ const clearImage = () => {
   .thumbnail-image {
     width: 100%;
     height: 100%;
-    object-fit: contain;
     background-color: #222;
     border-radius: 20rpx;
     overflow: hidden;
+    position: relative;
+    /* #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO */
+    // 小程序平台：使用绝对定位确保能填满父容器
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* #endif */
+    /* #ifndef MP-WEIXIN && MP-ALIPAY && MP-BAIDU && MP-TOUTIAO */
+    flex: 1;
+    align-self: stretch;
+    /* #endif */
+  }
+  
+  // 确保 AiPictureView 组件能继承高度
+  .picture-view {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   .clear-image-button {

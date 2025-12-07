@@ -1,13 +1,29 @@
 <template>
-  <view>
+  <view class="root-container">
     <view class="image-preview">
-      <image
-        :src="imageUrl"
-        alt="图片"
-        class="preview-image"
-        mode="aspectFit"
-        @tap.stop="openFullscreen(imageUrl)"
+      <!-- H5 平台使用原生 img -->
+      <!-- #ifdef H5 -->
+      <img
+          :src="imageUrl"
+          alt="图片"
+          class="preview-image"
+          @click.stop="openFullscreen(imageUrl)"
+          @error="handleImageError"
+          @load="handleImageLoad"
       />
+      <!-- #endif -->
+      <!-- 非 H5 平台使用 uni-app image -->
+      <!-- #ifndef H5 -->
+      <image
+          :src="imageUrl"
+          alt="图片"
+          mode="aspectFit"
+          class="preview-image"
+          @tap.stop="openFullscreen(imageUrl)"
+          @error="handleImageError"
+          @load="handleImageLoad"
+      />
+      <!-- #endif -->
     </view>
     <!-- 全屏预览 -->
     <view v-if="fullscreenImage" class="fullscreen-modal" @tap="closeFullscreen">
@@ -16,26 +32,26 @@
           <!-- H5 平台使用原生 img -->
           <!-- #ifdef H5 -->
           <img
-            :src="fullscreenImage"
-            class="fullscreen-image"
-            alt="加载中"
-            @click="handleImageClick"
-            @contextmenu.prevent="handleLongPress"
-            @error="handleImageError"
-            @load="handleImageLoad"
+              :src="fullscreenImage"
+              class="fullscreen-image"
+              alt="加载中"
+              @click="handleImageClick"
+              @contextmenu.prevent="handleLongPress"
+              @error="handleImageError"
+              @load="handleImageLoad"
           />
           <!-- #endif -->
           <!-- 非 H5 平台使用 uni-app image -->
           <!-- #ifndef H5 -->
           <image
-            :src="fullscreenImage"
-            class="fullscreen-image"
-            alt="加载中"
-            mode="aspectFit"
-            @tap="handleImageClick"
-            @longpress="handleLongPress"
-            @error="handleImageError"
-            @load="handleImageLoad"
+              :src="fullscreenImage"
+              class="fullscreen-image"
+              alt="加载中"
+              mode="aspectFit"
+              @tap="handleImageClick"
+              @longpress="handleLongPress"
+              @error="handleImageError"
+              @load="handleImageLoad"
           />
           <!-- #endif -->
         </view>
@@ -45,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref, watch} from 'vue'
 
 const props = defineProps({
   imageUrl: {
@@ -53,6 +69,10 @@ const props = defineProps({
     type: String,
   },
 })
+
+// 调试：监听 imageUrl 变化
+watch(() => props.imageUrl, (newVal) => {
+}, {immediate: true})
 
 const fullscreenImage = ref(null)
 const imageLoaded = ref(false)
@@ -86,7 +106,10 @@ const handleImageClick = (e) => {
 
 // 处理图片加载错误
 const handleImageError = (e) => {
-  console.error('图片加载失败:', e)
+/*  console.error('图片加载失败:', e)
+  console.error('图片URL:', props.imageUrl)
+  console.error('URL类型:', typeof props.imageUrl)
+  console.error('URL是否为空:', !props.imageUrl)*/
   uni.showToast({
     title: '图片加载失败',
     icon: 'none',
@@ -95,7 +118,7 @@ const handleImageError = (e) => {
 
 // 处理图片加载成功
 const handleImageLoad = (e) => {
-  // console.log('图片加载成功', e)
+  // console.log('图片加载成功:', props.imageUrl)
   // 标记图片已加载
   imageLoaded.value = true
 }
@@ -276,15 +299,56 @@ $color-accent-hover: #7c7ff4;
 $color-hover: #2e2e32;
 $color-shadow: rgba(0, 0, 0, 0.4);
 
+
+image {
+  will-change: transform;
+}
+
+.root-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  /* #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO */
+  // 小程序平台：确保能继承父容器高度
+  min-height: 0;
+  /* #endif */
+}
+
 .image-preview {
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
-  max-height: 100%;
+  width: 100%;
   height: 100%;
+  cursor: pointer;
   overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
+  .preview-image {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 2%;
+    transition: all 0.15s ease-in-out;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background-color: transparent;
+    /* #ifndef H5 */
+    // 小程序平台确保图片填满容器
+    display: block;
+    /* #endif */
+    /* #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO */
+    // 小程序平台：确保图片有最小尺寸
+    min-width: 200rpx;
+    min-height: 200rpx;
+    /* #endif */
+  }
 }
 
 .fullscreen-modal {

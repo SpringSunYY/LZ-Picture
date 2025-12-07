@@ -103,14 +103,14 @@
           </view>
 
           <view class="content-text">
-            <TextView :text="generate.prompt" :max-lines="3"/>
+            <!--            <TextView :text="generate" :max-lines="3"/>-->
           </view>
 
           <view class="content-picture">
             <AiPictureView
                 v-if="generate.logStatus === AiLogStatusEnum.SUCCESS"
                 class="picture"
-                :image-url="generate.fileUrls"
+                :image-url="getImageUrl(generate.fileUrls)"
             />
             <AiLoading
                 class="picture"
@@ -158,7 +158,7 @@
         @success="handlePublicSuccess"
     />
     <!-- 密码验证弹窗 -->
-    <PasswordVerifyModal ref="passwordModalRef" />
+    <PasswordVerifyModal ref="passwordModalRef"/>
     <AppTabbar/>
   </view>
 </template>
@@ -227,20 +227,20 @@ const noMore = ref(false)
 const getGenerateList = async () => {
   if (isLoadingMore.value || noMore.value) return
   isLoadingMore.value = true
-
+  console.log('获取生成列表...')
   try {
     const res = await listGenerateLogInfo(generateQuery.value)
-    if (res.code === 200 && res.data) {
+    if (res.code === 200 && res.rows) {
       if (!generateList.value) {
         generateList.value = []
       }
-      if (res.data.rows && res.data.rows.length > 0) {
-        generateList.value = [...generateList.value, ...res.data.rows]
-        if (res.data.rows.length < (generateQuery.value.pageSize ?? 15)) {
+      if (res.rows && res.rows.length > 0) {
+        generateList.value = [...generateList.value, ...res.rows]
+        if (res.data.length < (generateQuery.value.pageSize ?? 15)) {
           noMore.value = true
         }
         // 如果还有未完成的，开始轮询
-        res.data.rows.forEach((item) => {
+        res.rows.rows.forEach((item) => {
           if (item.logStatus === AiLogStatusEnum.REQUESTING) {
             setTimeout(async () => {
               await pollGenerateTask(item)
@@ -298,7 +298,7 @@ modelInfo.value = {...modelInfoByType.value[activeTab.value]}
 
 const handleReferTo = (generate) => {
   activeTab.value = '2'
-  fileInfo.value = generate.fileUrls
+  fileInfo.value = getImageUrl(generate.fileUrls)
 }
 
 const handleReload = (generate) => {
@@ -308,7 +308,7 @@ const handleReload = (generate) => {
   }
 
   activeTab.value = '2'
-  fileInfo.value = generate.fileUrls
+  fileInfo.value = getImageUrl(generate.fileUrls)
   prompt.value = generate.prompt
 
   const reloadModelInfo = {
@@ -537,16 +537,54 @@ const handlePublicSuccess = () => {
   selectedItem.value = null
 }
 
+// 获取图片URL（处理数组、字符串等多种格式）
+const getImageUrl = (fileUrls) => {
+  if (!fileUrls) {
+    console.warn('fileUrls 为空')
+    return ''
+  }
+  let url = ''
+  // 如果是数组，取第一个元素
+  if (Array.isArray(fileUrls)) {
+    url = fileUrls.length > 0 ? fileUrls[0] : ''
+  }
+  // 如果是字符串，检查是否是逗号分隔的多个URL
+  else if (typeof fileUrls === 'string') {
+    // 如果是逗号分隔的字符串，取第一个
+    if (fileUrls.includes(',')) {
+      url = fileUrls.split(',')[0].trim()
+    } else {
+      url = fileUrls.trim()
+    }
+  }
+  // 其他情况，转换为字符串
+  else {
+    url = String(fileUrls)
+  }
+
+  // 确保URL是完整的（如果有协议前缀）
+  if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:') && !url.startsWith('/')) {
+    // 如果URL不是以协议开头，可能需要添加协议
+    console.warn('图片URL格式可能不正确:', url)
+  }
+
+  // console.log('处理后的图片URL:', url)
+  return url
+}
+
 // 打开URL（下载）
 const openByUrl = (url) => {
   if (!url) return
+  // 处理数组或字符串格式
+  const imageUrl = getImageUrl(url)
+  if (!imageUrl) return
   // #ifdef H5
-  window.open(url)
+  window.open(imageUrl)
   // #endif
   // #ifndef H5
   uni.previewImage({
-    urls: [url],
-    current: url,
+    urls: [imageUrl],
+    current: imageUrl,
   })
   // #endif
 }
@@ -806,12 +844,10 @@ $text-muted: rgba(255, 255, 255, 0.55);
     }
 
     .content-picture {
-      height: auto;
-      min-height: 500rpx;
+      height: 600rpx;
       background-color: rgba(124, 107, 217, 0.06);
       border-radius: 20rpx;
       position: relative;
-      overflow: hidden;
       border: 1rpx solid $border-color;
 
       .picture {
@@ -826,8 +862,7 @@ $text-muted: rgba(255, 255, 255, 0.55);
         width: 100%;
         height: 100%;
         display: flex;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        opacity: 1;
 
         .overlay-right-top {
           position: absolute;
@@ -850,9 +885,6 @@ $text-muted: rgba(255, 255, 255, 0.55);
         }
       }
 
-      &:active .picture-overlay {
-        opacity: 1;
-      }
 
       .picture-overlay .overlay-right-top,
       .picture-overlay .overlay-bottom {
