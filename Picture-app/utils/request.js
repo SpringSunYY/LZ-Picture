@@ -62,26 +62,26 @@ const request = config => {
                 toast(msg)
                 reject('500')
             } else if (code !== 200) {
+                console.log('[错误] ' + msg)
                 toast(msg)
                 reject(code)
             }
             resolve(res.data)
+        }).catch(error => {
+            // ensure message is a string before calling string helpers
+            let {message} = error
+            if (!message) {
+                message = '后端接口连接异常'
+            } else if (message === 'Network Error') {
+                message = '后端接口连接异常'
+            } else if (typeof message === 'string' && message.includes('timeout')) {
+                message = '系统接口请求超时'
+            } else if (typeof message === 'string' && message.includes('Request failed with status code')) {
+                message = '系统接口' + message.substr(message.length - 3) + '异常'
+            }
+            toast(message)
+            reject(error)
         })
-            .catch(error => {
-                // ensure message is a string before calling string helpers
-                let {message} = error
-                if (!message) {
-                    message = '后端接口连接异常'
-                } else if (message === 'Network Error') {
-                    message = '后端接口连接异常'
-                } else if (typeof message === 'string' && message.includes('timeout')) {
-                    message = '系统接口请求超时'
-                } else if (typeof message === 'string' && message.includes('Request failed with status code')) {
-                    message = '系统接口' + message.substr(message.length - 3) + '异常'
-                }
-                toast(message)
-                reject(error)
-            })
     })
 }
 

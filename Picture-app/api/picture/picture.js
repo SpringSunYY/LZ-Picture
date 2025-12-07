@@ -41,7 +41,7 @@ export function deleteGenerateLogInfo(logId) {
  */
 export function generate(data) {
     return request({
-        url: '/picture/generate',
+        url: '/picture/ai/generate',
         method: 'post',
         data: data,
     })

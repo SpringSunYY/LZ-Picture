@@ -1,7 +1,8 @@
 // 应用全局配置
 export default {
     // baseUrl: 'https://vue.ruoyi.vip/prod-api',
-    baseUrl: 'http://8.138.211.218:8080/user',
+    baseUrl: 'http://localhost:8080/user',
+    // baseUrl: 'http://8.138.211.218:8080/user',
     dnsUrl:  'https://picture.springsun.online',
     // 应用信息
     appInfo: {

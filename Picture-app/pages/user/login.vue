@@ -79,7 +79,7 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 const store = useStore();
 
 const username = ref('');
-const phone = ref('13152100838');
+const phone = ref('18585595238');
 const password = ref('yy0908..');
 const countryCode = ref('+86');
 const loginLoading = ref(false);

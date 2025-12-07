@@ -7,7 +7,6 @@ const dnsUrl = config.dnsUrl
  * @param content 提示的标题
  */
 export function toast(content) {
-    console.log(content)
     uni.showToast({
         icon: 'none',
         title: content

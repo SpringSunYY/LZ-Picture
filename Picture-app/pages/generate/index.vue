@@ -157,6 +157,8 @@
         :initial-item="selectedItem"
         @success="handlePublicSuccess"
     />
+    <!-- 密码验证弹窗 -->
+    <PasswordVerifyModal ref="passwordModalRef" />
     <AppTabbar/>
   </view>
 </template>
@@ -180,6 +182,7 @@ import {usePasswordVerify} from '@/utils/auth'
 import AiRecommend from '@/components/ai/AiRecommend.vue'
 import {toast} from '@/utils/common'
 import AiPublishModal from '@/components/ai/AiPublishModal.vue'
+import PasswordVerifyModal from '@/components/common/PasswordVerifyModal.vue'
 import {useDict} from '@/utils/useDict'
 import {generate, queryTask,} from '@/api/picture/picture'
 import {deleteGenerateLogInfo, listGenerateLogInfo} from '@/api/ai/model'
@@ -353,7 +356,8 @@ const clickActiveTab = (key) => {
   }
 }
 
-const {verify} = usePasswordVerify()
+const passwordModalRef = ref(null)
+const {verify} = usePasswordVerify(passwordModalRef)
 
 const submitGenerate = async () => {
   // 校验参数
