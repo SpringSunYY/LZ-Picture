@@ -13,7 +13,11 @@
     <view v-if="fullscreenImage" class="fullscreen-modal" @tap="closeFullscreen">
       <view class="modal-content" @tap.stop @longpress.prevent="handleLongPress">
         <view class="modal-close-button" @tap="closeFullscreen">
-          <zui-svg-icon icon="close" class="close-icon" />
+          <view class="close-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </view>
         </view>
         <view class="rotate-clockwise-button" @tap="rotateClockwise">
           <zui-svg-icon icon="rightRotate" class="rotate-icon" />
@@ -183,10 +187,17 @@ $color-shadow: rgba(0, 0, 0, 0.4);
     z-index: 10;
 
     .close-icon {
+      width: 48rpx;
+      height: 48rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: $color-text-secondary;
-      font-size: 48rpx;
-      font-weight: bold;
-      line-height: 1;
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     &:active {

@@ -36,7 +36,7 @@ const handleClick = () => {
 .generate-button {
   font-family: inherit;
   font-size: 36rpx;
-  background: linear-gradient(135deg, #6b4dff 0%, #8b6fff 100%);
+  background: linear-gradient(135deg, #7c6bd9 0%, #9a8de8 100%);
   color: white;
   padding: 32rpx 48rpx;
   display: flex;
@@ -44,7 +44,7 @@ const handleClick = () => {
   justify-content: center;
   border: none;
   border-radius: 50rpx;
-  box-shadow: 0px 10rpx 20rpx rgba(107, 77, 255, 0.3);
+  box-shadow: 0px 8rpx 16rpx rgba(124, 107, 217, 0.25);
   transition: all 0.3s;
   width: 100%;
   box-sizing: border-box;

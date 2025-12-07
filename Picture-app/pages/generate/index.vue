@@ -494,17 +494,17 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-// 主题颜色
-$primary-color: #6b4dff;
-$primary-light: #8b6fff;
-$primary-dark: #5a3de6;
-$bg-primary: #1a1a2e;
-$bg-secondary: #16213e;
-$bg-card: #0f3460;
-$border-color: rgba(107, 77, 255, 0.3);
+// 主题颜色 - 柔和的紫色调
+$primary-color: #7c6bd9;
+$primary-light: #9a8de8;
+$primary-dark: #6a5bc4;
+$bg-primary: #1e1e2e;
+$bg-secondary: #252535;
+$bg-card: #2a2a3a;
+$border-color: rgba(124, 107, 217, 0.2);
 $text-primary: #ffffff;
-$text-secondary: rgba(255, 255, 255, 0.7);
-$text-muted: rgba(255, 255, 255, 0.5);
+$text-secondary: rgba(255, 255, 255, 0.75);
+$text-muted: rgba(255, 255, 255, 0.55);
 
 .ai-generate {
   display: flex;
@@ -529,27 +529,27 @@ $text-muted: rgba(255, 255, 255, 0.5);
     .tab-header {
       display: flex;
       justify-content: center;
-      background-color: rgba(107, 77, 255, 0.1);
-      border: 2rpx solid $border-color;
-      border-radius: 24rpx;
-      padding: 8rpx;
-      box-shadow: 0 4rpx 12rpx rgba(107, 77, 255, 0.1);
+      background-color: rgba(124, 107, 217, 0.08);
+      border: 1rpx solid $border-color;
+      border-radius: 20rpx;
+      padding: 6rpx;
+      box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 
       .tab-item {
         flex: 1;
         text-align: center;
         padding: 20rpx 24rpx;
-        color: $text-muted;
+        color: $text-secondary;
         font-size: 30rpx;
         transition: all 0.3s;
-        border-radius: 16rpx;
+        border-radius: 14rpx;
         font-weight: 500;
 
         &.active {
-          background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+          background-color: rgba(124, 107, 217, 0.25);
           color: $text-primary;
-          font-weight: bold;
-          box-shadow: 0 4rpx 12rpx rgba(107, 77, 255, 0.3);
+          font-weight: 600;
+          box-shadow: 0 2rpx 8rpx rgba(124, 107, 217, 0.2);
         }
       }
     }
@@ -571,10 +571,7 @@ $text-muted: rgba(255, 255, 255, 0.5);
     .prompt-title {
       font-size: 44rpx;
       font-weight: bold;
-      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: $primary-light;
       display: block;
       margin-bottom: 24rpx;
     }
@@ -582,10 +579,10 @@ $text-muted: rgba(255, 255, 255, 0.5);
     .text-area {
       width: 100%;
       min-height: 240rpx;
-      background-color: rgba(107, 77, 255, 0.05);
+      background-color: rgba(124, 107, 217, 0.06);
       color: $text-primary;
-      border: 2rpx solid $border-color;
-      border-radius: 20rpx;
+      border: 1rpx solid $border-color;
+      border-radius: 16rpx;
       padding: 24rpx;
       font-size: 30rpx;
       box-sizing: border-box;
@@ -593,9 +590,9 @@ $text-muted: rgba(255, 255, 255, 0.5);
       transition: all 0.3s;
 
       &:focus {
-        border-color: $primary-color;
-        background-color: rgba(107, 77, 255, 0.08);
-        box-shadow: 0 0 0 4rpx rgba(107, 77, 255, 0.1);
+        border-color: rgba(124, 107, 217, 0.4);
+        background-color: rgba(124, 107, 217, 0.08);
+        box-shadow: 0 0 0 2rpx rgba(124, 107, 217, 0.1);
       }
     }
 
@@ -627,8 +624,8 @@ $text-muted: rgba(255, 255, 255, 0.5);
       color: $text-secondary;
       font-size: 26rpx;
       padding: 12rpx 24rpx;
-      background-color: rgba(107, 77, 255, 0.1);
-      border-radius: 20rpx;
+      background-color: rgba(124, 107, 217, 0.08);
+      border-radius: 16rpx;
       border: 1rpx solid $border-color;
     }
   }
@@ -640,12 +637,12 @@ $text-muted: rgba(255, 255, 255, 0.5);
   width: 100%;
 
   .content {
-    margin: 32rpx 32rpx;
+    margin: 24rpx 24rpx;
     padding: 32rpx;
-    background: linear-gradient(135deg, rgba(107, 77, 255, 0.05) 0%, rgba(22, 33, 62, 0.8) 100%);
-    border-radius: 24rpx;
+    background-color: rgba(124, 107, 217, 0.04);
+    border-radius: 20rpx;
     border: 1rpx solid $border-color;
-    margin-bottom: 32rpx;
+    margin-bottom: 24rpx;
 
     .content-header {
       display: flex;
@@ -667,7 +664,7 @@ $text-muted: rgba(255, 255, 255, 0.5);
 
           .header-icon {
             font-size: 36rpx;
-            color: $primary-color;
+            color: $primary-light;
           }
 
           .header-text {
@@ -694,13 +691,13 @@ $text-muted: rgba(255, 255, 255, 0.5);
           align-items: center;
           width: 64rpx;
           height: 64rpx;
-          background: linear-gradient(135deg, rgba(107, 77, 255, 0.2) 0%, rgba(107, 77, 255, 0.1) 100%);
+          background-color: rgba(124, 107, 217, 0.12);
           border: 1rpx solid $border-color;
-          border-radius: 16rpx;
+          border-radius: 14rpx;
           transition: all 0.3s;
 
           &:active {
-            background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+            background-color: rgba(124, 107, 217, 0.25);
             transform: scale(0.95);
           }
 
@@ -719,19 +716,19 @@ $text-muted: rgba(255, 255, 255, 0.5);
       line-height: 1.8;
       margin-bottom: 32rpx;
       padding: 20rpx;
-      background-color: rgba(107, 77, 255, 0.05);
-      border-radius: 16rpx;
-      border-left: 4rpx solid $primary-color;
+      background-color: rgba(124, 107, 217, 0.04);
+      border-radius: 14rpx;
+      border-left: 3rpx solid rgba(124, 107, 217, 0.4);
     }
 
     .content-picture {
       height: auto;
       min-height: 500rpx;
-      background: linear-gradient(135deg, rgba(107, 77, 255, 0.1) 0%, rgba(22, 33, 62, 0.5) 100%);
-      border-radius: 24rpx;
+      background-color: rgba(124, 107, 217, 0.06);
+      border-radius: 20rpx;
       position: relative;
       overflow: hidden;
-      border: 2rpx solid $border-color;
+      border: 1rpx solid $border-color;
 
       .picture {
         height: 100%;
@@ -791,10 +788,7 @@ $text-muted: rgba(255, 255, 255, 0.5);
 
     .no-data-title {
       display: block;
-      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: $primary-light;
       font-size: 64rpx;
       font-weight: bold;
       margin-bottom: 32rpx;
