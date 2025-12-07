@@ -61,12 +61,7 @@
     </view>
 
     <!-- 下方生成列表 -->
-    <scroll-view
-        class="list-section"
-        scroll-y
-        @scrolltolower="handleScrollToLower"
-        :lower-threshold="200"
-    >
+    <view class="list-section">
       <view v-if="generateList.length > 0">
         <view
             class="content"
@@ -89,17 +84,6 @@
                 <text class="header-text">{{ generate.width }}x{{ generate.height }}</text>
               </view>
             </view>
-            <view class="header-right">
-              <view class="header-action" @tap="handlePrompt(generate)">
-                <zui-svg-icon icon="edit" class="action-icon"/>
-              </view>
-              <view
-                  class="header-action"
-                  @tap="handleReload(generate)"
-              >
-                <zui-svg-icon icon="reload" class="action-icon"/>
-              </view>
-            </view>
           </view>
 
           <view class="content-text">
@@ -116,7 +100,7 @@
                 class="picture"
                 v-else-if="generate.logStatus === AiLogStatusEnum.REQUESTING"
             />
-            <view class="picture-overlay">
+            <view class="picture-overlay" v-if="generate.logStatus === AiLogStatusEnum.SUCCESS">
               <view class="overlay-right-top">
                 <view class="action-button-wrapper" @tap.stop="openByUrl(generate.fileUrls)">
                   <DownloadSvgButton/>
@@ -137,7 +121,9 @@
         </view>
 
         <view class="load-more-trigger">
-          <LoadingData v-if="isLoadingMore"/>
+          <!-- 调试信息 -->
+          <!-- <text style="color: red; font-size: 24rpx;">isLoadingMore: {{ isLoadingMore }}, refreshing: {{ refreshing }}</text> -->
+          <LoadingData v-if="isLoadingMore || refreshing"/>
           <NoMoreData
               v-else-if="noMore && generateList.length > 0"
               text="没有更多数据了哦，快去生成吧！！！"
@@ -146,10 +132,13 @@
       </view>
 
       <view v-else class="no-data">
-        <text class="no-data-title">开始创作</text>
-        <text class="no-data-subtitle">创造你的下一张图片</text>
+        <LoadingData v-if="isLoadingMore || refreshing"/>
+        <template v-else>
+          <text class="no-data-title">开始创作</text>
+          <text class="no-data-subtitle">创造你的下一张图片</text>
+        </template>
       </view>
-    </scroll-view>
+    </view>
 
     <!-- 发布弹窗 -->
     <AiPublishModal
@@ -164,7 +153,8 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref, computed} from 'vue'
+import {onMounted, onUnmounted, ref, computed, nextTick} from 'vue'
+import {onPullDownRefresh, onReachBottom} from '@dcloudio/uni-app'
 import {useStore} from 'vuex'
 import AiCheckModel from '@/components/ai/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
@@ -223,24 +213,39 @@ const generateQuery = ref({
 })
 const isLoadingMore = ref(false)
 const noMore = ref(false)
+const refreshing = ref(false)
 
-const getGenerateList = async () => {
-  if (isLoadingMore.value || noMore.value) return
+const getGenerateList = async (isRefresh = false) => {
+  // 如果是刷新，不检查 isLoadingMore 和 noMore
+  if (!isRefresh) {
+    if (isLoadingMore.value || noMore.value) {
+      console.log('跳过加载：isLoadingMore=', isLoadingMore.value, 'noMore=', noMore.value)
+      return
+    }
+  }
   isLoadingMore.value = true
-  console.log('获取生成列表...')
+  console.log('获取生成列表...', {isRefresh, pageNum: generateQuery.value.pageNum})
   try {
     const res = await listGenerateLogInfo(generateQuery.value)
+    console.log('获取列表响应:', res)
     if (res.code === 200 && res.rows) {
       if (!generateList.value) {
         generateList.value = []
       }
       if (res.rows && res.rows.length > 0) {
-        generateList.value = [...generateList.value, ...res.rows]
-        if (res.data.length < (generateQuery.value.pageSize ?? 15)) {
+        // 如果是刷新，替换列表；否则追加
+        if (isRefresh) {
+          generateList.value = res.rows
+        } else {
+          generateList.value = [...generateList.value, ...res.rows]
+        }
+        console.log('当前列表长度:', generateList.value.length, '返回数据长度:', res.rows.length)
+        if (res.rows.length < (generateQuery.value.pageSize ?? 15)) {
           noMore.value = true
+          console.log('没有更多数据了')
         }
         // 如果还有未完成的，开始轮询
-        res.rows.rows.forEach((item) => {
+        res.rows.forEach((item) => {
           if (item.logStatus === AiLogStatusEnum.REQUESTING) {
             setTimeout(async () => {
               await pollGenerateTask(item)
@@ -249,25 +254,49 @@ const getGenerateList = async () => {
         })
       } else {
         noMore.value = true
+        console.log('返回数据为空，设置 noMore=true')
       }
     }
   } catch (error) {
     console.error('获取生成列表失败:', error)
   } finally {
     isLoadingMore.value = false
+    console.log('加载完成，isLoadingMore 设置为 false')
   }
 }
 
 const loadMoreData = () => {
+  console.log('loadMoreData 被调用，当前页码:', generateQuery.value.pageNum)
   generateQuery.value.pageNum = 1 + (generateQuery.value.pageNum || 0)
-  getGenerateList()
+  console.log('新的页码:', generateQuery.value.pageNum)
+  getGenerateList(false)
 }
 
-const handleScrollToLower = () => {
+// 触底加载更多（参考 discover.vue 的实现）
+onReachBottom(() => {
   if (!isLoadingMore.value && !noMore.value) {
     loadMoreData()
   }
+})
+
+// 下拉刷新函数（公共函数）
+const refreshList = async () => {
+  // 重置分页
+  generateQuery.value.pageNum = 1
+  generateList.value = []
+  noMore.value = false
+  // 重新获取数据
+  await getGenerateList(true)
 }
+
+// 页面级下拉刷新
+onPullDownRefresh(async () => {
+  refreshing.value = true
+  await refreshList()
+  refreshing.value = false
+  // 停止下拉刷新动画
+  uni.stopPullDownRefresh()
+})
 
 // 生成操作
 const isGenerating = ref(false)
@@ -296,9 +325,19 @@ const modelInfoByType = ref({
 // 初始化当前类型的模型信息
 modelInfo.value = {...modelInfoByType.value[activeTab.value]}
 
+// 滚动到顶部的公共函数
+const scrollToTop = () => {
+  uni.pageScrollTo({
+    scrollTop: 0,
+    duration: 300
+  })
+}
+
 const handleReferTo = (generate) => {
   activeTab.value = '2'
   fileInfo.value = getImageUrl(generate.fileUrls)
+  // 滚动到顶部
+  scrollToTop()
 }
 
 const handleReload = (generate) => {
@@ -323,6 +362,9 @@ const handleReload = (generate) => {
   modelInfo.value = reloadModelInfo
   // 同步更新到对应类型
   modelInfoByType.value[generate.modelType] = {...reloadModelInfo}
+
+  // 滚动到顶部
+  scrollToTop()
 }
 
 const handlePrompt = (generate) => {
@@ -863,6 +905,8 @@ $text-muted: rgba(255, 255, 255, 0.55);
         height: 100%;
         display: flex;
         opacity: 1;
+        // 让 overlay 不阻挡图片点击
+        pointer-events: none;
 
         .overlay-right-top {
           position: absolute;
@@ -870,6 +914,9 @@ $text-muted: rgba(255, 255, 255, 0.55);
           right: 32rpx;
           display: flex;
           gap: 16rpx;
+          // 按钮区域可以点击
+          pointer-events: auto;
+          z-index: 10;
 
           .action-button-wrapper {
             display: flex;
@@ -882,19 +929,19 @@ $text-muted: rgba(255, 255, 255, 0.55);
           position: absolute;
           bottom: 32rpx;
           left: 32rpx;
+          // 按钮区域可以点击
+          pointer-events: auto;
+          z-index: 10;
         }
-      }
-
-
-      .picture-overlay .overlay-right-top,
-      .picture-overlay .overlay-bottom {
-        z-index: 10;
       }
     }
   }
 
   .load-more-trigger {
-    padding: 40rpx;
+    width: 100%;
+    text-align: center;
+    padding: 16px 0;
+    color: #888;
   }
 
   .no-data {

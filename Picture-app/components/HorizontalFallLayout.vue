@@ -19,24 +19,6 @@
               <view class="masonry-item-title">
                 {{ item.name }}
               </view>
-              <view class="masonry-item-meta">
-                <view class="meta-item">
-                  <zui-svg-icon icon="aiView"/>
-                  <text class="meta-content">{{ item.lookCount || 0 }}</text>
-                </view>
-                <view class="meta-item">
-                  <zui-svg-icon icon="like"/>
-                  <text class="meta-content">{{ item.likeCount || 0 }}</text>
-                </view>
-                <view class="meta-item">
-                  <zui-svg-icon icon="share"/>
-                  <text class="meta-content">{{ item.shareCount || 0 }}</text>
-                </view>
-                <view class="meta-item">
-                  <zui-svg-icon icon="collect"/>
-                  <text class="meta-content">{{ item.collectCount || 0 }}</text>
-                </view>
-              </view>
             </view>
           </MasonryImage>
         </view>

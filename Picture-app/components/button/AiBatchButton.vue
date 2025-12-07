@@ -88,8 +88,8 @@ const handleReload = () => {
   .button-group {
     display: flex;
     overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2rpx solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 2rpx solid rgba(255, 255, 255, 0.5);
     border-radius: 16rpx;
 
     .button-item {

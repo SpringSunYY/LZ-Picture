@@ -29,7 +29,9 @@
       "style": {
         "navigationBarTitleText": "发布",
         "backgroundColor": "#FFFFFF",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true,
+        "onReachBottomDistance": 50
       }
     },
     {
