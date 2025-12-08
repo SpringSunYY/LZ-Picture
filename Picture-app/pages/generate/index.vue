@@ -149,18 +149,18 @@
     <!-- 密码验证弹窗 -->
     <PasswordVerifyModal ref="passwordModalRef"/>
     <AppTabbar/>
+    <BackToTop ref="backTopRef"/>
   </view>
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref, computed, nextTick} from 'vue'
-import {onPullDownRefresh, onReachBottom} from '@dcloudio/uni-app'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {onPullDownRefresh, onReachBottom, onPageScroll} from '@dcloudio/uni-app'
 import {useStore} from 'vuex'
 import AiCheckModel from '@/components/ai/AiCheckModel.vue'
 import GenerateButton from '@/components/button/GenerateButton.vue'
 import AiPictureUpload from '@/components/ai/AiPictureUpload.vue'
 import ZuiSvgIcon from '@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue'
-import TextView from '@/components/TextView.vue'
 import AiPictureView from '@/components/ai/AiPictureView.vue'
 import DeleteButton from '@/components/button/DeleteButton.vue'
 import DownloadSvgButton from '@/components/button/DownloadSvgButton.vue'
@@ -177,10 +177,8 @@ import {useDict} from '@/utils/useDict'
 import {generate, queryTask,} from '@/api/picture/picture'
 import {deleteGenerateLogInfo, listGenerateLogInfo} from '@/api/ai/model'
 import AppTabbar from "@/components/AppTabbar.vue";
-import {
-  AiLogStatusEnum,
-  AiGenerateHasPublicEnum,
-} from '@/utils/enums'
+import {AiGenerateHasPublicEnum, AiLogStatusEnum,} from '@/utils/enums'
+import BackToTop from "@/components/BackToTop.vue";
 
 // 字典数据
 const {ai_model_params_type} = useDict('ai_model_params_type')
@@ -214,20 +212,18 @@ const generateQuery = ref({
 const isLoadingMore = ref(false)
 const noMore = ref(false)
 const refreshing = ref(false)
+const backTopRef = ref(null)
 
 const getGenerateList = async (isRefresh = false) => {
   // 如果是刷新，不检查 isLoadingMore 和 noMore
   if (!isRefresh) {
     if (isLoadingMore.value || noMore.value) {
-      console.log('跳过加载：isLoadingMore=', isLoadingMore.value, 'noMore=', noMore.value)
       return
     }
   }
   isLoadingMore.value = true
-  console.log('获取生成列表...', {isRefresh, pageNum: generateQuery.value.pageNum})
   try {
     const res = await listGenerateLogInfo(generateQuery.value)
-    console.log('获取列表响应:', res)
     if (res.code === 200 && res.rows) {
       if (!generateList.value) {
         generateList.value = []
@@ -239,10 +235,8 @@ const getGenerateList = async (isRefresh = false) => {
         } else {
           generateList.value = [...generateList.value, ...res.rows]
         }
-        console.log('当前列表长度:', generateList.value.length, '返回数据长度:', res.rows.length)
         if (res.rows.length < (generateQuery.value.pageSize ?? 15)) {
           noMore.value = true
-          console.log('没有更多数据了')
         }
         // 如果还有未完成的，开始轮询
         res.rows.forEach((item) => {
@@ -254,21 +248,16 @@ const getGenerateList = async (isRefresh = false) => {
         })
       } else {
         noMore.value = true
-        console.log('返回数据为空，设置 noMore=true')
       }
     }
   } catch (error) {
-    console.error('获取生成列表失败:', error)
   } finally {
     isLoadingMore.value = false
-    console.log('加载完成，isLoadingMore 设置为 false')
   }
 }
 
 const loadMoreData = () => {
-  console.log('loadMoreData 被调用，当前页码:', generateQuery.value.pageNum)
   generateQuery.value.pageNum = 1 + (generateQuery.value.pageNum || 0)
-  console.log('新的页码:', generateQuery.value.pageNum)
   getGenerateList(false)
 }
 
@@ -277,6 +266,11 @@ onReachBottom(() => {
   if (!isLoadingMore.value && !noMore.value) {
     loadMoreData()
   }
+})
+
+// 页面滚动转发给 BackToTop（组件内 onPageScroll 在小程序端不一定触发，官方推荐页面转发）
+onPageScroll((e) => {
+  backTopRef.value?.handlePageScroll?.(e)
 })
 
 // 下拉刷新函数（公共函数）
