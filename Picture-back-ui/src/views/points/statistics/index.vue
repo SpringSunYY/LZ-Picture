@@ -75,11 +75,7 @@ const query = ref({
   startDate: defaultStart,
   endDate: defaultEnd
 })
-const onDateChange = (val) => {
-  query.value.startDate = val?.[0] || ''
-  query.value.endDate = val?.[1] || ''
-  getStatistics()
-}
+
 
 //积分使用类型
 const pointsUsageTypeDate = ref([])
@@ -230,7 +226,17 @@ const getPointsOrderAddress = () => {
     // console.log('pointsOrderAddressData', pointsOrderAddressData.value)
   })
 }
+const onDateChange = (val) => {
+  query.value.startDate = val?.[0] || ''
+  query.value.endDate = val?.[1] || ''
+  pointsOrderAddressData.value = []
+  pointsOrderAmountData.value = {
+    names: [],
+    values: []
+  }
 
+  getStatistics()
+}
 const getStatistics = async () => {
   getPointsUsage()
   getPointsUsageType()
