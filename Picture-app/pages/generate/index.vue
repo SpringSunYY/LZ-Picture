@@ -87,7 +87,7 @@
           </view>
 
           <view class="content-text">
-            <!--            <TextView :text="generate" :max-lines="3"/>-->
+            <TextView :text="generate.prompt" :max-lines="3"/>
           </view>
 
           <view class="content-picture">
@@ -179,6 +179,7 @@ import {deleteGenerateLogInfo, listGenerateLogInfo} from '@/api/ai/model'
 import AppTabbar from "@/components/AppTabbar.vue";
 import {AiGenerateHasPublicEnum, AiLogStatusEnum,} from '@/utils/enums'
 import BackToTop from "@/components/BackToTop.vue";
+import TextView from "@/components/TextView.vue";
 
 // 字典数据
 const {ai_model_params_type} = useDict('ai_model_params_type')

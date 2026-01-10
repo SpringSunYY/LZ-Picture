@@ -21,6 +21,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
+// 组件入参：文本、按行截断
 const props = defineProps({
   text: {
     type: String,
@@ -28,55 +29,44 @@ const props = defineProps({
   },
   maxLines: {
     type: Number,
-    default: undefined,
-  },
-  maxChars: {
-    type: Number,
-    default: undefined,
+    default: 2,
   },
 })
 
+// 展开/收起状态与 UI 控制
 const isExpanded = ref(false)
 const textContainer = ref(null)
 const needsButton = ref(false)
 const displayContent = ref('')
 
+// 运行时缓存
 let cachedLineHeight = null
+let resizeObserver = null
 
-const shouldTruncateByChars = computed(() => {
-  return props.maxChars !== undefined && props.text.length > props.maxChars
-})
-
-const truncatedTextByChars = computed(() => {
-  if (shouldTruncateByChars.value) {
-    return props.text.substring(0, props.maxChars) + '...'
-  }
-  return props.text
-})
-
+// --- 根据传入参数更新显示内容，并决定是否需要展开/收起按钮 ---
 const updateContentAndCheckTruncation = async () => {
   if (!textContainer.value) {
     await nextTick()
     if (!textContainer.value) return
   }
 
-  if (shouldTruncateByChars.value) {
-    needsButton.value = true
-    displayContent.value = isExpanded.value ? props.text : truncatedTextByChars.value
-  } else if (props.maxLines !== undefined) {
+  if (props.maxLines !== undefined && props.maxLines !== null) {
     await performLineTruncation()
-  } else {
-    displayContent.value = props.text
-    needsButton.value = false
+    return
   }
+
+  displayContent.value = props.text
+  needsButton.value = false
 }
 
+// 计算单行行高，避免重复测量
 const calculateLineHeight = async () => {
   if (cachedLineHeight !== null) return cachedLineHeight
   if (!textContainer.value) return 0
+  if (!textContainer.value.style) return 0
 
   const originalText = textContainer.value.textContent || textContainer.value.innerText || ''
-  const originalStyle = textContainer.value.style.cssText
+  const originalStyle = textContainer.value.style.cssText || ''
 
   textContainer.value.textContent = 'A'
   textContainer.value.style.height = 'auto'
@@ -84,7 +74,7 @@ const calculateLineHeight = async () => {
   textContainer.value.style.whiteSpace = 'nowrap'
 
   await nextTick()
-  
+
   const lh = textContainer.value.offsetHeight || textContainer.value.clientHeight || 0
 
   textContainer.value.textContent = originalText
@@ -95,8 +85,14 @@ const calculateLineHeight = async () => {
   return lh
 }
 
+// JS 版行数截断：通过二分查找确定截断位置
 const performLineTruncation = async () => {
-  if (!textContainer.value || props.maxLines === undefined) {
+  if (!textContainer.value || props.maxLines === undefined || props.maxLines === null) {
+    displayContent.value = props.text
+    needsButton.value = false
+    return
+  }
+  if (!textContainer.value.style) {
     displayContent.value = props.text
     needsButton.value = false
     return
@@ -167,26 +163,39 @@ const toggleExpand = () => {
   updateContentAndCheckTruncation()
 }
 
+// 保持文本正常换行，截断由 JS 控制
 const containerDynamicStyle = computed(() => {
   return {
     whiteSpace: 'normal',
   }
 })
 
+const setupResizeObserver = () => {
+  if (typeof ResizeObserver === 'undefined') return
+  const target =
+    textContainer.value instanceof Element
+      ? textContainer.value
+      : (textContainer.value && textContainer.value.$el instanceof Element
+          ? textContainer.value.$el
+          : null)
+  if (!target) return
+
+  resizeObserver = new ResizeObserver(() => {
+    cachedLineHeight = null
+    updateContentAndCheckTruncation()
+  })
+  resizeObserver.observe(target)
+}
+
 onMounted(() => {
   updateContentAndCheckTruncation()
+  setupResizeObserver()
+})
 
-  if (textContainer.value && typeof ResizeObserver !== 'undefined') {
-    const resizeObserver = new ResizeObserver(() => {
-      cachedLineHeight = null
-      updateContentAndCheckTruncation()
-    })
-
-    resizeObserver.observe(textContainer.value)
-
-    onUnmounted(() => {
-      resizeObserver.disconnect()
-    })
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
   }
 })
 
