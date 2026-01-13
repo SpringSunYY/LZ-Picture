@@ -442,7 +442,8 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
      * @param genderAgeStats 性别年龄统计
      * @param rangeBounds    年龄区间
      */
-    private static void builderUserAge(UserInfo userInfo, Date nowDate, Map<String, Map<String, Integer>> genderAgeStats, List<Integer> rangeBounds) {
+    private static void builderUserAge(UserInfo userInfo, Date nowDate, Map<String, Map<String, Integer>> genderAgeStats,
+                                       List<Integer> rangeBounds) {
         Integer age = DateUtils.getAgeByData(nowDate, userInfo.getBirthday());
         String sex = userInfo.getSex();
         //如果性别为空
