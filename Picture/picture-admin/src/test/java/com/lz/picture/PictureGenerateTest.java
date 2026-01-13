@@ -90,6 +90,9 @@ public class PictureGenerateTest {
             "movie", "game", "book", "novel", "comic", "music", "movie", "game", "book", "novel", "winter", "summer", "spring", "autumn", "winter", "street", "city", "park", "street"
     );
 
+    /**
+     * 生成搜索记录
+     */
     @Test
     public void testGenerateSearch() {
         LinkedMap<Integer, List<SearchLogInfo>> generateMap = new LinkedMap<>();
@@ -145,6 +148,9 @@ public class PictureGenerateTest {
         });
     }
 
+    /**
+     * 测试生成空间
+     */
     @Test
     public void testGenerateSpace() {
         LinkedMap<Integer, List<SpaceInfo>> generateMap = new LinkedMap<>();
@@ -193,19 +199,27 @@ public class PictureGenerateTest {
         }
     }
 
+    /**
+     * 测试生成图片
+     */
     @Test
     public void testGeneratePicture() {
         String thumbnailUrl = "/picture/picture/2025/07/31/50b936c6136898cf57689ab4be404ea1-1950595431075549185-compressed.webp";
         String pictureUrl = "/picture/picture/2025/07/31/50b936c6136898cf57689ab4be404ea1-1950595431075549184.jpg";
-        //查询最新的10000个空间
+        //查询最新的10000个空间 团队空间
 //        List<SpaceInfo> spaceInfoList = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>()
 //                .notIn(SpaceInfo::getSpaceId, List.of("1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"))
 //                .eq(SpaceInfo::getSpaceType, PSpaceTypeEnum.SPACE_TYPE_1.getValue())
 //                .last("limit 6000"));
+        //官方空间
+//        List<SpaceInfo> spaceInfoList = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>()
+//                .eq(SpaceInfo::getSpaceType, PSpaceTypeEnum.SPACE_TYPE_0.getValue())
+//                .eq(SpaceInfo::getSpaceId, "2011111829029982210")
+//                .last("limit 6000"));
+        //个人空间
         List<SpaceInfo> spaceInfoList = spaceInfoService.list(new LambdaQueryWrapper<SpaceInfo>()
-//                .notIn(SpaceInfo::getSpaceId, List.of("1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"))
-                .eq(SpaceInfo::getSpaceType, PSpaceTypeEnum.SPACE_TYPE_0.getValue())
-                .eq(SpaceInfo::getSpaceId, "1950538697844383745")
+                .notIn(SpaceInfo::getSpaceId, List.of("1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"))
+                .eq(SpaceInfo::getSpaceType, PSpaceTypeEnum.SPACE_TYPE_2.getValue())
                 .last("limit 6000"));
         //查询到不是顶级的分类
         List<PictureCategoryInfo> categoryInfoList = pictureCategoryInfoService.list(new LambdaQueryWrapper<PictureCategoryInfo>()
@@ -225,7 +239,7 @@ public class PictureGenerateTest {
             pictureTagInfo.setLookCount(0L);
             pictureTagInfo.setDownloadCount(0L);
             pictureTagInfo.setUserId("1967144087123529728");
-            Date createTime = RandomUtils.generateDate(2025, 2025);
+            Date createTime = RandomUtils.generateDate(2025, 2026);
             pictureTagInfo.setCreateTime(createTime);
             pictureTagInfo.setUpdateTime(createTime);
             pictureTagInfoService.save(pictureTagInfo);
@@ -262,7 +276,7 @@ public class PictureGenerateTest {
                     pictureInfo.setPicScale(1.0);
                     pictureInfo.setPicFormat("jpg");
                     pictureInfo.setUserId(userId);
-                    pictureInfo.setCreateTime(RandomUtils.generateDate(2025, 2025));
+                    pictureInfo.setCreateTime(RandomUtils.generateDate(2025, 2026));
                     pictureInfo.setPictureStatus(PPictureStatusEnum.PICTURE_STATUS_0.getValue());
                     pictureInfo.setThumbnailUrl(thumbnailUrl);
                     pictureInfo.setLookCount(0L);
@@ -322,7 +336,9 @@ public class PictureGenerateTest {
                 .orderByDesc(UserInfo::getCreateTime)
                 .last("limit 10000"));
         List<PictureInfo> pictureInfos = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
-                .last("limit 100"));
+                .last("limit 100")
+                .notIn(PictureInfo::getSpaceId, List.of("1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"))
+        );
         List<String> pictureIds = pictureInfos.stream().map(PictureInfo::getPictureId).toList();
         List<PictureTagRelInfo> tagRelInfos = pictureTagRelInfoService.list(new LambdaQueryWrapper<PictureTagRelInfo>().select(PictureTagRelInfo::getPictureId, PictureTagRelInfo::getTagName)
                 .in(PictureTagRelInfo::getPictureId, pictureIds));
@@ -353,11 +369,11 @@ public class PictureGenerateTest {
                 pictureDownloadLogInfo.setAuthorProportion(BigDecimal.valueOf(0.0));
                 pictureDownloadLogInfo.setOfficialProportion(BigDecimal.valueOf(0.0));
                 pictureDownloadLogInfo.setSpaceProportion(BigDecimal.valueOf(0.0));
-                pictureDownloadLogInfo.setCreateTime(RandomUtils.generateDate(2025, 2025));
+                pictureDownloadLogInfo.setCreateTime(RandomUtils.generateDate(2025, 2026));
                 pictureDownloadLogInfo.setDownloadStatus(PDownloadStatusEnum.DOWNLOAD_STATUS_0.getValue());
                 pictureDownloadLogInfo.setFailReason(null);
                 pictureDownloadLogInfo.setDownloadType(PDownloadTypeEnum.DOWNLOAD_TYPE_1.getValue());
-                pictureDownloadLogInfo.setReferSource(PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_1.getValue());
+                pictureDownloadLogInfo.setReferSource(PDownloadReferSourceEnum.DOWNLOAD_REFER_SOURCE_0.getValue());
                 pictureDownloadLogInfo.setHasStatistics(CommonHasStatisticsEnum.HAS_STATISTICS_0.getValue());
                 pictureDownloadLogInfo.setScore(20.0);
                 pictureDownloadLogInfo.setIpAddr(RandomUtils.generateRandomIpAddr());
@@ -386,6 +402,7 @@ public class PictureGenerateTest {
                 .orderByDesc(UserInfo::getCreateTime)
                 .last("limit 1000"));
         List<PictureInfo> pictureInfos = pictureInfoService.list(new LambdaQueryWrapper<PictureInfo>()
+                .notIn(PictureInfo::getSpaceId, List.of("1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"))
                 .last("limit 100"));
         Map<String, List<UserBehaviorInfo>> insertMap = new HashMap<>();
         List<String> pictureIds = pictureInfos.stream().map(PictureInfo::getPictureId).toList();
@@ -441,6 +458,9 @@ public class PictureGenerateTest {
         });
     }
 
+    /**
+     * 删除统计内容
+     */
     @Test
     public void deleteStatistics() {
         List<StatisticsInfo> list = statisticsInfoService.list(new LambdaQueryWrapper<StatisticsInfo>()
@@ -504,6 +524,8 @@ public class PictureGenerateTest {
                 pictureCategoryInfoService.updateById(categoryInfo);
             }
         });
+        //删除所有的搜索记录
+        searchLogInfoService.remove(new LambdaQueryWrapper<SearchLogInfo>());
     }
 
     private void deletePicture(SpaceInfo spaceInfo) {
