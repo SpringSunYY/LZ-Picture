@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -229,5 +228,19 @@ public class PointsGenerateTest {
     @Test
     public void testDeleteStatistics() {
         poStatisticsInfoService.remove(new LambdaQueryWrapper<>());
+    }
+
+    @Test
+    public void testDeletePointsGenerate() {
+        List<String> userIds = new ArrayList<>();
+        userIds.add("1");
+        userIds.add("2");
+        userIds.add("009");
+        //删除积分使用
+        pointsUsageLogInfoService.remove(new LambdaQueryWrapper<PointsUsageLogInfo>().notIn(PointsUsageLogInfo::getUserId, userIds));
+        //删除积分充值
+        pointsRechargeInfoService.remove(new LambdaQueryWrapper<PointsRechargeInfo>().notIn(PointsRechargeInfo::getUserId, userIds));
+        //删除账户信息
+        accountInfoService.remove(new LambdaQueryWrapper<AccountInfo>().notIn(AccountInfo::getUserId, userIds));
     }
 }

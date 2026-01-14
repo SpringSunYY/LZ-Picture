@@ -233,4 +233,18 @@ public class UserGenerateTest {
         System.out.println("result = " + result);
         System.out.println("end - start = " + (end - start));
     }
+
+    @Test
+    public void testDeleteUserGenerate(){
+        List<String> userIds = new ArrayList<>();
+        userIds.add("1");
+        userIds.add("2");
+        userIds.add("009");
+        //删除信息
+        informInfoService.remove(new LambdaQueryWrapper<InformInfo>().notIn(InformInfo::getUserId, userIds));
+        //删除登录日志
+        loginLogInfoService.remove(new LambdaQueryWrapper<LoginLogInfo>().notIn(LoginLogInfo::getUserId, userIds));
+        //删除用户
+        userInfoService.remove(new LambdaQueryWrapper<UserInfo>().notIn(UserInfo::getUserId, userIds));
+    }
 }
