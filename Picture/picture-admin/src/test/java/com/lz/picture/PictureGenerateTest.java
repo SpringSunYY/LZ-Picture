@@ -497,10 +497,8 @@ public class PictureGenerateTest {
             currentPage++;
             System.out.println("当前页：" + currentPage);
         }
-        spaceInfoService.remove(queryWrapper);
 
-        //删除完成需删除1950538697844383745此空间图片
-        SpaceInfo spaceInfo = spaceInfoService.getById("1950538697844383745");
+        SpaceInfo spaceInfo = spaceInfoService.getById("2011111829029982210");
         deletePicture(spaceInfo);
         spaceInfo.setTotalCount(0L);
         spaceInfo.setTotalSize(0L);
@@ -526,6 +524,16 @@ public class PictureGenerateTest {
         });
         //删除所有的搜索记录
         searchLogInfoService.remove(new LambdaQueryWrapper<SearchLogInfo>());
+        //删除所有的新建标签
+        LambdaQueryWrapper<PictureTagInfo> tagWrapper = new LambdaQueryWrapper<>();
+        List<String> userIds = new ArrayList<>();
+        userIds.add("1");
+        userIds.add("2");
+        userIds.add("009");
+        tagWrapper.notIn(PictureTagInfo::getUserId, userIds);
+        pictureTagInfoService.remove(tagWrapper);
+        queryWrapper.notIn(SpaceInfo::getSpaceId, List.of("2011111829029982210", "1950538503299981313", "1950538697844383745", "1950539775252029441", "1950582726715973634"));
+        spaceInfoService.remove(queryWrapper);
     }
 
     private void deletePicture(SpaceInfo spaceInfo) {
