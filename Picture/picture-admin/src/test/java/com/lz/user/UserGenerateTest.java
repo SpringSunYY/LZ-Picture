@@ -13,12 +13,14 @@ import com.lz.config.model.domain.InformTemplateInfo;
 import com.lz.config.service.IInformTemplateInfoService;
 import com.lz.user.model.domain.InformInfo;
 import com.lz.user.model.domain.LoginLogInfo;
+import com.lz.user.model.domain.UStatisticsInfo;
 import com.lz.user.model.domain.UserInfo;
 import com.lz.user.model.enums.UInformIsReadEnum;
 import com.lz.user.model.enums.UInformStatusEnum;
 import com.lz.user.model.enums.UInformTypeEnum;
 import com.lz.user.service.IInformInfoService;
 import com.lz.user.service.ILoginLogInfoService;
+import com.lz.user.service.IUStatisticsInfoService;
 import com.lz.user.service.IUserInfoService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
@@ -57,16 +59,22 @@ public class UserGenerateTest {
     @Resource
     private IInformInfoService informInfoService;
 
+    @Resource
+    private IUStatisticsInfoService statisticsInfoService;
+
+    //不需要生成数据的用户
+    List<String> userIds = List.of("1", "2", "009");
+
     @Test
     public void generateUser() {
         HashMap<Integer, List<UserInfo>> userMap = new HashMap<>();
         List<String> occupationList = List.of("Java开发工程师", "Python开发工程师", "C++开发工程师", "大学老师", "学生", "公务员", "运维工程师", "项目经理", "数据分析师", "测试工程师", "产品经理", "UI设计师", "UX设计师", "数据科学家", "软件架构师", "网络工程师", "硬件工程师", "软件测试师", "软件工程师", "软件开发工程师", "软件测试工程师", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监", "软件测试经理", "软件测试总监");
         for (int i = 0; i < 100; i++) {
             ArrayList<UserInfo> value = new ArrayList<>();
-            for (int j = 0; j < 3000; j++) {
+            for (int j = 0; j < 500; j++) {
                 UserInfo userInfo = new UserInfo();
                 userInfo.setUserId(IdUtils.snowflakeId().toString());
-                String userName = "LZ-Picture_3_" + i + "_" + j;
+                String userName = "LZ-Picture_" + i + "_" + j;
                 userInfo.setUserName(userName);
                 userInfo.setPhone(RandomUtils.generateChinesePhoneNumber());
                 userInfo.setCountryCode("+86");
@@ -75,13 +83,13 @@ public class UserGenerateTest {
                 userInfo.setStatus(UUserStatusEnum.USER_STATUS_0.getValue());
                 userInfo.setPassword("917d445b77b7699dca03102a04f89519");
                 userInfo.setSalt("md5");
-                String sex = j % 2 == 0 ? "1" : "2";
+                String sex = j % 3 == 0 ? "1" : "2";
                 userInfo.setSex(sex);
                 userInfo.setBirthday(RandomUtils.generateDate(1945, 2024));
                 userInfo.setOccupation(occupationList.get(j % occupationList.size()));
                 userInfo.setPreferredLanguageLocale("zh-CN");
                 userInfo.setIntroductory("测试生成");
-                Date time = RandomUtils.generateDate(2025, 2025);
+                Date time = RandomUtils.generateDate(2025, 2026);
                 userInfo.setIpAddress(RandomUtils.generateRandomIPAddress());
                 userInfo.setLastLoginTime(time);
                 userInfo.setLastLoginIp(RandomUtils.generateRandomIpAddr());
@@ -108,12 +116,11 @@ public class UserGenerateTest {
     public void generateLoginLog() {
         List<UserInfo> userInfoList = userInfoService.list(new LambdaQueryWrapper<UserInfo>()
                 .eq(UserInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
-                .orderByDesc(UserInfo::getCreateTime)
-                .last("limit 10000"));
+                .notIn(UserInfo::getUserId, userIds));
         HashMap<String, List<LoginLogInfo>> loginLogMap = new HashMap<>();
         for (UserInfo userInfo : userInfoList) {
             ArrayList<LoginLogInfo> loginLogInfos = new ArrayList<>();
-            for (int j = 0; j < 1000; j++) {
+            for (int j = 0; j < 10; j++) {
                 LoginLogInfo loginLogInfo = new LoginLogInfo();
                 loginLogInfo.setInfoId(IdUtils.fastSimpleUUID());
                 loginLogInfo.setUserId(userInfo.getUserId());
@@ -129,7 +136,7 @@ public class UserGenerateTest {
                 loginLogInfo.setStatus(ULoginStatusEnum.LOGIN_STATUS_0.getValue());
                 loginLogInfo.setErrorCode(null);
                 loginLogInfo.setMsg(null);
-                loginLogInfo.setLoginTime(RandomUtils.generateDate(2025, 2025));
+                loginLogInfo.setLoginTime(RandomUtils.generateDate(2025, 2026));
                 loginLogInfos.add(loginLogInfo);
             }
             loginLogMap.put(userInfo.getUserId(), loginLogInfos);
@@ -158,8 +165,7 @@ public class UserGenerateTest {
     public void generateInform() {
         List<UserInfo> userInfoList = userInfoService.list(new LambdaQueryWrapper<UserInfo>()
                 .eq(UserInfo::getIsDelete, CommonDeleteEnum.NORMAL.getValue())
-                .orderByDesc(UserInfo::getCreateTime)
-                .last("limit 10000"));
+                .notIn(UserInfo::getUserId, userIds));
         List<InformTemplateInfo> informTemplateInfos = informTemplateInfoService.list(new LambdaQueryWrapper<InformTemplateInfo>());
         HashMap<String, List<InformInfo>> informMap = new HashMap<>();
         Long size = 0L;
@@ -170,7 +176,7 @@ public class UserGenerateTest {
                     continue;
                 }
                 Random random = new Random();
-                int i = random.nextInt(10);
+                int i = random.nextInt(3);
                 for (int j = 0; j < i; j++) {
                     InformInfo informInfo = new InformInfo();
                     informInfo.setRecordId(IdUtils.fastSimpleUUID());
@@ -184,7 +190,7 @@ public class UserGenerateTest {
                     informInfo.setUserId(userInfo.getUserId());
                     informInfo.setIsRead(UInformIsReadEnum.INFORM_IS_READ_0.getValue());
                     informInfo.setRetryCount(0L);
-                    informInfo.setSendTime(RandomUtils.generateDate(2025, 2025));
+                    informInfo.setSendTime(RandomUtils.generateDate(2025, 2026));
                     informInfo.setIsDelete(CommonDeleteEnum.NORMAL.getValue());
                     informInfos.add(informInfo);
                     size++;
@@ -234,12 +240,14 @@ public class UserGenerateTest {
         System.out.println("end - start = " + (end - start));
     }
 
+    //删除统计
     @Test
-    public void testDeleteUserGenerate(){
-        List<String> userIds = new ArrayList<>();
-        userIds.add("1");
-        userIds.add("2");
-        userIds.add("009");
+    public void testDeleteStatisticsGenerate() {
+        statisticsInfoService.remove(new LambdaQueryWrapper<UStatisticsInfo>());
+    }
+
+    @Test
+    public void testDeleteUserGenerate() {
         //删除信息
         informInfoService.remove(new LambdaQueryWrapper<InformInfo>().notIn(InformInfo::getUserId, userIds));
         //删除登录日志

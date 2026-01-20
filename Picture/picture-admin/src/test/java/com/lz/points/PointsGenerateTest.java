@@ -49,10 +49,17 @@ public class PointsGenerateTest {
     @Resource
     private IPoStatisticsInfoService poStatisticsInfoService;
 
+    //不需要生成数据的用户
+    List<String> userIds = List.of("1", "2", "009");
+
     @Test
     public void testGenerateAccountInfo() {
         //生成账号，注意外键
-        List<UserInfo> userInfoList = userInfoService.list(new LambdaQueryWrapper<UserInfo>().orderByDesc(UserInfo::getCreateTime).last("limit 10000"));
+        List<UserInfo> userInfoList = userInfoService.list(
+                new LambdaQueryWrapper<UserInfo>()
+                        .notIn(UserInfo::getUserId, userIds)
+                        .orderByDesc(UserInfo::getCreateTime)
+                        .last("limit 10000"));
         ArrayList<AccountInfo> accountInfos = new ArrayList<>();
         for (UserInfo userInfo : userInfoList) {
             AccountInfo accountInfo = new AccountInfo();
@@ -76,9 +83,11 @@ public class PointsGenerateTest {
     @Test
     public void testUserRecharge() {
         //查询当前拥有账户
-        List<AccountInfo> accountInfoList = accountInfoService.list(new LambdaQueryWrapper<AccountInfo>()
-                .notIn(AccountInfo::getAccountId, List.of("1951241958457008130", "1951244312405270530", "1957116615768879106"))
-                .last("limit 10000"));
+        List<AccountInfo> accountInfoList = accountInfoService.list(
+                new LambdaQueryWrapper<AccountInfo>()
+                        .notIn(AccountInfo::getUserId, userIds)
+                        .notIn(AccountInfo::getAccountId, List.of("1951241958457008130", "1951244312405270530", "1957116615768879106"))
+                        .last("limit 10000"));
         //查询充值套餐
         List<PointsRechargePackageInfo> pointsRechargePackageInfoList = pointsRechargePackageInfoService.list();
         int count = 0;
@@ -187,9 +196,11 @@ public class PointsGenerateTest {
     @Test
     public void testPointsUsage() {
         //查询当前拥有账户
-        List<AccountInfo> accountInfoList = accountInfoService.list(new LambdaQueryWrapper<AccountInfo>()
-                .notIn(AccountInfo::getAccountId, List.of("1951241958457008130", "1951244312405270530", "1957116615768879106"))
-                .last("limit 10000"));
+        List<AccountInfo> accountInfoList = accountInfoService.list(
+                new LambdaQueryWrapper<AccountInfo>()
+                        .notIn(AccountInfo::getUserId, userIds)
+                        .notIn(AccountInfo::getAccountId, List.of("1951241958457008130", "1951244312405270530", "1957116615768879106"))
+                        .last("limit 10000"));
         List<PointsUsageLogInfo> pointsUsageLogInfos = new ArrayList<>();
         Long totalCount = 100L;
         for (AccountInfo accountInfo : accountInfoList) {
@@ -232,14 +243,12 @@ public class PointsGenerateTest {
 
     @Test
     public void testDeletePointsGenerate() {
-        List<String> userIds = new ArrayList<>();
-        userIds.add("1");
-        userIds.add("2");
-        userIds.add("009");
         //删除积分使用
         pointsUsageLogInfoService.remove(new LambdaQueryWrapper<PointsUsageLogInfo>().notIn(PointsUsageLogInfo::getUserId, userIds));
         //删除积分充值
         pointsRechargeInfoService.remove(new LambdaQueryWrapper<PointsRechargeInfo>().notIn(PointsRechargeInfo::getUserId, userIds));
+        //删除充值
+        paymentOrderInfoService.remove(new LambdaQueryWrapper<PaymentOrderInfo>().notIn(PaymentOrderInfo::getUserId, userIds));
         //删除账户信息
         accountInfoService.remove(new LambdaQueryWrapper<AccountInfo>().notIn(AccountInfo::getUserId, userIds));
     }
