@@ -1,5 +1,6 @@
 package com.lz.common.utils;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -89,53 +90,45 @@ public class RandomUtils {
      * @return
      */
     public static Date generateDate(Integer startYear, Integer endYear, boolean allowFuture) {
-        // 确保年份范围有效
         if (startYear > endYear) {
             throw new IllegalArgumentException("开始年份不能大于结束年份");
         }
 
-        // 获取当前日期
         LocalDate currentDate = LocalDate.now();
         int currentYear = currentDate.getYear();
 
-        // 如果不允许超过当前时间，且结束年份大于当前年份，则将结束年份设为当前年份
         if (!allowFuture && endYear > currentYear) {
             endYear = currentYear;
-            // 如果开始年份也大于当前年份，则将开始年份设为当前年份
             if (startYear > currentYear) {
                 startYear = currentYear;
             }
         }
 
-        // 随机生成年份
-        int randomYear = startYear + (int) (Math.random() * (endYear - startYear + 1));
+        // 使用 SecureRandom 提供更强的随机性
+        SecureRandom secureRandom = new SecureRandom();
 
-        // 如果不允许超过当前时间，且随机年份为当前年份，则月份不能超过当前月份
+        int yearRange = endYear - startYear + 1;
+        int randomYear = startYear + secureRandom.nextInt(yearRange);
+
         int maxMonth = 12;
         if (!allowFuture && randomYear == currentYear) {
             maxMonth = currentDate.getMonthValue();
         }
+        int randomMonth = 1 + secureRandom.nextInt(maxMonth);
 
-        // 随机生成月份 (1-maxMonth)
-        int randomMonth = 1 + (int) (Math.random() * maxMonth);
+        LocalDate monthStart = LocalDate.of(randomYear, randomMonth, 1);
+        int maxDay = monthStart.lengthOfMonth();
 
-        // 生成该月份的随机日期
-        LocalDate tempDate = LocalDate.of(randomYear, randomMonth, 1);
-
-        // 如果不允许超过当前时间，且随机年份为当前年份，随机月份也为当前月份，则日期不能超过当前日期
-        int maxDay = tempDate.lengthOfMonth();
         if (!allowFuture && randomYear == currentYear && randomMonth == currentDate.getMonthValue()) {
             maxDay = currentDate.getDayOfMonth();
         }
 
-        int randomDay = 1 + (int) (Math.random() * maxDay);
+        int randomDay = 1 + secureRandom.nextInt(maxDay);
 
-        // 创建随机日期
         LocalDate randomDate = LocalDate.of(randomYear, randomMonth, randomDay);
-
-        // 转换为Date类型并返回
         return DateUtils.toDate(randomDate);
     }
+
 
     /**
      * 生成随机IPv4地址
