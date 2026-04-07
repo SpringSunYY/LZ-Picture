@@ -59,7 +59,10 @@ const setOptions = () => {
   const yData = props.chartData.values; // Y轴数值
 
   // --- 计算平均值 ---
-  const average_val = yData.reduce((sum, val) => Number(sum) + Number(val), 0) / yData.length;
+  const average_val = yData.reduce(
+      (sum, val) =>
+          Number(sum) + Number(val), 0
+  ) / yData.length;
   const total_val = yData.reduce((sum, val) => Number(sum) + Number(val), 0);
   const average_data = yData.map(() => average_val); // 为每个点填充平均值
 

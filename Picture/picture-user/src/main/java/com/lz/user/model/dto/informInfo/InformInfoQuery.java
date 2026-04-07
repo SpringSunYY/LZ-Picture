@@ -1,20 +1,16 @@
 package com.lz.user.model.dto.informInfo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lz.user.model.domain.InformInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
 import java.io.Serial;
-import java.util.Map;
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.beans.BeanUtils;
-import com.baomidou.mybatisplus.annotation.TableField;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.user.model.domain.InformInfo;
+import java.util.Map;
 
 /**
  * 用户通知记录Query对象 u_inform_info
@@ -100,6 +96,9 @@ public class InformInfoQuery implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @TableField(exist = false)
     private Map<String, Object> params;
+
+    private Integer pageNum;
+    private Integer pageSize;
 
     /**
      * 对象转封装类

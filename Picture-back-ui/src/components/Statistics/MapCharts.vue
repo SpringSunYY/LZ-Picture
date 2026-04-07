@@ -158,6 +158,7 @@ function getMapData() {
     level: item.level,
     cityCode: item.cityCode,
     fullname: item.fullname,
+    //动态扩展统计字段
     ...Object.keys(dataSummary.value).reduce((acc, key) => {
       acc[key] = item[key] || 0;
       return acc;
@@ -167,12 +168,13 @@ function getMapData() {
   const pointData = tmp.map(item => ({
     name: item.name,
     value: [
-      item.center?.[0] || (116 + Math.random()),
-      item.center?.[1] || (30 + Math.random()),
-      item.value
+      item.center?.[0] || (116 + Math.random()),  // 经度（longitude）
+      item.center?.[1] || (30 + Math.random()),   // 纬度（latitude）
+      item.value                                   // 数值（用于气泡大小）
     ],
     cityCode: item.cityCode,
     fullname: item.fullname,
+    //动态扩展统计字段
     ...Object.keys(dataSummary.value).reduce((acc, key) => {
       acc[key] = item[key] || 0;
       return acc;

@@ -1,5 +1,6 @@
 package com.lz.picture.controller.admin;
 
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.Log;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
@@ -50,6 +51,7 @@ public class PictureInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "picture:info", useQueryParamsAsKey = true)
     public TableDataInfo list(PictureInfoQuery pictureInfoQuery) {
         PictureInfo pictureInfo = PictureInfoQuery.queryToObj(pictureInfoQuery);
         //查询到分类的所有子节点

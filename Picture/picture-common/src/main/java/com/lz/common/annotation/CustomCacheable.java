@@ -16,7 +16,7 @@ public @interface CustomCacheable {
 
     String keyField() default "";           // 从入参中提取 key 的字段路径（支持嵌套字段）
 
-    long expireTime() default 3600L; // 缓存时间（秒）
+    long expireTime() default 10800L; // 缓存时间（秒）
 
     boolean paginate() default false; // 是否启用分页缓存
 

@@ -2,6 +2,8 @@ package com.lz.user.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.annotation.CustomCacheable;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -44,6 +46,7 @@ public class InformInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('user:informInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "user:inform", useQueryParamsAsKey = true)
     public TableDataInfo list(InformInfoQuery informInfoQuery)
     {
         InformInfo informInfo = InformInfoQuery.queryToObj(informInfoQuery);

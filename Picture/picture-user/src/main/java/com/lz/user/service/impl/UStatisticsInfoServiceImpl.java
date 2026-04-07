@@ -352,7 +352,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
             pageNum++;
         } while (userInfoList.size() == pageSize);
         List<Integer> rangeBounds = builderAgeBounds();
-        // 为不同性别创建年龄统计Map，key为性别值，value为年龄范围统计
+        // 为不同性别创建年龄统计Map，key为性别值，value为年龄范围统计Map
         Map<String, Map<String, Integer>> genderAgeStats = new LinkedHashMap<>();
         //总人数
         //不能拿同一个数据源，否则会重复计算

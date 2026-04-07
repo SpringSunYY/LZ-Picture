@@ -2,6 +2,8 @@ package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.annotation.CustomCacheable;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -44,6 +46,7 @@ public class SearchLogInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:searchLogInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "picture:search:log", useQueryParamsAsKey = true)
     public TableDataInfo list(SearchLogInfoQuery searchLogInfoQuery)
     {
         SearchLogInfo searchLogInfo = SearchLogInfoQuery.queryToObj(searchLogInfoQuery);

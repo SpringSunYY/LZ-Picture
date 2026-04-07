@@ -50,7 +50,8 @@ const shortcuts = [
   {text: "最近一个月", value: () => [dayjs().subtract(1, "month").format(props.format), dayjs().format(props.format)]},
   {text: "最近三个月", value: () => [dayjs().subtract(3, "month").format(props.format), dayjs().format(props.format)]},
   {text: "最近半年", value: () => [dayjs().subtract(6, "month").format(props.format), dayjs().format(props.format)]},
-  {text: "最近一年", value: () => [dayjs().subtract(1, "year").format(props.format), dayjs().format(props.format)]}
+  {text: "最近一年", value: () => [dayjs().subtract(1, "year").format(props.format), dayjs().format(props.format)]},
+  {text: "最近两年", value: () => [dayjs().subtract(2, "year").format(props.format), dayjs().format(props.format)]}
 ]
 
 // change 事件
