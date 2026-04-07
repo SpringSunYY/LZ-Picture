@@ -2,6 +2,8 @@ package com.lz.points.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.annotation.CustomCacheable;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -44,6 +46,7 @@ public class PaymentOrderInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('points:paymentOrderInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "points:payment:order", useQueryParamsAsKey = true)
     public TableDataInfo list(PaymentOrderInfoQuery paymentOrderInfoQuery)
     {
         PaymentOrderInfo paymentOrderInfo = PaymentOrderInfoQuery.queryToObj(paymentOrderInfoQuery);

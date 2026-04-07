@@ -1,5 +1,6 @@
 package com.lz.picture.controller.admin;
 
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.Log;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
@@ -45,6 +46,7 @@ public class SpaceInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:spaceInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "picture:space", useQueryParamsAsKey = true)
     public TableDataInfo list(SpaceInfoQuery spaceInfoQuery) {
         SpaceInfo spaceInfo = SpaceInfoQuery.queryToObj(spaceInfoQuery);
         startPage();

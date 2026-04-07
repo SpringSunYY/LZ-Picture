@@ -2,45 +2,27 @@ package com.lz.picture.aspectj;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.lz.common.annotation.Log;
 import com.lz.common.core.domain.DeviceInfo;
-import com.lz.common.core.domain.entity.SysUser;
-import com.lz.common.core.domain.model.LoginUser;
-import com.lz.common.enums.BusinessStatus;
-import com.lz.common.enums.HttpMethod;
 import com.lz.common.exception.ServiceException;
-import com.lz.common.filter.PropertyPreExcludeFilter;
-import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.ServletUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.ip.IpUtils;
-import com.lz.framework.manager.AsyncManager;
-import com.lz.framework.manager.factory.AsyncFactory;
 import com.lz.picture.annotation.SearchLog;
 import com.lz.picture.manager.PictureAsyncManager;
 import com.lz.picture.manager.factory.SearchLogAsyncFactory;
 import com.lz.picture.model.domain.SearchLogInfo;
 import com.lz.picture.model.enums.PSearchStatusEnum;
-import com.lz.system.model.domain.SysOperLog;
 import com.lz.userauth.utils.UserInfoSecurityUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**

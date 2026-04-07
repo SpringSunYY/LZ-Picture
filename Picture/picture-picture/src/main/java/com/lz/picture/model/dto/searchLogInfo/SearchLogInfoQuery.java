@@ -108,6 +108,9 @@ public class SearchLogInfoQuery implements Serializable {
     @TableField(exist = false)
     private Map<String, Object> params;
 
+    private Integer pageNum;
+    private Integer pageSize;
+
     /**
      * 对象转封装类
      *

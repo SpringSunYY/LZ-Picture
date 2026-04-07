@@ -373,7 +373,8 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
     //endregion
 
     @Override
-    public List<StatisticsInfo> getStatisticsInfosByDateAndKeyType(String startDate, String endDate, String type, String commonKey) {
+    public List<StatisticsInfo> getStatisticsInfosByDateAndKeyType(String startDate, String endDate,
+                                                                   String type, String commonKey) {
         return this.list(new LambdaQueryWrapper<StatisticsInfo>()
                 .eq(StatisticsInfo::getType, type)
                 .eq(StatisticsInfo::getCommonKey, commonKey)
@@ -715,7 +716,11 @@ public class StatisticsInfoServiceImpl extends ServiceImpl<StatisticsInfoMapper,
      **/
     private List<StatisticsVo> builderKeywordStatisticsResult(Map<String, Long> resultMap) {
         //根据值排序
-        Map<String, Long> sortMap = resultMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        Map<String, Long> sortMap = resultMap.entrySet().stream().
+                sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         return sortMap.entrySet().stream().map(entry -> {
             StatisticsVo vo = new StatisticsVo();
             vo.setName(entry.getKey());

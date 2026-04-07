@@ -2,6 +2,8 @@ package com.lz.points.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.annotation.CustomCacheable;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -44,6 +46,7 @@ public class AccountInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('points:accountInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "point:account", useQueryParamsAsKey = true)
     public TableDataInfo list(AccountInfoQuery accountInfoQuery)
     {
         AccountInfo accountInfo = AccountInfoQuery.queryToObj(accountInfoQuery);

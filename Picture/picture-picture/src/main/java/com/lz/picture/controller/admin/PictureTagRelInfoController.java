@@ -2,6 +2,8 @@ package com.lz.picture.controller.admin;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.lz.common.annotation.CustomCacheable;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.annotation.Resource;
@@ -44,6 +46,7 @@ public class PictureTagRelInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureTagRelInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "picture:tag:rel", useQueryParamsAsKey = true)
     public TableDataInfo list(PictureTagRelInfoQuery pictureTagRelInfoQuery)
     {
         PictureTagRelInfo pictureTagRelInfo = PictureTagRelInfoQuery.queryToObj(pictureTagRelInfoQuery);

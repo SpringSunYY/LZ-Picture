@@ -1,5 +1,6 @@
 package com.lz.picture.controller.admin;
 
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.Log;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
@@ -44,6 +45,7 @@ public class UserBehaviorInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:userBehaviorInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "picture:behavior", useQueryParamsAsKey = true)
     public TableDataInfo list(UserBehaviorInfoQuery userBehaviorInfoQuery) {
         UserBehaviorInfo userBehaviorInfo = UserBehaviorInfoQuery.queryToObj(userBehaviorInfoQuery);
         startPage();

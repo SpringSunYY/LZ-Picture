@@ -3,9 +3,9 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import * as echarts from 'echarts'
-import 'echarts/theme/macarons' // 引入主题
+import 'echarts/theme/macarons'
 
 const props = defineProps({
   className: {type: String, default: 'chart'},
@@ -15,51 +15,79 @@ const props = defineProps({
   chartData: {
     type: Object,
     default: () => ({
-      names: ['2024-10-01', '2024-10-02', '2024-10-03', '2024-10-04', '2024-10-05', '2024-10-06', '2024-10-07', '2024-10-08', '2024-10-09', '2024-10-10', '2024-10-11', '2024-10-12', '2024-10-13', '2024-10-14', '2024-10-15', '2024-10-16', '2024-10-17', '2024-10-18', '2024-10-19', '2024-10-20', '2024-10-21', '2024-10-22', '2024-10-23', '2024-10-24', '2024-10-25', '2024-10-26', '2024-10-27', '2024-10-28', '2024-10-29', '2024-10-30', '2024-10-31'],
-      values: [
-        {
-          values: [509, 917, 2455, 2610, 2719, 3033, 3044, 3085, 2708, 2809, 2117, 2000, 1455, 1210, 719, 733, 944, 2285, 2208, 3372, 3936, 3693, 2962, 2810, 3519, 2455, 2610, 2719, 2484, 2078, 5000],
-          name: '用户注册'
-        }
-      ]
+      names: ['2024-10-01', '2024-10-02', '2024-10-03'],
+      values: [{values: [509, 917, 2455], name: '用户注册'}]
     })
   },
-  chartName: {type: String, default: '折线图'}
+  chartName: {type: String, default: '折线图'},
+  showAvgLine: {type: Boolean, default: true}
 })
 
 const chartRef = ref(null)
 let chart = null
+const selectedMap = ref({})
 
-// 初始化图表
 const initChart = async () => {
   await nextTick()
   if (!chartRef.value) return
-
-  if (chart) {
-    chart.dispose()
-    chart = null
-  }
-
+  if (chart) chart.dispose()
   chart = echarts.init(chartRef.value, 'macarons')
+
+  // 监听图例切换
+  chart.on('legendselectchanged', (params) => {
+    selectedMap.value = params.selected
+    setOptions()
+  })
   setOptions()
 }
 
-// 设置配置
 const setOptions = () => {
   if (!chart) return
-  if (!props.chartData || !props.chartData.values || !props.chartData.values.length || !props.chartData.names || !props.chartData.names.length) return;
-  const xData = props.chartData.names || []
-  const seriesData = (props.chartData.values || []).map(yDatum => ({
-    name: yDatum.name || '',
+  const {names: xData, values: rawValues} = props.chartData
+  if (!rawValues?.length || !xData?.length) return
+
+  // 1. 获取可见系列用于计算平均值
+  const activeSeries = rawValues.filter(s => selectedMap.value[s.name] !== false)
+  // 2. 计算平均线（只有 showAvgLine 为 true 且至少 2 条可见数据时才计算）
+  const avgValues = (props.showAvgLine && activeSeries.length >= 2)
+    ? xData.map((_, index) => {
+        const sum = activeSeries.reduce((acc, curr) => acc + (Number(curr.values[index]) || 0), 0)
+        return Number((sum / activeSeries.length).toFixed(2))
+      })
+    : []
+
+  // 3. 构造 Series（核心：每次渲染都生成全新的数组，杜绝重复）
+  const avgSeriesObj = {
+    name: '全线平均',
     type: 'line',
-    symbol: 'circle',
-    symbolSize: 10,
-    data: yDatum.values || [],
-    markPoint: {
-      data: [],
-      label: {textStyle: {color: '#fff'}}
+    smooth: true,
+    symbolSize: 8,
+    lineStyle: {width: 3, type: [20, 5], color: '#FFD700'},
+    itemStyle: {color: '#FFD700'},
+    data: avgValues,
+    z: 10,
+    markLine: {
+      silent: true,
+      symbol: 'none',
+      label: {
+        position: 'end', formatter: '总均值', color: '#FFD700',
+        fontSize: 12,
+        fontWeight: 'bold'
+      },
+      data: [{type: 'average', name: '平均值'}]
     }
-  }))
+  }
+
+  const finalSeries = [
+    ...rawValues.map(yDatum => ({
+      name: yDatum.name,
+      type: 'line',
+      symbol: 'circle',
+      symbolSize: 8,
+      data: yDatum.values,
+    })),
+    ...(avgValues.length > 0 ? [avgSeriesObj] : [])
+  ]
 
   chart.setOption({
     backgroundColor: 'transparent',
@@ -71,50 +99,115 @@ const setOptions = () => {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: {type: 'line', label: {color: '#fff'}}
+      axisPointer: {type: 'line', label: {color: '#fff'}},
+      formatter: function (params) {
+        if (!params || params.length === 0) return '';
+
+        // 1. 去重逻辑（处理 markLine 引起的重复）
+        const uniqueParams = [];
+        const map = new Map();
+        for (const item of params) {
+          if (!map.has(item.seriesName)) {
+            map.set(item.seriesName, true);
+            uniqueParams.push(item);
+          }
+        }
+
+        // 标题
+        let relVal = `<div style="margin-bottom:8px; font-weight:bold; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:4px; color:#fff;">${uniqueParams[0].name}</div>`;
+
+        const isSingleSeries = uniqueParams.length === 1;
+
+        uniqueParams.forEach(item => {
+          const dataIndex = item.dataIndex;
+          const seriesName = item.seriesName;
+          const currentValue = item.value;
+
+          // 2. 找到该系列完整数据并计算周期总计
+          const target = finalSeries.find(s => s.name === seriesName);
+          const allValues = target ? target.data : [];
+          const totalSum = allValues.reduce((acc, curr) => acc + (Number(curr) || 0), 0);
+          const avg = totalSum / allValues.length;
+          // 3. 计算环比逻辑
+          let changeText = '';
+          if (dataIndex > 0) {
+            const prevValue = allValues[dataIndex - 1];
+            const diff = (currentValue - prevValue);
+            let ratio = (prevValue && prevValue !== 0) ? ((diff / Math.abs(prevValue)) * 100).toFixed(1) + '%' : '100%';
+            const colorStyle = diff > 0 ? '#ff4d4f' : (diff < 0 ? '#52c41a' : '#ccc');
+            const symbol = diff > 0 ? '▲' : (diff < 0 ? '▼' : '-');
+            changeText = `<span style="color:${colorStyle}; font-size:11px;">${symbol} ${Math.abs(diff).toFixed(0)} (${ratio})</span>`;
+          } else {
+            changeText = `<span style="color:#999; font-size:11px;">--</span>`;
+          }
+
+          const isAvg = seriesName === '全线平均';
+
+          // 4. 单线时简洁展示，多线时横向排列
+          if (isSingleSeries) {
+            relVal += `
+              <div style="margin-top:6px; line-height:1.8;">
+                <div>
+                  <span style="display:inline-block;margin-right:6px;border-radius:50%;width:8px;height:8px;background-color:${item.color};"></span>
+                  <span style="${isAvg ? 'color:#FFD700; font-weight:bold;' : 'color:#ddd;'}">${seriesName}:</span>
+                  <b style="margin-left:6px; color:#fff;">${currentValue}</b>
+                </div>
+                <div style="color:#aaa; font-size:11px; padding-left:14px;">总计: <span style="color:#eee;">${totalSum.toLocaleString()}</span> &nbsp; 平均: <span style="color:#eee;">${avg.toLocaleString()}</span> &nbsp; ${changeText}</div>
+              </div>`;
+          } else {
+            relVal += `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; min-width:320px;">
+              <span style="display:flex; align-items:center; flex: 1;">
+                <span style="display:inline-block;margin-right:8px;border-radius:50%;width:8px;height:8px;background-color:${item.color};"></span>
+                <span style="${isAvg ? 'color:#FFD700; font-weight:bold;' : 'color:#ddd;'}">${seriesName}:</span>
+                <b style="margin-left:8px; color:#fff;">${currentValue}</b>
+              </span>
+
+              <span style="color:#aaa; font-size:11px; margin: 0 15px; white-space:nowrap;">
+                总计: <span style="color:#eee;">${totalSum.toLocaleString()}</span>
+              </span>
+              <span style="color:#aaa; font-size:11px; margin: 0 15px; white-space:nowrap;">
+                平均: <span style="color:#eee;">${avg.toLocaleString()}</span>
+              </span>
+
+              ${changeText}
+            </div>`;
+          }
+        });
+        return relVal;
+      }
     },
-    grid: {top: 60, bottom: 70, left: 60, right: 30, backgroundColor: 'transparent'},
-    legend: {top: '5%', left: 'center', textStyle: {color: '#90979c'}},
+    grid: {left: '6%', right: '6%', bottom: '18%', top: '18%'},
+    legend: {
+      top: '2%',
+      left: 'center',
+      textStyle: {color: '#90979c'},
+      selected: selectedMap.value
+    },
     xAxis: [{
       type: 'category',
-      axisLine: {lineStyle: {color: 'rgba(255,255,255,0.73)'}},
-      splitLine: {show: false},
-      axisTick: {show: false},
       data: xData,
-      splitArea: {show: false},   // 取消交替底色
+      splitLine: {show: false},
+      axisLine: {show: false}, // 完全隐藏轴线
+      axisTick: {show: false},
+      axisLabel: {color: '#ffffff'},
+      backgroundColor: 'transparent',
+      splitArea: {show: false} // 隐藏分割区域
     }],
     yAxis: [{
       type: 'value',
       splitLine: {show: false},
-      axisLine: {lineStyle: {color: 'rgb(255,255,255)'}},
-      splitArea: {show: false},   // 取消交替底色
+      axisLine: {show: false}, // 完全隐藏轴线
+      axisTick: {show: false},
+      axisLabel: {color: '#ffffff'},
+      backgroundColor: 'transparent',
+      splitArea: {show: false} // 隐藏分割区域
     }],
-    dataZoom: [
-      {
-        type: 'slider',
-        show: true,
-        xAxisIndex: [0],
-        bottom: 15,
-        height: 30,
-        start: 10,
-        end: 80,
-        handleIcon: 'path://M306.1,413c0,2.2-1.8,4-4,4h-59.8c-2.2,0-4-1.8-4-4V200.8c0-2.2,1.8-4,4-4h59.8c2.2,0,4,1.8,4,4V413z',
-        handleSize: '110%',
-        handleStyle: {color: '#5B3AAE'},
-        fillerColor: 'rgba(67,55,160,0.4)',
-        borderColor: 'rgba(204,187,225,0.5)'
-      },
-      {
-        type: 'inside',
-        start: 10,
-        end: 80
-      }
-    ],
-    series: seriesData
-  })
+    dataZoom: [{type: 'slider', bottom: '3%', height: '8%', start: 10, end: 80}, {type: 'inside'}],
+    series: finalSeries
+  }, true) // <--- 必须为 true，防止合并旧数据
 }
 
-// 窗口 resize
 const resizeChart = () => chart?.resize()
 
 onMounted(() => {
@@ -128,14 +221,9 @@ onBeforeUnmount(() => {
   if (props.autoResize) window.removeEventListener('resize', resizeChart)
 })
 
-// 监听数据变化
-watch(
-    () => props.chartData,
-    () => {
-      setOptions()
-    },
-    {deep: true}
-)
+watch(() => props.chartData, () => {
+  setOptions()
+}, {deep: true})
 </script>
 
 <style scoped>

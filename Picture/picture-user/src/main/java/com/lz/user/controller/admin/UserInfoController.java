@@ -1,5 +1,6 @@
 package com.lz.user.controller.admin;
 
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.Log;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
@@ -44,6 +45,7 @@ public class UserInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('user:userInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "user:user", useQueryParamsAsKey = true)
     public TableDataInfo list(UserInfoQuery userInfoQuery) {
         UserInfo userInfo = UserInfoQuery.queryToObj(userInfoQuery);
         startPage();

@@ -230,10 +230,8 @@ const onDateChange = (val) => {
   query.value.startDate = val?.[0] || ''
   query.value.endDate = val?.[1] || ''
   pointsOrderAddressData.value = []
-  pointsOrderAmountData.value = {
-    names: [],
-    values: []
-  }
+  pointsOrderAmountData.value.values = []
+  pointsOrderTotalData.value.names = []
 
   getStatistics()
 }

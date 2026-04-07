@@ -340,7 +340,9 @@ public class PictureStatisticsUtil {
     ) {
         // 1. 解析历史数据，获取到所有信息，包括为私有的图片
         List<PictureInfoStatisticsVo> dbResult = Optional.ofNullable(
-                JSONObject.parseArray(statisticsInfo.getExtendContent(), PictureInfoStatisticsVo.class)
+                JSONObject.parseArray(
+                        statisticsInfo.getExtendContent(),
+                        PictureInfoStatisticsVo.class)
         ).orElseGet(ArrayList::new);
 
         // 2. 从数据库内获取结果
@@ -349,14 +351,12 @@ public class PictureStatisticsUtil {
                 .collect(Collectors.toMap(
                         PictureInfoStatisticsVo::getPictureId,
                         //需要获取数据库内对象完整信息
-                        vo -> vo,
-                        (v1, v2) -> v1
+                        vo -> vo, (v1, v2) -> v1
                 ));
 
 
         // 3. 合并所有数据（不区分状态）
         LinkedHashMap<String, PictureInfoStatisticsVo> mergedMap = new LinkedHashMap<>();
-
         // 3.1 合并当前窗口数据
         //新建已处理的map，便于快速合并
         LinkedHashMap<String, PictureInfoStatisticsVo> processedMap = new LinkedHashMap<>();
@@ -381,7 +381,7 @@ public class PictureStatisticsUtil {
         if (StringUtils.isEmpty(mergedMap)) {
             return null;
         }
-        // 4  添加历史数据中未更新的图片
+        // 4 添加历史数据中未更新的图片
         for (PictureInfoStatisticsVo dbVo : dbResult) {
             if (StringUtils.isNotEmpty(dbVo.getPictureId()) &&
                     !processedMap.containsKey(dbVo.getPictureId())) {
@@ -405,7 +405,8 @@ public class PictureStatisticsUtil {
             LinkedHashMap<String, PictureInfoStatisticsVo> statisticsMap, Integer rank) {
         //拿到所有的分数结果
         List<PictureInfoStatisticsVo> allResults = allMap.values().stream()
-                .filter(vo -> StringUtils.isNotEmpty(vo.getPictureId()) && StringUtils.isNotNull(vo.getScore()))
+                .filter(vo -> StringUtils.isNotEmpty(vo.getPictureId())
+                        && StringUtils.isNotNull(vo.getScore()))
                 .sorted(Comparator.comparingDouble(PictureInfoStatisticsVo::getScore).reversed())
                 .collect(Collectors.toList());
         //所有结果缓存到额外信息
@@ -436,11 +437,16 @@ public class PictureStatisticsUtil {
         if (cacheList.size() >= needSize) {
             return new PictureStatisticsDto(sortedMap, allMap, cacheList, allResults);
         }
-        // 3 反之缓存数据未全部更新完毕，未完成需要缓存的最大值，需要从所有信息里面再次获取数据且判断是否为正常，也需要更新合并后的map
-        // 为什么从这里直接取呢？因为前面的数据未查询的已经获取到了，直接使用未查询的ids还是有序的
-        noDisposePictureIds.addAll(allResults.subList(needSize, allResults.size()).stream().map(PictureInfoStatisticsVo::getPictureId).toList());
+        // 3 反之缓存数据未全部更新完毕，未完成需要缓存的最大值，
+        // 需要从所有信息里面再次获取数据且判断是否为正常，
+        // 也需要更新合并后的map
+        // 为什么从这里直接取呢？因为前面的数据未查询的已经获取到了，
+        // 直接使用未查询的ids还是有序的
+        noDisposePictureIds.addAll(
+                allResults.subList(needSize, allResults.size())
+                .stream().map(PictureInfoStatisticsVo::getPictureId).toList());
         List<PictureInfo> pictureInfoList = new ArrayList<>();
-        // 4从这些id中查询图片信息，分批查询
+        // 4 从这些id中查询图片信息，分批查询
         for (int i = 0; i < noDisposePictureIds.size(); i += 1000) {
             int end = Math.min(i + 1000, noDisposePictureIds.size());
             List<String> subList = noDisposePictureIds.subList(i, end);
@@ -452,7 +458,11 @@ public class PictureStatisticsUtil {
             }
         }
         //5 转换结果集为map
-        Map<String, PictureInfo> pictureInfoMap = pictureInfoList.stream().collect(Collectors.toMap(PictureInfo::getPictureId, v -> v));
+        Map<String, PictureInfo> pictureInfoMap = pictureInfoList
+                .stream().collect(
+                        Collectors.toMap(
+                                PictureInfo::getPictureId, v -> v)
+                );
         for (String pictureId : noDisposePictureIds) {
             //获取到图片信息
             PictureInfo pictureInfo = pictureInfoMap.get(pictureId);

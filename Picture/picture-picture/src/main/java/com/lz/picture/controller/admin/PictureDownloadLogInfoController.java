@@ -1,5 +1,6 @@
 package com.lz.picture.controller.admin;
 
+import com.lz.common.annotation.CustomCacheable;
 import com.lz.common.annotation.Log;
 import com.lz.common.config.OssConfig;
 import com.lz.common.core.controller.BaseController;
@@ -45,6 +46,7 @@ public class PictureDownloadLogInfoController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('picture:pictureDownloadLogInfo:list')")
     @GetMapping("/list")
+    @CustomCacheable(keyPrefix = "picture:download", useQueryParamsAsKey = true)
     public TableDataInfo list(PictureDownloadLogInfoQuery pictureDownloadLogInfoQuery) {
         PictureDownloadLogInfo pictureDownloadLogInfo = PictureDownloadLogInfoQuery.queryToObj(pictureDownloadLogInfoQuery);
         startPage();

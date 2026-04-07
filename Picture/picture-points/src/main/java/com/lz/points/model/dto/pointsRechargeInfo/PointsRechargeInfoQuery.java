@@ -152,6 +152,9 @@ public class PointsRechargeInfoQuery implements Serializable {
      */
     private String isDelete;
 
+    private Integer pageNum;
+    private Integer pageSize;
+
     /**
      * 请求参数
      */

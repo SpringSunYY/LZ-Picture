@@ -87,16 +87,17 @@ public class CustomCacheAspect {
 
             return result;
         } else {
-            Object cachedValue = redisCache.getCacheObject(baseCacheKey);
-            if (cachedValue != null) {
-                return cachedValue;
+            String cachedJson = redisCache.getCacheObject(baseCacheKey);
+            if (cachedJson != null && !cachedJson.isEmpty()) {
+                Class<?> returnType = ((MethodSignature) joinPoint.getSignature()).getReturnType();
+                return JSON.parseObject(cachedJson, returnType);
             }
             Object result = joinPoint.proceed();
-            redisCache.setCacheObject(baseCacheKey, result, (int) expireTime, TimeUnit.SECONDS);
+            String resultJson = JSON.toJSONString(result);
+            redisCache.setCacheObject(baseCacheKey, resultJson, (int) expireTime, TimeUnit.SECONDS);
             return result;
         }
     }
-
 
     /**
      * 根据参数名+字段路径，获取对应值
