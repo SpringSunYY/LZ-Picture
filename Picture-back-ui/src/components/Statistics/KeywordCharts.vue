@@ -114,10 +114,9 @@ const initChart = (data) => {
   if (!data || data.length === 0) {
     return;
   }
-
   if (chart.value) {
-    chart.value.dispose();
-    chart.value = null;
+    chart.value.dispose();  // 销毁旧实例，释放所有资源
+    chart.value = null;      // 清空引用
   }
 
   const {min: minChartValue, max: maxChartValue} = getMinMaxValue(data);
@@ -179,7 +178,7 @@ const initChart = (data) => {
         layout: 'force',
         roam: 'scale',
         force: {
-           // 调整力导向参数，确保词语不会被挤到边界外
+          // 调整力导向参数，确保词语不会被挤到边界外
           repulsion: 100,    // 增加斥力，让词语更好地分散
           gravity: 0.5,      // 降低重力，减少向中心聚集的趋势
           edgeLength: 5,    // 增加边长，给词语更多空间

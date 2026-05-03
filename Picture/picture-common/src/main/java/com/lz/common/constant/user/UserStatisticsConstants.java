@@ -65,6 +65,13 @@ public class UserStatisticsConstants {
     public static final int USER_STATISTICS_INFORM_DAY_EXPIRE_TIME = 60 * 5;
 
     /**
+     * 用户消息发送实时
+     */
+    public static final String USER_STATISTICS_INFORM_REALTIME = "user:statistics:inform:realtime";
+    public static final String USER_STATISTICS_INFORM_REALTIME_NAME = "用户消息发送实时";
+    public static final int USER_STATISTICS_INFORM_REALTIME_EXPIRE_TIME = 60 * 5;
+
+    /**
      * 用户总数
      */
     public static final String USER_STATISTICS_COUNT = "user:statistics:count";

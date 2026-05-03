@@ -64,8 +64,8 @@ const props = defineProps({
       { label: '图片名称', prop: 'name' },
       { label: '浏览量', prop: 'lookCount' },
       { label: '收藏量', prop: 'collectCount' },
-      { label: '点赞', prop: 'likeCount' },
-      { label: '分享', prop: 'shareCount' }
+      { label: '点赞量', prop: 'likeCount' },
+      { label: '分享量', prop: 'shareCount' }
     ]
   },
   data: {
