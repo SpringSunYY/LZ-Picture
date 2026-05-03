@@ -155,7 +155,7 @@
         WHERE target_date &lt; DATE(#{endDate})
         )
         SELECT d.target_date AS name,
-        COALESCE(t.total, 0) AS value
+        COALESCE(t.value, 0) AS value
         FROM date_range d
         LEFT JOIN (
         SELECT DATE(login_time) AS stat_date,
@@ -187,8 +187,8 @@
         <if test="status != null and status != ''">
             AND status = #{status}
         </if>
-        GROUP BY DATE(login_time)) t
-        ON d.target_date = t.stat_date
+        GROUP BY DATE(login_time)
+        ) t ON d.target_date = t.stat_date
         ORDER BY d.target_date
     </select>
 

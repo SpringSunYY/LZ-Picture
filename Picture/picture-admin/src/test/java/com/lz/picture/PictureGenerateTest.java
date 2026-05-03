@@ -122,7 +122,8 @@ public class PictureGenerateTest {
     /**
      * 搜索记录目标总数
      */
-    private static final long TARGET_SEARCH_COUNT = 3000_000L;
+//    private static final long TARGET_SEARCH_COUNT = 3000_000L;
+    private static final long TARGET_SEARCH_COUNT = 1000L;
 
     /**
      * 空间目标总数
@@ -160,13 +161,16 @@ public class PictureGenerateTest {
     private static final int BATCH_SIZE = 200000;
     // ==================== 静态数据 ====================
 
+//    private static final List<String> KEYWORDS = List.of(
+//            "YY", "Spring", "懒羊羊", "AI", "海绵宝宝", "蜡笔小新", "可爱壁纸", "搞笑表情包", "表情包", "可爱的壁纸", "哆啦A梦",
+//            "AI生图", "AI图片生成", "AI图片", "手机壁纸", "电脑高清壁纸", "壁纸", "AI氛围感", "懒羊羊头像", "懒羊羊表情包", "AI生成图片",
+//            "小黄鸭表情包", "小黄鸭头像", "城市夜景", "citywork", "广州", "可爱表情包", "搞笑壁纸", "Jay", "Jay Zhou", "Hello kitty",
+//            "wallhaven", "聊天背景", "室内特写", "脸部特写", "春节", "熊二", "好运连连", "心想事成", "恭喜发财",
+//            "卡通头像", "AI生成头像", "壁纸ins高级质感", "故事宿命感", "自然真实", "大师摄影", "真实人像摄影", "cosplay", "游戏cg", "夕阳", "日出",
+//            "蓝调", "猫咪", "Moebius", "头像插画", "极简主义", "复古风格", "艺术风格", "大师作品", "4K", "4k高清"
+//    );
     private static final List<String> KEYWORDS = List.of(
-            "YY", "Spring", "懒羊羊", "AI", "海绵宝宝", "蜡笔小新", "可爱壁纸", "搞笑表情包", "表情包", "可爱的壁纸", "哆啦A梦",
-            "AI生图", "AI图片生成", "AI图片", "手机壁纸", "电脑高清壁纸", "壁纸", "AI氛围感", "懒羊羊头像", "懒羊羊表情包", "AI生成图片",
-            "小黄鸭表情包", "小黄鸭头像", "城市夜景", "citywork", "广州", "可爱表情包", "搞笑壁纸", "Jay", "Jay Zhou", "Hello kitty",
-            "wallhaven", "聊天背景", "室内特写", "脸部特写", "春节", "熊二", "好运连连", "心想事成", "恭喜发财",
-            "卡通头像", "AI生成头像", "壁纸ins高级质感", "故事宿命感", "自然真实", "大师摄影", "真实人像摄影", "cosplay", "游戏cg", "夕阳", "日出",
-            "蓝调", "猫咪", "Moebius", "头像插画", "极简主义", "复古风格", "艺术风格", "大师作品", "4K", "4k高清"
+        "Spring","AI","壁纸ins高级质感"
     );
 
     private static final List<String> TAGS = List.of(
@@ -248,7 +252,8 @@ public class PictureGenerateTest {
                 log.setSearchStatus(PSearchStatusEnum.SEARCH_STATUS_0.getValue());
                 log.setFailReason(null);
                 log.setResultCount(35L);
-                log.setCreateTime(RandomUtils.generateDateAfter(regTime, MIN_MINUTES, MAX_MINUTES));
+//                log.setCreateTime(RandomUtils.generateDateAfter(regTime, MIN_MINUTES, MAX_MINUTES));
+                log.setCreateTime(new Date());
                 log.setSearchDuration(1000L);
                 log.setIpAddr(user.getLastLoginIp());
                 log.setIpAddress(user.getIpAddress());

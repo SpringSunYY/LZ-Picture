@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <el-col :span="6">
         <div class="base-height">
-          <KeywordCharts :chart-name="searchKeywordName" :chart-data="searchKeywordData"/>
+          <KeywordCharts :font-size-range="[12,36]" :chart-name="searchKeywordName" :chart-data="searchKeywordData"/>
         </div>
       </el-col>
       <el-col :span="12">
@@ -270,10 +270,10 @@ const pictureRankingHeaders = ref([
     label: '收藏量',
     prop: 'collectCount'
   }, {
-    label: '点赞',
+    label: '点赞量',
     prop: 'likeCount'
   }, {
-    label: '分享',
+    label: '分享量',
     prop: 'shareCount'
   }])
 const pictureRankingQuery = ref({

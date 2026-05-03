@@ -220,7 +220,7 @@ const initChart = () => {
         const value = params.value;           // 当前 series 的值数组
         let text = `${seriesName}<br/>`;
         value.forEach((v: number, i: number) => {
-          // 优化：只显示非零的数据
+          // 只显示非零的数据
           if (v !== 0 && buildResult.indicators && buildResult.indicators[i]) {
             const name = buildResult.indicators[i].text;
             text += `${name}: ${v}<br/>`;

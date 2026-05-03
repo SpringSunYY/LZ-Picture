@@ -808,6 +808,7 @@ public class UStatisticsInfoServiceImpl extends ServiceImpl<UStatisticsInfoMappe
 
 
     @Override
+    @CustomCacheable(keyPrefix = USER_STATISTICS_INFORM_REALTIME, expireTime = USER_STATISTICS_INFORM_REALTIME_EXPIRE_TIME, useQueryParamsAsKey = true)
     public List<UserInformStatisticsVo> userInformStatistics(UserInformStatisticsRequest request) {
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
