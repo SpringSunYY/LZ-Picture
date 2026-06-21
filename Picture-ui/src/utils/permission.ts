@@ -97,7 +97,7 @@ export function checkLogin(): boolean {
 }
 
 /**
- * 判断是否是创建则
+ * 判断是否是创建者
  */
 export function checkSpaceCreator(spaceId: string): boolean {
   return checkSpacePerm(buildSpacePermByUser(spaceId, PSpaceRole.SPACE_ROLE_0))
