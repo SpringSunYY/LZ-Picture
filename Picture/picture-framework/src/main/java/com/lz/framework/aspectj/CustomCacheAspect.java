@@ -11,6 +11,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -89,8 +90,8 @@ public class CustomCacheAspect {
         } else {
             String cachedJson = redisCache.getCacheObject(baseCacheKey);
             if (cachedJson != null && !cachedJson.isEmpty()) {
-                Class<?> returnType = ((MethodSignature) joinPoint.getSignature()).getReturnType();
-                return JSON.parseObject(cachedJson, returnType);
+                Type genericReturnType = ((MethodSignature) joinPoint.getSignature()).getMethod().getGenericReturnType();
+                return JSON.parseObject(cachedJson, genericReturnType);
             }
             Object result = joinPoint.proceed();
             String resultJson = JSON.toJSONString(result);
