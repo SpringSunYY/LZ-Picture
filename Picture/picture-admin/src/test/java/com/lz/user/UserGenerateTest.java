@@ -391,7 +391,7 @@ public class UserGenerateTest {
 
     @Test
     public void testDeleteUserGenerate() {
-        testDeleteStatisticsGenerate();
+//        testDeleteStatisticsGenerate();
         long start = System.currentTimeMillis();
         int batchSize = 300000;
 

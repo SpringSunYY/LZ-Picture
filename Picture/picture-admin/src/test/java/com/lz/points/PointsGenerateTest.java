@@ -88,7 +88,7 @@ public class PointsGenerateTest {
     /**
      * 批量数量
      */
-    private static final int BATCH_SIZE = 100000;
+    private static final int BATCH_SIZE = 10000;
 
     // ==================== 数据生成方法 ====================
 

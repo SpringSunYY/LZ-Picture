@@ -1335,7 +1335,7 @@ public class PictureGenerateTest {
     @Test
     public void deletePicture() {
         long start = System.currentTimeMillis();
-        deleteStatistics();
+//        deleteStatistics();
         int batch = BATCH_SIZE;
         p("开始删除图片", start);
 
@@ -1349,12 +1349,12 @@ public class PictureGenerateTest {
                             .notIn(PictureDownloadLogInfo::getUserId, EXCLUDED_USER_IDS)
                             .last("limit " + batch)
             );
+            totalDownloadDeleted += batch;
+            downLoopCount++;
             p("1 删除下载记录批次 " + downLoopCount + "：累计删 " + totalDownloadDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalDownloadDeleted += batch;
-            downLoopCount++;
         }
         p("1 删除下载记录完成", start);
         //删除行为记录
@@ -1367,12 +1367,12 @@ public class PictureGenerateTest {
                             .notIn(UserBehaviorInfo::getUserId, EXCLUDED_USER_IDS)
                             .last("limit " + batch)
             );
+            totalBehaviorDeleted += batch;
+            behaviorLoopCount++;
             p("2 删除行为记录批次 " + behaviorLoopCount + "：累计删 " + totalBehaviorDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalBehaviorDeleted += batch;
-            behaviorLoopCount++;
         }
         p("2 删除行为记录完成", start);
         //删除浏览记录
@@ -1385,12 +1385,12 @@ public class PictureGenerateTest {
                             .notIn(UserViewLogInfo::getUserId, EXCLUDED_USER_IDS)
                             .last("limit " + batch)
             );
+            totalViewDeleted += batch;
+            viewLoopCount++;
             p("3 删除浏览记录批次 " + viewLoopCount + "：累计删 " + totalViewDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalViewDeleted += batch;
-            viewLoopCount++;
         }
         //删除图片与标签关系
         long totalTagRelDeleted = 0;
@@ -1401,10 +1401,10 @@ public class PictureGenerateTest {
                             .notIn(PictureTagRelInfo::getUserId, EXCLUDED_USER_IDS)
                             .last("limit " + batch)
             );
-            p("4 删除图片与标签关系批次 " + tagRelLoopCount + "：累计删 " + totalTagRelDeleted + " 条", start);
-            if (!remove) break;
             totalTagRelDeleted += batch;
             tagRelLoopCount++;
+            p("4 删除图片与标签关系批次 " + tagRelLoopCount + "：累计删 " + totalTagRelDeleted + " 条", start);
+            if (!remove) break;
         }
         //删除图片
         long totalPicTagDeleted = 0;
@@ -1415,12 +1415,12 @@ public class PictureGenerateTest {
                             .notIn(PictureInfo::getSpaceId, EXCLUDED_SPACE_IDS)
                             .notIn(PictureInfo::getUserId, EXCLUDED_USER_IDS)
             );
+            totalPicTagDeleted += batch;
+            picTagLoopCount++;
             p("5 删除图片批次 " + picTagLoopCount + "：累计删 " + totalPicTagDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalPicTagDeleted += batch;
-            picTagLoopCount++;
         }
         p("5 删除图片完成", start);
         //删除空间
@@ -1433,12 +1433,12 @@ public class PictureGenerateTest {
                             .notIn(SpaceInfo::getUserId, EXCLUDED_USER_IDS)
                             .last("limit " + batch)
             );
+            totalSpaceTagDeleted += batch;
+            spaceTagLoopCount++;
             p("6 删除空间批次 " + spaceTagLoopCount + "：累计删 " + totalSpaceTagDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalSpaceTagDeleted += batch;
-            spaceTagLoopCount++;
         }
         p("6 删除空间完成", start);
         //删除搜索记录
@@ -1450,12 +1450,12 @@ public class PictureGenerateTest {
                             .notIn(SearchLogInfo::getUserId, EXCLUDED_USER_IDS)
                             .last("limit " + batch)
             );
+            totalSearchDeleted += batch;
+            searchLoopCount++;
             p("7 删除搜索记录批次 " + searchLoopCount + "：累计删 " + totalSearchDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalSearchDeleted += batch;
-            searchLoopCount++;
         }
         //删除孤儿图片
         long totalOrphanPicDeleted = 0;
@@ -1468,12 +1468,12 @@ public class PictureGenerateTest {
                             .isNull(PictureInfo::getPictureId)
                             .last("limit " + batch)
             );
+            totalOrphanPicDeleted += batch;
+            orphanPicLoopCount++;
             p("8 删除孤儿图片批次 " + orphanPicLoopCount + "：累计删 " + totalOrphanPicDeleted + " 条", start);
             if (!remove) {
                 break;
             }
-            totalOrphanPicDeleted += batch;
-            orphanPicLoopCount++;
         }
         p("8 删除孤儿图片完成", start);
         // ========== 2. 重算标签下载次数（先扫描下载日志统计，重算后删除） ==========
