@@ -1,0 +1,172 @@
+/**
+ * 主题色配置（统一 $app-* 命名）
+ *
+ * 设计原则：
+ * - 业务 / uview 组件统一定义为 CSS 变量 `--app-*`
+ * - SCSS 变量 $app-* 用 unquote('var(--app-*, #default)') 方式输出，
+ *   业务 SCSS 写 background-color: $app-primary，编译后是
+ *   background-color: var(--app-primary, #4f46e5)
+ * - 切主题时 App.vue 改 :root 的 --app-*，所有用到的地方一起变（H5 + 小程序）
+ *
+ * 默认色（兜底）就是 indigo preset 的值；切主题由 App.vue 改 :root CSS 变量覆盖。
+ *
+ * ⚠️ 不用 @use 'sass:string' 的原因：uni-app vite 插件会在 uni.scss 之前注入
+ * 其它 at-rule，导致 @use 落在文件中间触发 "must be written before any other
+ * rules"。所以用兼容旧 Sass 的全局 unquote() 函数（Dart Sass 仍支持，只是
+ * 会在 3.0 deprecation 警告，可 silenceDeprecations 关掉）。
+ */
+
+/* ============================================================
+ * 主题色（编译期默认 = indigo；运行时由 :root 的 --app-* 覆盖）
+ * ============================================================ */
+
+/* 主题色 - 默认使用 indigo（#4f46e5） */
+$app-primary-default: #4f46e5;
+$app-primary-dark-default: #4338ca;
+$app-primary-disabled-default: #a5b4fc;
+$app-primary-light-default: #4f46e514;
+
+/* 文字色阶 */
+$app-main-color-default: #303133;
+$app-content-color-default: #606266;
+$app-tips-color-default: #909193;
+$app-light-color-default: #c0c4cc;
+
+/* 语义色（固定不变） */
+$app-success: #5ac725;
+$app-warning: #f9ae3d;
+$app-error: #f56c6c;
+$app-info: #909399;
+
+/* ============================================================
+ * 暴露给业务代码的 $app-* 变量
+ *
+ * 用 unquote 把 'var(--app-*, #default)' 当字符串原样输出（去掉外层
+ * 引号），编译后就是 var(--app-primary, #4f46e5) 这样的 CSS 变量。切主题时
+ * 只改 :root --app-*，业务色全跟着变。
+ *
+ * ⚠️ 不能直接写 $app-primary: var(--app-primary, #xxx); —— Sass 解析
+ * `var(...)` 当合法 CSS 原样输出，但赋给 SCSS 变量时会报 "var(...) is not a
+ * SassScript value" 错误。必须用 unquote 包一层字符串。
+ * ============================================================ */
+$app-primary: unquote('var(--app-primary, #{$app-primary-default})');
+$app-primary-dark: unquote('var(--app-primary-dark, #{$app-primary-dark-default})');
+$app-primary-disabled: unquote('var(--app-primary-disabled, #{$app-primary-disabled-default})');
+$app-primary-light: unquote('var(--app-primary-light, #{$app-primary-light-default})');
+$app-main-color: unquote('var(--app-main-color, #{$app-main-color-default})');
+$app-content-color: unquote('var(--app-content-color, #{$app-content-color-default})');
+$app-tips-color: unquote('var(--app-tips-color, #{$app-tips-color-default})');
+$app-light-color: unquote('var(--app-light-color, #{$app-light-color-default})');
+
+/* ============================================================
+ * 桥接给 uview-plus 内部用：让 uview 组件也走我们的 --app-* 变量
+ * uview 内部 SCSS 写 $u-primary，编译后是 var(--up-primary, var(--u-primary, 兜底))。
+ * 我们把它替换成 var(--app-*, 兜底)，业务和组件一套变量。
+ * ============================================================ */
+$u-primary: $app-primary;
+$u-primary-dark: $app-primary-dark;
+$u-primary-disabled: $app-primary-disabled;
+$u-primary-light: $app-primary-light;
+$u-main-color: $app-main-color;
+$u-content-color: $app-content-color;
+$u-tips-color: $app-tips-color;
+$u-light-color: $app-light-color;
+
+/* uview-plus checkbox 选中态颜色 */
+$u-checkbox-icon-wrap-checked-background-color: $app-primary;
+$u-checkbox-icon-wrap-checked-border-color: $app-primary;
+
+/* 导入 uview-plus（会读取前面定义的 $u-* 变量并桥接到 CSS 变量） */
+@import 'uview-plus/theme.scss';
+
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+
+/* 颜色变量 */
+
+/* 行为相关颜色
+ * - $uni-color-primary 指向 $app-primary（主题主色），实现一键换肤
+ * - success / warning / error 维持 uni-app 原值，不跟主题，避免破坏通用语义
+ */
+$uni-color-primary: $app-primary;
+$uni-color-success: #4cd964;
+$uni-color-warning: #f0ad4e;
+$uni-color-error: #dd524d;
+
+/* 文字基本颜色 */
+$uni-text-color:#333;//基本色
+$uni-text-color-inverse:#fff;//反色
+$uni-text-color-grey:#999;//辅助灰色，如加载更多的提示信息
+$uni-text-color-placeholder: #808080;
+$uni-text-color-disable:#c0c0c0;
+
+/* 背景颜色 */
+$uni-bg-color:#ffffff;
+$uni-bg-color-grey:#f8f8f8;
+$uni-bg-color-hover:#f1f1f1;//点击状态颜色
+$uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
+
+/* 边框颜色 */
+$uni-border-color:#c8c7cc;
+
+/* 尺寸变量 */
+
+/* 文字尺寸 */
+$uni-font-size-sm:12px;
+$uni-font-size-base:14px;
+$uni-font-size-lg:16px;
+
+/* 图片尺寸 */
+$uni-img-size-sm:20px;
+$uni-img-size-base:26px;
+$uni-img-size-lg:30px;
+
+/* Border Radius */
+$uni-border-radius-sm: 2px;
+$uni-border-radius-base: 3px;
+$uni-border-radius-lg: 6px;
+$uni-border-radius-circle: 50%;
+
+/* 水平间距 */
+$uni-spacing-row-sm: 5px;
+$uni-spacing-row-base: 10px;
+$uni-spacing-row-lg: 15px;
+
+/* 垂直间距 */
+$uni-spacing-col-sm: 4px;
+$uni-spacing-col-base: 8px;
+$uni-spacing-col-lg: 12px;
+
+/* 透明度 */
+$uni-opacity-disabled: 0.3; // 组件禁用态的透明度
+
+/* 文章场景相关 */
+$uni-color-title: #2C405A; // 文章标题颜色
+$uni-font-size-title:20px;
+$uni-color-subtitle: #555555; // 二级标题颜色
+$uni-font-size-subtitle:26px;
+$uni-color-paragraph: #3F536E; // 文章段落颜色
+$uni-font-size-paragraph:15px;
+
+/* 全局高度统一设置，保证 H5 与小程序页面高度一致 */
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* 小程序端 page 高度同步为 100%，避免首页高度不一致 */
+page {
+  min-height: 100%;
+}

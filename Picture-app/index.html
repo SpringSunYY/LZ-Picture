@@ -9,12 +9,15 @@
         '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
         (coverSupport ? ', viewport-fit=cover' : '') + '" />')
     </script>
-    <title></title>
-    <!--preload-links-->
-    <!--app-context-->
+    <title>LZ-Picture</title>
   </head>
   <body>
     <div id="app"><!--app-html--></div>
-    <script type="module" src="/main.js"></script>
+    <!--
+      注意: @dcloudio/vite-plugin-uni 在 h5 dev 非 SSR 模式下不会自动改写 client entry,
+      所以这里必须显式指向 src/main.ts (vite 解析时会按 vite root + url 找文件)。
+      uni 的 main.ts 是项目入口 (createApp + createSSRApp),它会读 pages.json 注册路由。
+    -->
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
