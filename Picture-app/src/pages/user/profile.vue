@@ -1,8 +1,7 @@
 <template>
   <view class="profile-page" :style="rootStyleVar">
-    <!-- 顶部背景装饰光斑（M3 surface tint 思路：极淡的主色对位） -->
-    <view class="bg-blur bg-blur-primary"/>
-    <view class="bg-blur bg-blur-secondary"/>
+<!--    <view class="bg-blur bg-blur-primary"/>-->
+<!--    <view class="bg-blur bg-blur-secondary"/>-->
 
     <!-- ============================================================
          1. 顶部创作者身份看板 (Hero Creator Card)
@@ -75,38 +74,11 @@
     <!-- ============================================================
          3. 个人云存储配额进度可视化 (Cloud Storage Bar)
          ============================================================ -->
-    <view class="storage-card">
-      <view class="storage-card-head">
-        <view class="storage-card-head-left">
-          <view class="storage-card-icon">
-            <SvgIcon icon="cloud" class="storage-card-icon-svg"/>
-          </view>
-          <text class="storage-card-title">云端无损存储空间</text>
-        </view>
-
-        <view class="storage-card-gift-btn" @tap="onExpandStorage">
-          <SvgIcon icon="points" class="storage-card-gift-icon"/>
-          <text class="storage-card-gift-text">扩容礼包</text>
-        </view>
-      </view>
-
-      <view class="storage-card-meta">
-        <text class="storage-card-meta-text">{{ formatSize(usedStorage) }} / {{ formatSize(totalStorage) }}</text>
-        <text class="storage-card-meta-percent">{{ storagePercent }}%</text>
-      </view>
-
-      <view class="storage-card-progress">
-        <view class="storage-card-progress-bar" :style="{ width: storagePercent + '%' }"/>
-      </view>
-
-      <view class="storage-card-foot">
-        <text class="storage-card-foot-text">{{ storageSubtitle }}</text>
-        <view class="storage-card-clean" @tap="onSmartClean">
-          <text class="storage-card-clean-text">智能清理</text>
-          <SvgIcon icon="right" class="storage-card-clean-arrow"/>
-        </view>
-      </view>
-    </view>
+    <CloudStorageBar
+        :used="usedStorage"
+        :total="totalStorage"
+        :subtitle="storageSubtitle"
+    />
 
     <!-- ============================================================
          4. 积分充值横幅 (Banner 积分)
@@ -149,64 +121,12 @@
     <!-- ============================================================
          6. 我的 (与下方"服务与偏好设置"使用同一套 menu-card 卡片样式)
          ============================================================ -->
-    <view class="menu-group">
-      <text class="menu-group-label">我的</text>
-      <view class="menu-card">
-        <view
-            v-for="(link, i) in myLinks"
-            :key="link.label"
-            class="menu-item"
-            :class="{ 'menu-item-divider': i !== myLinks.length - 1 }"
-            @tap="onQuickLink(link)"
-        >
-          <view class="menu-item-icon">
-            <SvgIcon :icon="link.icon" class="menu-item-icon-svg"/>
-          </view>
-          <view class="menu-item-label-wrap">
-            <text class="menu-item-label">{{ link.label }}</text>
-          </view>
-          <view class="menu-item-trail">
-            <SvgIcon icon="right" class="menu-item-arrow"/>
-          </view>
-        </view>
-      </view>
-    </view>
+    <MenuGroup label="我的" :items="myLinks"/>
 
     <!-- ============================================================
          7. 服务与偏好设置 (iOS 风格圆角群组卡片 —— 含原"系统设置")
          ============================================================ -->
-    <view class="menu-group">
-      <text class="menu-group-label">服务与偏好设置</text>
-
-      <view class="menu-card">
-        <view
-            v-for="(item, i) in settingsList"
-            :key="item.label"
-            class="menu-item"
-            :class="{ 'menu-item-divider': i !== settingsList.length - 1 }"
-            @tap="onSettingsItem(item)"
-        >
-          <view class="menu-item-icon">
-            <SvgIcon :icon="item.icon" class="menu-item-icon-svg"/>
-          </view>
-
-          <view class="menu-item-label-wrap">
-            <text class="menu-item-label">{{ item.label }}</text>
-            <view v-if="item.tag" class="menu-item-inline-tag" :style="item.tagStyle">
-              <text class="menu-item-inline-tag-text">{{ item.tag }}</text>
-            </view>
-          </view>
-
-          <view class="menu-item-trail">
-            <view v-if="item.badge" class="menu-item-dot-badge">
-              <text class="menu-item-dot-badge-text">{{ item.badge }}</text>
-            </view>
-            <text v-else-if="item.meta" class="menu-item-meta">{{ item.meta }}</text>
-            <SvgIcon icon="right" class="menu-item-arrow"/>
-          </view>
-        </view>
-      </view>
-    </view>
+    <MenuGroup label="服务与偏好设置" :items="settingsList"/>
 
     <!-- 底部退出/切换账号操作点 -->
     <view class="profile-foot">
@@ -221,13 +141,15 @@
 
 <script setup>
 import AppTabbar from '@/components/AppTabbar.vue'
+import CloudStorageBar from '@/components/CloudStorageBar.vue'
+import MenuGroup from '@/components/MenuGroup.vue'
 import {onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useUser} from '@/utils/useUser'
 import {getMyUserInfoByUserName} from '@/api/user/user'
-import {formatSize, initCover} from '@/utils/common'
+import {initCover} from '@/utils/common'
 import {getAccountInfo} from '@/api/points/account'
-import {toast, showConfirm} from '@/utils/toast'
+import {toast} from '@/utils/toast'
 import SvgIcon from "@/components/SvgIcon.vue";
 
 // ===================== 用户信息(走 useUser,沿用 login.vue 的封装) =====================
@@ -290,7 +212,6 @@ const getAccount = () => {
 // 字节数(后续接后端时,直接把 userInfo.usedStorage / totalStorage 这种数字字段塞进来即可)
 const usedStorage = ref(3.4 * 1024 * 1024 * 1024)   // 演示数据:3.4 GB
 const totalStorage = ref(10 * 1024 * 1024 * 1024)  // 演示数据:10 GB
-const storagePercent = ref(Math.round((usedStorage.value / totalStorage.value) * 100))
 const storageSubtitle = ref('RAW 原片 2.8 GB · 超清导出版 0.6 GB')
 
 // ===================== 操作记录(原 orderActions 结构) =====================
@@ -324,7 +245,9 @@ const settingsList = [
     badge: '',
     tag: '',
     meta: '',
-    tagStyle: {}
+    tagStyle: {},
+    // 跳转路径:传了 path 的项,MenuGroup 内部会自己走 uni.navigateTo;没传的组件内部 toast 兜底
+    path: '/pages/user/system/system',
   },
   {
     label: '系统通知与互动消息',
@@ -375,35 +298,13 @@ const bannerImage = '/static/recharge.jpeg'
 
 // ===================== 点击事件(占位 toast,后续接路由) =====================
 const onPreviewProfile = () => toast('预览个人主页')
-const onExpandStorage = () => toast('扩容礼包活动')
-const onSmartClean = () => toast('智能清理:扫描大文件与重复内容')
 const onRecharge = () => toast('进入积分充值页')
 const onAllActions = () => toast('查看全部操作记录')
 const onOrderAction = (item) => toast(`查看${item.label}记录`)
-const onQuickLink = (item) => toast(`进入${item.label}`)
-const onSettingsItem = (item) => toast(`打开${item.label}`)
 /**
- * 切换 / 退出账户
- * 必须先弹模态确认 —— 用户点"确定"才走 logout + reLaunch 到登录页
- * 后端 /logout 是有 token 时才调用,失败也会继续清本地(避免后端抖动把页面卡住)
+ * 退出当前登录
  */
-const onSwitchAccount = async () => {
-  // 未登录直接跳登录页,不再弹确认框
-  if (!store.state.user.token) {
-    uni.reLaunch({url: '/pages/user/login'})
-    return
-  }
-  const res = await showConfirm('确定要退出当前创作者账户吗?退出后需要重新登录。')
-  if (!res.confirm) return
-  try {
-    await logoutAction()
-    toast('已退出登录')
-  } catch (e) {
-    // 即便 store 那侧抛错,本地态已经被清理,继续跳转兜底
-    console.warn('退出登录过程出错,继续跳登录页', e)
-  }
-  uni.reLaunch({url: '/pages/user/login'})
-}
+const onSwitchAccount = () => logoutAction()
 
 onMounted(() => {
   getUserInfo()
@@ -480,10 +381,8 @@ button {
 /* 公共层级:内容都浮在 bg-blur 之上 */
 .hero-card,
 .metrics-grid,
-.storage-card,
 .recharge-banner,
 .profile-section,
-.menu-group,
 .profile-foot {
   position: relative;
   z-index: 1;
@@ -720,168 +619,9 @@ button {
 }
 
 /* ============================================================
- * 3. 云存储配额
+ * 3. 云存储配额 —— 已抽出到 components/CloudStorageBar.vue
+ *    这里不再保留 .storage-card* 样式,统一交给组件自己管理
  * ============================================================ */
-.storage-card {
-  width: 100%;
-  margin-top: 24rpx;
-  padding: 32rpx;
-  border-radius: 32rpx;
-  background-color: $surface-lowest;
-  box-shadow: 0 6rpx 18rpx rgba(19, 27, 46, 0.04);
-  box-sizing: border-box;
-}
-
-.storage-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18rpx;
-}
-
-.storage-card-head-left {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-}
-
-.storage-card-icon {
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 12rpx;
-  background-color: $surface-container;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12rpx;
-  flex-shrink: 0;
-}
-
-.storage-card-icon-svg {
-  font-size: 24rpx;
-  color: $primary;
-  line-height: 1;
-}
-
-.storage-card-title {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: $on-surface;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.storage-card-gift-btn {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  padding: 8rpx 16rpx;
-  border-radius: 999rpx;
-  background-color: var(--app-primary-light, rgba(79, 70, 229, 0.08));
-  transition: transform 0.15s, background-color 0.15s;
-
-  &:active {
-    transform: scale(0.96);
-    background-color: var(--app-primary-disabled, rgba(79, 70, 229, 0.35));
-  }
-}
-
-.storage-card-gift-icon {
-  font-size: 22rpx;
-  color: var(--app-primary, #4f46e5);
-  line-height: 1;
-}
-
-.storage-card-gift-text {
-  margin-left: 6rpx;
-  font-size: 20rpx;
-  font-weight: 700;
-  color: var(--app-primary, #4f46e5);
-  line-height: 1;
-}
-
-.storage-card-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12rpx;
-}
-
-.storage-card-meta-text {
-  font-size: 22rpx;
-  color: $on-surface-variant;
-  letter-spacing: -0.5rpx;
-}
-
-.storage-card-meta-percent {
-  font-size: 22rpx;
-  font-weight: 700;
-  color: $primary;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.storage-card-progress {
-  width: 100%;
-  height: 10rpx;
-  border-radius: 999rpx;
-  background-color: $surface-container;
-  overflow: hidden;
-  padding: 1rpx;
-  box-sizing: border-box;
-}
-
-.storage-card-progress-bar {
-  height: 100%;
-  border-radius: 999rpx;
-  background: linear-gradient(90deg, $primary-container, $primary, $secondary);
-  transition: width 0.4s ease-out;
-}
-
-.storage-card-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14rpx;
-  padding-top: 4rpx;
-}
-
-.storage-card-foot-text {
-  font-size: 20rpx;
-  color: $outline;
-  letter-spacing: 0.2rpx;
-  flex: 1;
-  margin-right: 16rpx;
-}
-
-.storage-card-clean {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 6rpx 14rpx;
-  border-radius: 999rpx;
-  background-color: var(--app-primary-light, rgba(79, 70, 229, 0.08));
-  transition: background-color 0.15s;
-
-  &:active {
-    background-color: var(--app-primary-disabled, rgba(79, 70, 229, 0.35));
-  }
-}
-
-.storage-card-clean-text {
-  font-size: 20rpx;
-  font-weight: 700;
-  color: var(--app-primary, #4f46e5);
-  line-height: 1;
-}
-
-.storage-card-clean-arrow {
-  margin-left: 4rpx;
-  font-size: 22rpx;
-  color: var(--app-primary, #4f46e5);
-  line-height: 1;
-}
 
 /* ============================================================
  * 4. 积分充值横幅
@@ -1031,149 +771,6 @@ button {
 .order-label {
   font-size: 24rpx;
   color: #63637a;
-}
-
-/* ============================================================
- * 7. 服务与偏好设置 + 我的 共享 iOS 风格圆角群组卡片
- *    (原 6. 我的 的 .profile-links / .link-item 样式已统一到这里)
- * ============================================================ */
-.menu-group {
-  width: 100%;
-  margin-top: 32rpx;
-}
-
-.menu-group-label {
-  display: block;
-  margin-bottom: 12rpx;
-  padding: 0 8rpx;
-  font-size: 22rpx;
-  font-weight: 500;
-  color: $outline;
-  letter-spacing: 0.5rpx;
-  line-height: 1.4;
-}
-
-.menu-card {
-  width: 100%;
-  border-radius: 24rpx;
-  background-color: $surface-lowest;
-  box-shadow: 0 4rpx 12rpx rgba(19, 27, 46, 0.04);
-  overflow: hidden;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 28rpx 32rpx;
-  box-sizing: border-box;
-  transition: background-color 0.15s;
-
-  &:active {
-    background-color: $surface-container;
-  }
-}
-
-/* 用纯色细线分层替代 border —— 避免 border 与 padding 冲突 */
-.menu-item-divider {
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 96rpx; // 图标宽 64 + 间距 20 + 左 padding 32 - 2 = 114, 这里取 96 贴齐 label 起点
-    right: 32rpx;
-    bottom: 0;
-    height: 1rpx;
-    background-color: $surface-low;
-  }
-}
-
-.menu-item-icon {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 18rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20rpx;
-  flex-shrink: 0;
-  // 统一淡色背景 + 主题色图标(原数据里的 iconStyle 全部移除了,改由 SvgIcon 自动读取主题色)
-  background-color: rgba($primary-container, 0.08);
-  color: $primary;
-}
-
-.menu-item-icon-svg {
-  font-size: 32rpx;
-  line-height: 1;
-}
-
-.menu-item-label-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.menu-item-label {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: $on-surface;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.menu-item-inline-tag {
-  margin-left: 10rpx;
-  padding: 4rpx 10rpx;
-  border-radius: 999rpx;
-  flex-shrink: 0;
-}
-
-.menu-item-inline-tag-text {
-  font-size: 18rpx;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.menu-item-trail {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.menu-item-meta {
-  font-size: 22rpx;
-  font-weight: 500;
-  color: $outline;
-  margin-right: 8rpx;
-  line-height: 1;
-}
-
-.menu-item-arrow {
-  font-size: 28rpx;
-  color: $outline-variant;
-  line-height: 1;
-}
-
-/* 红点角标 */
-.menu-item-dot-badge {
-  width: 32rpx;
-  height: 32rpx;
-  border-radius: 50%;
-  background-color: $secondary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 8rpx;
-  flex-shrink: 0;
-}
-
-.menu-item-dot-badge-text {
-  font-size: 18rpx;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1;
 }
 
 /* ============================================================

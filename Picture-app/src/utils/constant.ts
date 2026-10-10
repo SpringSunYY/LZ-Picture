@@ -6,35 +6,37 @@
  */
 
 interface Constant {
-  avatar: string
-  name: string
-  roles: string
-  permissions: string
+    avatar: string
+    name: string
+    roles: string
+    permissions: string
 
-  /** 用户相关信息（用于持久化） */
-  userId: string
-  userName: string
-  nickName: string
+    /** 用户相关信息（用于持久化） */
+    userId: string
+    phone: string
+    userName: string
+    nickName: string
 
-  /** UI 状态（用于持久化） */
-  rememberMe: string
-  rememberAccount: string
+    /** UI 状态（用于持久化） */
+    rememberMe: string
+    rememberAccount: string
 }
 
 const constant: Constant = {
-  avatar: 'vuex_avatar',
-  name: 'vuex_name',
-  roles: 'vuex_roles',
-  permissions: 'vuex_permissions',
+    avatar: 'vuex_avatar',
+    name: 'vuex_name',
+    roles: 'vuex_roles',
+    permissions: 'vuex_permissions',
 
-  // 用户相关信息（用于持久化）
-  userId: 'vuex_userId',
-  userName: 'vuex_userName',
-  nickName: 'vuex_nickName',
+    // 用户相关信息（用于持久化）
+    userId: 'vuex_userId',
+    phone: 'vuex_phone',
+    userName: 'vuex_userName',
+    nickName: 'vuex_nickName',
 
-  // UI 状态（用于持久化）
-  rememberMe: 'login:rememberMe',
-  rememberAccount: 'login:rememberAccount',
+    // UI 状态（用于持久化）
+    rememberMe: 'login:rememberMe',
+    rememberAccount: 'login:rememberAccount',
 }
 
 export default constant

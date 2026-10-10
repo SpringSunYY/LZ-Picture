@@ -9,6 +9,7 @@ import type { DictCache } from '@/types/dict'
 export interface UserState {
   token: string
   userId: string | number
+  phone: string
   userName: string
   nickName: string
   avatar: string

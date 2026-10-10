@@ -3,7 +3,7 @@ import {getToken} from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import {tansParams} from '@/utils/common'
 import type {ApiResponse, RequestConfig} from '@/types/request'
-import {showConfirm, toast} from "@/utils/toast";
+import {toast} from "@/utils/toast";
 
 let timeout: number = 10000
 // H5 端默认走 /api（由 vite.config.js 或生产 Nginx 代理，无 CORS）
@@ -74,14 +74,8 @@ const request = <T = unknown>(config: RequestConfig): Promise<T> => {
                 payload?.msg ||
                 (errorCode as Record<string, string>)['default']
             if (code === 401) {
-                showConfirm('登录状态已过期，您可以继续留在该页面，或者重新登录?').then((res) => {
-                    if (res.confirm) {
-                        console.log('用户点击确定')
-                        store.dispatch('LogOut').then(() => {
-                            uni.reLaunch({url: '/pages/user/login'})
-                        })
-                    }
-                })
+                // 直接调 store LogOut —— 确认 / 后端 / 清本地 / toast / reLaunch 全在里面
+                store.dispatch('LogOut')
                 reject('无效的会话，或者会话已过期，请重新登录。')
             } else if (code === 500) {
                 toast(msg)

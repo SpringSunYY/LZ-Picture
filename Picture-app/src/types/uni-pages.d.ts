@@ -11,7 +11,8 @@ type _LocationUrl =
   "/pages/generate/index" |
   "/pages/message/index" |
   "/pages/user/login" |
-  "/pages/user/profile";
+  "/pages/user/profile" |
+  "/pages/user/system/system";
 
 interface NavigateToOptions {
   url: _LocationUrl;

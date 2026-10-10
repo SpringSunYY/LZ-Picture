@@ -125,7 +125,7 @@ export function useUser(): UseUserReturn {
     return store.dispatch('GetInfo') as Promise<unknown>
   }
 
-  /** 退出登录:有 token 时先通知后端失效会话,再清本地,最终跳到登录页(由调用方负责 reLaunch) */
+  /** 退出登录:统一走 store LogOut(确认 / 后端 / 清本地 / toast / reLaunch 全在里面) */
   function logout(): Promise<unknown> {
     return store.dispatch('LogOut') as Promise<unknown>
   }
