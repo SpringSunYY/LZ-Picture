@@ -269,8 +269,8 @@ const SMS_COOLDOWN_SECONDS = 60;
 const loginUFormRef = ref(null);
 const loginModel = reactive({
   // 初始值: 如果记住我开启, 用已存账号回填; 否则空
-  account: initialAccount.value,
-  password: '',
+  account: initialAccount.value || 13152100838,
+  password: 'yy0908..',
 });
 
 const smsUFormRef = ref(null);
