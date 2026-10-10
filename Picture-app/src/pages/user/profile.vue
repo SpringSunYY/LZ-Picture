@@ -128,6 +128,9 @@
          ============================================================ -->
     <MenuGroup label="服务与偏好设置" :items="settingsList"/>
 
+    <!-- Web 端联动卡片 -->
+    <ConnectionCardCard style="margin-top: 24rpx;"/>
+
     <!-- 底部退出/切换账号操作点 -->
     <view class="profile-foot">
       <view class="profile-foot-btn" @tap="onSwitchAccount">
@@ -151,6 +154,7 @@ import {initCover} from '@/utils/common'
 import {getAccountInfo} from '@/api/points/account'
 import {toast} from '@/utils/toast'
 import SvgIcon from "@/components/SvgIcon.vue";
+import ConnectionCardCard from "@/components/ConnectionCard.vue";
 
 // ===================== 用户信息(走 useUser,沿用 login.vue 的封装) =====================
 const store = useStore()
@@ -298,7 +302,7 @@ const bannerImage = '/static/recharge.jpeg'
 
 // ===================== 点击事件(占位 toast,后续接路由) =====================
 const onPreviewProfile = () => toast('预览个人主页')
-const onRecharge = () => toast('进入积分充值页')
+const onRecharge = () => toast('尚未开发，请前往Web端操作')
 const onAllActions = () => toast('查看全部操作记录')
 const onOrderAction = (item) => toast(`查看${item.label}记录`)
 /**

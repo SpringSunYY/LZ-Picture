@@ -163,10 +163,33 @@ $uni-font-size-paragraph:15px;
 html,
 body,
 #app {
-  height: 100%;
+    height: 100%;
 }
 
 /* 小程序端 page 高度同步为 100%，避免首页高度不一致 */
 page {
-  min-height: 100%;
+    min-height: 100%;
+}
+
+/* ============================================================
+ * 全局统一 u-input 可视高度 —— 所有 u-input 默认生效
+ *
+ * uview-plus 内置 .u-input__content__field-wrapper__field 默认
+ *   height: 24px / line-height: 26px（CSS px, 非 rpx）
+ * 在移动端偏矮、number/text/password 之间不一致。
+ * 在这里全聚德统一覆盖 —— 业务页面无需再写 v-deep。
+ *
+ * 关键点:
+ * 1) 这里直接写全局选择器(不是 .form-card 这种页面 scope)
+ *    - uni.scss 是 uni-app 的全局样式入口,选择器权重足够穿透 uview
+ * 2) 同时改 height + line-height —— 文字垂直居中
+ * 3) font-size 提到 28rpx —— 跟表单其他文字一致
+ * 4) .u-input__content 的 padding 改成 6rpx —— 总高 = 80 + 6 + 6 = 92rpx
+ *    跟 .primary-btn 的 92rpx 等高,视觉对齐
+ * ============================================================ */
+
+.u-input__content {
+    padding-top: 6rpx;
+    padding-bottom: 6rpx;
+    min-height: 60rpx;
 }

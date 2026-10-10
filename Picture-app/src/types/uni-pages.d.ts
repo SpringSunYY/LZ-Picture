@@ -10,6 +10,7 @@ type _LocationUrl =
   "/pages/ai/discover" |
   "/pages/generate/index" |
   "/pages/message/index" |
+  "/pages/user/auth/paymentPassword" |
   "/pages/user/login" |
   "/pages/user/profile" |
   "/pages/user/system/preferences" |

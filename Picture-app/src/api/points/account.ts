@@ -1,5 +1,7 @@
 import request from '@/utils/request'
 import { encryptBack } from '@/utils/jsencrypt'
+import {ResetAccountPasswordBody, ResetAccountPasswordCode} from "@/types/account";
+import {API} from "@/types/common";
 
 /** 账户信息（业务字段在 ruoyi 风格中较为自由） */
 export interface AccountInfo {
@@ -40,4 +42,41 @@ export function verifyPassword(password: string): Promise<unknown> {
     method: 'post',
     data: { password: encryptBack(password) },
   })
+}
+
+
+
+//获取重置密码验证码
+export function getAccountPasswordCode(
+    params: ResetAccountPasswordCode,
+): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/points/accountInfo/password/code',
+        method: 'get',
+        params: {
+            countryCode: encryptBack(params.countryCode),
+            phone: encryptBack(params.phone),
+            code: params.code,
+            uuid: params.uuid,
+            userId: encryptBack(params.userId),
+        },
+    })
+}
+
+export function resetAccountPassword(
+    data: ResetAccountPasswordBody,
+): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/points/accountInfo/password/reset',
+        method: 'post',
+        data: {
+            countryCode: encryptBack(data.countryCode),
+            phone: encryptBack(data.phone),
+            smsCode: encryptBack(data.smsCode),
+            password: encryptBack(data.password),
+            confirmPassword: encryptBack(data.confirmPassword),
+            userId: encryptBack(data.userId),
+            uuid: data.uuid,
+        },
+    })
 }

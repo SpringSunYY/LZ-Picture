@@ -46,6 +46,10 @@
     {
       "path": "pages/user/system/preferences",
       "type": "page"
+    },
+    {
+      "path": "pages/user/auth/paymentPassword",
+      "type": "page"
     }
   ],
   "subPackages": [],

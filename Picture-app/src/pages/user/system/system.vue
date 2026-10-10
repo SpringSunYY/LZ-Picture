@@ -156,6 +156,12 @@ const accountSecurity = [
     meta: '定期更换保护数字资产',
   },
   {
+    label: '修改支付密码',
+    icon: 'paymentPassword',
+    meta: '保护数字资产',
+    path:'/pages/user/auth/paymentPassword'
+  },
+  {
     label: '实名创作者认证',
     icon: 'verifiedIdentity',
     tag: '已核验',
