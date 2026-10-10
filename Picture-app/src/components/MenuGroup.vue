@@ -1,5 +1,5 @@
 <template>
-  <view class="menu-group">
+  <view class="menu-group" :style="rootStyleVar">
     <text v-if="label" class="menu-group-label">{{ label }}</text>
 
     <view class="menu-card">
@@ -230,7 +230,7 @@ $secondary: #b90538;
   width: 32rpx;
   height: 32rpx;
   border-radius: 50%;
-  background-color: $secondary;
+  background-color: $app-primary;
   display: flex;
   align-items: center;
   justify-content: center;

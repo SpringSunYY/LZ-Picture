@@ -46,55 +46,54 @@ export function getThemePreset(key: string): ThemePreset {
 export function applyThemeToRoot(key?: string): string {
   const target = (key && themePresets[key]) || themePresets.indigo
 
-  // 1. H5：通过 setProperty 设置 CSS 变量（在 documentElement 上即可全局生效）
-  //    小程序 / App 没有 document 也不需要这步——mixin 在每个 page 根 view 上绑了 inline style
+  // 1. H5：写 :root CSS 变量
+  //    21 次 setProperty 在同一微任务里执行,浏览器只会触发 1 次 style recalc,
+  //    不需要手动合并。但每次都写也是浪费 —— 加一个 lastAppliedKey 短路,
+  //    同一个 key 重复调直接跳过,只有"主题真的变了"才走 setProperty。
   if (typeof document !== 'undefined' && document.documentElement) {
-    const root = document.documentElement
-    // --app-*（业务自用，uni.scss 里 var() 兜底）
-    root.style.setProperty('--app-primary', target.primary)
-    root.style.setProperty('--app-primary-dark', target.primaryDark)
-    root.style.setProperty('--app-primary-disabled', target.primaryDisabled)
-    root.style.setProperty('--app-primary-light', target.primaryLight)
-    root.style.setProperty('--app-main-color', target.mainColor)
-    root.style.setProperty('--app-content-color', target.contentColor)
-    root.style.setProperty('--app-tips-color', target.tipsColor)
-    root.style.setProperty('--app-light-color', target.lightColor)
-
-    // --up-* / --u-*（uview 组件用，双写新旧前缀）
-    root.style.setProperty('--up-primary', target.primary)
-    root.style.setProperty('--u-primary', target.primary)
-    root.style.setProperty('--up-primary-dark', target.primaryDark)
-    root.style.setProperty('--u-primary-dark', target.primaryDark)
-    root.style.setProperty('--up-primary-disabled', target.primaryDisabled)
-    root.style.setProperty('--u-primary-disabled', target.primaryDisabled)
-    root.style.setProperty('--up-primary-light', target.primaryLight)
-    root.style.setProperty('--u-primary-light', target.primaryLight)
-    root.style.setProperty('--up-main-color', target.mainColor)
-    root.style.setProperty('--u-main-color', target.mainColor)
-    root.style.setProperty('--up-content-color', target.contentColor)
-    root.style.setProperty('--u-content-color', target.contentColor)
-    root.style.setProperty('--up-tips-color', target.tipsColor)
-    root.style.setProperty('--u-tips-color', target.tipsColor)
-    root.style.setProperty('--up-light-color', target.lightColor)
-    root.style.setProperty('--u-light-color', target.lightColor)
-
-    // 语义色
-    root.style.setProperty('--up-success', target.success)
-    root.style.setProperty('--up-warning', target.warning)
-    root.style.setProperty('--up-error', target.error)
-    root.style.setProperty('--up-info', target.info)
+    if (lastAppliedKey !== target.key) {
+      const root = document.documentElement
+      // --app-*（业务自用，uni.scss 里 var() 兜底）
+      root.style.setProperty('--app-primary', target.primary)
+      root.style.setProperty('--app-primary-dark', target.primaryDark)
+      root.style.setProperty('--app-primary-disabled', target.primaryDisabled)
+      root.style.setProperty('--app-primary-light', target.primaryLight)
+      root.style.setProperty('--app-main-color', target.mainColor)
+      root.style.setProperty('--app-content-color', target.contentColor)
+      root.style.setProperty('--app-tips-color', target.tipsColor)
+      root.style.setProperty('--app-light-color', target.lightColor)
+      // --up-* / --u-*（uview 组件用，双写新旧前缀）
+      root.style.setProperty('--up-primary', target.primary)
+      root.style.setProperty('--u-primary', target.primary)
+      root.style.setProperty('--up-primary-dark', target.primaryDark)
+      root.style.setProperty('--u-primary-dark', target.primaryDark)
+      root.style.setProperty('--up-primary-disabled', target.primaryDisabled)
+      root.style.setProperty('--u-primary-disabled', target.primaryDisabled)
+      root.style.setProperty('--up-primary-light', target.primaryLight)
+      root.style.setProperty('--u-primary-light', target.primaryLight)
+      root.style.setProperty('--up-main-color', target.mainColor)
+      root.style.setProperty('--u-main-color', target.mainColor)
+      root.style.setProperty('--up-content-color', target.contentColor)
+      root.style.setProperty('--u-content-color', target.contentColor)
+      root.style.setProperty('--up-tips-color', target.tipsColor)
+      root.style.setProperty('--u-tips-color', target.tipsColor)
+      root.style.setProperty('--up-light-color', target.lightColor)
+      root.style.setProperty('--u-light-color', target.lightColor)
+      // 语义色
+      root.style.setProperty('--up-success', target.success)
+      root.style.setProperty('--up-warning', target.warning)
+      root.style.setProperty('--up-error', target.error)
+      root.style.setProperty('--up-info', target.info)
+    }
   }
 
-  // 2. 小程序 / App：通知所有在线 page 的 mixin 立刻重建 rootStyleVar
-  //    （跨端兜底：H5 走 documentElement 即可，但 page 缓存场景下还是需要触发响应式）
-  if (typeof uni !== 'undefined' && typeof uni.$emit === 'function') {
-    uni.$emit('__themeChanged__', target)
-  }
-
-  // 3. uview-plus 内部运行时色（同时覆盖 $u-* 编译期旧桥接）
-  if (typeof uni !== 'undefined' && (uni as Record<string, unknown>).$u) {
-    const $u = (uni as Record<string, unknown>).$u as Record<string, Function>
-    if (typeof $u.setConfig === 'function') {
+  // 2. uview-plus 内部运行时色(同时覆盖 $u-* 编译期旧桥接)
+  //    setConfig 在 uview 内部会遍历通知所有组件实例,重量级。
+  //    同一个 key 重复调无意义(颜色没变),用 lastAppliedKey 短路,
+  //    跟上面 setProperty 一起只在主题真变化时执行。
+  if (typeof uni !== 'undefined' && (uni as unknown as Record<string, unknown>).$u) {
+    const $u = (uni as unknown as Record<string, unknown>).$u as Record<string, Function>
+    if (typeof $u.setConfig === 'function' && lastAppliedKey !== target.key) {
       $u.setConfig({
         color: {
           primary: target.primary,
@@ -107,8 +106,19 @@ export function applyThemeToRoot(key?: string): string {
     }
   }
 
+  // 3. 更新缓存(放在最后,确保上面都成功执行了)
+  lastAppliedKey = target.key
+
   return target.key
 }
+
+/**
+ * 模块级缓存:上次 apply 的主题 key。
+ * 仅在 key 真正变化时才走 setProperty + $u.setConfig,
+ * 避免 page 初始化时(init → apply) + 后续 SetTheme → apply 的重复广播。
+ * 跨 page 共享是安全的(全局唯一 store / 全局唯一 $u)。
+ */
+let lastAppliedKey: string | null = null
 
 /**
  * 把当前主题打包成 inline style 字符串（--app-* + --up-* 全套）。

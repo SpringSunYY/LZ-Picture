@@ -56,7 +56,7 @@
            5. 存储与缓存 —— MenuGroup 组件
            ============================================================ -->
       <view class="sys-section">
-        <text class="sys-section-label">存储与缓存</text>
+        <text class="sys-section-label">存储与主题</text>
         <MenuGroup :items="storageItems"/>
       </view>
 
@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useUser} from '@/utils/useUser'
 import {getMyUserInfoByUserName} from '@/api/user/user'
@@ -103,6 +103,13 @@ defineOptions({
 
 // ===================== 主题 CSS 变量(与 profile.vue 一致) =====================
 const store = useStore()
+
+/**
+ * 当前主题的中文名(展示在「主题偏好」菜单的 meta 上)
+ * 走 getter 派生 —— 与 preferences.vue 的逻辑保持一致,
+ * 用户在 preferences 页切换主题后,这里会自动跟随更新
+ */
+const currentThemeName = computed(() => store.getters.activeTheme?.name || '默认主题')
 
 // ===================== 用户信息(从 store + 详情接口拉) =====================
 const {getInfo: getInfoAction, logout: logoutAction} = useUser()
@@ -157,12 +164,17 @@ const accountSecurity = [
 ]
 
 // 存储与缓存: 小程序端 <image> 的网络缓存由微信内核层管理,JS 拿不到路径也无法清除,
-// 这条菜单只保留「云存储空间配额管理」,真正的扩容/清理走上方 CloudStorageBar 组件
 const storageItems = [
   {
     label: '云存储空间配额管理',
     icon: 'cloud',
     meta: '3.4 GB / 10 GB',
+  },
+  {
+    label: '主题偏好',
+    icon: 'theme',
+    meta: currentThemeName,
+    path: '/pages/user/system/preferences',
   },
 ]
 
@@ -410,7 +422,7 @@ button {
   width: 100%;
   height: 96rpx;
   border-radius: 24rpx;
-  background-color: #ffdad6; // error-container, 浅红色
+  background-color: $app-primary-light; // error-container, 浅红色
   display: flex;
   align-items: center;
   justify-content: center;
@@ -425,14 +437,13 @@ button {
 
 .sys-foot-logout-icon {
   margin-right: 12rpx;
-  color: #ba1a1a; // error token
   line-height: 1;
 }
 
 .sys-foot-logout-text {
   font-size: 30rpx;
   font-weight: 600;
-  color: #ba1a1a;
+  color: $app-primary;
   letter-spacing: 0.5rpx;
   line-height: 1;
 }

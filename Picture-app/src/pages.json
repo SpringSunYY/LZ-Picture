@@ -39,21 +39,14 @@
       "path": "pages/user/profile",
       "type": "page"
     },
-    // #ifdef H5
-    {
-      "path": "pages/user/system/system",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "System Settings"
-      }
-    },
-    // #endif
-    // #ifdef MP-WEIXIN
     {
       "path": "pages/user/system/system",
       "type": "page"
+    },
+    {
+      "path": "pages/user/system/preferences",
+      "type": "page"
     }
-    // #endif
   ],
   "subPackages": [],
   "tabBar": {

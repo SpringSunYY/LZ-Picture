@@ -796,8 +796,8 @@ button {
 
 .profile-foot-btn-text {
   font-size: 22rpx;
+  color: $app-primary;
   font-weight: 500;
-  color: $outline;
   letter-spacing: 0.5rpx;
   line-height: 1;
 }

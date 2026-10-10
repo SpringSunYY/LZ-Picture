@@ -184,7 +184,6 @@ $secondary: #b90538;
 
 .storage-card-icon-svg {
   font-size: 24rpx;
-  color: $primary;
   line-height: 1;
 }
 
@@ -242,7 +241,7 @@ $secondary: #b90538;
 .storage-card-meta-percent {
   font-size: 22rpx;
   font-weight: 700;
-  color: $primary;
+  color: $app-primary;
   font-family: 'JetBrains Mono', monospace;
 }
 

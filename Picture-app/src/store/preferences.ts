@@ -8,11 +8,12 @@
  *
  * 设计要点：
  * - 状态写本 store（Vuex state / mutation），不写 utils
- * - 主题切换 = 1) 校验 2) commit 3) apply CSS 变量 4) 防抖落库
- * - 防抖写在 store 里，utils 提供一次性 IO；落库是 store 主动调 utils
+ * - 主题切换 = 1) 校验 2) commit 3) apply CSS 变量 4) 同步落库
+ *   避免"关 app 时最近一次没存"的歧义
  * - init 是异步 action，merge 顺序：defaults < cached < overrides
  */
-import type { Module, ActionContext, Commit } from 'vuex'
+import type { Module, ActionContext } from 'vuex'
+import {nextTick} from 'vue'
 import type { PreferencesState, RootState } from './types'
 import {
   themePresets,
@@ -25,23 +26,6 @@ import {
 
 /** 默认主题 key */
 const DEFAULT_THEME_KEY = 'rose'
-
-/** 防抖延迟：主题切换完成后 300ms 落库 */
-const DEBOUNCE_MS = 300
-
-/**
- * 防抖工具（内部用，不导出）
- */
-function debounce<F extends (...args: never[]) => void>(fn: F, ms: number): F {
-  let timer: ReturnType<typeof setTimeout> | null = null
-  return ((...args: never[]) => {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      timer = null
-      fn(...args)
-    }, ms)
-  }) as F
-}
 
 /**
  * 简易深合并：b 覆盖 a 的同名字段；b 不存在的字段保持 a 的原值。
@@ -75,11 +59,6 @@ function deepMerge<T extends object>(
 /** 工厂：构造一份新的默认 state（每次新建，避免对象引用共享） */
 function buildDefaultPreferences(): PreferencesState {
   return { theme: { key: DEFAULT_THEME_KEY } }
-}
-
-interface CommitCtx {
-  commit: Commit
-  state: PreferencesState
 }
 
 const preferences: Module<PreferencesState, RootState> = {
@@ -134,24 +113,31 @@ const preferences: Module<PreferencesState, RootState> = {
     },
 
     /**
-     * 切换主题：立即 apply + 防抖落库。
+     * 切换主题：立即 apply + 立即落库。
      *
-     * 流程：1) 校验 2) commit 3) 写 :root 4) 安排防抖落库
-     * 高频切换只在最后一次切换完成 300ms 后落库。
+     * 流程：1) 校验 2) commit 3) 写 :root 4) 等 DOM 翻色 5) 同步写 storage
+     * 不做任何防抖 —— 用户连点 7 个主题，每次都立即落盘，
+     * 关 app 时不会丢最近一次切换。
+     *
+     * 返回 Promise：resolve 时 = 主题色已经在 DOM 上渲染完成。
+     * 调用方可以 await 决定后续提示（loading 关闭 / 成功 toast）时机。
      */
-    SetTheme(
+    async SetTheme(
       ctx: ActionContext<PreferencesState, RootState>,
       key: string,
-    ): void {
-      const { commit, state } = ctx
+    ): Promise<void> {
+      const { state } = ctx
       if (!themePresets[key]) {
         console.warn(`[preferences/store] 未知主题 key: ${key}，已忽略`)
         return
       }
       if (state.theme.key === key) return
-      commit('SET_THEME_KEY', key)
+      ctx.commit('SET_THEME_KEY', key)
       applyThemeToRoot(key)
-      scheduleSave({ commit, state })
+      // 等一帧 DOM 把新色画上（transition 也在这一拍开始），
+      // 让"loading → 关闭"的切换和色块渐变同步 —— 用户看到的是
+      await nextTick()
+      savePreferencesToCache(state)
     },
 
     /**
@@ -161,48 +147,20 @@ const preferences: Module<PreferencesState, RootState> = {
       const { commit, state } = ctx
       commit('RESET_STATE')
       applyThemeToRoot(state.theme.key)
-      scheduleSave({ commit, state })
+      // 立即落盘
+      savePreferencesToCache(state)
     },
 
     /**
      * 清掉 storage 里的偏好（state 不动）。
      * 一般用于"恢复出厂设置"场景。
+     *
+     * 不需要 cancel 任何东西 —— 没有防抖 timer 挂起。
      */
     ClearCache(_ctx: ActionContext<PreferencesState, RootState>): void {
       clearPreferencesCache()
-      // 防抖挂起的 timer 也作废，避免刚 clear 又被旧 timer 写回
-      cancelPendingSave()
     },
   },
-}
-
-/* ============================================================
- * 防抖落库：模块级单例
- * ============================================================ */
-
-let debouncedSave: (() => void) | null = null
-let pendingState: PreferencesState | null = null
-
-function ensureDebounced(): () => void {
-  if (!debouncedSave) {
-    debouncedSave = debounce(() => {
-      if (pendingState) {
-        savePreferencesToCache(pendingState)
-      }
-    }, DEBOUNCE_MS)
-  }
-  return debouncedSave
-}
-
-function scheduleSave({ state }: CommitCtx): void {
-  pendingState = state
-  ensureDebounced()()
-}
-
-function cancelPendingSave(): void {
-  pendingState = null
-  // 重建 debounced 实例作废旧 timer（旧 timer 还在闭包里等，新调用会跑新实例）
-  debouncedSave = null
 }
 
 export default preferences

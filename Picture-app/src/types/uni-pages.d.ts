@@ -12,6 +12,7 @@ type _LocationUrl =
   "/pages/message/index" |
   "/pages/user/login" |
   "/pages/user/profile" |
+  "/pages/user/system/preferences" |
   "/pages/user/system/system";
 
 interface NavigateToOptions {
