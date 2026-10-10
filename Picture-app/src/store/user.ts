@@ -1,7 +1,7 @@
 import config from '@/config'
 import storage from '@/utils/storage'
 import constant from '@/utils/constant'
-import {getInfo, login, smsLogin} from '@/api/login'
+import {getInfo, login, logout, smsLogin} from '@/api/login'
 import {getToken, removeToken, setToken} from '@/utils/auth'
 import type {GetInfoResponse, LoginParams, LoginTokenResponse, SmsLoginParams, UserInfo} from '@/types/user'
 import type {ActionContext, Commit, Module} from 'vuex'
@@ -186,28 +186,45 @@ const user: Module<UserState, RootState> = {
       })
     },
 
-    // 退出系统
+    /**
+     * 退出登录(用户主动点击 / 主动调用入口)
+     *
+     * 流程:
+     * 1) 当前 Vuex 里还有 token 时,先调一次后端 /logout 接口,目的是让服务端主动失效会话
+     * 2) 无论后端成功/失败/超时,都继续清本地登录态 —— 用户已经在界面上点过"确认退出",
+     *    不应该因为后端短暂不可用就把页面卡住
+     * 3) 401 自动拦截场景请走 request.ts, 它会调 store.dispatch('LogOut') 但此时 token 已被
+     *    request.ts 的 401 拦截器清空(uni.removeStorageSync),因此这里 if (state.token) 走不到
+     *    后端 /logout,避免 "401 时调 /logout 再次 401 导致 .then(uni.reLaunch) 永远不执行" 的老问题
+     */
     LogOut(ctx: ActionContext<UserState, RootState>): Promise<void> {
       const { commit, state } = ctx
-      void state
-      // 注意: 不在这里调后端 logout() 接口。
-      // 原因: 401 时 token 已过期, 后端 /logout 也会 401, 会导致整个 Promise reject,
-      // 从而阻断 .then(uni.reLaunch) 的执行, 出现"点了确认但页面不跳转"的问题。
-      // 这里只清本地登录态, 后端 /logout 留给上层显式调用的场景(用户主动退出按钮)。
-      try {
-        commit('SET_TOKEN', '')
-        commit('SET_USER_ID', '')
-        commit('SET_USER_NAME', '')
-        commit('SET_AVATAR', '')
-        removeToken()
-        // 注意: 不要 storage.clean(), 否则会一并清掉 "记住我" / "记住账号" 等 UI 偏好
-        // 这里只清掉身份相关字段, UI 偏好保留以便下次进入时仍能自动回填手机号
-        commit('SET_NICK_NAME', '')
-        commit('SET_PERMISSIONS', [])
-        return Promise.resolve()
-      } catch (e) {
-        return Promise.reject(e)
-      }
+      // 用户主动退出:有 token 就通知一下后端,失败也无所谓
+      const hasToken = Boolean(state.token)
+      const remoteLogout: Promise<unknown> = hasToken
+        ? Promise.resolve(logout()).catch((e: unknown) => {
+            console.warn('后端 /logout 调用失败,继续清本地登录态', e)
+            return null
+          })
+        : Promise.resolve(null)
+
+      return remoteLogout
+        .catch(() => null)
+        .then(() => {
+          try {
+            commit('SET_TOKEN', '')
+            commit('SET_USER_ID', '')
+            commit('SET_USER_NAME', '')
+            commit('SET_AVATAR', '')
+            removeToken()
+            // 注意: 不要 storage.clean(), 否则会一并清掉 "记住我" / "记住账号" 等 UI 偏好
+            // 这里只清掉身份相关字段, UI 偏好保留以便下次进入时仍能自动回填手机号
+            commit('SET_NICK_NAME', '')
+            commit('SET_PERMISSIONS', [])
+          } catch (e) {
+            return Promise.reject(e)
+          }
+        })
     },
   },
 }

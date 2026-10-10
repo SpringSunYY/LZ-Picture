@@ -35,7 +35,12 @@
     <div class="package-list">
       <a-row :gutter="[24, 24]">
         <a-col
-          xs="24" :sm="24" :md="12" :lg="12" :xl="6" :xxl="6"
+          xs="24"
+          :sm="24"
+          :md="12"
+          :lg="12"
+          :xl="6"
+          :xxl="6"
           v-for="pkg in filteredPackages"
           :key="pkg.packageId"
         >
@@ -80,11 +85,7 @@
               <p v-else-if="pkg.startTime && pkg.endTime" class="validity">
                 {{ formatDate(pkg.startTime) }} 至 {{ formatDate(pkg.endTime) }}
               </p>
-              <a-button
-                type="primary"
-                block
-                :disabled="pkg.packageStatus !== '1'"
-              >
+              <a-button type="primary" block :disabled="pkg.packageStatus !== '1'">
                 立即购买
               </a-button>
             </div>
@@ -105,15 +106,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import Detail from './detail.vue'
 import {
   getPointsRechargePackageInfo,
   getPointsRechargePackageInfoList,
 } from '@/api/points/points.ts'
-import { getPackageStatusLabel } from '@/types/points/points.d.ts'
 import type { PointsRechargePackageInfoVo } from '@/types/points/points.d.ts'
+import { getPackageStatusLabel } from '@/types/points/points.d.ts'
 
 // 模拟数据
 const packages = ref<PointsRechargePackageInfoVo>([])
