@@ -28,6 +28,24 @@ export default defineConfig({
         }),
         uni(),
     ],
+    // H5 端开发服务器代理：避免浏览器 CORS 预检(OPTIONS)问题
+    // 配置后，前端请求以 /api 开头会被 Vite 转发到 target 后端，
+    // 浏览器看到的是同源请求，根本不会触发 OPTIONS 预检。
+    // 生产环境如需同样效果，请用 Nginx 反向代理。
+    server: {
+        host: '0.0.0.0',
+        port: 9000,
+        proxy: {
+            // 例如：前端 uni.request({ url: '/api/login' })
+            // 会被 Vite 转发到 http://localhost:8080/user/login
+            '/api': {
+                target: 'http://localhost:8080/user',
+                changeOrigin: true,
+                // 如果你不想在 url 里保留 /api 前缀就解开下面这行
+                rewrite: (path) => path.replace(/^\/api/, ''),
+            },
+        },
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),

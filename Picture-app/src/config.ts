@@ -20,9 +20,10 @@ export interface AppConfig {
 }
 
 const config: AppConfig = {
-  // baseUrl: 'https://vue.ruoyi.vip/prod-api',
-  baseUrl: 'http://localhost:8080/user',
-  // baseUrl: 'http://8.138.211.218:8080/user',
+  // 【H5 开发】统一走 /api 前缀，由 vite.config.js 代理到后端，避开 CORS 预检(OPTIONS)
+  // 【小程序 / App】会被 request.ts 自动改写为完整 baseUrl（见 request.ts 内的 baseUrl 兜底逻辑）
+  baseUrl: '/api',
+  // 备用：完整域名，便于小程序或 App 端动态切换
   dnsUrl: 'https://picture.springsun.online',
   appInfo: {
     name: 'LZ-Picture',

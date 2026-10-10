@@ -44,7 +44,7 @@ public class SmsTemplate {
         }
         //查询缓存是否存在
         if (redisCache.hasKey(key)) {
-            throw new ServiceException("验证码已发送，如果未收到，请查看是否被手机拦截，如果存在请输入验证码", HttpStatus.ACCEPTED);
+            throw new ServiceException("验证码已发送，请勿重复获取，如果未收到，请查看是否被手机拦截，如果存在请输入验证码", HttpStatus.ACCEPTED);
         }
         InformTemplateInfo templateInfo = informTemplateInfoService.getInformTemplateInfoByKeyAndLocale(templateKey, locale, CTemplateTypeEnum.TEMPLATE_TYPE_1.getValue());
         if (StringUtils.isNull(templateInfo)) {

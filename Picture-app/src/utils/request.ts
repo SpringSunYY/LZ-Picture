@@ -1,5 +1,4 @@
 import store from '@/store'
-import config from '@/config'
 import {getToken} from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import {tansParams} from '@/utils/common'
@@ -7,11 +6,27 @@ import type {ApiResponse, RequestConfig} from '@/types/request'
 import {showConfirm, toast} from "@/utils/toast";
 
 let timeout: number = 10000
-const baseUrl: string = config.baseUrl
+// H5 端默认走 /api（由 vite.config.js 或生产 Nginx 代理，无 CORS）
+// 小程序/App 端必须用完整域名
+// 这里通过 uni.getSystemInfoSync 识别运行环境，避免手动改 baseUrl
+function getBaseUrl(): string {
+    // #ifdef H5
+    return '/api'
+    // #endif
+
+    // #ifndef H5
+    // 小程序 / App 用完整后端域名
+    return 'http://localhost:8080/user'
+    // 如需切换正式环境可改成：
+    // return 'http://8.138.211.218:8080/user'
+    // #endif
+}
+
+const baseUrl: string = getBaseUrl()
 
 const request = <T = unknown>(config: RequestConfig): Promise<T> => {
     // 是否需要设置 token
-    const isToken = !(config.headers || {}).isToken
+    const isToken = !((config.headers || {}).isToken)
     config.header = config.header || {}
     if (getToken() && !isToken) {
         config.header['Authorization'] = 'UserBearer ' + getToken()
