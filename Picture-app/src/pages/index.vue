@@ -13,8 +13,7 @@
 
         <!-- 按钮 -->
         <view class="home-card-button-wrap">
-          <!-- 发现页是 tabBar 页面，必须使用 switchTab 才能跳转 -->
-          <navigator url="/pages/ai/discover" open-type="switchTab" hover-class="none">
+          <navigator url="/pages/ai/discover" open-type="navigate" hover-class="none">
             <view class="home-card-button">
               <text class="home-card-button-text">Watch Picture</text>
             </view>
@@ -30,12 +29,8 @@
 import AppTabbar from '@/components/AppTabbar.vue'
 import HorizontalFallLayout from "@/components/HorizontalFallLayout.vue";
 
-// 让 UniPages 把这个页面注册为首页 + tabBar 项
-// type: 'home' 表示这是 entry page (在 pages 数组里会放第一个)
-// type: 'tabBar' 表示这个页面同时在 tabBar.list 里
-// definePage({
-//   type: 'home',
-// })
+// 不再注册为原生 tabBar 页面：改用自定义 <AppTabbar /> 组件
+// 原 definePage({ type: 'home' }) 已删除（避免 vite-plugin-uni-pages 自动写回 tabBar 块）
 
 const bgImageUrl = '/static/home_bg.png'
 const style = {

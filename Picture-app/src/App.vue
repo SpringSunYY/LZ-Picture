@@ -27,6 +27,10 @@ onLaunch(async () => {
         console.warn('[App] preferences init 失败，使用默认主题', e)
     }
 
+    // 3) 隐藏原生 tabBar（用自定义 AppTabbar.vue 替代）
+    //    三端都调：H5 端通过 tabBar.shown=false 去掉占位 DOM；小程序/App 通过 wx.hideTabBar 隐藏原生组件
+    uni.hideTabBar({ animation: false })
+
     console.log('App Launch, activeTheme=', store.state.preferences.theme.key)
 })
 
@@ -85,4 +89,11 @@ page {
 .uni-column {
   flex-direction: column;
 }
+
+/* #ifdef H5 */
+/* 隐藏原生 tabBar（用自定义 AppTabbar.vue 替代） */
+uni-tabbar {
+  display: none !important;
+}
+/* #endif */
 </style>

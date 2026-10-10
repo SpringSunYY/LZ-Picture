@@ -9,12 +9,11 @@ import { defineUniPages } from '@uni-helper/vite-plugin-uni-pages'
  *   src/pages/user/login.vue       -> /pages/user/login
  *   src/pages/ai/discover.vue      -> /pages/ai/discover
  *
- * 这里只保留:全局样式、easycom 自动注册、tabBar 列表。
- * 每个页面在 <script setup> 中通过 definePage 宏声明自己的 type 和 style,例如:
- *   definePage({ type: 'home' })                    // 入口页
- *   definePage({ type: 'tabBar' })                  // 出现在 tabBar.list 里
- *   definePage({ type: 'page', style: { ... } })    // 普通页面
- *   definePage({ type: 'page', layout: 'default' }) // 启用 layout
+ * tabBar 配置说明：
+ * - tabBar.list 里的 pagePath 只是让 uni.switchTab() 能正确路由的元数据
+ * - 实际 UI 用 src/components/AppTabbar.vue 替代原生 tabBar
+ * - 切换改用 switchTab（复用页面栈，不销毁页面）替代 reLaunch
+ * - H5 端通过 CSS 隐藏原生 tabBar (uni-tabbar)
  */
 export default defineUniPages({
   globalStyle: {
@@ -32,18 +31,15 @@ export default defineUniPages({
     },
   },
   tabBar: {
-    color: '#999999',
-    selectedColor: '#8B5CF6',
-    backgroundColor: '#FFFFFF',
-    borderStyle: 'black',
-    // list 由各页面的 definePage({ type: 'tabBar' }) 自动收集,这里留空也行
-    // 显式列一份,IDE 跳转 / 拼写校验更舒服
+    selectedColor: '#4f46e5', // 动态由 JS 控制，这里写默认
+    borderStyle: 'white',
+    backgroundColor: '#ffffff',
     list: [
-      { pagePath: 'pages/index', text: '首页' },
-      { pagePath: 'pages/ai/discover', text: '发现' },
-      { pagePath: 'pages/generate/index', text: '生成' },
-      { pagePath: 'pages/message/index', text: '消息' },
-      { pagePath: 'pages/user/profile', text: '我的' },
+      { pagePath: 'pages/index', text: '首页', iconPath: '', selectedIconPath: '' },
+      { pagePath: 'pages/ai/discover', text: '发现', iconPath: '', selectedIconPath: '' },
+      { pagePath: 'pages/generate/index', text: '发布', iconPath: '', selectedIconPath: '' },
+      { pagePath: 'pages/message/index', text: '空间', iconPath: '', selectedIconPath: '' },
+      { pagePath: 'pages/user/profile', text: '我的', iconPath: '', selectedIconPath: '' },
     ],
   },
 })

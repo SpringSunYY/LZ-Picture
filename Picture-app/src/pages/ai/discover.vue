@@ -21,10 +21,8 @@ import {onReachBottom} from '@dcloudio/uni-app'
 import {getPictureInfoRecommend} from "@/api/picture/picture";
 import HorizontalFallLayout from "@/components/HorizontalFallLayout.vue";
 
-// UniPages 注册为 tabBar 页面(发现)
-// definePage({
-//   type: 'tabBar',
-// })
+// 不再注册为原生 tabBar 页面：改用自定义 <AppTabbar /> 组件
+// 原 definePage({ type: 'tabBar' }) 已删除（避免 vite-plugin-uni-pages 自动写回 tabBar 块）
 
 const loading = ref(false)
 const noMore = ref(false)

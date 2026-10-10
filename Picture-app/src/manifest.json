@@ -64,10 +64,11 @@
             "splashScreens" : {}
         }
     },
-    "web" : {
-        "router" : {
-            "mode" : "history",
-            "base" : "/"
+    "web": {
+        "router": {
+            "mode": "history",
+            "base": "/"
         }
-    }
+    },
+    "favicon": "/favicon.svg"
 }

@@ -181,10 +181,8 @@ import {AiGenerateHasPublicEnum, AiLogStatusEnum,} from '@/utils/enums'
 import BackToTop from "@/components/BackToTop.vue";
 import TextView from "@/components/TextView.vue";
 
-// UniPages 注册为 tabBar 页面(生成)
-// definePage({
-//   type: 'tabBar',
-// })
+// 不再注册为原生 tabBar 页面：改用自定义 <AppTabbar /> 组件
+// 原 definePage({ type: 'tabBar' }) 已删除（避免 vite-plugin-uni-pages 自动写回 tabBar 块）
 
 // 字典数据
 const {ai_model_params_type} = useDict('ai_model_params_type')

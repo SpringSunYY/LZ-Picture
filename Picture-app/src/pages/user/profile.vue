@@ -85,10 +85,8 @@ import {initCover} from "@/utils/common";
 import {getAccountInfo} from "@/api/points/account";
 import ZuiSvgIcon from "@/uni_modules/zui-svg-icon/components/zui-svg-icon/zui-svg-icon.vue";
 
-// UniPages 注册为 tabBar 页面(我的)
-// definePage({
-//   type: 'tabBar',
-// })
+// 不再注册为原生 tabBar 页面：改用自定义 <AppTabbar /> 组件
+// 原 definePage({ type: 'tabBar' }) 已删除（避免 vite-plugin-uni-pages 自动写回 tabBar 块）
 
 
 //region 用户信息

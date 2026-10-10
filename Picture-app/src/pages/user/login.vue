@@ -241,10 +241,7 @@ import {isCaptcha, isPassword, isPhone, isSmsCode, makeValidator} from '@/utils/
 import {toast, toastHide, toastLoading, toastWarn} from "@/utils/toast";
 import SvgIcon from "../../components/SvgIcon.vue";
 
-// UniPages 注册为普通页面(登录)
-// definePage({
-//   type: 'page',
-// })
+// 不再注册为原生 tabBar 页面（vite-plugin-uni-pages 用 regex 扫描，非 tabBar 的 definePage 也要清理）
 
 // 所有 store 交互统一走 useUser，页面不直接碰 store.dispatch / store.state
 const {

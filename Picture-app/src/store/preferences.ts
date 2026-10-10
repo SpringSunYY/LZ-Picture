@@ -24,7 +24,7 @@ import {
 } from '@/utils/preferences'
 
 /** 默认主题 key */
-const DEFAULT_THEME_KEY = 'amber'
+const DEFAULT_THEME_KEY = 'rose'
 
 /** 防抖延迟：主题切换完成后 300ms 落库 */
 const DEBOUNCE_MS = 300

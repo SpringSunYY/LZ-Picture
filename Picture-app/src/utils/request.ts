@@ -25,10 +25,10 @@ function getBaseUrl(): string {
 const baseUrl: string = getBaseUrl()
 
 const request = <T = unknown>(config: RequestConfig): Promise<T> => {
-    // 是否需要设置 token
-    const isToken = !((config.headers || {}).isToken)
+    // 是否需要设置 token：headers.isToken === false 时显式关闭鉴权（登录/验证码等接口）
+    const skipToken = config.headers?.isToken === false
     config.header = config.header || {}
-    if (getToken() && !isToken) {
+    if (getToken() && !skipToken) {
         config.header['Authorization'] = 'UserBearer ' + getToken()
     }
     // get请求映射params参数
