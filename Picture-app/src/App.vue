@@ -28,8 +28,17 @@ onLaunch(async () => {
     }
 
     // 3) 隐藏原生 tabBar（用自定义 AppTabbar.vue 替代）
-    //    三端都调：H5 端通过 tabBar.shown=false 去掉占位 DOM；小程序/App 通过 wx.hideTabBar 隐藏原生组件
-    uni.hideTabBar({ animation: false })
+    //    H5 端由 CSS（uni-tabbar { display:none }）兜底，API 调用在 launch 时无当前 tab 页会失败
+    //    小程序/App 端也要等首屏 tab 页挂载后才能调用 hideTabBar，所以延后一帧 + try/catch
+    // #ifdef MP-WEIXIN || APP-PLUS
+    setTimeout(() => {
+      try {
+        uni.hideTabBar({ animation: false })
+      } catch (e) {
+        // 忽略「not TabBar page」：launch 时还没挂到 tab 页是正常的，下次切到 tab 页会再调用
+      }
+    }, 0)
+    // #endif
 
     console.log('App Launch, activeTheme=', store.state.preferences.theme.key)
 })

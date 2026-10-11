@@ -4,7 +4,7 @@
  */
 
 import type { Module } from 'vuex'
-import type { DictCache } from '@/types/dict'
+import type { DictCache } from '@/types/dict.t'
 
 export interface UserState {
   token: string

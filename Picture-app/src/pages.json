@@ -66,6 +66,17 @@
       "style": {
         "navigationBarTitleText": "账户密码"
       }
+    },
+    {
+      "path": "pages/picture/space/edit",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "创建空间"
+      }
+    },
+    {
+      "path": "pages/picture/space/space",
+      "type": "page"
     }
   ],
   "subPackages": [],
@@ -94,14 +105,14 @@
         "selectedIconPath": ""
       },
       {
-        "pagePath": "pages/message/index",
-        "text": "空间",
+        "pagePath": "pages/user/profile",
+        "text": "我的",
         "iconPath": "",
         "selectedIconPath": ""
       },
       {
-        "pagePath": "pages/user/profile",
-        "text": "我的",
+        "pagePath": "pages/picture/space/space",
+        "text": "空间",
         "iconPath": "",
         "selectedIconPath": ""
       }

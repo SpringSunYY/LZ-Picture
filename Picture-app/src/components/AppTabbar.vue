@@ -77,8 +77,8 @@ import { themePresets } from '@/constants/theme'
 const TABBAR_PAGES = [
   'pages/index',
   'pages/ai/discover',
-  'pages/generate/index', // 发布按钮暂用生成页
-  'pages/message/index',  // 空间暂用消息页
+  'pages/generate/index', // 发布按钮
+  'pages/picture/space/space',  // 空间
   'pages/user/profile',
 ]
 

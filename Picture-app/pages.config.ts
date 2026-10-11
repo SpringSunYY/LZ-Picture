@@ -38,7 +38,7 @@ export default defineUniPages({
       { pagePath: 'pages/index', text: '首页', iconPath: '', selectedIconPath: '' },
       { pagePath: 'pages/ai/discover', text: '发现', iconPath: '', selectedIconPath: '' },
       { pagePath: 'pages/generate/index', text: '发布', iconPath: '', selectedIconPath: '' },
-      { pagePath: 'pages/message/index', text: '空间', iconPath: '', selectedIconPath: '' },
+      { pagePath: 'pages/picture/space/space', text: '空间', iconPath: '', selectedIconPath: '' },
       { pagePath: 'pages/user/profile', text: '我的', iconPath: '', selectedIconPath: '' },
     ],
   },

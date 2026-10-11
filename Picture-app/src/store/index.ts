@@ -7,7 +7,7 @@ import getters from './getters'
 import type { RootState } from './types'
 
 const store = createStore<RootState>({
-  modules: {
+    modules: {
     user,
     dict,
     preferences,

@@ -25,9 +25,8 @@ export interface RequestHeader {
 export interface RequestConfig {
   url: string
   method?: RequestMethod
-  /** 请求体（ruoyi 用 data 字段承载） */
   data?: unknown
-  params?: Record<string, unknown>
+  params?: any
   headers?: RequestHeader
   header?: RequestHeader
   baseUrl?: string

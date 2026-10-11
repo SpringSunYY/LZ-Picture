@@ -10,6 +10,8 @@ type _LocationUrl =
   "/pages/ai/discover" |
   "/pages/generate/index" |
   "/pages/message/index" |
+  "/pages/picture/space/edit" |
+  "/pages/picture/space/space" |
   "/pages/user/auth/password" |
   "/pages/user/auth/paymentPassword" |
   "/pages/user/login" |
@@ -23,7 +25,7 @@ interface NavigateToOptions {
 interface RedirectToOptions extends NavigateToOptions {}
 
 interface SwitchTabOptions {
-  url: "/pages/index" | "/pages/ai/discover" | "/pages/generate/index" | "/pages/message/index" | "/pages/user/profile"
+  url: "/pages/index" | "/pages/ai/discover" | "/pages/generate/index" | "/pages/picture/space/space" | "/pages/user/profile"
 }
 
 type ReLaunchOptions = NavigateToOptions | SwitchTabOptions;
