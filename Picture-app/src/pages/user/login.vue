@@ -65,6 +65,7 @@
               shape="circle"
               type="password"
               placeholder="请输入您的密码"
+              :maxlength="20"
           >
             <template #prefix>
               <SvgIcon icon="password" width="1.5em"/>
@@ -237,7 +238,7 @@ import {onReady, onShow} from '@dcloudio/uni-app';
 import ConnectionCardCard from '@/components/ConnectionCard.vue';
 import {getCodeImg, getSmsLoginCode} from '@/api/login';
 import {useUser} from '@/utils/useUser';
-import {isCaptcha, isPassword, isPhone, isSmsCode, makeValidator} from '@/utils/validators';
+import {isCaptcha, isPhone, isSmsCode, makeValidator, validatePassword} from '@/utils/validators';
 import {toast, toastHide, toastLoading, toastWarn} from "@/utils/toast";
 import SvgIcon from "../../components/SvgIcon.vue";
 
@@ -321,6 +322,11 @@ const agreed = ref(false);
 // 所有正则与判定函数统一来自 utils/validators.js,本页不再重复定义
 // uview-plus 的 validator 协议是返回 Promise, 失败 reject(new Error(msg))
 
+// 登录密码 8-20 位(与 password.vue 一致: validatePassword 内置"必含字母+数字+无表情")
+const LOGIN_PWD_MIN = 8
+const LOGIN_PWD_MAX = 20
+const passwordValidator = (rule, value) => validatePassword(value, LOGIN_PWD_MIN, LOGIN_PWD_MAX)
+
 const loginRules = {
   account: [
     {
@@ -330,7 +336,7 @@ const loginRules = {
   ],
   password: [
     {
-      validator: makeValidator(isPassword, '请输入 8-20 位密码(不可含表情)', {emptyMsg: '请输入密码'}),
+      validator: passwordValidator,
       trigger: ['blur', 'change']
     },
   ],
@@ -359,11 +365,6 @@ const smsRules = {
   ],
 };
 
-// 注入规则（异步 validator 必须在 onReady 注入）
-onReady(() => {
-  loginUFormRef.value?.setRules(loginRules);
-  smsUFormRef.value?.setRules(smsRules);
-});
 
 // 每次进入页面（包括从其他页面返回）都强制从 storage 拉一次 rememberMe/rememberAccount
 // 解决：用户在别的页面或刚启动时, store state 与 storage 不一致导致"勾了记住我但下次没回填"
@@ -623,10 +624,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-
-/* ========== 页面专属 token（仅本页面用，不入全局） ==========
-   uview-plus 没有定义"页面装饰渐变层"对应的 SCSS 变量，
-   这里只声明 auth 页面独有的 4 个 surface token。 */
 $auth-bg: #faf8ff; // 页面背景
 $auth-card-bg: #ffffff; // 卡片底
 $auth-blur-2: #e2e7ff; // 二级光斑

@@ -26,19 +26,16 @@ public class UserPasswordUploadRequest implements Serializable {
      * 旧密码
      */
     @NotEmpty(message = "旧密码不能为空")
-    @Size(min = 8, max = 20, message = "旧密码长度在8-20个字符之间")
     private String oldPassword;
     /**
      * 密码
      */
     @NotNull(message = "密码不能为空")
-    @Size(min = 8, max = 20, message = "密码长度在8-20个字符之间")
     private String password;
 
     /**
      * 确认密码
      */
     @NotNull(message = "确认密码不能为空")
-    @Size(min = 8, max = 20, message = "确认密码长度在8-20个字符之间")
     private String confirmPassword;
 }

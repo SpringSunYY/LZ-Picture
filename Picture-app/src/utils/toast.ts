@@ -1,20 +1,24 @@
-
+const DEFAULT_DURATION = 3000
 /**
  * 显示消息提示框
  * @param content 提示的标题
+ * @param duration 提示的时长
+ *
  */
-export function toast(content: string): void {
+export function toast(content: string, duration: number = DEFAULT_DURATION): void {
     // 走 uview-plus 的全局 Root Toast(Root 由 App.up.vue → UniUpRoot 插件注入)
     // 见 https://uview-plus.jiangruyi.com/guide/root.html
-    uni.$u.rootToast({message: content, type: 'default', duration: 3000})
+    console.log('toast', content)
+    uni.$u.rootToast({message: content, duration: duration})
 }
 
 /**
  * 消息警告框
  * @param content 警告的标题
+ * @param duration 提示的时长
  */
-export function toastWarn(content: string): void {
-    uni.$u.rootToast({message: content, type: 'warning', duration: 3000})
+export function toastWarn(content: string, duration: number = DEFAULT_DURATION): void {
+    uni.$u.rootToast({message: content, type: 'warning', duration: duration})
 }
 
 /**

@@ -1,7 +1,7 @@
 import { computed, watch, type ComputedRef } from 'vue'
 import { useStore } from 'vuex'
 import type { RootState } from '@/store/types'
-import type { LoginParams, SmsLoginParams } from '@/types/user'
+import {USER} from "@/types/user";
 
 /** 登录页共用 model（账号 / 手机号字段） */
 export interface UseUserModels {
@@ -22,8 +22,8 @@ export interface UseUserReturn {
   bindSharedPhone: (models: UseUserModels) => void
   setRememberMe: (val: boolean) => Promise<unknown>
   refreshRemember: () => Promise<unknown>
-  login: (payload: LoginParams) => Promise<unknown>
-  smsLogin: (payload: SmsLoginParams) => Promise<unknown>
+  login: (payload: USER.LoginParams) => Promise<unknown>
+  smsLogin: (payload: USER.SmsLoginParams) => Promise<unknown>
   getInfo: () => Promise<unknown>
   logout: () => Promise<unknown>
 }
@@ -111,12 +111,12 @@ export function useUser(): UseUserReturn {
   }
 
   /** 账号密码登录，成功后 token 由 store 落库 */
-  function login(payload: LoginParams): Promise<unknown> {
+  function login(payload: USER.LoginParams): Promise<unknown> {
     return store.dispatch('Login', payload) as Promise<unknown>
   }
 
   /** 短信验证码登录，成功后 token 由 store 落库 */
-  function smsLogin(payload: SmsLoginParams): Promise<unknown> {
+  function smsLogin(payload: USER.SmsLoginParams): Promise<unknown> {
     return store.dispatch('SmsLogin', payload) as Promise<unknown>
   }
 

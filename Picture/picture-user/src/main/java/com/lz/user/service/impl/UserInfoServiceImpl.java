@@ -9,6 +9,7 @@ import com.lz.common.core.redis.RedisCache;
 import com.lz.common.enums.CommonDeleteEnum;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.common.utils.bean.BeanUtils;
 import com.lz.config.model.domain.MenuInfo;
 import com.lz.config.service.IMenuInfoService;
@@ -236,15 +237,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword(), 8, 20);
         //先查询用户
         UserInfo userInfo = userInfoMapper.selectUserInfoByUserId(request.getUserId());
-        if (StringUtils.isNull(userInfo)) {
-            return 0;
-        }
+        ThrowUtils.throwIf(StringUtils.isNull(userInfo), "用户不存在");
         //获取密码以及加密方式
         String password = userInfo.getPassword();
         String salt = userInfo.getSalt();
-        if (!PasswordUtils.checkPassword(salt, request.getOldPassword(), password)) {
-            return 0;
-        }
+        ThrowUtils.throwIf(!PasswordUtils.checkPassword(salt, request.getOldPassword(), password),
+                "旧密码错误");
         //密码校验成功 更新密码
         EncryptionPassword encrypted = PasswordUtils.encryptPassword(request.getPassword());
         userInfo.setPassword(encrypted.getPassword());

@@ -204,8 +204,15 @@ defineOptions({
   name: 'PreferencesSettings',
 })
 
+/**
+ * 顶部 tab 标题
+ */
+definePage({
+  style: {
+    navigationBarTitleText: '主题偏好',
+  },
+})
 // ===================== store 交互 =====================
-// 与 login.vue / profile.vue / system.vue 保持同一套风格:
 // 1) 通过 useStore() 拿 store(走 vuex,所有页面统一)
 // 2) computed 从 getter 派生只读数据(不直接读 state)
 // 3) 改主题走 dispatch('SetTheme')

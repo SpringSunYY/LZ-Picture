@@ -106,7 +106,7 @@ export function getForgetPasswordCode(query: USER.ForgetPasswordParams): Promise
   })
 }
 
-export function smsLogin(data: USER.SmsLoginParams): Promise<USER.LoginResponse> {
+export function smsLogin(data: USER.ForgetPasswordParams): Promise<USER.LoginResponse> {
   return request({
     url: '/smsLogin',
     headers: {

@@ -1,6 +1,8 @@
 package com.lz.common.utils.sign;
 
+import com.lz.common.utils.StringUtils;
 import org.apache.commons.codec.binary.Base64;
+
 import javax.crypto.Cipher;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -91,6 +93,9 @@ public class RsaUtils
      * @return 解密后的文本
      */
     public static String decryptUserByPrivateKey(String text) throws Exception {
+        if (StringUtils.isEmpty(text)) {
+            return "";
+        }
         return decryptByPrivateKey(userPrivateKey, text);
     }
 

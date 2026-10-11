@@ -1,49 +1,111 @@
+// 通用的用户类型
+export type LoginUser = {
+    username: string
+    password: string
+}
+
+export type UserInfo = {
+    userName: string
+    password?: string
+    avatar?: string
+}
+/* eslint-disable */
+export namespace USER {
+    interface ResponseInfo {
+        data?: object
+        msg?: string
+    }
+
+    interface LoginResponse {
+        token: string
+    }
+
+    // 定义用户信息响应类型
+    interface UserInfoResponse {
+        user: {
+            userId: string
+            userName: string
+            nickName: string
+            phone: string
+            avatarUrl?: string
+        }
+        permissions?: string[]
+    }
+
+    interface ResponseUserInfo {
+        user?: object
+        permissions?: Array<string>
+    }
+
+    // 定义用户登录参数类型
+    interface LoginParams {
+        password: string
+        code?: string
+        uuid?: string
+        countryCode: string
+        phone: string
+    }
+
+    interface SmsLoginParams {
+        countryCode: string
+        phone: string
+        smsCode: string
+        code?: string
+        uuid?: string
+    }
+
+    export interface RegisterParams {
+        countryCode: string
+        phone: string
+        smsCode: string
+        password: string
+        confirmPassword: string
+        code?: string
+        uuid?: string
+    }
+
+    export interface ForgetPasswordParams {
+        countryCode: string
+        phone: string
+        smsCode: string
+        password: string
+        confirmPassword: string
+        code?: string
+        uuid?: string
+    }
+}
+
 /**
- * 用户 / 登录 / 个人信息相关业务类型
+ * 用户信息对象
  */
+export interface UserVo {
+    /** 用户ID */
+    userId?: string
 
-export interface UserInfo {
-  userId: string | number
-  userName: string
-  nickName: string
-  avatarUrl: string
-  permissions: string[]
-  [key: string]: unknown
-}
+    /** 用户名 */
+    userName?: string
 
-export interface LoginParams {
-  username?: string
-  password?: string
-  phone?: string
-  countryCode?: string
-}
+    /** 昵称 */
+    nickName?: string
 
-export interface SmsLoginParams {
-  countryCode?: string
-  phone?: string
-  smsCode?: string
-  code?: string
-  uuid?: string
-}
+    /** 头像地址 */
+    avatarUrl?: string
 
-export interface RegisterParams extends SmsLoginParams {
-  password?: string
-  confirmPassword?: string
-}
+    /** 性别（0=未知 1=男 2=女） */
+    sex?: string
 
-export interface SmsCodeQuery {
-  countryCode?: string
-  phone?: string
-  code?: string
-  uuid?: string
-}
+    /** 生日 */
+    birthday?: string // 使用 string 类型表示日期时间（格式为 "yyyy-MM-dd HH:mm:ss"）
 
-export interface LoginTokenResponse {
-  token: string
-  [key: string]: unknown
-}
+    /** 职业 */
+    occupation?: string
 
-export interface GetInfoResponse {
-  user: UserInfo
-  [key: string]: unknown
+    /** 偏好语言 */
+    preferredLanguageLocale?: string
+
+    /** 个人简介 */
+    introductory?: string
+
+    /** IP属地 */
+    ipAddress?: string
 }

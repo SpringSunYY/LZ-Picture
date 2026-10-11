@@ -101,6 +101,15 @@ defineOptions({
   name: 'SystemSettings',
 })
 
+/**
+ * 顶部 tab 标题
+ */
+definePage({
+  style: {
+    navigationBarTitleText: '系统设置',
+  },
+})
+
 // ===================== 主题 CSS 变量(与 profile.vue 一致) =====================
 const store = useStore()
 
@@ -154,6 +163,7 @@ const accountSecurity = [
     label: '修改登录密码',
     icon: 'password',
     meta: '定期更换保护数字资产',
+    path: '/pages/user/auth/password',
   },
   {
     label: '修改支付密码',

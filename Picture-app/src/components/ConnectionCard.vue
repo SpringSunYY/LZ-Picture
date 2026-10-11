@@ -73,7 +73,7 @@ defineExpose({targetUrl});
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin: 10rpx;
+  margin: 20rpx 10rpx 0 0;
   padding: 24rpx;
   border-radius: 24rpx;
   background-color: $app-primary-light;

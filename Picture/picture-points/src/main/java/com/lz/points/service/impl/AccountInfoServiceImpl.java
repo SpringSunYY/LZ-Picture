@@ -183,15 +183,12 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
         PasswordUtils.checkPasswordFormate(request.getPassword(), request.getConfirmPassword(), 6, 10);
         //首先查询是否有账号
         AccountInfo accountInfoDb = this.selectAccountInfoByUserId(request.getUserId());
-        if (StringUtils.isNull(accountInfoDb)) {
-            return 0;
-        }
+        ThrowUtils.throwIf(StringUtils.isNull(accountInfoDb), "账号不存在");
         //获取密码以及加密方式
         String password = accountInfoDb.getPassword();
         String salt = accountInfoDb.getSalt();
-        if (!PasswordUtils.checkPassword(salt, request.getOldPassword(), password)) {
-            return 0;
-        }
+        ThrowUtils.throwIf(!PasswordUtils.checkPassword(salt, request.getOldPassword(), password),
+                "密码校验错误");
         EncryptionPassword encrypted = PasswordUtils.encryptPassword(request.getPassword());
         accountInfoDb.setPassword(encrypted.getPassword());
         accountInfoDb.setSalt(encrypted.getSalt());
@@ -305,6 +302,11 @@ public class AccountInfoServiceImpl extends ServiceImpl<AccountInfoMapper, Accou
 
     @Override
     public AccountInfo resetAccountPassword(ResetAccountPasswordBody resetAccountPasswordBody) {
+        //校验密码长度
+        int passwordLength = resetAccountPasswordBody.getPassword().length();
+        if (passwordLength < 6 || passwordLength > 10) {
+            throw new ServiceException("密码长度必须在6~20个字符之间");
+        }
         //查询是否有账户
         AccountInfo accountInfo = this.selectAccountInfoByUserId(UserInfoSecurityUtils.getUserId());
         if (StringUtils.isNull(accountInfo)) {

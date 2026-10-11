@@ -19,12 +19,24 @@ export interface AppConfig {
   appInfo: AppInfo
 }
 
+/**
+ * 读取环境变量 —— uni-app vite 项目官方推荐方式
+ * (uni-app 编译期会把 import.meta.env.VITE_* 静态替换成字符串字面量)
+ * 见 https://uniapp.dcloud.net.cn/tutorial/migration-to-vue3.html
+ */
+const envBaseApi: string =
+    (import.meta.env.VITE_APP_BASE_API as string | undefined) || '/api'
+const envDns: string =
+    (import.meta.env.VITE_APP_DNS_URL as string | undefined) || 'https://picture.springsun.online'
+
 const config: AppConfig = {
-  // 【H5 开发】统一走 /api 前缀，由 vite.config.js 代理到后端，避开 CORS 预检(OPTIONS)
-  // 【小程序 / App】会被 request.ts 自动改写为完整 baseUrl（见 request.ts 内的 baseUrl 兜底逻辑）
-  baseUrl: '/api',
-  // 备用：完整域名，便于小程序或 App 端动态切换
-  dnsUrl: 'https://picture.springsun.online',
+  /**
+   * H5 端:由 vite.config.js 的 server.proxy 把 /api 反代到后端
+   * 小程序 / App:request.ts 内部会改成完整域名(见 getBaseUrl)
+   */
+  baseUrl: envBaseApi,
+  /** 备用域名,用于拼接相对资源路径(如头像) */
+  dnsUrl: envDns,
   appInfo: {
     name: 'LZ-Picture',
     version: '1.1.0',

@@ -41,15 +41,31 @@
     },
     {
       "path": "pages/user/system/system",
-      "type": "page"
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "系统设置"
+      }
     },
     {
       "path": "pages/user/system/preferences",
-      "type": "page"
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "主题偏好"
+      }
     },
     {
       "path": "pages/user/auth/paymentPassword",
-      "type": "page"
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "支付密码"
+      }
+    },
+    {
+      "path": "pages/user/auth/password",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "账户密码"
+      }
     }
   ],
   "subPackages": [],

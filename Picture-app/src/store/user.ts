@@ -4,9 +4,9 @@ import constant from '@/utils/constant'
 import {getInfo, login, logout, smsLogin} from '@/api/login'
 import {getToken, removeToken, setToken} from '@/utils/auth'
 import {showConfirm, toast} from '@/utils/toast'
-import type {GetInfoResponse, LoginParams, LoginTokenResponse, SmsLoginParams, UserInfo} from '@/types/user'
 import type {ActionContext, Commit, Module} from 'vuex'
 import type {RootState, UserState} from './types'
+import {USER} from "@/types/user";
 
 const baseUrl: string = config.baseUrl
 
@@ -116,18 +116,17 @@ const user: Module<UserState, RootState> = {
         // 账号密码登录
         Login(
             ctx: ActionContext<UserState, RootState>,
-            userInfo: LoginParams
+            userInfo: USER.LoginParams
         ): Promise<void> {
             const {commit, state} = ctx
             // 兼容 username / phone 两种入参；undefined 时兜底为空串，避免 .trim() 抛错
-            const username = (userInfo.username || '').trim()
             const password = userInfo.password || ''
             const phone = (userInfo.phone || '').trim()
             const countryCode = userInfo.countryCode || '+86'
             return new Promise<void>((resolve, reject) => {
-                login(username, password, phone, countryCode)
-                    .then((res: LoginTokenResponse) => {
-                        commitLoginSuccess({commit, state}, res.token, username || phone)
+                login({password, phone, countryCode})
+                    .then((res) => {
+                        commitLoginSuccess({commit, state}, res.token, phone)
                         resolve()
                     })
                     .catch((error: unknown) => {
@@ -141,19 +140,19 @@ const user: Module<UserState, RootState> = {
          */
         SmsLogin(
             ctx: ActionContext<UserState, RootState>,
-            payload: SmsLoginParams
-        ): Promise<LoginTokenResponse> {
+            payload: USER.SmsLoginParams
+        ): Promise<USER.LoginResponse> {
             const {commit, state} = ctx
-            const data: SmsLoginParams = {
+            const data: USER.SmsLoginParams = {
                 countryCode: payload.countryCode || '+86',
                 phone: (payload.phone || '').trim(),
                 smsCode: payload.smsCode || '',
                 code: payload.code || '',
                 uuid: payload.uuid || '',
             }
-            return new Promise<LoginTokenResponse>((resolve, reject) => {
+            return new Promise<USER.LoginResponse>((resolve, reject) => {
                 smsLogin(data)
-                    .then((res: LoginTokenResponse) => {
+                    .then((res: USER.LoginResponse) => {
                         commitLoginSuccess({commit, state}, res.token, data.phone || '')
                         resolve(res)
                     })
@@ -166,15 +165,15 @@ const user: Module<UserState, RootState> = {
         // 获取用户信息
         GetInfo(
             ctx: ActionContext<UserState, RootState>
-        ): Promise<GetInfoResponse> {
+        ): Promise<USER.UserInfoResponse> {
             const {commit} = ctx
             void ctx.state
-            return new Promise<GetInfoResponse>((resolve, reject) => {
+            return new Promise<USER.UserInfoResponse>((resolve, reject) => {
                 getInfo()
-                    .then((res: GetInfoResponse) => {
-                        const u: UserInfo | null = res.user
+                    .then((res: USER.UserInfoResponse) => {
+                        const u = res.user
                         const avatar =
-                            u == null || u.avatarUrl === '' || u.avatarUrl == null
+                            u == null || u?.avatarUrl === '' || u.avatarUrl == null
                                 ? '@/static/images/profile.jpg'
                                 : baseUrl + u.avatarUrl
                         const userName =
@@ -183,7 +182,7 @@ const user: Module<UserState, RootState> = {
                         commit('SET_PHONE', u?.phone ?? '')
                         commit('SET_USER_NAME', userName)
                         commit('SET_AVATAR', avatar)
-                        commit('SET_PERMISSIONS', u?.permissions ?? [])
+                        commit('SET_PERMISSIONS', res.permissions ?? [])
                         commit('SET_NICK_NAME', u?.nickName ?? '')
                         resolve(res)
                     })
@@ -242,7 +241,7 @@ const user: Module<UserState, RootState> = {
                 uni.reLaunch({url: '/pages/user/login'})
             }, 50)
         },
-    },
+    }
 }
 
 export default user

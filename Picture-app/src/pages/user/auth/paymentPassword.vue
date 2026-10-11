@@ -103,10 +103,7 @@
           </up-input>
         </up-form-item>
 
-        <view class="tip-card">
-          <SvgIcon icon="idea" width="1em"/>
-          <text class="tip-text">验证码将发送至您绑定的手机号,请注意查收.</text>
-        </view>
+        <TipCard text="验证码将发送至您绑定的手机号,请注意查收."/>
 
         <button class="primary-btn" @tap="handleVerifySms" :disabled="smsVerifyLoading">
           <text class="primary-btn-text">{{ smsVerifyLoading ? '校验中...' : '下一步' }}</text>
@@ -127,7 +124,8 @@
               v-model="resetModel.password"
               shape="circle"
               type="password"
-              placeholder="请输入新支付密码 (8-20位)"
+              :maxlength="10"
+              placeholder="请输入新支付密码 (6-10 位)"
           >
             <template #prefix>
               <SvgIcon icon="password" width="1em"/>
@@ -140,6 +138,7 @@
               v-model="resetModel.confirmPassword"
               shape="circle"
               type="password"
+              :maxlength="10"
               placeholder="请再次输入新支付密码"
           >
             <template #prefix>
@@ -148,10 +147,13 @@
           </up-input>
         </up-form-item>
 
-        <view class="tip-card">
-          <SvgIcon icon="idea" width="1em"/>
-          <text class="tip-text">支付密码仅用于资金类操作,请妥善保管,不要告知他人.</text>
-        </view>
+        <!-- 密码强度条(复用 PasswordStrengthBar 组件) -->
+        <PasswordStrengthBar
+            :password="resetModel.password"
+            :min-length="PAY_PWD_MIN"
+        />
+
+        <TipCard text="支付密码为 6-10 位字母/数字组合(不含特殊字符),仅用于资金类操作,请妥善保管,不要告知他人."/>
 
         <button class="primary-btn" @tap="handleResetPassword" :disabled="resetLoading">
           <text class="primary-btn-text">{{ resetLoading ? '提交中...' : '确认修改' }}</text>
@@ -167,7 +169,7 @@
 </template>
 
 <script setup>
-import {computed, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue';
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue';
 import {onReady} from '@dcloudio/uni-app';
 import {useStore} from 'vuex';
 import {getCodeImg} from '@/api/login';
@@ -177,20 +179,35 @@ import {
 } from '@/api/points/account';
 import {
   isCaptcha,
-  isPassword,
   isPhone,
   isSmsCode,
   makeValidator,
+  validateConfirmPassword,
+  validatePassword,
 } from '@/utils/validators';
 import {toast, toastHide, toastLoading, toastWarn} from '@/utils/toast';
 import SvgIcon from '@/components/SvgIcon.vue';
+import PasswordStrengthBar from '@/components/PasswordStrengthBar.vue';
+import TipCard from '@/components/TipCard.vue';
+
+defineOptions({
+  name: 'PaymentPassword',
+})
+
+/**
+ * 顶部 tab 标题
+ */
+definePage({
+  style: {
+    navigationBarTitleText: '支付密码',
+  },
+})
 
 // ===================== 主题 CSS 变量(与 login.vue / system.vue 保持同一套) =====================
 const store = useStore()
 
-/** 当前用户 userId / 手机号(从 store 读取,用于提交 / 初始回填) */
+/** 当前用户 userId(从 store 读取,用于提交) */
 const userId = computed(() => String(store.state.user.userId || ''))
-const bindPhone = computed(() => store.state.user.phone || '')
 
 const countryCode = ref('+86')
 
@@ -312,8 +329,7 @@ const refreshCaptcha = () => {
 
 /**
  * 获取短信按钮的可点条件 —— 同时校验 手机号 + 图形码
- *
- * 之前绑定的是 bindPhone.value(只读 store),现在用户可编辑,改为校验 model
+ * (用户可编辑手机号,所以直接读 smsModel.regPhone,不再用 store 兜底)
  */
 const canSendSms = computed(() => {
   if (smsCountdown.value > 0) return false
@@ -396,27 +412,26 @@ const resetModel = reactive({
   password: '',
   confirmPassword: '',
 })
+// 支付密码 6-10 位
+const PAY_PWD_MIN = 6
+const PAY_PWD_MAX = 10
+
 const resetRules = {
   password: [
     {
-      validator: makeValidator(isPassword, '请输入 8-20 位密码(不可含表情)', {emptyMsg: '请输入新支付密码'}),
+      // 支付密码:6-10 位字母/数字(必含两类,不含表情/特殊字符)
+      validator: (rule, value) => validatePassword(value, PAY_PWD_MIN, PAY_PWD_MAX),
       trigger: ['blur', 'change'],
     },
   ],
   confirmPassword: [
     {
-      validator: (rule, value) =>
-          new Promise((resolve, reject) => {
-            if (!value) {
-              reject(new Error('请再次输入新支付密码'))
-              return
-            }
-            if (value !== resetModel.password) {
-              reject(new Error('两次输入的支付密码不一致'))
-              return
-            }
-            resolve()
-          }),
+      validator: (rule, value) => {
+        if (!value) {
+          return Promise.reject(new Error('请再次输入新支付密码'))
+        }
+        return validateConfirmPassword(resetModel.password, value)
+      },
       trigger: ['blur', 'change'],
     },
   ],
@@ -478,33 +493,7 @@ const goPrevStep = () => {
   }
 }
 
-// ===================== 回填手机号(可选:只在用户未输入 + store 有值时回填) =====================
-/**
- * 用 watch + immediate 实现"用户首次进入时,如未输入则用 store 的 phone 兜底"
- *
- * 之前用 `initSolderModel()` + `disabled="true"` 的做法有两个问题:
- * 1) disabled 让用户无法修改手机号 —— 万一用户换了手机号想改绑,这条路堵死
- * 2) onReady 时机太早 —— store.state.user.phone 可能还没就绪(异步登录刚回来),
- *    此时回填空值,用户后续输入也会被视作"empty"校验失败
- *
- * 现在改成 watch:
- * - 仅当 regPhone 为空 且 store.phone 有值 时,才回填一次
- * - 用户主动输入(model 已有值)后,watch 不再覆盖,避免数据竞争
- */
-watch(
-    () => bindPhone.value,
-    (val) => {
-      if (val && !smsModel.regPhone) {
-        smsModel.regPhone = val
-      }
-    },
-    {immediate: true}
-)
-
-// 进入页面先拉图形验证码 + 注入 Step1 规则
-onReady(() => {
-  smsUFormRef.value?.setRules(smsRules)
-})
+// ===================== 提交 =====================
 
 // onMounted 拉图形验证码 —— 用 onReady 会偶发 ref 未就绪,onMounted 时机更稳
 onMounted(() => {
@@ -519,7 +508,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-/* ========== 页面专属 token(与 login.vue / preferences.vue 同一套语言) ========== */
 $surface-lowest: #ffffff;
 $surface: #faf8ff;
 $surface-container: #e2e7ff;
@@ -549,7 +537,6 @@ button {
 .payment-page {
   position: relative;
   width: 100%;
-  min-height: 100vh;
   background-color: $surface;
   padding: 0 30rpx 60rpx;
   box-sizing: border-box;
@@ -776,25 +763,6 @@ button {
   font-weight: 500;
   color: $app-primary-dark;
   line-height: 1;
-}
-
-/* ========== 提示卡 ========== */
-.tip-card {
-  display: flex;
-  align-items: flex-start;
-  padding: 18rpx 44rpx;
-  border-radius: $auth-radius-md;
-  background-color: #f2f3ff;
-  margin-top: 24rpx;
-  margin-bottom: 8rpx;
-}
-
-.tip-text {
-  font-size: 22rpx;
-  padding-left: 10rpx;
-  color: $app-content-color;
-  line-height: 1.5;
-  flex: 1;
 }
 
 /* ========== 主按钮 ========== */
