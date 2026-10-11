@@ -32,6 +32,8 @@ export interface RequestConfig {
   baseUrl?: string
   timeout?: number
   dataType?: 'json' | 'text' | 'arraybuffer'
+  /** 响应数据类型;'blob'/'arraybuffer' 用于文件下载等二进制响应 */
+  responseType?: 'text' | 'arraybuffer' | 'blob'
 }
 
 /** 后端统一返回结构 */

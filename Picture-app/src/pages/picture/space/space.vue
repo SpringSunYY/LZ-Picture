@@ -135,13 +135,14 @@
         @close="sortSheetOpen = false"
     />
 
+    <BackToTop ref="backTopRef"/>
     <AppTabbar/>
   </view>
 </template>
 
 <script setup>
 import {computed, onMounted, ref} from 'vue'
-import {onShow} from '@dcloudio/uni-app'
+import {onPageScroll, onShow} from '@dcloudio/uni-app'
 import {useStore} from 'vuex'
 import AppTabbar from '@/components/AppTabbar.vue'
 import CloudStorageBar from '@/components/CloudStorageBar.vue'
@@ -151,6 +152,7 @@ import {mySpaceInfo} from '@/api/picture/space'
 import {formatSize, initCover} from '@/utils/common'
 import {toast} from '@/utils/toast'
 import {checkPermiSingle, checkUser} from '@/utils/permission'
+import BackToTop from "@/components/BackToTop.vue";
 
 defineOptions({
   name: "PictureSpace",
@@ -292,6 +294,13 @@ const onEdit = (space) => {
 // ===================== 存储条操作 =====================
 const onOpenUpgrade = () => toast("空间扩容套餐开发中,敬请期待")
 const onOpenClean = () => toast("智能清理:扫描大文件与重复内容")
+
+const backTopRef = ref(null)
+// 页面滚动转发给 BackToTop（组件内 onPageScroll 在小程序端不一定触发，官方推荐页面转发）
+onPageScroll((e) => {
+  backTopRef.value?.handlePageScroll?.(e)
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -450,7 +459,7 @@ button {
 /* --- 空间卡片 --- 封面铺满,信息浮其上 --- */
 .sp-card {
   position: relative;
-  height: 320rpx;
+  height: 520rpx;
   border-radius: $sp-radius-lg;
   background-color: $surface-container;
   box-shadow: 0 4rpx 12rpx rgba(19, 27, 46, 0.04);

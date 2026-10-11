@@ -31,15 +31,18 @@ export default defineUniPages({
     },
   },
   tabBar: {
+    custom: true, // 关键：开启自定义 tabBar，否则小程序客户端会用空 iconPath 触发 800059
     selectedColor: '#4f46e5', // 动态由 JS 控制，这里写默认
     borderStyle: 'white',
     backgroundColor: '#ffffff',
+    // 顺序须与 src/components/AppTabbar.vue 中的 TABBAR_PAGES 严格保持一致
+    // （首页 / 发现 / 发布 / 空间 / 我的），否则 switchTab 索引会错位
     list: [
-      { pagePath: 'pages/index', text: '首页', iconPath: '', selectedIconPath: '' },
-      { pagePath: 'pages/ai/discover', text: '发现', iconPath: '', selectedIconPath: '' },
-      { pagePath: 'pages/generate/index', text: '发布', iconPath: '', selectedIconPath: '' },
-      { pagePath: 'pages/picture/space/space', text: '空间', iconPath: '', selectedIconPath: '' },
-      { pagePath: 'pages/user/profile', text: '我的', iconPath: '', selectedIconPath: '' },
+      { pagePath: 'pages/index', text: '首页' },
+      { pagePath: 'pages/ai/discover', text: '发现' },
+      { pagePath: 'pages/generate/index', text: '发布' },
+      { pagePath: 'pages/picture/space/space', text: '空间' },
+      { pagePath: 'pages/user/profile', text: '我的' },
     ],
   },
 })

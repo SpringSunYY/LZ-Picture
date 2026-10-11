@@ -45,11 +45,20 @@
             </up-input>
           </up-form-item>
 
-          <!-- 空间封面(复用通用单图选择组件,与 AiPictureUpload 同款交互) -->
+          <!-- 空间封面 —— CoverUpload:通过 :uploader 注入 coverUploadFile
+               (api/common/file.ts → /picture/file/upload/cover),
+               返回的 url 字段自动写回 formModel.spaceAvatar -->
           <up-form-item prop="spaceAvatar" label="空间封面" borderBottom="false">
             <view class="se-form-cover">
-              <AiPictureUpload v-model="formModel.spaceAvatar"/>
-              <text class="se-form-cover-hint">支持 JPG / PNG,建议 1:1,不超过 5MB</text>
+              <!--
+                CoverUpload 内部已自带编辑器(H5=cropperjs,MP=wx.cropImage),
+                不需要在父组件注入 #editor slot —— 那样会被 uni-app slot 渲染时序坑
+              -->
+              <CoverUpload
+                  v-model="formModel.spaceAvatar"
+                  empty-text="点击上传空间封面"
+                  :uploader="onUploadCover"
+              />
             </view>
           </up-form-item>
 
@@ -127,7 +136,7 @@ import {onLoad} from '@dcloudio/uni-app'
 import {useStore} from 'vuex'
 import SvgIcon from '@/components/SvgIcon.vue'
 import TipCard from '@/components/TipCard.vue'
-import AiPictureUpload from '@/components/ai/AiPictureUpload.vue'
+import CoverUpload from '@/components/common/CoverUpload.vue'
 import {addSpaceInfo, getSpaceInfo, updateSpaceInfo} from '@/api/picture/space'
 import {toast, toastHide, toastLoading, toastWarn} from '@/utils/toast'
 import {useDict} from '@/utils/useDict'
@@ -242,6 +251,189 @@ onLoad(async (options) => {
   }
 })
 
+// ===================== 封面上传(注入给 CoverUpload) =====================
+/**
+ * 适配 CoverUpload 的 uploader 协议
+ * 接收:
+ *   - H5  : { blob: Blob, name: string, type: string }  裁剪后输出
+ *   - MP  : { tempPath: string, name: string }         wx.cropImage 输出
+ *
+ * 必须走 uni.uploadFile(走 multipart/form-data),
+ * 因为 coverUploadFile/api/common/file.ts 内部用的是 request.ts 的 uni.request + JSON,
+ * 后端 /picture/file/upload/cover 大概率不接受 JSON 传 file
+ */
+/**
+ * H5 端: cover upload 走 picture 域(不是 user 域)
+ * 小程序/App: 走完整域名,加 /picture 路径
+ */
+const getUploadBaseUrl = () => {
+    // #ifdef H5
+    // H5 dev 由 vite proxy 把 /api/picture/* 反代到 https://www.springsun.online/prod-api/picture/*
+    // H5 生产由 nginx / 部署服务器反代
+    return '/api/picture'
+    // #endif
+    // #ifndef H5
+    const envBase = import.meta.env.VITE_APP_BASE_API || ''
+    return envBase ? envBase.replace(/\/user\/?$/, '') + '/picture' : ''
+    // #endif
+}
+
+const onUploadCover = (payload) => {
+    return new Promise((resolve, reject) => {
+        const token = uni.getStorageSync('App-Token') || ''
+        const formData = { type: '2', fileDir: 'cover' }
+        const name = payload?.name || 'cover.jpg'
+
+        // #ifdef H5
+        // H5 端:直接用 fetch + FormData,绕开 uni.uploadFile 在 H5 端的多坑
+        // (uni.uploadFile 在 H5 走 XHR,对 Blob/dataURL 编码不一致,经常导致后端拿不到文件)
+        const blob = payload?.blob
+        if (!blob) {
+            reject(new Error('H5 上传需要 blob'))
+            return
+        }
+        const fd = new FormData()
+        // 关键: 第三个参数给文件名,后端 multipart 解析时才能拿到正确的 filename
+        fd.append('file', blob, name)
+        Object.entries(formData).forEach(([k, v]) => fd.append(k, v))
+
+        const uploadUrl = getUploadBaseUrl() + '/picture/file/upload/cover'
+        const headers = token ? { Authorization: 'UserBearer ' + token } : {}
+        console.log('[edit:H5] upload start', {
+            url: uploadUrl,
+            hasToken: !!token,
+            tokenPrefix: token ? token.slice(0, 10) + '...' : '(none)',
+            blobSize: blob.size,
+            blobType: blob.type,
+            formData,
+        })
+        // 不要手动设 Content-Type,让浏览器自动加 boundary
+        fetch(uploadUrl, {
+            method: 'POST',
+            headers,
+            body: fd,
+        })
+            .then(async (res) => {
+                const text = await res.text()
+                console.log('[edit:H5] upload response', {
+                    ok: res.ok,
+                    status: res.status,
+                    textPreview: text.slice(0, 800),
+                })
+                let body
+                try {
+                    body = JSON.parse(text)
+                } catch (e) {
+                    console.error('[edit:H5] response not JSON', e)
+                    toast('上传失败:响应不是 JSON')
+                    reject(new Error('响应不是 JSON'))
+                    return
+                }
+                if (
+                    res.ok &&
+                    (body?.code === 200 || body?.code === 0) &&
+                    (body?.data?.url || body?.data?.thumbnailUrl)
+                ) {
+                    console.log('[edit:H5] upload success', body.data)
+                    resolve(body.data)
+                } else {
+                    const msg = body?.msg || `上传失败(code=${body?.code ?? res.status})`
+                    console.error('[edit:H5] upload fail', msg, body)
+                    toast(msg)
+                    reject(new Error(msg))
+                }
+            })
+            .catch((err) => {
+                console.error('[edit:H5] fetch error', err)
+                const msg = err?.message || '上传失败,请检查网络'
+                toast(msg)
+                reject(new Error(msg))
+            })
+        // #endif
+
+        // #ifndef H5
+        if (!payload?.tempPath) {
+            reject(new Error('上传需要 tempPath'))
+            return
+        }
+        uni.uploadFile({
+            url: getUploadBaseUrl() + '/picture/file/upload/cover',
+            filePath: payload.tempPath,
+            name: 'file',
+            header: token ? { Authorization: 'UserBearer ' + token } : {},
+            formData,
+            success: (res) => handleUploadResponse(res, resolve, reject),
+            fail: (err) => {
+                const msg = err?.errMsg || '上传失败,请检查网络'
+                toast(msg)
+                reject(new Error(msg))
+            },
+        })
+        // #endif
+    })
+}
+
+const handleUploadResponse = async (res, resolve, reject) => {
+    console.log('[edit] upload raw response', {
+        statusCode: res?.statusCode,
+        dataType: typeof res?.data,
+        dataPreview: typeof res?.data === 'string' ? res.data.slice(0, 500) : res?.data,
+    })
+    let body
+    try {
+        body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data
+    } catch (e) {
+        console.error('[edit] JSON.parse failed', e)
+        toast('上传失败:响应解析错误')
+        reject(new Error('响应解析错误'))
+        return
+    }
+    console.log('[edit] upload parsed body', body)
+    // 兼容多种后端响应形态:
+    // 1) { code, data: { url } }
+    // 2) { code, data: { thumbnailUrl } }  (用户给的 PictureFileResponse)
+    // 3) { code, data: 'http://...' }       (data 直接是 url 字符串)
+    // 4) { code, data: { name: 'xxx.jpg' } } 现实:后端只返 name 没返 url,要根据 name 拼路径
+    const data = body?.data
+    let url =
+        (data && typeof data === 'object' && (data.url || data.thumbnailUrl)) ||
+        (typeof data === 'string' ? data : null)
+
+    // 兜底: 后端只返 name 时,按 PictureFileResponse 设计意图拼成完整 url
+    // 规则: name 一般是 "hash-random.jpg" 或 "hash-random-compressed.jpg" 形式
+    //      -> 拼成 "https://<dnsUrl>/picture/cover/YYYY/MM/DD/<name>"
+    if (!url && data && typeof data === 'object' && data.name) {
+        const d = new Date()
+        const yyyy = d.getFullYear()
+        const mm = String(d.getMonth() + 1).padStart(2, '0')
+        const dd = String(d.getDate()).padStart(2, '0')
+        // 取 config.dnsUrl(避免硬编码域名)
+        let base = ''
+        try {
+            // 动态读 config,避免循环依赖
+            const cfg = (await import('@/config')).default
+            base = cfg?.dnsUrl || ''
+        } catch (e) {
+            base = ''
+        }
+        url = base
+            ? `${base}/picture/cover/${yyyy}/${mm}/${dd}/${data.name}`
+            : `/picture/cover/${yyyy}/${mm}/${dd}/${data.name}`
+        console.warn('[edit] 后端没返 url/thumbnailUrl,根据 name 兜底拼接:', url)
+    }
+
+    if ((body?.code === 200 || body?.code === 0) && url) {
+        // 统一成 { url } 形态再 resolve,CoverUpload 期望 data.url
+        console.log('[edit] upload success, url=', url)
+        resolve({ ...(data || {}), url })
+    } else {
+        const msg = body?.msg || `上传失败(code=${body?.code ?? '?'})`
+        console.error('[edit] upload fail', msg, { data, url })
+        toast(msg)
+        reject(new Error(msg))
+    }
+}
+
 // ===================== 提交 =====================
 const onSubmit = () => {
   if (submitting.value) return
@@ -258,7 +450,7 @@ const doSubmit = async () => {
   submitting.value = true
   toastLoading(isEdit.value ? '保存中...' : '创建中...')
   try {
-    // AiPictureUpload 清空时 emit 的是 null,这里统一兜成空串,
+    // CoverUpload 删除时 emit 的是空串,这里统一兜成空串,
     // 否则会把 null / "null" 提交给后端,更新时覆盖掉已有封面
     const payload = {
       spaceId: formModel.spaceId,
@@ -424,15 +616,6 @@ button {
 
 .se-form-cover {
   width: 100%;
-}
-
-.se-form-cover-hint {
-  display: block;
-  margin-top: 10rpx;
-  font-size: 20rpx;
-  color: $outline;
-  letter-spacing: 0.2rpx;
-  line-height: 1.4;
 }
 
 /* ========== 提交按钮 ========== */

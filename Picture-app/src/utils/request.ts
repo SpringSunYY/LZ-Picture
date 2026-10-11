@@ -18,7 +18,7 @@ function getBaseUrl(): string {
     // #endif
 
     // #ifndef H5
-    return envBase || 'http://localhost:8080/user'
+    return envBase || 'http://localhost:8080' + '/user'
     // #endif
 }
 
@@ -28,7 +28,7 @@ const baseUrl: string = getBaseUrl()
  * 401 防抖锁:防止并发请求把 LogOut 触发多次(顺带也避免反复 reLaunch)
  * 注意:不能跨模块共享,放在模块顶层即可
  */
-const isRelogin: {show: boolean} = {show: false}
+const isRelogin: { show: boolean } = {show: false}
 
 /**
  * 防重复提交:同 (method + url + data) 在 interval 毫秒内只允许一次

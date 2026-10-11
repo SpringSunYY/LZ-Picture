@@ -39,7 +39,7 @@ export default defineConfig({
             // 例如：前端 uni.request({ url: '/api/login' })
             // 会被 Vite 转发到 http://localhost:8080/user/login
             '/api': {
-                target: 'http://localhost:8080/user',
+                target: 'https://www.springsun.online/prod-api',
                 changeOrigin: true,
                 // 如果你不想在 url 里保留 /api 前缀就解开下面这行
                 rewrite: (path) => path.replace(/^\/api/, ''),
