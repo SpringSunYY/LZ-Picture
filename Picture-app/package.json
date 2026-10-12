@@ -18,7 +18,7 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-5020620260917001",
     "axios": "^1.12.2",
     "clipboard": "^2.0.11",
-    "cropperjs": "^2.3.0",
+    "cropperjs": "1.6.2",
     "dayjs": "^1.11.23",
     "jsencrypt": "^3.5.4",
     "libphonenumber-js": "^1.12.23",

@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
+import {defineConfig} from 'vite'
 import uniPlugin from '@dcloudio/vite-plugin-uni'
-import { fileURLToPath, URL } from 'node:url'
-import { uniPrettyUrl } from '@hughcube/uni-pretty-url/vite'
+import {fileURLToPath, URL} from 'node:url'
+import {uniPrettyUrl} from '@hughcube/uni-pretty-url/vite'
 import UniPages from '@uni-helper/vite-plugin-uni-pages'
 // uview-plus 3.x 官方 Root 注入插件
 // 编译期在 App.up.vue 的 <UpRootView/> 内注入 <up-toast ref="upGlobalToastRef"/>
@@ -39,7 +39,8 @@ export default defineConfig({
             // 例如：前端 uni.request({ url: '/api/login' })
             // 会被 Vite 转发到 http://localhost:8080/user/login
             '/api': {
-                target: 'https://www.springsun.online/prod-api',
+                // target: 'https://www.springsun.online/prod-api',
+                target: 'http://localhost:8080/user',
                 changeOrigin: true,
                 // 如果你不想在 url 里保留 /api 前缀就解开下面这行
                 rewrite: (path) => path.replace(/^\/api/, ''),
@@ -50,6 +51,9 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
+    },
+    optimizeDeps: {
+        exclude: ['cropperjs'],
     },
     css: {
         preprocessorOptions: {
