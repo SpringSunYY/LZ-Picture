@@ -244,4 +244,71 @@ const user: Module<UserState, RootState> = {
     }
 }
 
+// ===================== 跨页面同步副作用 =====================
+/**
+ * 设计原则:vuex state 是唯一真相源,任一页面只要 commit 了
+ *   SET_AVATAR / SET_NICK_NAME / SET_USER_NAME / SET_USER_ID / SET_PHONE
+ * 本函数就能把最新 userInfo 自动:
+ *   1) 写一份快照到 localStorage(`lz:userInfoCache`),供下次冷启动 / 兜底读
+ *   2) 广播 `lz:userInfoChanged` 事件
+ *
+ * 调用方页面只负责:
+ *   ① 调 store action(GetInfo) → store 内部 commit 字段
+ *   ② 模板用 computed 从 store 派生
+ * 缓存、广播全部由本同步函数处理,页面无任何业务代码
+ */
+
+const CACHE_KEY = 'lz:userInfoCache'
+const EVENT_NAME = 'lz:userInfoChanged'
+
+/** 触发同步的 mutation 白名单(只列会改变"展示用"用户资料的字段) */
+const TRIGGER_MUTATIONS = new Set<string>([
+    'SET_AVATAR',
+    'SET_NICK_NAME',
+    'SET_USER_NAME',
+    'SET_USER_ID',
+    'SET_PHONE',
+])
+
+/** 把当前 store.user 拍成快照,给缓存和广播用 */
+function snapshotUser(state: UserState) {
+    return {
+        userId: state.userId,
+        userName: state.userName,
+        nickName: state.nickName,
+        avatar: state.avatar,
+        phone: state.phone,
+        cachedAt: Date.now(),
+    }
+}
+
+/**
+ * 把同步副作用挂到 store 上 —— 在 store/index.ts 调用一次
+ * 形如 vuex plugin 的 install 模式
+ */
+export function installUserInfoSync(store: {
+    state: RootState
+    subscribe: (cb: (mutation: {type: string}, state: RootState) => void) => void
+}): void {
+    store.subscribe((mutation) => {
+        // 只关心本模块的 mutation(namespaced: false,所以不带 user/ 前缀)
+        if (!TRIGGER_MUTATIONS.has(mutation.type)) return
+
+        const u = store.state.user
+        // 退出登录时 userName/userId 被清空,不再广播(避免无效事件)
+        if (!u.userName && !u.userId) return
+
+        const payload = snapshotUser(u)
+
+        // 1) 写本地缓存
+        try {
+            uni.setStorageSync(CACHE_KEY, payload)
+        } catch (e) {
+            console.warn('installUserInfoSync 写 userInfoCache 失败', e)
+        }
+        // 2) 广播给监听者
+        uni.$emit(EVENT_NAME, payload)
+    })
+}
+
 export default user

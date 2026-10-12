@@ -17,7 +17,8 @@ type _LocationUrl =
   "/pages/user/login" |
   "/pages/user/profile" |
   "/pages/user/system/preferences" |
-  "/pages/user/system/system";
+  "/pages/user/system/system" |
+  "/pages/user/user/edit";
 
 interface NavigateToOptions {
   url: _LocationUrl;

@@ -1,7 +1,7 @@
 <template>
   <view class="profile-page" :style="rootStyleVar">
-<!--    <view class="bg-blur bg-blur-primary"/>-->
-<!--    <view class="bg-blur bg-blur-secondary"/>-->
+    <!--    <view class="bg-blur bg-blur-primary"/>-->
+    <!--    <view class="bg-blur bg-blur-secondary"/>-->
 
     <!-- ============================================================
          1. 顶部创作者身份看板 (Hero Creator Card)
@@ -14,21 +14,21 @@
           <view class="hero-card-avatar-wrap">
             <image
                 class="hero-card-avatar"
-                :src="initCover(userInfo.avatarUrl)"
+                :src="initCover(avatarUrl)"
                 mode="aspectFill"
             />
           </view>
 
           <view class="hero-card-id-text">
             <view class="hero-card-name-row">
-              <text class="hero-card-name">{{ userInfo.nickName }}</text>
+              <text class="hero-card-name">{{ nickName }}</text>
             </view>
 
             <view class="hero-card-badge-pill">
               <text class="hero-card-badge-pill-text">LZ-Picture 创作者</text>
             </view>
 
-            <text class="hero-card-uid">LZ-ID: {{ userInfo.userName }}</text>
+            <text class="hero-card-uid">LZ-ID: {{ userName }}</text>
           </view>
         </view>
 
@@ -146,48 +146,34 @@
 import AppTabbar from '@/components/AppTabbar.vue'
 import CloudStorageBar from '@/components/CloudStorageBar.vue'
 import MenuGroup from '@/components/MenuGroup.vue'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
 import {useUser} from '@/utils/useUser'
-import {getMyUserInfoByUserName} from '@/api/user/user'
 import {initCover} from '@/utils/common'
 import {getAccountInfo} from '@/api/points/account'
 import {toast} from '@/utils/toast'
 import SvgIcon from "@/components/SvgIcon.vue";
 import ConnectionCardCard from "@/components/ConnectionCard.vue";
 
-// ===================== 用户信息(走 useUser,沿用 login.vue 的封装) =====================
+// ===================== 用户信息 —— 完全从 vuex 派生 =====================
+// vuex state 是唯一真相源,store subscribe 自动写 storage + 广播;
+// 这里只调一次 GetInfo action 触发 store 初始化,模板用 computed 派生
 const store = useStore()
 const {getInfo: getInfoAction, logout: logoutAction} = useUser()
 
-const userInfo = ref({
-  nickName: '',
-  userName: '',
-  avatarUrl: ''
-})
+const nickName = computed(() => store.state.user.nickName || '')
+const userName = computed(() => store.state.user.userName || '')
+const avatarUrl = computed(() => store.state.user.avatarUrl || '')
 
 /**
- * 用户 store 里只有 userName / nickName / avatar,头像可能没值
- * 详情接口返回完整 userInfo(nickName / userName / avatarUrl)
- * 这里两个都拉: store 优先做兜底,接口拉详情覆盖
+ * 首次进入页面调一次 GetInfo
  */
-const getUserInfo = () => {
-  // 1) 先让 store 走 GetInfo 拉一次,确保 token 有效 + 兜底基础字段
+const loadUserInfo = () => {
   getInfoAction().catch((e) => {
-    console.warn('store GetInfo 失败', e)
-  })
-
-  // 2) 再用详情接口拿完整 userInfo(头像 URL 等)
-  const username = store.state.user.userName
-  if (!username) {
-    console.warn('当前未登录，Vuex 中没有 userName')
-    return
-  }
-  getMyUserInfoByUserName(username).then(res => {
-    if (res?.data) userInfo.value = res.data
+    console.warn('profile GetInfo 失败', e)
   })
 }
-// ===================== 账户信息(保留原结构不动) =====================
+// ===================== 账户信息 =====================
 const accountInfo = ref({
   balance: 0,
   points: 0,
@@ -234,6 +220,12 @@ const myLinks = [
   {
     label: '我的',
     icon: 'my',
+  },
+  {
+    label: '修改资料',
+    icon: 'userEdit',
+    path: '/pages/user/user/edit',
+    meta: '修改个人资料和更新头像'
   },
   {
     label: '我的空间',
@@ -311,7 +303,7 @@ const onOrderAction = (item) => toast(`查看${item.label}记录`)
 const onSwitchAccount = () => logoutAction()
 
 onMounted(() => {
-  getUserInfo()
+  loadUserInfo()
   getAccount()
 })
 </script>
