@@ -12,6 +12,7 @@ type _LocationUrl =
   "/pages/message/index" |
   "/pages/picture/space/edit" |
   "/pages/picture/space/space" |
+  "/pages/picture/space/spaceFolder" |
   "/pages/user/auth/password" |
   "/pages/user/auth/paymentPassword" |
   "/pages/user/login" |

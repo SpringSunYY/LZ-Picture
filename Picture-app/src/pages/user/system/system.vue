@@ -72,10 +72,13 @@
            7. 退出当前登录(底部按钮,确认用系统 showConfirm,与 profile.vue 一致)
            ============================================================ -->
       <view class="sys-foot">
-        <view class="sys-foot-logout" @tap="onSwitchAccount">
-          <SvgIcon icon="logout" class="sys-foot-logout-icon" width="1.1em"/>
-          <text class="sys-foot-logout-text">退出当前登录</text>
-        </view>
+        <PrimaryLightButton
+          icon="logout"
+          width="1.1em"
+          text="退出当前登录"
+          :loading="logoutLoading"
+          @tap="onSwitchAccount"
+        />
         <view class="sys-foot-tip">
           <SvgIcon icon="verifiedIdentity" width="0.85em" class="sys-foot-tip-icon"/>
           <text class="sys-foot-tip-text">
@@ -96,6 +99,7 @@ import {initCover} from '@/utils/common'
 import SvgIcon from '@/components/SvgIcon.vue'
 import CloudStorageBar from '@/components/CloudStorageBar.vue'
 import MenuGroup from '@/components/MenuGroup.vue'
+import PrimaryLightButton from '@/components/button/PrimaryLightButton.vue'
 
 defineOptions({
   name: 'SystemSettings',
@@ -122,6 +126,8 @@ const currentThemeName = computed(() => store.getters.activeTheme?.name || '默�
 
 // ===================== 用户信息(从 store + 详情接口拉) =====================
 const {getInfo: getInfoAction, logout: logoutAction} = useUser()
+
+const logoutLoading = ref(false)
 
 const userInfo = ref({
   nickName: '',
@@ -213,7 +219,15 @@ const aboutItems = [
 /**
  * 退出当前登录
  */
-const onSwitchAccount = () => logoutAction()
+const onSwitchAccount = async () => {
+  if (logoutLoading.value) return
+  logoutLoading.value = true
+  try {
+    await logoutAction()
+  } finally {
+    logoutLoading.value = false
+  }
+}
 
 onMounted(() => {
   loadUserInfo()
@@ -432,36 +446,6 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.sys-foot-logout {
-  width: 100%;
-  height: 96rpx;
-  border-radius: 24rpx;
-  background-color: $app-primary-light; // error-container, 浅红色
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.15s, transform 0.15s;
-  box-shadow: 0 4rpx 12rpx rgba(186, 26, 26, 0.1);
-
-  &:active {
-    opacity: 0.9;
-    transform: scale(0.99);
-  }
-}
-
-.sys-foot-logout-icon {
-  margin-right: 12rpx;
-  line-height: 1;
-}
-
-.sys-foot-logout-text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: $app-primary;
-  letter-spacing: 0.5rpx;
-  line-height: 1;
 }
 
 .sys-foot-tip {

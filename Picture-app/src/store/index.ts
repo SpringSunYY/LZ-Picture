@@ -3,6 +3,7 @@ import type { InjectionKey } from 'vue'
 import user, {installUserInfoSync} from '@/store/user'
 import dict from '@/store/dict'
 import preferences from '@/store/preferences'
+import space from '@/store/space'
 import getters from './getters'
 import type { RootState } from './types'
 
@@ -11,6 +12,7 @@ const store = createStore<RootState>({
     user,
     dict,
     preferences,
+    space,
   },
   getters,
 })

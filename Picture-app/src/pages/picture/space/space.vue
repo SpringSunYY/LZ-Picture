@@ -1,7 +1,7 @@
 <template>
   <view class="space-page" :style="rootStyleVar">
-<!--    <view class="bg-blur bg-blur-primary"/>-->
-<!--    <view class="bg-blur bg-blur-secondary"/>-->
+    <!--    <view class="bg-blur bg-blur-primary"/>-->
+    <!--    <view class="bg-blur bg-blur-secondary"/>-->
 
     <main class="sp-main">
       <!-- ============================================================
@@ -100,7 +100,8 @@
                   <text class="sp-card-foot-dot">·</text>
                   <text class="sp-card-foot-text">{{ updateTimeText(space) }}</text>
                 </view>
-                <view class="sp-card-edit-mark" @tap.stop="onEdit(space)" v-if="canEdit(space)">
+                <view class="sp-card-edit-mark" @tap.stop="onEdit(space)"
+                      v-if="checkSpaceCreator(space.userId)">
                   <text class="sp-card-enter-text">编辑</text>
                 </view>
                 <view class="sp-card-enter" @tap.stop="onEnterSpace(space)">
@@ -115,12 +116,7 @@
         <!-- ============================================================
              3. 新建自定义工作空间引导条
              ============================================================ -->
-        <button v-if="spaceList.length > 0" class="sp-create-bar" @tap="onCreate">
-          <view class="sp-create-bar-inner">
-            <SvgIcon icon="release" width="1.15em" class="sp-create-bar-icon"/>
-            <text class="sp-create-bar-text">新建自定义工作空间</text>
-          </view>
-        </button>
+        <PrimaryLightButton v-if="spaceList.length > 0" class="sp-create-bar" text="新建自定义工作空间" icon="release" width="1.15em" @tap="onCreate"/>
       </view>
     </main>
 
@@ -151,8 +147,9 @@ import SvgIcon from '@/components/SvgIcon.vue'
 import {mySpaceInfo} from '@/api/picture/space'
 import {formatSize, initCover} from '@/utils/common'
 import {toast} from '@/utils/toast'
-import {checkPermiSingle, checkUser} from '@/utils/permission'
+import {checkSpaceCreator, checkSpaceEditor, ensureSpacePermsLoaded} from '@/utils/permission'
 import BackToTop from "@/components/BackToTop.vue";
+import PrimaryLightButton from "@/components/button/PrimaryLightButton.vue";
 
 defineOptions({
   name: "PictureSpace",
@@ -167,11 +164,6 @@ const spaceList = ref([])
 const loading = ref(false)
 // 是否已经成功拉过至少一次 —— 决定再次进入时是显示骨架还是直接展示旧数据
 const loaded = ref(false)
-
-// userId 匹配 + 后端给了 picture:space:update 才显示修改入口
-const canEdit = (space) =>
-    !!space && checkUser(space.userId ?? "") && checkPermiSingle("picture:space:update")
-
 
 // 描述为空时回退空串(让卡片副标题自然不显示),跟 web 端 defaultDesc 语义一致
 const defaultDesc = (space) => space?.spaceDesc || ''
@@ -263,8 +255,9 @@ const fetchSpaceList = async () => {
   }
 }
 
-onMounted(() => {
-  fetchSpaceList()
+onMounted(async () => {
+  await fetchSpaceList()
+  await ensureSpacePermsLoaded()
 })
 
 // tab 页每次露出都同步一次列表
@@ -273,9 +266,15 @@ onShow(() => {
 })
 
 // ===================== 进入图库 =====================
+// 独立页面承载空间详情 + 文件夹管理
+const SPACE_FOLDER_URL = '/pages/picture/space/spaceFolder'
+
 const onEnterSpace = (space) => {
-  // TODO: spaceFolder(图库页)还没落地
-  toast(`正在进入「${space.spaceName}」资产空间...`)
+  if (!space?.spaceId) {
+    toast('空间信息不完整')
+    return
+  }
+  uni.navigateTo({url: `${SPACE_FOLDER_URL}?spaceId=${space.spaceId}`})
 }
 
 // ===================== 创建 / 修改 =====================
@@ -756,20 +755,4 @@ button {
   }
 }
 
-.sp-create-bar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sp-create-bar-icon {
-  margin-right: 12rpx;
-  color: $app-primary;
-}
-
-.sp-create-bar-text {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: $app-primary;
-}
 </style>

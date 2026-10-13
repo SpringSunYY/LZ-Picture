@@ -35,10 +35,18 @@ export interface PreferencesState {
   }
 }
 
+export interface SpaceState {
+  /** 当前用户所有空间权限标识列表 */
+  perms: string[]
+  /** 是否已加载过 */
+  permsLoaded: boolean
+}
+
 export interface RootState {
   user: UserState
   dict: DictState
   preferences: PreferencesState
+  space: SpaceState
 }
 
 export type UserModule = Module<UserState, RootState>

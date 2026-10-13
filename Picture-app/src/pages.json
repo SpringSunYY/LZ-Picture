@@ -78,6 +78,12 @@
       "path": "pages/picture/space/space",
       "type": "page"
     },
+    // #ifdef MP-WEIXIN
+    {
+      "path": "pages/user/user/edit",
+      "type": "page"
+    },
+    // #endif
     // #ifdef H5
     {
       "path": "pages/user/user/edit",
@@ -87,10 +93,13 @@
       }
     },
     // #endif
-    // #ifdef MP-WEIXIN
+    // #ifdef H5
     {
-      "path": "pages/user/user/edit",
-      "type": "page"
+      "path": "pages/picture/space/spaceFolder",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "图片空间"
+      }
     }
     // #endif
   ],
