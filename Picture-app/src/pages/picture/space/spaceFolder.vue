@@ -138,6 +138,20 @@
           </view>
         </view>
       </view>
+
+      <!-- ============================================================
+           5. 当前文件夹下的图片(按日期分组的瀑布流)
+           组件内部自带"空间图片"标题 + 主题色斜杠 + 分页/刷新
+           父组件只需监听 clickPicture 与调用 refreshData()
+           ============================================================ -->
+      <view class="space-pictures">
+        <DateHorizontalFallLayout
+            ref="datePictureRef"
+            :space-id="spaceId"
+            :current-parent-id="currentParentId"
+            @click-picture="onPictureClick"
+        />
+      </view>
     </main>
 
     <!-- ============================================================
@@ -222,7 +236,9 @@ import {checkSpaceCreator, checkSpaceEditor, ensureSpacePermsLoaded} from '@/uti
 import {formatSize} from '@/utils/common'
 import type {Space} from '@/types/picture/space.d.ts'
 import type {SpaceFolderInfo, SpaceFolderInfoQuery, SpaceFolderInfoVo} from '@/types/picture/spaceFolder'
-import PrimaryLightButton from "@/components/button/PrimaryLightButton.vue";
+import PrimaryLightButton from '@/components/button/PrimaryLightButton.vue'
+import DateHorizontalFallLayout from '@/components/DateHorizontalFallLayout.vue'
+import type {MyPictureInfoVo} from '@/types/picture/picture.d'
 
 defineOptions({
   name: "PictureSpaceFolder",
@@ -341,6 +357,25 @@ const onEnterFolder = (folder: SpaceFolderInfoVo) => {
   })
   currentParentId.value = folder.folderId
   fetchFolderList()
+}
+
+// ===================== 空间图片(DateHorizontalFallLayout) =====================
+/**
+ * 日期分组瀑布流组件引用 —— 组件内部自带数据加载/分页/刷新
+ * 父组件只需要在以下场景主动调用 refreshData():
+ *   - 新建/删除文件夹后
+ *   - 上传完图片后
+ *   - 其他可能影响当前文件夹图片列表的操作后
+ */
+const datePictureRef = ref<InstanceType<typeof DateHorizontalFallLayout> | null>(null)
+
+/**
+ * 点击图片:由父组件决定如何跳转(uni-app 没有 detail 页时,可在此处做 preview 或 toast)
+ */
+const onPictureClick = (item: MyPictureInfoVo) => {
+  console.log('[spaceFolder] 点击图片:', item)
+  // 暂未配置详情页,这里只给个轻提示
+  toast(`图片: ${item.name}`)
 }
 
 // ===================== 新建/编辑文件夹弹窗 =====================
@@ -521,6 +556,8 @@ onShow(() => {
   if (spaceId.value) {
     loadSpaceInfo()
     fetchFolderList()
+    // 同步刷新图片瀑布流 —— 父组件只需调用,具体加载逻辑由组件自己处理
+    datePictureRef.value?.refreshData()
   }
 })
 </script>
@@ -730,6 +767,11 @@ button {
   font-weight: 600;
   color: $on-surface;
   letter-spacing: -0.3rpx;
+}
+
+/* ========== 空间图片区(DateHorizontalFallLayout) ========== */
+.space-pictures {
+  margin-top: 8rpx;
 }
 
 .space-folders-add {

@@ -1,83 +1,283 @@
 import request from '@/utils/request'
+import {
+    MyPictureInfoVo,
+    PictureAiUpload, PictureDetailInfoAiVo,
+    PictureDetailInfoVo,
+    PictureInfo, PictureInfoAiDetailRecommendVo, PictureInfoAiQuery, PictureInfoAiVo,
+    PictureInfoHotRequest, PictureInfoQuery,
+    PictureInfoRecommendRequest, PictureInfoSearchRecommendVo,
+    PictureInfoSearchSuggestionVo, PictureInfoTableVo,
+    PictureInfoUpdate, PictureInfoUpdateName, PictureInfoVo, PictureRecommendRequest,
+    PictureUrlUpload, UserRecommendPictureInfoVo
+} from "@/types/picture/picture";
+import {API} from "@/types/common";
 
-export interface PageQuery {
-  pageNum?: number
-  pageSize?: number
-  [key: string]: unknown
-}
 
-export interface PageResult<T> {
-  total: number
-  rows: T[]
-  code?: number
-  msg?: string
+/**
+ * 新增图片信息
+ * @param data
+ */
+export function addPictureInfo(data: PictureInfo): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/picture/pictureInfo',
+        method: 'post',
+        data: data,
+    })
 }
 
 /**
- * 查询图片信息列表（推荐）
+ * 新增图片信息 图片搜索url
+ * @param data
  */
-export function getPictureInfoRecommend(params: PageQuery): Promise<unknown> {
-  return request({
-    url: '/picture/pictureInfo/recommend',
-    params,
-  })
+export function addPictureInfoUrl(data: PictureUrlUpload): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/picture/pictureInfo/upload/url',
+        method: 'post',
+        data: data,
+    })
 }
 
 /**
- * 查询生成记录列表
+ * 新增图片根据AI
  */
-export function listGenerateLogInfo(params: PageQuery): Promise<unknown> {
-  return request({
-    url: '/picture/generateLogInfo/list',
-    method: 'get',
-    params,
-  })
+export function addPictureInfoByAi(data: PictureAiUpload): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/picture/pictureInfo/upload/ai',
+        method: 'post',
+        data: data,
+    })
 }
 
 /**
- * 删除生成记录
+ * 修改图片信息
+ * @param data
  */
-export function deleteGenerateLogInfo(logId: string | number): Promise<unknown> {
-  return request({
-    url: '/picture/generateLogInfo/' + logId,
-    method: 'delete',
-  })
-}
-
-export interface GeneratePayload {
-  promptId?: string | number
-  modelId?: string | number
-  params?: Record<string, unknown>
-  [key: string]: unknown
+export function updatePictureInfo(
+    data: PictureInfoUpdate,
+): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/update',
+        method: 'put',
+        data: data,
+    })
 }
 
 /**
- * 生成图片
+ * 查询图片信息列表
+ * @param params
  */
-export function generate(data: GeneratePayload): Promise<unknown> {
-  return request({
-    url: '/picture/ai/generate',
-    method: 'post',
-    data,
-  })
+export function listPictureInfo(
+    params: PictureRecommendRequest | PictureInfoQuery,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/list',
+        params: params,
+    })
 }
 
 /**
- * 查询生成任务状态
+ * 查询图片
+ * @param params
  */
-export function queryTask(logId: string | number): Promise<unknown> {
-  return request({
-    url: '/picture/generateLogInfo/' + logId,
-    method: 'get',
-  })
+export function queryPictureInfo(
+    params: PictureInfoQuery,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/query',
+        params: params,
+    })
+}
+
+/**
+ * 查询图片-ai
+ * @param params
+ */
+export function queryAiPictureInfo(
+    params: PictureInfoQuery,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/query/ai',
+        params: params,
+    })
+}
+
+/**
+ * 查询我的图片信息列表
+ * @param params
+ */
+export function listMyPictureInfo(
+    params: PictureInfoQuery,
+): Promise<API.ResponseInfo<MyPictureInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/list/my',
+        params: params,
+    })
 }
 
 /**
  * 查询我的AI图片详情
  */
-export function listAiPictureInfo(params: PageQuery): Promise<unknown> {
-  return request({
-    url: '/picture/pictureInfo/list/ai',
-    params,
-  })
+export function listAiPictureInfo(
+    params: PictureInfoAiQuery,
+): Promise<API.ResponseInfo<PictureInfoAiVo>> {
+    return request({
+        url: '/picture/pictureInfo/list/ai',
+        params: params,
+    })
 }
+
+/**
+ * 删除图片信息
+ * @param data
+ */
+export function deletePictureInfo(data: PictureInfo): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/picture/pictureInfo',
+        method: 'delete',
+        data: data,
+    })
+}
+
+/**
+ * 获取图片信息
+ * @param pictureId
+ */
+export function getPictureDetailInfo(
+    pictureId: string,
+): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/' + pictureId,
+        method: 'get',
+    })
+}
+
+/**
+ * 获取图片信息-ai
+ * @param pictureId
+ */
+export function getPictureDetailInfoByAi(
+    pictureId: string,
+): Promise<API.ResponseInfo<PictureDetailInfoAiVo>> {
+    return request({
+        url: '/picture/pictureInfo/ai/' + pictureId,
+        method: 'get',
+    })
+}
+
+/**
+ * 获取我的图片信息
+ * @param pictureId
+ */
+export function getMyPictureDetailInfo(
+    pictureId: string,
+): Promise<API.ResponseInfo<PictureDetailInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/my/' + pictureId,
+        method: 'get',
+    })
+}
+
+/**
+ * 获取图片信息搜索建议
+ */
+export function getSearchRecommend(
+    uploadType: string,
+): Promise<API.ResponseInfo<PictureInfoSearchRecommendVo>> {
+    return request({
+        url: '/picture/pictureInfo/search/recommend',
+        method: 'get',
+        params: {
+            uploadType: uploadType,
+        },
+    })
+}
+
+/**
+ *  获取图片信息搜索建议
+ * @param name 名字
+ * @param uploadType 上传类型
+ */
+export function getSearchSuggest(
+    name: string,
+    uploadType: string,
+): Promise<API.ResponseInfo<PictureInfoSearchSuggestionVo>> {
+    return request({
+        url: '/picture/pictureInfo/search/suggestion',
+        method: 'get',
+        params: {
+            name: name,
+            uploadType: uploadType,
+        },
+    })
+}
+
+//图片详情的推荐
+export function getPictureInfoDetailRecommend(
+    params: PictureInfoRecommendRequest,
+): Promise<API.ResponseInfo<PictureInfoVo>> {
+    return request({
+        url: '/picture/pictureInfo/detail/recommend',
+        method: 'get',
+        params: params,
+    })
+}
+
+//图片详情的推荐-ai
+export function getPictureInfoDetailRecommendByAi(
+    params: PictureInfoRecommendRequest,
+): Promise<API.ResponseInfo<PictureInfoAiDetailRecommendVo>> {
+    return request({
+        url: '/picture/pictureInfo/detail/recommend/ai',
+        method: 'get',
+        params: params,
+    })
+}
+
+//我的图片表格
+export function listMyTable(
+    params: PictureInfoQuery,
+): Promise<API.ResponseInfo<PictureInfoTableVo>> {
+    return request({
+        url: '/picture/pictureInfo/list/my/table',
+        method: 'get',
+        params: params,
+    })
+} //我的图片表格
+export function listMyTeamTable(
+    params: PictureInfoQuery,
+): Promise<API.ResponseInfo<PictureInfoTableVo>> {
+    return request({
+        url: '/picture/pictureInfo/list/my/space/table',
+        method: 'get',
+        params: params,
+    })
+}
+
+//修改图片名字
+export function updatePictureName(data: PictureInfoUpdateName): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/picture/pictureInfo/update/name',
+        method: 'put',
+        data: data,
+    })
+}
+
+//删除图片
+export function deletePictureByPictureIds(pictureIds: string[]): Promise<API.ResponseInfo<number>> {
+    return request({
+        url: '/picture/pictureInfo/' + pictureIds,
+        method: 'delete',
+    })
+}
+
+//热门图片
+export function getHotPictureInfoList(
+    params: PictureInfoHotRequest,
+): Promise<API.ResponseInfo<PictureInfoVo[]>> {
+    return request({
+        url: '/picture/pictureInfo/hot',
+        method: 'get',
+        params: params,
+    })
+}
+

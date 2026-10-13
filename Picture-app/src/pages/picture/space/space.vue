@@ -117,6 +117,14 @@
              3. 新建自定义工作空间引导条
              ============================================================ -->
         <PrimaryLightButton v-if="spaceList.length > 0" class="sp-create-bar" text="新建自定义工作空间" icon="release" width="1.15em" @tap="onCreate"/>
+
+        <!-- ============================================================
+             4. 空间图片瀑布流(按日期分组 + 主题色标题斜杠)
+             不传任何参数 —— 组件内部会自动用"我的空间"列表里的第一个空间
+             ============================================================ -->
+        <view v-if="spaceList.length > 0" class="sp-pictures">
+          <DateHorizontalFallLayout/>
+        </view>
       </view>
     </main>
 
@@ -142,6 +150,7 @@ import {onPageScroll, onShow} from '@dcloudio/uni-app'
 import {useStore} from 'vuex'
 import AppTabbar from '@/components/AppTabbar.vue'
 import CloudStorageBar from '@/components/CloudStorageBar.vue'
+import DateHorizontalFallLayout from '@/components/DateHorizontalFallLayout.vue'
 import DictTag from '@/components/DictTag.vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import {mySpaceInfo} from '@/api/picture/space'
@@ -753,6 +762,13 @@ button {
     transform: scale(0.99);
     background-color: $surface-low;
   }
+}
+
+/* ============================================================
+   4. 空间图片瀑布流容器 —— 与空间卡片区保持视觉一致
+   ============================================================ */
+.sp-pictures {
+  margin-top: 32rpx;
 }
 
 </style>

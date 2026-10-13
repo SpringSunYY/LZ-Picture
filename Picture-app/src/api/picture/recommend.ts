@@ -1,0 +1,23 @@
+import type { API } from '@/types/common'
+import  request  from '@/utils/request'
+import type { PictureRecommendRequest, UserRecommendPictureInfoVo } from '@/types/picture/picture'
+
+export function getPictureInfoRecommend(
+  params: PictureRecommendRequest,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/recommend',
+    method: 'get',
+    params: params,
+  })
+}
+
+export function getPictureInfoRecommendByAi(
+  params: PictureRecommendRequest,
+): Promise<API.ResponseInfo<UserRecommendPictureInfoVo>> {
+  return request({
+    url: '/picture/pictureInfo/recommend/ai',
+    method: 'get',
+    params: params,
+  })
+}
